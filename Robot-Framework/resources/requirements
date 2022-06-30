@@ -1,0 +1,5 @@
+PyP100==0.0.19
+pyserial==3.5
+robotframework-seriallibrary==0.4.2
+robotframework-sshlibrary==3.8.0
+robotframework==5.0.1
