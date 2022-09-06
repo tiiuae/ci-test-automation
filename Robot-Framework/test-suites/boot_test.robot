@@ -5,11 +5,11 @@ Library             BuiltIn
 Library             String
 Library             SerialLibrary    encoding=ascii
 Library             ../lib/TapoP100/tapo_p100.py
-Test Setup         Open Serial Port
-Test Teardown      Delete All Ports
+Test Setup          Open Serial Port
+Test Teardown       Delete All Ports
 
 *** Variables ***
-${IP_ADDRESS}       172.18.8.106
+${IP_ADDRESS}       172.18.16.31
 ${USER_NAME}        ville-pekka.juntunen@unikie.com
 ${PASSWORD}         tester01
 ${Data}             lsvm
