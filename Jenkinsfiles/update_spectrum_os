@@ -3,7 +3,7 @@
 buildResults = [:]
 
 pipeline {
-    agent { label 'NotInUse' }
+    agent { label 'tc-agent02' }
     stages {
         stage('Change USB HUB host to PC') {
             steps {
