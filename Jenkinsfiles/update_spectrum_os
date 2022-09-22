@@ -24,9 +24,8 @@ pipeline {
         }
         stage('Write Spectrum OS image to USB disk') {
             steps {
-              dir('/var/lib/jenkins/workspace/SpectrumOS TestBuild NUC/'){
-                  sh 'ls -la'
-                  sh 'sudo dd if=result of=/dev/sdb bs=1M status=progress conv=fsync'
+              dir('/home/tc-agent02/Jenkins-agent/workspace/NixCopyTest/'){
+                sh 'sudo dd if=i4s7b4gabs21d01fdwxxz9lhfgmsdrw8-spectrum-installer of=/dev/sdb bs=1M status=progress conv=fsync'
                }
             }
         }

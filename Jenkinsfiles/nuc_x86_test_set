@@ -1,0 +1,40 @@
+#!groovy
+
+buildResults = [:]
+
+jobName  = 'Spectrum_OS/Testing/nuc_x86_test_run'
+
+bootSuite = 'boot_test.robot'
+netvmSuite = 'netvm_test.robot'
+
+pipeline {
+    agent { label 'tc-agent02' }
+    stages {
+        stage('Boot NUC') {
+            steps {
+            	script{
+                build = build(
+                    job: "${jobName}",
+                    parameters: [
+                      [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${bootSuite}"],
+                      [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "Boot test"]
+                    ]
+                )
+               }
+            }
+        }
+        stage('NetVM test') {
+            steps {
+              script{
+                build = build(
+                    job: "${jobName}",
+                    parameters: [
+                      [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${netvmSuite}"],
+                      [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "NETVM test"]
+                    ]
+                )
+               }
+            }
+        }
+    }
+}
