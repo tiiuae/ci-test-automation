@@ -26,7 +26,7 @@ Verify USB Serial Port Connection
 Boot NUC with WiFi Plug And Verify Boot
     Log To Console    Turn plug OFF
     Turn Plug Off    ${IP_ADDRESS}    ${USER_NAME}    ${PASSWORD}
-    FOR    ${i}    IN RANGE    20
+    FOR    ${i}    IN RANGE    50
         Write Data    ${Data}${\n}
         ${output} =    Read Until    terminator=${TARGET_READ}
         ${status} =    Run Keyword And Return Status    Should contain    ${output}    ${TARGET_READ}
@@ -36,7 +36,7 @@ Boot NUC with WiFi Plug And Verify Boot
 
     Log To Console    Turn plug ON
     Turn Plug On    ${IP_ADDRESS}    ${USER_NAME}    ${PASSWORD}
-    FOR    ${i}    IN RANGE    100
+    FOR    ${i}    IN RANGE    200
         Write Data    ${Data}${\n}
         ${output} =    Read Until    terminator=${TARGET_READ}
         ${status} =    Run Keyword And Return Status    Should contain    ${output}    ${TARGET_READ}
