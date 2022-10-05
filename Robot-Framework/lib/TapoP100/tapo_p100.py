@@ -17,3 +17,12 @@ def turn_plug_off(ip_address, username, password ):
 	p100.login() #Sends credentials to the plug and creates AES Key and IV for further methods
 
 	p100.turnOff() #Sends the turn off request
+	
+def get_plug_info(ip_address, username, password ):
+	p100 = PyP100.P100(ip_address, username, password) #Creating a P100 plug object
+
+	p100.handshake() #Creates the cookies required for further methods
+
+	p100.login() #Sends credentials to the plug and creates AES Key and IV for further methods
+
+	p100.getDeviceInfo() #Returns dict with all the device info

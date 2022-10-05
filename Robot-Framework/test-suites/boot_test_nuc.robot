@@ -22,29 +22,27 @@ Verify USB Serial Port Connection
     Write Data    ${Data}${\n}
     ${output} =    Read Until    terminator=${TARGET_READ}
     Should contain    ${output}    ${TARGET_READ}
-    Log To Console    Console: ${output}
 
 Boot NUC with WiFi Plug And Verify Boot
+    Log To Console    Turn plug OFF
     Turn Plug Off    ${IP_ADDRESS}    ${USER_NAME}    ${PASSWORD}
     FOR    ${i}    IN RANGE    20
         Write Data    ${Data}${\n}
         ${output} =    Read Until    terminator=${TARGET_READ}
         ${status} =    Run Keyword And Return Status    Should contain    ${output}    ${TARGET_READ}
-        Log To Console    ${status}
-        IF    ${status}==False   BREAK    
+        IF    ${status}==False   BREAK
     END
-    IF    ${status}     Device did not shut down!
+    IF    ${status}    FAIL    Device did not shut down!
 
-    Log To Console    Turn ON
+    Log To Console    Turn plug ON
     Turn Plug On    ${IP_ADDRESS}    ${USER_NAME}    ${PASSWORD}
     FOR    ${i}    IN RANGE    100
         Write Data    ${Data}${\n}
         ${output} =    Read Until    terminator=${TARGET_READ}
         ${status} =    Run Keyword And Return Status    Should contain    ${output}    ${TARGET_READ}
-        Log To Console    ${status}
         IF    ${status}    BREAK
     END
-    IF    ${status}==False     Device did not boot up!
+    IF    ${status}==False    FAIL    Device did not boot up!
 
 *** Keywords ***
 Open Serial Port
