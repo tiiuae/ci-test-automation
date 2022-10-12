@@ -24,6 +24,7 @@ Verify USB Serial Port Connection
     Should contain    ${output}    ${TARGET_READ}
 
 Boot NUC with WiFi Plug And Verify Boot
+    [Tags]    bootNUC
     Log To Console    Turn plug OFF
     Turn Plug Off    ${IP_ADDRESS}    ${USER_NAME}    ${PASSWORD}
     FOR    ${i}    IN RANGE    50
