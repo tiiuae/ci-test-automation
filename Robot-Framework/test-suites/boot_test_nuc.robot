@@ -10,8 +10,8 @@ Test Teardown       Delete All Ports
 
 *** Variables ***
 ${IP_ADDRESS}       172.18.16.31
-${USER_NAME}        ville-pekka.juntunen@unikie.com
-${PASSWORD}         tester01
+${USERNAME}         UserName
+${PASSWORD}         Password
 ${Data}             lsvm
 ${TARGET_READ}      appvm-catgirl
 

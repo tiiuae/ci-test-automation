@@ -9,11 +9,10 @@ resultsPath = '/home/tc-agent02/Jenkins-agent/workspace/results'
 imagePath = '"/files/nix/store/'+"${params.IMAGE}"+'"'
 bootSuite = 'boot_test_nuc.robot'
 batSuite = 'bat_test_nuc.robot'
+vulnixURL = '"https://vedenemo.dev/webify/'+"${params.BUILD_ID}"+'/vulnix_'+"${params.BUILD_ID}"+'.html"'
 
 def appendFile(String fileName, String line) {
     def current = ""
-    echo "${fileName}"
-    echo "${line}"
     if (fileExists(fileName)) {
         current = readFile fileName
     }
@@ -54,13 +53,22 @@ pipeline {
              }
           }
       }
+      stage('Create NUC buildID results directory') {
+          steps {
+            script{
+                sh "mkdir ${resultsPath}/${params.BUILD_ID}/${nucDirectory}"
+                // Copy initial index.html file to buildID directory
+                sh "cp ${resultsPath}/index.html ${resultsPath}/${params.BUILD_ID}/"
+                appendFile("${resultsPath}/${params.BUILD_ID}/index.html", "Here are the results of Hydra Spectrum-project's spectrum-nuc project:<BR>")
+                appendFile("${resultsPath}/${params.BUILD_ID}/index.html", "Vulnix vulnerability test <A href=${vulnixURL}>result</A>.<BR>")
+             }
+          }
+      }
       stage('Boot NUC') {
           steps {
           	script{
               // Make directory for test results
-              sh "mkdir -p ${resultsPath}/${params.BUILD_ID}/${nucDirectory}/boot"
-              // Copy initial index.html file to buildID directory
-              sh "cp ${resultsPath}/index.html ${resultsPath}/${params.BUILD_ID}/"
+              sh "mkdir ${resultsPath}/${params.BUILD_ID}/${nucDirectory}/boot"
               build = build(
                   job: "${bootJob}", propagate: false,
                   parameters: [
@@ -73,7 +81,7 @@ pipeline {
               sh "cp ~/Jenkins-agent/workspace/${bootJob}/Robot-Framework/test-suites/report.html ${resultsPath}/${params.BUILD_ID}/${nucDirectory}/boot/report.html"
               sh "cp ~/Jenkins-agent/workspace/${bootJob}/Robot-Framework/test-suites/log.html ${resultsPath}/${params.BUILD_ID}/${nucDirectory}/boot/log.html"
               // add link to index.html
-              appendFile("${resultsPath}/${params.BUILD_ID}/index.html", "NUC Robot Framework boot test results: <A href='nuc_test_results/boot/report.html'>report</A>, <A href='nuc_test_results/boot/log.html'>log</A><BR>")
+              appendFile("${resultsPath}/${params.BUILD_ID}/index.html", "Robot Framework boot test results: <A href='nuc_test_results/boot/report.html'>report</A>, <A href='nuc_test_results/boot/log.html'>log</A>.<BR>")
               if(build.result == "SUCCESS") {
                 buildResults."boot" = "SUCCESS"
                 echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
@@ -106,7 +114,7 @@ pipeline {
               sh "cp ~/Jenkins-agent/workspace/${batJob}/Robot-Framework/test-suites/report.html ${resultsPath}/${params.BUILD_ID}/${nucDirectory}/bat/report.html"
               sh "cp ~/Jenkins-agent/workspace/${batJob}/Robot-Framework/test-suites/log.html ${resultsPath}/${params.BUILD_ID}/${nucDirectory}/bat/log.html"
               // add link to index.html
-              appendFile("${resultsPath}/${params.BUILD_ID}/index.html", "NUC Robot Framework bat test results: <A href='nuc_test_results/bat/report.html'>report</A>, <A href='nuc_test_results/bat/log.html'>log</A><BR>")
+              appendFile("${resultsPath}/${params.BUILD_ID}/index.html", "Robot Framework bat test results: <A href='nuc_test_results/bat/report.html'>report</A>, <A href='nuc_test_results/bat/log.html'>log</A>.<BR>")
               if(build.result == "SUCCESS") {
                 buildResults."bat" = "SUCCESS"
                 echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
@@ -121,7 +129,7 @@ pipeline {
       stage('Bublish reports') {
           steps {
              dir("${resultsPath}/"){
-                appendFile("${params.BUILD_ID}/index.html", "You can download tested image here: <A href=${imagePath}>${params.IMAGE}</A")
+                appendFile("${params.BUILD_ID}/index.html", "You can download tested image here: <A href=${imagePath}>${params.IMAGE}</A>.")
                 appendFile("${params.BUILD_ID}/index.html", '</P>\n</BODY>\n</HTML>')
                 sh "scp -s -i ~/.ssh/sftpid_ed25519 -r ${params.BUILD_ID} sftp_user@95.175.105.23:/upload"
                 sh "ssh -i ~/.ssh/trigid_ed25519 script_trigger@95.175.105.23 ${params.BUILD_ID}"
@@ -130,3 +138,4 @@ pipeline {
       }
     }
 }
+
