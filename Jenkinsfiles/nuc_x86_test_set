@@ -1,0 +1,112 @@
+#!groovy
+// SPDX-License-Identifier: MIT
+// SPDX-FileCopyrightText: 2022 Ville-Pekka Juntunen <ville-pekka.juntunen@unikie.com>
+// SPDX-FileCopyrightText: 2022 Unikie
+
+import groovy.json.*
+
+buildResults = [:]
+
+bootJob  = 'Spectrum_OS/Testing/NUC_x86/nuc_x86_boot_test'
+batJob   = 'Spectrum_OS/Testing/NUC_x86/nuc_x86_bat_test'
+nucDirectory = 'nuc_test_results'
+bootSuite = 'boot_test_nuc.robot'
+batSuite = 'bat_test_nuc.robot'
+
+pipeline {
+    agent { label 'tc-agent02' }
+    stages {
+      stage('Change USB HUB host to PC') {
+          steps {
+            script{
+                // Set pipeline description
+                currentBuild.description = "Hydra BuildID: ${params.buildID}"
+                sh './AcronameHubCLI -u 0'
+                // wait that USB drive is mounted
+                sh 'sleep 10'
+                def output = sh (
+                    script: 'lsblk -o model,name |grep PSSD',
+                    returnStdout: true
+                    ).trim()
+                def list = output.split(' ')
+                // Take last element which is the target USB device
+                USBDEVICE = list[-1]
+                println("USB device: ${USBDEVICE}")
+             }
+          }
+      }
+      stage('Write Spectrum OS image to USB disk') {
+          steps {
+            dir('/home/tc-agent02/Jenkins-agent/workspace/images/'){
+              println("${params.image}")
+              sh "sudo dd if=${params.image} of=/dev/sdb bs=1M status=progress conv=fsync"
+             }
+          }
+      }
+      stage('Change USB HUB host back to test device') {
+          steps {
+            script{
+                sh './AcronameHubCLI -u 1'
+             }
+          }
+      }
+      stage('Boot NUC') {
+          steps {
+          	script{
+              // Make directory for test results
+              sh "mkdir -p ${params.resultsPath}/${params.buildID}/${nucDirectory}/boot"
+              build = build(
+                  job: "${bootJob}", propagate: false,
+                  parameters: [
+                    [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${bootSuite}"],
+                    [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "Hydra buildID: ${params.buildID}"]
+                  ]
+              )
+
+              // copy report and log
+              sh "cp ~/Jenkins-agent/workspace/${bootJob}/Robot-Framework/test-suites/report.html ${params.resultsPath}/${params.buildID}/${nucDirectory}/boot/report.html"
+              sh "cp ~/Jenkins-agent/workspace/${bootJob}/Robot-Framework/test-suites/log.html ${params.resultsPath}/${params.buildID}/${nucDirectory}/boot/log.html"
+              if(build.result == "SUCCESS") {
+                buildResults."boot" = "SUCCESS"
+                echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
+              } else {
+                catchError(stageResult: 'FAILURE', buildResult: 'FAILURE'){
+                              error("Boot build failed")
+                }
+              }
+            }
+          }
+      }
+      stage('BAT tests') {
+          when {
+            expression {
+                buildResults.boot == 'SUCCESS'
+            }
+          }
+          steps {
+            script{
+              // Make directory for test results
+              sh "mkdir ${params.resultsPath}/${params.buildID}/${nucDirectory}/bat"
+              build = build(
+                  job: "${batJob}", propagate: false,
+                  parameters: [
+                    [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${batSuite}"],
+                    [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "Hydra buildID: ${params.buildID}"]
+                  ]
+              )
+              // copy report and log
+              sh "cp ~/Jenkins-agent/workspace/${batJob}/Robot-Framework/test-suites/report.html ${params.resultsPath}/${params.buildID}/${nucDirectory}/bat/report.html"
+              sh "cp ~/Jenkins-agent/workspace/${batJob}/Robot-Framework/test-suites/log.html ${params.resultsPath}/${params.buildID}/${nucDirectory}/bat/log.html"
+              if(build.result == "SUCCESS") {
+                buildResults."bat" = "SUCCESS"
+                echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
+              } else {
+                catchError(stageResult: 'FAILURE', buildResult: 'FAILURE'){
+                              error("BAT build failed")
+                }
+              }
+             }
+          }
+      }
+    }
+}
