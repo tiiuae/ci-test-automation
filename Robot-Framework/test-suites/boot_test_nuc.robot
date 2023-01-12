@@ -9,7 +9,7 @@ Test Setup          Open Serial Port
 Test Teardown       Delete All Ports
 
 *** Variables ***
-${IP_ADDRESS}       172.18.16.31
+${IP_ADDRESS}       172.18.16.30
 ${USERNAME}         UserName
 ${PASSWORD}         Password
 ${Data}             lsvm

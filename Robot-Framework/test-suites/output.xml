@@ -1,625 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<robot generator="Robot 5.0.1 (Python 3.10.4 on linux)" generated="20221005 10:49:31.085" rpa="false" schemaversion="3">
-<suite id="s1" name="Bat Test Nuc" source="/home/tc-agent02/Repositories/spectrum-test-automation/Robot-Framework/test-suites/bat_test_nuc.robot">
+<robot generator="Robot 5.0.1 (Python 3.10.4 on linux)" generated="20230111 15:54:33.258" rpa="false" schemaversion="3">
+<suite id="s1" name="Boot Test Nvidian" source="/home/tc-agent02/Repositories/spectrum-test-automation/Robot-Framework/test-suites/boot_test_nvidian.robot">
+<test id="s1-t1" name="Boot NUC with WiFi Plug And Verify Boot" line="28">
 <kw name="Open Serial Port" type="SETUP">
 <kw name="Add Port" library="SerialLibrary">
-<arg>/dev/ttyUSB0</arg>
+<arg>/dev/ttyACM0</arg>
 <arg>baudrate=115200</arg>
 <arg>bytesize=8</arg>
 <arg>parity=N</arg>
 <arg>stopbits=1</arg>
 <doc>Adds new port with specified locator.</doc>
-<status status="PASS" starttime="20221005 10:49:31.100" endtime="20221005 10:49:31.103"/>
+<status status="PASS" starttime="20230111 15:54:33.352" endtime="20230111 15:54:33.353"/>
 </kw>
-<status status="PASS" starttime="20221005 10:49:31.100" endtime="20221005 10:49:31.103"/>
+<status status="PASS" starttime="20230111 15:54:33.352" endtime="20230111 15:54:33.353"/>
 </kw>
-<test id="s1-t1" name="Verify List Of VM's And Start And Verify Running State Of NETVM" line="21">
-<kw name="Write Data" library="SerialLibrary">
-<arg>lsvm${\n}</arg>
-<doc>Writes data into the port.</doc>
-<status status="PASS" starttime="20221005 10:49:31.104" endtime="20221005 10:49:31.104"/>
+<kw name="Turn Plug Off" library="tapo_p100">
+<arg>${IP_ADDRESS}</arg>
+<arg>${USER_NAME}</arg>
+<arg>${PASSWORD}</arg>
+<status status="PASS" starttime="20230111 15:54:33.353" endtime="20230111 15:54:33.540"/>
 </kw>
-<kw name="Read Until" library="SerialLibrary">
-<var>${output}</var>
-<arg>END</arg>
-<doc>Read until a termination sequence is found, size exceeded or timeout.</doc>
-<msg timestamp="20221005 10:49:32.139" level="INFO">${output} = lsvm
-NAME                	STATUS
-appvm-lynx          	[31mSTOPPED[0m
-netvm               	[31mSTOPPED[0m
-appvm-catgirl       	[31mSTOPPED[0m
-~ # </msg>
-<status status="PASS" starttime="20221005 10:49:31.104" endtime="20221005 10:49:32.139"/>
+<kw name="Delete All Ports" library="SerialLibrary">
+<doc>Deletes all ports maintained in the library instance.</doc>
+<status status="PASS" starttime="20230111 15:54:33.541" endtime="20230111 15:54:33.578"/>
 </kw>
-<kw name="Should Contain" library="BuiltIn">
-<arg>${output}</arg>
-<arg>${NET_VM}</arg>
-<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<status status="PASS" starttime="20221005 10:49:32.139" endtime="20221005 10:49:32.140"/>
+<kw name="Sleep" library="BuiltIn">
+<arg>2s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<msg timestamp="20230111 15:54:35.580" level="INFO">Slept 2 seconds</msg>
+<status status="PASS" starttime="20230111 15:54:33.579" endtime="20230111 15:54:35.580"/>
 </kw>
-<kw name="Should Contain" library="BuiltIn">
-<arg>${output}</arg>
-<arg>${APP_VM}</arg>
-<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<status status="PASS" starttime="20221005 10:49:32.141" endtime="20221005 10:49:32.141"/>
+<kw name="Log To Console" library="BuiltIn">
+<arg>Turn ON</arg>
+<doc>Logs the given message to the console.</doc>
+<status status="PASS" starttime="20230111 15:54:35.581" endtime="20230111 15:54:35.581"/>
 </kw>
-<kw name="Start VM">
-<arg>${NET_VM}</arg>
-<doc>Start vm and verify running state of given ${target_vm}.</doc>
-<kw name="Write Data" library="SerialLibrary">
-<arg>vm-start ${target_vm}${\n}</arg>
-<doc>Writes data into the port.</doc>
-<status status="PASS" starttime="20221005 10:49:32.144" endtime="20221005 10:49:32.145"/>
+<kw name="Turn Plug On" library="tapo_p100">
+<arg>${IP_ADDRESS}</arg>
+<arg>${USER_NAME}</arg>
+<arg>${PASSWORD}</arg>
+<status status="PASS" starttime="20230111 15:54:35.581" endtime="20230111 15:54:35.770"/>
 </kw>
 <kw name="Sleep" library="BuiltIn">
 <arg>10s</arg>
 <doc>Pauses the test executed for the given time.</doc>
-<msg timestamp="20221005 10:49:42.145" level="INFO">Slept 10 seconds</msg>
-<status status="PASS" starttime="20221005 10:49:32.145" endtime="20221005 10:49:42.146"/>
+<msg timestamp="20230111 15:54:45.772" level="INFO">Slept 10 seconds</msg>
+<status status="PASS" starttime="20230111 15:54:35.771" endtime="20230111 15:54:45.772"/>
 </kw>
-<kw name="Write Data" library="SerialLibrary">
-<arg>lsvm | grep ${target_vm}${\n}</arg>
-<doc>Writes data into the port.</doc>
-<status status="PASS" starttime="20221005 10:49:42.146" endtime="20221005 10:49:42.147"/>
+<kw name="Open Serial Port">
+<kw name="Add Port" library="SerialLibrary">
+<arg>/dev/ttyACM0</arg>
+<arg>baudrate=115200</arg>
+<arg>bytesize=8</arg>
+<arg>parity=N</arg>
+<arg>stopbits=1</arg>
+<doc>Adds new port with specified locator.</doc>
+<msg timestamp="20230111 15:54:45.775" level="FAIL">SerialException: [Errno 16] could not open port /dev/ttyACM0: [Errno 16] Device or resource busy: '/dev/ttyACM0'</msg>
+<status status="FAIL" starttime="20230111 15:54:45.773" endtime="20230111 15:54:45.786"/>
+</kw>
+<status status="FAIL" starttime="20230111 15:54:45.772" endtime="20230111 15:54:45.787"/>
+</kw>
+<kw name="Set Port Parameter" library="SerialLibrary">
+<arg>timeout</arg>
+<arg>120</arg>
+<doc>Sets port parameter.</doc>
+<status status="NOT RUN" starttime="20230111 15:54:45.788" endtime="20230111 15:54:45.788"/>
 </kw>
 <kw name="Read Until" library="SerialLibrary">
 <var>${output}</var>
-<arg>END</arg>
+<arg>Run /init as init process</arg>
 <doc>Read until a termination sequence is found, size exceeded or timeout.</doc>
-<msg timestamp="20221005 10:49:43.184" level="INFO">${output} = vm-start netvm
-~ # lsvm | grep netvm
-netvm               	[32;1mRUNNING[0m
-~ # </msg>
-<status status="PASS" starttime="20221005 10:49:42.147" endtime="20221005 10:49:43.184"/>
-</kw>
-<kw name="Should Contain" library="BuiltIn">
-<arg>${output}</arg>
-<arg>RUNNING</arg>
-<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<status status="PASS" starttime="20221005 10:49:43.184" endtime="20221005 10:49:43.185"/>
+<status status="NOT RUN" starttime="20230111 15:54:45.788" endtime="20230111 15:54:45.788"/>
 </kw>
 <kw name="Log To Console" library="BuiltIn">
 <arg>${output}</arg>
 <doc>Logs the given message to the console.</doc>
-<status status="PASS" starttime="20221005 10:49:43.185" endtime="20221005 10:49:43.186"/>
+<status status="NOT RUN" starttime="20230111 15:54:45.789" endtime="20230111 15:54:45.789"/>
 </kw>
-<status status="PASS" starttime="20221005 10:49:32.143" endtime="20221005 10:49:43.186"/>
+<kw name="Set Port Parameter" library="SerialLibrary">
+<arg>timeout</arg>
+<arg>5</arg>
+<doc>Sets port parameter.</doc>
+<status status="NOT RUN" starttime="20230111 15:54:45.789" endtime="20230111 15:54:45.789"/>
 </kw>
-<tag>netvm_boot_test</tag>
-<tag>startNetvm</tag>
-<status status="PASS" starttime="20221005 10:49:31.103" endtime="20221005 10:49:43.186"/>
-</test>
-<test id="s1-t2" name="Ping Test For NETVM And Stop NETVM" line="29">
-<kw name="Get VM Device Path">
-<var>${device}</var>
-<arg>${NET_VM_COMMAND}</arg>
-<doc>Get device path for connecting that vm's console</doc>
-<kw name="Write Data" library="SerialLibrary">
-<arg>${command}</arg>
-<doc>Writes data into the port.</doc>
-<status status="PASS" starttime="20221005 10:49:43.189" endtime="20221005 10:49:43.189"/>
-</kw>
-<kw name="Read Until" library="SerialLibrary">
-<var>${output}</var>
-<arg>END</arg>
-<doc>Read until a termination sequence is found, size exceeded or timeout.</doc>
-<msg timestamp="20221005 10:49:44.249" level="INFO">${output} = ch-remote --api-socket /run/service/ext-netvm/env/cloud-hypervisor.sock info
- | jq -r .config.console.file
-/dev/pts/0
-~ # </msg>
-<status status="PASS" starttime="20221005 10:49:43.189" endtime="20221005 10:49:44.249"/>
-</kw>
-<kw name="Split String" library="String">
-<var>@{strings}</var>
-<arg>${output}</arg>
-<doc>Splits the ``string`` using ``separator`` as a delimiter string.</doc>
-<msg timestamp="20221005 10:49:44.250" level="INFO">@{strings} = [ ch-remote | --api-socket | /run/service/ext-netvm/env/cloud-hypervisor.sock | info | | | jq | -r | .config.console.file | /dev/pts/0 | ~ | # ]</msg>
-<status status="PASS" starttime="20221005 10:49:44.249" endtime="20221005 10:49:44.250"/>
-</kw>
-<for flavor="IN">
-<var>${string}</var>
-<value>@{strings}</value>
-<iter>
-<var name="${string}">ch-remote</var>
-<kw name="Run Keyword And Return Status" library="BuiltIn">
-<var>${status}</var>
-<arg>Should Contain</arg>
-<arg>${string}</arg>
-<arg>/dev/</arg>
-<doc>Runs the given keyword with given arguments and returns the status as a Boolean value.</doc>
-<kw name="Should Contain" library="BuiltIn">
-<arg>${string}</arg>
-<arg>/dev/</arg>
-<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<msg timestamp="20221005 10:49:44.253" level="FAIL">'ch-remote' does not contain '/dev/'</msg>
-<status status="FAIL" starttime="20221005 10:49:44.251" endtime="20221005 10:49:44.253"/>
-</kw>
-<msg timestamp="20221005 10:49:44.254" level="INFO">${status} = False</msg>
-<status status="PASS" starttime="20221005 10:49:44.251" endtime="20221005 10:49:44.254"/>
-</kw>
-<if>
-<branch type="IF" condition="${status}">
-<kw name="Set Variable" library="BuiltIn">
-<var>${device}</var>
-<arg>${string}</arg>
-<doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="NOT RUN" starttime="20221005 10:49:44.254" endtime="20221005 10:49:44.254"/>
-</kw>
-<break>
-<status status="NOT RUN" starttime="20221005 10:49:44.254" endtime="20221005 10:49:44.254"/>
-</break>
-<status status="NOT RUN" starttime="20221005 10:49:44.254" endtime="20221005 10:49:44.255"/>
-</branch>
-<status status="PASS" starttime="20221005 10:49:44.254" endtime="20221005 10:49:44.255"/>
-</if>
-<status status="PASS" starttime="20221005 10:49:44.251" endtime="20221005 10:49:44.255"/>
-</iter>
-<iter>
-<var name="${string}">--api-socket</var>
-<kw name="Run Keyword And Return Status" library="BuiltIn">
-<var>${status}</var>
-<arg>Should Contain</arg>
-<arg>${string}</arg>
-<arg>/dev/</arg>
-<doc>Runs the given keyword with given arguments and returns the status as a Boolean value.</doc>
-<kw name="Should Contain" library="BuiltIn">
-<arg>${string}</arg>
-<arg>/dev/</arg>
-<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<msg timestamp="20221005 10:49:44.256" level="FAIL">'--api-socket' does not contain '/dev/'</msg>
-<status status="FAIL" starttime="20221005 10:49:44.255" endtime="20221005 10:49:44.257"/>
-</kw>
-<msg timestamp="20221005 10:49:44.257" level="INFO">${status} = False</msg>
-<status status="PASS" starttime="20221005 10:49:44.255" endtime="20221005 10:49:44.257"/>
-</kw>
-<if>
-<branch type="IF" condition="${status}">
-<kw name="Set Variable" library="BuiltIn">
-<var>${device}</var>
-<arg>${string}</arg>
-<doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="NOT RUN" starttime="20221005 10:49:44.257" endtime="20221005 10:49:44.257"/>
-</kw>
-<break>
-<status status="NOT RUN" starttime="20221005 10:49:44.257" endtime="20221005 10:49:44.258"/>
-</break>
-<status status="NOT RUN" starttime="20221005 10:49:44.257" endtime="20221005 10:49:44.258"/>
-</branch>
-<status status="PASS" starttime="20221005 10:49:44.257" endtime="20221005 10:49:44.258"/>
-</if>
-<status status="PASS" starttime="20221005 10:49:44.255" endtime="20221005 10:49:44.258"/>
-</iter>
-<iter>
-<var name="${string}">/run/service/ext-netvm/env/cloud-hypervisor.sock</var>
-<kw name="Run Keyword And Return Status" library="BuiltIn">
-<var>${status}</var>
-<arg>Should Contain</arg>
-<arg>${string}</arg>
-<arg>/dev/</arg>
-<doc>Runs the given keyword with given arguments and returns the status as a Boolean value.</doc>
-<kw name="Should Contain" library="BuiltIn">
-<arg>${string}</arg>
-<arg>/dev/</arg>
-<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<msg timestamp="20221005 10:49:44.260" level="FAIL">'/run/service/ext-netvm/env/cloud-hypervisor.sock' does not contain '/dev/'</msg>
-<status status="FAIL" starttime="20221005 10:49:44.259" endtime="20221005 10:49:44.260"/>
-</kw>
-<msg timestamp="20221005 10:49:44.260" level="INFO">${status} = False</msg>
-<status status="PASS" starttime="20221005 10:49:44.258" endtime="20221005 10:49:44.260"/>
-</kw>
-<if>
-<branch type="IF" condition="${status}">
-<kw name="Set Variable" library="BuiltIn">
-<var>${device}</var>
-<arg>${string}</arg>
-<doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="NOT RUN" starttime="20221005 10:49:44.261" endtime="20221005 10:49:44.261"/>
-</kw>
-<break>
-<status status="NOT RUN" starttime="20221005 10:49:44.261" endtime="20221005 10:49:44.261"/>
-</break>
-<status status="NOT RUN" starttime="20221005 10:49:44.260" endtime="20221005 10:49:44.261"/>
-</branch>
-<status status="PASS" starttime="20221005 10:49:44.260" endtime="20221005 10:49:44.261"/>
-</if>
-<status status="PASS" starttime="20221005 10:49:44.258" endtime="20221005 10:49:44.261"/>
-</iter>
-<iter>
-<var name="${string}">info</var>
-<kw name="Run Keyword And Return Status" library="BuiltIn">
-<var>${status}</var>
-<arg>Should Contain</arg>
-<arg>${string}</arg>
-<arg>/dev/</arg>
-<doc>Runs the given keyword with given arguments and returns the status as a Boolean value.</doc>
-<kw name="Should Contain" library="BuiltIn">
-<arg>${string}</arg>
-<arg>/dev/</arg>
-<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<msg timestamp="20221005 10:49:44.263" level="FAIL">'info' does not contain '/dev/'</msg>
-<status status="FAIL" starttime="20221005 10:49:44.262" endtime="20221005 10:49:44.263"/>
-</kw>
-<msg timestamp="20221005 10:49:44.263" level="INFO">${status} = False</msg>
-<status status="PASS" starttime="20221005 10:49:44.261" endtime="20221005 10:49:44.263"/>
-</kw>
-<if>
-<branch type="IF" condition="${status}">
-<kw name="Set Variable" library="BuiltIn">
-<var>${device}</var>
-<arg>${string}</arg>
-<doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="NOT RUN" starttime="20221005 10:49:44.263" endtime="20221005 10:49:44.263"/>
-</kw>
-<break>
-<status status="NOT RUN" starttime="20221005 10:49:44.263" endtime="20221005 10:49:44.263"/>
-</break>
-<status status="NOT RUN" starttime="20221005 10:49:44.263" endtime="20221005 10:49:44.263"/>
-</branch>
-<status status="PASS" starttime="20221005 10:49:44.263" endtime="20221005 10:49:44.264"/>
-</if>
-<status status="PASS" starttime="20221005 10:49:44.261" endtime="20221005 10:49:44.264"/>
-</iter>
-<iter>
-<var name="${string}">|</var>
-<kw name="Run Keyword And Return Status" library="BuiltIn">
-<var>${status}</var>
-<arg>Should Contain</arg>
-<arg>${string}</arg>
-<arg>/dev/</arg>
-<doc>Runs the given keyword with given arguments and returns the status as a Boolean value.</doc>
-<kw name="Should Contain" library="BuiltIn">
-<arg>${string}</arg>
-<arg>/dev/</arg>
-<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<msg timestamp="20221005 10:49:44.265" level="FAIL">'|' does not contain '/dev/'</msg>
-<status status="FAIL" starttime="20221005 10:49:44.264" endtime="20221005 10:49:44.265"/>
-</kw>
-<msg timestamp="20221005 10:49:44.265" level="INFO">${status} = False</msg>
-<status status="PASS" starttime="20221005 10:49:44.264" endtime="20221005 10:49:44.265"/>
-</kw>
-<if>
-<branch type="IF" condition="${status}">
-<kw name="Set Variable" library="BuiltIn">
-<var>${device}</var>
-<arg>${string}</arg>
-<doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="NOT RUN" starttime="20221005 10:49:44.266" endtime="20221005 10:49:44.266"/>
-</kw>
-<break>
-<status status="NOT RUN" starttime="20221005 10:49:44.266" endtime="20221005 10:49:44.266"/>
-</break>
-<status status="NOT RUN" starttime="20221005 10:49:44.265" endtime="20221005 10:49:44.266"/>
-</branch>
-<status status="PASS" starttime="20221005 10:49:44.265" endtime="20221005 10:49:44.266"/>
-</if>
-<status status="PASS" starttime="20221005 10:49:44.264" endtime="20221005 10:49:44.266"/>
-</iter>
-<iter>
-<var name="${string}">jq</var>
-<kw name="Run Keyword And Return Status" library="BuiltIn">
-<var>${status}</var>
-<arg>Should Contain</arg>
-<arg>${string}</arg>
-<arg>/dev/</arg>
-<doc>Runs the given keyword with given arguments and returns the status as a Boolean value.</doc>
-<kw name="Should Contain" library="BuiltIn">
-<arg>${string}</arg>
-<arg>/dev/</arg>
-<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<msg timestamp="20221005 10:49:44.267" level="FAIL">'jq' does not contain '/dev/'</msg>
-<status status="FAIL" starttime="20221005 10:49:44.266" endtime="20221005 10:49:44.267"/>
-</kw>
-<msg timestamp="20221005 10:49:44.267" level="INFO">${status} = False</msg>
-<status status="PASS" starttime="20221005 10:49:44.266" endtime="20221005 10:49:44.267"/>
-</kw>
-<if>
-<branch type="IF" condition="${status}">
-<kw name="Set Variable" library="BuiltIn">
-<var>${device}</var>
-<arg>${string}</arg>
-<doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="NOT RUN" starttime="20221005 10:49:44.267" endtime="20221005 10:49:44.267"/>
-</kw>
-<break>
-<status status="NOT RUN" starttime="20221005 10:49:44.267" endtime="20221005 10:49:44.267"/>
-</break>
-<status status="NOT RUN" starttime="20221005 10:49:44.267" endtime="20221005 10:49:44.267"/>
-</branch>
-<status status="PASS" starttime="20221005 10:49:44.267" endtime="20221005 10:49:44.267"/>
-</if>
-<status status="PASS" starttime="20221005 10:49:44.266" endtime="20221005 10:49:44.267"/>
-</iter>
-<iter>
-<var name="${string}">-r</var>
-<kw name="Run Keyword And Return Status" library="BuiltIn">
-<var>${status}</var>
-<arg>Should Contain</arg>
-<arg>${string}</arg>
-<arg>/dev/</arg>
-<doc>Runs the given keyword with given arguments and returns the status as a Boolean value.</doc>
-<kw name="Should Contain" library="BuiltIn">
-<arg>${string}</arg>
-<arg>/dev/</arg>
-<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<msg timestamp="20221005 10:49:44.268" level="FAIL">'-r' does not contain '/dev/'</msg>
-<status status="FAIL" starttime="20221005 10:49:44.268" endtime="20221005 10:49:44.268"/>
-</kw>
-<msg timestamp="20221005 10:49:44.268" level="INFO">${status} = False</msg>
-<status status="PASS" starttime="20221005 10:49:44.267" endtime="20221005 10:49:44.268"/>
-</kw>
-<if>
-<branch type="IF" condition="${status}">
-<kw name="Set Variable" library="BuiltIn">
-<var>${device}</var>
-<arg>${string}</arg>
-<doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="NOT RUN" starttime="20221005 10:49:44.268" endtime="20221005 10:49:44.268"/>
-</kw>
-<break>
-<status status="NOT RUN" starttime="20221005 10:49:44.268" endtime="20221005 10:49:44.268"/>
-</break>
-<status status="NOT RUN" starttime="20221005 10:49:44.268" endtime="20221005 10:49:44.269"/>
-</branch>
-<status status="PASS" starttime="20221005 10:49:44.268" endtime="20221005 10:49:44.269"/>
-</if>
-<status status="PASS" starttime="20221005 10:49:44.267" endtime="20221005 10:49:44.269"/>
-</iter>
-<iter>
-<var name="${string}">.config.console.file</var>
-<kw name="Run Keyword And Return Status" library="BuiltIn">
-<var>${status}</var>
-<arg>Should Contain</arg>
-<arg>${string}</arg>
-<arg>/dev/</arg>
-<doc>Runs the given keyword with given arguments and returns the status as a Boolean value.</doc>
-<kw name="Should Contain" library="BuiltIn">
-<arg>${string}</arg>
-<arg>/dev/</arg>
-<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<msg timestamp="20221005 10:49:44.269" level="FAIL">'.config.console.file' does not contain '/dev/'</msg>
-<status status="FAIL" starttime="20221005 10:49:44.269" endtime="20221005 10:49:44.269"/>
-</kw>
-<msg timestamp="20221005 10:49:44.269" level="INFO">${status} = False</msg>
-<status status="PASS" starttime="20221005 10:49:44.269" endtime="20221005 10:49:44.269"/>
-</kw>
-<if>
-<branch type="IF" condition="${status}">
-<kw name="Set Variable" library="BuiltIn">
-<var>${device}</var>
-<arg>${string}</arg>
-<doc>Returns the given values which can then be assigned to a variables.</doc>
-<status status="NOT RUN" starttime="20221005 10:49:44.270" endtime="20221005 10:49:44.270"/>
-</kw>
-<break>
-<status status="NOT RUN" starttime="20221005 10:49:44.270" endtime="20221005 10:49:44.270"/>
-</break>
-<status status="NOT RUN" starttime="20221005 10:49:44.270" endtime="20221005 10:49:44.270"/>
-</branch>
-<status status="PASS" starttime="20221005 10:49:44.269" endtime="20221005 10:49:44.270"/>
-</if>
-<status status="PASS" starttime="20221005 10:49:44.269" endtime="20221005 10:49:44.270"/>
-</iter>
-<iter>
-<var name="${string}">/dev/pts/0</var>
-<kw name="Run Keyword And Return Status" library="BuiltIn">
-<var>${status}</var>
-<arg>Should Contain</arg>
-<arg>${string}</arg>
-<arg>/dev/</arg>
-<doc>Runs the given keyword with given arguments and returns the status as a Boolean value.</doc>
-<kw name="Should Contain" library="BuiltIn">
-<arg>${string}</arg>
-<arg>/dev/</arg>
-<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<status status="PASS" starttime="20221005 10:49:44.270" endtime="20221005 10:49:44.270"/>
-</kw>
-<msg timestamp="20221005 10:49:44.270" level="INFO">${status} = True</msg>
-<status status="PASS" starttime="20221005 10:49:44.270" endtime="20221005 10:49:44.270"/>
-</kw>
-<if>
-<branch type="IF" condition="${status}">
-<kw name="Set Variable" library="BuiltIn">
-<var>${device}</var>
-<arg>${string}</arg>
-<doc>Returns the given values which can then be assigned to a variables.</doc>
-<msg timestamp="20221005 10:49:44.270" level="INFO">${device} = /dev/pts/0</msg>
-<status status="PASS" starttime="20221005 10:49:44.270" endtime="20221005 10:49:44.270"/>
-</kw>
-<break>
-<status status="PASS" starttime="20221005 10:49:44.270" endtime="20221005 10:49:44.270"/>
-</break>
-<status status="PASS" starttime="20221005 10:49:44.270" endtime="20221005 10:49:44.270"/>
-</branch>
-<status status="PASS" starttime="20221005 10:49:44.270" endtime="20221005 10:49:44.271"/>
-</if>
-<status status="PASS" starttime="20221005 10:49:44.270" endtime="20221005 10:49:44.271"/>
-</iter>
-<status status="PASS" starttime="20221005 10:49:44.250" endtime="20221005 10:49:44.271"/>
-</for>
-<if>
-<branch type="IF" condition="${status} == False">
-<kw name="Fail" library="BuiltIn">
-<arg>Device path was not found!</arg>
-<doc>Fails the test with the given message and optionally alters its tags.</doc>
-<status status="NOT RUN" starttime="20221005 10:49:44.271" endtime="20221005 10:49:44.271"/>
-</kw>
-<status status="NOT RUN" starttime="20221005 10:49:44.271" endtime="20221005 10:49:44.271"/>
-</branch>
-<status status="PASS" starttime="20221005 10:49:44.271" endtime="20221005 10:49:44.271"/>
-</if>
-<msg timestamp="20221005 10:49:44.271" level="INFO">${device} = /dev/pts/0</msg>
-<status status="PASS" starttime="20221005 10:49:43.188" endtime="20221005 10:49:44.271"/>
-</kw>
-<kw name="Write Data" library="SerialLibrary">
-<arg>echo "ping -c 4 ${IP_ADDRESS}" &gt; ${device}${\n}</arg>
-<doc>Writes data into the port.</doc>
-<status status="PASS" starttime="20221005 10:49:44.271" endtime="20221005 10:49:44.271"/>
-</kw>
-<kw name="Sleep" library="BuiltIn">
-<arg>10s</arg>
-<doc>Pauses the test executed for the given time.</doc>
-<msg timestamp="20221005 10:49:54.272" level="INFO">Slept 10 seconds</msg>
-<status status="PASS" starttime="20221005 10:49:44.271" endtime="20221005 10:49:54.272"/>
-</kw>
-<kw name="Write Data" library="SerialLibrary">
-<arg>head ${device}${\n}</arg>
-<doc>Writes data into the port.</doc>
-<status status="PASS" starttime="20221005 10:49:54.272" endtime="20221005 10:49:54.273"/>
-</kw>
-<kw name="Read Until" library="SerialLibrary">
-<var>${output}</var>
-<arg>END</arg>
-<doc>Read until a termination sequence is found, size exceeded or timeout.</doc>
-<msg timestamp="20221005 10:49:55.339" level="INFO">${output} = echo "ping -c 4 172.18.16.32" &gt; /dev/pts/0
-~ # head /dev/pts/0
-[H[J~ # ping -c 4 172.18.16.32
-PING 172.18.16.32 (172.18.16.32): 56 data bytes
-64 bytes from 172.18.16.32: seq=0 ttl=64 time=0.45...</msg>
-<status status="PASS" starttime="20221005 10:49:54.274" endtime="20221005 10:49:55.339"/>
-</kw>
-<kw name="Should Contain" library="BuiltIn">
-<arg>${output}</arg>
-<arg>ping statistics</arg>
-<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<status status="PASS" starttime="20221005 10:49:55.340" endtime="20221005 10:49:55.340"/>
-</kw>
-<kw name="Stop VM">
-<arg>${NET_VM}</arg>
-<doc>Stop vm and verify stopped state of given ${target_vm}.</doc>
-<kw name="Write Data" library="SerialLibrary">
-<arg>vm-stop ${target_vm}${\n}</arg>
-<doc>Writes data into the port.</doc>
-<status status="PASS" starttime="20221005 10:49:55.343" endtime="20221005 10:49:55.344"/>
-</kw>
-<kw name="Sleep" library="BuiltIn">
-<arg>5s</arg>
-<doc>Pauses the test executed for the given time.</doc>
-<msg timestamp="20221005 10:50:00.345" level="INFO">Slept 5 seconds</msg>
-<status status="PASS" starttime="20221005 10:49:55.344" endtime="20221005 10:50:00.345"/>
-</kw>
-<kw name="Write Data" library="SerialLibrary">
-<arg>lsvm | grep ${target_vm}${\n}</arg>
-<doc>Writes data into the port.</doc>
-<status status="PASS" starttime="20221005 10:50:00.345" endtime="20221005 10:50:00.346"/>
-</kw>
-<kw name="Read Until" library="SerialLibrary">
-<var>${output}</var>
-<arg>END</arg>
-<doc>Read until a termination sequence is found, size exceeded or timeout.</doc>
-<msg timestamp="20221005 10:50:01.376" level="INFO">${output} = vm-stop netvm
-~ # lsvm | grep netvm
-netvm               	[31mSTOPPED[0m
-~ # </msg>
-<status status="PASS" starttime="20221005 10:50:00.346" endtime="20221005 10:50:01.376"/>
-</kw>
-<kw name="Should Contain" library="BuiltIn">
-<arg>${output}</arg>
-<arg>STOPPED</arg>
-<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<status status="PASS" starttime="20221005 10:50:01.377" endtime="20221005 10:50:01.377"/>
-</kw>
-<kw name="Log To Console" library="BuiltIn">
-<arg>${output}</arg>
-<doc>Logs the given message to the console.</doc>
-<status status="PASS" starttime="20221005 10:50:01.377" endtime="20221005 10:50:01.378"/>
-</kw>
-<status status="PASS" starttime="20221005 10:49:55.342" endtime="20221005 10:50:01.378"/>
-</kw>
-<tag>netvm_boot_test</tag>
-<tag>runNetvmPingTest</tag>
-<status status="PASS" starttime="20221005 10:49:43.187" endtime="20221005 10:50:01.379"/>
-</test>
-<test id="s1-t3" name="Start And Verify Running State Of APP-VM Lynx And Verify Also Start Of NETVM" line="39">
-<kw name="Start VM">
-<arg>${APP_VM}</arg>
-<doc>Start vm and verify running state of given ${target_vm}.</doc>
-<kw name="Write Data" library="SerialLibrary">
-<arg>vm-start ${target_vm}${\n}</arg>
-<doc>Writes data into the port.</doc>
-<status status="PASS" starttime="20221005 10:50:01.382" endtime="20221005 10:50:01.382"/>
-</kw>
-<kw name="Sleep" library="BuiltIn">
-<arg>10s</arg>
-<doc>Pauses the test executed for the given time.</doc>
-<msg timestamp="20221005 10:50:11.383" level="INFO">Slept 10 seconds</msg>
-<status status="PASS" starttime="20221005 10:50:01.382" endtime="20221005 10:50:11.383"/>
-</kw>
-<kw name="Write Data" library="SerialLibrary">
-<arg>lsvm | grep ${target_vm}${\n}</arg>
-<doc>Writes data into the port.</doc>
-<status status="PASS" starttime="20221005 10:50:11.383" endtime="20221005 10:50:11.384"/>
-</kw>
-<kw name="Read Until" library="SerialLibrary">
-<var>${output}</var>
-<arg>END</arg>
-<doc>Read until a termination sequence is found, size exceeded or timeout.</doc>
-<msg timestamp="20221005 10:50:12.423" level="INFO">${output} = vm-start appvm-lynx
-~ # lsvm | grep appvm-lynx
-appvm-lynx          	[32;1mRUNNING[0m
-~ # </msg>
-<status status="PASS" starttime="20221005 10:50:11.385" endtime="20221005 10:50:12.423"/>
-</kw>
-<kw name="Should Contain" library="BuiltIn">
-<arg>${output}</arg>
-<arg>RUNNING</arg>
-<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<status status="PASS" starttime="20221005 10:50:12.423" endtime="20221005 10:50:12.424"/>
-</kw>
-<kw name="Log To Console" library="BuiltIn">
-<arg>${output}</arg>
-<doc>Logs the given message to the console.</doc>
-<status status="PASS" starttime="20221005 10:50:12.424" endtime="20221005 10:50:12.425"/>
-</kw>
-<status status="PASS" starttime="20221005 10:50:01.382" endtime="20221005 10:50:12.425"/>
-</kw>
-<kw name="Write Data" library="SerialLibrary">
-<arg>lsvm | grep ${NET_VM}${\n}</arg>
-<doc>Writes data into the port.</doc>
-<status status="PASS" starttime="20221005 10:50:12.425" endtime="20221005 10:50:12.426"/>
-</kw>
-<kw name="Read Until" library="SerialLibrary">
-<var>${output}</var>
-<arg>END</arg>
-<doc>Read until a termination sequence is found, size exceeded or timeout.</doc>
-<msg timestamp="20221005 10:50:13.462" level="INFO">${output} = lsvm | grep netvm
-netvm               	[32;1mRUNNING[0m
-~ # </msg>
-<status status="PASS" starttime="20221005 10:50:12.426" endtime="20221005 10:50:13.462"/>
-</kw>
-<kw name="Should Contain" library="BuiltIn">
-<arg>${output}</arg>
-<arg>RUNNING</arg>
-<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
-<status status="PASS" starttime="20221005 10:50:13.462" endtime="20221005 10:50:13.463"/>
-</kw>
-<kw name="Log To Console" library="BuiltIn">
-<arg>${output}</arg>
-<doc>Logs the given message to the console.</doc>
-<status status="PASS" starttime="20221005 10:50:13.463" endtime="20221005 10:50:13.464"/>
-</kw>
-<tag>netvm_boot_test</tag>
-<tag>startAppVmLynx</tag>
-<status status="PASS" starttime="20221005 10:50:01.379" endtime="20221005 10:50:13.464"/>
-</test>
 <kw name="Delete All Ports" library="SerialLibrary" type="TEARDOWN">
 <doc>Deletes all ports maintained in the library instance.</doc>
-<status status="PASS" starttime="20221005 10:50:13.466" endtime="20221005 10:50:13.467"/>
+<status status="PASS" starttime="20230111 15:54:45.790" endtime="20230111 15:54:45.791"/>
 </kw>
-<doc>Test for starting netvm and run some basic ping test through virtio-console device.</doc>
-<status status="PASS" starttime="20221005 10:49:31.085" endtime="20221005 10:50:13.467"/>
+<tag>tc_boot_test_imx8</tag>
+<status status="FAIL" starttime="20230111 15:54:33.352" endtime="20230111 15:54:45.791">SerialException: [Errno 16] could not open port /dev/ttyACM0: [Errno 16] Device or resource busy: '/dev/ttyACM0'</status>
+</test>
+<doc>Testing target device booting up after power brake. Using wi-fi power plug for braking power and USB serial port console to verify Spectrum OS booting up.</doc>
+<status status="FAIL" starttime="20230111 15:54:33.258" endtime="20230111 15:54:45.792"/>
 </suite>
 <statistics>
 <total>
-<stat pass="3" fail="0" skip="0">All Tests</stat>
+<stat pass="0" fail="1" skip="0">All Tests</stat>
 </total>
 <tag>
-<stat pass="3" fail="0" skip="0">netvm_boot_test</stat>
-<stat pass="1" fail="0" skip="0">runNetvmPingTest</stat>
-<stat pass="1" fail="0" skip="0">startAppVmLynx</stat>
-<stat pass="1" fail="0" skip="0">startNetvm</stat>
+<stat pass="0" fail="1" skip="0">tc_boot_test_imx8</stat>
 </tag>
 <suite>
-<stat pass="3" fail="0" skip="0" id="s1" name="Bat Test Nuc">Bat Test Nuc</stat>
+<stat pass="0" fail="1" skip="0" id="s1" name="Boot Test Nvidian">Boot Test Nvidian</stat>
 </suite>
 </statistics>
 <errors>

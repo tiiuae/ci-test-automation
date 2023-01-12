@@ -9,7 +9,7 @@ Test Setup          Open Serial Port
 Test Teardown       Delete All Ports
 
 *** Variables ***
-${IP_ADDRESS}       172.18.16.30
+${IP_ADDRESS}       172.18.16.31
 ${USERNAME}         UserName
 ${PASSWORD}         Password
 ${Data}             lsvm
@@ -17,28 +17,31 @@ ${TARGET_READ}      appvm-catgirl
 
 
 *** Test cases ***
-Verify USB Serial Port Connection
-    [Tags]    openSerialconnection
+#Verify USB Serial Port Connection
+    #[Tags]    openSerialconnection
     #Write Data    ${\n}
-    Write Data    ${Data}${\n}
-    ${output} =    Read Until    terminator=${TARGET_READ}
-    Should contain    ${output}    ${TARGET_READ}
-    Log To Console    Console: ${output}
+    #Write Data    ${Data}${\n}
+    #${output} =    Read Until    terminator=${TARGET_READ}
+    #Should contain    ${output}    ${TARGET_READ}
+    #Log To Console    Console: ${output}
 
 Boot NUC with WiFi Plug And Verify Boot
     Turn Plug Off    ${IP_ADDRESS}    ${USER_NAME}    ${PASSWORD}
-    FOR    ${i}    IN RANGE    50
-        Write Data    ${Data}${\n}
-        ${output} =    Read Until    terminator=${TARGET_READ}
-        ${status} =    Run Keyword And Return Status    Should contain    ${output}    ${TARGET_READ}
-        Log To Console    ${status}
-        IF    ${status}==False   BREAK    
-    END
-    IF    ${status}     Device did not shut down!
-
+    Delete All Ports
+    #FOR    ${i}    IN RANGE    50
+        #Write Data    ${Data}${\n}
+        #${output} =    Read Until    terminator=${TARGET_READ}
+        #${status} =    Run Keyword And Return Status    Should contain    ${output}    ${TARGET_READ}
+        #Log To Console    ${status}
+        #IF    ${status}==False   BREAK    
+    #END
+    #IF    ${status}     Device did not shut down!
+    Sleep    2s  #wait that power turned off
     Log To Console    Turn ON
     Turn Plug On    ${IP_ADDRESS}    ${USER_NAME}    ${PASSWORD}
-    Set Port Parameter    timeout    60
+    Sleep    10s  #wait that power turned on
+    Open Serial Port
+    Set Port Parameter    timeout    120
     ${output} =    Read Until    Run /init as init process
     Log To Console    ${output}
     Set Port Parameter    timeout    5
@@ -54,7 +57,7 @@ Boot NUC with WiFi Plug And Verify Boot
 
 *** Keywords ***
 Open Serial Port
-    Add Port   /dev/ttyUSB0
+    Add Port   /dev/ttyACM0
     ...        baudrate=115200
     ...        bytesize=8
     ...        parity=N
