@@ -1,14 +1,14 @@
 #!groovy
 // SPDX-License-Identifier: MIT
-// SPDX-FileCopyrightText: 2022 Ville-Pekka Juntunen <ville-pekka.juntunen@unikie.com>
-// SPDX-FileCopyrightText: 2022 Unikie
+// SPDX-FileCopyrightText: 2022-2023 Ville-Pekka Juntunen <ville-pekka.juntunen@unikie.com>
+// SPDX-FileCopyrightText: 2022-2023 Unikie
 
 import groovy.json.*
 
 buildResults = [:]
 
-bootJob  = 'Spectrum_OS/Testing/NUC_x86/nuc_x86_boot_test'
-batJob   = 'Spectrum_OS/Testing/NUC_x86/nuc_x86_bat_test'
+bootJob  = 'nixOS/Testing/NUC_x86/nuc_x86_boot_test'
+batJob   = 'nixOS/Testing/NUC_x86/nuc_x86_bat_test'
 nucDirectory = 'nuc_test_results'
 bootSuite = 'boot_test_nuc.robot'
 batSuite = 'bat_test_nuc.robot'
@@ -21,7 +21,7 @@ pipeline {
             script{
                 // Set pipeline description
                 currentBuild.description = "Hydra BuildID: ${params.buildID}"
-                sh './AcronameHubCLI -u 0'
+                sh './AcronameHubCLI -u 0 -s 6B780E17'
                 // wait that USB drive is mounted
                 sh 'sleep 10'
                 def output = sh (
@@ -46,7 +46,7 @@ pipeline {
       stage('Change USB HUB host back to test device') {
           steps {
             script{
-                sh './AcronameHubCLI -u 1'
+                sh './AcronameHubCLI -u 1 -s 6B780E17'
              }
           }
       }
