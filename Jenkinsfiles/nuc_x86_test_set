@@ -38,7 +38,7 @@ pipeline {
       }
       stage('Write Spectrum OS image to USB disk') {
           steps {
-            dir('/home/tc-agent02/Jenkins-agent/workspace/images/'){
+            script {
               println("${params.image}")
               sh "sudo dd if=${params.image} of=/dev/${USBDEVICE} bs=1M status=progress conv=fsync"
              }
