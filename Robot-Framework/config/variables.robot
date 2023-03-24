@@ -14,9 +14,9 @@ Set Device Variables
     ...   Run Keywords
     ...   Set Suite Variable  ${SERIAL_PORT}  /dev/ttyUSB0
     ...   AND   Set Suite Variable  ${DEVICE_IP_ADDRESS}  127.0.0.1   # for future
-#    ...   AND   Set Suite Variable  ${SOCKET_IP_ADDRESS}  172.18.16.30
+    ...   AND   Set Suite Variable  ${SOCKET_IP_ADDRESS}  172.18.16.30
     Run Keyword If  '${device}' == 'ORIN'
     ...   Run Keywords
     ...   Set Suite Variable  ${SERIAL_PORT}  /dev/ttyACM0
     ...   AND   Set Suite Variable  ${DEVICE_IP_ADDRESS}  172.18.8.115   # for future
-#    ...   AND   Set Suite Variable  ${SOCKET_IP_ADDRESS}  172.18.16.31
+    ...   AND   Set Suite Variable  ${SOCKET_IP_ADDRESS}  172.18.16.31

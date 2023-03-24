@@ -62,4 +62,3 @@ Open Serial Port
     ...        bytesize=8
     ...        parity=N
     ...        stopbits=1
-

@@ -5,6 +5,8 @@ Library             BuiltIn
 Library             String
 Library             SerialLibrary    encoding=ascii
 Library             ../lib/TapoP100/tapo_p100.py
+Resource            ../config/variables.robot
+Suite Setup         Set Device Variables   ${DEVICE}
 Test Setup          Open Serial Port
 Test Teardown       Delete All Ports
 
@@ -24,12 +26,12 @@ ${TARGET_OUTPUT4}   @ghaf-host
 *** Test cases ***
 Verify USB Serial Port Connection
     [Tags]    openSerialconnection
-    [Documentation]    Verifies USB connection by chekking systemctl status from target device.
+    [Documentation]    Verifies USB connection by checking systemctl status from target device.
     Verify Systemctl status    5
 
 Boot NUC with WiFi Plug And Verify Boot
     [Tags]    bootNUC
-    [Documentation]
+    [Documentation]    Verifies that device is booting successfully after restart by power
     Log To Console    Turn plug OFF
     Turn Plug Off    ${IP_ADDRESS}    ${PLUG_USERNAME}    ${PLUG_PASSWORD}
     FOR    ${i}    IN RANGE    50
@@ -76,7 +78,7 @@ Log In To Ghaf OS
     Should contain    ${output}    ${TARGET_OUTPUT4}
 
 Open Serial Port
-    Add Port   /dev/ttyUSB0
+    Add Port   ${SERIAL_PORT}
     ...        baudrate=115200
     ...        bytesize=8
     ...        parity=N
