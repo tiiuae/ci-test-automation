@@ -1,0 +1,9 @@
+
+drcontrol 0.14
+sudo apt-get install libftdi1-dev
+
+cd /etc/udev/rules.d
+sudo gedit 10-my-usb.rules
+ATTRS{idProduct}=="[VENDOR_ID]", ATTRS{idVendor}=="[PRODUCT ID]", MODE="666", GROUP="plugdev"
+
+ATTRS{idProduct}=="6001", ATTRS{idVendor}=="0403", MODE="666", GROUP="plugdev"
