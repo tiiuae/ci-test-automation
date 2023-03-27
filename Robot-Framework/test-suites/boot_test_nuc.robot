@@ -11,7 +11,6 @@ Test Setup          Open Serial Port
 Test Teardown       Delete All Ports
 
 *** Variables ***
-${IP_ADDRESS}       172.18.16.30
 ${LOGIN_USERNAME}   UserName
 ${LOGIN_PASSWORD}   Password
 ${PLUG_USERNAME}    UserName
@@ -33,7 +32,7 @@ Boot NUC with WiFi Plug And Verify Boot
     [Tags]    bootNUC
     [Documentation]    Verifies that device is booting successfully after restart by power
     Log To Console    Turn plug OFF
-    Turn Plug Off    ${IP_ADDRESS}    ${PLUG_USERNAME}    ${PLUG_PASSWORD}
+    Turn Plug Off
     FOR    ${i}    IN RANGE    50
         Write Data    ls -la${\n}
         ${output} =    Read Until    terminator=ghaf users
@@ -43,7 +42,7 @@ Boot NUC with WiFi Plug And Verify Boot
     IF    ${status}    FAIL    Device did not shut down!
 
     Log To Console    Turn plug ON
-    Turn Plug On    ${IP_ADDRESS}    ${PLUG_USERNAME}    ${PLUG_PASSWORD}
+    Turn Plug On
     Log In To Ghaf OS
     Verify Systemctl status    50
 
