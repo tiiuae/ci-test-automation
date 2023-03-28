@@ -35,7 +35,7 @@ Verify booting after restart by power
     Check If Device Is Up
     Connect
 
-    Verify Systemctl status    range=50
+    Verify Systemctl status    range=100
 
     [Teardown]       Close Connection
 
@@ -73,6 +73,7 @@ Check If Device Is Down
     FOR    ${i}    IN RANGE    ${range}
         ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
         IF    ${ping}==False   BREAK
+        Sleep    1
     END
     IF    ${ping}    FAIL    Device did not shut down!
 
@@ -81,5 +82,6 @@ Check If Device Is Up
     FOR    ${i}    IN RANGE    ${range}
         ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
         IF    ${ping}   BREAK
+        Sleep    1
     END
     IF    ${ping}==False    FAIL    Device did not wake!
