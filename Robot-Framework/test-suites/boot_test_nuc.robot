@@ -6,7 +6,7 @@ Library             String
 Library             SerialLibrary    encoding=ascii
 Library             ../lib/TapoP100/tapo_p100.py
 Resource            ../config/variables.robot
-Suite Setup         Set Device Variables   ${DEVICE}
+Suite Setup         Set Variables   ${DEVICE}
 Test Setup          Open Serial Port
 Test Teardown       Delete All Ports
 

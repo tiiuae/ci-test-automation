@@ -8,7 +8,7 @@ Library             Process
 Library             ../lib/ssh_client.py
 Library             ../lib/TapoP100/tapo_p100.py
 Resource            ../config/variables.robot
-Suite Setup         Set Device Variables   ${DEVICE}
+Suite Setup         Set Variables   ${DEVICE}
 
 *** Variables ***
 ${target_login_output}   ghaf@ghaf-host
