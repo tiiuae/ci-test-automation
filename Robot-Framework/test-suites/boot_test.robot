@@ -35,7 +35,7 @@ Verify booting after restart by power
     Check If Device Is Up
     Connect
 
-    Verify Systemctl status    range=100
+    Verify Systemctl status
 
     [Teardown]       Close Connection
 
@@ -51,7 +51,7 @@ Connect
     Should Contain    ${output}    ${target_login_output}
 
 Verify Systemctl status
-    [Arguments]    ${range}
+    [Arguments]    ${range}=15
     [Documentation]    Check is systemctl running with given loop ${range}
     FOR    ${i}    IN RANGE    ${range}
         ${output}=    Execute Command    systemctl status
