@@ -58,6 +58,7 @@ Verify Systemctl status
         ${status}=    Get Systemctl Status    ${output}
         ${result} =    Run Keyword And Return Status    Should Be Equal     ${status}    running
         IF    ${result}    BREAK
+        Sleep    1
     END
     Log To Console    Systemctl status is ${status}
     IF    ${result}==False    FAIL    systemctl is not running!
