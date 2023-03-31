@@ -26,7 +26,7 @@ Set Variables
 #    Set Suite Variable  ${PLUG_PASSWORD}   ${config['credentials']['plug']['password']}
 
 Read Config
-    [Arguments]  ${file_path}=Robot-Framework/config/test_config.json
+    [Arguments]  ${file_path}=../config/test_config.json
 
     ${file_data}=    OperatingSystem.Get File    ${file_path}
     ${source_data}=    Evaluate    json.loads('''${file_data}''')    json
