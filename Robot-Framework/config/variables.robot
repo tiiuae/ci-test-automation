@@ -19,11 +19,11 @@ Set Variables
     Set Suite Variable  ${DEVICE_IP_ADDRESS}  ${config['addresses']['${DEVICE}']['device_ip_address']}
     Set Suite Variable  ${SOCKET_IP_ADDRESS}  ${config['addresses']['${DEVICE}']['socket_ip_address']}
 
-    Set Suite Variable  ${LOGIN}   ${config['credentials']['device']['login']}
-    Set Suite Variable  ${PASSWORD}   ${config['credentials']['device']['password']}
+#    Set Suite Variable  ${LOGIN}   ${config['credentials']['device']['login']}
+#    Set Suite Variable  ${PASSWORD}   ${config['credentials']['device']['password']}
 
-    Set Suite Variable  ${PLUG_USERNAME}   ${config['credentials']['plug']['login']}
-    Set Suite Variable  ${PLUG_PASSWORD}   ${config['credentials']['plug']['password']}
+#    Set Suite Variable  ${PLUG_USERNAME}   ${config['credentials']['plug']['login']}
+#    Set Suite Variable  ${PLUG_PASSWORD}   ${config['credentials']['plug']['password']}
 
 Read Config
     [Arguments]  ${file_path}=Robot-Framework/config/test_config.json
