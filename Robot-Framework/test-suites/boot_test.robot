@@ -12,6 +12,8 @@ Suite Setup         Set Variables   ${DEVICE}
 
 *** Variables ***
 ${target_login_output}   ghaf@ghaf-host
+${LOGIN}                 ${EMPTY}
+${PASSWORD}              ${EMPTY}
 
 
 *** Test Cases ***
@@ -61,7 +63,7 @@ Verify Systemctl status
         Sleep    1
     END
     Log To Console    Systemctl status is ${status}
-    IF    ${result}==False    FAIL    systemctl is not running!
+    IF    ${result}==False    FAIL    Systemctl is not running! Status is ${status}
 
 Ping Host
     [Arguments]    ${hostname}
