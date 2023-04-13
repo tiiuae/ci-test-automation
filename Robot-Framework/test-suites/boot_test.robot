@@ -29,11 +29,11 @@ Verify booting after restart by power
     [Documentation]    Restart device by power and verify systemctl status is running
 
     Log To Console    Turn plug OFF
-#    Turn Plug Off
-#    Check If Device Is Down
+    Turn Plug Off
+    Check If Device Is Down
 
     Log To Console    Turn plug ON
-#    Turn Plug On
+    Turn Plug On
     Check If Device Is Up
     Connect
 
