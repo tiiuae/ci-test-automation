@@ -27,11 +27,11 @@ Verify booting after restart by power
     [Tags]    boot  plug
     [Documentation]    Restart device by power and verify systemctl status is running
 
-    Log To Console    Turn plug OFF
+    Log    Turn plug OFF
     Turn Plug Off
     Check If Device Is Down
 
-    Log To Console    Turn plug ON
+    Log    Turn plug ON
     Turn Plug On
     Check If Device Is Up
     Connect
@@ -48,7 +48,7 @@ Connect
 
     Open Connection   ${DEVICE_IP_ADDRESS}
     ${output}=        Login     username=${LOGIN}    password=${PASSWORD}
-    Log To Console    ${output}
+    Log               ${output}
     Should Contain    ${output}    ${target_login_output}
 
 Verify Systemctl status
@@ -61,7 +61,7 @@ Verify Systemctl status
         IF    ${result}    BREAK
         Sleep    1
     END
-    Log To Console    Systemctl status is ${status}
+    Log   Systemctl status is ${status}
     IF    ${result}==False    FAIL    Systemctl is not running! Status is ${status}
 
 Ping Host
