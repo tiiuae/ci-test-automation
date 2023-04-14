@@ -97,6 +97,7 @@ Get IP via Serial
     ${output} =   SerialLibrary.Read Until    terminator=#
     ${ip} =       Get Ip Address  ${output}
     Set Global Variable    ${DEVICE_IP_ADDRESS}    ${ip}
+    Delete All Ports
 
 Open Serial
     Add Port   /dev/ttyUSB0
