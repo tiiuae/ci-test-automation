@@ -93,7 +93,7 @@ Check If Device Is Up
 Get IP via Serial
     [Arguments]    ${port}=/dev/ttyUSB0    ${baudrate}=115200
     Open Serial
-    Write Data    ifconfig enp100s0${\n}
+    Write Data    ifconfig${\n}
     ${output} =   SerialLibrary.Read Until    terminator=#
     ${ip} =       Get Ip Address  ${output}
     Set Global Variable    ${DEVICE_IP_ADDRESS}    ${ip}
