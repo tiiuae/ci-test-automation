@@ -4,9 +4,11 @@ Force Tags          ssh_boot_test
 Library             BuiltIn
 Library             String
 Library             SSHLibrary
+Library             SerialLibrary    encoding=ascii
 Library             Process
 Library             ../lib/ssh_client.py
 Library             ../lib/TapoP100/tapo_p100.py
+Test Setup          Get IP via Serial
 
 *** Variables ***
 ${target_login_output}   ghaf@ghaf-host
@@ -19,7 +21,7 @@ ${DEVICE_IP_ADDRESS}     ${EMPTY}
 Check Systemctl Status
     [Documentation]     Check if systemctl status is running
     [Tags]    boot
-    [Setup]          Connect
+    Connect
     Verify Systemctl status     range=5
     [Teardown]       Close Connection
 
@@ -87,3 +89,19 @@ Check If Device Is Up
         Sleep    1
     END
     IF    ${ping}==False    FAIL    Device did not wake!
+
+Get IP via Serial
+    [Arguments]    ${port}=/dev/ttyUSB0    ${baudrate}=115200
+    Open Serial
+    Write Data    ifconfig enp100s0${\n}
+    ${output} =   SerialLibrary.Read Until    terminator=#
+    ${ip} =       Get Ip Address  ${output}
+    Set Global Variable    ${DEVICE_IP_ADDRESS}    ${ip}
+
+Open Serial
+    Add Port   /dev/ttyUSB0
+    ...        baudrate=115200
+    ...        bytesize=8
+    ...        parity=N
+    ...        stopbits=1
+
