@@ -9,7 +9,7 @@ def get_systemctl_status(output):
         raise Exception("Couldn't parse systemctl status")
 
 def get_ip_address(output):
-    match = re.search(r'inet\s+(\d+\.\d+\.\d+\.\d+)', output)
+    match = re.search(r'^enp.*\n\s+inet\s+(\d+\.\d+\.\d+\.\d+)', output)
 
     if match:
         return match.group(1)
