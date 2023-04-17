@@ -31,7 +31,7 @@ Boot NUC with WiFi Plug And Verify Boot
     [Tags]    bootNUC
     [Documentation]
     Log To Console    Turn plug OFF
-    Turn Plug Off    ${IP_ADDRESS}    ${PLUG_USERNAME}    ${PLUG_PASSWORD}
+    Turn Plug Off
     FOR    ${i}    IN RANGE    50
         Write Data    ls -la${\n}
         ${output} =    Read Until    terminator=ghaf users
@@ -41,7 +41,7 @@ Boot NUC with WiFi Plug And Verify Boot
     IF    ${status}    FAIL    Device did not shut down!
 
     Log To Console    Turn plug ON
-    Turn Plug On    ${IP_ADDRESS}    ${PLUG_USERNAME}    ${PLUG_PASSWORD}
+    Turn Plug On
     Log In To Ghaf OS
     Verify Systemctl status    50
 
