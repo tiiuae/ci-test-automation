@@ -8,7 +8,6 @@ Library             SerialLibrary    encoding=ascii
 Library             Process
 Library             ../lib/ssh_client.py
 Library             ../lib/TapoP100/tapo_p100.py
-Test Setup          Get IP via Serial
 
 *** Variables ***
 ${target_login_output}   ghaf@ghaf-host
