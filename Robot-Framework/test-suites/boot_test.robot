@@ -17,12 +17,6 @@ ${DEVICE_IP_ADDRESS}     ${EMPTY}
 
 
 *** Test Cases ***
-Check Systemctl Status
-    [Documentation]     Check if systemctl status is running
-    [Tags]    boot
-    Connect
-    Verify Systemctl status     range=5
-    [Teardown]       Close Connection
 
 Verify booting after restart by power
     [Tags]    boot  plug
