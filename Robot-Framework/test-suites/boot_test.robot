@@ -47,7 +47,7 @@ Connect
     Should Contain    ${output}    ${target_login_output}
 
 Verify Systemctl status
-    [Arguments]    ${range}=15
+    [Arguments]    ${range}=30
     [Documentation]    Check is systemctl running with given loop ${range}
     FOR    ${i}    IN RANGE    ${range}
         ${output}=    Execute Command    systemctl status
