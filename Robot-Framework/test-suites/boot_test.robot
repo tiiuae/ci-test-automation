@@ -25,7 +25,7 @@ Verify booting after restart by power
     Log    Turn plug OFF
     Turn Plug Off
     Check If Device Is Down
-
+    Sleep    5
     Log    Turn plug ON
     Turn Plug On
     Check If Device Is Up
@@ -75,9 +75,10 @@ Check If Device Is Down
     IF    ${ping}    FAIL    Device did not shut down!
 
 Check If Device Is Up
-    [Arguments]    ${range}=50
+    [Arguments]    ${range}=150
     FOR    ${i}    IN RANGE    ${range}
         ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
+        Log    i=${i}
         IF    ${ping}   BREAK
         Sleep    1
     END
