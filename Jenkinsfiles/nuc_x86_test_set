@@ -11,7 +11,7 @@ buildResults = [:]
 bootJob  = 'nixOS/Testing/NUC_x86/nuc_x86_boot_test'
 batJob   = 'nixOS/Testing/NUC_x86/nuc_x86_bat_test'
 nucDirectory = 'nuc_test_results'
-bootSuite = 'boot_test_nuc.robot'
+bootSuite = 'boot_test.robot'
 batSuite = 'bat_test_nuc.robot'
 
 pipeline {
