@@ -4,16 +4,16 @@ Force Tags          ssh_boot_test
 Library             BuiltIn
 Library             String
 Library             SSHLibrary
-Library             SerialLibrary    encoding=ascii
 Library             Process
 Library             ../lib/ssh_client.py
 Library             ../lib/TapoP100/tapo_p100.py
+Resource            ../config/variables.robot
+Suite Setup         Set Variables   ${DEVICE}
 
 *** Variables ***
 ${target_login_output}   ghaf@ghaf-host
 ${LOGIN}                 ${EMPTY}
 ${PASSWORD}              ${EMPTY}
-${DEVICE_IP_ADDRESS}     ${EMPTY}
 
 
 *** Test Cases ***
@@ -47,7 +47,7 @@ Connect
     Should Contain    ${output}    ${target_login_output}
 
 Verify Systemctl status
-    [Arguments]    ${range}=15
+    [Arguments]    ${range}=30
     [Documentation]    Check is systemctl running with given loop ${range}
     FOR    ${i}    IN RANGE    ${range}
         ${output}=    Execute Command    systemctl status
@@ -78,25 +78,7 @@ Check If Device Is Up
     [Arguments]    ${range}=150
     FOR    ${i}    IN RANGE    ${range}
         ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
-        Log    i=${i}
         IF    ${ping}   BREAK
         Sleep    1
     END
     IF    ${ping}==False    FAIL    Device did not wake!
-
-Get IP via Serial
-    [Arguments]    ${port}=/dev/ttyUSB0    ${baudrate}=115200
-    Open Serial
-    Write Data    ifconfig${\n}
-    ${output} =   SerialLibrary.Read Until    terminator=#
-    ${ip} =       Get Ip Address  ${output}
-    Set Global Variable    ${DEVICE_IP_ADDRESS}    ${ip}
-    Delete All Ports
-
-Open Serial
-    Add Port   /dev/ttyUSB0
-    ...        baudrate=115200
-    ...        bytesize=8
-    ...        parity=N
-    ...        stopbits=1
-
