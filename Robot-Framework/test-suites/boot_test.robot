@@ -75,10 +75,23 @@ Check If Device Is Down
     IF    ${ping}    FAIL    Device did not shut down!
 
 Check If Device Is Up
-    [Arguments]    ${range}=150
+    [Arguments]    ${range}=10
     FOR    ${i}    IN RANGE    ${range}
         ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
         IF    ${ping}   BREAK
         Sleep    1
     END
+    IF    ${ping}==False
+        Log To Console    Turn plug OFF
+        Turn Plug Off
+        Sleep    5
+        Log To Console    Turn plug ON
+        Turn Plug On
+    END
+    FOR    ${i}    IN RANGE    ${range}
+        ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
+        IF    ${ping}   BREAK
+        Sleep    1
+    END
+
     IF    ${ping}==False    FAIL    Device did not wake!
