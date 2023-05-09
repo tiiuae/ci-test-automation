@@ -4,6 +4,7 @@ Force Tags          ssh_boot_test
 Library             BuiltIn
 Library             String
 Library             SSHLibrary
+Library             SerialLibrary    encoding=ascii
 Library             Process
 Library             ../lib/ssh_client.py
 Library             ../lib/TapoP100/tapo_p100.py
@@ -22,12 +23,7 @@ Verify booting after restart by power
     [Tags]    boot  plug
     [Documentation]    Restart device by power and verify systemctl status is running
 
-    Log To Console    Turn plug OFF
-    Turn Plug Off
-    Check If Device Is Down
-    Sleep    5
-    Log To Console    Turn plug ON
-    Turn Plug On
+    Reboot Device
     Check If Device Is Up
     Connect
 
@@ -75,23 +71,58 @@ Check If Device Is Down
     IF    ${ping}    FAIL    Device did not shut down!
 
 Check If Device Is Up
-    [Arguments]    ${range}=10
+    [Arguments]    ${range}=20
+    ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
         ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
         IF    ${ping}   BREAK
         Sleep    1
     END
-    IF    ${ping}==False
-        Log To Console    Turn plug OFF
-        Turn Plug Off
-        Sleep    5
-        Log To Console    Turn plug ON
-        Turn Plug On
-    END
-    FOR    ${i}    IN RANGE    ${range}
-        ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
-        IF    ${ping}   BREAK
-        Sleep    1
-    END
+    ${stop_time}=    Get Time	epoch
 
-    IF    ${ping}==False    FAIL    Device did not wake!
+    IF    ${ping}==False
+        ${diff}=     Evaluate    ${stop_time} - ${start_time}
+        Log To Console    Device is not available after reboot via SSH, waited for ${diff} sec. Reboot one more time...
+        Reboot Device
+        ${start_time}=    Get Time	epoch
+        FOR    ${i}    IN RANGE    ${range}
+            ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
+            IF    ${ping}   BREAK
+            Sleep    1
+        END
+        ${stop_time}=    Get Time	epoch
+    END
+    ${diff}=     Evaluate    ${stop_time} - ${start_time}
+    IF    ${ping}==False
+        Log To Console    Device is not available after second reboot via SSH, waited for ${diff} sec!
+        Check Serial Connection
+    END
+    Log To Console    Device woke up for ${diff} sec.
+
+
+Reboot Device
+    Log To Console    ${\n}Turning device off...
+    Turn Plug Off
+    Sleep    5
+    Log To Console    Turning device on...
+    Turn Plug On
+
+Check Serial Connection
+    [Documentation]    Check if device is available by serial
+    Open Serial Port
+    FOR    ${i}    IN RANGE    10
+        Write Data    ${\n}
+        ${output} =    SerialLibrary.Read Until
+        ${status} =    Run Keyword And Return Status    Should contain    ${output}    ghaf
+        IF    ${status}    BREAK
+    END
+    IF    ${status}     Log To Console    Device is available via serial
+    IF    ${status}==False    FAIL    Device is not available via serial
+    Delete All Ports
+
+Open Serial Port
+    Add Port   /dev/ttyUSB0
+    ...        baudrate=115200
+    ...        bytesize=8
+    ...        parity=N
+    ...        stopbits=1
