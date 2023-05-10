@@ -99,7 +99,7 @@ Check If Device Is Down
     IF    ${ping}    FAIL    Device did not shut down!
 
 Check If Device Is Up
-    [Arguments]    ${range}=1
+    [Arguments]    ${range}=15
     ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
         ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
