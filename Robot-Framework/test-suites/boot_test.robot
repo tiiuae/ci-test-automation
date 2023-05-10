@@ -12,9 +12,11 @@ Resource            ../config/variables.robot
 Suite Setup         Set Variables   ${DEVICE}
 
 *** Variables ***
-${target_login_output}   ghaf@ghaf-host
 ${LOGIN}                 ${EMPTY}
 ${PASSWORD}              ${EMPTY}
+${target_login_output}   ghaf@ghaf-host
+${connection_type}       ssh
+${IS_AVAILABLE}          False
 
 
 *** Test Cases ***
@@ -22,14 +24,22 @@ ${PASSWORD}              ${EMPTY}
 Verify booting after restart by power
     [Tags]    boot  plug
     [Documentation]    Restart device by power and verify systemctl status is running
-
     Reboot Device
-    Check If Device Is Up
-    Connect
+    FOR    ${i}    IN RANGE    1    2
+        Check If Device Is Up
+        IF    ${IS_AVAILABLE}    BREAK
+    END
+    IF    ${IS_AVAILABLE} == False
+        FAIL    The device did not start after ${i} reboots
+    ELSE
+        Log To Console  The device started after ${i} reboot
+    END
 
-    Verify Systemctl status
-
-    [Teardown]       Close Connection
+    IF  "${connection_type}" == "ssh"
+        Verify Systemctl status
+    ELSE IF  "${connection_type}" == "serial"
+        Verify Systemctl status via serial
+    END
 
 
 *** Keywords ***
@@ -39,12 +49,12 @@ Connect
 
     Open Connection   ${DEVICE_IP_ADDRESS}
     ${output}=        Login     username=${LOGIN}    password=${PASSWORD}
-    Log To Console               ${output}
     Should Contain    ${output}    ${target_login_output}
 
 Verify Systemctl status
     [Arguments]    ${range}=30
     [Documentation]    Check is systemctl running with given loop ${range}
+    Connect
     FOR    ${i}    IN RANGE    ${range}
         ${output}=    Execute Command    systemctl status
         ${status}=    Get Systemctl Status    ${output}
@@ -54,6 +64,24 @@ Verify Systemctl status
     END
     Log To Console   Systemctl status is ${status}
     IF    ${result}==False    FAIL    Systemctl is not running! Status is ${status}
+    [Teardown]       Close Connection
+
+Verify Systemctl status via serial
+    [Arguments]    ${range}=30
+    [Documentation]    Check is systemctl running with given loop ${range}
+    Open Serial Port
+    Log In To Ghaf OS
+    FOR    ${i}    IN RANGE    ${range}
+        Write Data    systemctl status${\n}
+        ${output} =    SerialLibrary.Read Until    terminator=Units
+        Write Data    \x03${\n}        # write ctrl+c to stop reading status
+        ${status}=    Get Systemctl Status    ${output}
+        ${status} =    Run Keyword And Return Status    Should contain    ${output}    running
+        IF    ${status}    BREAK
+    END
+    IF    ${status}==False    FAIL    systemctl is not running! Status is ${status}
+
+    [Teardown]       Delete All Ports
 
 Ping Host
     [Arguments]    ${hostname}
@@ -71,33 +99,28 @@ Check If Device Is Down
     IF    ${ping}    FAIL    Device did not shut down!
 
 Check If Device Is Up
-    [Arguments]    ${range}=20
+    [Arguments]    ${range}=1
     ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
         ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
-        IF    ${ping}   BREAK
+        IF    ${ping}
+            Set Global Variable    ${IS_AVAILABLE}       True
+            BREAK
+        END
         Sleep    1
     END
     ${stop_time}=    Get Time	epoch
 
-    IF    ${ping}==False
-        ${diff}=     Evaluate    ${stop_time} - ${start_time}
-        Log To Console    Device is not available after reboot via SSH, waited for ${diff} sec. Reboot one more time...
-        Reboot Device
-        ${start_time}=    Get Time	epoch
-        FOR    ${i}    IN RANGE    ${range}
-            ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
-            IF    ${ping}   BREAK
-            Sleep    1
-        END
-        ${stop_time}=    Get Time	epoch
-    END
     ${diff}=     Evaluate    ${stop_time} - ${start_time}
     IF    ${ping}==False
-        Log To Console    Device is not available after second reboot via SSH, waited for ${diff} sec!
-        Check Serial Connection
+        Log To Console    Device is not available after reboot via SSH, waited for ${diff} sec!
+        IF  len("${SERIAL_PORT}") > 0
+            Check Serial Connection
+        ELSE
+            Log To Console    There is no address for serial connection
+        END
     END
-    Log To Console    Device woke up for ${diff} sec.
+    IF  ${IS_AVAILABLE}    Log To Console    Device woke up after ${diff} sec.
 
 
 Reboot Device
@@ -116,13 +139,30 @@ Check Serial Connection
         ${status} =    Run Keyword And Return Status    Should contain    ${output}    ghaf
         IF    ${status}    BREAK
     END
-    IF    ${status}     Log To Console    Device is available via serial
-    IF    ${status}==False    FAIL    Device is not available via serial
     Delete All Ports
+    IF    ${status}
+        Log To Console    Device is available via serial
+        Set Global Variable    ${connection_type}    serial
+        Set Global Variable    ${IS_AVAILABLE}       True
+    END
 
 Open Serial Port
-    Add Port   /dev/ttyUSB0
+    Add Port   ${SERIAL_PORT}
     ...        baudrate=115200
     ...        bytesize=8
     ...        parity=N
     ...        stopbits=1
+
+Log In To Ghaf OS
+    [Documentation]    Log in with ${LOGIN} and ${PASSWORD}
+    FOR    ${i}    IN RANGE    10
+        Write Data    ${\n}
+        ${output} =    SerialLibrary.Read Until    terminator=ghaf-host login
+        ${status} =    Run Keyword And Return Status    Should contain    ${output}    ghaf-host login
+        IF    ${status}    BREAK
+    END
+    IF    ${status}    Write Data    ${LOGIN}${\n}
+    ${output} =    SerialLibrary.Read Until    terminator=Password
+    Write Data    ${PASSWORD}${\n}
+    ${output} =    SerialLibrary.Read Until    terminator=@ghaf-host
+    Should contain    ${output}    @ghaf-host
