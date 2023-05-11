@@ -159,13 +159,12 @@ Log In To Ghaf OS
         Write Data    ${\n}
         ${output} =    SerialLibrary.Read Until    terminator=ghaf-host login
         ${status} =    Run Keyword And Return Status    Should contain    ${output}    ghaf-host login
+        IF    ${status}
+            Write Data    ${LOGIN}${\n}
+            ${output} =    SerialLibrary.Read Until    terminator=Password
+            Write Data    ${PASSWORD}${\n}
+        END
+        ${status} =    Run Keyword And Return Status    Should contain    ${output}    @ghaf-host
         IF    ${status}    BREAK
     END
-    IF    ${status}
-        Write Data    ${LOGIN}${\n}
-        ${output} =    SerialLibrary.Read Until    terminator=Password
-        Write Data    ${PASSWORD}${\n}
-    END
-
-    ${output} =    SerialLibrary.Read Until    terminator=@ghaf-host
-    Should contain    ${output}    @ghaf-host
+    IF    ${status}==False    FAIL      Console is not ready
