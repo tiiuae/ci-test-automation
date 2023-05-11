@@ -161,8 +161,11 @@ Log In To Ghaf OS
         ${status} =    Run Keyword And Return Status    Should contain    ${output}    ghaf-host login
         IF    ${status}    BREAK
     END
-    IF    ${status}    Write Data    ${LOGIN}${\n}
-    ${output} =    SerialLibrary.Read Until    terminator=Password
-    Write Data    ${PASSWORD}${\n}
+    IF    ${status}
+        Write Data    ${LOGIN}${\n}
+        ${output} =    SerialLibrary.Read Until    terminator=Password
+        Write Data    ${PASSWORD}${\n}
+    END
+
     ${output} =    SerialLibrary.Read Until    terminator=@ghaf-host
     Should contain    ${output}    @ghaf-host
