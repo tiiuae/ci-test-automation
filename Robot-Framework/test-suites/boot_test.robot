@@ -114,10 +114,10 @@ Check If Device Is Up
     ${diff}=     Evaluate    ${stop_time} - ${start_time}
     IF    ${ping}==False
         Log To Console    Device is not available after reboot via SSH, waited for ${diff} sec!
-        IF  len("${SERIAL_PORT}") > 0
-            Check Serial Connection
-        ELSE
+        IF  "${SERIAL_PORT}" == "NONE"
             Log To Console    There is no address for serial connection
+        ELSE
+            Check Serial Connection
         END
     END
     IF  ${IS_AVAILABLE}    Log To Console    Device woke up after ${diff} sec.
