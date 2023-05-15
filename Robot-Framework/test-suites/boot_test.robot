@@ -25,14 +25,11 @@ Verify booting after restart by power
     [Tags]    boot  plug
     [Documentation]    Restart device by power and verify systemctl status is running
     Reboot Device
-    FOR    ${i}    IN RANGE    1    2
-        Check If Device Is Up
-        IF    ${IS_AVAILABLE}    BREAK
-    END
+    Check If Device Is Up
     IF    ${IS_AVAILABLE} == False
-        FAIL    The device did not start after ${i} reboots
+        FAIL    The device did not start
     ELSE
-        Log To Console  The device started after ${i} reboot
+        Log To Console  The device started
     END
 
     IF  "${connection_type}" == "ssh"
@@ -52,7 +49,7 @@ Connect
     Should Contain    ${output}    ${target_login_output}
 
 Verify Systemctl status
-    [Arguments]    ${range}=30
+    [Arguments]    ${range}=20
     [Documentation]    Check is systemctl running with given loop ${range}
     Connect
     FOR    ${i}    IN RANGE    ${range}
@@ -99,7 +96,7 @@ Check If Device Is Down
     IF    ${ping}    FAIL    Device did not shut down!
 
 Check If Device Is Up
-    [Arguments]    ${range}=15
+    [Arguments]    ${range}=20
     ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
         ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
@@ -107,11 +104,12 @@ Check If Device Is Up
             Set Global Variable    ${IS_AVAILABLE}       True
             BREAK
         END
-        Sleep    1
     END
     ${stop_time}=    Get Time	epoch
 
     ${diff}=     Evaluate    ${stop_time} - ${start_time}
+    IF  ${IS_AVAILABLE}    Log To Console    Device woke up after ${diff} sec.
+
     IF    ${ping}==False
         Log To Console    Device is not available after reboot via SSH, waited for ${diff} sec!
         IF  "${SERIAL_PORT}" == "NONE"
@@ -120,7 +118,6 @@ Check If Device Is Up
             Check Serial Connection
         END
     END
-    IF  ${IS_AVAILABLE}    Log To Console    Device woke up after ${diff} sec.
 
 Reboot Device
     Log To Console    ${\n}Turning device off...
@@ -132,17 +129,21 @@ Reboot Device
 Check Serial Connection
     [Documentation]    Check if device is available by serial
     Open Serial Port
-    FOR    ${i}    IN RANGE    10
+    FOR    ${i}    IN RANGE    200
         Write Data    ${\n}
         ${output} =    SerialLibrary.Read Until
         ${status} =    Run Keyword And Return Status    Should contain    ${output}    ghaf
         IF    ${status}    BREAK
+        Log To Console    ${output}
+        Sleep   1
     END
     Delete All Ports
     IF    ${status}
         Log To Console    Device is available via serial
         Set Global Variable    ${connection_type}    serial
         Set Global Variable    ${IS_AVAILABLE}       True
+    ELSE
+        Log To Console    Device is not available via serial
     END
 
 Open Serial Port
