@@ -52,7 +52,7 @@ Connect
     Should Contain    ${output}    ${target_login_output}
 
 Verify Systemctl status
-    [Arguments]    ${range}=30
+    [Arguments]    ${range}=8
     [Documentation]    Check is systemctl running with given loop ${range}
     Connect
     FOR    ${i}    IN RANGE    ${range}
@@ -121,7 +121,6 @@ Check If Device Is Up
         END
     END
     IF  ${IS_AVAILABLE}    Log To Console    Device woke up after ${diff} sec.
-
 
 Reboot Device
     Log To Console    ${\n}Turning device off...
