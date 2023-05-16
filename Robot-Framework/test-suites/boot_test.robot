@@ -8,8 +8,8 @@ Resource            ../config/variables.robot
 Suite Setup         Set Variables   ${DEVICE}
 
 *** Variables ***
-${connection_type}       ssh
-${is_available}          False
+${CONNECTION_TYPE}       ssh
+${IS_AVAILABLE}          False
 
 *** Test Cases ***
 
@@ -18,15 +18,15 @@ Verify booting after restart by power
     [Documentation]    Restart device by power and verify systemctl status is running
     Reboot Device
     Check If Device Is Up
-    IF    ${is_available} == False
+    IF    ${IS_AVAILABLE} == False
         FAIL    The device did not start
     ELSE
         Log To Console  The device started
     END
 
-    IF  "${connection_type}" == "ssh"
+    IF  "${CONNECTION_TYPE}" == "ssh"
         Verify Systemctl status
-    ELSE IF  "${connection_type}" == "serial"
+    ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Verify Systemctl status via serial
     END
 
@@ -39,14 +39,14 @@ Check If Device Is Up
     FOR    ${i}    IN RANGE    ${range}
         ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
         IF    ${ping}
-            Set Global Variable    ${is_available}       True
+            Set Global Variable    ${IS_AVAILABLE}       True
             BREAK
         END
     END
     ${stop_time}=    Get Time	epoch
 
     ${diff}=     Evaluate    ${stop_time} - ${start_time}
-    IF  ${is_available}    Log To Console    Device woke up after ${diff} sec.
+    IF  ${IS_AVAILABLE}    Log To Console    Device woke up after ${diff} sec.
 
     IF    ${ping}==False
         Log To Console    Device is not available after reboot via SSH, waited for ${diff} sec!

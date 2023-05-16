@@ -27,8 +27,8 @@ Check Serial Connection
     Delete All Ports
     IF    ${status}
         Log To Console    Device is available via serial
-        Set Global Variable    ${connection_type}    serial
-        Set Global Variable    ${is_available}       True
+        Set Global Variable    ${CONNECTION_TYPE}    serial
+        Set Global Variable    ${IS_AVAILABLE}       True
     ELSE
         Log To Console    Device is not available via serial
     END
