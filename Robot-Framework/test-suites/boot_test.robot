@@ -58,9 +58,11 @@ Check If Device Is Up
     END
 
 Reboot Device
+    [Arguments]    ${delay}=5
+    [Documentation]    Turn off power of devicee, wait for given amount of seconds and turn on the power
     Log To Console    ${\n}Turning device off...
     Turn Plug Off
-    Sleep    5
+    Sleep    ${delay}
     Log To Console    Turning device on...
     Turn Plug On
 
