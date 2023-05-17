@@ -1,84 +1,68 @@
 *** Settings ***
 Documentation       Testing target device booting up.
 Force Tags          ssh_boot_test
-Library             BuiltIn
-Library             String
-Library             SSHLibrary
-Library             Process
-Library             ../lib/ssh_client.py
 Library             ../lib/TapoP100/tapo_p100.py
+Resource            ../resources/serial_keywords.resource
+Resource            ../resources/ssh_keywords.resource
 Resource            ../config/variables.robot
 Suite Setup         Set Variables   ${DEVICE}
 
 *** Variables ***
-${target_login_output}   ghaf@ghaf-host
-${LOGIN}                 ${EMPTY}
-${PASSWORD}              ${EMPTY}
-
+${CONNECTION_TYPE}       ssh
+${IS_AVAILABLE}          False
 
 *** Test Cases ***
 
 Verify booting after restart by power
     [Tags]    boot  plug
     [Documentation]    Restart device by power and verify systemctl status is running
-
-    Log To Console    Turn plug OFF
-    Turn Plug Off
-    Check If Device Is Down
-    Sleep    5
-    Log To Console    Turn plug ON
-    Turn Plug On
+    Reboot Device
     Check If Device Is Up
-    Connect
+    IF    ${IS_AVAILABLE} == False
+        FAIL    The device did not start
+    ELSE
+        Log To Console  The device started
+    END
 
-    Verify Systemctl status
-
-    [Teardown]       Close Connection
+    IF  "${CONNECTION_TYPE}" == "ssh"
+        Verify Systemctl status
+    ELSE IF  "${CONNECTION_TYPE}" == "serial"
+        Verify Systemctl status via serial
+    END
 
 
 *** Keywords ***
 
-Connect
-    [Documentation]   Set up the SSH connection to the device
-
-    Open Connection   ${DEVICE_IP_ADDRESS}
-    ${output}=        Login     username=${LOGIN}    password=${PASSWORD}
-    Log To Console               ${output}
-    Should Contain    ${output}    ${target_login_output}
-
-Verify Systemctl status
-    [Arguments]    ${range}=30
-    [Documentation]    Check is systemctl running with given loop ${range}
-    FOR    ${i}    IN RANGE    ${range}
-        ${output}=    Execute Command    systemctl status
-        ${status}=    Get Systemctl Status    ${output}
-        ${result} =    Run Keyword And Return Status    Should Be Equal     ${status}    running
-        IF    ${result}    BREAK
-        Sleep    1
-    END
-    Log To Console   Systemctl status is ${status}
-    IF    ${result}==False    FAIL    Systemctl is not running! Status is ${status}
-
-Ping Host
-    [Arguments]    ${hostname}
-    ${ping_output}=    Run Process   ping ${hostname} -c 1   shell=True
-    ${ping_success}    Run Keyword And Return Status    Should Contain    ${ping_output.stdout}    1 received
-    Return From Keyword    ${ping_success}
-
-Check If Device Is Down
-    [Arguments]    ${range}=50
-    FOR    ${i}    IN RANGE    ${range}
-        ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
-        IF    ${ping}==False   BREAK
-        Sleep    1
-    END
-    IF    ${ping}    FAIL    Device did not shut down!
-
 Check If Device Is Up
-    [Arguments]    ${range}=150
+    [Arguments]    ${range}=20
+    ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
         ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
-        IF    ${ping}   BREAK
-        Sleep    1
+        IF    ${ping}
+            Set Global Variable    ${IS_AVAILABLE}       True
+            BREAK
+        END
     END
-    IF    ${ping}==False    FAIL    Device did not wake!
+    ${stop_time}=    Get Time	epoch
+
+    ${diff}=     Evaluate    ${stop_time} - ${start_time}
+    IF  ${IS_AVAILABLE}    Log To Console    Device woke up after ${diff} sec.
+
+    IF    ${ping}==False
+        Log To Console    Device is not available after reboot via SSH, waited for ${diff} sec!
+        IF  "${SERIAL_PORT}" == "NONE"
+            Log To Console    There is no address for serial connection
+        ELSE
+            Check Serial Connection
+        END
+    END
+
+Reboot Device
+    [Arguments]    ${delay}=5
+    [Documentation]    Turn off power of devicee, wait for given amount of seconds and turn on the power
+    Log To Console    ${\n}Turning device off...
+    Turn Plug Off
+    Sleep    ${delay}
+    Log To Console    Turning device on...
+    Turn Plug On
+
