@@ -25,6 +25,10 @@ Read Config
     [Arguments]  ${file_path}=../config/test_config.json
 
     ${file_data}=    OperatingSystem.Get File    ${file_path}
-    ${source_data}=    Evaluate    json.loads('''${file_data}''')    json
+    TRY
+        ${source_data}=    Evaluate    json.loads('''${file_data}''')    json
+    EXCEPT
+        FAIL    Couldn't parse test config ${file_path}
+    END
 
     RETURN  ${source_data}
