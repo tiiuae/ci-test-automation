@@ -50,18 +50,25 @@ Log In To Ghaf OS
     IF    ${status}==False    FAIL      Console is not ready
 
 Verify Systemctl status via serial
-    [Arguments]    ${range}=30
+    [Arguments]    ${range}=60
     [Documentation]    Check is systemctl running with given loop ${range}
     Open Serial Port
     Log In To Ghaf OS
+    ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
         Write Data    systemctl status${\n}
         ${output} =    SerialLibrary.Read Until    terminator=Units
         Write Data    \x03${\n}        # write ctrl+c to stop reading status
         ${status}=    Get Systemctl Status    ${output}
-        ${status} =    Run Keyword And Return Status    Should contain    ${output}    running
-        IF    ${status}    BREAK
+        IF  '${status}' not in ['running', 'starting']
+            Log To Console   Systemctl status is ${status}
+            FAIL    Systemctl is not running! Status is ${status}
+        ELSE IF    '${status}' == 'running'
+            ${diff}=    Evaluate    int(time.time()) - int(${start_time})
+            Log To Console   Systemctl status is ${status} after ${diff} sec
+            RETURN
+        END
     END
-    IF    ${status}==False    FAIL    systemctl is not running! Status is ${status}
-
+    ${diff}=    Evaluate    int(time.time()) - int(${start_time})
+    FAIL    Systemctl is not running after ${diff} sec! Status is ${status}
     [Teardown]       Delete All Ports
