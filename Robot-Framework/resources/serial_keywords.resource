@@ -65,7 +65,7 @@ Verify Systemctl status via serial
             FAIL    Systemctl is not running! Status is ${status}
         ELSE IF    '${status}' == 'running'
             ${diff}=    Evaluate    int(time.time()) - int(${start_time})
-            Log To Console   Systemctl status is ${status} after ${diff} sec
+            Log To Console   Systemctl status is ${status}
             RETURN
         END
     END
