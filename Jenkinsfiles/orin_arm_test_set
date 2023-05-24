@@ -6,8 +6,8 @@ import groovy.json.*
 
 buildResults = [:]
 
-bootJob  = 'nixOS/Testing/Orin_arm/orin_arm_boot_test'
-batJob   = 'nixOS/Testing/Orin_arm/orin_arm_bat_test'
+bootJob  = "${params.line}/Testing/Orin_arm/orin_arm_boot_test"
+batJob   = "${params.line}/Testing/Orin_arm/orin_arm_bat_test"
 orinDirectory = 'orin_test_results'
 bootSuite = 'boot_test.robot'
 batSuite = 'bat_test_orin.robot'
