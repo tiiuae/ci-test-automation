@@ -43,9 +43,8 @@ Check If Device Is Up
             BREAK
         END
     END
-    ${stop_time}=    Get Time	epoch
+    ${diff}=    Evaluate    int(time.time()) - int(${start_time})
 
-    ${diff}=     Evaluate    ${stop_time} - ${start_time}
     IF  ${IS_AVAILABLE}    Log To Console    Device woke up after ${diff} sec.
 
     IF    ${ping}==False
