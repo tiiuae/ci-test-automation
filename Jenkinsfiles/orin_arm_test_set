@@ -6,20 +6,29 @@ import groovy.json.*
 
 buildResults = [:]
 
-bootJob  = "${params.line}/Testing/Orin_arm/orin_arm_boot_test"
-batJob   = "${params.line}/Testing/Orin_arm/orin_arm_bat_test"
+bootJob  = ''
+batJob   = ''
 orinDirectory = 'orin_test_results'
 bootSuite = 'boot_test.robot'
-batSuite = 'bat_test_orin.robot'
+//batSuite = 'bat_test_orin.robot'
 
 pipeline {
     agent { label 'tc-agent02' }
     stages {
+      stage('Set variables') {
+          steps {
+              script {
+                  def splitted = "${JOB_NAME}".split('/')
+                  bootJob  = "${splitted[0]}/Testing/Orin_arm/orin_arm_boot_test"
+                  //batJob   = "development/Testing/Orin_arm/orin_arm_bat_test"
+              }
+           }
+      }
       stage('Change USB HUB host to PC') {
           steps {
             script{
                 // Set pipeline description
-                currentBuild.description = "Hydra BuildID: ${params.buildID}"
+                currentBuild.description = "${params.server} BuildID: ${params.buildID}"
                 sh './AcronameHubCLI -u 0 -s EBBBCDD4'
                 // wait that USB drive is mounted
                 sh 'sleep 10'
@@ -36,10 +45,10 @@ pipeline {
       }
       stage('Write Spectrum OS image to USB disk') {
           steps {
-            dir('/home/tc-agent02/Jenkins-agent/workspace/images/'){
-              println("${params.image}")
-              sh "sudo dd if=${params.image} of=/dev/${USBDEVICE} bs=1M status=progress conv=fsync"
-             }
+              script{
+                  println("${params.image}")
+                  sh "sudo dd if=${params.image} of=/dev/${USBDEVICE} bs=1M status=progress conv=fsync"
+              }
           }
       }
       stage('Change USB HUB host back to test device') {
@@ -58,7 +67,7 @@ pipeline {
                   job: "${bootJob}", propagate: false,
                   parameters: [
                     [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${bootSuite}"],
-                    [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "Hydra buildID: ${params.buildID}"]
+                    [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"]
                   ]
               )
 
