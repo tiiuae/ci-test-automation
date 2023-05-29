@@ -37,3 +37,21 @@ Verify Systemctl status
     Log To Console   Systemctl status is ${status}
     IF    ${result}==False    FAIL    Systemctl is not running! Status is ${status}
     [Teardown]       Close Connection
+
+Start Chromium
+    ${command}=     Set Variable    chromium-browser --enable-features=UseOzonePlatform --ozone-platform=wayland
+    Connect
+    ${command_output}=    Execute Command    nohup ${command} > output.log 2>&1 &
+
+
+Is process started
+    [Arguments]    ${proc_name}
+    ${output}=    Execute Command    ps aux
+    ${pid}=       Find Pid    ${output}  ${proc_name}
+    Log To Console    ${proc_name} PID: ${pid}
+    [Return]  ${pid}
+
+Kill process
+    [Arguments]  ${pid}
+    Execute Command    kill ${pid}
+    Run Keyword And Expect Error    Process chromium is not started    Is Process Started    chromium
