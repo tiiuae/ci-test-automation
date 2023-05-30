@@ -19,7 +19,7 @@ pipeline {
           steps {
               script {
                   def splitted = "${JOB_NAME}".split('/')
-                  bootJob  = "${splitted[0]}/Testing/Orin_arm/orin_arm_boot_test"
+                  bootJob  = "${splitted[0]}/Testing/NUC_x86/nuc_x86_boot_test"
                   //batJob   = "development/Testing/Orin_arm/orin_arm_bat_test"
               }
            }
