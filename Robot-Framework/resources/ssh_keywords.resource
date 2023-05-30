@@ -49,9 +49,19 @@ Is process started
     ${output}=    Execute Command    ps aux
     ${pid}=       Find Pid    ${output}  ${proc_name}
     Log To Console    ${proc_name} PID: ${pid}
-    [Return]  ${pid}
+    [Return]      ${pid}
 
 Kill process
     [Arguments]  ${pid}
     Execute Command    kill ${pid}
-    Run Keyword And Expect Error    Process chromium is not started    Is Process Started    chromium
+    FOR    ${i}    IN RANGE   5
+        TRY
+            Is Process Started    chromium
+            ${ps_exists}=     Set Variable    True
+            Sleep    0.5
+        EXCEPT
+            ${ps_exists}=     Set Variable    False
+            BREAK
+        END
+    END
+    IF     ${ps_exists}     FAIL    Process chromium haven't stopped

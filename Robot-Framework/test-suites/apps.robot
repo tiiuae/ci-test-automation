@@ -1,20 +1,15 @@
 *** Settings ***
-Documentation       Testing target device booting up.
-Force Tags          ssh_boot_test
-Library             ../lib/TapoP100/tapo_p100.py
-Resource            ../resources/serial_keywords.resource
+Documentation       Testing launching applications
+Force Tags          apps
 Resource            ../resources/ssh_keywords.resource
 Resource            ../config/variables.robot
 Suite Setup         Set Variables   ${DEVICE}
-
-*** Variables ***
-${CONNECTION_TYPE}       ssh
-${IS_AVAILABLE}          False
 
 *** Test Cases ***
 
 Start Chromium
     [Documentation]   Start Chromium and verify process started
+    [Tags]            bat   SP-T44
     Start Chromium
     ${pid}=     Is Process Started    chromium
     [Teardown]  Kill process  ${pid}

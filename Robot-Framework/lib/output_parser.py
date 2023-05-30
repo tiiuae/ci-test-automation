@@ -18,7 +18,6 @@ def find_pid(output, proc_name):
         if proc_name in line:
             pid = line.split()[1]
             break
-
     if pid:
         return pid
     else:
