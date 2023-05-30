@@ -43,7 +43,6 @@ Start Chromium
     Connect
     ${command_output}=    Execute Command    nohup ${command} > output.log 2>&1 &
 
-
 Is process started
     [Arguments]    ${proc_name}
     ${output}=    Execute Command    ps aux
