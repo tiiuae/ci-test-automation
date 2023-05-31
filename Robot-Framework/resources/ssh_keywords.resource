@@ -44,3 +44,30 @@ Verify Systemctl status
     ${diff}=    Evaluate    int(time.time()) - int(${start_time})
     FAIL    Systemctl is not running after ${diff} sec! Status is ${status}
     [Teardown]       Close Connection
+
+Start Chromium
+    ${command}=     Set Variable    chromium-browser --enable-features=UseOzonePlatform --ozone-platform=wayland
+    Connect
+    ${command_output}=    Execute Command    nohup ${command} > output.log 2>&1 &
+
+Is process started
+    [Arguments]    ${proc_name}
+    ${output}=    Execute Command    ps aux
+    ${pid}=       Find Pid    ${output}  ${proc_name}
+    Log To Console    ${proc_name} PID: ${pid}
+    [Return]      ${pid}
+
+Kill process
+    [Arguments]  ${pid}
+    Execute Command    kill ${pid}
+    FOR    ${i}    IN RANGE   5
+        TRY
+            Is Process Started    chromium
+            ${ps_exists}=     Set Variable    True
+            Sleep    0.5
+        EXCEPT
+            ${ps_exists}=     Set Variable    False
+            BREAK
+        END
+    END
+    IF     ${ps_exists}     FAIL    Process chromium haven't stopped
