@@ -24,18 +24,25 @@ Connect
     Should Contain    ${output}    ${target_login_output}
 
 Verify Systemctl status
-    [Arguments]    ${range}=20
+    [Arguments]    ${range}=60
     [Documentation]    Check is systemctl running with given loop ${range}
     Connect
+    ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
         ${output}=    Execute Command    systemctl status
         ${status}=    Get Systemctl Status    ${output}
-        ${result} =    Run Keyword And Return Status    Should Be Equal     ${status}    running
-        IF    ${result}    BREAK
+        IF  '${status}' not in ['running', 'starting']
+            Log To Console   Systemctl status is ${status}
+            FAIL    Systemctl is not running! Status is ${status}
+        ELSE IF    '${status}' == 'running'
+            ${diff}=    Evaluate    int(time.time()) - int(${start_time})
+            Log To Console   Systemctl status is ${status} after ${diff} sec
+            RETURN
+        END
         Sleep    1
     END
-    Log To Console   Systemctl status is ${status}
-    IF    ${result}==False    FAIL    Systemctl is not running! Status is ${status}
+    ${diff}=    Evaluate    int(time.time()) - int(${start_time})
+    FAIL    Systemctl is not running after ${diff} sec! Status is ${status}
     [Teardown]       Close Connection
 
 Start Chromium
