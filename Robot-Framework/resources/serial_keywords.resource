@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2022-2023 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
 *** Settings ***
 Library             SerialLibrary    encoding=ascii
 Resource            ../config/variables.robot
