@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2022-2023 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
 import re
 
 
@@ -7,6 +10,15 @@ def get_systemctl_status(output):
 
     if match:
         return match.group(1)
+    else:
+        raise Exception("Couldn't parse systemctl status")
+
+def get_service_status(output):
+    output = re.sub(r'\033\[.*?m', '', output)   # remove colors from serial console output
+    match = re.search(r'Active: (\w+) \((\w+)', output)
+
+    if match:
+        return match.group(1), match.group(2)
     else:
         raise Exception("Couldn't parse systemctl status")
 

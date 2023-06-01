@@ -29,7 +29,7 @@ pipeline {
             script{
                 // Set pipeline description
                 currentBuild.description = "${params.server} BuildID: ${params.buildID}"
-                sh './AcronameHubCLI -u 0 -s 6B780E17'
+                sh './BrainStem_dev_kit/bin/AcronameHubCLI -u 0 -s 6B780E17'
                 // wait that USB drive is mounted
                 sh 'sleep 10'
                 def output = sh (
@@ -54,7 +54,7 @@ pipeline {
       stage('Change USB HUB host back to test device') {
           steps {
             script{
-                sh './AcronameHubCLI -u 1 -s 6B780E17'
+                sh './BrainStem_dev_kit/bin/AcronameHubCLI -u 1 -s 6B780E17'
              }
           }
       }

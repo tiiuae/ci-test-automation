@@ -1,0 +1,22 @@
+===============================================================================
+BrainStem2 C++ Empty Example Readme
+===============================================================================
+
+This is a empty C++ example for the BrainStem 2.0 library. The example has 
+the necessary includes for communicating with BrainStem modules.
+
+Notes:
+===============================================================================
+
+# To build, copy the lib directory into this directory. The lib directory contains
+    the required header files, and the Brainstem2 shared object file.
+
+# The output directory is linux_BrainStem2Shell/Debug.
+
+# A build step has been added to the project that copies the shared object into 
+    the build output directory. In addition the runpath is updated to search in
+    the same directory as the executable.
+
+If you have questions, please see the reference, or check out our guides 
+at www.acroname.com.
+

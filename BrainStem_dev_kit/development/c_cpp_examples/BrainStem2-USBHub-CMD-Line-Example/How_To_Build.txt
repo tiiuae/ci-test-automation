@@ -1,0 +1,36 @@
+===============================================================================
+USBHub CMD Line Example
+===============================================================================
+
+This is a basic CMD line example that was designed for the USBHub2x4, USBHub3p
+and USBHub3c but could easily be adapted to our other products.  It depends on
+an external header implementation "cxxopts.h".  The source for this file can be
+found at: https://github.com/jarro2783/cxxopts.
+
+Example execution:
+-h            //Prints the help information.
+-p 0 -e 0     //Disables port 0
+-p 0 -e 1     //Enables port 0
+-p 0 -e 0 -b  //Disables just the data lines of port 0
+-p 0 -e 0 -a  //Disables just the power lines of port 0
+
+Notes:
+===============================================================================
+
+# To build, copy the lib directory into this directory. The lib directory contains
+    the required header files, and the Brainstem2 shared object file.
+
+# The makefile is setup with 3x different configurations.
+    - Debug - Linked to the libBrainStem2.so
+        * make debug
+    - Release - Linked to the libBrainStem2.so
+        * make release
+    - Static - Linked to libBrainStem2.a for easy deployment. 
+        * make static
+
+# For Debug and Release configurations the shared object is copied into the 
+  output folder. The shared object must be next to the executable or install
+  into the local system.
+
+If you have questions, please see the reference, or check out our guides
+at www.acroname.com.

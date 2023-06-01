@@ -1,0 +1,878 @@
+January 26th, 2022
+
+===============================================================================
+BrainStem2® Support Package Release
+===============================================================================
+
+The BrainStem Release 2.9
+===============================================================================
+
+The BrainStem 2.9.0 release debuts Acroname's new USBHub3c module. This module
+brings in 3x new entities: Power Delivery, Port and USBSystem. More information
+on these entities can be found in the online reference guide.
+
+In most cases users will not be affected by the changes in the 2.9.x release with
+a few exceptions listed below; however, it is always recommend to match the Major
+and Minor of firmware to software. (2.9.0 -> Major.Minor.Patch)
+
+C++ namespace adjustments - Module headers now use full namespaces instead of the
+"using" directive.  This change keeps the namespace cleaner but may require
+users to use full namespaces when using functions that do not belong to a 
+module object.
+
+Removed deprecated calls that were defined in the 2.8.x release.
+  - Temperature::getTemperature -> Temperature::getValue
+  - Rail::setVoltage -> Rail::setVoltageSetpoint
+
+Drivers
+===============================================================================
+
+Since release 2.2, BrainStem users no longer need to install drivers on any of our
+supported platforms. Windows 7 users will still need to Update the device driver
+software for their BrainStem devices, via the BrainStem.inf file that we provide.
+
+
+Additional Libraries (Linux users only)
+===============================================================================
+
+The StemTool distribution for linux now uses the libicu52 library in an effort to
+increase legacy support.  Newer versions of Linux (such as Ubuntu 16.04) may require
+the installation of this library.  It can be found on Ubuntu's website.
+http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu52_52.1-3ubuntu0.6_amd64.deb
+
+
+Reference Documentation
+===============================================================================
+
+Reference documentation that includes an overview of the BrainStem
+architecture, getting started guides and API interfaces for all
+programming environments included within this development kit can
+be found at:
+
+https://acroname.com/reference/
+
+BrainStem Package Folder Structure
+===============================================================================
+
+The development directory contains all the files you need to include
+when developing an Acroname BrainStem device application. Regardless of the
+platform you are running, all you need is to place the BrainStem .so, framework,
+or dll in a location your application can find (system runpaths, or project
+defined ones). For Mac OS users, the framework includes all of the headers
+you will need. Linux and Windows users only need to add the lib folder into
+project header search paths.
+
+* Drivers (Windows and Linux) - BrainStem USB drivers
+   * amd64, ia64, x86 - Platform specific files.
+   * brainstem.inf - Windows7 inf files for install of WinUSB driver.
+   * vcomm.inf - Windows7 inf file for installing built in vcomm drivers.
+
+* Development - Libraries, and header files.
+   * lib - Shared Library and header includes.
+   * python - The Python API
+   * python_examples - Basic python examples for your platform
+   * c_cpp_examples - Basic C/C++ examples for your platform.
+   * reflex_examples - Basic reflex examples.
+
+* Bin - Tools directory
+   * Updater - Command line tool for updating firmware on BrainStem devices.
+   * arc - Command line tool for compiling reflex files
+   * ReflexLoader - Command line tool for loading and unloading reflex files.
+   * StemTool - GUI utility for viewing and working with BrainStem devices.
+   * HubTool - GUI utility for working with Acroname’s smart USB hubs.
+   * AcronameHubCLI - Command line tool for controlling hub products.
+
+* aInclude - Reflex header files.
+
+
+BrainStem 2.9.25
+===============================================================================
+*New Features
+  * BrainStem: Added API functionality to map USB descriptors of Acroname hub ports.
+  * HubTool: Added UI elements to show off USB descriptor mapping. 
+  * USBHub3c: Added more default PDO's
+* Bug Fixes:
+  * HubTool: Fixed erroneous set calls and general beautification improvements.
+  * USBHub3c: Fixed lockup issue related to power management. 
+
+BrainStem 2.9.24
+===============================================================================
+*New Features
+  * USBHub3c: Add limited RS232 support.
+  * USBHub3c: Added upstream swapping options.
+* Bug Fixes:
+  * USBHub3c: Improved Bootloader architecture and process. 
+  * USBHub3c: Miscellaneous APDO, RDO and Control port fixes.
+  * USBHub3c: Improved BrainStem networking. 
+  * USBHub3c: Improved live loader.
+  
+BrainStem 2.9.23
+===============================================================================
+* Bug Fixes:
+  * Python: Fixed library loading for deployments <= 18.04
+  * HubTool: Allow updating of USBHub3c when already up to date (for Software Features).
+
+BrainStem 2.9.22
+===============================================================================
+*New Features
+  * Added Ubuntu 22.04 support
+  * Dropped Ubuntu 14.04 support
+* Bug Fixes:
+  * USBHub3c and USBCSwitch: Fixed saved settings bug. 
+
+BrainStem 2.9.21
+===============================================================================
+*New Features
+  * HubTool: Added firmware management (UpdaterGUI).
+  * Added PDF version of documentation to all deployments.
+  * Python: Added BrainStem whl to pypi
+* Bug Fixes:
+  * USBCSwitch: Fixed factory reset logic.
+
+BrainStem 2.9.20
+===============================================================================
+*New Features
+  * Renamed StemTool to HubTool
+* Bug Fixes:
+  * USBHub3c: Improved PD negotiation for RDO removal.
+  * USBHub3c: Improved boot loader to maintain heartbeat during update.
+  * USBHub2x4: Resolved port lockup issue.
+  * Firmware (LPC): Improved I2C stability.
+  * USBHub3p: Fixed DCP mode.
+  * USBHub3p: Fixed descriptor errors for alternate hardware.
+  * Python API: Fixed setDataHS1Enabled.
+
+BrainStem 2.9.19
+===============================================================================
+* New Features:
+  * USBHub3p: Added alternate hardware support.
+  * USBHub3c: LED/Fan self-testing
+* Bug Fixes:
+  * USBHub3p: Improved enumeration detection
+  * USBHub3c: Recovery from PD source
+  * USBHub3c: Port lockup from VConn enable.
+  * MTMDAQ2: Zero value glitches in ADC readings.
+
+BrainStem 2.9.18
+===============================================================================
+* New Features:
+  * StemTool (USBHub3c): New plot window.
+  * StemTool (USBHub3c): Added PD message plot correlation.
+  * StemTool (USBHub3c): Added time formatting for PD logging (app, device, system).
+  * USBHub3p: Improved thermal and input power protections. 
+* Bug Fixes:
+  * USBHub3c: Improved error recovery for over power conditions
+  * StemTool (USBHub3c): LED Indicators and other general UI improvements. 
+
+BrainStem 2.9.17 - No Software changes
+===============================================================================
+* Bug Fixes:
+  * USBHub3c: PD Compliance updates
+  * USBHub3c: Stability and internal use adjustments.
+
+BrainStem 2.9.16
+===============================================================================
+* Bug Fixes:
+  * USBHub3c: Fixed connection bug related to heartbeats
+  * USBHub2x4: Fixed issue where device wouldn't reset correctly
+  * StemTool: Minor form naming issue. 
+
+BrainStem 2.9.15 - No Software changes
+===============================================================================
+* USBHub3c: Firmware adjustments for internal use. 
+
+BrainStem 2.9.14
+===============================================================================
+* New Features:
+  * StemTool: USBHub3c form replicates LED indicators
+  * StemTool: Added error code text
+  * USBHub3c: Added DR_Swap and PPS_Status messages.
+  * USBHub3p: Made upstream mode saveable.
+* Bug Fixes:
+  * USBHub3c: Delayed PS_READY message until voltage stabilizes. 
+  * StemTool: Ubuntu 14.04 x86_64 would fail to launch
+  * USBHub3p: Fixed bugs in savable port state along with downstream port speed.
+
+BrainStem 2.9.13
+===============================================================================
+* New Features:
+  * LabVIEW API: Added Port, USBSystem and PowerDelivery API's
+  * USBHub3c: Added USB High Speed boost API's
+  * USBHub3c: Added support for extended messages.
+* Bug Fixes:
+  * StemTool: General UI improvements. 
+  * USBHub3c: QualComm, enumeration, voltage droop with high load. 
+
+BrainStem 2.9.12
+===============================================================================
+* New Features:
+  * PDLogging: Added extended messages
+* Bug Fixes:
+  * HubTool: Version control for "Auto VBus Toggle"
+  * StemTool: RDO control fixes
+  * BS Networking: Heartbeats for CHub to CHub.
+  * PDLogging: Incorrect port index
+  * Streaming: Bit adjustments
+
+BrainStem 2.9.11
+===============================================================================
+* New Features:
+  * USBHub3c: Add power accumulation.
+  * USBHub3c: BrainStem Networking support
+* Bug Fixes:
+  * MTM: BrainStem Networking (broken in 2.9.10)
+  * USBHub3c: Super speed for M1 macs
+  * USBHub3c: Check communications capable flag before data role swap.
+  * USBHub3c: Improved PD negotiations
+
+BrainStem 2.9.10
+===============================================================================
+* C++: Added Streaming interface. (USBHub3c only)
+* PDLogging: PDO, RDO and VDO decoding
+* USBCSwitch: Voltage and Current measurement improvements.
+
+BrainStem 2.9.9
+===============================================================================
+* .NET: Added support for USBHub3c.
+* StemTool: Added logging and pop-out plots for the USBHub3c.
+* StemTool: Plotting improvements and other bug fixes.
+
+BrainStem 2.9.8
+===============================================================================
+* Linux: Fixed deployment issue.
+* StemTool: Miscellaneous bug fixes. 
+
+BrainStem 2.9.7
+===============================================================================
+* USBHub3c: Improved power budgeting, fan and thermal protection algorithms
+* USBHub3c: Power Delivery and quick charge bug fixes
+* Python: Added all Acroname binaries to whl file (Universal whl)
+* StemTool: Added cable information and screenshot feature.
+* StemTool: Miscellaneous bug fixes and spelling corrections.
+
+BrainStem 2.9.6
+===============================================================================
+* Initial release of PD Logging
+* StemTool: Fixed crash related to USBHub3c
+* Added Apple silicon support
+* AcronameHubCLI: Added USBHub3c support
+
+BrainStem 2.9.5 - No Software changes
+===============================================================================
+* USBHub3c: Firmware adjustments for internal use. 
+
+BrainStem 2.9.4
+===============================================================================
+* USBHub3c: Added new behaviors for preferred port policy, including auto.
+* USBHub3c: Fixed power budgeting bugs. 
+* API: Added SBU voltage and data routing. 
+* Updater: Added build number support for the USBHub3c.
+
+BrainStem 2.9.3
+===============================================================================
+* Updater: Improvements for imx recovery, parameter checking and output. 
+* USBHub3p: Added vbus togging configuration options. 
+* USBHub3c: Added USB Entity legacy support
+
+BrainStem 2.9.2
+===============================================================================
+* Updater: Fixed bug related to offline updates. 
+
+BrainStem 2.9.1
+===============================================================================
+* USBHub3c: Updates to support licensed features. 
+* USBHub3c: USB stability fixes. 
+* USBHub3c: Added event logging.
+* USBHub3c: Added Power Budgeting and related API calls. 
+* Updater: Updates to support licensed features as well as USBHub3c recovery support.
+* StemTool: Added VBUS Validation support and disabling of unsupported features.
+* ReflexLoader: Added support for EEPROM and SD stores.
+
+BrainStem 2.9.0
+===============================================================================
+* USBHub3c: Release of new module
+* API: Added Power Delivery, Port and USBSystem Entities (C++ and python only)
+* Removed deprecated functions from 2.8.x release
+* StemTool: Rearranged layout
+* C++: Cleaned up namespace.
+
+BrainStem 2.8.9
+===============================================================================
+* USBHub2x4: Fixed upstream boost errors. 
+* LabVIEW API: Fixed incorrect function signatures for equalizer entity. 
+* API: Added length checking to I2C entity.
+* API: Deprecated Temperature::getTemperature in favor of Temperature::getValue.
+* AcronameHubCLI: Added executable to deployment (bin folder) and configured 
+                  static linking for the CLI example.
+
+BrainStem 2.8.8
+===============================================================================
+* USBHub2x4: Improve VBUS and VInput measurement filtering.
+* USBHub2x4: Fixed intermitent firmware update issue.
+* HubTool: Fix issue where USB2x4 current limits were not applied when requested.
+* Python Readme: Updated installation, and documentation cleanup.
+
+BrainStem 2.8.7
+===============================================================================
+* MTMIOSerial: Fixed bug in getPortState call
+* USBHub2x4: Aligned getPortStat with datasheet.
+* HubTool: BigSur adjustments and updated open source manifest.
+
+BrainStem 2.8.6
+===============================================================================
+* HubTool: Added device saveable hub and port labels.
+
+BrainStem 2.8.5
+===============================================================================
+* Brainstem Library: Fix issue where USB transaction timeouts on Windows that 
+            would result in intermittent link status and intermittent communication 
+            failures, most notably indicated by an erratic heartbeat LED on some modules.
+* Firmware: Fixed issue with long term stability of uptime, 
+            max temperature and system saved parameters.
+
+BrainStem 2.8.4
+===============================================================================
+* S79 Firmware: Fix issue with some xHCI host controllers where enumeration of 
+                a downstream port and device would cause the host controller to crash.
+
+BrainStem 2.8.3
+===============================================================================
+* Updater: Fixed bug in recovery
+* Python API: Fixed python2 compatibility issue.
+* HubTool: Added device log fetching (S79)
+
+BrainStem 2.8.2
+===============================================================================
+* USBHub3p: Fixed enumeration delay for port 0
+* HubTool: Fixed system information for when multiple hubs are connected.
+* StemTool: Integrated HubTool into StemTool.
+            Fixed MTM module insertion into device tree. 
+* Updater: Added additional error checking.
+           Fixed debug print error in Windows.
+
+BrainStem 2.8.1
+===============================================================================
+* MTMDAQ2: Added bulk capture.
+* MTMDAQ2: Bug Fix: Range change glitch
+* MTMPM1: Bug Fixes: Voltage rise with high temperature, voltage spike on
+          kelvin sense enable.
+* .NET API: USBClass::getPortError() and USBClass::getCableFlip() fix.
+
+BrainStem 2.8.0
+===============================================================================
+* MTMLoad1: Debut of new module.
+* Rail API expansion
+* Added examples
+* MTMDAQ2: Added Uptime logging
+* MTMPM1: Fixed overcurrent bug on Rail 1
+* Python: Separated Entity and Module classes into different files.
+
+BrainStem 2.7.15
+===============================================================================
+* MTMPM1: Improved handling of inrush current.
+
+BrainStem 2.7.14
+===============================================================================
+* MTMPM1: Fixed over current bug on rail 1.
+* MTMPM1: Implemented operational state elements for rail 1.
+* USBHub2x4: Improved power controller alert notification.
+* MTM-EtherStem: Added setVoltage implementation. 
+* Updated licensing information.
+
+BrainStem 2.7.13
+===============================================================================
+* USBHub3p: Improved voltage measurement accuracy.
+* USBHub3p: Improved back-voltage recovery.
+
+BrainStem 2.7.12
+===============================================================================
+* USBHub3p: Fixed enumeration issue when device is not powered
+* HubTool: Fixed memory leak associated with data logging.
+
+BrainStem 2.7.11
+===============================================================================
+* USBHub3p: Fixed upstream swapping bug from 2.7.10.
+* HubTool and StemTool: Added version to title bar.
+
+BrainStem 2.7.10
+===============================================================================
+* USBHub2x4 and USBHub3p: Multiple fixes addressing: enumeration, enumeration
+                          delay and other internal settings.
+* USBCSwitch (redriver): Bug fixes and added additional settings associated with
+                         the USB 2.0 redriver.
+* StemTool: Fixed scaling issues in Windows.
+* Added new deployments: Ubuntu 16.04 arm64v8
+                         Ubuntu 18.04 arm64v8
+                         Ubuntu 19.04 x86_64
+* Miscellaneous internal fixes.
+
+BrainStem 2.7.9
+===============================================================================
+* USBHub2x4: Fixed bug in port error handling.
+* HubTool: Plotting updates and fixes.
+* Added GUI applications to Ubuntu 18.04 deployment.
+* .NET API: Added strong naming to assemblies.
+
+BrainStem 2.7.8
+===============================================================================
+* USBCSwitch: Added missing redriver configurations.
+* Added missing Signal Entity to the C++ and C# API's
+* USBHub2x4: Fixed bug related to fast power cycling of downstream ports.
+* USBHub2x4: Applied fix to correctly apply downstream port profiles on boot.
+* USBHub2x4: Linked downstream enumeration delay to upstream connections.
+
+BrainStem 2.7.7
+===============================================================================
+* USBCSwitch: Fixed firmware bug affecting the USB 2.0 redriver
+* Updated and expanded examples for C++/Python/.NET
+* Created Equalizer Entity for LabVIEW Application
+* Exposed connectThroughLinkModule in .NET API.
+
+BrainStem 2.7.6
+===============================================================================
+* Pre-Release of .Net API
+
+BrainStem 2.7.5
+===============================================================================
+* USBHub3p: Fixed issue where saved settings were causing port 7 errors.
+* USBHub2x4: Fixed issue where saved settings could cause operational issues.
+* MTM-IO-Serial: Fixed issue where saved settings could cause operational issues.
+
+BrainStem 2.7.4
+===============================================================================
+* USBCSwitch Fix issue where daughter card wasn't being reported properly.
+
+BrainStem 2.7.3
+===============================================================================
+* USBCSwitch: Fixed issue where mux split was not operating as expected for certain configurations.
+* USBCSwitch: Fixed issue where vbus current measurements were limited to 3.906 amps.
+* StemTool (USBCSwitch): Fixed issues with portState values being updated incorrectly.
+* USBHub2x4 and USB-MTM-IOSerial: Fixed typos in header defines.
+* USBCSwitch: Added Equalizer capability for USBCSwitches with redriver cards.
+* BrainStem: Added Equalizer entity.
+
+BrainStem 2.7.2
+===============================================================================
+* USBHub3+: Fixed issue where incorrect serial number information in the Hub Controllers was causing a device not recognized error on MS windows.
+* USBCSwitch: Fixed issue where Mux split would not work when commanding certain configs.
+
+BrainStem 2.7.1
+===============================================================================
+* Updated documentation for port error bit status in the python help files.
+* Updated port error reporting within HubTool for Acroname USB hubs.
+* Fixed issue where ReflexLoader application was expecting BrainStem2 .dylib file.
+* Stability improvement for MTM-DAQ-2 where calls to set the analog measurement range would  fail with an aErrParse at a low frequency.
+
+BrainStem 2.7.0
+===============================================================================
+* Refactored USBCSwitch firmware so that it doesn't return aErrBusy.
+* Modified the discoverAndConnect function so that it will only connect to a
+  device that matches its object type.
+* Added calibration to the USBHub3P.
+* Added serial number to USBHub3p's USB device descriptors.
+* Python Bug fixes: I2C, typo in cffi layer.
+
+BrainStem 2.6.6
+===============================================================================
+* Updated BrainStem reflex header files. Fixes issue where reflexes would not compile correctly.
+* Fix issue where USBHub3p would recognize VSM messages and restart.
+* Fix bug in Updater causing network updates to fail.
+* Drop MTM-Relay voltage measurement due to parasitics.
+* Correct BrainStem reference.
+* Added Temperature entity to LabVIEW framework.
+* USBHub3p: Port enable now checks input power state and returns an error if no power adapter is plugged in.
+* StemTool: Added DAQ enable checkbox.
+
+BrainStem 2.6.5
+===============================================================================
+* Fixed bug in USBCSwitch which could result in commands being missed while
+  rapidly issuing commands to the USB and MUX entities.  Affect functions will
+  now return aErrBusy until the previous command was completed.
+* Added cmdSignal to LabVIEW API
+* Increased USBCSwitch VBus Sampling.
+* Created Ubuntu 18.04 deployment (no Qt)
+* Added command line example to deployments.
+* Various python connivence function fixes.
+* Fixed incorrect Module address of the MTMDAQ2
+
+BrainStem 2.6.4
+===============================================================================
+* MTM-DAQ-2 Initial release.
+* signal entity initial release.
+* Add USB Port mode bits to python library.
+* Align MTM-DAQ analog ranges.
+
+BrainStem 2.6.3
+===============================================================================
+* Added Multi-point VBUS to USBCSwitch
+* Fixed BrainStem network discovery in Updater.
+* Removed execution permissions from header files in Linux distribution
+* Fixed bug in usb port state.
+* Enabled individual flip for USBCSwitch in StemTool.
+* Added muxSplit to LabVIEW API.
+
+BrainStem 2.6.2
+===============================================================================
+* Fixes an issue with BrainStem networking. RouteToMe was being ignored.
+
+BrainStem 2.6.1
+===============================================================================
+* Added MUX configuration interface to enable 1:X mapping (default) or splitting
+  of interface functionally across various MUX channels (split). This extends
+  functionality of S85-USBC-SWITCH
+* Updates to StemTool to support MUX configuration functionally on S85-USBC-SWITCH.
+* Fixed spurious VBUS glitches on S77-USBHUB-2X4.
+
+BrainStem 2.6.0
+===============================================================================
+* Adds Python 2/3 compatibility.
+* LabVIEW API stability improvements.  (name changes will break backwards compatibility)
+* MTM-USBStem FW crash fix
+
+BrainStem 2.5.5
+===============================================================================
+* Fixed bug with brainstem.analog where the stem would reset when getting a value
+  after a setConfig was issued.
+* Added missing aDef.c to linux build.
+* Adding HubTool package to downloads list.
+
+BrainStem 2.5.4
+===============================================================================
+* USBHub3+ Stability improvement; Uncommon invalid input voltage caused a fault and
+	    loss of power on the downstream ports.
+* All BrainStems: Added pullDown config option to Digital entities.
+* All BrainStems: Added get/set all digitals command.
+* All BrainStems: Added convenience functions for printing errors and model names.
+
+BrainStem 2.5.3
+===============================================================================
+* USBHub3+ HubTool fixes for updated portState and portError.
+
+BrainStem 2.5.2
+===============================================================================
+* USBHub3+ portState variable bug fix.
+
+BrainStem 2.5.1
+===============================================================================
+* Full support for S84-MTM-DAQ-1
+* USBHub3P hub firmware recovery bug fix.
+
+BrainStem 2.5.0
+===============================================================================
+* Full support for S85-USB-C-Switch
+* Signed drivers and applications for Windows 10
+* System event logging, Uptime counter, and max temperature added to system entity.
+* Full support for MTM-DAQ-1
+* bug fix: Timer expiration fails with repeating timer after a number of cycles.
+* python setVoltage now handles negative values.
+* Bug fix: BrainStem SD card slot failing to load or unload slots.
+
+BrainStem 2.4.6
+===============================================================================
+* Bug Fix: USBCSwitch default settings are now properly written.
+
+BrainStem 2.4.5
+===============================================================================
+* LabVIEW library.
+* Included HubTool in Brainstem development kit.
+* Added USBC Switch Python and C++ examples.
+* Bug Fix: Inability to clear boot slot configuration.
+* Enable keep alive charging on CSwitch when mux is disabled.
+* Bug Fix: CC1 and CC2 current and voltage readings are reversed.
+* Bug Fix: Fixed typo in USBC-Switch product USB string descriptor.
+* Cleaned up python API for USBC-Switch functionality. Added CableFlip.
+* Added Linux Ubuntu 16.04 release packages.
+* Bug Fix: UART3 on MTM-IO-Serial was enabled by default.
+* MTM stems now support reading digital pins when they are in Hi-Z state.
+
+BrainStem 2.4.4 Features and Release Notes
+===============================================================================
+* USBCSwitch Initial release.
+* HubTool Application background (AppNap) improvements on OSX.
+* USBHub3p stability improvements.
+
+BrainStem 2.4.3 Features and Release Notes
+===============================================================================
+* MTM-USBStem analog bug fixes.
+* USBHub2x4 voltage measurement improvements.
+* StemTool bug fixes, Rail spinbox
+* StemTool bug fixes, Icon on MacOS
+* USBHub2x4 Linux bug fix
+* BrainStem library and QT compatibility improvements on linux
+
+BrainStem 2.4.2 Features and Release Notes
+===============================================================================
+* StemTool V2 Release
+* Added Null checks to C++ API
+* Extended example usage for ReflexLoader
+* Removed HB callback and Link Observer functions
+
+BrainStem 2.4.1 Features and Release Notes
+===============================================================================
+* Fixed Super speed enable/disable bug
+* Added option to enable/disable the auto retry function when reverse current
+  is detected
+* Removed extra Hub endpoints
+* Updated device descriptors in Windows.
+
+BrainStem 2.4.0 Features and Release Notes
+===============================================================================
+* Renamed MUX entity to UART. Previously, the MUX entity was used by MTMIOSerial
+	for enabling and disabling the UART channels. (Breaks backwards compatibility)
+* Created new MUX entity for channel selection of the USBCSwitch.
+* Added support for new Acroname devices: USBCSwitch and MTMDAQ1.
+* Bug and Stability Fixes.
+* See above for further details
+
+BrainStem 2.3.12 Features and Release Notes
+===============================================================================
+* Fixed bug where signed values for voltages and currents were not returned
+	properly in python.
+* Fixed incorrect I2C error
+* Fixed drifting current limit in the USBHub3p
+* Improved MTMIOSerial DAC accuracy.
+
+BrainStem 2.3.11 Features and Release Notes
+===============================================================================
+* Functionality: MTM-PM-1 rail functionality.
+
+BrainStem 2.3.10 Features and Release Notes
+===============================================================================
+* Bug Fixes: MTM-PM-1 stability improvements.
+* Functionality: MTM-PM-1 Improved current and voltage measurement and output
+  accuracy.
+* Functionality: Improved link connection time.
+
+BrainStem 2.3.9 Features and Release Notes
+===============================================================================
+* Bug Fixes: Stability improvements on MTM-PM-1 Rail 0 SMPS control.
+
+BrainStem 2.3.8 Features and Release Notes
+===============================================================================
+* Bug Fixes: Stability improvements on MTMPM1.
+
+BrainStem 2.3.7 Features and Release Notes
+===============================================================================
+* Bug Fixes: Stability improvements on USBHub2x4.
+* Feature: Save downstream port state on USBHub2x4.
+* Documentation: Improved product datasheets.
+* Bug fixes: Updater and ReflexLoader utilities.
+* Bug fix: Python signaling exception with multiThreaded applications.
+
+BrainStem 2.3.6 Features and Release Notes
+===============================================================================
+* USBHub3+ Continued stability improvements.
+* USBHub3+ re-enabled hub software reset functionality.
+
+BrainStem 2.3.5 Features and Release Notes
+===============================================================================
+* Signed versions of Windows Applications and libraries.
+* HubTool UI improvements
+* HubTool Stability improvements
+* USBHub3+ Stability improvements
+
+BrainStem 2.3.4 Features and Release Notes
+===============================================================================
+* Bugfix for Upstream control on USBHub3+
+
+BrainStem 2.3.3 Features and Release Notes
+===============================================================================
+* HubTool improvements.
+    * Plot zooming and adjustment.
+    * Save and reset indicators.
+* S79 Stability improvements.
+* S79 Temperature updates.
+* Bug Fix for TCP/IP discover and connect segmentation fault.
+* Bug Fix and Output improvements on Updater and ReflexLoader executables.
+* Bug Fix for MTM-PM-1 rail 1 over-current latching.
+
+BrainStem 2.3.2 Features and Release Notes
+===============================================================================
+* USBHub3p firmware fixes: Errors with Hubtool, Input current, mode and state fixes,
+  corrected LED’s, power up without host.
+* MTMPM1 Firmware fixes: Smoothed Rail0 voltage, Kelvin Sensing polarity
+* Documentation Fixes
+* Auto address update(host) for Software and Hardware offsets.
+
+BrainStem 2.3.1 Features and Release Notes
+===============================================================================
+* Added pointer entity to all brainstem devices for accessing the scratchpad
+  from the host.
+* USBHub3+ initial firmware release.
+* StemTool initial release.
+* Stability improvements with MTM-PM-1 module.
+* Auto address change (host)
+
+BrainStem 2.3.0 Features and Release Notes
+===============================================================================
+* Improved Link management.
+* Fixed memory leak in Link class.
+* Aligned C++ and Python naming conventions (Breaks backwards compatibility).
+* Removed the presence of "Link" in most cases from the C++ and python API layers.
+* Updated examples and documentation to reflect API changes.
+
+BrainStem 2.2.8	 Features and Release Notes
+===============================================================================
+* MTM-PM-1 New Feature: Rail0 auto mode for switching between linear and switcher+linear mode.
+* MTM-PM-1 Rail[0] temperature measurement fixes.
+* Fixes to system save functionality on MTM modules.
+
+BrainStem 2.2.7	 Features and Release Notes
+===============================================================================
+* Added General Call structure which includes new “routeToMe()” function
+  for automatically creating BrainStem I2C networks.
+* Added “linkDiscoverAndConnect()” function to python API.
+* Firmware fixes: Asynchronous call cleanup and other bugs
+* Windows improvements for HubTool
+
+BrainStem 2.2.6	 Features and Release Notes
+===============================================================================
+* Fixed connection issues associated with hardware offsets
+* Improved Python Link Connection
+* Added ForceRoute to stem link
+* MTMPM1: Bug fixes for temperature and current readings
+* Documentation updates
+
+BrainStem 2.2.5	 Features and Release Notes
+===============================================================================
+* Added arc compiler and ReflexLoader tool to bin directory.
+* MTM-PM-1: bug fixes.
+* RC-Servo implementation for MTM-IO-Serial modules.
+* BrainStem2 lib folder updates on MSWindows to support NI TestStand example.
+* USBHub2x4 Upstream port switching improvements and fix to downstream enumeration delay.
+
+BrainStem 2.2.4	 Features and Release Notes
+===============================================================================
+* StemTool GUI Initial release. manage your stem modules from a user friendly UI.
+* Digital IO - New Configuration mode to disconnect Digitals (Hi-Z).
+* Digital IO - RC Servo configuration and functionality for digital pins.
+* Updater Command line tool - Bug fixes and stability enhancements.
+* BrainStem 2 firmware - Bug fixes and stability improvements.
+
+BrainStem 2.2.3	Features and Release Notes
+===============================================================================
+* TCP/IP fallback IP address added (192.168.44.42)
+* Improved Rail functionality for MTM-PM-1 revision D.
+* Improved Firmware Updater reliability.
+* I2C speed control setting, and bug fix for I2C bus 1.
+* BrainStem connect and disconnect reconnect behavioral improvements.
+* Python, C, C++ Bug Fixes
+* Firmware bug fixes for soft reset behavior, and responsiveness.
+
+BrainStem 2.2.2 Features and Release Notes
+===============================================================================
+* Python consistency bug fix for reconnect call, return values are now consistently error
+  values.
+* Updated documentation and functionality for bulk capture call in BrainStem2
+* MS Windows backwards compatibility fix for USBHub2x4 discovery.
+
+BrainStem 2.2.1 Features and Release Notes
+===============================================================================
+* Python bug fix; Resolves inability to connect with serial number.
+* Python documentation, and modules; Updated MTMIOSerial and MTMPM1 modules docstrings.
+* C++ bug fix; Resolve issue with railClass causing segmentation faults on some systems.
+* Updater Output; Updated out put removes Success error message.
+
+BrainStem 2.2.0 Features and Release Notes
+===============================================================================
+* BrainStem C++ API updates.
+* Firmware extensions for Windows WinUSB support.
+* New Updater command line tool.
+* 64bit python wheel for Windows machines.
+* stability enhancements and bug fixes for MTM Modules.
+* Packet traffic logging for Debugging.
+* Extended linkspec to include model information.
+* Full “Driverless” support on Windows through WinUSB drivers.
+* MTMIOSerial switched to use cmdUSB, from cmdMUX.
+
+BrainSTem 2.1.5 Features and Release Notes
+===============================================================================
+* BrainStem driver updated to WinUSB for MS Windows OS.
+* MS Windows 8.1 and 10 support.
+* Apple Mac OS 10.11 El Capitan support.
+* Bug fixes for C/C++, Python, and BrainStem firmware.
+* Python classes now include Constant definititions and updated docstrings.
+
+BrainStem 2.1.4 Features and Release Notes
+===============================================================================
+* Additional controls for Module offsets, and adjustment of module base addresses.
+* software control of I2C bus pullups on MTM stems.
+* USBHub2x4 improvements, software control of SDP vs CDP downstream ports.
+* C++ SetLink now returns errors when unsuccessful.
+* Python Library bug fixes.
+
+BrainStem 2.1.3 Features and Release Notes
+===============================================================================
+* Python library bug fixes.
+* Python library install moved to wheel distribution.
+* MTMIOSerial module and MTMPM1 module now support rail OperationalState.
+* Analog Bulk Capture bug fixes.
+* Added App and Clock entities to python library modules.
+* Added slot loading and unloading to python library.
+* Fixed compilation errors for USBHub2x4 reflexes.
+
+BrainStem 2.1.2 Features and Release Notes
+===============================================================================
+* Python reconnect bug fix, improves reconnection to a stem.
+* Updated discovery process to check on all interfaces, resolves issues with
+  multi interface boxes not discovering connected Ethernet stems.
+* Updated list of module types to include MTMUSBStem and MTMEtherStem.
+* Added useful constant definitions in module headers or C++.
+
+BrainStem 2.1.1 Features and Release Notes
+===============================================================================
+* I2C was missing from stem.py module initialization.
+* Updated python link.Spec to provide consistent information.
+* Updated Python readme.
+* Updated python brainstem example.
+* Fixed issue with certain entities in python not returning results.
+* Updated linux driver install, to fix an issue where discover was not finding
+  all modules.
+
+BrainStem 2.1.0 Features and Release Notes
+===============================================================================
+* Major python library refactor, improves portability, reliability, and reduces
+  complexity.
+* Updated python setuptools install. Users will need setuptools in their python
+  environment.
+* New I2C entity to allow communication with third party devices over I2C (beta phase).
+  available via python and C++ API’s. Requires updated firmware for modules.
+* Updated documentation at http://www.acroname.com/reference
+* Small bug fixes, and stability improvements.
+
+BrainSTem 2.0.3 Features and Release Notes
+===============================================================================
+* Model definitions added to ProtocolDefs header.
+* HubTool now restricts connections to USBHub2x4 devices only.
+* HubTool source distribution made available under LGPL
+* HubTool stand alone executables bundled with Linux and Windows packages.
+* Bug fix: Potential double free removed as well as improved link connection and
+	   disconnection behavior.
+* Consolidated save functionality under system object. Now saves all applicable hub
+  configuration as well as other system configuration.
+* Updated enumeration delay to use millisecond resolution. Rather than indexed setting.
+* Bug Fix: USBHub2x4, improved stability of Port power controllers.
+
+BrainStem 2.0.2 Features and Release Notes
+===============================================================================
+* Python distutils install.
+* Updated python example.
+* Updated and expanded python readme.
+* BrainStem2 packet handling bug fix.
+* Added Module, and functionality for USBHub2x4
+* added example for USBHub2x4 c++
+
+BrainStem 2.0.0 New Features and Release Notes
+===============================================================================
+* !! **Python API** !!
+* BrainStem Link discover and connect.
+* C++ Namespacing.
+* Improved startup sequencing and control of BrainStem links.
+* Reduced dependency on external libraries.
+* Improved readability and source documentation.
+* Heartbeats handled by Library in C.
+
+
+Enjoy!
+
+The Acroname Team

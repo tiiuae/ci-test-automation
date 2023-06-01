@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2022-2023 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
 from PyP100 import PyP100
 from robot.libraries.BuiltIn import BuiltIn
 

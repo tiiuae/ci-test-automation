@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2022-2023 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
 *** Settings ***
 Documentation       Testing target device booting up.
 Force Tags          ssh_boot_test
@@ -64,4 +67,3 @@ Reboot Device
     Sleep    ${delay}
     Log To Console    Turning device on...
     Turn Plug On
-

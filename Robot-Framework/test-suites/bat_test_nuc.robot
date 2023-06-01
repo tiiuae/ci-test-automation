@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2022-2023 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
 *** Settings ***
 Documentation       Test for starting netvm and run some basic ping test through virtio-console device.
 Force Tags          netvm_boot_test
