@@ -1,0 +1,204 @@
+/////////////////////////////////////////////////////////////////////
+//                                                                 //
+// file: a40PinModule.reflex                                       //
+//                                                                 //
+/////////////////////////////////////////////////////////////////////
+//                                                                 //
+// description: BrainStem 40 Pin Module Reflex API's and support.  //
+//                                                                 //
+// build number: source                                            //
+//                                                                 //
+/////////////////////////////////////////////////////////////////////
+//                                                                 //
+// Copyright (c) 2018 Acroname Inc. - All Rights Reserved          //
+//                                                                 //
+// This file is part of the BrainStem release. See the license.txt //
+// file included with this package or go to                        //
+// https://acroname.com/software/brainstem-development-kit         //
+// for full license details.                                       //
+/////////////////////////////////////////////////////////////////////
+
+#ifndef __a40PinModule_reflex__
+#define __a40PinModule_reflex__
+
+#include "aProtocoldefs.h"
+
+module a40PinModule
+{
+    cmdANALOG[0]   { analogConfiguration,  0,                 ueiOPTION_GET }
+    cmdANALOG[0]   { analogVoltage,        0,                 ueiOPTION_GET }
+    cmdANALOG[1]   { analogConfiguration,  0,                 ueiOPTION_GET }
+    cmdANALOG[1]   { analogVoltage,        0,                 ueiOPTION_GET }
+    cmdANALOG[2]   { analogConfiguration,  0,                 ueiOPTION_GET }
+    cmdANALOG[2]   { analogVoltage,        0,                 ueiOPTION_GET }
+    cmdANALOG[3]   { analogConfiguration,  0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdANALOG[3]   { analogVoltage,        0, ueiOPTION_SET | ueiOPTION_GET }
+
+    cmdAPP[0] 	 { appExecute,		 0, ueiOPTION_SET 		  }
+    cmdAPP[0]	 { appReturn, 	         0, ueiOPTION_SET		  } 
+    cmdAPP[1] 	 { appExecute,		 0, ueiOPTION_SET 		  }
+    cmdAPP[1]	 { appReturn,            0, ueiOPTION_SET		  } 
+    cmdAPP[2] 	 { appExecute,		 0, ueiOPTION_SET 		  }
+    cmdAPP[2]	 { appReturn,            0, ueiOPTION_SET		  } 
+    cmdAPP[3] 	 { appExecute,		 0, ueiOPTION_SET 		  }
+    cmdAPP[3]	 { appReturn,            0, ueiOPTION_SET		  } 
+
+    cmdCLOCK[0]    { clockYear,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdCLOCK[0]    { clockMonth,           0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdCLOCK[0]    { clockDay,             0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdCLOCK[0]    { clockHour,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdCLOCK[0]    { clockMinute,          0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdCLOCK[0]    { clockSecond,          0, ueiOPTION_SET | ueiOPTION_GET }
+
+    cmdDIGITAL[0]  { digitalConfiguration, 0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[0]  { digitalState,         0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[1]  { digitalConfiguration, 0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[1]  { digitalState,         0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[2]  { digitalConfiguration, 0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[2]  { digitalState,         0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[3]  { digitalConfiguration, 0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[3]  { digitalState,         0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[4]  { digitalConfiguration, 0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[4]  { digitalState,         0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[5]  { digitalConfiguration, 0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[5]  { digitalState,         0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[6]  { digitalConfiguration, 0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[6]  { digitalState,         0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[7]  { digitalConfiguration, 0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[7]  { digitalState,         0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[8]  { digitalConfiguration, 0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[8]  { digitalState,         0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[9]  { digitalConfiguration, 0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[9]  { digitalState,         0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[10] { digitalConfiguration, 0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[10] { digitalState,         0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[11] { digitalConfiguration, 0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[11] { digitalState,         0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[12] { digitalConfiguration, 0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[12] { digitalState,         0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[13] { digitalConfiguration, 0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[13] { digitalState,         0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[14] { digitalConfiguration, 0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdDIGITAL[14] { digitalState,         0, ueiOPTION_SET | ueiOPTION_GET }
+
+    cmdPOINTER[0]  { pointerOffset,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[0]  { pointerMode,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[0]  { pointerTransferStore,     0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[0]  { pointerChar,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[0]  { pointerShort,             0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[0]  { pointerInt,               0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[0]  { pointerTransferToStore,   0, ueiOPTION_SET                 }
+    cmdPOINTER[0]  { pointerTransferFromStore, 0, ueiOPTION_SET                 }
+
+    cmdPOINTER[1]  { pointerOffset,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[1]  { pointerMode,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[1]  { pointerTransferStore,     0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[1]  { pointerChar,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[1]  { pointerShort,             0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[1]  { pointerInt,               0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[1]  { pointerTransferToStore,   0, ueiOPTION_SET                 }
+    cmdPOINTER[1]  { pointerTransferFromStore, 0, ueiOPTION_SET                 }
+
+    cmdPOINTER[2]  { pointerOffset,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[2]  { pointerMode,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[2]  { pointerTransferStore,     0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[2]  { pointerChar,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[2]  { pointerShort,             0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[2]  { pointerInt,               0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[2]  { pointerTransferToStore,   0, ueiOPTION_SET                 }
+    cmdPOINTER[2]  { pointerTransferFromStore, 0, ueiOPTION_SET                 }
+
+    cmdPOINTER[3]  { pointerOffset,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[3]  { pointerMode,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[3]  { pointerTransferStore,     0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[3]  { pointerChar,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[3]  { pointerShort,             0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[3]  { pointerInt,               0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[3]  { pointerTransferToStore,   0, ueiOPTION_SET                 }
+    cmdPOINTER[3]  { pointerTransferFromStore, 0, ueiOPTION_SET                 }
+
+    cmdSERVO[0]    { servoEnable,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSERVO[0]    { servoPosition,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSERVO[0]    { servoReverse,             0, ueiOPTION_SET | ueiOPTION_GET }
+
+    cmdSERVO[1]    { servoEnable,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSERVO[1]    { servoPosition,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSERVO[1]    { servoReverse,             0, ueiOPTION_SET | ueiOPTION_GET }
+
+    cmdSERVO[2]    { servoEnable,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSERVO[2]    { servoPosition,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSERVO[2]    { servoReverse,             0, ueiOPTION_SET | ueiOPTION_GET }
+
+    cmdSERVO[3]    { servoEnable,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSERVO[3]    { servoPosition,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSERVO[3]    { servoReverse,             0, ueiOPTION_SET | ueiOPTION_GET }
+
+    cmdSERVO[4]    { servoEnable,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSERVO[4]    { servoPosition,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSERVO[4]    { servoReverse,             0, ueiOPTION_SET | ueiOPTION_GET }
+
+    cmdSERVO[5]    { servoEnable,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSERVO[5]    { servoPosition,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSERVO[5]    { servoReverse,             0, ueiOPTION_SET | ueiOPTION_GET }
+
+    cmdSERVO[6]    { servoEnable,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSERVO[6]    { servoPosition,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSERVO[6]    { servoReverse,             0, ueiOPTION_SET | ueiOPTION_GET }
+
+    cmdSERVO[7]    { servoEnable,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSERVO[7]    { servoPosition,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSERVO[7]    { servoReverse,             0, ueiOPTION_SET | ueiOPTION_GET }
+
+    cmdSTORE[0]	 { storeSlotEnable,	 0, ueiOPTION_SET		  }
+    cmdSTORE[0]	 { storeSlotDisable,	 0, ueiOPTION_SET		  }
+    cmdSTORE[0]	 { storeSlotState,	 0,		    ueiOPTION_GET }
+    cmdSTORE[0]	 { storeWriteSlot,	 0,                 ueiOPTION_GET }
+    cmdSTORE[0]	 { storeReadSlot,	 0,                 ueiOPTION_GET }
+    cmdSTORE[0]	 { storeCloseSlot,	 0, ueiOPTION_SET                 }
+
+    cmdSTORE[1]	 { storeSlotEnable,	 0, ueiOPTION_SET		  }
+    cmdSTORE[1]	 { storeSlotDisable,	 0, ueiOPTION_SET		  }
+    cmdSTORE[1]	 { storeSlotState,	 0,		    ueiOPTION_GET }
+    cmdSTORE[1]	 { storeWriteSlot,	 0,                 ueiOPTION_GET }
+    cmdSTORE[1]	 { storeReadSlot,	 0,                 ueiOPTION_GET }
+    cmdSTORE[1]	 { storeCloseSlot,	 0, ueiOPTION_SET                 }
+
+    cmdSTORE[2]	 { storeSlotEnable,	 0, ueiOPTION_SET		  }
+    cmdSTORE[2]	 { storeSlotDisable,	 0, ueiOPTION_SET		  }
+    cmdSTORE[2]	 { storeSlotState,	 0,		    ueiOPTION_GET }
+    cmdSTORE[2]	 { storeWriteSlot,	 0,                 ueiOPTION_GET }
+    cmdSTORE[2]	 { storeReadSlot,	 0,                 ueiOPTION_GET }
+    cmdSTORE[2]	 { storeCloseSlot,	 0, ueiOPTION_SET                 }
+
+    cmdSYSTEM[0]   { systemModule,         0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSYSTEM[0]   { systemRouter,         0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSYSTEM[0]   { systemHBInterval,     0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSYSTEM[0]   { systemLED,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSYSTEM[0]   { systemSleep,          0, ueiOPTION_SET                 }
+    cmdSYSTEM[0]   { systemBootSlot,       0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSYSTEM[0]   { systemVersion,        0,                 ueiOPTION_GET }
+    cmdSYSTEM[0]   { systemModel,          0,                 ueiOPTION_GET }
+    cmdSYSTEM[0]   { systemSerialNumber,   0,                 ueiOPTION_GET }
+    cmdSYSTEM[0]   { systemSave,           0, ueiOPTION_SET                 }
+    cmdSYSTEM[0]   { systemReset,          0, ueiOPTION_SET                 }
+    cmdSYSTEM[0]   { systemInputVoltage,   0,                 ueiOPTION_GET }
+
+    cmdTIMER[0]    { timerExpiration,      0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[0]    { timerMode,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[1]    { timerExpiration,      0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[1]    { timerMode,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[2]    { timerExpiration,      0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[2]    { timerMode,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[3]    { timerExpiration,      0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[3]    { timerMode,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[4]    { timerExpiration,      0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[4]    { timerMode,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[5]    { timerExpiration,      0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[5]    { timerMode,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[6]    { timerExpiration,      0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[6]    { timerMode,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[7]    { timerExpiration,      0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[7]    { timerMode,            0, ueiOPTION_SET | ueiOPTION_GET }
+}
+
+#endif // __a40PinModule_reflex__

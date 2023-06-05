@@ -1,0 +1,37 @@
+#include <a40PinModule.reflex>
+
+// Create a reference to this module.
+a40PinModule stem;
+
+#define DELAY 1000000
+
+// Create a shared memory location for,
+// holding the counter.
+pad[0:0] char count;
+
+// mapEnable executes when the reflex is enabled.
+// we set upd the counter, set the timer mode to
+// repeat, and set the timer to expire after delay.
+
+reflex mapEnable() {
+    count = 0;
+    stem.timer[0].setMode(timerModeRepeat);
+    stem.timer[0].setExpiration(DELAY);
+}
+
+reflex timer[0].expiration(char val) {
+    char bOn = 0;
+    // We get the current LED state, we could
+    // just keep this information in another pad
+    // variable.
+    stem.system.getLED(bOn);
+    stem.system.setLED(!bOn);
+
+    // Once we've reached 5 flashes, remove
+    // the repetitive timer, by clearing its
+    // delay value.
+    if (count >= 10) {
+        stem.timer.setExpiration(0);
+    }
+    count = count + 1;
+}
