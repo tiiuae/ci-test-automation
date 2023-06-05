@@ -1,0 +1,147 @@
+/////////////////////////////////////////////////////////////////////
+//                                                                 //
+// file: aUSBHub3c.reflex                                          //
+//                                                                 //
+/////////////////////////////////////////////////////////////////////
+//                                                                 //
+// description: BrainStem USBHub3c Reflex API's and                //
+//              support.                                           //
+//                                                                 //
+// build number: source                                            //
+//                                                                 //
+/////////////////////////////////////////////////////////////////////
+//                                                                 //
+// Copyright (c) 2018 Acroname Inc. - All Rights Reserved          //
+//                                                                 //
+// This file is part of the BrainStem release. See the license.txt //
+// file included with this package or go to                        //
+// https://acroname.com/software/brainstem-development-kit         //
+// for full license details.                                       //
+/////////////////////////////////////////////////////////////////////
+
+#ifndef __aUSBHub3c_reflex__
+#define __aUSBHub3c_reflex__
+
+#include "aProtocoldefs.h"
+
+module aUSBHub3c
+{
+    cmdAPP[0]     { appExecute,                 0, ueiOPTION_SET                 }
+    cmdAPP[0]     { appReturn,                  0, ueiOPTION_SET                 }
+    cmdAPP[1]     { appExecute,                 0, ueiOPTION_SET                 }
+    cmdAPP[1]     { appReturn,                  0, ueiOPTION_SET                 }
+    cmdAPP[2]     { appExecute,                 0, ueiOPTION_SET                 }
+    cmdAPP[2]     { appReturn,                  0, ueiOPTION_SET                 }
+    cmdAPP[3]     { appExecute,                 0, ueiOPTION_SET                 }
+    cmdAPP[3]     { appReturn,                  0, ueiOPTION_SET                 }
+
+    cmdPOINTER[0]  { pointerOffset,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[0]  { pointerMode,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[0]  { pointerTransferStore,     0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[0]  { pointerChar,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[0]  { pointerShort,             0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[0]  { pointerInt,               0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[0]  { pointerTransferToStore,   0, ueiOPTION_SET                 }
+    cmdPOINTER[0]  { pointerTransferFromStore, 0, ueiOPTION_SET                 }
+
+    cmdPOINTER[1]  { pointerOffset,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[1]  { pointerMode,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[1]  { pointerTransferStore,     0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[1]  { pointerChar,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[1]  { pointerShort,             0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[1]  { pointerInt,               0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[1]  { pointerTransferToStore,   0, ueiOPTION_SET                 }
+    cmdPOINTER[1]  { pointerTransferFromStore, 0, ueiOPTION_SET                 }
+
+    cmdPOINTER[2]  { pointerOffset,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[2]  { pointerMode,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[2]  { pointerTransferStore,     0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[2]  { pointerChar,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[2]  { pointerShort,             0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[2]  { pointerInt,               0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[2]  { pointerTransferToStore,   0, ueiOPTION_SET                 }
+    cmdPOINTER[2]  { pointerTransferFromStore, 0, ueiOPTION_SET                 }
+
+    cmdPOINTER[3]  { pointerOffset,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[3]  { pointerMode,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[3]  { pointerTransferStore,     0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[3]  { pointerChar,              0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[3]  { pointerShort,             0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[3]  { pointerInt,               0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdPOINTER[3]  { pointerTransferToStore,   0, ueiOPTION_SET                 }
+    cmdPOINTER[3]  { pointerTransferFromStore, 0, ueiOPTION_SET                 }
+
+    cmdSTORE[0]   { storeSlotEnable,            0, ueiOPTION_SET                 }
+    cmdSTORE[0]   { storeSlotDisable,           0, ueiOPTION_SET                 }
+    cmdSTORE[0]   { storeSlotState,             0, ueiOPTION_GET                 }
+    cmdSTORE[0]   { storeWriteSlot,             0, ueiOPTION_GET                 }
+    cmdSTORE[0]   { storeReadSlot,              0, ueiOPTION_GET                 }
+    cmdSTORE[0]   { storeCloseSlot,             0, ueiOPTION_SET                 }
+
+    cmdSTORE[1]   { storeSlotEnable,            0, ueiOPTION_SET                 }
+    cmdSTORE[1]   { storeSlotDisable,           0, ueiOPTION_SET                 }
+    cmdSTORE[1]   { storeSlotState,             0, ueiOPTION_GET                 }
+    cmdSTORE[1]   { storeWriteSlot,             0, ueiOPTION_GET                 }
+    cmdSTORE[1]   { storeReadSlot,              0, ueiOPTION_GET                 }
+    cmdSTORE[1]   { storeCloseSlot,             0, ueiOPTION_SET                 }
+
+    cmdSYSTEM[0]  { systemModule,               0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSYSTEM[0]  { systemRouter,               0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSYSTEM[0]  { systemHBInterval,           0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSYSTEM[0]  { systemLED,                  0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSYSTEM[0]  { systemSleep,                0, ueiOPTION_SET                 }
+    cmdSYSTEM[0]  { systemBootSlot,             0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdSYSTEM[0]  { systemVersion,              0,                 ueiOPTION_GET }
+    cmdSYSTEM[0]  { systemModel,                0,                 ueiOPTION_GET }
+    cmdSYSTEM[0]  { systemSerialNumber,         0,                 ueiOPTION_GET }
+    cmdSYSTEM[0]  { systemSave,                 0, ueiOPTION_SET                 }
+    cmdSYSTEM[0]  { systemReset,                0, ueiOPTION_SET                 }
+    cmdSYSTEM[0]  { systemInputVoltage,         0,                 ueiOPTION_GET }
+    cmdSYSTEM[0]  { systemInputCurrent,         0,                 ueiOPTION_GET }
+
+    cmdTEMPERATURE[0] { temperatureMicroCelsius, 0,                ueiOPTION_GET }
+
+    cmdTIMER[0]   { timerExpiration,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[0]   { timerMode,                  0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[1]   { timerExpiration,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[1]   { timerMode,                  0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[2]   { timerExpiration,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[2]   { timerMode,                  0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[3]   { timerExpiration,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[3]   { timerMode,                  0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[4]   { timerExpiration,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[4]   { timerMode,                  0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[5]   { timerExpiration,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[5]   { timerMode,                  0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[6]   { timerExpiration,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[6]   { timerMode,                  0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[7]   { timerExpiration,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdTIMER[7]   { timerMode,                  0, ueiOPTION_SET | ueiOPTION_GET }
+
+    cmdUSB[0]     { usbPortEnable,              0, ueiOPTION_SET                 }
+    cmdUSB[0]     { usbPortDisable,             0, ueiOPTION_SET                 }
+    cmdUSB[0]     { usbDataEnable,              0, ueiOPTION_SET                 }
+    cmdUSB[0]     { usbDataDisable,             0, ueiOPTION_SET                 }
+    cmdUSB[0]     { usbHiSpeedDataEnable,       0, ueiOPTION_SET                 }
+    cmdUSB[0]     { usbHiSpeedDataDisable,      0, ueiOPTION_SET                 }
+    cmdUSB[0]     { usbSuperSpeedDataEnable,    0, ueiOPTION_SET                 }
+    cmdUSB[0]     { usbSuperSpeedDataDisable,   0, ueiOPTION_SET                 }
+    cmdUSB[0]     { usbPortMode,                0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdUSB[0]     { usbPortState,               0,                 ueiOPTION_GET }
+    cmdUSB[0]     { usbPortError,               0,                 ueiOPTION_GET }
+    cmdUSB[0]     { usbPowerEnable,             0, ueiOPTION_SET                 }
+    cmdUSB[0]     { usbPowerDisable,            0, ueiOPTION_SET                 }
+    cmdUSB[0]     { usbPortCurrent,             0,                 ueiOPTION_GET }
+    cmdUSB[0]     { usbPortVoltage,             0,                 ueiOPTION_GET }
+    cmdUSB[0]     { usbHubMode,                 0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdUSB[0]     { usbUpstreamMode,            0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdUSB[0]     { usbUpstreamState,           0,                 ueiOPTION_GET }
+    cmdUSB[0]     { usbHubEnumerationDelay,     0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdUSB[0]     { usbPortCurrentLimit,        0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdUSB[0]     { usbUpstreamBoostMode,       0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdUSB[0]     { usbDownstreamBoostMode,     0, ueiOPTION_SET | ueiOPTION_GET }
+    cmdUSB[0]     { usbDownstreamDataSpeed,     0,                 ueiOPTION_GET }
+
+}
+
+#endif // __aUSBHub3c_reflex__

@@ -1,0 +1,23 @@
+===============================================================================
+BrainStem2 C++ Example Readme
+===============================================================================
+
+This is an example for the BrainStem 2.0 library to show different ways to connect
+to BrainStem devices. When run, the executable will connect to user specified 
+devices (as determined by the c++ code.)
+
+Notes:
+===============================================================================
+
+# To build, copy the lib directory into this directory. The lib directory contains
+    the required header files, and the Brainstem2 shared object file.
+
+# The output directory is linux_BrainStem2Example/Debug.
+
+# A build step has been added to the project that copies the shared object into 
+    the build output directory. In addition the runpath is updated to search in
+    the same directory as the executable.
+
+If you have questions, please see the reference, or check out our guides 
+at www.acroname.com.
+

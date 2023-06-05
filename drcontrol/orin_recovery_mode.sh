@@ -1,8 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2022-2023 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
-# SPDX-FileCopyrightText: Ville-Pekka Juntunen <ville-pekka.juntunen@unikie.com>
-# SPDX-FileCopyrightText: 2023 Technology Innovation Institute (TII)
-# SPDX-FileCopyrightText: 2023 Unikie
 
 ############################################################################################################################
 
