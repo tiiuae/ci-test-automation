@@ -74,3 +74,17 @@ Kill process
         END
     END
     IF     ${ps_exists}     FAIL    Process chromium haven't stopped
+
+Verify service status
+    [Arguments]       ${range}=1   ${service}=${EMPTY}   ${expected_status}=active   ${expected_state}=running
+    [Documentation]   Check if service is running with given loop ${range}
+    Connect
+    ${start_time}=    Get Time	epoch
+    FOR    ${i}    IN RANGE    ${range}
+        ${output}=    Execute Command    systemctl status ${service}
+        ${result}=    Get Service Status    ${output}
+        ${status}   ${state}    Get Service Status    ${output}
+    END
+    Log To Console   NetVM status: ${result}
+    Should Be True	'${status}' == '${expected_status}'    Expected ${expected_status} but in fact ${status}
+    Should Be True	'${state}' == '${expected_state}'      Expected ${expected_state} but in fact ${state}
