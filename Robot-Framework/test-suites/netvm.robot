@@ -12,9 +12,9 @@ Suite Teardown      Close All Connections
 
 *** Variables ***
 ${netvm_ip}        192.168.101.1
-${SSID}            ${EMPTY}
-${wifi_pswd}       ${EMPTY}
-${netwotk_ip}      ${EMPTY}
+${SSID}            test_network
+${wifi_pswd}       test1234
+${netwotk_ip}      192.168.1.1
 
 
 *** Test Cases ***
