@@ -10,17 +10,17 @@ bootJob  = ''
 batJob   = ''
 nucDirectory = 'nuc_test_results'
 bootSuite = 'boot_test.robot'
-//batSuite = 'bat_test_nuc.robot'
+batSuite = './'
 
 pipeline {
-    agent { label 'tc-agent02' }
+    agent { label "${params.label}" }
     stages {
       stage('Set variables') {
           steps {
               script {
                   def splitted = "${JOB_NAME}".split('/')
                   bootJob  = "${splitted[0]}/Testing/NUC_x86/nuc_x86_boot_test"
-                  //batJob   = "development/Testing/Orin_arm/orin_arm_bat_test"
+                  batJob   = "${splitted[0]}/Testing/smoke_tests"
               }
            }
       }
@@ -33,7 +33,7 @@ pipeline {
                 // wait that USB drive is mounted
                 sh 'sleep 10'
                 def output = sh (
-                    script: 'lsblk -o model,name |grep PSSD',
+                    script: 'lsblk -o model,name |grep PSSD', // Check for usb device that is connected to target test device
                     returnStdout: true
                     ).trim()
                 def list = output.split(' ')
@@ -67,7 +67,7 @@ pipeline {
                   job: "${bootJob}", propagate: false,
                   parameters: [
                     [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${bootSuite}"],
-                    [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "Hydra buildID: ${params.buildID}"]
+                    [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"]
                   ]
               )
 
@@ -85,36 +85,37 @@ pipeline {
             }
           }
       }
-      // stage('BAT tests') {
-      //     when {
-      //       expression {
-      //           buildResults.boot == 'SUCCESS'
-      //       }
-      //     }
-      //     steps {
-      //       script{
-      //         // Make directory for test results
-      //         sh "mkdir ${params.resultsPath}/${params.buildID}/${nucDirectory}/bat"
-      //         build = build(
-      //             job: "${batJob}", propagate: false,
-      //             parameters: [
-      //               [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${batSuite}"],
-      //               [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "Hydra buildID: ${params.buildID}"]
-      //             ]
-      //         )
-      //         // copy report and log
-      //         sh "cp ~/Jenkins-agent/workspace/${batJob}/Robot-Framework/test-suites/report.html ${params.resultsPath}/${params.buildID}/${nucDirectory}/bat/report.html"
-      //         sh "cp ~/Jenkins-agent/workspace/${batJob}/Robot-Framework/test-suites/log.html ${params.resultsPath}/${params.buildID}/${nucDirectory}/bat/log.html"
-      //         if(build.result == "SUCCESS") {
-      //           buildResults."bat" = "SUCCESS"
-      //           echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
-      //         } else {
-      //           catchError(stageResult: 'FAILURE', buildResult: 'FAILURE'){
-      //                         error("BAT build failed")
-      //           }
-      //         }
-      //        }
-      //     }
-      // }
+      stage('BAT tests') {
+          when {
+            expression {
+                buildResults.boot == 'SUCCESS'
+            }
+          }
+          steps {
+            script{
+              // Make directory for test results
+              sh "mkdir ${params.resultsPath}/${params.buildID}/${nucDirectory}/bat"
+              build = build(
+                  job: "${batJob}", propagate: false,
+                  parameters: [
+                    [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${batSuite}"],
+                    [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
+                    [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "NUC1"]
+                  ]
+              )
+              // copy report and log
+              sh "cp ~/Jenkins-agent/workspace/${batJob}/Robot-Framework/test-suites/report.html ${params.resultsPath}/${params.buildID}/${nucDirectory}/bat/report.html"
+              sh "cp ~/Jenkins-agent/workspace/${batJob}/Robot-Framework/test-suites/log.html ${params.resultsPath}/${params.buildID}/${nucDirectory}/bat/log.html"
+              if(build.result == "SUCCESS") {
+                buildResults."bat" = "SUCCESS"
+                echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
+              } else {
+                catchError(stageResult: 'FAILURE', buildResult: 'FAILURE'){
+                              error("BAT build failed")
+                }
+              }
+             }
+          }
+      }
     }
 }
