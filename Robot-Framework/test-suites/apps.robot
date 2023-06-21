@@ -16,4 +16,7 @@ Start Chromium
     [Tags]            bat   SP-T45
     Start Chromium
     ${pid}=     Is Process Started    chromium
+    IF    ${pid} == None
+        FAIL    Chromium is not started
+    END
     [Teardown]  Kill process  ${pid}

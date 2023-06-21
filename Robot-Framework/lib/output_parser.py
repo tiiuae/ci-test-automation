@@ -33,4 +33,12 @@ def find_pid(output, proc_name):
     if pid:
         return pid
     else:
-        raise Exception(f"Process {proc_name} is not started")
+        return None
+
+def verify_shutdown_status(output):
+    output = re.sub(r'\033\[.*?m', '', output)   # remove colors from serial console output
+    match = re.search(r'ExecStop=.*\(code=(\w+), status=(.*)\)', output)
+    if match:
+        return match.group(1), match.group(2)
+    else:
+        raise Exception("Couldn't parse shutdown status")

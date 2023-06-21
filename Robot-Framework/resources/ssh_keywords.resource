@@ -9,22 +9,40 @@ Library             String
 Library             Process
 Library             ../lib/output_parser.py
 
-*** Variables ***
-${target_login_output}   ghaf@ghaf-host
 
 *** Keywords ***
+
 Ping Host
-    [Arguments]    ${hostname}
+    [Arguments]        ${hostname}
     [Documentation]    Ping the given hostname once and return boolen result
     ${ping_output}=    Run Process   ping ${hostname} -c 1   shell=True
     ${ping_success}    Run Keyword And Return Status    Should Contain    ${ping_output.stdout}    1 received
     Return From Keyword    ${ping_success}
 
+Check Network Availability
+    [Arguments]            ${host}  ${expected_result}=True  ${range}=5
+    Set Global Variable    ${is_available}   False
+    FOR   ${i}   IN RANGE  ${range}
+        Write    ping ${host} -c 1
+        TRY
+            Read Until           1 received
+            Set Global Variable  ${is_available}  True
+            BREAK
+        EXCEPT
+            CONTINUE
+        END
+    END
+    IF    ${is_available} != ${expected_result}
+        FAIL    Expected availability of ${host}: ${expected_result}, in fact: ${is_available}
+    END
+
 Connect
     [Documentation]   Set up the SSH connection to the device
-    Open Connection   ${DEVICE_IP_ADDRESS}
+    [Arguments]       ${IP}=${DEVICE_IP_ADDRESS}    ${PORT}=22    ${target_output}=ghaf@ghaf-host
+    ${connection}=    Open Connection    ${IP}    port=${PORT}
     ${output}=        Login     username=${LOGIN}    password=${PASSWORD}
-    Should Contain    ${output}    ${target_login_output}
+    Should Contain    ${output}    ${target_output}
+    [Return]          ${connection}
 
 Verify Systemctl status
     [Arguments]    ${range}=60
@@ -57,34 +75,62 @@ Is process started
     [Arguments]    ${proc_name}
     ${output}=    Execute Command    ps aux
     ${pid}=       Find Pid    ${output}  ${proc_name}
-    Log To Console    ${proc_name} PID: ${pid}
+    Log To Console    Process: ${proc_name}\n PID: ${pid}
     [Return]      ${pid}
 
 Kill process
-    [Arguments]  ${pid}
-    Execute Command    kill ${pid}
+    [Arguments]    ${pid}    ${sig}=15
+    Execute Command    kill -${sig} ${pid}
     FOR    ${i}    IN RANGE   5
-        TRY
-            Is Process Started    chromium
-            ${ps_exists}=     Set Variable    True
+        ${pid}=    Is Process Started    ${pid}
+        IF    ${pid} == None
+            ${ps_exists}=  Set Variable  False
             Sleep    0.5
-        EXCEPT
-            ${ps_exists}=     Set Variable    False
             BREAK
+        ELSE
+            ${ps_exists}=  Set Variable  True
         END
     END
-    IF     ${ps_exists}     FAIL    Process chromium haven't stopped
+    IF  ${ps_exists}  FAIL  Process chromium haven't stopped
 
 Verify service status
-    [Arguments]       ${range}=1   ${service}=${EMPTY}   ${expected_status}=active   ${expected_state}=running
     [Documentation]   Check if service is running with given loop ${range}
-    Connect
-    ${start_time}=    Get Time	epoch
+    [Arguments]       ${range}=1   ${service}=${EMPTY}   ${expected_status}=active   ${expected_state}=running
     FOR    ${i}    IN RANGE    ${range}
         ${output}=    Execute Command    systemctl status ${service}
         ${result}=    Get Service Status    ${output}
         ${status}   ${state}    Get Service Status    ${output}
     END
-    Log To Console   NetVM status: ${result}
-    Should Be True	'${status}' == '${expected_status}'    Expected ${expected_status} but in fact ${status}
-    Should Be True	'${state}' == '${expected_state}'      Expected ${expected_state} but in fact ${state}
+    Log To Console   Service status: ${result}
+    Should Be True	'${status}' == '${expected_status}'  Expected ${expected_status} but in fact ${status}
+    Should Be True	'${state}' == '${expected_state}'    Expected ${expected_state} but in fact ${state}
+    [Return]    ${status}  ${state}
+
+Verify service shutdown status
+    [Documentation]   Check if service was stopped properly
+    [Arguments]       ${service}=${EMPTY}   ${expected_code}=exited   ${expected_status}=0/SUCCESS
+    ${output}=          Execute Command    systemctl status ${service}
+    ${code}  ${status}  Verify shutdown status    ${output}
+    Log To Console    Service shutdown result: code=${code}, status=${status}
+    Should Be True	  '${code}' == '${expected_code}'      Expected ${expected_code} but in fact ${code}
+    Should Be True	  '${status}' == '${expected_status}'  Expected ${expected_status} but in fact ${status}
+
+Wait until NetVM service started
+    [Arguments]       ${timeout}=15
+    ${is_started} =   Set Variable    False
+    FOR    ${i}    IN RANGE    ${timeout}
+        ${output}=     Execute Command    systemctl status ${netvm_service}
+        ${status} =    Run Keyword And Return Status    Should Contain    ${output}    Welcome to NixOS
+        IF    ${status}
+            ${is_started} =  Set Variable    True
+            BREAK
+        END
+        Sleep    1
+    END
+    IF   ${status} == False    FAIL    NetVM is not ready after ${timeout}
+
+Create file
+    [Documentation]    Create file with given path & name, requires existing ssh connection
+    [Arguments]        ${file_name}
+    Execute Command    touch ${file_name}  sudo=True  sudo_password=${password}
+    SSHLibrary.File Should Exist  ${file_name}
