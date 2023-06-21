@@ -15,86 +15,186 @@ ${netvm_ip}        192.168.101.1
 ${SSID}            test_network
 ${wifi_pswd}       test1234
 ${netwotk_ip}      192.168.1.1
+${local_port}      9191
+${netvm_state}     ${EMPTY}
+${ghaf_host}       ${EMPTY}
+${netvm}           ${EMPTY}
 
 
 *** Test Cases ***
 
 Verify NetVM is started
-    [Documentation]         Verify thet NetVM is active and running
+    [Documentation]         Verify that NetVM is active and running
     [Tags]                  bat   SP-T49
+    [Setup]                 Connect to ghaf host
     Verify service status   service=${netvm_service}
-    Ping                    host=${netvm_ip}  expected_result=True  range=5
+    Check Network Availability      ${netvm_ip}    expected_result=True    range=5
     [Teardown]              Close All Connections
 
 Wifi passthrought into NetVM
-    [Documentation]         Verify thet wifi works inside netvm
-    [Tags]                  bat   SP-T50
-    ${host}  ${netvm_root}  Create connections
-    Switch Connection	    ${netvm_root}
-    Configure wifi          ${SSID}   ${wifi_pswd}
-    Ping                    expected_result=True
-    Switch Connection	    ${host}
-    Ping                    expected_result=False
-    [Teardown]              Remove Wifi configuration  ${netvm_root}
+    [Documentation]     Verify that wifi works inside netvm
+    [Tags]              bat   SP-T50
+    [Setup]             Run Keywords
+    ...                 Connect to ghaf host  AND  Connect to netvm via tunnel
+    Configure wifi      ${netvm}  ${SSID}  ${wifi_pswd}
+    Check Network Availability    ${netwotk_ip}  expected_result=True
+    Switch Connection	${ghaf_host}
+    Check Network Availability    ${netwotk_ip}  expected_result=False
+    [Teardown]          Remove Wifi configuration
+
+NetVM stops and starts successfully
+    [Documentation]     Verify that NetVM stops properly and starts after that
+    [Tags]              bat   SP-T52
+    [Setup]     Run Keywords  Connect to ghaf host  AND  Verify service status  service=${netvm_service}
+    Restart NetVM
+    [Teardown]  Run Keywords  Start NetVM if dead   AND  Close All Connections
+
+NetVM is wiped after restarting
+    [Documentation]     Verify that created file will be removed after restarting VM
+    [Tags]              bat   SP-T53
+    [Setup]             Run Keywords
+    ...                 Connect to ghaf host  AND  Connect to netvm via tunnel
+    Switch Connection   ${netvm}
+    Create file         /etc/test.txt
+    Switch Connection   ${ghaf_host}
+    Restart NetVM
+    Connect to netvm via tunnel
+    SSHLibrary.File Should Not Exist  /etc/test.txt
+    [Teardown]          Run Keywords   Close tunnel  ${ghaf_host}  AND  Close All Connections
 
 
 *** Keywords ***
 
-Create connections
-    ${host}=	    Open Connection    ${DEVICE_IP_ADDRESS}
-    Login           username=${LOGIN}  password=${PASSWORD}
+Restart NetVM
+    [Documentation]    Stop NetVM via systemctl, wait ${delay} and start NetVM
+    ...                Pre-condition: requires active ssh connection to ghaf host.
+    [Arguments]        ${delay}=3
+    Stop NetVM
+    Sleep  ${delay}
+    Start NetVM
+
+Create tunnel
+    [Documentation]  Set up forwarding from a local port through a tunneled connection to NetVM
+    ${command}=      Set Variable    ssh -o StrictHostKeyChecking=no -L ${DEVICE_IP_ADDRESS}:${local_port}:${NETVM_IP}:22 ${NETVM_IP} -fN
+    ${output}=       Execute Command   ${command}
+
+Close tunnel
+    [Documentation]    Check if tunnel to netvm exists and kill the process
+    [Arguments]        ${ghaf_host}
+    Switch Connection  ${ghaf_host}
+    ${command}=     Set Variable    ssh -o StrictHostKeyChecking=no -L ${DEVICE_IP_ADDRESS}:${local_port}:${NETVM_IP}:22 ${NETVM_IP} -fN
+    ${pid}=         Is process started    ${command}
+    IF  ${pid} != None
+        Log To Console  Going to kill process ${pid}
+        Kill process    ${pid}  9
+    END
+
+Connect to ghaf host
+    [Documentation]      Open ssh connection to ghaf host
+    ${connection}=       Connect
+    Set Global Variable  ${ghaf_host}    ${connection}
+    [Return]             ${connection}
+
+Connect to netvm in console
+    [Documentation]    Open connection to ghaf host and connect to NetVM inside the console, execute sudo su,
+    ...                allow executing commands in netvm only through Write/read
     ${netvm_root}=	Open Connection    ${DEVICE_IP_ADDRESS}
     Login           username=${LOGIN}  password=${PASSWORD}
+    Write           ssh-keygen -R ${netvm_ip}
     Login into NetVM
-    [Return]        ${host}  ${netvm_root}
+    [Return]        ${netvm_root}
+
+Connect to netvm via tunnel
+    [Documentation]    Create tunnel using port ${local_port}, connect to netvm directly from test run machine,
+    ...                allow using standard SSHLibrary commands, like 'Execute Command'
+    Log To Console     Configuring tunnel...
+    Switch connection  ${ghaf_host}
+    Close tunnel       ${ghaf_host}
+    Write              ssh-keygen -R ${netvm_ip}
+    Copy keys
+    Clear iptables rules
+    Create tunnel
+    ${connection}=       Connect     IP=${DEVICE_IP_ADDRESS}    PORT=${local_port}    target_output=ghaf@netvm
+    Set Global Variable  ${netvm}    ${connection}
+    [Return]           ${netvm}
+
+Copy keys
+    [Documentation]  Generate new local ssh keys and copy public keys to NetVM
+    Execute Command  rm /home/ghaf/.ssh/id_rsa
+    Write            ssh-keygen
+    Read Until       Enter file in which to save the key (/home/ghaf/.ssh/id_rsa):
+    Write            ${\n}
+    Read Until       Enter passphrase (empty for no passphrase):
+    Write            ${\n}
+    Read Until       Enter same passphrase again:
+    Write            ${\n}
+    Read Until       ghaf@ghaf-host:
+    Write            ssh-copy-id -o StrictHostKeyChecking=no ${netvm_ip}
+    ${output}=       Read       delay=30s
+    Should Contain   ${output}  Password:
+    Write            ${password}
+    Read Until       ghaf@ghaf-host:
+
+Clear iptables rules
+    [Documentation]  Clear IP tables rules to open ports for creating tunnel
+    Execute Command  iptables -F  sudo=True  sudo_password=${PASSWORD}
 
 Login into NetVM
-    Write       ssh-keygen -R ${netvm_ip}
-    Write       ssh ${LOGIN}@${netvm_ip}
-    ${output}=	Read	delay=0.5s
-    ${fingerprint}    Run Keyword And Return Status    Should Contain    ${output}     fingerprint
-    IF    ${fingerprint}
-        Write         yes
+    Write           ssh-keygen -R ${netvm_ip}
+    Write           ssh ${LOGIN}@${netvm_ip}
+    ${output}=	    Read	delay=0.5s
+    ${fingerprint}  Run Keyword And Return Status    Should Contain    ${output}     fingerprint
+    IF  ${fingerprint}
+        Write       yes
     END
-    ${output}=	Read	delay=0.5s
-    ${passw}    Run Keyword And Return Status    Should Contain    ${output}     Password
-    IF    ${passw}
-        Write         ${PASSWORD}
-        Read Until    ghaf@netvm
+    ${output}=	    Read    delay=0.5s
+    ${passw}        Run Keyword And Return Status    Should Contain    ${output}     Password
+    IF  ${passw}
+        Write       ${PASSWORD}
+        Read Until  ghaf@netvm
     END
-    Write         sudo su
-    Read Until    password
-    Write         ${PASSWORD}
-    Read Until    root@netvm
+    Write           sudo su
+    Read Until      password
+    Write           ${PASSWORD}
+    Read Until      root@netvm
 
 Configure wifi
-    [Arguments]   ${SSID}  ${passw}
-    Write         wpa_passphrase ${SSID} ${passw} > /etc/wpa_supplicant.conf
-    Write         systemctl restart wpa_supplicant.service
-    Read Until    @netvm
-
-Ping
-    [Arguments]            ${host}=${netwotk_ip}  ${expected_result}=True  ${range}=5
-    Set Global Variable    ${is_available}   False
-    FOR   ${i}   IN RANGE  ${range}
-        Write    ping ${host} -c 1
-        TRY
-            Read Until           1 received
-            Set Global Variable  ${is_available}  True
-            BREAK
-        EXCEPT
-            CONTINUE
-        END
-    END
-    IF    ${is_available} != ${expected_result}
-        FAIL    Expected availability of ${host}: ${expected_result}, in fact: ${is_available}
-    END
+    [Arguments]   ${netvm}  ${SSID}  ${passw}
+    Switch Connection  ${netvm}
+    Execute Command    sh -c "wpa_passphrase ${SSID} ${passw} > /etc/wpa_supplicant.conf"   sudo=True    sudo_password=${PASSWORD}
+    Execute Command    systemctl restart wpa_supplicant.service   sudo=True    sudo_password=${PASSWORD}
 
 Remove Wifi configuration
-    [Arguments]         ${netvm_root}
-    Switch Connection   ${netvm_root}
-    Write               rm /etc/wpa_supplicant.conf
-    Read Until          @netvm
-    Write               systemctl restart wpa_supplicant.service
-    Read Until          @netvm
+    Switch Connection   ${netvm}
+    Execute Command     rm /etc/wpa_supplicant.conf  sudo=True    sudo_password=${PASSWORD}
+    Execute Command     systemctl restart wpa_supplicant.service  sudo=True    sudo_password=${PASSWORD}
     [Teardown]          Close All Connections
+
+Stop NetVM
+    [Documentation]     Ensure that NetVM is started, stop it and check the status.
+    ...                 Pre-condition: requires active ssh connection to ghaf host.
+    Verify service status   service=${netvm_service}   expected_status=active   expected_state=running
+    Log To Console          Going to stop NetVM
+    Execute Command         systemctl stop ${netvm_service}  sudo=True  sudo_password=${PASSWORD}
+    Sleep    3
+    ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=inactive  expected_state=dead
+    Verify service shutdown status   service=${netvm_service}
+    Set Global Variable     ${netvm_state}   ${state}
+    Log To Console          NetVM is ${state}
+
+Start NetVM
+    [Documentation]     Try to start NetVM service
+    ...                 Pre-condition: requires active ssh connection to ghaf host.
+    Log To Console          Going to start NetVM
+    Execute Command         systemctl start ${netvm_service}  sudo=True  sudo_password=${PASSWORD}
+    ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=active  expected_state=running
+    Set Global Variable     ${netvm_state}   ${state}
+    Log To Console          NetVM is ${state}
+    Wait until NetVM service started
+
+Start NetVM if dead
+    [Documentation]     Teardown keyword. Check global variable ${netvm_state} and start NetVM if it's stopped.
+    ...                 Pre-condition: requires active ssh connection to ghaf host.
+    IF  '${netvm_state}' == 'dead'
+        Start NetVM
+    END
