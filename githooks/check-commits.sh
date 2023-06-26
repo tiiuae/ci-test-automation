@@ -35,8 +35,12 @@ function Help {
 
 case "${1,,}" in
 check-script)
-    if shellcheck "$0" "${SDIR}/check-commit.sh" && bashate -i E006 "$0" "${SDIR}/check-commit.sh"; then
-        echo "Nothing to complain"
+    if shellcheck --help > /dev/null 2>&1 && bashate --help > /dev/null 2>&1; then
+        if shellcheck "$0" && bashate -i E006 "$0"; then
+            echo "Nothing to complain"
+        fi
+    else
+        echo "Please install shellcheck and bashate to use check-script functionality"
     fi
     exit 7
 ;;
@@ -57,6 +61,11 @@ if [ -z "$GITHUB_CONTEXT" ]; then
     echo "GITHUB_CONTEXT is not set"
     echo ""
     Help
+fi
+
+if ! jq --version > /dev/null 2>&1; then
+    echo "::error title=ERROR::jq required for check-commits.sh to run"
+    exit 254
 fi
 
 if ! EVENT="$(jq -r .event_name <<< "$GITHUB_CONTEXT")"; then

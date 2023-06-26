@@ -19,7 +19,7 @@ This hook will check the commit message for most trivial mistakes against [curre
 
 ### Installing git hooks
 
-Just run ``install_hooks.sh`` in repository main directory, and you should be good to go. Commit message checking script will then run when you commit something.
+Just run ``./githooks/install-git-hooks.sh`` in repository main directory, and you should be good to go. Commit message checking script will then run when you commit something.
 
 If you have branches before the git hooks were committed to the repo, you'll have to either rebase them on top of main branch or cherry pick the git hooks commit into your branch.
 
