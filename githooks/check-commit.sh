@@ -65,8 +65,12 @@ MATCH=1
 while [ "$MATCH" -eq 1 ]; do
     case "${1,,}" in
     check-script)
-        if shellcheck "$0" && bashate -i E006 "$0"; then
-            echo "Nothing to complain"
+        if shellcheck --help > /dev/null 2>&1 && bashate --help > /dev/null 2>&1; then
+            if shellcheck "$0" && bashate -i E006 "$0"; then
+                echo "Nothing to complain"
+            fi
+        else
+            echo "Please install shellcheck and bashate to use check-script functionality"
         fi
         exit 1
     ;;
@@ -98,19 +102,8 @@ if [ -z "$NONINTERACTIVE" ]; then
     # Remove preceding spaces from subject line
     sed -i '1 s/^[[:space:]]*//' "$DEST"
 
-    # Find 'Jira-Id:' field case insensitively and replace with exact string 'Jira-Id: '
-    # Allow dashes, spaces, underscores and nothing between 'Jira' and 'Id'
-    # Remove extra spaces.
-    #sed -i 's/^[[:blank:]]*[jJ][iI][rR][aA][ _-]*[iI][dD][[:blank:]]*:[[:blank:]]*/Jira-Id: /g' "$DEST"
-
     # Reformat Signed-off-by field
     sed -i 's/^[[:blank:]]*[sS][iI][gG][nN][eE][dD][ _-]*[oO][fF][fF][ _-]*[bB][yY][[:blank:]]*:[[:blank:]]*/Signed-off-by: /g' "$DEST"
-
-    # Reformat Change-Id field
-    #sed -i 's/^[[:blank:]]*[cC][hH][aA][nN][gG][eE][ _-]*[iI][dD][[:blank:]]*:[[:blank:]]*/Change-Id: /g' "$DEST"
-
-    # Reformat Depends-On fields
-    #sed -i 's/^[[:blank:]]*[dD][eE][pP][eE][nN][dD][sS][ _-]*[oO][nN][[:blank:]]*:[[:blank:]]*/Depends-On: /g' "$DEST"
 fi
 
 SUBJECT="$(head -n 1 "$DEST")"
@@ -142,8 +135,6 @@ if [ "$BODYLINELEN" -gt 72 ]; then
 fi
 
 Check_count "Signed-off-by" "$DEST" 0
-#Check_count "Jira-Id" "$DEST" 0
-#Check_count "Change-Id" "$DEST" 0
 
 # If first word ends with "ing" or "ed" it is suspected that subject is not in imperative mood.
 # If there is a colon (:) in the subject then check the first word after colon. (Allows e.g. a filename at the start)
@@ -163,29 +154,11 @@ if [ -n "$FAILED" ]; then
 fi
 
 if [ -z "$NONINTERACTIVE" ]; then
-    # Grab list of Jira-Ids given
-    #JIRAIDS="$(grep -e "^Jira-Id:" "$DEST")"
-
     # Grab Signed-off-lines
     SIGNOFF="$(grep -e "^Signed-off-by:" "$DEST")"
 
-    # Grab Change-Id line
-    #CHANGEID="$(grep -e "^Change-Id:" "$DEST")"
-
-    # Grab Depends-On lines
-    #DEPSONS="$(grep -e "^Depends-On:" "$DEST" || true)"
-
-    # Delete the Jira-Id: -line
-    #sed -i '/^Jira-Id:/d' "$DEST"
-
     # Delete the Signed-off-by: -line
     sed -i '/^Signed-off-by:/d' "$DEST"
-
-    # Delete the Change-Id: -line
-    #sed -i '/^Change-Id:/d' "$DEST"
-
-    # Delete the Depends-On: -lines
-    #sed -i '/^Depends-On:/d' "$DEST"
 
     # Delete leading and trailing empty lines
     sed -i -e '/./,$!d' -e :a -e '/^\n*$/{$d;N;ba' -e '}' "$DEST"
@@ -193,17 +166,8 @@ if [ -z "$NONINTERACTIVE" ]; then
     {
         # Add an empty line
         printf "\n"
-        # Add Jira-Id line
-        #printf "\n%s\n" "$JIRAIDS"
         # Add Signed-off-by lines
         printf "%s\n" "$SIGNOFF"
-        # Add Change-Id line
-        #printf "%s\n" "$CHANGEID"
-
-        #if [ -n "$DEPSONS" ]; then
-        #    # Add Depends-On lines
-        #    printf "%s\n" "$DEPSONS"
-        #fi
     } >> "$DEST"
 
     if [ -n "$WARNED" ]; then
