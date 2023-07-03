@@ -17,8 +17,8 @@ ${IS_AVAILABLE}          False
 *** Test Cases ***
 
 Verify booting after restart by power
-    [Tags]    boot  plug
     [Documentation]    Restart device by power and verify systemctl status is running
+    [Tags]             boot  plug
     Reboot Device
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False
@@ -32,6 +32,13 @@ Verify booting after restart by power
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Verify Systemctl status via serial
     END
+
+Test version format
+    [Documentation]    Test getting version of the system including NixOS version, date and hash of commit
+    [Tags]             bat   SP-T59
+    [Setup]     Connect
+    Verify Version Format
+    [Teardown]  Close All Connections
 
 
 *** Keywords ***
