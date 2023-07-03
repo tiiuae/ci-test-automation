@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
+from datetime import datetime
 
 
 def get_systemctl_status(output):
@@ -42,3 +43,19 @@ def verify_shutdown_status(output):
         return match.group(1), match.group(2)
     else:
         raise Exception("Couldn't parse shutdown status")
+
+def verify_version_format(output):
+    version = output.split('.')
+
+def parse_version(output):
+    versions = output.split(' ')
+    name = versions[1][1:-1] if len(versions) > 1 else None
+    major, minor, date, commit = versions[0].split(".")
+    version = f"{major}.{minor}"
+    return version, date, commit, name
+
+def verify_date_format(date_string):
+    try:
+        datetime.strptime(date_string, '%Y%m%d')
+    except ValueError:
+        raise Exception("Wrong date format in version date field")

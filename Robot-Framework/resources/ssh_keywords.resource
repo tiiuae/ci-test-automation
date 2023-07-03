@@ -134,3 +134,22 @@ Create file
     [Arguments]        ${file_name}
     Execute Command    touch ${file_name}  sudo=True  sudo_password=${password}
     SSHLibrary.File Should Exist  ${file_name}
+
+Verify Version Format
+    [Documentation]    Check that ghaf-version contains date of commit in format yyyymmdd, 7 symbols of hash commit
+    ...                and returns the same NixOS version as the command "nixos-version"
+    ${nixos_version}  ${_}       ${_}       ${_}    Get Version    nixos
+    ${ghaf_version}   ${date}    ${commit}  ${_}    Get Version    ghaf
+    Should Be Equal As Strings   ${nixos_version}   ${ghaf_version}
+    Verify Date Format    ${date}
+    Should Match Regexp	  ${commit}   ^[0-9a-f]{7}$
+
+Get Version
+    [Documentation]    Get version of NixOS or Ghaf system, Examples:
+    ...     "ghaf-version"    output: 23.05.20230628.92414ab            parse result: 23.05, 20230628, 92414ab
+    ...     "nixos-version"   output: 23.05.20230625.35130d4 (Stoat)    parse result: 23.05, 20230625, 35130d4, Stoat
+    [Arguments]  ${whose}
+    ${output}   ${rc}    Execute Command   ${whose}-version   return_rc=True
+    Should Be Equal As Integers     ${rc}   0   Couldn't get ghaf version, command return code
+    ${version}  ${date}  ${commit}  ${name}     Parse Version   ${output}
+    [Return]    ${version}  ${date}  ${commit}  ${name}
