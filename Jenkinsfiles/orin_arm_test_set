@@ -10,7 +10,7 @@ bootJob  = ''
 batJob   = ''
 orinDirectory = 'orin_test_results'
 bootSuite = 'boot_test.robot'
-//batSuite = 'bat_test_orin.robot'
+batSuite = './'
 
 pipeline {
     agent { label 'tc-agent02' }
@@ -20,7 +20,7 @@ pipeline {
               script {
                   def splitted = "${JOB_NAME}".split('/')
                   bootJob  = "${splitted[0]}/Testing/Orin_arm/orin_arm_boot_test"
-                  //batJob   = "development/Testing/Orin_arm/orin_arm_bat_test"
+                  batJob   = "${splitted[0]}/Testing/smoke_tests"
               }
            }
       }
@@ -85,36 +85,36 @@ pipeline {
             }
           }
       }
-      // stage('BAT tests') {
-      //     when {
-      //       expression {
-      //           buildResults.boot == 'SUCCESS'
-      //       }
-      //     }
-      //     steps {
-      //       script{
-      //         // Make directory for test results
-      //         sh "mkdir ${params.resultsPath}/${params.buildID}/${orinDirectory}/bat"
-      //         build = build(
-      //             job: "${batJob}", propagate: false,
-      //             parameters: [
-      //               [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${batSuite}"],
-      //               [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "Hydra buildID: ${params.buildID}"]
-      //             ]
-      //         )
-      //         // copy report and log
-      //         sh "cp ~/Jenkins-agent/workspace/${batJob}/Robot-Framework/test-suites/report.html ${params.resultsPath}/${params.buildID}/${orinDirectory}/bat/report.html"
-      //         sh "cp ~/Jenkins-agent/workspace/${batJob}/Robot-Framework/test-suites/log.html ${params.resultsPath}/${params.buildID}/${orinDirectory}/bat/log.html"
-      //         if(build.result == "SUCCESS") {
-      //           buildResults."bat" = "SUCCESS"
-      //           echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
-      //         } else {
-      //           catchError(stageResult: 'FAILURE', buildResult: 'FAILURE'){
-      //                         error("BAT build failed")
-      //           }
-      //         }
-      //        }
-      //     }
-      // }
+       stage('BAT tests') {
+           when {
+             expression {
+                 buildResults.boot == 'SUCCESS'
+             }
+           }
+           steps {
+             script{
+               // Make directory for test results
+               sh "mkdir ${params.resultsPath}/${params.buildID}/${orinDirectory}/bat"
+               build = build(
+                   job: "${batJob}", propagate: false,
+                   parameters: [
+                     [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${batSuite}"],
+                     [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "Hydra buildID: ${params.buildID}"]
+                   ]
+               )
+               // copy report and log
+               sh "cp ~/Jenkins-agent/workspace/${batJob}/Robot-Framework/test-suites/report.html ${params.resultsPath}/${params.buildID}/${orinDirectory}/bat/report.html"
+               sh "cp ~/Jenkins-agent/workspace/${batJob}/Robot-Framework/test-suites/log.html ${params.resultsPath}/${params.buildID}/${orinDirectory}/bat/log.html"
+               if(build.result == "SUCCESS") {
+                 buildResults."bat" = "SUCCESS"
+                 echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
+               } else {
+                 catchError(stageResult: 'FAILURE', buildResult: 'FAILURE'){
+                               error("BAT build failed")
+                 }
+               }
+              }
+           }
+       }
     }
 }
