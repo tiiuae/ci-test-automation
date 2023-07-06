@@ -44,15 +44,11 @@ def verify_shutdown_status(output):
     else:
         raise Exception("Couldn't parse shutdown status")
 
-def verify_version_format(output):
-    version = output.split('.')
-
 def parse_version(output):
     versions = output.split(' ')
     name = versions[1][1:-1] if len(versions) > 1 else None
     major, minor, date, commit = versions[0].split(".")
-    version = f"{major}.{minor}"
-    return version, date, commit, name
+    return major, minor, date, commit, name
 
 def verify_date_format(date_string):
     try:

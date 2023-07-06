@@ -135,14 +135,29 @@ Create file
     Execute Command    touch ${file_name}  sudo=True  sudo_password=${password}
     SSHLibrary.File Should Exist  ${file_name}
 
-Verify Version Format
-    [Documentation]    Check that ghaf-version contains date of commit in format yyyymmdd, 7 symbols of hash commit
-    ...                and returns the same NixOS version as the command "nixos-version"
-    ${nixos_version}  ${_}       ${_}       ${_}    Get Version    nixos
-    ${ghaf_version}   ${date}    ${commit}  ${_}    Get Version    ghaf
-    Should Be Equal As Strings   ${nixos_version}   ${ghaf_version}
+Verify Ghaf Version Format
+    [Documentation]    Check that ghaf-version contains version number in the format:"dd.dd",
+    ...                date of commit in format yyyymmdd and 7 symbols of hash commit
+    ${major}  ${minor}  ${date}    ${commit}  ${name}    Get Version    ghaf
+    Should Match Regexp	  ${major}    ^\\d{2}$
+    Should Match Regexp	  ${minor}    ^\\d{2}$
     Verify Date Format    ${date}
     Should Match Regexp	  ${commit}   ^[0-9a-f]{7}$
+    IF  ${name} != None
+        FAIL    Unexpected string in Ghaf version: ${name}
+    END
+
+Verify Nixos Version Format
+    [Documentation]    Check that nixos-version contains version number in the format:"dd.dd",
+    ...                date of commit in format yyyymmdd, 7 symbols of hash commit and version name in brackets
+    ${major}  ${minor}  ${date}  ${commit}  ${name}    Get Version    nixos
+    Should Match Regexp	  ${major}   ^\\d{2}$
+    Should Match Regexp	  ${minor}   ^\\d{2}$
+    Verify Date Format    ${date}
+    Should Match Regexp	  ${commit}   ^[0-9a-f]{7}$
+    IF  '${name}' == 'None'
+        FAIL    Expected NixOS version name, but there is None
+    END
 
 Get Version
     [Documentation]    Get version of NixOS or Ghaf system, Examples:
@@ -151,5 +166,5 @@ Get Version
     [Arguments]  ${whose}
     ${output}   ${rc}    Execute Command   ${whose}-version   return_rc=True
     Should Be Equal As Integers     ${rc}   0   Couldn't get ghaf version, command return code
-    ${version}  ${date}  ${commit}  ${name}     Parse Version   ${output}
-    [Return]    ${version}  ${date}  ${commit}  ${name}
+    ${major}  ${minor}  ${date}  ${commit}  ${name}     Parse Version   ${output}
+    [Return]    ${major}  ${minor}  ${date}  ${commit}  ${name}
