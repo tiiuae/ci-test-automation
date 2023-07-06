@@ -33,11 +33,20 @@ Verify booting after restart by power
         Verify Systemctl status via serial
     END
 
-Test version format
-    [Documentation]    Test getting version of the system including NixOS version, date and hash of commit
+Test ghaf version format
+    [Documentation]    Test getting Ghaf version and verify its format:
+    ...                Expected format: major.minor.yyyymmdd.commit_hash
     [Tags]             bat   SP-T59
     [Setup]     Connect
-    Verify Version Format
+    Verify Ghaf Version Format
+    [Teardown]  Close All Connections
+
+Test nixos version format
+    [Documentation]    Test getting Nixos version and verify its format:
+    ...                Expected format: major.minor.yyyymmdd.commit_hash (name)
+    [Tags]             bat   SP-T60
+    [Setup]     Connect
+    Verify Nixos Version Format
     [Teardown]  Close All Connections
 
 
