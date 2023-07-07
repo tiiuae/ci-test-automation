@@ -25,16 +25,9 @@ def get_service_status(output):
 
 
 def find_pid(output, proc_name):
-    pid = None
     output = output.split('\n')
-    for line in output:
-        if proc_name in line:
-            pid = line.split()[1]
-            break
-    if pid:
-        return pid
-    else:
-        return None
+    pids = [line.split()[1] for line in output if proc_name in line]
+    return pids
 
 def verify_shutdown_status(output):
     output = re.sub(r'\033\[.*?m', '', output)   # remove colors from serial console output

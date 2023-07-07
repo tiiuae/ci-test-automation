@@ -68,30 +68,34 @@ Verify Systemctl status
 
 Start Chromium
     ${command}=     Set Variable    chromium-browser --enable-features=UseOzonePlatform --ozone-platform=wayland
-    Connect
     ${command_output}=    Execute Command    nohup ${command} > output.log 2>&1 &
 
 Is process started
+    [Arguments]    ${pid}
+    ${rc}=    Execute Command    ps -p ${pid}   return_rc=True
+    ${status}=  Run Keyword And Return Status   Should Be Equal As Integers	${rc}	0
+    [Return]    ${status}
+
+Find pid by name
     [Arguments]    ${proc_name}
     ${output}=    Execute Command    ps aux
-    ${pid}=       Find Pid    ${output}  ${proc_name}
-    Log To Console    Process: ${proc_name}\n PID: ${pid}
-    [Return]      ${pid}
+    @{pids}=      Find Pid    ${output}  ${proc_name}
+    Log To Console    Process: ${proc_name}\n PIDs: ${pids}
+    [Return]      @{pids}
 
 Kill process
-    [Arguments]    ${pid}    ${sig}=15
-    Execute Command    kill -${sig} ${pid}
-    FOR    ${i}    IN RANGE   5
-        ${pid}=    Is Process Started    ${pid}
-        IF    ${pid} == None
-            ${ps_exists}=  Set Variable  False
-            Sleep    0.5
-            BREAK
-        ELSE
-            ${ps_exists}=  Set Variable  True
+    [Arguments]    @{pids}    ${sig}=15
+    FOR   ${pid}  IN  @{pids}
+        Log To Console    Send kill -${sig} to ${pid}
+        Execute Command    kill -${sig} ${pid}
+        FOR    ${i}    IN RANGE   5
+            ${ps_exists}=    Is Process Started    ${pid}
+            IF  ${ps_exists}
+                Sleep    0.5
+            END
         END
+        IF  ${ps_exists}  FAIL  Process ${pid} haven't stopped
     END
-    IF  ${ps_exists}  FAIL  Process chromium haven't stopped
 
 Verify service status
     [Documentation]   Check if service is running with given loop ${range}

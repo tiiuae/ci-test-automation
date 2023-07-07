@@ -14,9 +14,8 @@ Suite Teardown      Close All Connections
 Start Chromium
     [Documentation]   Start Chromium and verify process started
     [Tags]            bat   SP-T45
+    Connect
     Start Chromium
-    ${pid}=     Is Process Started    chromium
-    IF    ${pid} == None
-        FAIL    Chromium is not started
-    END
-    [Teardown]  Kill process  ${pid}
+    @{pid}=         Find pid by name    chromium
+    Should Not Be Empty       ${pid}    Chromium is not started
+    [Teardown]  Kill process  @{pid}
