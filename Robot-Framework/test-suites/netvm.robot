@@ -83,10 +83,9 @@ Close tunnel
     [Arguments]        ${ghaf_host}
     Switch Connection  ${ghaf_host}
     ${command}=     Set Variable    ssh -o StrictHostKeyChecking=no -L ${DEVICE_IP_ADDRESS}:${local_port}:${NETVM_IP}:22 ${NETVM_IP} -fN
-    ${pid}=         Is process started    ${command}
-    IF  ${pid} != None
-        Log To Console  Going to kill process ${pid}
-        Kill process    ${pid}  9
+    @{pid}=         Find pid by name    ${command}
+    IF  @{pid} != @{EMPTY}
+        Kill process    @{pid}  sig=9
     END
 
 Connect to ghaf host
