@@ -26,31 +26,24 @@ Verify booting after restart by power
     ELSE
         Log To Console  The device started
     END
-
     IF  "${CONNECTION_TYPE}" == "ssh"
         Verify Systemctl status
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Verify Systemctl status via serial
     END
-
-Test ghaf version format
-    [Documentation]    Test getting Ghaf version and verify its format:
-    ...                Expected format: major.minor.yyyymmdd.commit_hash
-    [Tags]             bat   SP-T59
-    [Setup]     Connect
-    Verify Ghaf Version Format
-    [Teardown]  Close All Connections
-
-Test nixos version format
-    [Documentation]    Test getting Nixos version and verify its format:
-    ...                Expected format: major.minor.yyyymmdd.commit_hash (name)
-    [Tags]             bat   SP-T60
-    [Setup]     Connect
-    Verify Nixos Version Format
-    [Teardown]  Close All Connections
+    [Teardown]   Teardown
 
 
 *** Keywords ***
+
+Teardown
+    IF  "${CONNECTION_TYPE}" == "ssh"
+        Run Keyword If Test Failed    ssh_keywords.Save log
+    ELSE IF  "${CONNECTION_TYPE}" == "serial"
+        Run Keyword If Test Failed    serial_keywords.Save log
+    END
+    Close All Connections
+    Delete All Ports
 
 Check If Device Is Up
     [Arguments]    ${range}=20

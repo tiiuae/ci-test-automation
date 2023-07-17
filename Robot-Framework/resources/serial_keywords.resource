@@ -6,15 +6,18 @@ Library             SerialLibrary    encoding=ascii
 Resource            ../config/variables.robot
 Library             BuiltIn
 Library             String
+Library             AdvancedLogging
 Library             ../lib/output_parser.py
 
 *** Keywords ***
 Open Serial Port
+    [Arguments]    ${timeout}=1.0
     Add Port   ${SERIAL_PORT}
     ...        baudrate=115200
     ...        bytesize=8
     ...        parity=N
     ...        stopbits=1
+    ...        timeout=${timeout}
 
 Check Serial Connection
     [Documentation]    Check if device is available by serial
@@ -55,8 +58,7 @@ Log In To Ghaf OS
 Verify Systemctl status via serial
     [Arguments]    ${range}=60
     [Documentation]    Check is systemctl running with given loop ${range}
-    Open Serial Port
-    Log In To Ghaf OS
+    Connect via serial
     ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
         Write Data    systemctl status${\n}
@@ -71,7 +73,21 @@ Verify Systemctl status via serial
             Log To Console   Systemctl status is ${status}
             RETURN
         END
+        Sleep    1
     END
     ${diff}=    Evaluate    int(time.time()) - int(${start_time})
     FAIL    Systemctl is not running after ${diff} sec! Status is ${status}
     [Teardown]       Delete All Ports
+
+Connect via serial
+    [Arguments]     ${timeout}=1.0
+    Open Serial Port     timeout=${timeout}
+    Log In To Ghaf OS
+
+Save log
+    Connect via serial    timeout=60.0
+    Write Data    sh -c 'journalctl | tee jrnl.txt | cat'${\n}
+    ${output} =   SerialLibrary.Read Until    ghaf@ghaf-host:
+    Write Advanced Testlog    journalctl.log     ${output}
+    Log  ${output}
+    [Teardown]    Delete All Ports

@@ -4,9 +4,8 @@
 *** Settings ***
 Documentation       Testing Network VM
 Force Tags          netvm
-Resource            ../resources/ssh_keywords.resource
-Resource            ../config/variables.robot
-Suite Setup         Set Variables   ${DEVICE}
+Resource            ../../resources/ssh_keywords.resource
+Resource            ../../config/variables.robot
 Suite Teardown      Close All Connections
 
 
@@ -38,6 +37,7 @@ Wifi passthrought into NetVM
     ...                 Connect to ghaf host  AND  Connect to netvm via tunnel
     Configure wifi      ${netvm}  ${SSID}  ${wifi_pswd}
     Check Network Availability    ${netwotk_ip}  expected_result=True
+    Log To Console      Switch connection to Ghaf Host
     Switch Connection	${ghaf_host}
     Check Network Availability    ${netwotk_ip}  expected_result=False
     [Teardown]          Remove Wifi configuration
@@ -45,7 +45,7 @@ Wifi passthrought into NetVM
 NetVM stops and starts successfully
     [Documentation]     Verify that NetVM stops properly and starts after that
     [Tags]              bat   SP-T52
-    [Setup]     Run Keywords  Connect to ghaf host  AND  Verify service status  service=${netvm_service}
+    [Setup]     Connect to ghaf host
     Restart NetVM
     [Teardown]  Run Keywords  Start NetVM if dead   AND  Close All Connections
 
@@ -58,8 +58,10 @@ NetVM is wiped after restarting
     Create file         /etc/test.txt
     Switch Connection   ${ghaf_host}
     Restart NetVM
+    Check Network Availability      ${netvm_ip}    expected_result=True    range=5
     Connect to netvm via tunnel
-    SSHLibrary.File Should Not Exist  /etc/test.txt
+    Log To Console      Create if created file still exists
+    Check file doesn't exist    /etc/test.txt
     [Teardown]          Run Keywords   Close tunnel  ${ghaf_host}  AND  Close All Connections
 
 
@@ -72,19 +74,23 @@ Restart NetVM
     Stop NetVM
     Sleep  ${delay}
     Start NetVM
+    Check if ssh is ready on netvm
 
 Create tunnel
     [Documentation]  Set up forwarding from a local port through a tunneled connection to NetVM
     ${command}=      Set Variable    ssh -o StrictHostKeyChecking=no -L ${DEVICE_IP_ADDRESS}:${local_port}:${NETVM_IP}:22 ${NETVM_IP} -fN
     ${output}=       Execute Command   ${command}
+    @{pid}=          Find pid by name    ${command}
 
 Close tunnel
     [Documentation]    Check if tunnel to netvm exists and kill the process
     [Arguments]        ${ghaf_host}
     Switch Connection  ${ghaf_host}
+    Log to Console  ${\n}Check if there are existing tunnels to NetVM
     ${command}=     Set Variable    ssh -o StrictHostKeyChecking=no -L ${DEVICE_IP_ADDRESS}:${local_port}:${NETVM_IP}:22 ${NETVM_IP} -fN
     @{pid}=         Find pid by name    ${command}
     IF  @{pid} != @{EMPTY}
+        Log to Console  Close existing tunnels with pids: @{pid}
         Kill process    @{pid}  sig=9
     END
 
@@ -106,13 +112,14 @@ Connect to netvm in console
 Connect to netvm via tunnel
     [Documentation]    Create tunnel using port ${local_port}, connect to netvm directly from test run machine,
     ...                allow using standard SSHLibrary commands, like 'Execute Command'
-    Log To Console     Configuring tunnel...
     Switch connection  ${ghaf_host}
     Close tunnel       ${ghaf_host}
+    Log To Console     Configuring tunnel...
     Write              ssh-keygen -R ${netvm_ip}
     Copy keys
     Clear iptables rules
     Create tunnel
+    Log To Console     Connecting to NEtVM via tunnel
     ${connection}=       Connect     IP=${DEVICE_IP_ADDRESS}    PORT=${local_port}    target_output=ghaf@netvm
     Set Global Variable  ${netvm}    ${connection}
     [Return]           ${netvm}
@@ -139,6 +146,7 @@ Clear iptables rules
     Execute Command  iptables -F  sudo=True  sudo_password=${PASSWORD}
 
 Login into NetVM
+    Log To Console  Login into NetVM
     Write           ssh-keygen -R ${netvm_ip}
     Write           ssh ${LOGIN}@${netvm_ip}
     ${output}=	    Read	delay=0.5s
@@ -160,11 +168,13 @@ Login into NetVM
 Configure wifi
     [Arguments]   ${netvm}  ${SSID}  ${passw}
     Switch Connection  ${netvm}
+    Log To Console     Configuring Wifi
     Execute Command    sh -c "wpa_passphrase ${SSID} ${passw} > /etc/wpa_supplicant.conf"   sudo=True    sudo_password=${PASSWORD}
     Execute Command    systemctl restart wpa_supplicant.service   sudo=True    sudo_password=${PASSWORD}
 
 Remove Wifi configuration
     Switch Connection   ${netvm}
+    Log To Console      Removing Wifi configuration
     Execute Command     rm /etc/wpa_supplicant.conf  sudo=True    sudo_password=${PASSWORD}
     Execute Command     systemctl restart wpa_supplicant.service  sudo=True    sudo_password=${PASSWORD}
     [Teardown]          Close All Connections

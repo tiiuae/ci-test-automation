@@ -4,9 +4,8 @@
 *** Settings ***
 Documentation       Testing launching applications
 Force Tags          apps
-Resource            ../resources/ssh_keywords.resource
-Resource            ../config/variables.robot
-Suite Setup         Set Variables   ${DEVICE}
+Resource            ../../resources/ssh_keywords.resource
+Resource            ../../config/variables.robot
 Suite Teardown      Close All Connections
 
 *** Test Cases ***
