@@ -43,7 +43,7 @@ pipeline {
              }
           }
       }
-      stage('Write Spectrum OS image to USB disk') {
+      stage('Write OS image to USB disk') {
           steps {
             script {
               println("${params.image}")
