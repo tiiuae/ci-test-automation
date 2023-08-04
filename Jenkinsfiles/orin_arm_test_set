@@ -33,7 +33,7 @@ pipeline {
                 // wait that USB drive is mounted
                 sh 'sleep 10'
                 def output = sh (
-                    script: 'lsblk -o model,name |grep DataTraveler', // Check for usb device that is connected to target test device
+                    script: 'lsblk -o model,name |grep PSSD', // Check for usb device that is connected to target test device
                     returnStdout: true
                     ).trim()
                 def list = output.split(' ')
