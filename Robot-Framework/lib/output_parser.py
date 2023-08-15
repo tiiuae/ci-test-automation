@@ -48,3 +48,62 @@ def verify_date_format(date_string):
         datetime.strptime(date_string, '%Y%m%d')
     except ValueError:
         raise Exception("Wrong date format in version date field")
+
+def parse_cpu_results(output):
+    def extract_value(pattern, output):
+        match = re.search(pattern, output)
+        if match:
+            return match.group(1)
+        else:
+            raise Exception(f"Couldn't parse result of the test with pattern: {pattern}")
+
+    output = re.sub(r'\033\[.*?m', '', output)  # remove colors from serial console output
+
+    cpu_events_per_second = extract_value(r'events per second:\s*([.\d]+)', output)
+    min_latency = extract_value(r'min:\s+([.\d]+)', output)
+    max_latency = extract_value(r'max:\s+([.\d]+)', output)
+    avg_latency = extract_value(r'avg:\s+([.\d]+)', output)
+    cpu_events_per_thread = extract_value(r'events \(avg\/stddev\):\s+([.\d]+)', output)
+    cpu_events_per_thread_stddev = extract_value(r'events \(avg\/stddev\):\s+[.\d]+\/([.\d]+)', output)
+
+    cpu_data = {
+        'cpu_events_per_second': cpu_events_per_second,
+        'min_latency': min_latency,
+        'max_latency': max_latency,
+        'avg_latency': avg_latency,
+        'cpu_events_per_thread': cpu_events_per_thread,
+        'cpu_events_per_thread_stddev': cpu_events_per_thread_stddev
+    }
+
+    return cpu_data
+
+def parse_memory_results(output):
+    def extract_value(pattern, output):
+        match = re.search(pattern, output)
+        if match:
+            return match.group(1)
+        else:
+            raise Exception(f"Couldn't parse result of the test with pattern: {pattern}")
+
+    output = re.sub(r'\033\[.*?m', '', output)  # remove colors from serial console output
+
+    operations_per_second = extract_value(r'Total operations:\s*\d+ \(([.\d]+) per second', output)
+    data_transfer_speed = extract_value(r'\(([.\d]+) MiB\/sec\)', output)
+    min_latency = extract_value(r'min:\s+([.\d]+)', output)
+    max_latency = extract_value(r'max:\s+([.\d]+)', output)
+    avg_latency = extract_value(r'avg:\s+([.\d]+)', output)
+    avg_events_per_thread = extract_value(r'events \(avg\/stddev\):\s+([.\d]+)', output)
+    events_per_thread_stddev = extract_value(r'events \(avg\/stddev\):\s+[.\d]+\/([.\d]+)', output)
+
+    mem_data = {
+        'operations_per_second': operations_per_second,
+        'data_transfer_speed': data_transfer_speed,
+        'min_latency': min_latency,
+        'max_latency': max_latency,
+        'avg_latency': avg_latency,
+        'avg_events_per_thread': avg_events_per_thread,
+        'events_per_thread_stddev': events_per_thread_stddev
+    }
+
+    return mem_data
+

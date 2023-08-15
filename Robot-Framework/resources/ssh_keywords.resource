@@ -223,3 +223,16 @@ Check if ssh is ready on netvm
         Sleep    1
     END
     IF   ${status} == False    FAIL    Port 22 of NetVM is not ready after ${timeout}
+
+Install sysbench tool
+    ${command_output}=    Execute Command    nix-env --query --installed
+    ${not_installed} =	Run Keyword And Return Status	Should Not Contain    ${command_output}    sysbench
+    IF  ${not_installed}
+        Execute Command    nix-env -i sysbench
+        ${command_output}=    Execute Command    nix-env --query --installed
+        Log To Console    ${\n}Installed packages:${\n}${command_output}
+        Should Contain    ${command_output}    sysbench    sysbench tool was not installed
+        Log To Console    sysbench tool was succesfully installed
+    ELSE
+        Log To Console    ${\n}sysbench tool was already installed
+    END
