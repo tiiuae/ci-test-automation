@@ -5,7 +5,7 @@
   fetchPypi,
   robotframework,
   pyserial,
-  poetry-core
+  poetry-core,
 }:
 buildPythonPackage rec {
   version = "0.4.3";

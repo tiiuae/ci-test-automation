@@ -4,7 +4,7 @@
   fetchFromGitHub,
   pycryptodome,
   pkcs7,
-  requests
+  requests,
 }:
 buildPythonPackage rec {
   version = "0.1.2";

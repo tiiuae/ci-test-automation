@@ -26,7 +26,7 @@ buildPythonPackage rec {
 
   meta = with lib; {
     description = "python package pkcs7 conform for the RFC5652.";
-    homepage = ""https://github.com/jeppeter/pypkcs7;
+    homepage = "https://github.com/jeppeter/pypkcs7";
     license = licenses.mit;
   };
 }
