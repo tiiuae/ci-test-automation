@@ -7,6 +7,21 @@
 
 Jenkinsfiles, Robot framework suites, libraries and requirements for running tests to ghaf-project nixOS with real HW.
 
+## Nix Flake usage
+
+### Basic test running
+
+To enter a shell which has the `ghaf-robot` wrapper for running the Robot
+Framework, run `nix shell`.
+
+Alternatively, you can build the package with `nix build` and the wrapper will
+appear at `result/bin/ghaf-robot`.
+
+### Devshell
+
+To enter a devshell, where you can run `robot` (instead of the wrapper) and all
+the Python dependencies are available, run `nix develop`.
+
 ## drcontrol.py
 
 For more information, see [drcontrol-README.md](./drcontrol/drcontrol-README.md).
