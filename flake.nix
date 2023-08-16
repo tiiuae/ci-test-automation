@@ -19,9 +19,12 @@
     flake-utils.lib.eachSystem systems (system: let
       pkgs = nixpkgs.legacyPackages.${system};
     in {
-        packages.ghaf-robot = pkgs.callPackage ./Robot-Framework {};
-        packages.robotframework-seriallibrary = pkgs.python3Packages.callPackage ./pkgs/robotframework-seriallibrary {
-        packages.default = self.packages.${system}.ghaf-robot;
+      packages = rec {
+        ghaf-robot = pkgs.callPackage ./Robot-Framework {};
+        robotframework-seriallibrary = pkgs.python3Packages.callPackage ./pkgs/robotframework-seriallibrary { };
+        pkcs7 = pkgs.python3Packages.callPackage ./pkgs/pkcs7 { }; # Requirement of PyP100
+        PyP100 = pkgs.python3Packages.callPackage ./pkgs/PyP100 { inherit pkcs7; };
+        default = ghaf-robot;
       };
 
       # Development shell
@@ -31,6 +34,7 @@
             with ps; [
               robotframework
               self.packages.${system}.robotframework-seriallibrary
+              self.packages.${system}.PyP100
               robotframework-sshlibrary
               pyserial
             ]))
