@@ -4,9 +4,14 @@
 *** Settings ***
 Documentation       Testing target device booting up.
 Force Tags          ssh_boot_test
-Library             ../lib/TapoP100/tapo_p100.py
-# Alternatively you may use Kasa Plug
-# Library             ../lib/KasaPlug/kasaplug.py
+# PlugLibrary Usage:
+# * Tapo Plug:
+#   -v PLUG_TYPE:TAPOP100 (default, needs SOCKET_IP_ADDRESS, PLUG_USERNAME and
+#   			   PLUG_PASSWORD)
+# * Kasa Plug:
+#   -v PLUG_TYPE:KASAPLUG (needs only SOCKET_IP_ADDRESS)
+#
+Library             ../lib/PlugLibrary/PlugLibrary.py
 Resource            ../resources/serial_keywords.resource
 Resource            ../resources/ssh_keywords.resource
 Resource            ../config/variables.robot
