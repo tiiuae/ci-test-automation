@@ -14,6 +14,7 @@ writeShellApplication {
       ps.robotframework
       ps.robotframework-sshlibrary
       ps.pyserial
+      ps.python-kasa
 
       # These are taken from this flake
       robotframework-advancedlogging
