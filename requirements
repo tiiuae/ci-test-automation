@@ -4,3 +4,4 @@ robotframework-sshlibrary==3.8.0
 robotframework-advancedlogging==2.0.0
 robotframework==5.0.1
 PyP100==0.1.2
+python-kasa~=0.5.1

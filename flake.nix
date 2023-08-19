@@ -43,6 +43,7 @@
               self.packages.${system}.PyP100
               robotframework-sshlibrary
               pyserial
+              python-kasa
             ]))
         ];
       };
