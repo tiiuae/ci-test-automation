@@ -12,7 +12,7 @@ Suite Teardown      Close All Connections
 
 Start Chromium
     [Documentation]   Start Chromium and verify process started
-    [Tags]            bat   SP-T45
+    [Tags]            bat   SP-T45  nuc  orin-agx
     Connect
     Start Chromium
     @{pid}=         Find pid by name    chromium
