@@ -30,16 +30,20 @@ pipeline {
 
                   // Check for which agent and which target device
                   if ("${params.label}" == "tc-agent02"){
-                      if (params.device == "Orin"){
-                          deviceName = 'ORIN1'
-                      } else if (params.device == "NUC"){
+                      if (params.device == "orin-agx"){
+                          deviceName = 'OrinAGX1'
+                      } else if (params.device == "nuc"){
                           deviceName = 'NUC1'
+                      } else if (params.device == "orin-nx"){
+                          deviceName = 'OrinNX1'
                       }
                   } else if ("${params.label}" == "tc-agent03"){
-                      if (params.device == "Orin"){
-                          deviceName = 'ORIN2'
-                      } else if (params.device == "NUC"){
+                      if (params.device == "orin-agx"){
+                          deviceName = 'OrinAGX2'
+                      } else if (params.device == "nuc"){
                           deviceName = 'NUC2'
+                      } else if (params.device == "orin-nx"){
+                          deviceName = 'OrinNX2'
                       }
                   }
                   echo "DEVICE: ${deviceName}"
@@ -133,7 +137,8 @@ pipeline {
                   parameters: [
                     [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${batSuite}"],
                     [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
-                    [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"]
+                    [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
+                    [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "${params.device}"]
                   ]
               )
               // copy report and log
