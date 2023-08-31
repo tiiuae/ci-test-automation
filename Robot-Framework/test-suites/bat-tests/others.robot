@@ -10,7 +10,7 @@ Resource            ../../resources/ssh_keywords.resource
 Test ghaf version format
     [Documentation]    Test getting Ghaf version and verify its format:
     ...                Expected format: major.minor.yyyymmdd.commit_hash
-    [Tags]             bat   SP-T59
+    [Tags]             bat   SP-T59  nuc  orin-agx  orin-nx
     [Setup]     Connect
     Verify Ghaf Version Format
     [Teardown]  Close All Connections
@@ -18,7 +18,7 @@ Test ghaf version format
 Test nixos version format
     [Documentation]    Test getting Nixos version and verify its format:
     ...                Expected format: major.minor.yyyymmdd.commit_hash (name)
-    [Tags]             bat   SP-T60
+    [Tags]             bat   SP-T60  nuc  orin-agx  orin-nx
     [Setup]     Connect
     Verify Nixos Version Format
     [Teardown]  Close All Connections
