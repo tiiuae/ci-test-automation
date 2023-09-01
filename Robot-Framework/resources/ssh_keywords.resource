@@ -201,9 +201,11 @@ Get Version
     [Return]    ${major}  ${minor}  ${date}  ${commit}  ${name}
 
 Save log
+    Connect
     ${output}     Execute Command   journalctl > jrnl.txt${\n}
     ${output}     Execute Command   cat jrnl.txt${\n}
     Log  ${output}
+    Close All Connections
 
 Check if ssh is ready on netvm
     [Arguments]    ${timeout}=15
