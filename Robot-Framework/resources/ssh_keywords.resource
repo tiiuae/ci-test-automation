@@ -116,10 +116,11 @@ Kill process
 
 Verify service status
     [Documentation]   Check if service is running with given loop ${range}
-    [Arguments]       ${range}=1   ${service}=${EMPTY}   ${expected_status}=active   ${expected_state}=running
+    [Arguments]       ${range}=1   ${service}=${EMPTY}   ${expected_status}=active   ${expected_state}=running  ${expected_rc}=0
     FOR    ${i}    IN RANGE    ${range}
-        ${output}=    Execute Command    systemctl status ${service}
-        Log           ${output}
+        ${output}  ${stderr}  ${rc}=   Execute Command  systemctl status ${service}  return_stderr=True  return_rc=True
+        Log           stdout: ${output}\nstderr: ${stderr}
+        Should Not Be Equal As Integers	    ${rc}	4   Stderr: "${stderr}", Return code
         ${result}=    Get Service Status    ${output}
         ${status}   ${state}    Get Service Status    ${output}
     END
