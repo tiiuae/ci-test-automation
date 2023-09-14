@@ -33,8 +33,10 @@ Verify NetVM is started
 Wifi passthrought into NetVM
     [Documentation]     Verify that wifi works inside netvm
     [Tags]              bat   SP-T50  nuc  orin-agx  orin-nx
+    ...                 test:retry(1)
     [Setup]             Run Keywords
-    ...                 Connect to ghaf host  AND  Connect to netvm via tunnel
+    ...                 Connect to ghaf host  AND  Connect to netvm via tunnel  AND
+    ...                 Verify service status      service=wpa_supplicant.service
     Configure wifi      ${netvm}  ${SSID}  ${wifi_pswd}
     Check Network Availability    ${netwotk_ip}  expected_result=True
     Log To Console      Switch connection to Ghaf Host
@@ -63,6 +65,14 @@ NetVM is wiped after restarting
     Log To Console      Create if created file still exists
     Check file doesn't exist    /etc/test.txt
     [Teardown]          Run Keywords   Close tunnel  ${ghaf_host}  AND  Close All Connections
+
+Verify wpa_supplicant.service is running
+    [Documentation]     Verify that wpa_supplicant.service exists and is running
+    [Tags]              bat   SP-T82  nuc  orin-agx  orin-nx
+    [Setup]             Run Keywords
+    ...                 Connect to ghaf host  AND  Connect to netvm via tunnel
+    Switch Connection   ${netvm}
+    Verify service status   service=wpa_supplicant.service
 
 
 *** Keywords ***
