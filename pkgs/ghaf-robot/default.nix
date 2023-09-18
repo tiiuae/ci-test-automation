@@ -2,6 +2,7 @@
   PyP100,
   python3,
   robotframework-advancedlogging,
+  robotframework-retryfailed,
   robotframework-seriallibrary,
   stdenv,
   writeShellApplication,
@@ -18,6 +19,7 @@ writeShellApplication {
 
       # These are taken from this flake
       robotframework-advancedlogging
+      robotframework-retryfailed
       robotframework-seriallibrary
       PyP100
     ]))

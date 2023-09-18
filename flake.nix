@@ -23,8 +23,10 @@
         ghaf-robot = pkgs.callPackage ./pkgs/ghaf-robot {
           PyP100 = self.packages.${system}.PyP100;
           robotframework-advancedlogging = self.packages.${system}.robotframework-advancedlogging;
+          robotframework-retryfailed = self.packages.${system}.robotframework-retryfailed;
           robotframework-seriallibrary = self.packages.${system}.robotframework-seriallibrary;
         };
+        robotframework-retryfailed = pkgs.python3Packages.callPackage ./pkgs/robotframework-retryfailed {};
         robotframework-seriallibrary = pkgs.python3Packages.callPackage ./pkgs/robotframework-seriallibrary {};
         robotframework-advancedlogging = pkgs.python3Packages.callPackage ./pkgs/robotframework-advancedlogging {};
         pkcs7 = pkgs.python3Packages.callPackage ./pkgs/pkcs7 {}; # Requirement of PyP100
@@ -38,6 +40,7 @@
           (python3.withPackages (ps:
             with ps; [
               robotframework
+              self.packages.${system}.robotframework-retryfailed
               self.packages.${system}.robotframework-seriallibrary
               self.packages.${system}.robotframework-advancedlogging
               self.packages.${system}.PyP100
