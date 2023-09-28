@@ -14,6 +14,7 @@ def get_systemctl_status(output):
     else:
         raise Exception("Couldn't parse systemctl status")
 
+
 def get_service_status(output):
     output = re.sub(r'\033\[.*?m', '', output)   # remove colors from serial console output
     match = re.search(r'Active: (\w+) \((\w+)', output)
@@ -29,6 +30,7 @@ def find_pid(output, proc_name):
     pids = [line.split()[1] for line in output if proc_name in line]
     return pids
 
+
 def verify_shutdown_status(output):
     output = re.sub(r'\033\[.*?m', '', output)   # remove colors from serial console output
     match = re.search(r'ExecStop=.*\(code=(\w+), status=(.*)\)', output)
@@ -37,17 +39,20 @@ def verify_shutdown_status(output):
     else:
         raise Exception("Couldn't parse shutdown status")
 
+
 def parse_version(output):
     versions = output.split(' ')
     name = versions[1][1:-1] if len(versions) > 1 else None
     major, minor, date, commit = versions[0].split(".")
     return major, minor, date, commit, name
 
+
 def verify_date_format(date_string):
     try:
         datetime.strptime(date_string, '%Y%m%d')
     except ValueError:
         raise Exception("Wrong date format in version date field")
+
 
 def parse_cpu_results(output):
     def extract_value(pattern, output):
@@ -76,6 +81,7 @@ def parse_cpu_results(output):
     }
 
     return cpu_data
+
 
 def parse_memory_results(output):
     def extract_value(pattern, output):
@@ -107,3 +113,24 @@ def parse_memory_results(output):
 
     return mem_data
 
+
+def parse_iperf_output(output):
+    tx_pattern = r'\s(\d+(\.\d+)?) MBytes\/sec.*sender'
+    rx_pattern = r'\s(\d+(\.\d+)?) MBytes\/sec.*receiver'
+
+    match = re.search(tx_pattern, output)
+    if match:
+        tx = match.group(1)
+    else:
+        raise Exception(f"Couldn't parse TX, pattern: {tx_pattern}")
+
+    match = re.search(rx_pattern, output)
+    if match:
+        rx = match.group(1)
+    else:
+        raise Exception(f"Couldn't parse RX, pattern: {rx_pattern}")
+
+    return {
+        "tx": tx,
+        "rx": rx
+    }

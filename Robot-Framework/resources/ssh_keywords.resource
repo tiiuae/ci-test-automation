@@ -10,6 +10,10 @@ Library             Process
 Library             ../lib/output_parser.py
 
 
+*** Variables ***
+${netvm_ip}        192.168.101.1
+
+
 *** Keywords ***
 
 Ping Host
@@ -235,4 +239,17 @@ Install sysbench tool
         Log To Console    sysbench tool was succesfully installed
     ELSE
         Log To Console    ${\n}sysbench tool was already installed
+    END
+
+Install iperf tool
+    ${command_output}=    Execute Command    nix-env --query --installed
+    ${not_installed} =	  Run Keyword And Return Status	Should Not Contain    ${command_output}    iperf
+    IF  ${not_installed}
+        Execute Command   nix-env -i iperf
+        ${command_output}=    Execute Command    nix-env --query --installed
+        Log To Console    ${\n}Installed packages:${\n}${command_output}
+        Should Contain    ${command_output}    iperf    iperf tool was not installed
+        Log To Console    iperf tool was succesfully installed
+    ELSE
+        Log To Console    ${\n}iperf tool was already installed
     END
