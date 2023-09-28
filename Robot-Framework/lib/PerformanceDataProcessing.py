@@ -48,6 +48,14 @@ class PerformanceDataProcessing:
         self._write_to_csv(test_name, data)
 
     @keyword
+    def write_speed_to_csv(self, test_name, build_number, speed_data):
+        data = [build_number,
+                speed_data['tx'],
+                speed_data['rx'],
+                self.device]
+        self._write_to_csv(test_name, data)
+
+    @keyword
     def read_cpu_csv_and_plot(self, test_name):
         build_numbers = []
         cpu_events_per_second = []
@@ -77,19 +85,21 @@ class PerformanceDataProcessing:
         plt.subplot(3, 1, 1)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(build_numbers, cpu_events_per_second, marker='o', linestyle='-', color='b')
-        plt.title('CPU Events per Second', loc='right', fontweight="bold")
-        plt.ylabel('CPU Events per Second')
+        plt.yticks(fontsize=14)
+        plt.title('CPU Events per Second', loc='right', fontweight="bold", fontsize=16)
+        plt.ylabel('CPU Events per Second', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers)
+        plt.xticks(build_numbers, fontsize=14)
 
         # Plot 2: CPU Events per Thread
         plt.subplot(3, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(build_numbers, cpu_events_per_thread, marker='o', linestyle='-', color='b')
-        plt.title('CPU Events per Thread', loc='right', fontweight="bold")
-        plt.ylabel('CPU Events per Thread')
+        plt.yticks(fontsize=14)
+        plt.title('CPU Events per Thread', loc='right', fontweight="bold", fontsize=16)
+        plt.ylabel('CPU Events per Thread', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers)
+        plt.xticks(build_numbers, fontsize=14)
         # Create line chart with error bars on the same subplot
         plt.errorbar(build_numbers, cpu_events_per_thread,
                      yerr=cpu_events_per_thread_stddev,
@@ -99,19 +109,20 @@ class PerformanceDataProcessing:
         plt.subplot(3, 1, 3)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(build_numbers, avg_latency, marker='o', linestyle='-', color='b', label='Avg')
-        plt.ylabel('Avg Latency (ms)')
+        plt.ylabel('Avg Latency (ms)', fontsize=16)
         plt.legend(loc='upper left')
-        plt.xlabel('Build Number')
+        plt.xlabel('Build Number', fontsize=16)
         plt.twinx()
         plt.plot(build_numbers, max_latency, marker='o', linestyle='-', color='r', label='Max')
         plt.plot(build_numbers, min_latency, marker='o', linestyle='-', color='g', label='Min')
-        plt.ylabel('Max/Min Latency (ms)')
+        plt.yticks(fontsize=14)
+        plt.ylabel('Max/Min Latency (ms)', fontsize=16)
         plt.legend(loc='upper right')
-        plt.title('Latency', loc='right', fontweight="bold")
+        plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers)
+        plt.xticks(build_numbers, fontsize=14)
 
-        plt.suptitle(f'{test_name} ({self.device})', fontsize=16, fontweight='bold')
+        plt.suptitle(f'{test_name} ({self.device})', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
         plt.savefig(f'../test-suites/{self.device}_{test_name}.png')  # Save the plot as an image file
@@ -148,37 +159,85 @@ class PerformanceDataProcessing:
         plt.subplot(3, 1, 1)
         plt.ticklabel_format(axis='y', style='sci', useMathText=True)
         plt.plot(build_numbers, operations_per_second, marker='o', linestyle='-', color='b')
-        plt.title('Operations per Second', loc='right', fontweight="bold")
-        plt.ylabel('Operations per Second')
+        plt.yticks(fontsize=14)
+        plt.title('Operations per Second', loc='right', fontweight="bold", fontsize=16)
+        plt.ylabel('Operations per Second', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers)
+        plt.xticks(build_numbers, fontsize=14)
 
         # Plot 2: Data Transfer Speed
         plt.subplot(3, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(build_numbers, data_transfer_speed, marker='o', linestyle='-', color='b')
-        plt.title('Data Transfer Speed', loc='right', fontweight="bold")
-        plt.ylabel('Data Transfer Speed (MiB/sec)')
+        plt.yticks(fontsize=14)
+        plt.title('Data Transfer Speed', loc='right', fontweight="bold", fontsize=16)
+        plt.ylabel('Data Transfer Speed (MiB/sec)', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers)
+        plt.xticks(build_numbers, fontsize=14)
 
         # Plot 3: Latency
         plt.subplot(3, 1, 3)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(build_numbers, avg_latency, marker='o', linestyle='-', color='b', label='Avg')
-        plt.ylabel('Avg Latency (ms)')
+        plt.ylabel('Avg Latency (ms)', fontsize=16)
         plt.legend(loc='upper left')
         plt.grid(True)
-        plt.xlabel('Build Number')
+        plt.xlabel('Build Number', fontsize=16)
         plt.twinx()
         plt.plot(build_numbers, max_latency, marker='o', linestyle='-', color='r', label='Max')
         plt.plot(build_numbers, min_latency, marker='o', linestyle='-', color='g', label='Min')
-        plt.ylabel('Max/Min Latency (ms)')
+        plt.yticks(fontsize=14)
+        plt.ylabel('Max/Min Latency (ms)', fontsize=16)
         plt.legend(loc='upper right')
-        plt.title('Latency', loc='right', fontweight="bold")
-        plt.xticks(build_numbers)
+        plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
+        plt.xticks(build_numbers, fontsize=14)
 
-        plt.suptitle(f'{test_name} ({self.device})', fontsize=16, fontweight='bold')
+        plt.suptitle(f'{test_name} ({self.device})', fontsize=18, fontweight='bold')
+
+        plt.tight_layout()
+        plt.savefig(f'../test-suites/{self.device}_{test_name}.png')  # Save the plot as an image file
+
+    @keyword
+    def read_speed_csv_and_plot(self, test_name):
+        build_numbers = []
+        tx = []
+        rx = []
+
+        with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
+            csvreader = csv.reader(csvfile)
+            logging.info("Reading data from csv file...")
+            for row in csvreader:
+                if row[3] == self.device:
+                    build_numbers.append(str(row[0]))
+                    tx.append(float(row[1]))
+                    rx.append(float(row[2]))
+
+        plt.figure(figsize=(20, 10))
+        plt.set_loglevel('WARNING')
+
+        # Plot 1: TX
+        plt.subplot(2, 1, 1)
+        plt.ticklabel_format(axis='y', style='plain')
+        plt.plot(build_numbers, tx, marker='o', linestyle='-', color='b')
+        plt.yticks(fontsize=14)
+        plt.title('Transmitting Speed', loc='right', fontweight="bold", fontsize=16)
+        plt.ylabel('TX Speed (MBytes/sec)', fontsize=16)
+        plt.grid(True)
+        plt.xticks(build_numbers, fontsize=14)
+
+        # Plot 2: RX
+        plt.subplot(2, 1, 2)
+        plt.ticklabel_format(axis='y', style='plain')
+        plt.plot(build_numbers, rx, marker='o', linestyle='-', color='b')
+        plt.yticks(fontsize=14)
+        plt.title('Receiving Speed', loc='right', fontweight="bold", fontsize=16)
+        plt.ylabel('RX Speed (MBytes/sec)', fontsize=16)
+        plt.grid(True)
+        plt.xticks(build_numbers, fontsize=14)
+
+        plt.xlabel('Build Number', fontsize=16)
+
+        plt.suptitle(f'{test_name} ({self.device})', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
         plt.savefig(f'../test-suites/{self.device}_{test_name}.png')  # Save the plot as an image file
@@ -194,3 +253,9 @@ class PerformanceDataProcessing:
 
         self.write_mem_to_csv(test_name, build_number, cpu_data)
         self.read_mem_csv_and_plot(test_name)
+
+    @keyword
+    def save_speed_data(self, test_name, build_number, cpu_data):
+
+        self.write_speed_to_csv(test_name, build_number, cpu_data)
+        self.read_speed_csv_and_plot(test_name)
