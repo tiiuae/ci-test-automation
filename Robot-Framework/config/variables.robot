@@ -4,6 +4,12 @@
 *** Settings ***
 Library    OperatingSystem
 
+
+*** Variables ***
+
+${BUILD_ID}      ${EMPTY}
+
+
 *** Keywords ***
 
 Set Variables

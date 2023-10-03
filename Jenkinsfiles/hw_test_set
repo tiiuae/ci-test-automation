@@ -12,6 +12,7 @@ resultsDirectory = ''
 configPath = ''
 zipImagePath = ''
 bootSuite = 'boot_test.robot'
+performanceSuite = 'performance/'
 batSuite = './'
 deviceName = ''
 usbHubSerial = ''
@@ -27,6 +28,7 @@ pipeline {
                     def splitted = "${JOB_NAME}".split('/')
                     bootJob  = "${splitted[0]}/Testing/boot_test"
                     batJob   = "${splitted[0]}/Testing/smoke_tests"
+                    performanceJob   = "${splitted[0]}/Testing/Performance_tests"
                     configPath = "/home/${params.label}/Jenkins-agent/workspace/${splitted[0]}/Testing/test_config.json"
 
                     // Check for which agent and which target device
@@ -166,7 +168,37 @@ pipeline {
                     } else {
                         catchError(stageResult: 'FAILURE', buildResult: 'FAILURE'){
                             error("BAT build failed")
-                      }
+                        }
+                    }
+                }
+            }
+        }
+        stage('Performance tests') {
+            steps {
+                script{
+                    // Make directory for test results
+                    sh "mkdir -p ${params.resultsPath}/${params.buildID}/${resultsDirectory}/performance"
+                    build = build(
+                        job: "${performanceJob}", propagate: false,
+                        parameters: [
+                          [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${performanceSuite}"],
+                          [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
+                          [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
+                          [$class: 'StringParameterValue', name: 'BUILD_ID', value: "${params.buildID}"]
+                        ]
+                    )
+                    // copy report, log and plots
+                    sh "cp ~/Jenkins-agent/workspace/${performanceJob}/Robot-Framework/test-suites/report.html ${params.resultsPath}/${params.buildID}/${resultsDirectory}/performance/report.html"
+                    sh "cp ~/Jenkins-agent/workspace/${performanceJob}/Robot-Framework/test-suites/log.html ${params.resultsPath}/${params.buildID}/${resultsDirectory}/performance/log.html"
+                    sh "cp ~/Jenkins-agent/workspace/${performanceJob}/Robot-Framework/test-suites/*.png ${params.resultsPath}/${params.buildID}/${resultsDirectory}/performance/"
+                    if(build.result == "SUCCESS") {
+                        buildResults."bat" = "SUCCESS"
+                        echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
+                    } else {
+                        echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
+                        catchError(stageResult: 'FAILURE'){
+                            error("Error during performance tests")
+                        }
                     }
                 }
             }
