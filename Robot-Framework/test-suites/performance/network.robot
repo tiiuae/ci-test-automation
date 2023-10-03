@@ -21,16 +21,18 @@ TCP speed test
     [Tags]            tcp   SP-T91
     Run iperf server on DUT
     &{tcp_speed}      Run TCP test
-    Save Speed Data   ${TEST NAME}  ${buildID}  ${tcp_speed}
+    Save Speed Data   ${TEST NAME}  ${BUILD_ID}  ${tcp_speed}
     Log               <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Plot" width="1200">    HTML
+    [Teardown]        Stop iperf server
 
 UDP speed test
     [Documentation]   Measure RX and TX speed for UDP
     [Tags]            udp   SP-T92
     Run iperf server on DUT
     &{udp_speed}      Run UDP test
-    Save Speed Data   ${TEST NAME}  ${buildID}  ${udp_speed}
+    Save Speed Data   ${TEST NAME}  ${BUILD_ID}  ${udp_speed}
     Log               <img src="${DEVICE}_${TEST NAME}.png" alt="UDP Plot" width="1200">    HTML
+    [Teardown]        Stop iperf server
 
 
 *** Keywords ***
@@ -42,6 +44,7 @@ Common Setup
 
 Run iperf server on DUT
     [Documentation]   Run iperf on DUT in server mode
+    Clear iptables rules
     ${command}        Set Variable    iperf -s
     Execute Command   nohup ${command} > output.log 2>&1 &
 
@@ -59,3 +62,14 @@ Run UDP test
     Log               ${output.stdout}
     &{udp_speed}      Parse iperf output   ${output.stdout}
     [Return]          &{udp_speed}
+
+Clear iptables rules
+    [Documentation]  Clear IP tables rules to open ports
+    Execute Command  iptables -F  sudo=True  sudo_password=${PASSWORD}
+
+Stop iperf server
+    @{pid}=  Find pid by name  iperf
+    IF  @{pid} != @{EMPTY}
+        Log to Console  Close iperf server: @{pid}
+        Kill process    @{pid}
+    END

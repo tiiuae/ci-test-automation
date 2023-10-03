@@ -11,6 +11,7 @@ Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}
 Suite Setup         Common Setup
 Suite Teardown      Close All Connections
 
+
 *** Test Cases ***
 
 CPU One thread test
@@ -21,7 +22,7 @@ CPU One thread test
     ${output}           Execute Command    sysbench cpu --time=10 --threads=1 --cpu-max-prime=20000 run
     Log                 ${output}
     &{cpu_data}         Parse Cpu Results   ${output}
-    Save Cpu Data       ${TEST NAME}  ${buildID}  ${cpu_data}
+    Save Cpu Data       ${TEST NAME}  ${BUILD_ID}  ${cpu_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
 
 CPU multimple threads test
@@ -32,7 +33,7 @@ CPU multimple threads test
     ${output}           Execute Command    sysbench cpu --time=10 --threads=${threads_number} --cpu-max-prime=20000 run
     Log                 ${output}
     &{cpu_data}         Parse Cpu Results   ${output}
-    Save Cpu Data       ${TEST NAME}  ${buildID}  ${cpu_data}
+    Save Cpu Data       ${TEST NAME}  ${BUILD_ID}  ${cpu_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
 
 Memory Read One thread test
@@ -44,7 +45,7 @@ Memory Read One thread test
     ${output}           Execute Command    sysbench memory --time=60 --memory-oper=read --threads=1 run
     Log                 ${output}
     &{cpu_data}         Parse Memory Results   ${output}
-    Save Memory Data    ${TEST NAME}  ${buildID}  ${cpu_data}
+    Save Memory Data    ${TEST NAME}  ${BUILD_ID}  ${cpu_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
 
 Memory Write One thread test
@@ -56,7 +57,7 @@ Memory Write One thread test
     ${output}           Execute Command    sysbench memory --time=60 --memory-oper=write --threads=1 run
     Log                 ${output}
     &{cpu_data}         Parse Memory Results   ${output}
-    Save Memory Data    ${TEST NAME}  ${buildID}  ${cpu_data}
+    Save Memory Data    ${TEST NAME}  ${BUILD_ID}  ${cpu_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
 
 Memory Read multimple threads test
@@ -68,7 +69,7 @@ Memory Read multimple threads test
     ${output}           Execute Command    sysbench memory --time=60 --memory-oper=read --threads=${threads_number} run
     Log                 ${output}
     &{cpu_data}         Parse Memory Results   ${output}
-    Save Memory Data    ${TEST NAME}  ${buildID}  ${cpu_data}
+    Save Memory Data    ${TEST NAME}  ${BUILD_ID}  ${cpu_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
 
 Memory Write multimple threads test
@@ -80,7 +81,7 @@ Memory Write multimple threads test
     ${output}           Execute Command    sysbench memory --time=60 --memory-oper=write --threads=${threads_number} run
     Log                 ${output}
     &{cpu_data}         Parse Memory Results   ${output}
-    Save Memory Data    ${TEST NAME}  ${buildID}  ${cpu_data}
+    Save Memory Data    ${TEST NAME}  ${BUILD_ID}  ${cpu_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
 
 
