@@ -130,7 +130,7 @@ Connect to netvm via tunnel
     Clear iptables rules
     Create tunnel
     Log To Console     Connecting to NEtVM via tunnel
-    ${connection}=       Connect     IP=${DEVICE_IP_ADDRESS}    PORT=${local_port}    target_output=ghaf@netvm
+    ${connection}=       Connect     IP=${DEVICE_IP_ADDRESS}    PORT=${local_port}    target_output=${LOGIN}@${NETVM_NAME}
     Set Global Variable  ${netvm}    ${connection}
     [Return]           ${netvm}
 
@@ -144,12 +144,12 @@ Copy keys
     Write            ${\n}
     Read Until       Enter same passphrase again:
     Write            ${\n}
-    Read Until       ghaf@ghaf-host:
+    Read Until       ${LOGIN}@ghaf-host:
     Write            ssh-copy-id -o StrictHostKeyChecking=no ${netvm_ip}
     ${output}=       Read       delay=30s
     Should Contain   ${output}  Password:
     Write            ${password}
-    Read Until       ghaf@ghaf-host:
+    Read Until       ${LOGIN}@ghaf-host:
 
 Clear iptables rules
     [Documentation]  Clear IP tables rules to open ports for creating tunnel
@@ -168,12 +168,12 @@ Login into NetVM
     ${passw}        Run Keyword And Return Status    Should Contain    ${output}     Password
     IF  ${passw}
         Write       ${PASSWORD}
-        Read Until  ghaf@netvm
+        Read Until  ${LOGIN}@${NETVM_NAME}
     END
     Write           sudo su
     Read Until      password
     Write           ${PASSWORD}
-    Read Until      root@netvm
+    Read Until      root@${NETVM_NAME}
 
 Configure wifi
     [Arguments]   ${netvm}  ${SSID}  ${passw}
