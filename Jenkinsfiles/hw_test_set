@@ -57,7 +57,7 @@ pipeline {
                     usbHubSerial = "${deviceData['addresses']["${deviceName}"]['usbhub_serial']}"
                     println("USB HUB serial: ${usbHubSerial}")
 
-                    if (params.device == "orin-nx" || params.device == "orin-agx") {
+                    if ("${params.device}" == "orin-agx" || "${params.device}" == "orin-nx") {
                         // Read zipped image file path from buildID.json to flash usb drive for Orin device
                         def buildData = readJSON file: "/home/${params.label}/Jenkins-agent/workspace/${splitted[0]}/hydra_copy/${params.buildID}.json"
                         zipImagePath = "${buildData['Image']}"
@@ -90,7 +90,8 @@ pipeline {
             steps {
                 script{
                     println("${params.image}")
-                    if (params.device == "orin-nx" || params.device == "orin-agx") {
+                    println("${params.device}")
+                    if ("${params.device}" == "orin-nx" || "${params.device}" == "orin-agx") {
                         // unzip zipped image, remove .zst ending from path and use that for flashing usb drive. Remove unzipped image after flashing.
                         sh "sudo zstd -d ${zipImagePath}"
                         unzippedPath = zipImagePath.minus(".zst")
