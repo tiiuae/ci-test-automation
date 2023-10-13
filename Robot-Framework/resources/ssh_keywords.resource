@@ -82,6 +82,11 @@ Start Chromium
     ${command}=     Set Variable    chromium-browser --enable-features=UseOzonePlatform --ozone-platform=wayland
     ${command_output}=    Execute Command    nohup ${command} > output.log 2>&1 &
 
+Start Firefox
+    [Documentation]  It's needed to set display variable manually because there is no real monitor connected to DUT
+    Log To Console  ${\n}Starting Firefox
+    ${command_output}=    Execute Command    export WAYLAND_DISPLAY=wayland-1; nohup firefox > output.log 2>&1 &
+
 Is process started
     [Arguments]    ${pid}
     ${rc}=      Execute Command    ps -p ${pid}   return_rc=True

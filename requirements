@@ -7,3 +7,4 @@ PyP100==0.1.2
 python-kasa~=0.5.1
 robotframework-retryfailed==0.2.0
 matplotlib==3.7.2
+plugp100==3.11.0

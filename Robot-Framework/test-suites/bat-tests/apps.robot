@@ -10,11 +10,22 @@ Suite Teardown      Close All Connections
 
 *** Test Cases ***
 
+Start Firefox
+    [Documentation]   Start Firefox and verify process started
+    [Tags]            bat   SP-T45  nuc  orin-agx
+    Connect
+    Start Firefox
+    @{pid}=         Find pid by name    firefox
+    Should Not Be Empty       ${pid}    Firefox is not started
+    [Teardown]  Kill process  @{pid}
+
+
 Start Chromium
     [Documentation]   Start Chromium and verify process started
-    [Tags]            bat   SP-T45  nuc  orin-agx
+    [Tags]            depricated
     Connect
     Start Chromium
     @{pid}=         Find pid by name    chromium
     Should Not Be Empty       ${pid}    Chromium is not started
     [Teardown]  Kill process  @{pid}
+
