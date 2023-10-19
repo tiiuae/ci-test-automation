@@ -31,6 +31,7 @@
         robotframework-advancedlogging = pkgs.python3Packages.callPackage ./pkgs/robotframework-advancedlogging {};
         pkcs7 = pkgs.python3Packages.callPackage ./pkgs/pkcs7 {}; # Requirement of PyP100
         PyP100 = pkgs.python3Packages.callPackage ./pkgs/PyP100 {inherit pkcs7;};
+        plugp100 = pkgs.python3Packages.callPackage ./pkgs/plugp100 {};
         default = ghaf-robot;
       };
 
@@ -44,6 +45,7 @@
               self.packages.${system}.robotframework-seriallibrary
               self.packages.${system}.robotframework-advancedlogging
               self.packages.${system}.PyP100
+              self.packages.${system}.plugp100
               robotframework-sshlibrary
               pyserial
               python-kasa
