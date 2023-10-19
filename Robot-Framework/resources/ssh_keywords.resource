@@ -258,3 +258,25 @@ Install iperf tool
     ELSE
         Log To Console    ${\n}iperf tool was already installed
     END
+
+Get Wifi Interface name
+    ${if_name}=    Execute Command    iw dev | awk '$1=="Interface"{print $2}'
+    [Return]       ${if_name}
+
+Get wifi IP
+    [Documentation]     Parse ifconfig output and looks for wifi IP
+    ${if_name}=    Get Wifi Interface name
+    ${is_ready} =  Set Variable    False
+    FOR    ${i}    IN RANGE    20
+        ${output}     Execute Command      ifconfig
+        Log           ${output}
+        ${ip}         Get wifi ip from ifconfig    ${output}   ${if_name}
+        ${status}     Run Keyword And Return Status    Should Not Be Equal As Strings    ${ip}    None
+        IF  ${status}
+            Log To Console     Ip is ${ip}
+            ${is_ready} =  Set Variable    True
+            BREAK
+        END
+        Sleep    1
+    END
+    IF   ${status} == False    FAIL    NetVM hasn't gotten an IP

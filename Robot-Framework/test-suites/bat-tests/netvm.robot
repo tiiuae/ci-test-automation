@@ -38,6 +38,7 @@ Wifi passthrought into NetVM
     ...                 Connect to ghaf host  AND  Connect to netvm via tunnel  AND
     ...                 Verify service status      service=wpa_supplicant.service
     Configure wifi      ${netvm}  ${SSID}  ${wifi_pswd}
+    Get wifi IP
     Check Network Availability    ${netwotk_ip}  expected_result=True
     Log To Console      Switch connection to Ghaf Host
     Switch Connection	${ghaf_host}

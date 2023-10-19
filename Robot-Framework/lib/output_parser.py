@@ -134,3 +134,12 @@ def parse_iperf_output(output):
         "tx": tx,
         "rx": rx
     }
+
+def get_wifi_ip_from_ifconfig(output, if_name):
+    pattern = if_name + r'.*?\n.*?inet (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
+    match = re.search(pattern, output)
+    if match:
+        return match.group(1)
+    else:
+        print(f"Couldn't find ip with pattern {pattern}")
+        return None
