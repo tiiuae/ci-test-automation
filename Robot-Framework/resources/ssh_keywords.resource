@@ -221,10 +221,9 @@ Check if ssh is ready on netvm
     [Arguments]    ${timeout}=15
     ${is_ready} =  Set Variable    False
     FOR    ${i}    IN RANGE    ${timeout}
-        Write        nc -zvw3 192.168.101.1 22
-        ${output}    Read Until       ghaf-host
+        ${output}  ${rc}    Execute Command    nc -zvw3 192.168.101.1 22    return_rc=True
         ${status}    Run Keyword And Return Status
-        ...          Should Contain    ${output}    Connection to ${netvm_ip} 22 port [tcp/ssh] succeeded!
+        ...          Should Be Equal As Integers    ${rc}    0
         IF  ${status}
             ${is_ready} =  Set Variable    True
             BREAK
