@@ -27,7 +27,6 @@ Check Serial Connection
         ${output} =    SerialLibrary.Read Until
         ${status} =    Run Keyword And Return Status    Should contain    ${output}    ghaf
         IF    ${status}    BREAK
-        Log To Console    ${output}
         Sleep   1
     END
     Delete All Ports
