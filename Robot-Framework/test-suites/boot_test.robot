@@ -54,19 +54,30 @@ Teardown
 
 Check If Device Is Up
     [Arguments]    ${range}=20
+    Set Global Variable    ${IS_AVAILABLE}       False
     ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
         ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
         IF    ${ping}
-            Set Global Variable    ${IS_AVAILABLE}       True
+            Log To Console    Ping ${DEVICE_IP_ADDRESS} successfull
             BREAK
         END
     END
+
+    IF    ${ping}
+        ${port_22_is_available}     Check if ssh is ready on device
+        IF  ${port_22_is_available}
+            Set Global Variable    ${IS_AVAILABLE}       True
+        ELSE
+            Set Global Variable    ${IS_AVAILABLE}       False
+        END
+    END
+
     ${diff}=    Evaluate    int(time.time()) - int(${start_time})
 
     IF  ${IS_AVAILABLE}    Log To Console    Device woke up after ${diff} sec.
 
-    IF    ${ping}==False
+    IF  ${IS_AVAILABLE} == False
         Log To Console    Device is not available after reboot via SSH, waited for ${diff} sec!
         IF  "${SERIAL_PORT}" == "NONE"
             Log To Console    There is no address for serial connection

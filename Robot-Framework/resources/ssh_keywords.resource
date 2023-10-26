@@ -279,3 +279,23 @@ Get wifi IP
         Sleep    1
     END
     IF   ${status} == False    FAIL    NetVM hasn't gotten an IP
+
+Check if ssh is ready on device
+    [Arguments]    ${timeout}=30
+    ${is_ready} =  Set Variable    False
+    FOR    ${i}    IN RANGE    ${timeout}
+        ${rc}  	${output}	 Run And Return Rc And Output   nc -zvw3 ${DEVICE_IP_ADDRESS} 22
+        ${status}    Run Keyword And Return Status
+        ...          Should Be Equal As Integers	${rc}	0
+        IF  ${status}
+            Log to console   ${output}
+            ${is_ready} =  Set Variable    True
+            BREAK
+        END
+        Sleep    1
+    END
+    IF   ${is_ready} == False
+        Log to console  Port 22 (ssh) of ${DEVICE} is not ready after ${timeout}
+    END
+
+    [Return]  ${is_ready}
