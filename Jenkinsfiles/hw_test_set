@@ -174,6 +174,11 @@ pipeline {
             }
         }
         stage('Performance tests') {
+            when {
+                expression {
+                    buildResults.boot == 'SUCCESS'
+                }
+            }
             steps {
                 script{
                     // Make directory for test results
