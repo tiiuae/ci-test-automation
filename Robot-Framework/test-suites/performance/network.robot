@@ -40,7 +40,6 @@ UDP speed test
 Common Setup
     Set Variables     ${DEVICE}
     Connect
-    Install iperf tool
 
 Run iperf server on DUT
     [Documentation]   Run iperf on DUT in server mode
