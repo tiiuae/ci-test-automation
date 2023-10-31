@@ -135,6 +135,7 @@ def parse_iperf_output(output):
         "rx": rx
     }
 
+
 def get_wifi_ip_from_ifconfig(output, if_name):
     pattern = if_name + r'.*?\n.*?inet (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
     match = re.search(pattern, output)
@@ -143,3 +144,22 @@ def get_wifi_ip_from_ifconfig(output, if_name):
     else:
         print(f"Couldn't find ip with pattern {pattern}")
         return None
+
+
+def get_qspi_versions(output):
+    fw_pattern = r"Current firmware version is: (\d*.\d*.\d*)"
+    sw_pattern = r"Current software version is: (\d*.\d*.\d*)"
+
+    match = re.search(fw_pattern, output)
+    if match:
+        fw_version = match.group(1)
+    else:
+        raise Exception(f"Couldn't parse current firmware version, pattern: {tx_pattern}")
+
+    match = re.search(sw_pattern, output)
+    if match:
+        sw_version = match.group(1)
+    else:
+        raise Exception(f"Couldn't parse current software version, pattern: {rx_pattern}")
+
+    return fw_version, sw_version

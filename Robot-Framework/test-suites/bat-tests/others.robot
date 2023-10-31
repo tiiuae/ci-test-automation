@@ -23,4 +23,9 @@ Test nixos version format
     Verify Nixos Version Format
     [Teardown]  Close All Connections
 
-
+Check QSPI version
+    [Documentation]    QSPI version should be up-to-date
+    [Tags]             bat   SP-T100   orin-agx  orin-nx
+    [Setup]     Connect
+    Check QSPI Version is up to date
+    [Teardown]  Close All Connections
