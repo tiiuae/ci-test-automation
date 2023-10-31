@@ -299,3 +299,8 @@ Check if ssh is ready on device
     END
 
     [Return]  ${is_ready}
+
+Check QSPI Version is up to date
+    ${output}      Execute Command    ota-check-firmware
+    ${fw_version}  ${sw_version}      Get qspi versions   ${output}
+    Should Be True	'${fw_version}' == '${sw_version}'	  Update QSPI version! Test results can be wrong!
