@@ -32,7 +32,7 @@ Verify NetVM is started
 
 Wifi passthrought into NetVM
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              bat   SP-T50  nuc  orin-agx  orin-nx
+    [Tags]              bat   SP-T50  nuc  orin-agx
     ...                 test:retry(1)
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm via tunnel  AND
@@ -69,7 +69,7 @@ NetVM is wiped after restarting
 
 Verify wpa_supplicant.service is running
     [Documentation]     Verify that wpa_supplicant.service exists and is running
-    [Tags]              bat   SP-T82  nuc  orin-agx  orin-nx
+    [Tags]              bat   SP-T82  nuc  orin-agx
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm via tunnel
     Switch Connection   ${netvm}
