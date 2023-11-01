@@ -61,11 +61,13 @@ NetVM is wiped after restarting
     Create file         /etc/test.txt
     Switch Connection   ${ghaf_host}
     Restart NetVM
+    Close All Connections
+    Connect to ghaf host
     Check Network Availability      ${netvm_ip}    expected_result=True    range=5
     Connect to netvm via tunnel
     Log To Console      Create if created file still exists
     Check file doesn't exist    /etc/test.txt
-    [Teardown]          Run Keywords   Close tunnel  ${ghaf_host}  AND  Close All Connections
+    [Teardown]          Run Keywords   Close All Connections
 
 Verify wpa_supplicant.service is running
     [Documentation]     Verify that wpa_supplicant.service exists and is running
@@ -74,6 +76,7 @@ Verify wpa_supplicant.service is running
     ...                 Connect to ghaf host  AND  Connect to netvm via tunnel
     Switch Connection   ${netvm}
     Verify service status   service=wpa_supplicant.service
+    [Teardown]          Run Keywords   Close All Connections
 
 
 *** Keywords ***
@@ -89,21 +92,7 @@ Restart NetVM
 
 Create tunnel
     [Documentation]  Set up forwarding from a local port through a tunneled connection to NetVM
-    ${command}=      Set Variable    ssh -o StrictHostKeyChecking=no -L ${DEVICE_IP_ADDRESS}:${local_port}:${NETVM_IP}:22 ${NETVM_IP} -fN
-    ${output}=       Execute Command   ${command}
-    @{pid}=          Find pid by name    ${command}
-
-Close tunnel
-    [Documentation]    Check if tunnel to netvm exists and kill the process
-    [Arguments]        ${ghaf_host}
-    Switch Connection  ${ghaf_host}
-    Log to Console  ${\n}Check if there are existing tunnels to NetVM
-    ${command}=     Set Variable    ssh -o StrictHostKeyChecking=no -L ${DEVICE_IP_ADDRESS}:${local_port}:${NETVM_IP}:22 ${NETVM_IP} -fN
-    @{pid}=         Find pid by name    ${command}
-    IF  @{pid} != @{EMPTY}
-        Log to Console  Close existing tunnels with pids: @{pid}
-        Kill process    @{pid}  sig=9
-    END
+    Create Local Ssh Tunnel    local_port=${local_port}    remote_host=${NETVM_IP}    remote_port=22    bind_address=127.0.0.1
 
 Connect to ghaf host
     [Documentation]      Open ssh connection to ghaf host
@@ -124,14 +113,13 @@ Connect to netvm via tunnel
     [Documentation]    Create tunnel using port ${local_port}, connect to netvm directly from test run machine,
     ...                allow using standard SSHLibrary commands, like 'Execute Command'
     Switch connection  ${ghaf_host}
-    Close tunnel       ${ghaf_host}
     Log To Console     Configuring tunnel...
     Write              ssh-keygen -R ${netvm_ip}
     Copy keys
     Clear iptables rules
     Create tunnel
     Log To Console     Connecting to NEtVM via tunnel
-    ${connection}=       Connect     IP=${DEVICE_IP_ADDRESS}    PORT=${local_port}    target_output=${LOGIN}@${NETVM_NAME}
+    ${connection}=       Connect     IP=localhost    PORT=${local_port}    target_output=${LOGIN}@${NETVM_NAME}
     Set Global Variable  ${netvm}    ${connection}
     [Return]           ${netvm}
 
