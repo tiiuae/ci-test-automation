@@ -90,24 +90,11 @@ Restart NetVM
     Start NetVM
     Check if ssh is ready on netvm
 
-Create tunnel
-    [Documentation]  Set up forwarding from a local port through a tunneled connection to NetVM
-    Create Local Ssh Tunnel    local_port=${local_port}    remote_host=${NETVM_IP}    remote_port=22    bind_address=127.0.0.1
-
 Connect to ghaf host
     [Documentation]      Open ssh connection to ghaf host
     ${connection}=       Connect
     Set Global Variable  ${ghaf_host}    ${connection}
     [Return]             ${connection}
-
-Connect to netvm in console
-    [Documentation]    Open connection to ghaf host and connect to NetVM inside the console, execute sudo su,
-    ...                allow executing commands in netvm only through Write/read
-    ${netvm_root}=	Open Connection    ${DEVICE_IP_ADDRESS}
-    Login           username=${LOGIN}  password=${PASSWORD}
-    Write           ssh-keygen -R ${netvm_ip}
-    Login into NetVM
-    [Return]        ${netvm_root}
 
 Connect to netvm via tunnel
     [Documentation]    Create tunnel using port ${local_port}, connect to netvm directly from test run machine,
@@ -115,54 +102,12 @@ Connect to netvm via tunnel
     Switch connection  ${ghaf_host}
     Log To Console     Configuring tunnel...
     Write              ssh-keygen -R ${netvm_ip}
-    Copy keys
-    Clear iptables rules
-    Create tunnel
-    Log To Console     Connecting to NEtVM via tunnel
-    ${connection}=       Connect     IP=localhost    PORT=${local_port}    target_output=${LOGIN}@${NETVM_NAME}
+    Create Local Ssh Tunnel    local_port=${local_port}    remote_host=${NETVM_IP}    remote_port=22    bind_address=127.0.0.1
+    Log To Console     Connecting to NetVM via tunnel
+    ${connection}=     Connect     IP=localhost    PORT=${local_port}    target_output=${LOGIN}@${NETVM_NAME}
+    ${output}=         Login    username=${LOGIN}    password=${PASSWORD}
     Set Global Variable  ${netvm}    ${connection}
     [Return]           ${netvm}
-
-Copy keys
-    [Documentation]  Generate new local ssh keys and copy public keys to NetVM
-    Execute Command  rm /home/ghaf/.ssh/id_rsa
-    Write            ssh-keygen
-    Read Until       Enter file in which to save the key (/home/ghaf/.ssh/id_rsa):
-    Write            ${\n}
-    Read Until       Enter passphrase (empty for no passphrase):
-    Write            ${\n}
-    Read Until       Enter same passphrase again:
-    Write            ${\n}
-    Read Until       ${LOGIN}@ghaf-host:
-    Write            ssh-copy-id -o StrictHostKeyChecking=no ${netvm_ip}
-    ${output}=       Read       delay=30s
-    Should Contain   ${output}  Password:
-    Write            ${password}
-    Read Until       ${LOGIN}@ghaf-host:
-
-Clear iptables rules
-    [Documentation]  Clear IP tables rules to open ports for creating tunnel
-    Execute Command  iptables -F  sudo=True  sudo_password=${PASSWORD}
-
-Login into NetVM
-    Log To Console  Login into NetVM
-    Write           ssh-keygen -R ${netvm_ip}
-    Write           ssh ${LOGIN}@${netvm_ip}
-    ${output}=	    Read	delay=0.5s
-    ${fingerprint}  Run Keyword And Return Status    Should Contain    ${output}     fingerprint
-    IF  ${fingerprint}
-        Write       yes
-    END
-    ${output}=	    Read    delay=0.5s
-    ${passw}        Run Keyword And Return Status    Should Contain    ${output}     Password
-    IF  ${passw}
-        Write       ${PASSWORD}
-        Read Until  ${LOGIN}@${NETVM_NAME}
-    END
-    Write           sudo su
-    Read Until      password
-    Write           ${PASSWORD}
-    Read Until      root@${NETVM_NAME}
 
 Configure wifi
     [Arguments]   ${netvm}  ${SSID}  ${passw}
