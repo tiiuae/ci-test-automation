@@ -5,6 +5,7 @@
 Documentation       Testing Network VM
 Force Tags          netvm
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/virtualization_keywords.resource
 Resource            ../../config/variables.robot
 Suite Teardown      Close All Connections
 
@@ -76,6 +77,14 @@ Verify wpa_supplicant.service is running
     ...                 Connect to ghaf host  AND  Connect to netvm via tunnel
     Switch Connection   ${netvm}
     Verify service status   service=wpa_supplicant.service
+    [Teardown]          Run Keywords   Close All Connections
+
+Verify NetVM PCI device passthrough
+    [Documentation]     Verify that proper PCI devices have been passed through to the NetVM
+    [Tags]              bat   SP-T101  nuc  orin-agx  orin-nx
+    [Setup]             Run Keywords
+    ...                 Connect to ghaf host  AND  Connect to netvm via tunnel
+    Verify microvm PCI device passthrough    host_connection=${ghaf_host}    vm_connection=${netvm}    vmname=${NETVM_NAME}
     [Teardown]          Run Keywords   Close All Connections
 
 
