@@ -22,6 +22,7 @@
       packages = rec {
         ghaf-robot = pkgs.callPackage ./pkgs/ghaf-robot {
           PyP100 = self.packages.${system}.PyP100;
+          plugp100 = self.packages.${system}.plugp100;
           robotframework-advancedlogging = self.packages.${system}.robotframework-advancedlogging;
           robotframework-retryfailed = self.packages.${system}.robotframework-retryfailed;
           robotframework-seriallibrary = self.packages.${system}.robotframework-seriallibrary;

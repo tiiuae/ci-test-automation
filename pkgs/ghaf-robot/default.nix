@@ -1,5 +1,6 @@
 {
   PyP100,
+  plugp100,
   python3,
   robotframework-advancedlogging,
   robotframework-retryfailed,
@@ -22,6 +23,7 @@ writeShellApplication {
       robotframework-retryfailed
       robotframework-seriallibrary
       PyP100
+      plugp100
     ]))
   ];
   text = ''
