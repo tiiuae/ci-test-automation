@@ -2,7 +2,7 @@
   lib,
   buildPythonPackage,
   fetchFromGitHub,
-  robotframework
+  robotframework,
 }:
 buildPythonPackage rec {
   version = "0.2.0";
