@@ -55,6 +55,38 @@ Connect
     Should Contain    ${output}    ${target_output}
     [Return]          ${connection}
 
+Connect to ghaf host
+    [Documentation]      Open ssh connection to ghaf host
+    Log To Console       Connecting to Ghaf Host
+    ${connection}        Connect
+    Set Global Variable  ${ghaf_host_ssh}    ${connection}
+    [Return]             ${connection}
+
+Connect to netvm
+    [Documentation]      Connect to netvm directly from test run machine, using
+    ...                  jumphost, this allows using standard SSHLibrary
+    ...                  commands, like 'Execute Command'
+    Connect to ghaf host
+    Log To Console       Connecting to NetVM
+    ${connection}        Open Connection   ${NETVM_IP}  port=22
+    ${output}            Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${ghaf_host_ssh}
+    Set Global Variable  ${netvm_ssh}    ${connection}
+    [Return]             ${netvm_ssh}
+
+Connect to guivm
+    Log To Console       Connecting to GuiVM
+    ${connection}=       Open Connection   ${GUI_VM}    port=22
+    ${output}=           Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${netvm_ssh}
+    Set Global Variable  ${guivm_ssh}    ${connection}
+    [Return]             ${guivm_ssh}
+
+Connect to chromium vm
+    Log To Console       Connecting to Chromium VM
+    ${connection}=       Open Connection   ${CHROMIUM_VM}  port=22
+    ${output}=           Login    username=${LOGIN}        password=${PASSWORD}    jumphost_index_or_alias=${netvm_ssh}
+    Set Global Variable  ${chromium_vm}    ${connection}
+    [Return]             ${chromium_vm}
+
 Verify Systemctl status
     [Arguments]    ${range}=60
     [Documentation]    Check is systemctl running with given loop ${range}
@@ -79,8 +111,9 @@ Verify Systemctl status
 
 Start Chromium
     Log To Console  ${\n}Starting Chromium
-    ${command}=     Set Variable    chromium-browser --enable-features=UseOzonePlatform --ozone-platform=wayland
-    ${command_output}=    Execute Command    nohup ${command} > output.log 2>&1 &
+    ${output}        Execute Command    cat /etc/xdg/weston/weston.ini
+    ${path}          Get App Path  ${output}  chromium
+    Execute Command  nohup sh -c '$(${path})' > output.log 2>&1 &
 
 Start Firefox
     [Documentation]  It's needed to set display variable manually because there is no real monitor connected to DUT
@@ -91,11 +124,6 @@ Is process started
     [Arguments]    ${pid}
     ${rc}=      Execute Command    ps -p ${pid}   return_rc=True
     ${status}=  Run Keyword And Return Status   Should Be Equal As Integers	 ${rc[1]}	0
-    IF  ${status}
-        Log To Console    Process ${pid} exists
-    ELSE
-        Log To Console    Process ${pid} doesn't exist
-    END
     [Return]    ${status}
 
 Find pid by name
@@ -104,13 +132,12 @@ Find pid by name
     ${output}=    Execute Command    sh -c 'ps aux | grep "${proc_name}" | grep -v grep'
     Log           ${output}
     @{pids}=      Find Pid    ${output}  ${proc_name}
-    Log To Console    Found PIDs: ${pids}
+    Log To Console    Found PIDs for process '${proc_name}':\n${pids}
     [Return]      @{pids}
 
 Kill process
     [Arguments]    @{pids}    ${sig}=15
     FOR   ${pid}  IN  @{pids}
-        Log To Console    Send kill -${sig} to ${pid}
         Execute Command    kill -${sig} ${pid}
         FOR    ${i}    IN RANGE   5
             ${ps_exists}=    Is Process Started    ${pid}
@@ -122,6 +149,7 @@ Kill process
         END
         IF  ${ps_exists}  FAIL  Process ${pid} haven't stopped
     END
+    Log To Console    Killed processes: @{pids}
 
 Verify service status
     [Documentation]   Check if service is running with given loop ${range}
