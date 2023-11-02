@@ -168,3 +168,13 @@ def get_qspi_versions(output):
         raise Exception(f"Couldn't parse current software version, pattern: {rx_pattern}")
 
     return fw_version, sw_version
+
+def get_app_path(output, app):
+    pattern = rf"path=(.*{app}.*)\n"
+    match = re.search(pattern, output)
+    if match:
+        result = match.group(1)
+    else:
+        raise Exception(f"Couldn't parse chromium path from /etc/xdg/weston/weston.ini, pattern: {pattern}")
+    path = result.replace('"', '\\"')
+    return path

@@ -16,15 +16,15 @@ ${SSID}            test_network
 ${wifi_pswd}       test1234
 ${netwotk_ip}      192.168.1.1
 ${netvm_state}     ${EMPTY}
-${ghaf_host}       ${EMPTY}
-${netvm}           ${EMPTY}
+${ghaf_host_ssh}   ${EMPTY}
+${netvm_ssh}       ${EMPTY}
 
 
 *** Test Cases ***
 
 Verify NetVM is started
     [Documentation]         Verify that NetVM is active and running
-    [Tags]                  bat   SP-T49  nuc  orin-agx  orin-nx
+    [Tags]                  bat   SP-T49  nuc  orin-agx  orin-nx  lenovoX1
     [Setup]                 Connect to ghaf host
     Verify service status   service=${netvm_service}
     Check Network Availability      ${netvm_ip}    expected_result=True    range=5
@@ -32,34 +32,34 @@ Verify NetVM is started
 
 Wifi passthrought into NetVM
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              bat   SP-T50  nuc  orin-agx
+    [Tags]              bat   SP-T50  nuc  orin-agx  lenovoX1
     ...                 test:retry(1)
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm  AND
     ...                 Verify service status      service=wpa_supplicant.service
-    Configure wifi      ${netvm}  ${SSID}  ${wifi_pswd}
+    Configure wifi      ${netvm_ssh}  ${SSID}  ${wifi_pswd}
     Get wifi IP
     Check Network Availability    ${netwotk_ip}  expected_result=True
     Log To Console      Switch connection to Ghaf Host
-    Switch Connection	${ghaf_host}
+    Switch Connection	${ghaf_host_ssh}
     Check Network Availability    ${netwotk_ip}  expected_result=False
     [Teardown]          Run Keywords  Remove Wifi configuration  AND  Close All Connections
 
 NetVM stops and starts successfully
     [Documentation]     Verify that NetVM stops properly and starts after that
-    [Tags]              bat   SP-T52  nuc  orin-agx  orin-nx
+    [Tags]              bat   SP-T52  nuc  orin-agx  orin-nx  lenovoX1
     [Setup]     Connect to ghaf host
     Restart NetVM
     [Teardown]  Run Keywords  Start NetVM if dead   AND  Close All Connections
 
 NetVM is wiped after restarting
     [Documentation]     Verify that created file will be removed after restarting VM
-    [Tags]              bat   SP-T53  nuc  orin-agx  orin-nx
+    [Tags]              bat   SP-T53  nuc  orin-agx  orin-nx  lenovoX1
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm
-    Switch Connection   ${netvm}
+    Switch Connection   ${netvm_ssh}
     Create file         /etc/test.txt
-    Switch Connection   ${ghaf_host}
+    Switch Connection   ${ghaf_host_ssh}
     Restart NetVM
     Close All Connections
     Connect to ghaf host
@@ -71,10 +71,10 @@ NetVM is wiped after restarting
 
 Verify wpa_supplicant.service is running
     [Documentation]     Verify that wpa_supplicant.service exists and is running
-    [Tags]              bat   SP-T82  nuc  orin-agx
+    [Tags]              bat   SP-T82  nuc  orin-agx  lenovoX1
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm
-    Switch Connection   ${netvm}
+    Switch Connection   ${netvm_ssh}
     Verify service status   service=wpa_supplicant.service
     [Teardown]          Run Keywords   Close All Connections
 
@@ -83,7 +83,7 @@ Verify NetVM PCI device passthrough
     [Tags]              bat   SP-T101  nuc  orin-agx  orin-nx
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm
-    Verify microvm PCI device passthrough    host_connection=${ghaf_host}    vm_connection=${netvm}    vmname=${NETVM_NAME}
+    Verify microvm PCI device passthrough    host_connection=${ghaf_host_ssh}    vm_connection=${netvm_ssh}    vmname=${NETVM_NAME}
     [Teardown]          Run Keywords   Close All Connections
 
 
@@ -98,31 +98,15 @@ Restart NetVM
     Start NetVM
     Check if ssh is ready on netvm
 
-Connect to ghaf host
-    [Documentation]      Open ssh connection to ghaf host
-    ${connection}=       Connect
-    Set Global Variable  ${ghaf_host}    ${connection}
-    [Return]             ${connection}
-
-Connect to netvm
-    [Documentation]    Connect to netvm directly from test run machine, using
-    ...                jumphost, this allows using standard SSHLibrary
-    ...                commands, like 'Execute Command'
-    Log To Console     Connecting to NetVM
-    ${connection}=     Open Connection     ${NETVM_IP}    port=22
-    ${output}=         Login    username=${LOGIN}    password=${PASSWORD}    jumphost_index_or_alias=${ghaf_host}
-    Set Global Variable  ${netvm}    ${connection}
-    [Return]           ${netvm}
-
 Configure wifi
-    [Arguments]   ${netvm}  ${SSID}  ${passw}
-    Switch Connection  ${netvm}
+    [Arguments]   ${netvm_ssh}  ${SSID}  ${passw}
+    Switch Connection  ${netvm_ssh}
     Log To Console     Configuring Wifi
     Execute Command    sh -c "wpa_passphrase ${SSID} ${passw} > /etc/wpa_supplicant.conf"   sudo=True    sudo_password=${PASSWORD}
     Execute Command    systemctl restart wpa_supplicant.service   sudo=True    sudo_password=${PASSWORD}
 
 Remove Wifi configuration
-    Switch Connection   ${netvm}
+    Switch Connection   ${netvm_ssh}
     Log To Console      Removing Wifi configuration
     Execute Command     rm /etc/wpa_supplicant.conf  sudo=True    sudo_password=${PASSWORD}
     Execute Command     systemctl restart wpa_supplicant.service  sudo=True    sudo_password=${PASSWORD}

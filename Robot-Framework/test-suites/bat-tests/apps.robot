@@ -8,6 +8,7 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
 Suite Teardown      Close All Connections
 
+
 *** Test Cases ***
 
 Start Firefox
@@ -15,17 +16,25 @@ Start Firefox
     [Tags]            bat   SP-T45  nuc  orin-agx
     Connect
     Start Firefox
-    @{pid}=         Find pid by name    firefox
-    Should Not Be Empty       ${pid}    Firefox is not started
-    [Teardown]  Kill process  @{pid}
+    Check that the application was started    firefox
+    [Teardown]  Kill process  @{app_pids}
 
-
-Start Chromium
-    [Documentation]   Start Chromium and verify process started
-    [Tags]            depricated
-    Connect
+Start Chromium on LenovoX1
+    [Documentation]   Start Chromium in dedicated VM and verify process started
+    [Tags]            bat   SP-T97   lenovoX1
+    [Setup]           Connect to netvm
+    Connect to guivm
     Start Chromium
-    @{pid}=         Find pid by name    chromium
-    Should Not Be Empty       ${pid}    Chromium is not started
-    [Teardown]  Kill process  @{pid}
+    Connect to chromium vm
+    Check that the application was started    chromium
+    [Teardown]  Kill process  @{app_pids}
 
+
+*** Keywords ***
+
+Check that the application was started
+    [Arguments]          ${app_name}
+    @{found_pids}        Find pid by name    ${app_name}
+    Set Global Variable  @{app_pids}  @{found_pids}
+    Should Not Be Empty  ${app_pids}  ${app_name} is not started
+    Log To Console       ${app_name} is started
