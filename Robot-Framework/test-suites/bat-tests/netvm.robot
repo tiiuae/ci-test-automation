@@ -44,7 +44,7 @@ Wifi passthrought into NetVM
     Log To Console      Switch connection to Ghaf Host
     Switch Connection	${ghaf_host}
     Check Network Availability    ${netwotk_ip}  expected_result=False
-    [Teardown]          Remove Wifi configuration
+    [Teardown]          Run Keywords  Remove Wifi configuration  AND  Close All Connections
 
 NetVM stops and starts successfully
     [Documentation]     Verify that NetVM stops properly and starts after that
