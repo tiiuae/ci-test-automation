@@ -105,12 +105,27 @@ Connect to ghaf host
     Set Global Variable  ${ghaf_host}    ${connection}
     [Return]             ${connection}
 
+Port Should Be Free
+    [Arguments]  ${port}
+    ${result}  Run Keyword If  os.sep == '/'
+    ...  Run  netstat -tulpn
+    ...  ELSE
+    ...  Run  netstat -an
+    Should Not Contain  ${result}  :${port}
+    [Return]  ${result}
+
 Connect to netvm via tunnel
     [Documentation]    Create tunnel using port ${local_port}, connect to netvm directly from test run machine,
     ...                allow using standard SSHLibrary commands, like 'Execute Command'
     Switch connection  ${ghaf_host}
     Log To Console     Configuring tunnel...
-    Write              ssh-keygen -R ${netvm_ip}
+    # TODO: Remove this workaround when the issue gets fixed upstream.
+    # There's an issue in robotframework-sshlibrary, which causes that the port
+    # is left open for some time even after explicitly calling
+    # "Close All Connections":
+    # https://github.com/robotframework/SSHLibrary/issues/435
+    # https://github.com/robotframework/SSHLibrary/pull/436
+    Wait Until Keyword Succeeds  1 min  5s  Port Should Be Free  ${local_port}
     Create Local Ssh Tunnel    local_port=${local_port}    remote_host=${NETVM_IP}    remote_port=22    bind_address=127.0.0.1
     Log To Console     Connecting to NetVM via tunnel
     ${connection}=     Connect     IP=localhost    PORT=${local_port}    target_output=${LOGIN}@${NETVM_NAME}
