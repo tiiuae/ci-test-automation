@@ -19,21 +19,30 @@
     flake-utils.lib.eachSystem systems (system: let
       pkgs = nixpkgs.legacyPackages.${system};
     in {
-      packages = rec {
+      packages = {
         ghaf-robot = pkgs.callPackage ./pkgs/ghaf-robot {
           PyP100 = self.packages.${system}.PyP100;
           plugp100 = self.packages.${system}.plugp100;
           robotframework-advancedlogging = self.packages.${system}.robotframework-advancedlogging;
           robotframework-retryfailed = self.packages.${system}.robotframework-retryfailed;
           robotframework-seriallibrary = self.packages.${system}.robotframework-seriallibrary;
+          robotframework-sshlibrary = self.packages.${system}.robotframework-sshlibrary;
         };
         robotframework-retryfailed = pkgs.python3Packages.callPackage ./pkgs/robotframework-retryfailed {};
         robotframework-seriallibrary = pkgs.python3Packages.callPackage ./pkgs/robotframework-seriallibrary {};
         robotframework-advancedlogging = pkgs.python3Packages.callPackage ./pkgs/robotframework-advancedlogging {};
+        robotframework-sshlibrary = pkgs.python3Packages.robotframework-sshlibrary.overrideAttrs {
+          src = pkgs.fetchFromGitHub {
+            owner = "mikatammi";
+            repo = "SSHLibrary";
+            rev = "345b3f936ebb15212eb2d539a2991ced92d3c5e6";
+            hash = "sha256-I14gQCDO6nxg0KybLkWzAUnyWI89MpOfbcxNb4GJ1VI=";
+          };
+        };
         pkcs7 = pkgs.python3Packages.callPackage ./pkgs/pkcs7 {}; # Requirement of PyP100
-        PyP100 = pkgs.python3Packages.callPackage ./pkgs/PyP100 {inherit pkcs7;};
+        PyP100 = pkgs.python3Packages.callPackage ./pkgs/PyP100 {pkcs7 = self.packages.${system}.pkcs7;};
         plugp100 = pkgs.python3Packages.callPackage ./pkgs/plugp100 {};
-        default = ghaf-robot;
+        default = self.packages.${system}.ghaf-robot;
       };
 
       # Development shell
@@ -47,7 +56,8 @@
               self.packages.${system}.robotframework-advancedlogging
               self.packages.${system}.PyP100
               self.packages.${system}.plugp100
-              robotframework-sshlibrary
+              # robotframework-sshlibrary
+              self.packages.${system}.robotframework-sshlibrary
               pyserial
               python-kasa
             ]))
