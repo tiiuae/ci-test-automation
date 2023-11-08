@@ -58,11 +58,11 @@ Connect
 Verify Systemctl status
     [Arguments]    ${range}=60
     [Documentation]    Check is systemctl running with given loop ${range}
-    Connect
     ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
         ${output}=    Execute Command    systemctl status
         ${status}=    Get Systemctl Status    ${output}
+        Log  ${output}
         IF  '${status}' not in ['running', 'starting']
             Log To Console   Systemctl status is ${status}
             FAIL    Systemctl is not running! Status is ${status}

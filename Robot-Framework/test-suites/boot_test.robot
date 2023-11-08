@@ -24,7 +24,7 @@ ${IS_AVAILABLE}          False
 *** Test Cases ***
 
 Verify booting after restart by power
-    [Documentation]    Restart device by power and verify systemctl status is running
+    [Documentation]    Restart device by power and verify init service is running
     [Tags]             boot  plug
     Reboot Device
     Check If Device Is Up
@@ -34,9 +34,10 @@ Verify booting after restart by power
         Log To Console  The device started
     END
     IF  "${CONNECTION_TYPE}" == "ssh"
-        Verify Systemctl status
+        Connect
+        Verify service status   service=init.scope
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
-        Verify Systemctl status via serial
+        Verify init.scope status via serial
     END
     [Teardown]   Teardown
 
