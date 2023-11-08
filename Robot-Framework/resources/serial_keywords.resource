@@ -54,28 +54,28 @@ Log In To Ghaf OS
     END
     IF    ${status}==False    FAIL      Console is not ready
 
-Verify Systemctl status via serial
+Verify init.scope status via serial
     [Arguments]    ${range}=60
-    [Documentation]    Check is systemctl running with given loop ${range}
+    [Documentation]    Check if init.scope service is running with given loop ${range}
     Connect via serial
     ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
-        Write Data    systemctl status${\n}
+        Write Data    systemctl status init.scope${\n}
         ${output} =    SerialLibrary.Read Until    terminator=Units
         Write Data    \x03${\n}        # write ctrl+c to stop reading status
-        ${status}=    Get Systemctl Status    ${output}
+        ${status}=    Get Service Status    ${output}
         IF  '${status}' not in ['running', 'starting']
-            Log To Console   Systemctl status is ${status}
-            FAIL    Systemctl is not running! Status is ${status}
+            Log To Console   init.scope status is ${status}
+            FAIL    init.scope is not running! Status is ${status}
         ELSE IF    '${status}' == 'running'
             ${diff}=    Evaluate    int(time.time()) - int(${start_time})
-            Log To Console   Systemctl status is ${status}
+            Log To Console   init.scope status is ${status}
             RETURN
         END
         Sleep    1
     END
     ${diff}=    Evaluate    int(time.time()) - int(${start_time})
-    FAIL    Systemctl is not running after ${diff} sec! Status is ${status}
+    FAIL    init.scope is not running after ${diff} sec! Status is ${status}
     [Teardown]       Delete All Ports
 
 Connect via serial

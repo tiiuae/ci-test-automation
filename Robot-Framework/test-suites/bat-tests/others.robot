@@ -29,3 +29,10 @@ Check QSPI version
     [Setup]     Connect
     Check QSPI Version is up to date
     [Teardown]  Close All Connections
+
+Check systemctl status
+    [Documentation]    Verify systemctl status is running
+    [Tags]             bat  SP-T104  nuc  orin-agx  orin-nx
+    [Setup]     Connect
+    Verify Systemctl status
+    [Teardown]  Close All Connections
