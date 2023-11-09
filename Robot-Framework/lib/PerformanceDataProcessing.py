@@ -3,6 +3,7 @@
 
 import csv
 import os
+import json
 import matplotlib.pyplot as plt
 import logging
 from robot.api.deco import keyword
@@ -10,10 +11,22 @@ from robot.api.deco import keyword
 
 class PerformanceDataProcessing:
 
-    def __init__(self, device):
-        # Initialize the instance variable with the global variable value
-        self.data_dir = "../../../Performance_test_results/"
+    def __init__(self, device, build_number):
         self.device = device
+        self.build_number = build_number
+        self.data_dir = self._create_result_dir()
+
+    def _get_job_name(self):
+        f = open(f"../config/{self.build_number}.json")
+        data = json.load(f)
+        job_name = data["Job"]
+        return job_name
+
+    def _create_result_dir(self):
+        job = self._get_job_name()
+        data_dir = f"../../../Performance_test_results/{job}/"
+        os.makedirs(data_dir, exist_ok=True)
+        return data_dir
 
     def _write_to_csv(self, test_name, data):
         file_path = os.path.join(self.data_dir, f"{self.device}_{test_name}.csv")
@@ -23,8 +36,8 @@ class PerformanceDataProcessing:
             csvwriter.writerow(data)
 
     @keyword
-    def write_cpu_to_csv(self, test_name, build_number, cpu_data):
-        data = [build_number,
+    def write_cpu_to_csv(self, test_name, cpu_data):
+        data = [self.build_number,
                 cpu_data['cpu_events_per_second'],
                 cpu_data['min_latency'],
                 cpu_data['avg_latency'],
@@ -35,8 +48,8 @@ class PerformanceDataProcessing:
         self._write_to_csv(test_name, data)
 
     @keyword
-    def write_mem_to_csv(self, test_name, build_number, mem_data):
-        data = [build_number,
+    def write_mem_to_csv(self, test_name, mem_data):
+        data = [self.build_number,
                 mem_data['operations_per_second'],
                 mem_data['data_transfer_speed'],
                 mem_data['min_latency'],
@@ -48,8 +61,8 @@ class PerformanceDataProcessing:
         self._write_to_csv(test_name, data)
 
     @keyword
-    def write_speed_to_csv(self, test_name, build_number, speed_data):
-        data = [build_number,
+    def write_speed_to_csv(self, test_name, speed_data):
+        data = [self.build_number,
                 speed_data['tx'],
                 speed_data['rx'],
                 self.device]
@@ -243,19 +256,19 @@ class PerformanceDataProcessing:
         plt.savefig(f'../test-suites/{self.device}_{test_name}.png')  # Save the plot as an image file
 
     @keyword
-    def save_cpu_data(self, test_name, build_number, cpu_data):
+    def save_cpu_data(self, test_name, cpu_data):
 
-        self.write_cpu_to_csv(test_name, build_number, cpu_data)
+        self.write_cpu_to_csv(test_name, cpu_data)
         self.read_cpu_csv_and_plot(test_name)
 
     @keyword
-    def save_memory_data(self, test_name, build_number, cpu_data):
+    def save_memory_data(self, test_name, cpu_data):
 
-        self.write_mem_to_csv(test_name, build_number, cpu_data)
+        self.write_mem_to_csv(test_name, cpu_data)
         self.read_mem_csv_and_plot(test_name)
 
     @keyword
-    def save_speed_data(self, test_name, build_number, cpu_data):
+    def save_speed_data(self, test_name, cpu_data):
 
-        self.write_speed_to_csv(test_name, build_number, cpu_data)
+        self.write_speed_to_csv(test_name, cpu_data)
         self.read_speed_csv_and_plot(test_name)

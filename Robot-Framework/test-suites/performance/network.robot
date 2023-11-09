@@ -9,7 +9,7 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
 Library             ../../lib/output_parser.py
 Library             Process
-Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}
+Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}
 Suite Setup         Common Setup
 Suite Teardown      Close All Connections
 
@@ -21,7 +21,7 @@ TCP speed test
     [Tags]            tcp   SP-T91
     Run iperf server on DUT
     &{tcp_speed}      Run TCP test
-    Save Speed Data   ${TEST NAME}  ${BUILD_ID}  ${tcp_speed}
+    Save Speed Data   ${TEST NAME}  ${tcp_speed}
     Log               <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Plot" width="1200">    HTML
     [Teardown]        Stop iperf server
 
@@ -30,7 +30,7 @@ UDP speed test
     [Tags]            udp   SP-T92
     Run iperf server on DUT
     &{udp_speed}      Run UDP test
-    Save Speed Data   ${TEST NAME}  ${BUILD_ID}  ${udp_speed}
+    Save Speed Data   ${TEST NAME}  ${udp_speed}
     Log               <img src="${DEVICE}_${TEST NAME}.png" alt="UDP Plot" width="1200">    HTML
     [Teardown]        Stop iperf server
 
