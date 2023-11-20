@@ -2,10 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-#Documentation
-#Force Tags
+Documentation       To be executed only for BAT tests
 Resource            ../../resources/ssh_keywords.resource
-Resource            ../../config/variables.robot
 Suite Setup         Common Setup
 Suite Teardown      Common Teardown
 
@@ -13,7 +11,6 @@ Suite Teardown      Common Teardown
 *** Keywords ***
 
 Common Setup
-    Set Variables   ${DEVICE}
     Connect
     Log versions
     Run journalctl recording
@@ -35,6 +32,6 @@ Log journctl
 
 Log versions
     ${ghaf_version}     Execute Command   ghaf-version
-    Log                 Ghaf version: ${ghaf_version}
+    Log to console      Ghaf version: ${ghaf_version}
     ${nixos_version}    Execute Command   nixos-version
-    Log                 Nixos version: ${nixos_version}
+    Log to console      Nixos version: ${nixos_version}
