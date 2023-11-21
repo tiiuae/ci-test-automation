@@ -15,7 +15,6 @@ ${netvm_ip}        192.168.101.1
 ${SSID}            test_network
 ${wifi_pswd}       test1234
 ${netwotk_ip}      192.168.1.1
-${local_port}      9191
 ${netvm_state}     ${EMPTY}
 ${ghaf_host}       ${EMPTY}
 ${netvm}           ${EMPTY}
@@ -36,7 +35,7 @@ Wifi passthrought into NetVM
     [Tags]              bat   SP-T50  nuc  orin-agx
     ...                 test:retry(1)
     [Setup]             Run Keywords
-    ...                 Connect to ghaf host  AND  Connect to netvm via tunnel  AND
+    ...                 Connect to ghaf host  AND  Connect to netvm  AND
     ...                 Verify service status      service=wpa_supplicant.service
     Configure wifi      ${netvm}  ${SSID}  ${wifi_pswd}
     Get wifi IP
@@ -57,7 +56,7 @@ NetVM is wiped after restarting
     [Documentation]     Verify that created file will be removed after restarting VM
     [Tags]              bat   SP-T53  nuc  orin-agx  orin-nx
     [Setup]             Run Keywords
-    ...                 Connect to ghaf host  AND  Connect to netvm via tunnel
+    ...                 Connect to ghaf host  AND  Connect to netvm
     Switch Connection   ${netvm}
     Create file         /etc/test.txt
     Switch Connection   ${ghaf_host}
@@ -65,7 +64,7 @@ NetVM is wiped after restarting
     Close All Connections
     Connect to ghaf host
     Check Network Availability      ${netvm_ip}    expected_result=True    range=5
-    Connect to netvm via tunnel
+    Connect to netvm
     Log To Console      Create if created file still exists
     Check file doesn't exist    /etc/test.txt
     [Teardown]          Run Keywords   Close All Connections
@@ -74,7 +73,7 @@ Verify wpa_supplicant.service is running
     [Documentation]     Verify that wpa_supplicant.service exists and is running
     [Tags]              bat   SP-T82  nuc  orin-agx
     [Setup]             Run Keywords
-    ...                 Connect to ghaf host  AND  Connect to netvm via tunnel
+    ...                 Connect to ghaf host  AND  Connect to netvm
     Switch Connection   ${netvm}
     Verify service status   service=wpa_supplicant.service
     [Teardown]          Run Keywords   Close All Connections
@@ -83,7 +82,7 @@ Verify NetVM PCI device passthrough
     [Documentation]     Verify that proper PCI devices have been passed through to the NetVM
     [Tags]              bat   SP-T101  nuc  orin-agx  orin-nx
     [Setup]             Run Keywords
-    ...                 Connect to ghaf host  AND  Connect to netvm via tunnel
+    ...                 Connect to ghaf host  AND  Connect to netvm
     Verify microvm PCI device passthrough    host_connection=${ghaf_host}    vm_connection=${netvm}    vmname=${NETVM_NAME}
     [Teardown]          Run Keywords   Close All Connections
 
@@ -105,31 +104,13 @@ Connect to ghaf host
     Set Global Variable  ${ghaf_host}    ${connection}
     [Return]             ${connection}
 
-Port Should Be Free
-    [Arguments]  ${port}
-    ${result}  Run Keyword If  os.sep == '/'
-    ...  Run  netstat -tulpn
-    ...  ELSE
-    ...  Run  netstat -an
-    Should Not Contain  ${result}  :${port}
-    [Return]  ${result}
-
-Connect to netvm via tunnel
-    [Documentation]    Create tunnel using port ${local_port}, connect to netvm directly from test run machine,
-    ...                allow using standard SSHLibrary commands, like 'Execute Command'
-    Switch connection  ${ghaf_host}
-    Log To Console     Configuring tunnel...
-    # TODO: Remove this workaround when the issue gets fixed upstream.
-    # There's an issue in robotframework-sshlibrary, which causes that the port
-    # is left open for some time even after explicitly calling
-    # "Close All Connections":
-    # https://github.com/robotframework/SSHLibrary/issues/435
-    # https://github.com/robotframework/SSHLibrary/pull/436
-    Wait Until Keyword Succeeds  1 min  5s  Port Should Be Free  ${local_port}
-    Create Local Ssh Tunnel    local_port=${local_port}    remote_host=${NETVM_IP}    remote_port=22    bind_address=127.0.0.1
-    Log To Console     Connecting to NetVM via tunnel
-    ${connection}=     Connect     IP=localhost    PORT=${local_port}    target_output=${LOGIN}@${NETVM_NAME}
-    ${output}=         Login    username=${LOGIN}    password=${PASSWORD}
+Connect to netvm
+    [Documentation]    Connect to netvm directly from test run machine, using
+    ...                jumphost, this allows using standard SSHLibrary
+    ...                commands, like 'Execute Command'
+    Log To Console     Connecting to NetVM
+    ${connection}=     Open Connection     ${NETVM_IP}    port=22
+    ${output}=         Login    username=${LOGIN}    password=${PASSWORD}    jumphost_index_or_alias=${ghaf_host}
     Set Global Variable  ${netvm}    ${connection}
     [Return]           ${netvm}
 
