@@ -63,11 +63,11 @@ Verify init.scope status via serial
         Write Data    systemctl status init.scope${\n}
         ${output} =    SerialLibrary.Read Until    terminator=Units
         Write Data    \x03${\n}        # write ctrl+c to stop reading status
-        ${status}=    Get Service Status    ${output}
-        IF  '${status}' not in ['running', 'starting']
+        ${status}  ${state}   Get Service Status    ${output}
+        IF  '${state}' not in ['running', 'starting']
             Log To Console   init.scope status is ${status}
-            FAIL    init.scope is not running! Status is ${status}
-        ELSE IF    '${status}' == 'running'
+            FAIL    init.scope is not running! Status is ${state}
+        ELSE IF    '${state}' == 'running'
             ${diff}=    Evaluate    int(time.time()) - int(${start_time})
             Log To Console   init.scope status is ${status}
             RETURN
