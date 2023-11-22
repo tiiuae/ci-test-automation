@@ -46,6 +46,7 @@ Run iperf server on DUT
     Clear iptables rules
     ${command}        Set Variable    iperf -s
     Execute Command   nohup ${command} > output.log 2>&1 &
+    Check iperf was started
 
 Run TCP test
     [Documentation]   Run network test on agent machine
@@ -72,3 +73,17 @@ Stop iperf server
         Log to Console  Close iperf server: @{pid}
         Kill process    @{pid}
     END
+
+Check iperf was started
+    [Arguments]       ${timeout}=5
+    ${is_started} =   Set Variable    False
+    FOR    ${i}    IN RANGE    ${timeout}
+        ${output}=     Execute Command    sh -c 'ps aux | grep "iperf" | grep -v grep'
+        ${status} =    Run Keyword And Return Status    Should Contain    ${output}    iperf -s
+        IF    ${status}
+            ${is_started} =  Set Variable    True
+            BREAK
+        END
+        Sleep    1
+    END
+    IF   ${status} == False    FAIL    Iperf server was not started
