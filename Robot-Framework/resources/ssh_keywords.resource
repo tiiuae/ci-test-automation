@@ -176,21 +176,15 @@ Check file doesn't exist
     Log To Console     File ${file_name} doesn't exist
 
 Verify Ghaf Version Format
-    [Documentation]    Check that ghaf-version contains version number in the format:"dd.dd",
-    ...                date of commit in format yyyymmdd and 7 symbols of hash commit
-    ${major}  ${minor}  ${date}    ${commit}  ${name}    Get Version    ghaf
+    [Documentation]    Check that ghaf-version contains version number in the format:"dd.dd"
+    ${major}  ${minor}    Get Ghaf Version
     Should Match Regexp	  ${major}    ^\\d{2}$
     Should Match Regexp	  ${minor}    ^\\d{2}$
-    Verify Date Format    ${date}
-    Should Match Regexp	  ${commit}   ^[0-9a-f]{7}$
-    IF  ${name} != None
-        FAIL    Unexpected string in Ghaf version: ${name}
-    END
 
 Verify Nixos Version Format
     [Documentation]    Check that nixos-version contains version number in the format:"dd.dd",
     ...                date of commit in format yyyymmdd, 7 symbols of hash commit and version name in brackets
-    ${major}  ${minor}  ${date}  ${commit}  ${name}    Get Version    nixos
+    ${major}  ${minor}  ${date}  ${commit}  ${name}    Get Nixos Version
     Should Match Regexp	  ${major}   ^\\d{2}$
     Should Match Regexp	  ${minor}   ^\\d{2}$
     Verify Date Format    ${date}
@@ -199,15 +193,22 @@ Verify Nixos Version Format
         FAIL    Expected NixOS version name, but there is None
     END
 
-Get Version
-    [Documentation]    Get version of NixOS or Ghaf system, Examples:
-    ...     "ghaf-version"    output: 23.05.20230628.92414ab            parse result: 23.05, 20230628, 92414ab
-    ...     "nixos-version"   output: 23.05.20230625.35130d4 (Stoat)    parse result: 23.05, 20230625, 35130d4, Stoat
-    [Arguments]  ${whose}
-    ${output}   ${rc}    Execute Command   ${whose}-version   return_rc=True
+Get Ghaf Version
+    [Documentation]    Get version of Ghaf system, Example:
+    ...     "ghaf-version"    output: 23.05   parse result: 23.05
+    ${output}   ${rc}    Execute Command   ghaf-version   return_rc=True
     Should Be Equal As Integers     ${rc}   0   Couldn't get ghaf version, command return code
-    Log To Console    ${whose}-version: ${output}
-    ${major}  ${minor}  ${date}  ${commit}  ${name}     Parse Version   ${output}
+    Log To Console    ghaf-version: ${output}
+    ${major}  ${minor}     Parse Ghaf Version   ${output}
+    [Return]    ${major}  ${minor}
+
+Get Nixos Version
+    [Documentation]    Get version of NixOS, Example:
+    ...     "nixos-version"   output: 23.05.20230625.35130d4 (Stoat)    parse result: 23.05, 20230625, 35130d4, Stoat
+    ${output}   ${rc}    Execute Command   nixos-version   return_rc=True
+    Should Be Equal As Integers     ${rc}   0   Couldn't get ghaf version, command return code
+    Log To Console    nixos-version: ${output}
+    ${major}  ${minor}  ${date}  ${commit}  ${name}     Parse Nixos Version   ${output}
     [Return]    ${major}  ${minor}  ${date}  ${commit}  ${name}
 
 Save log
