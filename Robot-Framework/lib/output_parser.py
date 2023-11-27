@@ -40,7 +40,12 @@ def verify_shutdown_status(output):
         raise Exception("Couldn't parse shutdown status")
 
 
-def parse_version(output):
+def parse_ghaf_version(output):
+    major, minor = output.split(".")
+    return major, minor
+
+
+def parse_nixos_version(output):
     versions = output.split(' ')
     name = versions[1][1:-1] if len(versions) > 1 else None
     major, minor, date, commit = versions[0].split(".")
