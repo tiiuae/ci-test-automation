@@ -11,6 +11,7 @@ Suite Teardown      Common Teardown
 *** Keywords ***
 
 Common Setup
+    Set Variables   ${DEVICE}
     Connect
     Log versions
     Run journalctl recording

@@ -4,10 +4,10 @@
 *** Settings ***
 Documentation       Testing target device booting up.
 Force Tags          ssh_boot_test
-Library             ../lib/PlugLibrary/PlugLibrary.py  ${PLUG_TYPE}
-Resource            ../resources/serial_keywords.resource
-Resource            ../resources/ssh_keywords.resource
-Resource            ../config/variables.robot
+Library             ../../lib/PlugLibrary/PlugLibrary.py  ${PLUG_TYPE}
+Resource            ../../resources/serial_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
+Resource            ../../config/variables.robot
 
 
 *** Variables ***

@@ -3,8 +3,8 @@
 
 *** Settings ***
 Documentation       To be executed for all tests
-Resource            ../resources/ssh_keywords.resource
-Resource            ../config/variables.robot
+Resource            ../../resources/ssh_keywords.resource
+Resource            ../../config/variables.robot
 Suite Setup         Common Setup
 Suite Teardown      Common Teardown
 
