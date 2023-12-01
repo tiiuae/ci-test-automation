@@ -12,7 +12,63 @@ Suite Teardown      Close All Connections
 *** Test Cases ***
 
 
-Basic pkcs11-tool-optee RSA and ECDSA key test
+OP-TEE xtest
+       [Documentation]  Runs OP-TEE's xtest
+       ...
+       ...              NOTE: About fail and failures!!
+       ...              As a background then currently three test cases are failing within
+       ...              xtest full run and therefore these test cases are excluded from
+       ...              full run. They fail due bug/issues within OP-TEE. As soon as fixes
+       ...              are introduced then this test should be updated!
+       ...
+       ...              How to update?
+       ...
+       ...              1. Remove corresponding "-x"-flag from xtest (this test)
+       ...
+       ...              2. Delete corresponding "OP-TEE xtest XXXX" test case
+       ...
+       ...              (3. If everything is fixed (no more "-x"-flags), remove this comment!!)
+       [Tags]  bat  optee  optee-xtest  orin-agx  orin-nx  SP-T129
+
+       ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest -x 1008 -x 1033 -x 4016_ed25519    sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
+       Log     ${stdout}
+       Should Be Equal As Integers    ${rc}    0
+
+
+OP-TEE xtest 1008
+    [Documentation]   Xtest 1008
+    ...               Test will be skipped in case of failure, because this is a known issue.
+    ...               Please read OP-TEE Test suite comment
+    [Tags]  bat  optee  optee-xtest  orin-agx  orin-nx  SP-T129
+
+    ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest 1008   sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
+    Should Be Equal As Integers    ${rc}    1
+    Skip If    ${rc}    Known issue encountered, skipping the test
+
+
+OP-TEE xtest 1033
+    [Documentation]   Xtest 1033
+    ...               Test will be skipped in case of failure, because this is a known issue.
+    ...               Please read OP-TEE Test suite comment
+    [Tags]  bat  optee  optee-xtest  orin-agx  orin-nx  SP-T129
+
+    ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest 1033   sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
+    Should Be Equal As Integers    ${rc}    1
+    Skip If    ${rc}    Known issue encountered, skipping the test
+
+
+OP-TEE xtest 4016_ed25519
+    [Documentation]   Xtest 4016_ed25519
+    ...               Test will be skipped in case of failure, because this is a known issue.
+    ...               Please read OP-TEE Test suite comment
+    [Tags]  bat  optee  optee-xtest  orin-agx  orin-nx  SP-T129
+
+    ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest 4016_ed25519   sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
+    Should Be Equal As Integers    ${rc}    1
+    Skip If    ${rc}    Known issue encountered, skipping the test
+
+
+Basic pkcs11-tool-optee test
     [Documentation]   Test OP-TEE PKCS#11 through pkcs11-tool-optee wrapper.
     ...               Basic test which initalizes key slots, by directly
     ...               calling OP-TEE. Then it generates RSA 2048-bit and ECDSA
