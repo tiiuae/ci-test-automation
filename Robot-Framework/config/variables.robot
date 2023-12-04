@@ -29,6 +29,11 @@ Set Variables
     Set Global Variable  ${GALA_VM}            gala-vm.ghaf
     Set Global Variable  ${ZATHURA_VM}         zathura-vm.ghaf
 
+    IF  ${BUILD_ID} != '${EMPTY}'
+        ${config}=     Read Config  ../config/${BUILD_ID}.json
+        Set Global Variable    ${JOB}    ${config['Job']}
+    END
+
 
 Read Config
     [Arguments]  ${file_path}=../config/test_config.json

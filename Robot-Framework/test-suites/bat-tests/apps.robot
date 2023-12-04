@@ -9,11 +9,17 @@ Resource            ../../config/variables.robot
 Suite Teardown      Close All Connections
 
 
+*** Variables ***
+@{app_pids}         ${EMPTY}
+
+
 *** Test Cases ***
 
 Start Firefox
     [Documentation]   Start Firefox and verify process started
     [Tags]            bat   SP-T45  nuc  orin-agx
+    [Setup]           Skip If   "${JOB}" == "nvidia-jetson-orin-agx-debug-nodemoapps-from-x86_64.x86_64-linux"
+    ...               Skipped because this build doesn't contain applications
     Connect
     Start Firefox
     Check that the application was started    firefox
