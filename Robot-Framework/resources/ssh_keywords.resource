@@ -138,6 +138,9 @@ Find pid by name
 Kill process
     [Arguments]    @{pids}    ${sig}=15
     FOR   ${pid}  IN  @{pids}
+        IF  '${PID}' == '${EMPTY}'
+            BREAK
+        END
         Execute Command    kill -${sig} ${pid}
         FOR    ${i}    IN RANGE   5
             ${ps_exists}=    Is Process Started    ${pid}

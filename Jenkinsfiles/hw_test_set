@@ -179,6 +179,7 @@ pipeline {
                           [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
                           [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
                           [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "batAND${params.device}"]
+                          [$class: 'StringParameterValue', name: 'BUILD_ID', value: "${params.buildID}"]
                         ]
                     )
                     // copy report and log
