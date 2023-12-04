@@ -32,7 +32,7 @@ Verify NetVM is started
 
 Wifi passthrought into NetVM
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              bat   SP-T50  nuc  orin-agx  lenovo-x1
+    [Tags]              bat   SP-T50  nuc  orin-agx
     ...                 test:retry(1)
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm  AND
@@ -40,10 +40,28 @@ Wifi passthrought into NetVM
     Configure wifi      ${netvm_ssh}  ${SSID}  ${wifi_pswd}
     Get wifi IP
     Check Network Availability    ${netwotk_ip}  expected_result=True
-    Log To Console      Switch connection to Ghaf Host
-    Switch Connection	${ghaf_host_ssh}
+    Log To Console                Switch connection to Ghaf Host
+    Switch Connection	          ${ghaf_host_ssh}
+    Check Network Availability    ${netwotk_ip}  expected_result=False
+    Remove Wifi configuration
     Check Network Availability    ${netwotk_ip}  expected_result=False
     [Teardown]          Run Keywords  Remove Wifi configuration  AND  Close All Connections
+
+Wifi passthrought into NetVM on LenovoX1
+    [Documentation]     Verify that wifi works inside netvm on LenovoX1 laptop
+    [Tags]              bat   SP-T108  lenovo-x1
+    ...                 test:retry(1)
+    [Setup]             Run Keywords
+    ...                 Connect to ghaf host  AND  Connect to netvm
+    Configure wifi      ${netvm_ssh}  ${SSID}  ${wifi_pswd}  lenovo=True
+    Get wifi IP
+    Check Network Availability    ${netwotk_ip}  expected_result=True
+    Log To Console                Switch connection to Ghaf Host
+    Switch Connection	          ${ghaf_host_ssh}
+    Check Network Availability    ${netwotk_ip}  expected_result=False
+    Remove Wifi configuration     lenovo=True
+    Check Network Availability    ${netwotk_ip}  expected_result=False
+    [Teardown]          Run Keywords  Remove Wifi configuration  lenovo=True  AND  Close All Connections
 
 NetVM stops and starts successfully
     [Documentation]     Verify that NetVM stops properly and starts after that
@@ -99,18 +117,26 @@ Restart NetVM
     Check if ssh is ready on netvm
 
 Configure wifi
-    [Arguments]   ${netvm_ssh}  ${SSID}  ${passw}
+    [Arguments]   ${netvm_ssh}  ${SSID}  ${passw}  ${lenovo}=False
     Switch Connection  ${netvm_ssh}
     Log To Console     Configuring Wifi
-    Execute Command    sh -c "wpa_passphrase ${SSID} ${passw} > /etc/wpa_supplicant.conf"   sudo=True    sudo_password=${PASSWORD}
-    Execute Command    systemctl restart wpa_supplicant.service   sudo=True    sudo_password=${PASSWORD}
+    IF  ${lenovo}
+        Execute Command    wifi-connector -s ${SSID} -p ${passw}   sudo=True    sudo_password=${PASSWORD}
+    ELSE
+        Execute Command    sh -c "wpa_passphrase ${SSID} ${passw} > /etc/wpa_supplicant.conf"   sudo=True    sudo_password=${PASSWORD}
+        Execute Command    systemctl restart wpa_supplicant.service   sudo=True    sudo_password=${PASSWORD}
+    END
 
 Remove Wifi configuration
+    [Arguments]         ${lenovo}=False
     Switch Connection   ${netvm_ssh}
     Log To Console      Removing Wifi configuration
-    Execute Command     rm /etc/wpa_supplicant.conf  sudo=True    sudo_password=${PASSWORD}
-    Execute Command     systemctl restart wpa_supplicant.service  sudo=True    sudo_password=${PASSWORD}
-    [Teardown]          Close All Connections
+    IF  ${lenovo}
+        Execute Command    wifi-connector -d   sudo=True    sudo_password=${PASSWORD}
+    ELSE
+        Execute Command    rm /etc/wpa_supplicant.conf  sudo=True    sudo_password=${PASSWORD}
+        Execute Command    systemctl restart wpa_supplicant.service  sudo=True    sudo_password=${PASSWORD}
+    END
 
 Stop NetVM
     [Documentation]     Ensure that NetVM is started, stop it and check the status.
