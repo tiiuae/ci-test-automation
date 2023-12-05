@@ -178,7 +178,7 @@ pipeline {
                           [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${batSuite}"],
                           [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
                           [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
-                          [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "${params.device}"]
+                          [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "batAND${params.device}"]
                         ]
                     )
                     // copy report and log
@@ -211,7 +211,8 @@ pipeline {
                           [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${performanceSuite}"],
                           [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
                           [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
-                          [$class: 'StringParameterValue', name: 'BUILD_ID', value: "${params.buildID}"]
+                          [$class: 'StringParameterValue', name: 'BUILD_ID', value: "${params.buildID}"],
+                          [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "performanceAND${params.device}"]
                         ]
                     )
                     // copy report, log and plots
