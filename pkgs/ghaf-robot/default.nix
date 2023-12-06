@@ -1,5 +1,6 @@
 {
   PyP100,
+  iperf,
   plugp100,
   python3,
   robotframework-advancedlogging,
@@ -11,6 +12,7 @@
 writeShellApplication {
   name = "ghaf-robot";
   runtimeInputs = [
+    iperf
     (python3.withPackages (ps: [
       # These are taken from nixpkgs
       ps.robotframework

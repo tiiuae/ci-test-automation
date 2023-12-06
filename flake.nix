@@ -39,6 +39,7 @@
       # Development shell
       devShell = pkgs.mkShell {
         buildInputs = with pkgs; [
+          iperf
           (python3.withPackages (ps:
             with ps; [
               robotframework
