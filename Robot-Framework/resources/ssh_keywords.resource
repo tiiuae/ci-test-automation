@@ -337,3 +337,35 @@ Check QSPI Version is up to date
     ${output}      Execute Command    ota-check-firmware
     ${fw_version}  ${sw_version}      Get qspi versions   ${output}
     Should Be True	'${fw_version}' == '${sw_version}'	  Update QSPI version! Test results can be wrong!
+
+Stop VM
+    [Documentation]     Stopt VM service and check the status.
+    ...                 Pre-condition: requires active ssh connection to ghaf host.
+    [Arguments]         ${vm_name}
+    Log To Console          Going to stop ${vm_name}
+    Execute Command         systemctl stop microvm@${vm_name}.service  sudo=True  sudo_password=${PASSWORD}
+    Sleep    3
+    ${status}  ${state}=    Verify service status  service=microvm@${vm_name}.service  expected_status=inactive  expected_state=dead
+    Verify service shutdown status   service=microvm@${vm_name}.service
+    Set Global Variable     ${vm_state}   ${state}
+    Log To Console          ${vm_name} is ${state}
+
+Start VM
+    [Documentation]     Try to start VM service service
+    ...                 Pre-condition: requires active ssh connection to ghaf host.
+    [Arguments]         ${vm_name}
+    Log To Console          Going to start ${vm_name}
+    Execute Command         systemctl start microvm@${vm_name}.service  sudo=True  sudo_password=${PASSWORD}
+    ${status}  ${state}=    Verify service status  service=microvm@${vm_name}.service  expected_status=active  expected_state=running
+    Set Global Variable     ${vm_state}   ${state}
+    Log To Console          ${vm_name} is ${state}
+    Wait until NetVM service started
+
+Restart VM
+    [Documentation]     Stop VM service via systemctl, wait ${delay} and start VM service
+    ...                 Pre-condition: requires active ssh connection to ghaf host.
+    [Arguments]         ${vm_name}  ${delay}=3
+    Stop VM  ${vm_name}
+    Sleep  ${delay}
+    Start VM  ${vm_name}
+    Check if ssh is ready on netvm
