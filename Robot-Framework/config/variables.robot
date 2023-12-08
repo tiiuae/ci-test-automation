@@ -24,6 +24,10 @@ Set Variables
     Set Global Variable  ${PLUG_TYPE}          ${config['addresses']['${DEVICE}']['plug_type']}
     Set Global Variable  ${THREADS_NUMBER}     ${config['addresses']['${DEVICE}']['threads']}
     Set Global Variable  ${NETVM_NAME}         net-vm
+    Set Global Variable  ${CHROMIUM_VM_NAME}   chromium-vm
+    Set Global Variable  ${GUI_VM_NAME}        gui-vm
+    Set Global Variable  ${ZATHURA_VM_NAME}    zathura-vm
+    Set Global Variable  ${GALA_VM_NAME}       gala-vm
     Set Global Variable  ${NETVM_SERVICE}      microvm@${NETVM_NAME}.service
     Set Global Variable  ${NETVM_IP}           192.168.101.1
     Set Global Variable  ${GUI_VM}             gui-vm.ghaf        # 192.168.100.2
