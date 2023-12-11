@@ -27,7 +27,7 @@ Start Firefox
 
 Start Chromium on LenovoX1
     [Documentation]   Start Chromium in dedicated VM and verify process started
-    [Tags]            bat   SP-T97   lenovoX1
+    [Tags]            bat   SP-T97   lenovo-x1
     [Setup]           Connect to netvm
     Connect to guivm
     Start Chromium

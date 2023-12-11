@@ -24,7 +24,7 @@ ${netvm_ssh}       ${EMPTY}
 
 Verify NetVM is started
     [Documentation]         Verify that NetVM is active and running
-    [Tags]                  bat   SP-T49  nuc  orin-agx  orin-nx  lenovoX1
+    [Tags]                  bat   SP-T49  nuc  orin-agx  orin-nx  lenovo-x1
     [Setup]                 Connect to ghaf host
     Verify service status   service=${netvm_service}
     Check Network Availability      ${netvm_ip}    expected_result=True    range=5
@@ -32,7 +32,7 @@ Verify NetVM is started
 
 Wifi passthrought into NetVM
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              bat   SP-T50  nuc  orin-agx  lenovoX1
+    [Tags]              bat   SP-T50  nuc  orin-agx  lenovo-x1
     ...                 test:retry(1)
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm  AND
@@ -47,14 +47,14 @@ Wifi passthrought into NetVM
 
 NetVM stops and starts successfully
     [Documentation]     Verify that NetVM stops properly and starts after that
-    [Tags]              bat   SP-T52  nuc  orin-agx  orin-nx  lenovoX1
+    [Tags]              bat   SP-T52  nuc  orin-agx  orin-nx  lenovo-x1
     [Setup]     Connect to ghaf host
     Restart NetVM
     [Teardown]  Run Keywords  Start NetVM if dead   AND  Close All Connections
 
 NetVM is wiped after restarting
     [Documentation]     Verify that created file will be removed after restarting VM
-    [Tags]              bat   SP-T53  nuc  orin-agx  orin-nx  lenovoX1
+    [Tags]              bat   SP-T53  nuc  orin-agx  orin-nx  lenovo-x1
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm
     Switch Connection   ${netvm_ssh}
@@ -71,7 +71,7 @@ NetVM is wiped after restarting
 
 Verify wpa_supplicant.service is running
     [Documentation]     Verify that wpa_supplicant.service exists and is running
-    [Tags]              bat   SP-T82  nuc  orin-agx  lenovoX1
+    [Tags]              bat   SP-T82  nuc  orin-agx  lenovo-x1
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm
     Switch Connection   ${netvm_ssh}

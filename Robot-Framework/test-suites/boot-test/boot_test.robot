@@ -5,6 +5,7 @@
 Documentation       Testing target device booting up.
 Force Tags          ssh_boot_test
 Library             ../../lib/PlugLibrary/PlugLibrary.py  ${PLUG_TYPE}
+Library             ../../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
@@ -19,7 +20,7 @@ ${IS_AVAILABLE}          False
 
 Verify booting after restart by power
     [Documentation]    Restart device by power and verify init service is running
-    [Tags]             boot  plug
+    [Tags]             boot  plug  nuc  orin-agx  orin-nx  riscv
     Reboot Device
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False
@@ -33,6 +34,22 @@ Verify booting after restart by power
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Verify init.scope status via serial
     END
+    [Teardown]   Teardown
+
+Verify booting LenovoX1
+    [Documentation]    Restart LenovoX1 by power and verify init service is running
+    [Tags]             boot  plug  lenovo-x1
+    Reboot LenovoX1
+    Check If Device Is Up
+    IF    ${IS_AVAILABLE} == False
+        FAIL    The device did not start
+    ELSE
+        Log To Console  The device started
+    END
+
+    Connect
+    Verify service status   service=init.scope
+
     [Teardown]   Teardown
 
 
@@ -82,10 +99,19 @@ Check If Device Is Up
     END
 
 Reboot Device
-    [Arguments]    ${delay}=5
-    [Documentation]    Turn off power of devicee, wait for given amount of seconds and turn on the power
+    [Arguments]       ${delay}=5
+    [Documentation]   Turn off power of device, wait for given amount of seconds and turn on the power
     Log To Console    ${\n}Turning device off...
     Turn Plug Off
     Sleep    ${delay}
     Log To Console    Turning device on...
     Turn Plug On
+
+Reboot LenovoX1
+    [Arguments]       ${delay}=20
+    [Documentation]   Turn off the laptop by pressing power button for 10 sec turn on by short pressing power button
+    Log To Console    ${\n}Turning device off...
+    Press Button      ${DEVICE}-OFF
+    Sleep    ${delay}
+    Log To Console    Turning device on...
+    Press Button      ${DEVICE}-ON
