@@ -7,7 +7,9 @@ Library    OperatingSystem
 
 *** Variables ***
 
-${BUILD_ID}      ${EMPTY}
+${BUILD_ID}       ${EMPTY}
+${SWITCH_TOKEN}   ${EMPTY}
+${SWITCH_SECRET}  ${EMPTY}
 
 
 *** Keywords ***
@@ -24,10 +26,10 @@ Set Variables
     Set Global Variable  ${NETVM_NAME}         net-vm
     Set Global Variable  ${NETVM_SERVICE}      microvm@${NETVM_NAME}.service
     Set Global Variable  ${NETVM_IP}           192.168.101.1
-    Set Global Variable  ${GUI_VM}             gui-vm.ghaf
-    Set Global Variable  ${CHROMIUM_VM}        chromium-vm.ghaf
-    Set Global Variable  ${GALA_VM}            gala-vm.ghaf
-    Set Global Variable  ${ZATHURA_VM}         zathura-vm.ghaf
+    Set Global Variable  ${GUI_VM}             gui-vm.ghaf        # 192.168.100.2
+    Set Global Variable  ${CHROMIUM_VM}        chromium-vm.ghaf   # 192.168.100.4
+    Set Global Variable  ${GALA_VM}            gala-vm.ghaf       # 192.168.100.3
+    Set Global Variable  ${ZATHURA_VM}         zathura-vm.ghaf    # 192.168.100.5
 
     IF  $BUILD_ID != '${EMPTY}'
         ${config}=     Read Config  ../config/${BUILD_ID}.json
