@@ -34,12 +34,24 @@ Time synchronization
     [Teardown]        Run Keywords
     ...               Connect  AND  Set RTC from system clock  AND  Start timesync daemon
 
+# Test Template    Time syncronization test    $arg1
+
+# Test Case 1    Data1
+# Test Case 2    Data3
+
+
 
 *** Keywords ***
+
+Time syncronization test
+    [Arguments]    ${vm}
+    Log    Check Time Syncronization inside VM ${vm}
+    # ... your test steps ...
 
 Stop timesync daemon
     Execute Command        systemctl stop systemd-timesyncd.service  sudo=True  sudo_password=${PASSWORD}
     Verify service status  service=systemd-timesyncd.service  expected_status=inactive  expected_state=dead
+
 
 Start timesync daemon
     Execute Command        systemctl start systemd-timesyncd.service  sudo=True  sudo_password=${PASSWORD}
