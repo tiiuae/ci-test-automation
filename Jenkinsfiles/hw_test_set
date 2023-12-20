@@ -79,7 +79,7 @@ pipeline {
 
                     if ("${params.device}" == "orin-agx" || "${params.device}" == "orin-nx") {
                         // Read zipped image file path from buildID.json to flash usb drive for Orin device
-                        def buildData = readJSON file: "/home/${params.label}/Jenkins-agent/workspace/${splitted[0]}/hydra_copy/${params.buildID}.json"
+                        def buildData = readJSON file: "${params.resultsPath}/${params.buildID}/${params.buildID}.json"
                         zipImagePath = "${buildData['Image']}"
                         println("zipped path: ${zipImagePath}")
                     }
@@ -176,7 +176,7 @@ pipeline {
             steps {
                 script{
                     // Make directory for test results
-                    sh "mkdir ${params.resultsPath}/${params.buildID}/${resultsDirectory}/bat"
+                    sh "mkdir -p ${params.resultsPath}/${params.buildID}/${resultsDirectory}/bat"
                     build = build(
                         job: "${batJob}", propagate: false,
                         parameters: [
@@ -184,7 +184,8 @@ pipeline {
                           [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
                           [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
                           [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "batAND${params.device}"],
-                          [$class: 'StringParameterValue', name: 'BUILD_ID', value: "${params.buildID}"]
+                          [$class: 'StringParameterValue', name: 'BUILD_ID', value: "${params.buildID}"],
+                          [$class: 'StringParameterValue', name: 'RESULTS_PATH', value: "${params.resultsPath}"]
                         ]
                     )
                     // copy report and log
@@ -218,13 +219,15 @@ pipeline {
                           [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
                           [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
                           [$class: 'StringParameterValue', name: 'BUILD_ID', value: "${params.buildID}"],
+                          [$class: 'StringParameterValue', name: 'RESULTS_PATH', value: "${params.resultsPath}"],
                           [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "performanceAND${params.device}"]
                         ]
                     )
                     // copy report, log and plots
                     sh "cp ~/Jenkins-agent/workspace/${performanceJob}/Robot-Framework/test-suites/report.html ${params.resultsPath}/${params.buildID}/${resultsDirectory}/performance/report.html"
                     sh "cp ~/Jenkins-agent/workspace/${performanceJob}/Robot-Framework/test-suites/log.html ${params.resultsPath}/${params.buildID}/${resultsDirectory}/performance/log.html"
-                    sh "cp ~/Jenkins-agent/workspace/${performanceJob}/Robot-Framework/test-suites/*.png ${params.resultsPath}/${params.buildID}/${resultsDirectory}/performance/"
+                    // don't fail if there are no png files
+                    sh "cp ~/Jenkins-agent/workspace/${performanceJob}/Robot-Framework/test-suites/*.png ${params.resultsPath}/${params.buildID}/${resultsDirectory}/performance/ || true"
                     if(build.result == "SUCCESS") {
                         buildResults."bat" = "SUCCESS"
                         echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
