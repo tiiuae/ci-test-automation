@@ -73,6 +73,19 @@ Connect to netvm
     Set Global Variable  ${netvm_ssh}    ${connection}
     [Return]             ${netvm_ssh}
 
+Connect to VM
+    [Documentation]      Connect to vm directly from test run machine, using
+    ...                  jumphost, this allows using standard SSHLibrary
+    ...                  commands, like 'Execute Command'
+    [Arguments]          ${vm}
+    Connect to ghaf host
+    Log To Console       Connecting to ${vm}
+    ${connection}        Open Connection   ${vm}.ghaf  port=22
+    ${output}            Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${netvm_ssh}
+    ${output}            Execute command  hostname
+#    Set Global Variable  ${netvm_ssh}    ${connection}
+    [Return]             ${netvm_ssh}
+
 Connect to guivm
     Log To Console       Connecting to GuiVM
     ${connection}=       Open Connection   ${GUI_VM}    port=22

@@ -34,6 +34,36 @@ Time synchronization
     [Teardown]        Run Keywords
     ...               Connect  AND  Set RTC from system clock  AND  Start timesync daemon
 
+Time synchronization in virtual machines
+    [Documentation]   Stop timesyncd, change time on host, restart VMs and check that time was changed in VMs
+    [Tags]            bat   SP-T99-1  lenovo-x1
+
+    ${host}  Connect to ghaf host
+    Check that time is correct  UTC
+    Stop timesync daemon
+    Set time
+    Check time was changed
+    Connect to netvm
+
+    FOR  ${vm}  IN   ${CHROMIUM_VM_NAME}    #${GUI_VM_NAME}
+#    FOR  ${vm}  IN   ${CHROMIUM_VM_NAME}  ${GUI_VM_NAME}  ${ZATHURA_VM_NAME}  ${GALA_VM_NAME}
+        Switch Connection    ${host}
+        Restart VM  ${vm}
+        Connect to VM  ${vm}
+        Check time was changed
+    END
+
+    Switch Connection    ${host}
+    Start timesync daemon
+    Check that time is correct  UTC
+
+    FOR  ${vm}  IN   ${CHROMIUM_VM_NAME}  #  ${GUI_VM_NAME}
+        Restart VM  ${vm}
+    END
+
+    [Teardown]  Run Keywords  Switch Connection  ${host}  AND  Set RTC from system clock  AND  Start timesync daemon
+
+
 # Test Template    Time syncronization test    $arg1
 
 # Test Case 1    Data1
@@ -51,7 +81,6 @@ Time syncronization test
 Stop timesync daemon
     Execute Command        systemctl stop systemd-timesyncd.service  sudo=True  sudo_password=${PASSWORD}
     Verify service status  service=systemd-timesyncd.service  expected_status=inactive  expected_state=dead
-
 
 Start timesync daemon
     Execute Command        systemctl start systemd-timesyncd.service  sudo=True  sudo_password=${PASSWORD}
@@ -103,3 +132,34 @@ Set RTC from system clock
     [Documentation]   Set the Hardware Clock from the System Clock
     ${output}         Execute Command    hwclock -w  sudo=True  sudo_password=${PASSWORD}
     ${output}         Execute Command    timedatectl -a
+
+#Stop NetVM
+#    [Documentation]     Ensure that NetVM is started, stop it and check the status.
+#    ...                 Pre-condition: requires active ssh connection to ghaf host.
+#    Verify service status   service=${netvm_service}   expected_status=active   expected_state=running
+#    Log To Console          Going to stop NetVM
+#    Execute Command         systemctl stop ${netvm_service}  sudo=True  sudo_password=${PASSWORD}
+#    Sleep    3
+#    ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=inactive  expected_state=dead
+#    Verify service shutdown status   service=${netvm_service}
+#    Set Global Variable     ${netvm_state}   ${state}
+#    Log To Console          NetVM is ${state}
+#
+#Start NetVM
+#    [Documentation]     Try to start NetVM service
+#    ...                 Pre-condition: requires active ssh connection to ghaf host.
+#    Log To Console          Going to start NetVM
+#    Execute Command         systemctl start ${netvm_service}  sudo=True  sudo_password=${PASSWORD}
+#    ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=active  expected_state=running
+#    Set Global Variable     ${netvm_state}   ${state}
+#    Log To Console          NetVM is ${state}
+#    Wait until NetVM service started
+#
+#Restart NetVM
+#    [Documentation]    Stop NetVM via systemctl, wait ${delay} and start NetVM
+#    ...                Pre-condition: requires active ssh connection to ghaf host.
+#    [Arguments]        ${delay}=3
+#    Stop NetVM
+#    Sleep  ${delay}
+#    Start NetVM
+#    Check if ssh is ready on netvm
