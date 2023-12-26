@@ -80,12 +80,12 @@ Connect to guivm
     Set Global Variable  ${guivm_ssh}    ${connection}
     [Return]             ${guivm_ssh}
 
-Connect to chromium vm
-    Log To Console       Connecting to Chromium VM
-    ${connection}=       Open Connection   ${CHROMIUM_VM}  port=22
+Connect to VM
+    [Arguments]          ${vm_name}
+    Log To Console       Connecting to ${vm_name}
+    ${connection}=       Open Connection   ${vm_name}  port=22
     ${output}=           Login    username=${LOGIN}        password=${PASSWORD}    jumphost_index_or_alias=${netvm_ssh}
-    Set Global Variable  ${chromium_vm}    ${connection}
-    [Return]             ${chromium_vm}
+    [Return]             ${connection}
 
 Verify Systemctl status
     [Arguments]    ${range}=60
@@ -109,10 +109,11 @@ Verify Systemctl status
     FAIL    Systemctl is not running after ${diff} sec! Status is ${status}
     [Teardown]       Close Connection
 
-Start Chromium
-    Log To Console  ${\n}Starting Chromium
+Start application
+    [Arguments]      ${app_name}
+    Log To Console   ${\n}Starting ${app_name}
     ${output}        Execute Command    cat /etc/xdg/weston/weston.ini
-    ${path}          Get App Path  ${output}  chromium
+    ${path}          Get App Path  ${output}  ${app_name}
     Execute Command  nohup sh -c '$(${path})' > output.log 2>&1 &
 
 Start Firefox
