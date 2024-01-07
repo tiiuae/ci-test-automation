@@ -36,7 +36,7 @@ Time synchronization
 
 Time synchronization in virtual machines
     [Documentation]   Stop timesyncd, change time on host, restart VMs and check that time was changed in VMs
-    [Tags]            bat   SP-T99-1  lenovo-x1
+    [Tags]            bat   SP-T99-1  nuc  orin-agx  orin-nx  riscv  lenovo-x1
 
     ${host}  Connect to ghaf host
     Check that time is correct  UTC
@@ -45,11 +45,32 @@ Time synchronization in virtual machines
     Check time was changed
     Connect to netvm
 
-    FOR  ${vm}  IN   ${CHROMIUM_VM_NAME}    #${GUI_VM_NAME}
-#    FOR  ${vm}  IN   ${CHROMIUM_VM_NAME}  ${GUI_VM_NAME}  ${ZATHURA_VM_NAME}  ${GALA_VM_NAME}
-        Switch Connection    ${host}
-        Restart VM  ${vm}
+    Switch Connection    ${host}
+    Connect to netvm
+    Execute Command   hwclock -s  sudo=True  sudo_password=${PASSWORD}
+    Check time was changed
+
+    Switch Connection    ${host}
+    Start timesync daemon
+    Check that time is correct  UTC
+
+
+    [Teardown]  Run Keywords  Switch Connection  ${host}  AND  Set RTC from system clock  AND  Start timesync daemon
+
+Time synchronization in virtual machines
+    [Documentation]   Stop timesyncd, change time on host, restart VMs and check that time was changed in VMs
+    [Tags]            bat   SP-T99-2  lenovo-x1
+
+    ${host}  Connect to ghaf host
+    Check that time is correct  UTC
+    Stop timesync daemon
+    Set time
+    Check time was changed
+    Connect to netvm
+
+    FOR  ${vm}  IN   ${CHROMIUM_VM_NAME}  ${GUI_VM_NAME}  ${ZATHURA_VM_NAME}  ${GALA_VM_NAME}
         Connect to VM  ${vm}
+        Execute Command   hwclock -s  sudo=True  sudo_password=${PASSWORD}
         Check time was changed
     END
 
@@ -57,18 +78,13 @@ Time synchronization in virtual machines
     Start timesync daemon
     Check that time is correct  UTC
 
-    FOR  ${vm}  IN   ${CHROMIUM_VM_NAME}  #  ${GUI_VM_NAME}
-        Restart VM  ${vm}
+    FOR  ${vm}  IN   ${CHROMIUM_VM_NAME}  ${GUI_VM_NAME}  ${ZATHURA_VM_NAME}  ${GALA_VM_NAME}
+        Connect to VM  ${vm}
+        Execute Command   hwclock -s  sudo=True  sudo_password=${PASSWORD}
+        Check that time is correct  UTC
     END
 
     [Teardown]  Run Keywords  Switch Connection  ${host}  AND  Set RTC from system clock  AND  Start timesync daemon
-
-
-# Test Template    Time syncronization test    $arg1
-
-# Test Case 1    Data1
-# Test Case 2    Data3
-
 
 
 *** Keywords ***

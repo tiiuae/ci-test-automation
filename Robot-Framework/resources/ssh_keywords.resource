@@ -83,21 +83,6 @@ Connect to VM
     ${connection}        Open Connection   ${vm}.ghaf  port=22
     ${output}            Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${netvm_ssh}
     ${output}            Execute command  hostname
-#    Set Global Variable  ${netvm_ssh}    ${connection}
-    [Return]             ${netvm_ssh}
-
-Connect to guivm
-    Log To Console       Connecting to GuiVM
-    ${connection}=       Open Connection   ${GUI_VM}    port=22
-    ${output}=           Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${netvm_ssh}
-    Set Global Variable  ${guivm_ssh}    ${connection}
-    [Return]             ${guivm_ssh}
-
-Connect to VM
-    [Arguments]          ${vm_name}
-    Log To Console       Connecting to ${vm_name}
-    ${connection}=       Open Connection   ${vm_name}  port=22
-    ${output}=           Login    username=${LOGIN}        password=${PASSWORD}    jumphost_index_or_alias=${netvm_ssh}
     [Return]             ${connection}
 
 Verify Systemctl status
