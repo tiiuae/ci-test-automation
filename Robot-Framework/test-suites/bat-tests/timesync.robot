@@ -35,8 +35,8 @@ Time synchronization
     ...               Connect  AND  Set RTC from system clock  AND  Start timesync daemon
 
 Time synchronization in NetVM
-    [Documentation]   Stop timesyncd, change time on host, restart VMs and check that time was changed in NetVM
-    [Tags]            bat   SP-T99-1  nuc  orin-agx  orin-nx  riscv  lenovo-x1
+    [Documentation]   Stop timesyncd, change time on host and check that time was changed in NetVM
+    [Tags]            bat   SP-T122  nuc  orin-agx  orin-nx  riscv  lenovo-x1
 
     ${host}  Connect to ghaf host
 
@@ -62,8 +62,8 @@ Time synchronization in NetVM
     [Teardown]  Run Keywords  Switch Connection  ${host}  AND  Set RTC from system clock  AND  Start timesync daemon
 
 Time synchronization in virtual machines
-    [Documentation]   Stop timesyncd, change time on host, restart VMs and check that time was changed in VMs
-    [Tags]            bat   SP-T99-2  lenovo-x1
+    [Documentation]   Stop timesyncd, change time on host and check that time was changed in VMs
+    [Tags]            bat   SP-T122  lenovo-x1
 
     ${host}  Connect to ghaf host
     Check that time is correct  UTC
