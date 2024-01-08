@@ -39,7 +39,7 @@ UDP speed test
 
 Common Setup
     Set Variables     ${DEVICE}
-    Connect
+    Connect to ghaf host
 
 Run iperf server on DUT
     [Documentation]   Run iperf on DUT in server mode

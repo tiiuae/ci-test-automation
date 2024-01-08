@@ -20,7 +20,7 @@ Start Firefox
     [Tags]            bat   SP-T45  nuc  orin-agx
     [Setup]           Skip If   "${JOB}" == "nvidia-jetson-orin-agx-debug-nodemoapps-from-x86_64.x86_64-linux"
     ...               Skipped because this build doesn't contain applications
-    Connect
+    Connect to ghaf host
     Start Firefox
     Check that the application was started    firefox
     [Teardown]  Kill process  @{app_pids}

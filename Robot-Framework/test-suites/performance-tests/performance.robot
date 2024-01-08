@@ -89,4 +89,4 @@ Memory Write multimple threads test
 
 Common Setup
     Set Variables   ${DEVICE}
-    Connect
+    Connect to ghaf host

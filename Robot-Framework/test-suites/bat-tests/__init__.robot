@@ -12,12 +12,12 @@ Suite Teardown      Common Teardown
 
 Common Setup
     Set Variables   ${DEVICE}
-    Connect
+    Connect to ghaf host
     Log versions
     Run journalctl recording
 
 Common Teardown
-    Connect
+    Connect to ghaf host
     Log journctl
     Close All Connections
 

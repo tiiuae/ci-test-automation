@@ -58,9 +58,10 @@ Connect
 
 Connect to ghaf host
     [Documentation]      Open ssh connection to ghaf host
-    IF  "${ghaf_host_ssh}" == "None"
-        Log To Console       Connecting to Ghaf Host
-        ${connection}        Connect
+    ${connection}        Get Connection  host=${DEVICE_IP_ADDRESS}
+    IF  "${connection}" == "None"
+        Log To Console   Connecting to Ghaf Host
+        ${connection}    Connect
         Set Global Variable  ${ghaf_host_ssh}    ${connection}
     END
     [Return]             ${ghaf_host_ssh}
@@ -69,11 +70,12 @@ Connect to netvm
     [Documentation]      Connect to netvm directly from test run machine, using
     ...                  jumphost, this allows using standard SSHLibrary
     ...                  commands, like 'Execute Command'
-    IF  "${netvm_ssh}" == "None"
+    ${connection}        Get Connection  host=${NETVM_IP}
+    IF  "${connection}" == "None"
         Connect to ghaf host
-        Log To Console       Connecting to NetVM
-        ${connection}        Open Connection   ${NETVM_IP}  port=22
-        ${output}            Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${ghaf_host_ssh}
+        Log To Console   Connecting to NetVM
+        ${connection}    Open Connection   ${NETVM_IP}  port=22
+        ${output}        Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${ghaf_host_ssh}
         Set Global Variable  ${netvm_ssh}    ${connection}
     END
     [Return]             ${netvm_ssh}
