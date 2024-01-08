@@ -9,18 +9,23 @@ def parse_time_info(output):
     universal_time_pattern = r"Universal time: (.+)"
     rtc_time_pattern = r"RTC time: (.+)"
     time_zone_pattern = r"Time zone: .*\((.+),"
+    is_sync_pattern = r"synchronized: (\w+)"
 
     local_time_match = re.search(local_time_pattern, output)
     universal_time_match = re.search(universal_time_pattern, output)
     rtc_time_match = re.search(rtc_time_pattern, output)
     time_zone_match = re.search(time_zone_pattern, output)
+    is_sync_match = re.search(is_sync_pattern, output)
 
     local_time = local_time_match.group(1) if local_time_match else None
     universal_time = universal_time_match.group(1) if universal_time_match else None
     rtc_time = rtc_time_match.group(1) if rtc_time_match else None
     time_zone = time_zone_match.group(1) if time_zone_match else None
 
-    return local_time, universal_time, rtc_time, time_zone
+    result = is_sync_match.group(1) if is_sync_match else None
+    is_synchronized = True if result == "yes" else False if result == "no" else None
+
+    return local_time, universal_time, rtc_time, time_zone, is_synchronized
 
 
 def get_current_time(timezone="UTC"):

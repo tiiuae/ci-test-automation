@@ -34,26 +34,30 @@ Time synchronization
     [Teardown]        Run Keywords
     ...               Connect  AND  Set RTC from system clock  AND  Start timesync daemon
 
-Time synchronization in virtual machines
-    [Documentation]   Stop timesyncd, change time on host, restart VMs and check that time was changed in VMs
+Time synchronization in NetVM
+    [Documentation]   Stop timesyncd, change time on host, restart VMs and check that time was changed in NetVM
     [Tags]            bat   SP-T99-1  nuc  orin-agx  orin-nx  riscv  lenovo-x1
 
     ${host}  Connect to ghaf host
+
+    ${netvm}  Connect to netvm
+    Check that time is correct  UTC
+    Switch Connection  ${host}
+
     Check that time is correct  UTC
     Stop timesync daemon
     Set time
     Check time was changed
-    Connect to netvm
 
-    Switch Connection    ${host}
-    Connect to netvm
-    Execute Command   hwclock -s  sudo=True  sudo_password=${PASSWORD}
+    ${netvm}  Connect to netvm
     Check time was changed
 
     Switch Connection    ${host}
     Start timesync daemon
     Check that time is correct  UTC
 
+    Switch Connection    ${netvm}
+    Check that time is correct  UTC
 
     [Teardown]  Run Keywords  Switch Connection  ${host}  AND  Set RTC from system clock  AND  Start timesync daemon
 
@@ -70,7 +74,6 @@ Time synchronization in virtual machines
 
     FOR  ${vm}  IN   ${CHROMIUM_VM_NAME}  ${GUI_VM_NAME}  ${ZATHURA_VM_NAME}  ${GALA_VM_NAME}
         Connect to VM  ${vm}
-        Execute Command   hwclock -s  sudo=True  sudo_password=${PASSWORD}
         Check time was changed
     END
 
@@ -80,7 +83,6 @@ Time synchronization in virtual machines
 
     FOR  ${vm}  IN   ${CHROMIUM_VM_NAME}  ${GUI_VM_NAME}  ${ZATHURA_VM_NAME}  ${GALA_VM_NAME}
         Connect to VM  ${vm}
-        Execute Command   hwclock -s  sudo=True  sudo_password=${PASSWORD}
         Check that time is correct  UTC
     END
 
@@ -88,11 +90,6 @@ Time synchronization in virtual machines
 
 
 *** Keywords ***
-
-Time syncronization test
-    [Arguments]    ${vm}
-    Log    Check Time Syncronization inside VM ${vm}
-    # ... your test steps ...
 
 Stop timesync daemon
     Execute Command        systemctl stop systemd-timesyncd.service  sudo=True  sudo_password=${PASSWORD}
@@ -106,17 +103,29 @@ Start timesync daemon
 Check that time is correct
     [Documentation]   Check that current system time is correct (time tolerance = 10 sec)
     [Arguments]       ${timezone}=UTC
-    ${output}         Execute Command    timedatectl -a
-    ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}    Parse time info  ${output}
+
+    ${is_started} =   Set Variable    False
+    FOR    ${i}    IN RANGE    3
+        ${output}      Execute Command    timedatectl -a
+        ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}  ${is_synchronized}   Parse time info  ${output}
+        IF    ${is_synchronized}
+            BREAK
+        END
+        Sleep    1
+    END
+
     ${current_time}   Get current time   ${timezone}
+    Log To Console    Comparing device time: ${universal_time} and real time ${current_time}
     ${time_close}     Is time close      ${universal_time}  ${current_time}
-    Should Be True    ${time_close}      Time doesn't match: Device time ${universal_time}, actual time ${current_time}
+    Should Be True    ${time_close}
+    ...  Time doesn't match: Device time ${universal_time}, actual time ${current_time}, Time was synchronized: ${is_synchronized}
     Compare local and universal time
 
 Set time
     [Arguments]       ${time}=${wrong_time}
     ${change_time}    Get Time	epoch
     ${change_time}    Set Global Variable     ${change_time}
+    Log To Console    Setting time ${time}
     Execute Command   hwclock --set --date="${time}"  sudo=True  sudo_password=${PASSWORD}
     Execute Command   hwclock -s  sudo=True  sudo_password=${PASSWORD}
     ${output}         Execute Command  timedatectl -a
@@ -125,7 +134,7 @@ Check time was changed
     [Documentation]   Check that current system time is equal to given (time tolerance = 10 sec)
     [Arguments]       ${time}=${wrong_time}  ${timezone}=UTC
     ${output}         Execute Command    timedatectl -a
-    ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}    Parse time info  ${output}
+    ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}  ${is_synchronized}   Parse time info  ${output}
     ${now}            Get Time  epoch
     ${time_diff}      Evaluate  ${now} - ${change_time}
     ${expected_time}  Convert To UTC  ${time}
@@ -139,7 +148,7 @@ Compare local and universal time
     ...               Local time should be Asia/Dubai time zone for LenovoX1 and UTC for others
     [Arguments]       ${timezone}=UTC
     ${output}         Execute Command    timedatectl -a
-    ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}    Parse time info  ${output}
+    ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}  ${is_synchronized}   Parse time info  ${output}
     ${local_time_utc}  Convert To UTC  ${local_time}
     ${time_close}     Is time close  ${universal_time}  ${local_time_utc}  tolerance_seconds=1
     Should Be True    ${time_close}
@@ -148,34 +157,3 @@ Set RTC from system clock
     [Documentation]   Set the Hardware Clock from the System Clock
     ${output}         Execute Command    hwclock -w  sudo=True  sudo_password=${PASSWORD}
     ${output}         Execute Command    timedatectl -a
-
-#Stop NetVM
-#    [Documentation]     Ensure that NetVM is started, stop it and check the status.
-#    ...                 Pre-condition: requires active ssh connection to ghaf host.
-#    Verify service status   service=${netvm_service}   expected_status=active   expected_state=running
-#    Log To Console          Going to stop NetVM
-#    Execute Command         systemctl stop ${netvm_service}  sudo=True  sudo_password=${PASSWORD}
-#    Sleep    3
-#    ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=inactive  expected_state=dead
-#    Verify service shutdown status   service=${netvm_service}
-#    Set Global Variable     ${netvm_state}   ${state}
-#    Log To Console          NetVM is ${state}
-#
-#Start NetVM
-#    [Documentation]     Try to start NetVM service
-#    ...                 Pre-condition: requires active ssh connection to ghaf host.
-#    Log To Console          Going to start NetVM
-#    Execute Command         systemctl start ${netvm_service}  sudo=True  sudo_password=${PASSWORD}
-#    ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=active  expected_state=running
-#    Set Global Variable     ${netvm_state}   ${state}
-#    Log To Console          NetVM is ${state}
-#    Wait until NetVM service started
-#
-#Restart NetVM
-#    [Documentation]    Stop NetVM via systemctl, wait ${delay} and start NetVM
-#    ...                Pre-condition: requires active ssh connection to ghaf host.
-#    [Arguments]        ${delay}=3
-#    Stop NetVM
-#    Sleep  ${delay}
-#    Start NetVM
-#    Check if ssh is ready on netvm

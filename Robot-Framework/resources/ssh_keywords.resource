@@ -12,7 +12,8 @@ Library             ../lib/output_parser.py
 
 *** Variables ***
 ${netvm_ip}        192.168.101.1
-
+${ghaf_host_ssh}   None
+${netvm_ssh}       None
 
 *** Keywords ***
 
@@ -57,20 +58,24 @@ Connect
 
 Connect to ghaf host
     [Documentation]      Open ssh connection to ghaf host
-    Log To Console       Connecting to Ghaf Host
-    ${connection}        Connect
-    Set Global Variable  ${ghaf_host_ssh}    ${connection}
-    [Return]             ${connection}
+    IF  "${ghaf_host_ssh}" == "None"
+        Log To Console       Connecting to Ghaf Host
+        ${connection}        Connect
+        Set Global Variable  ${ghaf_host_ssh}    ${connection}
+    END
+    [Return]             ${ghaf_host_ssh}
 
 Connect to netvm
     [Documentation]      Connect to netvm directly from test run machine, using
     ...                  jumphost, this allows using standard SSHLibrary
     ...                  commands, like 'Execute Command'
-    Connect to ghaf host
-    Log To Console       Connecting to NetVM
-    ${connection}        Open Connection   ${NETVM_IP}  port=22
-    ${output}            Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${ghaf_host_ssh}
-    Set Global Variable  ${netvm_ssh}    ${connection}
+    IF  "${netvm_ssh}" == "None"
+        Connect to ghaf host
+        Log To Console       Connecting to NetVM
+        ${connection}        Open Connection   ${NETVM_IP}  port=22
+        ${output}            Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${ghaf_host_ssh}
+        Set Global Variable  ${netvm_ssh}    ${connection}
+    END
     [Return]             ${netvm_ssh}
 
 Connect to VM
@@ -78,7 +83,9 @@ Connect to VM
     ...                  jumphost, this allows using standard SSHLibrary
     ...                  commands, like 'Execute Command'
     [Arguments]          ${vm}
-    Connect to ghaf host
+    IF  "${netvm_ssh}" == "None"
+        Connect to netvm
+    END
     Log To Console       Connecting to ${vm}
     ${connection}        Open Connection   ${vm}.ghaf  port=22
     ${output}            Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${netvm_ssh}
