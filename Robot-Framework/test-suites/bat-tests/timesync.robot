@@ -117,7 +117,7 @@ Check that time is correct
     ${current_time}   Get current time   ${timezone}
     Log To Console    Comparing device time: ${universal_time} and real time ${current_time}
     ${time_close}     Is time close      ${universal_time}  ${current_time}
-    Should Be True    ${time_close}
+    Should Be True    ${time_close}  ${universal_time} expected close to ${current_time}
     ...  Time doesn't match: Device time ${universal_time}, actual time ${current_time}, Time was synchronized: ${is_synchronized}
     Compare local and universal time
 
@@ -140,7 +140,7 @@ Check time was changed
     ${expected_time}  Convert To UTC  ${time}
     Log To Console    Comparing device time: ${universal_time} and time which was set ${expected_time}
     ${time_close}     Is time close  ${universal_time}  ${expected_time}  tolerance_seconds=${time_diff}
-    Should Be True    ${time_close}
+    Should Be True    ${time_close}  ${universal_time} expected close to ${expected_time}
     Compare local and universal time
 
 Compare local and universal time
