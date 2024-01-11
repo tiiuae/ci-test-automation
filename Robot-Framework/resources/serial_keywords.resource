@@ -57,7 +57,7 @@ Log In To Ghaf OS
 Verify init.scope status via serial
     [Arguments]    ${range}=60
     [Documentation]    Check if init.scope service is running with given loop ${range}
-    Connect via serial
+    Connect via serial  timeout=10
     ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
         Write Data    systemctl status init.scope${\n}
