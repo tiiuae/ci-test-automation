@@ -302,7 +302,7 @@ Get wifi IP
     FOR    ${i}    IN RANGE    20
         ${output}     Execute Command      ifconfig
         Log           ${output}
-        ${ip}         Get wifi ip from ifconfig    ${output}   ${if_name}
+        ${ip}         Get ip from ifconfig    ${output}   ${if_name}
         ${status}     Run Keyword And Return Status    Should Not Be Equal As Strings    ${ip}    None
         IF  ${status}
             Log To Console     Ip is ${ip}
