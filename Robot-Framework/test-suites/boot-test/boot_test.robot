@@ -20,7 +20,7 @@ ${IS_AVAILABLE}          False
 
 Verify booting after restart by power
     [Documentation]    Restart device by power and verify init service is running
-    [Tags]             boot  plug  nuc  orin-agx  orin-nx  riscv
+    [Tags]             boot  plug  nuc  orin-agx  orin-nx
     Reboot Device
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False
@@ -51,6 +51,19 @@ Verify booting LenovoX1
     Verify service status   service=init.scope
 
     [Teardown]   Teardown
+
+Verify booting RiscV Polarfire
+    [Documentation]    Restart RiscV by power and verify init service is running using serial connection
+    [Tags]             boot  plug  riscv
+    Reboot Device
+    Sleep   60    # immediate attempt to connect via the serial port may interrupt the normal startup of the Ghaf system
+    Check Serial Connection
+    IF    ${IS_AVAILABLE} == False
+        FAIL    The device did not start
+    ELSE
+        Log To Console  The device started
+    END
+    Verify init.scope status via serial
 
 
 *** Keywords ***
