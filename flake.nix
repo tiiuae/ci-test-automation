@@ -51,6 +51,7 @@
               robotframework-sshlibrary
               pyserial
               python-kasa
+              pytz
             ]))
         ];
       };
