@@ -6,6 +6,7 @@ Documentation       Network performance tests
 ...                 Requires iperf installed on test running PC (sudo apt install iperf)
 Force Tags          performance  network
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/serial_keywords.resource
 Resource            ../../config/variables.robot
 Library             ../../lib/output_parser.py
 Library             Process
@@ -39,6 +40,7 @@ UDP speed test
 
 Common Setup
     Set Variables     ${DEVICE}
+    Run Keyword If  "${DEVICE_IP_ADDRESS}" == ""    Get ethernet IP address
     Connect
 
 Run iperf server on DUT
