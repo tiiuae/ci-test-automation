@@ -4,6 +4,7 @@
 *** Settings ***
 Documentation       To be executed only for BAT tests
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/serial_keywords.resource
 Suite Setup         Common Setup
 Suite Teardown      Common Teardown
 
@@ -12,6 +13,7 @@ Suite Teardown      Common Teardown
 
 Common Setup
     Set Variables   ${DEVICE}
+    Run Keyword If  "${DEVICE_IP_ADDRESS}" == ""    Get ethernet IP address
     Connect
     Log versions
     Run journalctl recording

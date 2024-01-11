@@ -95,3 +95,10 @@ Save log
     Write Advanced Testlog    journalctl.log     ${output}
     Log  ${output}
     [Teardown]    Delete All Ports
+
+Get ethernet IP address
+    Connect via serial
+    Write Data    ifconfig${\n}
+    ${output}     SerialLibrary.Read Until    ghaf@ghaf-host:
+    ${ip}         Get ip from ifconfig    ${output}   eth0
+    Set Global Variable  ${DEVICE_IP_ADDRESS}  ${ip}
