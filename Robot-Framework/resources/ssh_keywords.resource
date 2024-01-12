@@ -4,6 +4,8 @@
 *** Settings ***
 Library             SSHLibrary
 Resource            ../config/variables.robot
+Library             ../lib/PlugLibrary/PlugLibrary.py  ${PLUG_TYPE}
+Library             ../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
 Library             BuiltIn
 Library             String
 Library             Process
@@ -369,3 +371,27 @@ Restart VM
     Sleep  ${delay}
     Start VM  ${vm_name}
     Check if ssh is ready on netvm
+
+Turn Off Device
+    Log To Console    ${\n}Turning device off...
+    IF  '${DEVICE_TYPE}' == 'lenovo-x1'
+        Press Button      ${DEVICE}-OFF
+    ELSE
+        Turn Plug Off
+    END
+    Sleep    5
+    ${device_is_available}   Ping Host   ${DEVICE_IP_ADDRESS}
+    IF  ${device_is_available} == False
+        Log To Console      Device is down
+    ELSE
+        Log    Device is UP after the end of the test    WARN
+        Log To Console    Device is UP after the end of the test.
+    END
+
+Turn On Device
+    Log To Console    ${\n}Turning device on...
+    IF  '${DEVICE_TYPE}' == 'lenovo-x1'
+        Press Button      ${DEVICE}-ON
+    ELSE
+        Turn Plug On
+    END

@@ -65,17 +65,46 @@ Verify booting RiscV Polarfire
     END
     Verify init.scope status via serial
 
+    [Teardown]   Teardown
+
 
 *** Keywords ***
 
 Teardown
+
+    Save Log
+    Close All Connections
+    Delete All Ports
+
+    Log To Console    ${\n}Turning device off...
+    IF  '${DEVICE_TYPE}' == 'lenovo-x1'
+        Press Button      ${DEVICE}-OFF
+    ELSE
+        Turn Plug Off
+    END
+    Sleep    5
+    Check if device is down
+
+Save Log
     IF  "${CONNECTION_TYPE}" == "ssh"
         Run Keyword If Test Failed    ssh_keywords.Save log
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Run Keyword If Test Failed    serial_keywords.Save log
     END
-    Close All Connections
-    Delete All Ports
+
+Check if device is down
+    IF  "${CONNECTION_TYPE}" == "ssh"
+        ${device_is_available}   Ping Host   ${DEVICE_IP_ADDRESS}
+    ELSE IF  "${CONNECTION_TYPE}" == "serial"
+        ${device_is_available}   Check Serial Connection     range=10
+    END
+
+    IF  ${device_is_available} == False
+        Log To Console      Device is down
+    ELSE
+        Log    Device is UP after the end of the test    WARN
+        Log To Console    Device is UP after the end of the test.
+    END
 
 Check If Device Is Up
     [Arguments]    ${range}=20

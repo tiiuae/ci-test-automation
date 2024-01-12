@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Documentation      Setup of the boot test
+Documentation       Setup of Performance tests
 Resource            ../../resources/ssh_keywords.resource
-Resource            ../../config/variables.robot
+Resource            ../../resources/serial_keywords.resource
 Suite Setup         Common Setup
 Suite Teardown      Common Teardown
 
@@ -13,6 +13,10 @@ Suite Teardown      Common Teardown
 
 Common Setup
     Set Variables   ${DEVICE}
+    Turn On Device
+    Check If Device Is Up
+    Run Keyword If  "${DEVICE_IP_ADDRESS}" == ""    Get ethernet IP address
 
 Common Teardown
     Close All Connections
+    Turn off device

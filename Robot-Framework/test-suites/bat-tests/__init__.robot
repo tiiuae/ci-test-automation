@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Documentation       To be executed only for BAT tests
+Documentation       Setup of BAT tests
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Suite Setup         Common Setup
@@ -13,6 +13,8 @@ Suite Teardown      Common Teardown
 
 Common Setup
     Set Variables   ${DEVICE}
+    Turn On Device
+    Check If Device Is Up
     Run Keyword If  "${DEVICE_IP_ADDRESS}" == ""    Get ethernet IP address
     Connect
     Log versions
@@ -22,6 +24,7 @@ Common Teardown
     Connect
     Log journctl
     Close All Connections
+    Turn off device
 
 Run journalctl recording
     ${output}     Execute Command    journalctl > jrnl.txt

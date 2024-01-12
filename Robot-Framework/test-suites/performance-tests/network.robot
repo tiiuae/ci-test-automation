@@ -11,7 +11,6 @@ Resource            ../../config/variables.robot
 Library             ../../lib/output_parser.py
 Library             Process
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}
-Suite Setup         Common Setup
 Suite Teardown      Close All Connections
 
 
@@ -37,11 +36,6 @@ UDP speed test
 
 
 *** Keywords ***
-
-Common Setup
-    Set Variables     ${DEVICE}
-    Run Keyword If  "${DEVICE_IP_ADDRESS}" == ""    Get ethernet IP address
-    Connect
 
 Run iperf server on DUT
     [Documentation]   Run iperf on DUT in server mode

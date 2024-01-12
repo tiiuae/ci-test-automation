@@ -8,7 +8,6 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
 Library             ../../lib/output_parser.py
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}
-Suite Setup         Common Setup
 Suite Teardown      Close All Connections
 
 
@@ -83,10 +82,3 @@ Memory Write multimple threads test
     &{cpu_data}         Parse Memory Results   ${output}
     Save Memory Data    ${TEST NAME}  ${cpu_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
-
-
-*** Keywords ***
-
-Common Setup
-    Set Variables   ${DEVICE}
-    Connect

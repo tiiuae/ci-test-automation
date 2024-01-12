@@ -149,7 +149,8 @@ pipeline {
                           [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${bootSuite}"],
                           [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
                           [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
-                          [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "bootAND${params.device}"]
+                          [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "bootAND${params.device}"],
+                          [$class: 'StringParameterValue', name: 'DEVICE_TYPE', value: "${params.device}"]
                         ]
                     )
 
@@ -185,7 +186,8 @@ pipeline {
                           [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
                           [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "batAND${params.device}"],
                           [$class: 'StringParameterValue', name: 'BUILD_ID', value: "${params.buildID}"],
-                          [$class: 'StringParameterValue', name: 'RESULTS_PATH', value: "${params.resultsPath}"]
+                          [$class: 'StringParameterValue', name: 'RESULTS_PATH', value: "${params.resultsPath}"],
+                          [$class: 'StringParameterValue', name: 'DEVICE_TYPE', value: "${params.device}"]
                         ]
                     )
                     // copy report and log
@@ -220,7 +222,8 @@ pipeline {
                           [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
                           [$class: 'StringParameterValue', name: 'BUILD_ID', value: "${params.buildID}"],
                           [$class: 'StringParameterValue', name: 'RESULTS_PATH', value: "${params.resultsPath}"],
-                          [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "performanceAND${params.device}"]
+                          [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "performanceAND${params.device}"],
+                          [$class: 'StringParameterValue', name: 'DEVICE_TYPE', value: "${params.device}"]
                         ]
                     )
                     // copy report, log and plots

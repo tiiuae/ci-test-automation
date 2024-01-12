@@ -10,6 +10,7 @@ Library    OperatingSystem
 ${BUILD_ID}       ${EMPTY}
 ${SWITCH_TOKEN}   ${EMPTY}
 ${SWITCH_SECRET}  ${EMPTY}
+${DEVICE_TYPE}    ${EMPTY}
 
 
 *** Keywords ***

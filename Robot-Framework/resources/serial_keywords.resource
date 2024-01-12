@@ -21,9 +21,11 @@ Open Serial Port
 
 Check Serial Connection
     [Documentation]    Check if device is available by serial
+    [Arguments]        ${range}=60
+    Set Global Variable    ${IS_AVAILABLE}    False
     Log To Console     Trying to connect via serial...
     Open Serial Port
-    FOR    ${i}    IN RANGE    60
+    FOR    ${i}    IN RANGE    ${range}
         Write Data    ${\n}
         ${output} =    SerialLibrary.Read Until
         ${status} =    Run Keyword And Return Status    Should contain    ${output}    ghaf
@@ -38,6 +40,7 @@ Check Serial Connection
     ELSE
         Log To Console    Device is not available via serial
     END
+    [Return]    ${IS_AVAILABLE}
 
 Log In To Ghaf OS
     [Documentation]    Log in with ${LOGIN} and ${PASSWORD}
