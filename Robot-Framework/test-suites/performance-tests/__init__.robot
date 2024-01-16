@@ -5,18 +5,19 @@
 Documentation       Setup of Performance tests
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/serial_keywords.resource
-Suite Setup         Common Setup
-Suite Teardown      Common Teardown
+Suite Setup         Performance tests Setup
+Suite Teardown      Performance tests Teardown
 
 
 *** Keywords ***
 
-Common Setup
+Performance tests Setup
     Set Variables   ${DEVICE}
     Turn On Device
-    Check If Device Is Up
     Run Keyword If  "${DEVICE_IP_ADDRESS}" == ""    Get ethernet IP address
+    Check If Device Is Up
+    Verify service status   service=init.scope
 
-Common Teardown
+Performance tests Teardown
     Close All Connections
     Turn off device

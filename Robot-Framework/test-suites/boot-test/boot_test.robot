@@ -4,8 +4,8 @@
 *** Settings ***
 Documentation       Testing target device booting up.
 Force Tags          ssh_boot_test
-Library             ../../lib/PlugLibrary/PlugLibrary.py  ${PLUG_TYPE}
-Library             ../../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
+Library             ../../lib/PlugLibrary/PlugLibrary.py
+Library             ../../lib/SwitchbotLibrary.py
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
@@ -104,40 +104,6 @@ Check if device is down
     ELSE
         Log    Device is UP after the end of the test    WARN
         Log To Console    Device is UP after the end of the test.
-    END
-
-Check If Device Is Up
-    [Arguments]    ${range}=20
-    Set Global Variable    ${IS_AVAILABLE}       False
-    ${start_time}=    Get Time	epoch
-    FOR    ${i}    IN RANGE    ${range}
-        ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
-        IF    ${ping}
-            Log To Console    Ping ${DEVICE_IP_ADDRESS} successfull
-            BREAK
-        END
-    END
-
-    IF    ${ping}
-        ${port_22_is_available}     Check if ssh is ready on device
-        IF  ${port_22_is_available}
-            Set Global Variable    ${IS_AVAILABLE}       True
-        ELSE
-            Set Global Variable    ${IS_AVAILABLE}       False
-        END
-    END
-
-    ${diff}=    Evaluate    int(time.time()) - int(${start_time})
-
-    IF  ${IS_AVAILABLE}    Log To Console    Device woke up after ${diff} sec.
-
-    IF  ${IS_AVAILABLE} == False
-        Log To Console    Device is not available after reboot via SSH, waited for ${diff} sec!
-        IF  "${SERIAL_PORT}" == "NONE"
-            Log To Console    There is no address for serial connection
-        ELSE
-            Check Serial Connection
-        END
     END
 
 Reboot Device

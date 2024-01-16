@@ -5,14 +5,14 @@
 Documentation      Setup of the boot test
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
-Suite Setup         Common Setup
-Suite Teardown      Common Teardown
+Suite Setup         Boot test Setup
+Suite Teardown      Boot test Teardown
 
 
 *** Keywords ***
 
-Common Setup
+Boot test Setup
     Set Variables   ${DEVICE}
 
-Common Teardown
+Boot test Teardown
     Close All Connections

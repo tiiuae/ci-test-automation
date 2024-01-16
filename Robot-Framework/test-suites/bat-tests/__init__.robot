@@ -5,22 +5,29 @@
 Documentation       Setup of BAT tests
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/serial_keywords.resource
-Suite Setup         Common Setup
-Suite Teardown      Common Teardown
+Suite Setup         Bat Tests Setup
+Suite Teardown      Bat Tests Teardown
 
+*** Variables ***
+
+${DEVICE}         ${EMPTY}
+#${SWITCH_TOKEN}   ${EMPTY}
+#${SWITCH_SECRET}  ${EMPTY}
+#${DEVICE_TYPE}    ${EMPTY}
 
 *** Keywords ***
 
-Common Setup
+Bat Tests Setup
     Set Variables   ${DEVICE}
     Turn On Device
-    Check If Device Is Up
     Run Keyword If  "${DEVICE_IP_ADDRESS}" == ""    Get ethernet IP address
+    Check If Device Is Up
     Connect
+    Verify service status   service=init.scope
     Log versions
     Run journalctl recording
 
-Common Teardown
+Bat Tests Teardown
     Connect
     Log journctl
     Close All Connections

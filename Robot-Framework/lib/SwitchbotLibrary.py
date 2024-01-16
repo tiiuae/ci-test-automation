@@ -4,11 +4,12 @@ import hashlib
 import base64
 import requests
 import uuid
+from robot.libraries.BuiltIn import BuiltIn
 
 class SwitchbotLibrary:
-    def __init__(self, token, secret):
-        self.token = token
-        self.secret = secret
+    def __init__(self,):
+        self.token = BuiltIn().get_variable_value("${SWITCH_TOKEN}")
+        self.secret = BuiltIn().get_variable_value("${SWITCH_SECRET}")
         self.base_url = 'https://api.switch-bot.com/v1.1/devices'
         self.signature, self.timestamp, self.nonce = self.generate_signature()
         self.device_id = ''
