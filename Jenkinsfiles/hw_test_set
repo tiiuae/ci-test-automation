@@ -27,9 +27,10 @@ pipeline {
                 script {
                     resultsDirectory = "${params.device}_test_results"
                     def splitted = "${JOB_NAME}".split('/')
-                    bootJob  = "${splitted[0]}/Testing/boot_test"
-                    batJob   = "${splitted[0]}/Testing/smoke_tests"
-                    performanceJob   = "${splitted[0]}/Testing/Performance_tests"
+                    bootJob = "${splitted[0]}/Testing/boot_test"
+                    batJob = "${splitted[0]}/Testing/smoke_tests"
+                    performanceJob = "${splitted[0]}/Testing/Performance_tests"
+                    turnoffJob =  "${splitted[0]}/Testing/turn_off_device"
                     configPath = "/home/${params.label}/Jenkins-agent/workspace/${splitted[0]}/Testing/test_config.json"
 
                     // Check for which agent and which target device
@@ -237,6 +238,20 @@ pipeline {
                             error("Error during performance tests")
                         }
                     }
+                }
+            }
+        }
+        stage('Turn off device') {
+            steps {
+              	script {
+              	    build = build(
+                        job: "${turnoffJob}", propagate: false,
+                        parameters: [
+                          [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
+                          [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
+                          [$class: 'StringParameterValue', name: 'DEVICE_TYPE', value: "${params.device}"]
+                        ]
+                    )
                 }
             }
         }
