@@ -14,6 +14,7 @@ Resource            ../../config/variables.robot
 *** Variables ***
 ${CONNECTION_TYPE}       ssh
 ${IS_AVAILABLE}          False
+${DEVICE_TYPE}           ${EMPTY}
 
 
 *** Test Cases ***
@@ -64,6 +65,47 @@ Verify booting RiscV Polarfire
         Log To Console  The device started
     END
     Verify init.scope status via serial
+    [Teardown]   Teardown
+
+Turn OFF Device
+    [Documentation]   Turn off device
+    [Tags]            turnoff
+    Log To Console    ${\n}Turning device off...
+    IF  "${DEVICE_TYPE}" == "lenovo-x1"
+        Press Button      ${DEVICE}-OFF
+    ELSE
+        Turn Plug Off
+    END
+    Sleep    5
+    ${device_is_available}   Ping Host   ${DEVICE_IP_ADDRESS}
+    IF  ${device_is_available} == False
+        Log To Console    Device is down
+    ELSE
+        Log To Console    Device is UP after the end of the test.
+        FAIL    Device is UP after the end of the test
+    END
+
+Turn ON Device
+    [Documentation]   Turn on device
+    [Tags]            turnon
+    Log To Console    ${\n}Turning device on...
+    IF  "${DEVICE_TYPE}" == "lenovo-x1"
+        Press Button      ${DEVICE}-ON
+    ELSE
+        Turn Plug On
+    END
+    Sleep    5
+    IF  "${DEVICE_TYPE}" == "riscv"
+        Sleep   60    # immediate attempt to connect via the serial port may interrupt the normal startup of the Ghaf system
+        Check Serial Connection
+    ELSE
+        Check If Device Is Up
+    END
+    IF    ${IS_AVAILABLE} == False
+        FAIL  The device did not start
+    ELSE
+        Log To Console  The device started
+    END
 
 
 *** Keywords ***
@@ -87,6 +129,7 @@ Check If Device Is Up
             Log To Console    Ping ${DEVICE_IP_ADDRESS} successfull
             BREAK
         END
+        Sleep  1
     END
 
     IF    ${ping}
@@ -123,8 +166,11 @@ Reboot Device
 Reboot LenovoX1
     [Arguments]       ${delay}=20
     [Documentation]   Turn off the laptop by pressing power button for 10 sec turn on by short pressing power button
-    Log To Console    ${\n}Turning device off...
-    Press Button      ${DEVICE}-OFF
-    Sleep    ${delay}
+    ${device_is_available}   Ping Host   ${DEVICE_IP_ADDRESS}
+    IF  ${device_is_available}
+        Log To Console    ${\n}Turning device off...
+        Press Button      ${DEVICE}-OFF
+        Sleep    ${delay}
+    END
     Log To Console    Turning device on...
     Press Button      ${DEVICE}-ON
