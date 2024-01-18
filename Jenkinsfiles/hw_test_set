@@ -53,9 +53,9 @@ pipeline {
                         } else if (params.device == "orin-nx"){
                             deviceName = 'OrinNX2'
                         } else if (params.device == "riscv"){
-                            deviceName = 'Polarfire1'
+                            deviceName = 'Polarfire2'
                         } else if (params.device == "lenovo-x1"){
-                            deviceName = 'LenovoX1-1'
+                            deviceName = 'LenovoX1-2'
                         }
                     }
                     echo "DEVICE: ${deviceName}"
