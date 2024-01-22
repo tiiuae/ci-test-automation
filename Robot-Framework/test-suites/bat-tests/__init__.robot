@@ -14,6 +14,10 @@ Suite Teardown      Common Teardown
 Common Setup
     Set Variables   ${DEVICE}
     Run Keyword If  "${DEVICE_IP_ADDRESS}" == ""    Get ethernet IP address
+    ${port_22_is_available}     Check if ssh is ready on device
+    IF  ${port_22_is_available} == False
+        FAIL    Failed because port 22 of device was not available, tests can not be run.
+    END
     Connect
     Log versions
     Run journalctl recording
