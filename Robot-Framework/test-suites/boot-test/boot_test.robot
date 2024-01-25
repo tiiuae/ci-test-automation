@@ -70,6 +70,7 @@ Verify booting RiscV Polarfire
 Turn OFF Device
     [Documentation]   Turn off device
     [Tags]            turnoff
+    [Setup]     Run Keyword If  "${DEVICE_IP_ADDRESS}" == ""    Get ethernet IP address
     Log To Console    ${\n}Turning device off...
     IF  "${DEVICE_TYPE}" == "lenovo-x1"
         Press Button      ${DEVICE}-OFF
