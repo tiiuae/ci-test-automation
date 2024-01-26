@@ -12,7 +12,7 @@ Library             ../lib/output_parser.py
 
 *** Variables ***
 ${netvm_ip}        192.168.101.1
-
+${failed_connection}  True
 
 *** Keywords ***
 
@@ -68,23 +68,39 @@ Connect to netvm
     ...                  commands, like 'Execute Command'
     Connect to ghaf host
     Log To Console       Connecting to NetVM
-    ${connection}        Open Connection   ${NETVM_IP}  port=22
-    ${output}            Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${ghaf_host_ssh}
+    ${failed_connection}  Set variable  True
+    FOR    ${i}    IN RANGE    10
+        TRY
+            ${connection}        Open Connection   ${NETVM_IP}  port=22
+            ${output}            Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${ghaf_host_ssh}
+        EXCEPT    ChannelException: ChannelException(2, 'Connect failed')    type=LITERAL
+            Sleep   1
+            CONTINUE
+        END
+        ${failed_connection}  Set variable  False
+        BREAK
+    END
+    IF  ${failed_connection}    FAIL  Couldn't connect NetVM
     Set Global Variable  ${netvm_ssh}    ${connection}
     [Return]             ${netvm_ssh}
-
-Connect to guivm
-    Log To Console       Connecting to GuiVM
-    ${connection}=       Open Connection   ${GUI_VM}    port=22
-    ${output}=           Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${netvm_ssh}
-    Set Global Variable  ${guivm_ssh}    ${connection}
-    [Return]             ${guivm_ssh}
 
 Connect to VM
     [Arguments]          ${vm_name}
     Log To Console       Connecting to ${vm_name}
-    ${connection}=       Open Connection   ${vm_name}  port=22
-    ${output}=           Login    username=${LOGIN}        password=${PASSWORD}    jumphost_index_or_alias=${netvm_ssh}
+    ${failed_connection}  Set variable  True
+    FOR    ${i}    IN RANGE    10
+        TRY
+            ${connection}=       Open Connection   ${vm_name}  port=22
+            ${output}=           Login    username=${LOGIN}        password=${PASSWORD}    jumphost_index_or_alias=${netvm_ssh}
+        EXCEPT    ChannelException: ChannelException(2, 'Connect failed')    type=LITERAL
+            Sleep   1
+            CONTINUE
+        END
+        ${failed_connection}  Set variable  False
+        BREAK
+    END
+    IF  ${failed_connection}    FAIL  Couldn't connect ${vm_name}
+
     [Return]             ${connection}
 
 Verify Systemctl status
@@ -251,7 +267,7 @@ Save log
     Close All Connections
 
 Check if ssh is ready on netvm
-    [Arguments]    ${timeout}=15
+    [Arguments]    ${timeout}=30
     ${is_ready} =  Set Variable    False
     FOR    ${i}    IN RANGE    ${timeout}
         ${output}  ${rc}    Execute Command    nc -zvw3 192.168.101.1 22    return_rc=True
