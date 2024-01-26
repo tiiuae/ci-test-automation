@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Documentation       To be executed for all tests
+Documentation       Boot test
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
 Suite Setup         Common Setup
