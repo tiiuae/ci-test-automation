@@ -114,7 +114,6 @@ pipeline {
         stage('Write OS image') {
             steps {
                 script{
-                    println("${params.image}")
                     println("${params.device}")
                     if ("${params.device}" == "orin-nx" || "${params.device}" == "orin-agx") {
                         // unzip zipped image, remove .zst ending from path and use that for flashing usb drive. Remove unzipped image after flashing.
@@ -122,7 +121,13 @@ pipeline {
                         unzippedPath = zipImagePath.minus(".zst")
                         sh "sudo dd if=${unzippedPath} of=/dev/${USBDEVICE} bs=1M status=progress conv=fsync"
                         sh "sudo rm -rf ${unzippedPath}"
+                    } else if ("${params.device}" == "lenovo-x1"){
+                        def buildData = readJSON file: "${params.resultsPath}/${params.buildID}/${params.buildID}.json"
+                        imagePath = "${buildData['Output store paths'][0]}/disk1.raw"
+                        println("${imagePath}")
+                        sh "sudo dd if=${imagePath} of=/dev/${USBDEVICE} bs=1M status=progress conv=fsync"
                     } else {
+                        println("${params.image}")
                         sh "sudo dd if=${params.image} of=/dev/${USBDEVICE} bs=1M status=progress conv=fsync"
                     }
                 }
