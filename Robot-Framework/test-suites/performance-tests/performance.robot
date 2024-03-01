@@ -41,7 +41,7 @@ Memory Read One thread test
     ...                 The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
     ...                 and Latency for READ operations.
     ...                 Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]              cpu  SP-T67-3  nuc  orin-agx  orin-nx  lenovo-x1
+    [Tags]              memory  SP-T67-3  nuc  orin-agx  orin-nx  lenovo-x1
     ${output}           Execute Command    sysbench memory --time=60 --memory-oper=read --threads=1 run
     Log                 ${output}
     &{cpu_data}         Parse Memory Results   ${output}
@@ -53,7 +53,7 @@ Memory Write One thread test
     ...                 The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
     ...                 and Latency for WRITE operations.
     ...                 Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]              cpu  SP-T67-4  nuc  orin-agx  orin-nx  lenovo-x1
+    [Tags]              memory  SP-T67-4  nuc  orin-agx  orin-nx  lenovo-x1
     ${output}           Execute Command    sysbench memory --time=60 --memory-oper=write --threads=1 run
     Log                 ${output}
     &{cpu_data}         Parse Memory Results   ${output}
@@ -65,7 +65,7 @@ Memory Read multimple threads test
     ...                 The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
     ...                 and Latency for READ operations.
     ...                 Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]              cpu  SP-T67-5  nuc  orin-agx  orin-nx  lenovo-x1
+    [Tags]              memory  SP-T67-5  nuc  orin-agx  orin-nx  lenovo-x1
     ${output}           Execute Command    sysbench memory --time=60 --memory-oper=read --threads=${threads_number} run
     Log                 ${output}
     &{cpu_data}         Parse Memory Results   ${output}
@@ -77,12 +77,35 @@ Memory Write multimple threads test
     ...                 The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
     ...                 and Latency for WRITE operations.
     ...                 Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]              cpu  SP-T67-6  nuc  orin-agx  orin-nx  lenovo-x1
+    [Tags]              memory  SP-T67-6  nuc  orin-agx  orin-nx  lenovo-x1
     ${output}           Execute Command    sysbench memory --time=60 --memory-oper=write --threads=${threads_number} run
     Log                 ${output}
     &{cpu_data}         Parse Memory Results   ${output}
     Save Memory Data    ${TEST NAME}  ${cpu_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
+
+FileIO test
+    [Documentation]     Run a fileio benchmark using Sysbench for 30 seconds with MULTIPLE threads.
+    ...                 The benchmark records File Operations, Throughput, Average Events per Thread,
+    ...                 and Latency for read and write operations.
+    ...                 Create visual plots to represent these metrics comparing to previous tests.
+    [Tags]              fileio  SP-T67-7  nuc  orin-agx  orin-nx  lenovo-x1
+
+    Transfer FileIO Test Script To DUT
+    Execute Command      ./fileio_test ${threads_number}  sudo=True  sudo_password=${PASSWORD}
+
+    ${fileio_rd_output}  Execute Command    cat sysbench_results/fileio_rd_report
+    Log                  ${fileio_rd_output}
+    &{fileio_rd_data}    Parse FileIO Read Results   ${fileio_rd_output}
+    Save FileIO Data     ${TEST NAME}_read  ${fileio_rd_data}
+
+    ${fileio_wr_output}  Execute Command    cat sysbench_results/fileio_wr_report
+    Log                  ${fileio_wr_output}
+    &{fileio_wr_data}    Parse FileIO Write Results   ${fileio_wr_output}
+    Save FileIO Data     ${TEST NAME}_write  ${fileio_wr_data}
+
+    Log    <img src="${DEVICE}_${TEST NAME}_read.png" alt="Mem Plot" width="1200">    HTML
+    Log    <img src="${DEVICE}_${TEST NAME}_write.png" alt="Mem Plot" width="1200">   HTML
 
 
 *** Keywords ***
@@ -90,3 +113,7 @@ Memory Write multimple threads test
 Common Setup
     Set Variables   ${DEVICE}
     Connect
+
+Transfer FileIO Test Script To DUT
+    Put File           performance-tests/fileio_test    /home/ghaf
+    Execute Command    chmod 777 fileio_test

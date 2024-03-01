@@ -119,6 +119,68 @@ def parse_memory_results(output):
     return mem_data
 
 
+def parse_fileio_read_results(output):
+    def extract_value(pattern, output):
+        match = re.search(pattern, output)
+        if match:
+            return match.group(1)
+        else:
+            raise Exception(f"Couldn't parse result of the test with pattern: {pattern}")
+
+    output = re.sub(r'\033\[.*?m', '', output)  # remove colors from serial console output
+
+    file_operations = extract_value(r'File operations:\s*reads\/s:\s*([.\d]+)', output)
+    throughput = extract_value(r'Throughput:\s*read, MiB\/s:\s*([.\d]+)', output)
+    min_latency = extract_value(r'min:\s+([.\d]+)', output)
+    max_latency = extract_value(r'max:\s+([.\d]+)', output)
+    avg_latency = extract_value(r'avg:\s+([.\d]+)', output)
+    avg_events_per_thread = extract_value(r'events \(avg\/stddev\):\s+([.\d]+)', output)
+    events_per_thread_stddev = extract_value(r'events \(avg\/stddev\):\s+[.\d]+\/([.\d]+)', output)
+
+    fileio_read_data = {
+        'file_operations': file_operations,
+        'throughput': throughput,
+        'min_latency': min_latency,
+        'max_latency': max_latency,
+        'avg_latency': avg_latency,
+        'avg_events_per_thread': avg_events_per_thread,
+        'events_per_thread_stddev': events_per_thread_stddev
+    }
+
+    return fileio_read_data
+
+
+def parse_fileio_write_results(output):
+    def extract_value(pattern, output):
+        match = re.search(pattern, output)
+        if match:
+            return match.group(1)
+        else:
+            raise Exception(f"Couldn't parse result of the test with pattern: {pattern}")
+
+    output = re.sub(r'\033\[.*?m', '', output)  # remove colors from serial console output
+
+    file_operations = extract_value(r'writes\/s:\s*([.\d]+)', output)
+    throughput = extract_value(r'written, MiB\/s:\s*([.\d]+)', output)
+    min_latency = extract_value(r'min:\s+([.\d]+)', output)
+    max_latency = extract_value(r'max:\s+([.\d]+)', output)
+    avg_latency = extract_value(r'avg:\s+([.\d]+)', output)
+    avg_events_per_thread = extract_value(r'events \(avg\/stddev\):\s+([.\d]+)', output)
+    events_per_thread_stddev = extract_value(r'events \(avg\/stddev\):\s+[.\d]+\/([.\d]+)', output)
+
+    fileio_write_data = {
+        'file_operations': file_operations,
+        'throughput': throughput,
+        'min_latency': min_latency,
+        'max_latency': max_latency,
+        'avg_latency': avg_latency,
+        'avg_events_per_thread': avg_events_per_thread,
+        'events_per_thread_stddev': events_per_thread_stddev
+    }
+
+    return fileio_write_data
+
+
 def parse_iperf_output(output):
     tx_pattern = r'\s(\d+(\.\d+)?) MBytes\/sec.*sender'
     rx_pattern = r'\s(\d+(\.\d+)?) MBytes\/sec.*receiver'
@@ -159,13 +221,13 @@ def get_qspi_versions(output):
     if match:
         fw_version = match.group(1)
     else:
-        raise Exception(f"Couldn't parse current firmware version, pattern: {tx_pattern}")
+        raise Exception(f"Couldn't parse current firmware version, pattern: {fw_pattern}")
 
     match = re.search(sw_pattern, output)
     if match:
         sw_version = match.group(1)
     else:
-        raise Exception(f"Couldn't parse current software version, pattern: {rx_pattern}")
+        raise Exception(f"Couldn't parse current software version, pattern: {sw_pattern}")
 
     return fw_version, sw_version
 
