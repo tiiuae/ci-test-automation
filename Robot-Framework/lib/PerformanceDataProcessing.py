@@ -339,6 +339,57 @@ class PerformanceDataProcessing:
         plt.tight_layout()
         plt.savefig(f'../test-suites/{self.device}_{test_name}.png')  # Save the plot as an image file
 
+    def read_vms_data_csv_and_plot(self, test_name, vms_dict):
+        tests = ['cpu_1thread', 'memory_read_1thread', 'memory_write_1thread', 'cpu', 'memory_read', 'memory_write']
+        data = {test: {} for test in tests}
+
+        for vm_name, threads in vms_dict.items():
+            for test in tests:
+                if "1thread" not in test and int(threads) == 1:
+                    continue
+                print(test, vm_name, threads)
+                file_name = f"{self.data_dir}/{self.device}_{vm_name}_{test_name}_{test}.csv"
+                with open(file_name, 'r') as file:
+                    csvreader = csv.reader(file)
+                    build_data = []
+                    for row in csvreader:
+                        if (row[7] if 'cpu' in test else row[8]) == self.device:
+                            build_data.append((row[0], float(row[1 if 'cpu' in test else 2])))
+
+                    # Get the last 10 or fewer builds
+                    build_data = build_data[-10:]
+                    data[test][vm_name] = {
+                        'build_numbers': [build[0] for build in build_data],
+                        'values': [build[1] for build in build_data],
+                        'threads': threads
+                    }
+
+        print(data)
+
+        for test in tests:
+            print(test)
+            plt.figure(figsize=(10, 6))
+            for i, (vm_name, vm_data) in enumerate(data[test].items()):
+                print(vm_name)
+                print(vm_data['build_numbers'])
+                print(vm_data['values'])
+                if "1thread" in test:
+                    plt.bar([x + i * 0.1 for x in range(len(vm_data['build_numbers']))], vm_data['values'], width=0.1,
+                            label=f"{vm_name}")
+                    plt.title(f'Comparison of {test} test results for VMs')
+                else:
+                    plt.bar([x + i * 0.1 for x in range(len(vm_data['build_numbers']))], vm_data['values'], width=0.1,
+                            label=f"{vm_name} ({vm_data['threads']} threads)")
+                    plt.title(f'Comparison of multi-thread {test} test results for VMs')
+
+            plt.xlabel('Builds')
+            plt.ylabel('Data transfer speed, MB/s' if 'memory' in test else 'Events per second')
+            plt.xticks(range(len(vm_data['build_numbers'])), vm_data['build_numbers'])
+            plt.legend()
+            plt.tight_layout()
+            plt.savefig(f'../test-suites/{self.device}_{test_name}_{test}.png')
+            plt.close()
+
     @keyword
     def save_cpu_data(self, test_name, cpu_data):
 
