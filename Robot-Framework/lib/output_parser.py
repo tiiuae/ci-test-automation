@@ -237,6 +237,17 @@ def get_app_path(output, app):
     if match:
         result = match.group(1)
     else:
-        raise Exception(f"Couldn't parse chromium path from /etc/xdg/weston/weston.ini, pattern: {pattern}")
+        raise Exception(f"Couldn't parse {app} path from /etc/xdg/weston/weston.ini, pattern: {pattern}")
+    path = result.replace('"', '\\"')
+    return path
+
+def get_app_path_from_desktop(output):
+    # Parse Exec-path from XDG .desktop application launcher file.
+    pattern = r"Exec=(.*)\n"
+    match = re.search(pattern, output)
+    if match:
+        result = match.group(1)
+    else:
+        raise Exception(f"Couldn't parse app path, pattern: {pattern}")
     path = result.replace('"', '\\"')
     return path
