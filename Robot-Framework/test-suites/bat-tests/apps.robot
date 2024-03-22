@@ -30,7 +30,7 @@ Start Chromium on LenovoX1
     [Tags]            bat   SP-T97   lenovo-x1
     [Setup]           Connect to netvm
     Connect to VM       ${GUI_VM}
-    Start application   chromium
+    Start XDG application   chromium
     Connect to VM       ${CHROMIUM_VM}
     Check that the application was started    chromium
     [Teardown]  Kill process  @{app_pids}
@@ -40,7 +40,7 @@ Start Zathura on LenovoX1
     [Tags]            bat   SP-T112   lenovo-x1
     [Setup]           Connect to netvm
     Connect to VM       ${GUI_VM}
-    Start application   zathura
+    Start XDG application   zathura
     Connect to VM       ${ZATHURA_VM}
     Check that the application was started    zathura
     [Teardown]  Kill process  @{app_pids}
@@ -50,7 +50,7 @@ Start Gala on LenovoX1
     [Tags]            bat   SP-T111   lenovo-x1
     [Setup]           Connect to netvm
     Connect to VM       ${GUI_VM}
-    Start application   gala
+    Start XDG application   gala
     Connect to VM       ${GALA_VM}
     Check that the application was started    gala
     [Teardown]  Kill process  @{app_pids}
