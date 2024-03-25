@@ -82,26 +82,38 @@ class PerformanceDataProcessing:
 
     @keyword
     def read_cpu_csv_and_plot(self, test_name):
-        build_numbers = []
-        cpu_events_per_second = []
-        min_latency = []
-        avg_latency = []
-        max_latency = []
-        cpu_events_per_thread = []
-        cpu_events_per_thread_stddev = []
-
+        data = {
+            'build_numbers': [],
+            'cpu_events_per_second': [],
+            'min_latency': [],
+            'avg_latency': [],
+            'max_latency': [],
+            'cpu_events_per_thread': [],
+            'cpu_events_per_thread_stddev': []
+        }
         with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             logging.info("Reading data from csv file...")
+            build_counter = {}  # To keep track of duplicate builds
             for row in csvreader:
                 if row[7] == self.device:
-                    build_numbers.append(str(row[0]))
-                    cpu_events_per_second.append(float(row[1]))
-                    min_latency.append(float(row[2]))
-                    avg_latency.append(float(row[3]))
-                    max_latency.append(float(row[4]))
-                    cpu_events_per_thread.append(float(row[5]))
-                    cpu_events_per_thread_stddev.append(float(row[6]))
+                    build = str(row[0])
+                    if build in build_counter:
+                        build_counter[build] += 1
+                        modified_build = f"{build}-{build_counter[build]}"
+                    else:
+                        build_counter[build] = 0
+                        modified_build = build
+                    data['build_numbers'].append(modified_build)
+                    data['cpu_events_per_second'].append(float(row[1]))
+                    data['min_latency'].append(float(row[2]))
+                    data['avg_latency'].append(float(row[3]))
+                    data['max_latency'].append(float(row[4]))
+                    data['cpu_events_per_thread'].append(float(row[5]))
+                    data['cpu_events_per_thread_stddev'].append(float(row[6]))
+
+        for key in data.keys():
+            data[key] = data[key][-40:]
 
         plt.figure(figsize=(20, 10))
         plt.set_loglevel('WARNING')
@@ -109,43 +121,43 @@ class PerformanceDataProcessing:
         # Plot 1: CPU Events per Second
         plt.subplot(3, 1, 1)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(build_numbers, cpu_events_per_second, marker='o', linestyle='-', color='b')
+        plt.plot(data['build_numbers'], data['cpu_events_per_second'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('CPU Events per Second', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('CPU Events per Second', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
+        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
 
         # Plot 2: CPU Events per Thread
         plt.subplot(3, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(build_numbers, cpu_events_per_thread, marker='o', linestyle='-', color='b')
+        plt.plot(data['build_numbers'], data['cpu_events_per_thread'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('CPU Events per Thread', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('CPU Events per Thread', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
+        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
         # Create line chart with error bars on the same subplot
-        plt.errorbar(build_numbers, cpu_events_per_thread,
-                     yerr=cpu_events_per_thread_stddev,
+        plt.errorbar(data['build_numbers'], data['cpu_events_per_thread'],
+                     yerr=data['cpu_events_per_thread_stddev'],
                      capsize=4)
 
         # Plot 3: Latency
         plt.subplot(3, 1, 3)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(build_numbers, avg_latency, marker='o', linestyle='-', color='b', label='Avg')
+        plt.plot(data['build_numbers'], data['avg_latency'], marker='o', linestyle='-', color='b', label='Avg')
         plt.ylabel('Avg Latency (ms)', fontsize=16)
         plt.legend(loc='upper left')
         plt.xlabel('Build Number', fontsize=16)
-        plt.twinx()
-        plt.plot(build_numbers, max_latency, marker='o', linestyle='-', color='r', label='Max')
-        plt.plot(build_numbers, min_latency, marker='o', linestyle='-', color='g', label='Min')
-        plt.yticks(fontsize=14)
+        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
         plt.ylabel('Max/Min Latency (ms)', fontsize=16)
+        plt.yticks(fontsize=14)
+        plt.twinx()
+        plt.plot(data['build_numbers'], data['max_latency'], marker='o', linestyle='-', color='r', label='Max')
+        plt.plot(data['build_numbers'], data['min_latency'], marker='o', linestyle='-', color='g', label='Min')
         plt.legend(loc='upper right')
         plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
 
         plt.suptitle(f'{test_name} ({self.device})', fontsize=18, fontweight='bold')
 
@@ -154,28 +166,41 @@ class PerformanceDataProcessing:
 
     @keyword
     def read_mem_csv_and_plot(self, test_name):
-        build_numbers = []
-        operations_per_second = []
-        data_transfer_speed = []
-        min_latency = []
-        avg_latency = []
-        max_latency = []
-        avg_events_per_thread = []
-        events_per_thread_stddev = []
+        data = {
+            'build_numbers': [],
+            'operations_per_second': [],
+            'data_transfer_speed': [],
+            'min_latency': [],
+            'avg_latency': [],
+            'max_latency': [],
+            'avg_events_per_thread': [],
+            'events_per_thread_stddev': []
+        }
 
         with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             logging.info("Reading data from csv file...")
+            build_counter = {}  # To keep track of duplicate builds
             for row in csvreader:
                 if row[8] == self.device:
-                    build_numbers.append(str(row[0]))
-                    operations_per_second.append(float(row[1]))
-                    data_transfer_speed.append(float(row[2]))
-                    min_latency.append(float(row[3]))
-                    avg_latency.append(float(row[4]))
-                    max_latency.append(float(row[5]))
-                    avg_events_per_thread.append(float(row[6]))
-                    events_per_thread_stddev.append(float(row[7]))
+                    build = str(row[0])
+                    if build in build_counter:
+                        build_counter[build] += 1
+                        modified_build = f"{build}-{build_counter[build]}"
+                    else:
+                        build_counter[build] = 0
+                        modified_build = build
+                    data['build_numbers'].append(modified_build)
+                    data['operations_per_second'].append(float(row[1]))
+                    data['data_transfer_speed'].append(float(row[2]))
+                    data['min_latency'].append(float(row[3]))
+                    data['avg_latency'].append(float(row[4]))
+                    data['max_latency'].append(float(row[5]))
+                    data['avg_events_per_thread'].append(float(row[6]))
+                    data['events_per_thread_stddev'].append(float(row[7]))
+
+        for key in data.keys():
+            data[key] = data[key][-40:]
 
         plt.figure(figsize=(20, 10))
         plt.set_loglevel('WARNING')
@@ -183,39 +208,39 @@ class PerformanceDataProcessing:
         # Plot 1: Operations Per Second
         plt.subplot(3, 1, 1)
         plt.ticklabel_format(axis='y', style='sci', useMathText=True)
-        plt.plot(build_numbers, operations_per_second, marker='o', linestyle='-', color='b')
+        plt.plot(data['build_numbers'], data['operations_per_second'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('Operations per Second', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('Operations per Second', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
+        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
 
         # Plot 2: Data Transfer Speed
         plt.subplot(3, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(build_numbers, data_transfer_speed, marker='o', linestyle='-', color='b')
+        plt.plot(data['build_numbers'], data['data_transfer_speed'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('Data Transfer Speed', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('Data Transfer Speed (MiB/sec)', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
+        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
 
         # Plot 3: Latency
         plt.subplot(3, 1, 3)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(build_numbers, avg_latency, marker='o', linestyle='-', color='b', label='Avg')
+        plt.plot(data['build_numbers'], data['avg_latency'], marker='o', linestyle='-', color='b', label='Avg')
         plt.ylabel('Avg Latency (ms)', fontsize=16)
         plt.legend(loc='upper left')
         plt.grid(True)
         plt.xlabel('Build Number', fontsize=16)
-        plt.twinx()
-        plt.plot(build_numbers, max_latency, marker='o', linestyle='-', color='r', label='Max')
-        plt.plot(build_numbers, min_latency, marker='o', linestyle='-', color='g', label='Min')
-        plt.yticks(fontsize=14)
+        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
         plt.ylabel('Max/Min Latency (ms)', fontsize=16)
+        plt.yticks(fontsize=14)
+        plt.twinx()
+        plt.plot(data['build_numbers'], data['max_latency'], marker='o', linestyle='-', color='r', label='Max')
+        plt.plot(data['build_numbers'], data['min_latency'], marker='o', linestyle='-', color='g', label='Min')
         plt.legend(loc='upper right')
         plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
-        plt.xticks(build_numbers, fontsize=14)
 
         plt.suptitle(f'{test_name} ({self.device})', fontsize=18, fontweight='bold')
 
@@ -224,18 +249,31 @@ class PerformanceDataProcessing:
 
     @keyword
     def read_speed_csv_and_plot(self, test_name):
-        build_numbers = []
-        tx = []
-        rx = []
+        data = {
+            'build_numbers': [],
+            'tx': [],
+            'rx': []
+        }
 
         with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             logging.info("Reading data from csv file...")
+            build_counter = {}  # To keep track of duplicate builds
             for row in csvreader:
                 if row[3] == self.device:
-                    build_numbers.append(str(row[0]))
-                    tx.append(float(row[1]))
-                    rx.append(float(row[2]))
+                    build = str(row[0])
+                    if build in build_counter:
+                        build_counter[build] += 1
+                        modified_build = f"{build}-{build_counter[build]}"
+                    else:
+                        build_counter[build] = 0
+                        modified_build = build
+                    data['build_numbers'].append(modified_build)
+                    data['tx'].append(float(row[1]))
+                    data['rx'].append(float(row[2]))
+
+        for key in data.keys():
+            data[key] = data[key][-40:]
 
         plt.figure(figsize=(20, 10))
         plt.set_loglevel('WARNING')
@@ -243,22 +281,22 @@ class PerformanceDataProcessing:
         # Plot 1: TX
         plt.subplot(2, 1, 1)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(build_numbers, tx, marker='o', linestyle='-', color='b')
+        plt.plot(data['build_numbers'], data['tx'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('Transmitting Speed', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('TX Speed (MBytes/sec)', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
+        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
 
         # Plot 2: RX
         plt.subplot(2, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(build_numbers, rx, marker='o', linestyle='-', color='b')
+        plt.plot(data['build_numbers'], data['rx'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('Receiving Speed', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('RX Speed (MBytes/sec)', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
+        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
 
         plt.xlabel('Build Number', fontsize=16)
 
@@ -269,70 +307,78 @@ class PerformanceDataProcessing:
 
     @keyword
     def read_fileio_data_csv_and_plot(self, test_name):
-        build_numbers = []
-        file_operations = []
-        throughput = []
-        min_latency = []
-        avg_latency = []
-        max_latency = []
-        avg_events_per_thread = []
-        events_per_thread_stddev = []
+        data = {
+            'build_numbers': [],
+            'file_operations': [],
+            'throughput': [],
+            'min_latency': [],
+            'avg_latency': [],
+            'max_latency': [],
+            'avg_events_per_thread': [],
+            'events_per_thread_stddev': []
+        }
 
         with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             logging.info("Reading data from csv file...")
+            build_counter = {}  # To keep track of duplicate builds
             for row in csvreader:
                 if row[8] == self.device:
-                    build_numbers.append(str(row[0]))
-                    file_operations.append(float(row[1]))
-                    throughput.append(float(row[2]))
-                    min_latency.append(float(row[3]))
-                    avg_latency.append(float(row[4]))
-                    max_latency.append(float(row[5]))
-                    avg_events_per_thread.append(float(row[6]))
-                    events_per_thread_stddev.append(float(row[7]))
+                    build = str(row[0])
+                    if build in build_counter:
+                        build_counter[build] += 1
+                        modified_build = f"{build}-{build_counter[build]}"
+                    else:
+                        build_counter[build] = 0
+                        modified_build = build
+                    data['build_numbers'].append(modified_build)
+                    data['file_operations'].append(float(row[1]))
+                    data['throughput'].append(float(row[2]))
+                    data['min_latency'].append(float(row[3]))
+                    data['avg_latency'].append(float(row[4]))
+                    data['max_latency'].append(float(row[5]))
+                    data['avg_events_per_thread'].append(float(row[6]))
+                    data['events_per_thread_stddev'].append(float(row[7]))
 
-        print(file_operations)
-        print(throughput)
-        print(min_latency)
-        print(events_per_thread_stddev)
+        for key in data.keys():
+            data[key] = data[key][-40:]
 
         plt.figure(figsize=(20, 10))
         plt.set_loglevel('WARNING')
 
         plt.subplot(3, 1, 1)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(build_numbers, file_operations, marker='o', linestyle='-', color='b')
+        plt.plot(data['build_numbers'], data['file_operations'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('File operation', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('File operation per second', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
+        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
 
         plt.subplot(3, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(build_numbers, throughput, marker='o', linestyle='-', color='b')
+        plt.plot(data['build_numbers'], data['throughput'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('Throughput', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('Throughput, MiB/s', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
+        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
 
         plt.subplot(3, 1, 3)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(build_numbers, avg_latency, marker='o', linestyle='-', color='b', label='Avg')
+        plt.plot(data['build_numbers'], data['avg_latency'], marker='o', linestyle='-', color='b', label='Avg')
         plt.ylabel('Avg Latency (ms)', fontsize=16)
         plt.legend(loc='upper left')
         plt.xlabel('Build Number', fontsize=16)
+        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
         plt.twinx()
-        plt.plot(build_numbers, max_latency, marker='o', linestyle='-', color='r', label='Max')
-        plt.plot(build_numbers, min_latency, marker='o', linestyle='-', color='g', label='Min')
+        plt.plot(data['build_numbers'], data['max_latency'], marker='o', linestyle='-', color='r', label='Max')
+        plt.plot(data['build_numbers'], data['min_latency'], marker='o', linestyle='-', color='g', label='Min')
         plt.yticks(fontsize=14)
         plt.ylabel('Max/Min Latency (ms)', fontsize=16)
         plt.legend(loc='upper right')
         plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
 
         plt.suptitle(f'{test_name} ({self.device})', fontsize=18, fontweight='bold')
 
@@ -347,32 +393,29 @@ class PerformanceDataProcessing:
             for test in tests:
                 if "1thread" not in test and int(threads) == 1:
                     continue
-                print(test, vm_name, threads)
                 file_name = f"{self.data_dir}/{self.device}_{vm_name}_{test_name}_{test}.csv"
                 with open(file_name, 'r') as file:
                     csvreader = csv.reader(file)
+                    build_counter = {}  # Track build numbers to identify duplicates
                     build_data = []
                     for row in csvreader:
-                        if (row[7] if 'cpu' in test else row[8]) == self.device:
-                            build_data.append((row[0], float(row[1 if 'cpu' in test else 2])))
+                            build = row[0]
+                            # Increment counter for this build or initialize it
+                            build_counter[build] = build_counter.get(build, -1) + 1
+                            modified_build = f"{build}-{build_counter[build]}" if build_counter[build] > 0 else build
+                            build_data.append((modified_build, float(row[1 if 'cpu' in test else 2])))
 
-                    # Get the last 10 or fewer builds
-                    build_data = build_data[-10:]
+                    build_data = build_data[-20:]
+
                     data[test][vm_name] = {
                         'build_numbers': [build[0] for build in build_data],
                         'values': [build[1] for build in build_data],
                         'threads': threads
                     }
 
-        print(data)
-
         for test in tests:
-            print(test)
             plt.figure(figsize=(10, 6))
             for i, (vm_name, vm_data) in enumerate(data[test].items()):
-                print(vm_name)
-                print(vm_data['build_numbers'])
-                print(vm_data['values'])
                 if "1thread" in test:
                     plt.bar([x + i * 0.1 for x in range(len(vm_data['build_numbers']))], vm_data['values'], width=0.1,
                             label=f"{vm_name}")
