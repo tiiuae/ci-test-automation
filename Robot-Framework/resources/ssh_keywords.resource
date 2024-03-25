@@ -88,7 +88,7 @@ Connect to VM
     [Arguments]          ${vm_name}
     Log To Console       Connecting to ${vm_name}
     ${failed_connection}  Set variable  True
-    FOR    ${i}    IN RANGE    10
+    FOR    ${i}    IN RANGE    20
         TRY
             ${connection}=       Open Connection   ${vm_name}  port=22
             ${output}=           Login    username=${LOGIN}        password=${PASSWORD}    jumphost_index_or_alias=${netvm_ssh}
