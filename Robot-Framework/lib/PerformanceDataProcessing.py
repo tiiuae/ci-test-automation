@@ -93,9 +93,17 @@ class PerformanceDataProcessing:
         with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             logging.info("Reading data from csv file...")
+            build_counter = {}  # To keep track of duplicate builds
             for row in csvreader:
                 if row[7] == self.device:
-                    build_numbers.append(str(row[0]))
+                    build = str(row[0])
+                    if build in build_counter:
+                        build_counter[build] += 1
+                        modified_build = f"{build}-{build_counter[build]}"
+                    else:
+                        build_counter[build] = 0
+                        modified_build = build
+                    build_numbers.append(modified_build)
                     cpu_events_per_second.append(float(row[1]))
                     min_latency.append(float(row[2]))
                     avg_latency.append(float(row[3]))
@@ -166,9 +174,17 @@ class PerformanceDataProcessing:
         with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             logging.info("Reading data from csv file...")
+            build_counter = {}  # To keep track of duplicate builds
             for row in csvreader:
                 if row[8] == self.device:
-                    build_numbers.append(str(row[0]))
+                    build = str(row[0])
+                    if build in build_counter:
+                        build_counter[build] += 1
+                        modified_build = f"{build}-{build_counter[build]}"
+                    else:
+                        build_counter[build] = 0
+                        modified_build = build
+                    build_numbers.append(modified_build)
                     operations_per_second.append(float(row[1]))
                     data_transfer_speed.append(float(row[2]))
                     min_latency.append(float(row[3]))
@@ -231,9 +247,17 @@ class PerformanceDataProcessing:
         with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             logging.info("Reading data from csv file...")
+            build_counter = {}  # To keep track of duplicate builds
             for row in csvreader:
                 if row[3] == self.device:
-                    build_numbers.append(str(row[0]))
+                    build = str(row[0])
+                    if build in build_counter:
+                        build_counter[build] += 1
+                        modified_build = f"{build}-{build_counter[build]}"
+                    else:
+                        build_counter[build] = 0
+                        modified_build = build
+                    build_numbers.append(modified_build)
                     tx.append(float(row[1]))
                     rx.append(float(row[2]))
 
@@ -281,9 +305,17 @@ class PerformanceDataProcessing:
         with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             logging.info("Reading data from csv file...")
+            build_counter = {}  # To keep track of duplicate builds
             for row in csvreader:
                 if row[8] == self.device:
-                    build_numbers.append(str(row[0]))
+                    build = str(row[0])
+                    if build in build_counter:
+                        build_counter[build] += 1
+                        modified_build = f"{build}-{build_counter[build]}"
+                    else:
+                        build_counter[build] = 0
+                        modified_build = build
+                    build_numbers.append(modified_build)
                     file_operations.append(float(row[1]))
                     throughput.append(float(row[2]))
                     min_latency.append(float(row[3]))
@@ -347,7 +379,6 @@ class PerformanceDataProcessing:
             for test in tests:
                 if "1thread" not in test and int(threads) == 1:
                     continue
-                print(test, vm_name, threads)
                 file_name = f"{self.data_dir}/{self.device}_{vm_name}_{test_name}_{test}.csv"
                 with open(file_name, 'r') as file:
                     csvreader = csv.reader(file)
@@ -358,21 +389,28 @@ class PerformanceDataProcessing:
 
                     # Get the last 10 or fewer builds
                     build_data = build_data[-10:]
+
                     data[test][vm_name] = {
                         'build_numbers': [build[0] for build in build_data],
                         'values': [build[1] for build in build_data],
                         'threads': threads
                     }
 
-        print(data)
+            build_counter = {}  # To keep track of duplicate builds
+            for row in csvreader:
+                if row[8] == self.device:
+                    build = str(row[0])
+                    if build in build_counter:
+                        build_counter[build] += 1
+                        modified_build = f"{build}-{build_counter[build]}"
+                    else:
+                        build_counter[build] = 0
+                        modified_build = build
+                    build_numbers.append(modified_build)
 
         for test in tests:
-            print(test)
             plt.figure(figsize=(10, 6))
             for i, (vm_name, vm_data) in enumerate(data[test].items()):
-                print(vm_name)
-                print(vm_data['build_numbers'])
-                print(vm_data['values'])
                 if "1thread" in test:
                     plt.bar([x + i * 0.1 for x in range(len(vm_data['build_numbers']))], vm_data['values'], width=0.1,
                             label=f"{vm_name}")
