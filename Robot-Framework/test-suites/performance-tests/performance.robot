@@ -131,7 +131,7 @@ Sysbench test in VMs on LenovoX1
     [Documentation]      Run CPU and Memory benchmark using Sysbench in Virtual Machines
     ...                  for 1 thread and MULTIPLE threads if there are more than 1 thread in VM.
     [Tags]               SP-T67-9    lenovo-x1
-
+    [Setup]         LenovoX1 Setup
     &{threads}    	Create Dictionary	 net-vm=1
     ...                                  gui-vm=2
     ...                                  gala-vm=2
@@ -164,7 +164,11 @@ Sysbench test in VMs on LenovoX1
 
 Common Setup
     Set Variables   ${DEVICE}
-    Reboot LenovoX1     # currently it's needed, bc dns doesn't work after net-vm restarting, to be deleted after fix
+    Connect
+
+LenovoX1 Setup
+    [Documentation]    Reboot LenovoX1     # currently it's needed, bc dns doesn't work after net-vm restarting, to be deleted after fix
+    Reboot LenovoX1
     ${port_22_is_available}     Check if ssh is ready on device   timeout=180
     IF  ${port_22_is_available} == False
         FAIL    Failed because port 22 of device was not available, tests can not be run.
