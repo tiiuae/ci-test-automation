@@ -119,9 +119,9 @@ Sysbench test in NetVM
     &{threads}    	            Create Dictionary	 net-vm=1
     Save sysbench results       net-vm   _1thread
 
-    read_cpu_csv_and_plot  net-vm_${TEST NAME}_cpu_1thread
-    read_mem_csv_and_plot  net-vm_${TEST NAME}_memory_read_1thread
-    read_mem_csv_and_plot  net-vm_${TEST NAME}_memory_write_1thread
+    Read CPU csv and plot  net-vm_${TEST NAME}_cpu_1thread
+    Read Mem csv and plot  net-vm_${TEST NAME}_memory_read_1thread
+    Read Mem csv and plot  net-vm_${TEST NAME}_memory_write_1thread
 
     Log    <img src="${DEVICE}_net-vm_${TEST NAME}_cpu_1thread.png" alt="CPU Plot" width="1200">       HTML
     Log    <img src="${DEVICE}_net-vm_${TEST NAME}_memory_read_1thread.png" alt="Mem Plot" width="1200">    HTML

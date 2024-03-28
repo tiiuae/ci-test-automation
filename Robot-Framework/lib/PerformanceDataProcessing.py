@@ -122,7 +122,7 @@ class PerformanceDataProcessing:
         plt.title('CPU Events per Second', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('CPU Events per Second', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
+        plt.xticks(build_numbers, rotation=45, fontsize=14)
 
         # Plot 2: CPU Events per Thread
         plt.subplot(3, 1, 2)
@@ -132,7 +132,7 @@ class PerformanceDataProcessing:
         plt.title('CPU Events per Thread', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('CPU Events per Thread', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
+        plt.xticks(build_numbers, rotation=45, fontsize=14)
         # Create line chart with error bars on the same subplot
         plt.errorbar(build_numbers, cpu_events_per_thread,
                      yerr=cpu_events_per_thread_stddev,
@@ -145,15 +145,16 @@ class PerformanceDataProcessing:
         plt.ylabel('Avg Latency (ms)', fontsize=16)
         plt.legend(loc='upper left')
         plt.xlabel('Build Number', fontsize=16)
+        plt.xticks(build_numbers, rotation=45, fontsize=14)
+        plt.ylabel('Max/Min Latency (ms)', fontsize=16)
+        plt.yticks(fontsize=14)
         plt.twinx()
         plt.plot(build_numbers, max_latency, marker='o', linestyle='-', color='r', label='Max')
         plt.plot(build_numbers, min_latency, marker='o', linestyle='-', color='g', label='Min')
-        plt.yticks(fontsize=14)
-        plt.ylabel('Max/Min Latency (ms)', fontsize=16)
         plt.legend(loc='upper right')
         plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
+        # plt.xticks(build_numbers, rotation=45, fontsize=14)
 
         plt.suptitle(f'{test_name} ({self.device})', fontsize=18, fontweight='bold')
 
@@ -204,7 +205,7 @@ class PerformanceDataProcessing:
         plt.title('Operations per Second', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('Operations per Second', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
+        plt.xticks(build_numbers, rotation=45, fontsize=14)
 
         # Plot 2: Data Transfer Speed
         plt.subplot(3, 1, 2)
@@ -214,7 +215,7 @@ class PerformanceDataProcessing:
         plt.title('Data Transfer Speed', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('Data Transfer Speed (MiB/sec)', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
+        plt.xticks(build_numbers, rotation=45, fontsize=14)
 
         # Plot 3: Latency
         plt.subplot(3, 1, 3)
@@ -224,14 +225,14 @@ class PerformanceDataProcessing:
         plt.legend(loc='upper left')
         plt.grid(True)
         plt.xlabel('Build Number', fontsize=16)
+        plt.xticks(build_numbers, rotation=45, fontsize=14)
+        plt.ylabel('Max/Min Latency (ms)', fontsize=16)
+        plt.yticks(fontsize=14)
         plt.twinx()
         plt.plot(build_numbers, max_latency, marker='o', linestyle='-', color='r', label='Max')
         plt.plot(build_numbers, min_latency, marker='o', linestyle='-', color='g', label='Min')
-        plt.yticks(fontsize=14)
-        plt.ylabel('Max/Min Latency (ms)', fontsize=16)
         plt.legend(loc='upper right')
         plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
-        plt.xticks(build_numbers, fontsize=14)
 
         plt.suptitle(f'{test_name} ({self.device})', fontsize=18, fontweight='bold')
 
@@ -272,7 +273,7 @@ class PerformanceDataProcessing:
         plt.title('Transmitting Speed', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('TX Speed (MBytes/sec)', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
+        plt.xticks(build_numbers, rotation=45, fontsize=14)
 
         # Plot 2: RX
         plt.subplot(2, 1, 2)
@@ -282,7 +283,7 @@ class PerformanceDataProcessing:
         plt.title('Receiving Speed', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('RX Speed (MBytes/sec)', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
+        plt.xticks(build_numbers, rotation=45, fontsize=14)
 
         plt.xlabel('Build Number', fontsize=16)
 
@@ -339,7 +340,7 @@ class PerformanceDataProcessing:
         plt.title('File operation', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('File operation per second', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
+        plt.xticks(build_numbers, rotation=45, fontsize=14)
 
         plt.subplot(3, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
@@ -348,7 +349,7 @@ class PerformanceDataProcessing:
         plt.title('Throughput', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('Throughput, MiB/s', fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
+        plt.xticks(build_numbers, rotation=45, fontsize=14)
 
         plt.subplot(3, 1, 3)
         plt.ticklabel_format(axis='y', style='plain')
@@ -356,6 +357,7 @@ class PerformanceDataProcessing:
         plt.ylabel('Avg Latency (ms)', fontsize=16)
         plt.legend(loc='upper left')
         plt.xlabel('Build Number', fontsize=16)
+        plt.xticks(build_numbers, rotation=45, fontsize=14)
         plt.twinx()
         plt.plot(build_numbers, max_latency, marker='o', linestyle='-', color='r', label='Max')
         plt.plot(build_numbers, min_latency, marker='o', linestyle='-', color='g', label='Min')
@@ -364,7 +366,6 @@ class PerformanceDataProcessing:
         plt.legend(loc='upper right')
         plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
         plt.grid(True)
-        plt.xticks(build_numbers, fontsize=14)
 
         plt.suptitle(f'{test_name} ({self.device})', fontsize=18, fontweight='bold')
 
