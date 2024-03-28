@@ -382,10 +382,14 @@ class PerformanceDataProcessing:
                 file_name = f"{self.data_dir}/{self.device}_{vm_name}_{test_name}_{test}.csv"
                 with open(file_name, 'r') as file:
                     csvreader = csv.reader(file)
+                    build_counter = {}  # Track build numbers to identify duplicates
                     build_data = []
                     for row in csvreader:
-                        if (row[7] if 'cpu' in test else row[8]) == self.device:
-                            build_data.append((row[0], float(row[1 if 'cpu' in test else 2])))
+                            build = row[0]
+                            # Increment counter for this build or initialize it
+                            build_counter[build] = build_counter.get(build, -1) + 1
+                            modified_build = f"{build}-{build_counter[build]}" if build_counter[build] > 0 else build
+                            build_data.append((modified_build, float(row[1 if 'cpu' in test else 2])))
 
                     # Get the last 10 or fewer builds
                     build_data = build_data[-10:]
@@ -395,18 +399,6 @@ class PerformanceDataProcessing:
                         'values': [build[1] for build in build_data],
                         'threads': threads
                     }
-
-            build_counter = {}  # To keep track of duplicate builds
-            for row in csvreader:
-                if row[8] == self.device:
-                    build = str(row[0])
-                    if build in build_counter:
-                        build_counter[build] += 1
-                        modified_build = f"{build}-{build_counter[build]}"
-                    else:
-                        build_counter[build] = 0
-                        modified_build = build
-                    build_numbers.append(modified_build)
 
         for test in tests:
             plt.figure(figsize=(10, 6))
