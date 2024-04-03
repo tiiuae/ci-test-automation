@@ -11,10 +11,11 @@ from robot.api.deco import keyword
 
 class PerformanceDataProcessing:
 
-    def __init__(self, device, build_number):
+    def __init__(self, device, build_number, job):
         self.device = device
         self.build_number = build_number
         self.data_dir = self._create_result_dir()
+        self.build_type = job.split(".")[0]
 
     def _get_job_name(self):
         f = open(f"../config/{self.build_number}.json")
@@ -159,7 +160,7 @@ class PerformanceDataProcessing:
         plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
         plt.grid(True)
 
-        plt.suptitle(f'{test_name} ({self.device})', fontsize=18, fontweight='bold')
+        plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
         plt.savefig(f'../test-suites/{self.device}_{test_name}.png')  # Save the plot as an image file
@@ -242,7 +243,7 @@ class PerformanceDataProcessing:
         plt.legend(loc='upper right')
         plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
 
-        plt.suptitle(f'{test_name} ({self.device})', fontsize=18, fontweight='bold')
+        plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
         plt.savefig(f'../test-suites/{self.device}_{test_name}.png')  # Save the plot as an image file
@@ -300,7 +301,7 @@ class PerformanceDataProcessing:
 
         plt.xlabel('Build Number', fontsize=16)
 
-        plt.suptitle(f'{test_name} ({self.device})', fontsize=18, fontweight='bold')
+        plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
         plt.savefig(f'../test-suites/{self.device}_{test_name}.png')  # Save the plot as an image file
@@ -380,7 +381,7 @@ class PerformanceDataProcessing:
         plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
         plt.grid(True)
 
-        plt.suptitle(f'{test_name} ({self.device})', fontsize=18, fontweight='bold')
+        plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
         plt.savefig(f'../test-suites/{self.device}_{test_name}.png')  # Save the plot as an image file
@@ -419,11 +420,11 @@ class PerformanceDataProcessing:
                 if "1thread" in test:
                     plt.bar([x + i * 0.1 for x in range(len(vm_data['build_numbers']))], vm_data['values'], width=0.1,
                             label=f"{vm_name}")
-                    plt.title(f'Comparison of {test} test results for VMs')
+                    plt.title(f'Comparison of {test} test results for VMs\n(build type: {self.build_type}, device: {self.device})')
                 else:
                     plt.bar([x + i * 0.1 for x in range(len(vm_data['build_numbers']))], vm_data['values'], width=0.1,
                             label=f"{vm_name} ({vm_data['threads']} threads)")
-                    plt.title(f'Comparison of multi-thread {test} test results for VMs')
+                    plt.title(f'Comparison of multi-thread {test} test results for VMs\n(build type: {self.build_type}, device: {self.device})')
 
             plt.xlabel('Builds')
             plt.ylabel('Data transfer speed, MB/s' if 'memory' in test else 'Events per second')
