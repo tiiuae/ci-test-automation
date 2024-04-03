@@ -8,7 +8,7 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/device_control.resource
 Resource            ../../config/variables.robot
 Library             ../../lib/output_parser.py
-Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}
+Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${JOB}
 Library             Collections
 Suite Setup         Common Setup
 Suite Teardown      Close All Connections

@@ -10,7 +10,7 @@ Resource            ../../resources/serial_keywords.resource
 Resource            ../../config/variables.robot
 Library             ../../lib/output_parser.py
 Library             Process
-Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}
+Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${JOB}
 Suite Setup         Common Setup
 Suite Teardown      Close All Connections
 
