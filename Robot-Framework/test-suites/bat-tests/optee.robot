@@ -30,7 +30,7 @@ OP-TEE xtest
        ...              (3. If everything is fixed (no more "-x"-flags), remove this comment!!)
        [Tags]  bat  optee  optee-xtest  orin-agx  orin-nx  SP-T129
 
-       ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest -x 1008 -x 1033 -x 4016_ed25519    sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
+       ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest -x 1008 -x 1033    sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
        Log     ${stdout}
        Should Be Equal As Integers    ${rc}    0
 
@@ -53,17 +53,6 @@ OP-TEE xtest 1033
     [Tags]  bat  optee  optee-xtest  orin-agx  orin-nx  SP-T129
 
     ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest 1033   sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
-    Should Be Equal As Integers    ${rc}    1
-    Skip If    ${rc}    Known issue encountered, skipping the test
-
-
-OP-TEE xtest 4016_ed25519
-    [Documentation]   Xtest 4016_ed25519
-    ...               Test will be skipped in case of failure, because this is a known issue.
-    ...               Please read OP-TEE Test suite comment
-    [Tags]  bat  optee  optee-xtest  orin-agx  orin-nx  SP-T129
-
-    ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest 4016_ed25519   sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
     Should Be Equal As Integers    ${rc}    1
     Skip If    ${rc}    Known issue encountered, skipping the test
 
