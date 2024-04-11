@@ -1,0 +1,274 @@
+#!groovy
+// SPDX-FileCopyrightText: 2022-2024 Technology Innovation Institute (TII)
+// SPDX-License-Identifier: Apache-2.0
+
+import groovy.json.*
+
+buildResults = [:]
+
+bootJob  = 'testing/boot_test'
+configPath = "/home/${params.LABEL}/Jenkins-agent/workspace/testing/test_config.json"
+imageDir = 'Image/ghaf/result-aarch64-jetson-orin-nx-debug/sd-image/'
+imageName = ''
+bootSuite = 'boot-test/'
+performanceSuite = 'performance-tests/'
+batSuite = 'bat-tests/'
+deviceName = ''
+usbHubSerial = ''
+sdMuxUsbPort = ''
+externalDrive = ''
+
+pipeline {
+    agent { label "${params.LABEL}" }
+    stages {
+        stage('Copy artifacts') {
+            steps {
+                script {
+                     step ([$class: 'CopyArtifact',
+                         projectName: 'ghaf-pipeline',
+                         filter: "ghaf/result-aarch64-jetson-orin-nx-debug/sd-image/*",
+                         target: 'Image']);
+
+                }
+            }
+        }
+        stage('Set variables') {
+            steps {
+                script {
+                    try {
+                        // Fails with non-zero exit if dir1 does not exist
+                        def output = sh(script: "ls ${imageDir} | grep img", returnStdout:true).trim()
+                        imageName = "${output}"
+                    } catch (Exception ex) {
+                        println("Unable to read dir1: ${ex}")
+                    }
+                    echo "Target image: ${imageName}"
+
+                    // Check for which agent and which target device
+                    if ("${params.LABEL}" == "tc-agent01"){
+                        if (params.DEVICE == "orin-agx"){
+                            deviceName = 'OrinAGX1'
+                        } else if (params.DEVICE == "nuc"){
+                            deviceName = 'NUC1'
+                        } else if (params.DEVICE == "orin-nx"){
+                            deviceName = 'OrinNX1'
+                        } else if (params.DEVICE == "riscv"){
+                            deviceName = 'Polarfire1'
+                        } else if (params.DEVICE == "lenovo-x1"){
+                            deviceName = 'LenovoX1-1'
+                        }
+                    } else if ("${params.LABEL}" == "tc-agent03"){
+                        if (params.DEVICE == "orin-agx"){
+                            deviceName = 'OrinAGX2'
+                        } else if (params.DEVICE == "nuc"){
+                            deviceName = 'NUC2'
+                        } else if (params.DEVICE == "orin-nx"){
+                            deviceName = 'OrinNX2'
+                        } else if (params.DEVICE == "riscv"){
+                            deviceName = 'Polarfire2'
+                        } else if (params.DEVICE == "lenovo-x1"){
+                            deviceName = 'LenovoX1-2'
+                        }
+                    }
+                    echo "DEVICE: ${deviceName}"
+
+                    // Set pipeline description
+                    currentBuild.description = "Target image: ${imageName}"
+
+                    // Read test devices configfile and set usbHub serial or sd-mux usb port to use right device
+                    if ("${params.DEVICE}" == "riscv"){
+                        externalDrive = 'sdmux'
+                        def deviceData = readJSON file: "${configPath}"
+                        sdMuxUsbPort = "${deviceData['addresses']["${deviceName}"]['usb_sd_mux_port']}"
+                        println("SD-MUX USB port: ${sdMuxUsbPort}")
+
+                    } else {
+                        externalDrive = 'PSSD'
+                        def deviceData = readJSON file: "${configPath}"
+                        usbHubSerial = "${deviceData['addresses']["${deviceName}"]['usbhub_serial']}"
+                        println("USB HUB serial: ${usbHubSerial}")
+                    }
+
+                    // if ("${params.DEVICE}" == "orin-agx" || "${params.DEVICE}" == "orin-nx") {
+                    //     // Read zipped image file path from buildID.json to flash usb drive for Orin device
+                    //     def buildData = readJSON file: "${params.resultsPath}/${params.buildID}/${params.buildID}.json"
+                    //     zipImagePath = "${buildData['Image']}"
+                    //     println("zipped path: ${zipImagePath}")
+                    // }
+                }
+            }
+        }
+        stage('Change host to PC') {
+            steps {
+                script{
+                    if ("${params.DEVICE}" == "riscv"){
+                        sh "sudo usbsdmux ${sdMuxUsbPort} host"
+                    } else {
+                        sh "./BrainStem_dev_kit/bin/AcronameHubCLI -u 0 -s ${usbHubSerial}"
+                    }
+                    // wait that USB drive is mounted
+                    sh 'sleep 10'
+                    def output = sh (
+                        // Check for usb drive that is connected to target test device
+                        script: "lsblk -o model,name |grep ${externalDrive}",
+                        returnStdout: true
+                    ).trim()
+                    def list = output.split(' ')
+
+                    // Take last element which is the target USB device
+                    USBDEVICE = list[-1]
+                    println("USB device: ${USBDEVICE}")
+
+                 }
+            }
+        }
+        stage('Write OS image') {
+            steps {
+                script{
+                    println("${params.DEVICE}")
+                    if ("${params.DEVICE}" == "orin-nx" || "${params.DEVICE}" == "orin-agx") {
+                        // unzip zipped image, remove .zst ending from path and use that for flashing usb drive. Remove unzipped image after flashing.
+                        sh "sudo zstd -d ${imageDir}${imageName}"
+                        unzippedPath = "${imageDir}${imageName}".minus(".zst")
+                        sh "sudo dd if=${unzippedPath} of=/dev/${USBDEVICE} bs=1M status=progress conv=fsync"
+                        sh "sudo rm -rf ${unzippedPath}"
+                    } else if ("${params.DEVICE}" == "lenovo-x1"){
+                        def buildData = readJSON file: "${params.resultsPath}/${params.buildID}/${params.buildID}.json"
+                        imagePath = "${buildData['Output store paths'][0]}/disk1.raw"
+                        println("${imagePath}")
+                        sh "sudo dd if=${imagePath} of=/dev/${USBDEVICE} bs=1M status=progress conv=fsync"
+                    } else {
+                        println("${params.image}")
+                        sh "sudo dd if=${params.image} of=/dev/${USBDEVICE} bs=1M status=progress conv=fsync"
+                    }
+                }
+            }
+        }
+        stage('Change host back to test device') {
+            steps {
+                script{
+                    if ("${params.DEVICE}" == "riscv"){
+                        sh "sudo usbsdmux ${sdMuxUsbPort} dut"
+                    } else {
+                        sh "./BrainStem_dev_kit/bin/AcronameHubCLI -u 1 -s ${usbHubSerial}"
+                    }
+                }
+            }
+        }
+        stage('Boot Test') {
+            steps {
+              	script{
+                    build = build(
+                        job: "${bootJob}", propagate: false,
+                        parameters: [
+                          [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${bootSuite}"],
+                          [$class: 'StringParameterValue', name: 'DESCRIPTION', value: " buildID: "],
+                          [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
+                          [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "bootAND${params.DEVICE}"]
+                        ]
+                    )
+                    if(build.result == "SUCCESS") {
+                        buildResults."boot" = "SUCCESS"
+                        echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
+                    } else {
+                        catchError(stageResult: 'FAILURE', buildResult: 'FAILURE'){
+                            error("Boot build failed")
+                        }
+                    }
+                }
+            }
+        }
+        // stage('BAT tests') {
+        //     when {
+        //         expression {
+        //             buildResults.boot == 'SUCCESS'
+        //         }
+        //     }
+        //     steps {
+        //         script{
+        //             // Make directory for test results
+        //             sh "mkdir -p ${params.resultsPath}/${params.buildID}/${resultsDirectory}/bat"
+        //             build = build(
+        //                 job: "${batJob}", propagate: false,
+        //                 parameters: [
+        //                   [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${batSuite}"],
+        //                   [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
+        //                   [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
+        //                   [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "batAND${params.DEVICE}"],
+        //                   [$class: 'StringParameterValue', name: 'BUILD_ID', value: "${params.buildID}"],
+        //                   [$class: 'StringParameterValue', name: 'RESULTS_PATH', value: "${params.resultsPath}"]
+        //                 ]
+        //             )
+        //             // copy report and log
+        //             sh "cp ~/Jenkins-agent/workspace/${batJob}/Robot-Framework/test-suites/report.html ${params.resultsPath}/${params.buildID}/${resultsDirectory}/bat/report.html"
+        //             sh "cp ~/Jenkins-agent/workspace/${batJob}/Robot-Framework/test-suites/log.html ${params.resultsPath}/${params.buildID}/${resultsDirectory}/bat/log.html"
+        //             if(build.result == "SUCCESS") {
+        //                 buildResults."bat" = "SUCCESS"
+        //                 echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
+        //             } else {
+        //                 catchError(stageResult: 'FAILURE', buildResult: 'FAILURE'){
+        //                     error("BAT build failed")
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        // stage('Performance tests') {
+        //     when {
+        //         expression {
+        //             buildResults.boot == 'SUCCESS'
+        //         }
+        //     }
+        //     steps {
+        //         script{
+        //             // Make directory for test results
+        //             sh "mkdir -p ${params.resultsPath}/${params.buildID}/${resultsDirectory}/performance"
+        //             build = build(
+        //                 job: "${performanceJob}", propagate: false,
+        //                 parameters: [
+        //                   [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${performanceSuite}"],
+        //                   [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
+        //                   [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
+        //                   [$class: 'StringParameterValue', name: 'BUILD_ID', value: "${params.buildID}"],
+        //                   [$class: 'StringParameterValue', name: 'RESULTS_PATH', value: "${params.resultsPath}"],
+        //                   [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "performanceAND${params.DEVICE}"]
+        //                 ]
+        //             )
+        //             // copy report, log and plots
+        //             sh "cp ~/Jenkins-agent/workspace/${performanceJob}/Robot-Framework/test-suites/report.html ${params.resultsPath}/${params.buildID}/${resultsDirectory}/performance/report.html"
+        //             sh "cp ~/Jenkins-agent/workspace/${performanceJob}/Robot-Framework/test-suites/log.html ${params.resultsPath}/${params.buildID}/${resultsDirectory}/performance/log.html"
+        //             // don't fail if there are no png files
+        //             sh "cp ~/Jenkins-agent/workspace/${performanceJob}/Robot-Framework/test-suites/*.png ${params.resultsPath}/${params.buildID}/${resultsDirectory}/performance/ || true"
+        //             if(build.result == "SUCCESS") {
+        //                 buildResults."bat" = "SUCCESS"
+        //                 echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
+        //             } else {
+        //                 echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
+        //                 catchError(stageResult: 'FAILURE'){
+        //                     error("Error during performance tests")
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        // stage('Turn off device') {
+        //     steps {
+        //       	script {
+        //       	    build = build(
+        //                 job: "${turnoffJob}", propagate: false,
+        //                 parameters: [
+        //                   [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
+        //                   [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
+        //                   [$class: 'StringParameterValue', name: 'DEVICE_TYPE', value: "${params.DEVICE}"]
+        //                 ]
+        //             )
+        //         }
+        //     }
+        // }
+    }
+    post {
+        always {
+            sh 'rm -rf Image/'
+        }
+    }
+}
