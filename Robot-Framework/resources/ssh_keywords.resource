@@ -50,7 +50,7 @@ Check Network Availability
 Connect
     [Documentation]   Set up the SSH connection to the device
     [Arguments]       ${IP}=${DEVICE_IP_ADDRESS}    ${PORT}=22    ${target_output}=ghaf@ghaf-host
-    ${connection}=    Open Connection    ${IP}    port=${PORT}
+    ${connection}=    Open Connection    ${IP}    port=${PORT}    prompt=\$    timeout=30
     ${output}=        Login     username=${LOGIN}    password=${PASSWORD}
     Should Contain    ${output}    ${target_output}
     [Return]          ${connection}
@@ -71,8 +71,8 @@ Connect to netvm
     ${failed_connection}  Set variable  True
     FOR    ${i}    IN RANGE    10
         TRY
-            ${connection}        Open Connection   ${NETVM_IP}  port=22
-            ${output}            Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${ghaf_host_ssh}
+            ${connection}=       Open Connection    ${NETVM_IP}    port=22    prompt=\$    timeout=30
+            ${output}=           Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${ghaf_host_ssh}
         EXCEPT    ChannelException: ChannelException(2, 'Connect failed')    type=LITERAL
             Sleep   1
             CONTINUE
@@ -90,7 +90,7 @@ Connect to VM
     ${failed_connection}  Set variable  True
     FOR    ${i}    IN RANGE    20
         TRY
-            ${connection}=       Open Connection   ${vm_name}  port=22
+            ${connection}=       Open Connection    ${vm_name}    port=22    prompt=\$    timeout=30
             ${output}=           Login    username=${LOGIN}        password=${PASSWORD}    jumphost_index_or_alias=${netvm_ssh}
         EXCEPT    ChannelException: ChannelException(2, 'Connect failed')    type=LITERAL
             Sleep   1
