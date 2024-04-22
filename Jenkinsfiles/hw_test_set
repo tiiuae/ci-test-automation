@@ -147,7 +147,7 @@ pipeline {
         stage('Installer') {
             steps {
                 script{
-                    if ("${params.job_name}" == "lenovo-x1-carbon-gen10-debug-installer"){
+                    if ("${params.job}" == "lenovo-x1-carbon-gen10-debug-installer"){
                         sh "python installer.py"
                         sh "./BrainStem_dev_kit/bin/AcronameHubCLI -u 0 -s ${usbHubSerial}"
                         // no need to reboot device (it will be done in boot test)
