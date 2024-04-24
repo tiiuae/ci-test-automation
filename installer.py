@@ -1,10 +1,12 @@
+from paramiko import Ed25519Key
 import paramiko
 import sys
 import json
 import os
+import time
 
 if len(sys.argv) < 3:
-    print("Usage: python script.py <device_name> <sudo_password>")
+    print("Usage: python3 installer.py <device_name> <sudo_password>")
     sys.exit(1)
 
 ssh_key_path = '~/.ssh/id_ed25519_autotests'
@@ -13,11 +15,11 @@ device_name = sys.argv[1]
 password = sys.argv[2]
 
 
-config_file_path = '../Testing/test_config.json'
+config_file_path = '../test_config.json'
 try:
     with open(config_file_path, 'r') as file:
         data = json.load(file)
-        ip_address = data[device_name]['device_ip_address']
+        ip_address = data["addresses"][device_name]['device_ip_address']
 except FileNotFoundError:
     print(f"Error: The configuration file '{config_file_path}' was not found.")
     sys.exit(1)
@@ -32,7 +34,8 @@ except json.JSONDecodeError:
 client = paramiko.SSHClient()
 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 try:
-    client.connect(hostname=ip_address, username='username', pkey=paramiko.RSAKey.from_private_key_file(ssh_key_path))
+    key = Ed25519Key.from_private_key_file(ssh_key_path)
+    client.connect(hostname=ip_address, username='nixos', pkey=key)
     print(f"Successfully connected to {ip_address}")
 
     session = client.get_transport().open_session()
@@ -47,27 +50,29 @@ try:
     stdin.write(password + '\n')
     stdin.flush()
 
-    # Handle outputs and inputs directly in the main block
     while True:
-        output = stdout.readline().decode('utf-8')
-        if output:
-            print(output, end="")
-            if "Device name [e.g. /dev/nvme0n1]: " in output:
-                stdin.write('/dev/nvme0n1' + '\n')
-                stdin.flush()
-            elif "WARNING: Next command will destroy all previous data from your device, press Enter to proceed." in output:
-                stdin.write('\n')
-                stdin.flush()
-            elif "Installation done. Please remove the installation media and reboot" in output:
-                print("Installation completed successfully.")
+        if session.recv_ready():
+            output = stdout.readline()  # Reading line by line
+            if not output:
                 break
+            print(output.decode('utf-8'), end='')
 
-        stderr_output = stderr.readline().decode('utf-8')
-        if stderr_output:
-            print(stderr_output, end="")
+        if session.recv_stderr_ready():
+            error_output = stderr.readline()
+            if not error_output:
+                break
+            print(error_output.decode('utf-8'), end='', file=sys.stderr)
 
+        # Exit the loop if the command has completed
+        if session.exit_status_ready():
+            break
+
+        time.sleep(0.1)  # Avoid tight loop
+
+except Exception as e:
+    print(f"An error occurred: {e}")
+    session = None
 finally:
-    # Ensure the session and client are closed properly
     if session:
         session.close()
     client.close()

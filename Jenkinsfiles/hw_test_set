@@ -31,6 +31,7 @@ pipeline {
                     batJob = "${splitted[0]}/Testing/smoke_tests"
                     performanceJob = "${splitted[0]}/Testing/Performance_tests"
                     turnoffJob =  "${splitted[0]}/Testing/turn_off_device"
+                    turnonJob =  "${splitted[0]}/Testing/turn_on_device"
                     configPath = "/home/${params.label}/Jenkins-agent/workspace/${splitted[0]}/Testing/test_config.json"
 
                     // Check for which agent and which target device
@@ -148,7 +149,15 @@ pipeline {
             steps {
                 script{
                     if ("${params.job}" == "lenovo-x1-carbon-gen10-debug-installer"){
-                        sh "python installer.py"
+                        build = build(
+                            job: "${turnonJob}", propagate: false,
+                            parameters: [
+                              [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
+                              [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
+                              [$class: 'StringParameterValue', name: 'DEVICE_TYPE', value: "${params.device}"]
+                            ]
+                        )
+                        sh "python3 installer.py ${deviceName} ghaf"
                         sh "./BrainStem_dev_kit/bin/AcronameHubCLI -u 0 -s ${usbHubSerial}"
                         // no need to reboot device (it will be done in boot test)
                     }
