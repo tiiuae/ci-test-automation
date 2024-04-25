@@ -163,7 +163,7 @@ class PerformanceDataProcessing:
         plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
-        plt.savefig(f'../test-suites/{self.device}_{test_name}.png')  # Save the plot as an image file
+        plt.savefig(f'../test-suites/{self.device}_{test_name}.png')
 
     @keyword
     def read_mem_csv_and_plot(self, test_name):
@@ -246,7 +246,7 @@ class PerformanceDataProcessing:
         plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
-        plt.savefig(f'../test-suites/{self.device}_{test_name}.png')  # Save the plot as an image file
+        plt.savefig(f'../test-suites/{self.device}_{test_name}.png')
 
     @keyword
     def read_speed_csv_and_plot(self, test_name):
@@ -304,7 +304,7 @@ class PerformanceDataProcessing:
         plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
-        plt.savefig(f'../test-suites/{self.device}_{test_name}.png')  # Save the plot as an image file
+        plt.savefig(f'../test-suites/{self.device}_{test_name}.png')
 
     @keyword
     def read_fileio_data_csv_and_plot(self, test_name):
@@ -384,51 +384,64 @@ class PerformanceDataProcessing:
         plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
-        plt.savefig(f'../test-suites/{self.device}_{test_name}.png')  # Save the plot as an image file
+        plt.savefig(f'../test-suites/{self.device}_{test_name}.png')
+
+    def extract_numeric_part(self, build_identifier):
+        parts = build_identifier.split('-')
+        base_number = int(''.join(filter(str.isdigit, parts[0])))
+        suffix = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else -1
+        return (base_number, suffix)
 
     def read_vms_data_csv_and_plot(self, test_name, vms_dict):
         tests = ['cpu_1thread', 'memory_read_1thread', 'memory_write_1thread', 'cpu', 'memory_read', 'memory_write']
         data = {test: {} for test in tests}
 
+        all_builds = {test: set() for test in tests}
+
         for vm_name, threads in vms_dict.items():
             for test in tests:
                 if "1thread" not in test and int(threads) == 1:
                     continue
+
                 file_name = f"{self.data_dir}/{self.device}_{vm_name}_{test_name}_{test}.csv"
+                if not os.path.exists(file_name):
+                    continue
+
                 with open(file_name, 'r') as file:
                     csvreader = csv.reader(file)
-                    build_counter = {}  # Track build numbers to identify duplicates
+                    build_counter = {}
                     build_data = []
                     for row in csvreader:
-                            build = row[0]
-                            # Increment counter for this build or initialize it
-                            build_counter[build] = build_counter.get(build, -1) + 1
-                            modified_build = f"{build}-{build_counter[build]}" if build_counter[build] > 0 else build
-                            build_data.append((modified_build, float(row[1 if 'cpu' in test else 2])))
+                        if not row:
+                            continue
+                        build = row[0]
+                        build_counter[build] = build_counter.get(build, -1) + 1
+                        modified_build = f"{build}-{build_counter[build]}" if build_counter[build] > 0 else build
+                        build_data.append((modified_build, float(row[1 if 'cpu' in test else 2])))
 
-                    build_data = build_data[-20:]
-
-                    data[test][vm_name] = {
-                        'build_numbers': [build[0] for build in build_data],
-                        'values': [build[1] for build in build_data],
-                        'threads': threads
-                    }
+                    if build_data:
+                        build_data = build_data[-10:]  # Keep only the last 10 builds
+                        data[test][vm_name] = {
+                            'build_numbers': [build[0] for build in build_data],
+                            'values': [build[1] for build in build_data],
+                            'threads': threads
+                        }
+                        all_builds[test].update([build[0] for build in build_data])
 
         for test in tests:
             plt.figure(figsize=(10, 6))
-            for i, (vm_name, vm_data) in enumerate(data[test].items()):
-                if "1thread" in test:
-                    plt.bar([x + i * 0.1 for x in range(len(vm_data['build_numbers']))], vm_data['values'], width=0.1,
-                            label=f"{vm_name}")
-                    plt.title(f'Comparison of {test} test results for VMs\n(build type: {self.build_type}, device: {self.device})')
-                else:
-                    plt.bar([x + i * 0.1 for x in range(len(vm_data['build_numbers']))], vm_data['values'], width=0.1,
-                            label=f"{vm_name} ({vm_data['threads']} threads)")
-                    plt.title(f'Comparison of multi-thread {test} test results for VMs\n(build type: {self.build_type}, device: {self.device})')
+            sorted_builds = sorted(all_builds[test], key=self.extract_numeric_part)
 
+            for i, (vm_name, vm_data) in enumerate(data[test].items()):
+                if vm_data:
+                    indices = [sorted_builds.index(build) for build in vm_data['build_numbers']]
+                    plt.bar([x + i * 0.1 for x in indices], vm_data['values'], width=0.1,
+                            label=f"{vm_name} ({vm_data['threads']} threads)" if "1thread" not in test else vm_name)
+
+            plt.title(f'Comparison of {test} results for VMs\n(build type: {self.build_type}, device: {self.device})')
             plt.xlabel('Builds')
             plt.ylabel('Data transfer speed, MB/s' if 'memory' in test else 'Events per second')
-            plt.xticks(range(len(vm_data['build_numbers'])), vm_data['build_numbers'])
+            plt.xticks(range(len(sorted_builds)), sorted_builds, rotation=45)
             plt.legend()
             plt.tight_layout()
             plt.savefig(f'../test-suites/{self.device}_{test_name}_{test}.png')

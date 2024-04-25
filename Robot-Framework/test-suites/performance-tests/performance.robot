@@ -132,22 +132,27 @@ Sysbench test in VMs on LenovoX1
     ...                  for 1 thread and MULTIPLE threads if there are more than 1 thread in VM.
     [Tags]               SP-T67-9    lenovo-x1
     [Setup]         LenovoX1 Setup
-    &{threads}    	Create Dictionary	 net-vm=1
+    &{threads}    	Create Dictionary    net-vm=1
     ...                                  gui-vm=2
     ...                                  gala-vm=2
     ...                                  zathura-vm=1
     ...                                  chromium-vm=4
-
     ${vms}	Get Dictionary Keys	 ${threads}
+    @{failed_vms} 	Create List
+    Set Global Variable  @{failed_vms}
 
     Connect to netvm
 
     FOR	 ${vm}	IN	@{vms}
         ${threads_n}	Get From Dictionary	  ${threads}	 ${vm}
-        Transfer Sysbench Test Script To VM   ${vm}
-        ${output}       Execute Command       ./sysbench_test ${threads_n}  sudo=True  sudo_password=${PASSWORD}
-        Run Keyword If    ${threads_n} > 1   Save sysbench results   ${vm}
-        Save sysbench results   ${vm}   _1thread
+        ${vm_fail}      Transfer Sysbench Test Script To VM   ${vm}
+        IF  '${vm_fail}' == 'FAIL'
+            Log to Console  Skipping tests for ${vm} because couldn't connect to it
+        ELSE
+            ${output}       Execute Command       ./sysbench_test ${threads_n}  sudo=True  sudo_password=${PASSWORD}
+            Run Keyword If    ${threads_n} > 1   Save sysbench results   ${vm}
+            Save sysbench results   ${vm}   _1thread
+        END
     END
 
     Read VMs data CSV and plot  test_name=${TEST NAME}  vms_dict=${threads}
@@ -159,6 +164,10 @@ Sysbench test in VMs on LenovoX1
     Log    <img src="${DEVICE}_${TEST NAME}_cpu.png" alt="CPU Plot" width="1200">       HTML
     Log    <img src="${DEVICE}_${TEST NAME}_memory_read.png" alt="Mem Plot" width="1200">    HTML
     Log    <img src="${DEVICE}_${TEST NAME}_memory_write.png" alt="Mem Plot" width="1200">    HTML
+
+    ${length}       Get Length    ${failed_vms}
+    Run Keyword If  ${length} > 0    Fail    Some of VMs were not tested due to connection fail: ${failed_vms}
+
 
 *** Keywords ***
 
@@ -188,7 +197,9 @@ Transfer Sysbench Test Script To NetVM
 Transfer Sysbench Test Script To VM
     [Arguments]        ${vm}
     IF  "${vm}" != "net-vm"
-        Connect to VM      ${vm}
+        ${vm_fail}    ${result} =    Run Keyword And Ignore Error    Connect to VM    ${vm}
+        Run Keyword If    '${vm_fail}' == 'FAIL'   Append To List	 ${failed_vms}	  ${vm}
+        Run Keyword If    '${vm_fail}' == 'FAIL'   Return From Keyword  ${vm_fail}
     END
     Put File           performance-tests/sysbench_test    /home/ghaf
     Execute Command    chmod 777 sysbench_test
