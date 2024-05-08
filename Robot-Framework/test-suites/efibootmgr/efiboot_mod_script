@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2022-2024 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
 for f in $(efibootmgr | grep Linux | awk 'NR > 0 {print $1}' | cut -c 5-8)
 do
     sudo efibootmgr -q -b ${f} -B
