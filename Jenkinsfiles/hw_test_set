@@ -14,6 +14,7 @@ zipImagePath = ''
 bootSuite = 'boot-test/'
 performanceSuite = 'performance-tests/'
 batSuite = 'bat-tests/'
+efibootSuite = 'efibootmgr/'
 deviceName = ''
 usbHubSerial = ''
 sdMuxUsbPort = ''
@@ -30,6 +31,7 @@ pipeline {
                     bootJob = "${splitted[0]}/Testing/boot_test"
                     batJob = "${splitted[0]}/Testing/smoke_tests"
                     performanceJob = "${splitted[0]}/Testing/Performance_tests"
+                    removebootmanagerJob = "${splitted[0]}/Testing/remove_efibootentries"
                     turnoffJob =  "${splitted[0]}/Testing/turn_off_device"
                     turnonJob =  "${splitted[0]}/Testing/turn_on_device"
                     configPath = "/home/${params.label}/Jenkins-agent/workspace/${splitted[0]}/Testing/test_config.json"
@@ -275,6 +277,22 @@ pipeline {
                             error("Error during performance tests")
                         }
                     }
+                }
+            }
+        }
+        stage('Remove Linux Boot Manager') {
+            steps {
+              	script {
+              	    if ("${params.job}" == "lenovo-x1-carbon-gen11-debug-installer"){
+                    build = build(
+                        job: "${batJob}", propagate: false,
+                        parameters: [
+                          [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${efibootSuite}"],
+                          [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
+                          [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
+                          [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "efiboot-modAND${params.device}"]
+                        ]
+                    )
                 }
             }
         }
