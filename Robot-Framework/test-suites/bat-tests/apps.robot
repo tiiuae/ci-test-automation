@@ -28,7 +28,8 @@ Start Firefox
 Start Chromium on LenovoX1
     [Documentation]   Start Chromium in dedicated VM and verify process started
     [Tags]            bat   SP-T97   lenovo-x1
-    [Setup]           Connect to netvm
+    Verify service status  range=15  service=microvm@chromium-vm.service  expected_status=active  expected_state=running
+    Connect to netvm
     Connect to VM       ${GUI_VM}
     Start XDG application   chromium
     Connect to VM       ${CHROMIUM_VM}

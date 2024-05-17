@@ -185,12 +185,24 @@ Verify service status
         ${output}  ${stderr}  ${rc}=   Execute Command  systemctl status ${service}  return_stderr=True  return_rc=True
         Log           stdout: ${output}\nstderr: ${stderr}
         Should Not Be Equal As Integers	    ${rc}	4   Stderr: "${stderr}", Return code
-        ${result}=    Get Service Status    ${output}
+        ${result}    Get Service Status    ${output}
         ${status}   ${state}    Get Service Status    ${output}
+        ${status}    Run Keyword And Return Status    Should Be True	'${status}' == '${expected_status}'  Expected ${expected_status} but in fact ${status}
+        ${state}     Run Keyword And Return Status    Should Be True	'${state}' == '${expected_state}'    Expected ${expected_state} but in fact ${state}
+        IF  ${status} and ${state}
+            ${finished}    Run Keyword And Return Status    Should Contain    ${output}    Welcome to NixOS
+            IF  ${finished}
+                BREAK
+            END
+        END
+        Log To Console   ${\n}systemctl status ${service} ${result}
+        Sleep    1
     END
-    Log To Console   ${\n}systemctl status ${service} ${result}
-    Should Be True	'${status}' == '${expected_status}'  Expected ${expected_status} but in fact ${status}
-    Should Be True	'${state}' == '${expected_state}'    Expected ${expected_state} but in fact ${state}
+    IF    ${status} and ${state}
+        Log To Console   ${\n}systemctl status ${service} ${result}
+    ELSE
+        Fail  systemctl status ${service} ${result}, expected: ${expected_status} and ${expected_state}
+    END
     [Return]    ${status}  ${state}
 
 Verify service shutdown status
