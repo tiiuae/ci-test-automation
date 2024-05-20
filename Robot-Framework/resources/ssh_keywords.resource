@@ -87,6 +87,7 @@ Connect to netvm
 Connect to VM
     [Arguments]          ${vm_name}
     Log To Console       Connecting to ${vm_name}
+    Check if ssh is ready on vm        ${vm_name}
     ${failed_connection}  Set variable  True
     FOR    ${i}    IN RANGE    20
         TRY
@@ -299,6 +300,21 @@ Check if ssh is ready on netvm
         Sleep    1
     END
     IF   ${status} == False    FAIL    Port 22 of NetVM is not ready after ${timeout}
+
+Check if ssh is ready on vm
+    [Arguments]    ${vm}  ${timeout}=30
+    ${is_ready} =  Set Variable    False
+    FOR    ${i}    IN RANGE    ${timeout}
+        ${output}  ${rc}    Execute Command    nc -zvw3 ${vm} 22    return_rc=True
+        ${status}    Run Keyword And Return Status
+        ...          Should Be Equal As Integers    ${rc}    0
+        IF  ${status}
+            ${is_ready} =  Set Variable    True
+            BREAK
+        END
+        Sleep    1
+    END
+    IF   ${status} == False    FAIL    Port 22 of ${vm} is not ready after ${timeout}
 
 Install sysbench tool
     ${command_output}=    Execute Command    nix-env --query --installed
