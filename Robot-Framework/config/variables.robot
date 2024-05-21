@@ -30,10 +30,12 @@ Set Variables
     Set Global Variable  ${GALA_VM_NAME}       gala-vm
     Set Global Variable  ${NETVM_SERVICE}      microvm@${NETVM_NAME}.service
     Set Global Variable  ${NETVM_IP}           192.168.101.1
-    Set Global Variable  ${GUI_VM}             gui-vm.ghaf        # 192.168.100.2
-    Set Global Variable  ${CHROMIUM_VM}        chromium-vm.ghaf   # 192.168.100.4
-    Set Global Variable  ${GALA_VM}            gala-vm.ghaf       # 192.168.100.3
-    Set Global Variable  ${ZATHURA_VM}         zathura-vm.ghaf    # 192.168.100.5
+    Set Global Variable  ${GUI_VM}             gui-vm.ghaf
+    Set Global Variable  ${CHROMIUM_VM}        chromium-vm.ghaf
+    Set Global Variable  ${GALA_VM}            gala-vm.ghaf
+    Set Global Variable  ${ZATHURA_VM}         zathura-vm.ghaf
+    Set Global Variable  ${ELEMENT_VM}         element-vm.ghaf
+    Set Global Variable  ${APPFLOWY_VM}        appflowy-vm.ghaf
 
     IF  $BUILD_ID != '${EMPTY}'
         ${config}=     Read Config  ../config/${BUILD_ID}.json
