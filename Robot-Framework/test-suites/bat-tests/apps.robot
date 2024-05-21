@@ -56,12 +56,37 @@ Start Gala on LenovoX1
     Check that the application was started    gala
     [Teardown]  Kill process  @{app_pids}
 
+Start Element on LenovoX1
+    [Documentation]   Start Element in dedicated VM and verify process started
+    [Tags]            bat   SP-T57   lenovo-x1
+    [Setup]           Connect to netvm
+    Connect to VM          ${GUI_VM}
+    Start XDG application  element
+    Connect to VM          ${ELEMENT_VM}
+    Check that the application was started    element
+    [Teardown]  Kill process  @{app_pids}
+
+Start Appflowy on LenovoX1
+    [Documentation]   Start Appflowy in dedicated VM and verify process started
+    [Tags]            bat   appflowy   lenovo-x1
+    [Setup]           Connect to netvm
+    Connect to VM          ${GUI_VM}
+    Start XDG application  appflowy
+    Connect to VM          ${APPFLOWY_VM}
+    Check that the application was started    appflowy
+    [Teardown]  Kill process  @{app_pids}
+
 
 *** Keywords ***
 
 Check that the application was started
-    [Arguments]          ${app_name}
-    @{found_pids}        Find pid by name    ${app_name}
-    Set Global Variable  @{app_pids}  @{found_pids}
+    [Arguments]          ${app_name}  ${range}=2
+    FOR   ${i}   IN RANGE  ${range}
+        @{found_pids}        Find pid by name    ${app_name}
+        Set Global Variable  @{app_pids}  @{found_pids}
+        ${status}    Run Keyword And Return Status   Should Not Be Empty  ${app_pids}
+        IF    ${status}    BREAK
+        Sleep   1
+    END
     Should Not Be Empty  ${app_pids}  ${app_name} is not started
     Log To Console       ${app_name} is started
