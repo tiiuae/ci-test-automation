@@ -152,6 +152,7 @@ Sysbench test in VMs on LenovoX1
             ${output}       Execute Command       ./sysbench_test ${threads_n}  sudo=True  sudo_password=${PASSWORD}
             Run Keyword If    ${threads_n} > 1   Save sysbench results   ${vm}
             Save sysbench results   ${vm}   _1thread
+            Switch Connection    ${netvm_ssh}
         END
     END
 
@@ -200,6 +201,7 @@ Transfer Sysbench Test Script To VM
         ${vm_fail}    ${result} =    Run Keyword And Ignore Error    Connect to VM    ${vm}
         Run Keyword If    '${vm_fail}' == 'FAIL'   Append To List	 ${failed_vms}	  ${vm}
         Run Keyword If    '${vm_fail}' == 'FAIL'   Return From Keyword  ${vm_fail}
+        Log to console    Successfully connected to ${vm}
     END
     Put File           performance-tests/sysbench_test    /home/ghaf
     Execute Command    chmod 777 sysbench_test
