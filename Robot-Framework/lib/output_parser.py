@@ -251,3 +251,8 @@ def get_app_path_from_desktop(output):
         raise Exception(f"Couldn't parse app path, pattern: {pattern}")
     path = result.replace('"', '\\"')
     return path
+
+def get_failed_units(output):
+    pattern = re.compile(r"^\s*●?\s*([\w-]+\.service)\b", re.MULTILINE)
+    services = pattern.findall(output)
+    return services
