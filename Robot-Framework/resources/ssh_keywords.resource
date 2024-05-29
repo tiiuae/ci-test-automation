@@ -114,6 +114,9 @@ Verify Systemctl status
         Log  ${output}
         IF  '${status}' not in ['running', 'starting']
             Log To Console   Systemctl status is ${status}
+            ${output}   Execute Command    systemctl list-units --state=failed
+            ${failed_units}  Get failed units  ${output}
+            Log To Console   Failed units: ${failed_units}
             FAIL    Systemctl is not running! Status is ${status}
         ELSE IF    '${status}' == 'running'
             ${diff}=    Evaluate    int(time.time()) - int(${start_time})
