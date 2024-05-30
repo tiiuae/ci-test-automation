@@ -97,8 +97,9 @@ Save log
     [Teardown]    Delete All Ports
 
 Get ethernet IP address
+    [Arguments]   ${interface}=eth0
     Connect via serial
     Write Data    ifconfig${\n}
     ${output}     SerialLibrary.Read Until    ghaf@ghaf-host:
-    ${ip}         Get ip from ifconfig    ${output}   eth0
+    ${ip}         Get ip from ifconfig    ${output}   ${interface}
     Set Global Variable  ${DEVICE_IP_ADDRESS}  ${ip}

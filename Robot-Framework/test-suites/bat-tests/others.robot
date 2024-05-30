@@ -36,3 +36,15 @@ Check systemctl status
     [Setup]     Connect
     Verify Systemctl status
     [Teardown]  Close All Connections
+
+Test end0 interface of Polarfire
+    [Documentation]    Verify that end0 interface gets an IP and ssh connection can be established
+    [Tags]             bat  SP-T107  riscv
+    [Setup]         Connect via serial
+    Write Data      ifconfig${\n}
+    ${output}       SerialLibrary.Read Until    ghaf@ghaf-host:
+    ${end0_ip}      Get ip from ifconfig   ${output}    end0
+    ${ssh}          Open Connection    ${end0_ip}   port=22    prompt=\$    timeout=30
+    ${output}       Login      username=${LOGIN}    password=${PASSWORD}
+    Should Contain  ${output}  ghaf@ghaf-host
+    [Teardown]  Close All Connections
