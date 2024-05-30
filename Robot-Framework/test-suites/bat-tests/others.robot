@@ -4,6 +4,7 @@
 *** Settings ***
 Documentation       Common system tests
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/serial_keywords.resource
 
 *** Test Cases ***
 
