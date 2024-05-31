@@ -8,9 +8,11 @@ Force Tags          performance  network
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../config/variables.robot
+Resource            ../../resources/performance_keywords.resource
 Library             ../../lib/output_parser.py
 Library             Process
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${JOB}
+Library             Collections
 Suite Setup         Common Setup
 Suite Teardown      Close All Connections
 
@@ -22,18 +24,51 @@ TCP speed test
     [Tags]            tcp   SP-T91  nuc  orin-agx  orin-nx  riscv  lenovo-x1
     Run iperf server on DUT
     &{tcp_speed}      Run TCP test
-    Save Speed Data   ${TEST NAME}  ${tcp_speed}
+    ${statistics}     Save Speed Data   ${TEST NAME}  ${tcp_speed}
+    ${statistics_tx}  Get From Dictionary  ${statistics}  tx
+    ${statistics_rx}  Get From Dictionary  ${statistics}  rx
+
     Log               <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Plot" width="1200">    HTML
     [Teardown]        Stop iperf server
+
+    ${fail_msg}=  Set Variable  ${EMPTY}
+    IF  "${statistics_tx}[flag]" == "1"
+        ${add_msg}     Create fail message  ${statistics_tx}
+        ${fail_msg}=  Set Variable  TX:\n${add_msg}
+    END
+    IF  "${statistics_rx}[flag]" == "1"
+        ${add_msg}     Create fail message  ${statistics_tx}
+        ${fail_msg}=  Set Variable  ${fail_msg}\nRX:\n${add_msg}
+    END
+    IF  "${statistics_tx}[flag]" == "1" or "${statistics_rx}[flag]" == "1"
+        FAIL    ${fail_msg}
+    END
+
 
 UDP speed test
     [Documentation]   Measure RX and TX speed for UDP
     [Tags]            udp   SP-T92  nuc  orin-agx  orin-nx  riscv  lenovo-x1
     Run iperf server on DUT
     &{udp_speed}      Run UDP test
-    Save Speed Data   ${TEST NAME}  ${udp_speed}
+    ${statistics}     Save Speed Data   ${TEST NAME}  ${udp_speed}
+    ${statistics_tx}  Get From Dictionary  ${statistics}  tx
+    ${statistics_rx}  Get From Dictionary  ${statistics}  rx
+
     Log               <img src="${DEVICE}_${TEST NAME}.png" alt="UDP Plot" width="1200">    HTML
     [Teardown]        Stop iperf server
+
+    ${fail_msg}=  Set Variable  ${EMPTY}
+    IF  "${statistics_tx}[flag]" == "1"
+        ${add_msg}     Create fail message  ${statistics_tx}
+        ${fail_msg}=  Set Variable  TX:\n${add_msg}
+    END
+    IF  "${statistics_rx}[flag]" == "1"
+        ${add_msg}     Create fail message  ${statistics_tx}
+        ${fail_msg}=  Set Variable  ${fail_msg}RX:\n${add_msg}
+    END
+    IF  "${statistics_tx}[flag]" == "1" or "${statistics_rx}[flag]" == "1"
+        FAIL    ${fail_msg}
+    END
 
 
 *** Keywords ***

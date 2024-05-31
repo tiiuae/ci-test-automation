@@ -7,11 +7,15 @@ Force Tags          performance
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/device_control.resource
 Resource            ../../config/variables.robot
+Resource            ../../resources/performance_keywords.resource
 Library             ../../lib/output_parser.py
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${JOB}
 Library             Collections
 Suite Setup         Common Setup
 Suite Teardown      Close All Connections
+
+*** Variables ***
+@{changed_VM_tests}
 
 
 *** Test Cases ***
@@ -24,8 +28,12 @@ CPU One thread test
     ${output}           Execute Command    sysbench cpu --time=10 --threads=1 --cpu-max-prime=20000 run
     Log                 ${output}
     &{cpu_data}         Parse Cpu Results   ${output}
-    Save Cpu Data       ${TEST NAME}  ${cpu_data}
+    &{statistics}       Save Cpu Data       ${TEST NAME}  ${cpu_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
+    IF  "${statistics}[flag]" == "1"
+        ${fail_msg}     Create fail message  ${statistics}
+        FAIL            ${fail_msg}
+    END
 
 CPU multimple threads test
     [Documentation]     Run a CPU benchmark using Sysbench with a duration of 10 seconds and MULTIPLE threads.
@@ -35,8 +43,12 @@ CPU multimple threads test
     ${output}           Execute Command    sysbench cpu --time=10 --threads=${threads_number} --cpu-max-prime=20000 run
     Log                 ${output}
     &{cpu_data}         Parse Cpu Results   ${output}
-    Save Cpu Data       ${TEST NAME}  ${cpu_data}
+    &{statistics}       Save Cpu Data       ${TEST NAME}  ${cpu_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
+    IF  "${statistics}[flag]" == "1"
+        ${fail_msg}     Create fail message  ${statistics}
+        FAIL            ${fail_msg}
+    END
 
 Memory Read One thread test
     [Documentation]     Run a memory benchmark using Sysbench for 60 seconds with a SINGLE thread.
@@ -46,9 +58,13 @@ Memory Read One thread test
     [Tags]              memory  SP-T67-3  nuc  orin-agx  orin-nx  lenovo-x1
     ${output}           Execute Command    sysbench memory --time=60 --memory-oper=read --threads=1 run
     Log                 ${output}
-    &{cpu_data}         Parse Memory Results   ${output}
-    Save Memory Data    ${TEST NAME}  ${cpu_data}
+    &{mem_data}         Parse Memory Results   ${output}
+    &{statistics}       Save Memory Data       ${TEST NAME}  ${mem_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
+    IF  "${statistics}[flag]" == "1"
+        ${fail_msg}     Create fail message  ${statistics}
+        FAIL            ${fail_msg}
+    END
 
 Memory Write One thread test
     [Documentation]     Run a memory benchmark using Sysbench for 60 seconds with a SINGLE thread.
@@ -59,8 +75,12 @@ Memory Write One thread test
     ${output}           Execute Command    sysbench memory --time=60 --memory-oper=write --threads=1 run
     Log                 ${output}
     &{mem_data}         Parse Memory Results   ${output}
-    Save Memory Data    ${TEST NAME}  ${mem_data}
+    &{statistics}       Save Memory Data       ${TEST NAME}  ${mem_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
+    IF  "${statistics}[flag]" == "1"
+        ${fail_msg}     Create fail message  ${statistics}
+        FAIL            ${fail_msg}
+    END
 
 Memory Read multimple threads test
     [Documentation]     Run a memory benchmark using Sysbench for 60 seconds with MULTIPLE threads.
@@ -71,8 +91,12 @@ Memory Read multimple threads test
     ${output}           Execute Command    sysbench memory --time=60 --memory-oper=read --threads=${threads_number} run
     Log                 ${output}
     &{mem_data}         Parse Memory Results   ${output}
-    Save Memory Data    ${TEST NAME}  ${mem_data}
+    ${statistics}       Save Memory Data       ${TEST NAME}  ${mem_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
+    IF  "${statistics}[flag]" == "1"
+        ${fail_msg}     Create fail message  ${statistics}
+        FAIL            ${fail_msg}
+    END
 
 Memory Write multimple threads test
     [Documentation]     Run a memory benchmark using Sysbench for 60 seconds with MULTIPLE threads.
@@ -83,8 +107,12 @@ Memory Write multimple threads test
     ${output}           Execute Command    sysbench memory --time=60 --memory-oper=write --threads=${threads_number} run
     Log                 ${output}
     &{mem_data}         Parse Memory Results   ${output}
-    Save Memory Data    ${TEST NAME}  ${mem_data}
+    &{statistics}       Save Memory Data       ${TEST NAME}  ${mem_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
+    IF  "${statistics}[flag]" == "1"
+        ${fail_msg}     Create fail message  ${statistics}
+        FAIL            ${fail_msg}
+    END
 
 FileIO test
     [Documentation]     Run a fileio benchmark using Sysbench for 30 seconds with MULTIPLE threads.
@@ -99,15 +127,28 @@ FileIO test
     ${fileio_rd_output}  Execute Command    cat sysbench_results/fileio_rd_report
     Log                  ${fileio_rd_output}
     &{fileio_rd_data}    Parse FileIO Read Results   ${fileio_rd_output}
-    Save FileIO Data     ${TEST NAME}_read  ${fileio_rd_data}
+    &{statistics_rd}     Save FileIO Data       ${TEST NAME}_read  ${fileio_rd_data}
 
     ${fileio_wr_output}  Execute Command    cat sysbench_results/fileio_wr_report
     Log                  ${fileio_wr_output}
     &{fileio_wr_data}    Parse FileIO Write Results   ${fileio_wr_output}
-    Save FileIO Data     ${TEST NAME}_write  ${fileio_wr_data}
+    &{statistics_wr}     Save FileIO Data       ${TEST NAME}_write  ${fileio_wr_data}
 
     Log    <img src="${DEVICE}_${TEST NAME}_read.png" alt="Mem Plot" width="1200">    HTML
     Log    <img src="${DEVICE}_${TEST NAME}_write.png" alt="Mem Plot" width="1200">   HTML
+
+    ${fail_msg}=  Set Variable  ${EMPTY}
+    IF  "${statistics_rd}[flag]" == "1"
+        ${add_msg}     Create fail message  ${statistics_rd}
+        ${fail_msg}=    Set Variable  READ:\n${add_msg}
+    END
+    IF  "${statistics_wr}[flag]" == "1"
+        ${add_msg}      Create fail message  ${statistics_rd}
+        ${fail_msg}=    Set Variable  ${fail_msg}\nWRITE:\n${add_msg}
+    END
+    IF  "${statistics_rd}[flag]" == "1" or "${statistics_wr}[flag]" == "1"
+        FAIL            ${fail_msg}
+    END
 
 Sysbench test in NetVM
     [Documentation]      Run CPU and Memory benchmark using Sysbench in NetVM.
@@ -119,13 +160,30 @@ Sysbench test in NetVM
     &{threads}    	            Create Dictionary	 net-vm=1
     Save sysbench results       net-vm   _1thread
 
-    Read CPU csv and plot  net-vm_${TEST NAME}_cpu_1thread
-    Read Mem csv and plot  net-vm_${TEST NAME}_memory_read_1thread
-    Read Mem csv and plot  net-vm_${TEST NAME}_memory_write_1thread
+    &{statistics_cpu}       Read CPU csv and plot  net-vm_${TEST NAME}_cpu_1thread
+    &{statistics_mem_rd}    Read Mem csv and plot  net-vm_${TEST NAME}_memory_read_1thread
+    &{statistics_mem_wr}    Read Mem csv and plot  net-vm_${TEST NAME}_memory_write_1thread
 
     Log    <img src="${DEVICE}_net-vm_${TEST NAME}_cpu_1thread.png" alt="CPU Plot" width="1200">       HTML
     Log    <img src="${DEVICE}_net-vm_${TEST NAME}_memory_read_1thread.png" alt="Mem Plot" width="1200">    HTML
     Log    <img src="${DEVICE}_net-vm_${TEST NAME}_memory_write_1thread.png" alt="Mem Plot" width="1200">    HTML
+
+    ${fail_msg}=  Set Variable  ${EMPTY}
+    IF  "${statistics_cpu}[flag]" == "1"
+        ${add_msg}      Create fail message  ${statistics_cpu}
+        ${fail_msg}=    Set Variable  CPU:\n${add_msg}
+    END
+    IF  "${statistics_mem_rd}[flag]" == "1"
+        ${add_msg}      Create fail message  ${statistics_mem_rd}
+        ${fail_msg}=    Set Variable  ${fail_msg}\nMEM READ:\n${add_msg}
+    END
+    IF  "${statistics_mem_wr}[flag]" == "1"
+        ${add_msg}      Create fail message  ${statistics_mem_wr}
+        ${fail_msg}=    Set Variable  ${fail_msg}\nMEM WRITE:\n${add_msg}
+    END
+    IF  "${statistics_cpu}[flag]" == "1" or "${statistics_mem_rd}[flag]" == "1" or "${statistics_mem_wr}[flag]" == "1"
+        FAIL  ${fail_msg}
+    END
 
 Sysbench test in VMs on LenovoX1
     [Documentation]      Run CPU and Memory benchmark using Sysbench in Virtual Machines
@@ -167,7 +225,29 @@ Sysbench test in VMs on LenovoX1
     Log    <img src="${DEVICE}_${TEST NAME}_memory_write.png" alt="Mem Plot" width="1200">    HTML
 
     ${length}       Get Length    ${failed_vms}
-    Run Keyword If  ${length} > 0    Fail    Some of VMs were not tested due to connection fail: ${failed_vms}
+
+    ${isEmpty}    Run Keyword And Return Status    Should Be Empty    ${changed_VM_tests}
+    IF  ${isEmpty} == False
+        IF  ${length} > 0
+            FAIL    Deviation detected in the following tests: "${changed_VM_tests}"\nSome of VMs were not tested due to connection fail: ${failed_vms}
+        ELSE
+            FAIL    Deviation detected in the following tests: "${changed_VM_tests}"
+        END
+    ELSE
+        Run Keyword If  ${length} > 0    Fail    Some of VMs were not tested due to connection fail: ${failed_vms}
+    END
+
+    ${isEmpty}    Run Keyword And Return Status    Should Be Empty    ${changed_VM_tests}
+    ${fail_msg}=  Set Variable  ${EMPTY}
+    IF  ${isEmpty} == False
+      ${fail_msg}=  Set Variable  Deviation detected in the following tests: "${changed_VM_tests}"\n
+    END
+    IF  ${length} > 0
+      ${fail_msg}=  Set Variable  ${fail_msg}These VMs were not tested due to connection fail: ${failed_vms}
+    END
+    IF  ${isEmpty} == False or ${length} > 0
+        FAIL  ${fail_msg}
+    END
 
 
 *** Keywords ***
@@ -212,7 +292,11 @@ Save cpu results
     ${output}          Execute Command       cat sysbench_results/${test}_report
     Log                ${output}
     &{data}            Parse Cpu Results     ${output}
-    Write CPU to csv   ${host}_${TEST NAME}_${test}  ${data}
+    &{statistics}      Save Cpu Data         ${host}_${TEST NAME}_${test}  ${data}
+    IF  "${statistics}[flag]" == "1"
+        Append To List     ${changed_VM_tests}        ${host}_${test}
+        Log to console     Deviation detected in test: ${host}_${test}
+    END
 
 Save memory results
     [Arguments]        ${test}=memory_read  ${host}=ghaf_host
@@ -220,7 +304,11 @@ Save memory results
     ${output}          Execute Command       cat sysbench_results/${test}_report
     Log                ${output}
     &{data}            Parse Memory Results  ${output}
-    Write Mem to csv   ${host}_${TEST NAME}_${test}  ${data}
+    &{statistics}      Save Memory Data      ${host}_${TEST NAME}_${test}  ${data}
+    IF  "${statistics}[flag]" == "1"
+        Append To List     ${changed_VM_tests}        ${host}_${test}
+        Log to console     Deviation detected in test: ${host}_${test}
+    END
 
 Save sysbench results
     [Arguments]       ${host}    ${1thread}=${EMPTY}

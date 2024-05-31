@@ -7,6 +7,7 @@ import json
 import matplotlib.pyplot as plt
 import logging
 from robot.api.deco import keyword
+from performance_thresholds import *
 
 
 class PerformanceDataProcessing:
@@ -27,6 +28,8 @@ class PerformanceDataProcessing:
         job = self._get_job_name()
         data_dir = f"../../../Performance_test_results/{job}/"
         os.makedirs(data_dir, exist_ok=True)
+        statistics_dir = f"{data_dir}statistics"
+        os.makedirs(statistics_dir, exist_ok=True)
         return data_dir
 
     def _write_to_csv(self, test_name, data):
@@ -35,6 +38,14 @@ class PerformanceDataProcessing:
         with open(file_path, 'a', newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
             csvwriter.writerow(data)
+
+    def _write_statistics_to_csv(self, test_name, data):
+        file_path = os.path.join(self.data_dir, f"statistics/{self.device}_{test_name}_statistics.csv")
+        logging.info("Updating statistics for {}".format(test_name))
+        with open(file_path, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(data.keys())
+            writer.writerows(zip(*(data.values())))
 
     @keyword
     def write_cpu_to_csv(self, test_name, cpu_data):
@@ -81,6 +92,81 @@ class PerformanceDataProcessing:
                 self.device]
         self._write_to_csv(test_name, data)
 
+    def truncate(self, list, significant_figures):
+        truncated_list = []
+        for item in list:
+            truncated_list.append(float(f'{item:.{significant_figures}g}'))
+        return truncated_list
+
+    def detect_deviation(self, data_column, baseline_start, threshold):
+        # Calculate mean and population standard deviation of the results
+        # Check if last value changes more than threshold from
+        #   mean
+        #   the second last value
+        #   first value of the baseline period
+
+        flag = 0
+
+        # Slice the list to obtain "stable" baseline for mean and std calculations
+        data_column_cut = data_column[baseline_start:-1]
+
+        if len(data_column_cut) > 0:
+
+            mean = sum(data_column_cut) / len(data_column_cut)
+
+            data_sum = 0
+            for value in data_column_cut:
+               data_sum = (value - mean) ** 2 + data_sum
+            pstd = (data_sum / len(data_column_cut)) ** (1/2)
+
+            # Automatically calculated pstd can vary wildly in case of multiple successive major changes in results.
+            # So this is not a good idea although looks nice:
+            # if pstd > 0:
+            #     distance = abs(data_column[-1] - mean) / pstd
+            #     if distance > 3 * std:
+            #         return [distance, mean, pstd]
+            # Instead it is better to set some threshold manually (based on calculated pstd history of "stable" periods)
+
+            d = [0] * 3
+
+            # Monitor change from previous measurement. This will catch multiple successive changes
+            d[0] = data_column[-1] - data_column[-2]
+
+            # Monitor deviation from the mean of the last "stable" baseline period
+            d[1] = data_column[-1] - mean
+
+            # Change from the first measurement of the last stable period,
+            # meaning there are no deviations detected within that period.
+            # This will catch slow monotonic change over time.
+            d[2] = data_column[-1] - data_column[baseline_start]
+
+            # Flag indicating significant change in performance value
+            flag = 0
+
+            for i in range(len(d)):
+                if abs(d[i]) > threshold:
+                    # logging.info("Automated check: Performance has changed significantly")
+                    flag = 1
+
+            stats = self.truncate([mean, pstd] + d + [data_column[-1], data_column[-2], data_column[baseline_start]], 5)
+
+        else:
+            stats = [0] * 8
+
+        statistics_dictionary = {
+            'flag': flag,
+            'threshold': threshold,
+            'mean': stats[0],
+            'pstd': stats[1],
+            'd_previous': stats[2],
+            'd_mean': stats[3],
+            'd_baseline1': stats[4],
+            'measurement': stats[5],
+            'prev_meas': stats[6],
+            'baseline1': stats[7]
+        }
+        return statistics_dictionary
+
     @keyword
     def read_cpu_csv_and_plot(self, test_name):
         data = {
@@ -90,12 +176,24 @@ class PerformanceDataProcessing:
             'avg_latency': [],
             'max_latency': [],
             'cpu_events_per_thread': [],
-            'cpu_events_per_thread_stddev': []
+            'cpu_events_per_thread_stddev': [],
+            'statistics': []
         }
+
+        # Set threshold for fail depending on test type: single/multi thread
+        if "One thread" in test_name or "1thread" in test_name:
+            threshold = thresholds['cpu']['single']
+        else:
+            threshold = thresholds['cpu']['multi']
+
+        statistics = None
+
         with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             logging.info("Reading data from csv file...")
             build_counter = {}  # To keep track of duplicate builds
+            baseline_start = 0
+            row_index = 0
             for row in csvreader:
                 if row[7] == self.device:
                     build = str(row[0])
@@ -112,6 +210,19 @@ class PerformanceDataProcessing:
                     data['max_latency'].append(float(row[4]))
                     data['cpu_events_per_thread'].append(float(row[5]))
                     data['cpu_events_per_thread_stddev'].append(float(row[6]))
+
+                    statistics = self.detect_deviation(data['cpu_events_per_second'], baseline_start, threshold)
+
+                    if statistics['flag'] > 0:
+                        baseline_start = row_index
+
+                    data['statistics'].append(statistics)
+                    row_index = row_index + 1
+
+            self._write_statistics_to_csv(test_name, data)
+
+        if "VMs" in test_name:
+            return statistics
 
         for key in data.keys():
             data[key] = data[key][-40:]
@@ -164,6 +275,7 @@ class PerformanceDataProcessing:
 
         plt.tight_layout()
         plt.savefig(f'../test-suites/{self.device}_{test_name}.png')
+        return statistics
 
     @keyword
     def read_mem_csv_and_plot(self, test_name):
@@ -175,13 +287,30 @@ class PerformanceDataProcessing:
             'avg_latency': [],
             'max_latency': [],
             'avg_events_per_thread': [],
-            'events_per_thread_stddev': []
+            'events_per_thread_stddev': [],
+            'statistics': []
         }
+
+        statistics = None
+
+        # Set threshold for fail depending on test type: single/multi thread, write/read
+        if "One thread" in test_name or "1thread" in test_name:
+            if "rite" in test_name:
+                threshold = thresholds['mem']['single']['wr']
+            else:
+                threshold = thresholds['mem']['single']['rd']
+        else:
+            if "rite" in test_name:
+                threshold = thresholds['mem']['multi']['wr']
+            else:
+                threshold = thresholds['mem']['multi']['rd']
 
         with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             logging.info("Reading data from csv file...")
             build_counter = {}  # To keep track of duplicate builds
+            baseline_start = 0
+            row_index = 0
             for row in csvreader:
                 if row[8] == self.device:
                     build = str(row[0])
@@ -199,6 +328,19 @@ class PerformanceDataProcessing:
                     data['max_latency'].append(float(row[5]))
                     data['avg_events_per_thread'].append(float(row[6]))
                     data['events_per_thread_stddev'].append(float(row[7]))
+
+                    statistics = self.detect_deviation(data['data_transfer_speed'], baseline_start, threshold)
+
+                    if statistics['flag'] > 0:
+                        baseline_start = row_index
+
+                    data['statistics'].append(statistics)
+                    row_index = row_index + 1
+
+            self._write_statistics_to_csv(test_name, data)
+
+        if "VMs" in test_name:
+            return statistics
 
         for key in data.keys():
             data[key] = data[key][-40:]
@@ -247,19 +389,27 @@ class PerformanceDataProcessing:
 
         plt.tight_layout()
         plt.savefig(f'../test-suites/{self.device}_{test_name}.png')
+        return statistics
 
     @keyword
     def read_speed_csv_and_plot(self, test_name):
         data = {
             'build_numbers': [],
             'tx': [],
-            'rx': []
+            'rx': [],
+            'statistics_tx': [],
+            'statistics_rx': []
         }
+        threshold = thresholds['iperf']
+        statistics_tx = None
+        statistics_rx = None
 
         with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             logging.info("Reading data from csv file...")
             build_counter = {}  # To keep track of duplicate builds
+            baseline_start = 0
+            row_index = 0
             for row in csvreader:
                 if row[3] == self.device:
                     build = str(row[0])
@@ -272,6 +422,20 @@ class PerformanceDataProcessing:
                     data['build_numbers'].append(modified_build)
                     data['tx'].append(float(row[1]))
                     data['rx'].append(float(row[2]))
+
+                    statistics_tx = self.detect_deviation(data['tx'], baseline_start, threshold)
+                    statistics_rx = self.detect_deviation(data['rx'], baseline_start, threshold)
+
+                    if statistics_tx['flag'] > 0 or statistics_rx['flag'] > 0:
+                        baseline_start = row_index
+
+                    data['statistics_tx'].append(statistics_tx)
+                    data['statistics_rx'].append(statistics_rx)
+                    row_index = row_index + 1
+
+            self._write_statistics_to_csv(test_name, data)
+
+        statistics = {'tx': statistics_tx, 'rx': statistics_rx}
 
         for key in data.keys():
             data[key] = data[key][-40:]
@@ -305,6 +469,7 @@ class PerformanceDataProcessing:
 
         plt.tight_layout()
         plt.savefig(f'../test-suites/{self.device}_{test_name}.png')
+        return statistics
 
     @keyword
     def read_fileio_data_csv_and_plot(self, test_name):
@@ -316,13 +481,23 @@ class PerformanceDataProcessing:
             'avg_latency': [],
             'max_latency': [],
             'avg_events_per_thread': [],
-            'events_per_thread_stddev': []
+            'events_per_thread_stddev': [],
+            'statistics': []
         }
+        statistics = None
+
+        # Set threshold for fail depending on test type: write/read
+        if "write" in test_name:
+            threshold = thresholds['fileio']['wr']
+        else:
+            threshold = thresholds['fileio']['rd']
 
         with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             logging.info("Reading data from csv file...")
             build_counter = {}  # To keep track of duplicate builds
+            baseline_start = 0
+            row_index = 0
             for row in csvreader:
                 if row[8] == self.device:
                     build = str(row[0])
@@ -340,6 +515,16 @@ class PerformanceDataProcessing:
                     data['max_latency'].append(float(row[5]))
                     data['avg_events_per_thread'].append(float(row[6]))
                     data['events_per_thread_stddev'].append(float(row[7]))
+
+                    statistics = self.detect_deviation(data['throughput'], baseline_start, threshold)
+
+                    if statistics['flag'] > 0:
+                        baseline_start = row_index
+
+                    data['statistics'].append(statistics)
+                    row_index = row_index + 1
+
+            self._write_statistics_to_csv(test_name, data)
 
         for key in data.keys():
             data[key] = data[key][-40:]
@@ -385,6 +570,7 @@ class PerformanceDataProcessing:
 
         plt.tight_layout()
         plt.savefig(f'../test-suites/{self.device}_{test_name}.png')
+        return statistics
 
     def extract_numeric_part(self, build_identifier):
         parts = build_identifier.split('-')
@@ -451,22 +637,23 @@ class PerformanceDataProcessing:
     def save_cpu_data(self, test_name, cpu_data):
 
         self.write_cpu_to_csv(test_name, cpu_data)
-        self.read_cpu_csv_and_plot(test_name)
+        return self.read_cpu_csv_and_plot(test_name)
+
 
     @keyword
     def save_memory_data(self, test_name, memory_data):
 
         self.write_mem_to_csv(test_name, memory_data)
-        self.read_mem_csv_and_plot(test_name)
+        return self.read_mem_csv_and_plot(test_name)
 
     @keyword
     def save_speed_data(self, test_name, speed_data):
 
         self.write_speed_to_csv(test_name, speed_data)
-        self.read_speed_csv_and_plot(test_name)
+        return self.read_speed_csv_and_plot(test_name)
 
     @keyword
     def save_fileio_data(self, test_name, fileio_data):
 
         self.write_fileio_data_to_csv(test_name, fileio_data)
-        self.read_fileio_data_csv_and_plot(test_name)
+        return self.read_fileio_data_csv_and_plot(test_name)
