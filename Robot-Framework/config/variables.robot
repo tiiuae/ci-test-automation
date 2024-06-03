@@ -44,7 +44,7 @@ Set Variables
 
 
 Read Config
-    [Arguments]  ${file_path}=../config/test_config.json
+    [Arguments]  ${file_path}=/etc/jenkins/test_config.json
 
     ${file_data}=    OperatingSystem.Get File    ${file_path}
     TRY
