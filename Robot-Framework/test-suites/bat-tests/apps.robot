@@ -31,7 +31,7 @@ Start Chromium on LenovoX1
     Verify service status  range=15  service=microvm@chromium-vm.service  expected_status=active  expected_state=running
     Connect to netvm
     Connect to VM       ${GUI_VM}
-    Start XDG application   chromium
+    Start XDG application   Chromium
     Connect to VM       ${CHROMIUM_VM}
     Check that the application was started    chromium
     [Teardown]  Kill process  @{app_pids}
@@ -41,7 +41,7 @@ Start Zathura on LenovoX1
     [Tags]            bat   SP-T112   lenovo-x1
     [Setup]           Connect to netvm
     Connect to VM       ${GUI_VM}
-    Start XDG application   zathura
+    Start XDG application   'PDF Viewer'
     Connect to VM       ${ZATHURA_VM}
     Check that the application was started    zathura
     [Teardown]  Kill process  @{app_pids}
@@ -51,7 +51,7 @@ Start Gala on LenovoX1
     [Tags]            bat   SP-T111   lenovo-x1
     [Setup]           Connect to netvm
     Connect to VM       ${GUI_VM}
-    Start XDG application   gala
+    Start XDG application   GALA
     Connect to VM       ${GALA_VM}
     Check that the application was started    gala
     [Teardown]  Kill process  @{app_pids}
@@ -61,7 +61,7 @@ Start Element on LenovoX1
     [Tags]            bat   SP-T57   lenovo-x1
     [Setup]           Connect to netvm
     Connect to VM          ${GUI_VM}
-    Start XDG application  element
+    Start XDG application  Element
     Connect to VM          ${ELEMENT_VM}
     Check that the application was started    element
     [Teardown]  Kill process  @{app_pids}
@@ -71,7 +71,7 @@ Start Appflowy on LenovoX1
     [Tags]            bat   appflowy   lenovo-x1
     [Setup]           Connect to netvm
     Connect to VM          ${GUI_VM}
-    Start XDG application  appflowy
+    Start XDG application  AppFlowy
     Connect to VM          ${APPFLOWY_VM}
     Check that the application was started    appflowy
     [Teardown]  Kill process  @{app_pids}
