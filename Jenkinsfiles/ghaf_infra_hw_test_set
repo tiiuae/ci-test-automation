@@ -2,13 +2,15 @@
 // SPDX-FileCopyrightText: 2022-2024 Technology Innovation Institute (TII)
 // SPDX-License-Identifier: Apache-2.0
 
-import groovy.json.*
+//import groovy.json.*
 
 buildResults = [:]
 
 bootJob  = 'testing/boot_test'
-configPath = "/home/${params.LABEL}/Jenkins-agent/workspace/testing/test_config.json"
-imageDir = 'Image/ghaf/result-aarch64-jetson-orin-nx-debug/sd-image/'
+batJob  = 'testing/smoke_tests'
+performanceJob  = 'testing/performance_tests'
+configPath = "/etc/jenkins/test_config.json"
+imageDir = "Image/"
 imageName = ''
 bootSuite = 'boot-test/'
 performanceSuite = 'performance-tests/'
@@ -21,13 +23,12 @@ externalDrive = ''
 pipeline {
     agent { label "${params.LABEL}" }
     stages {
-        stage('Copy artifacts') {
+        stage('download artifacts') {
             steps {
                 script {
-                     step ([$class: 'CopyArtifact',
-                         projectName: 'ghaf-pipeline',
-                         filter: "ghaf/result-aarch64-jetson-orin-nx-debug/sd-image/*",
-                         target: 'Image']);
+                    "mkdir -p Image"
+                    def url = 'https://ghaf-jenkins-controller-villepekkajuntun.northeurope.cloudapp.azure.com/artifacts/jenkins-ghaf-pipeline-36/result-aarch64-jetson-orin-agx-debug/sd-image/nixos-sd-image-24.11.20240604.4130249-aarch64-linux.img.zst'
+                    sh "wget -P Image ${url}"
 
                 }
             }
@@ -45,14 +46,14 @@ pipeline {
                     echo "Target image: ${imageName}"
 
                     // Check for which agent and which target device
-                    if ("${params.LABEL}" == "tc-agent01"){
+                    if ("${params.LABEL}" == "testagent"){
                         if (params.DEVICE == "orin-agx"){
                             deviceName = 'OrinAGX1'
                         } else if (params.DEVICE == "nuc"){
                             deviceName = 'NUC1'
                         } else if (params.DEVICE == "orin-nx"){
                             deviceName = 'OrinNX1'
-                        } else if (params.DEVICE == "riscv"){
+                        } else if (params.DEVICE == "riscv"){testing/performance_tests
                             deviceName = 'Polarfire1'
                         } else if (params.DEVICE == "lenovo-x1"){
                             deviceName = 'LenovoX1-1'
@@ -102,9 +103,9 @@ pipeline {
             steps {
                 script{
                     if ("${params.DEVICE}" == "riscv"){
-                        sh "sudo usbsdmux ${sdMuxUsbPort} host"
+                        sh "/run/wrappers/bin/sudo usbsdmux ${sdMuxUsbPort} host"
                     } else {
-                        sh "./BrainStem_dev_kit/bin/AcronameHubCLI -u 0 -s ${usbHubSerial}"
+                        sh "/run/wrappers/bin/sudo AcronameHubCLI -u 0 -s ${usbHubSerial}"
                     }
                     // wait that USB drive is mounted
                     sh 'sleep 10'
@@ -128,18 +129,18 @@ pipeline {
                     println("${params.DEVICE}")
                     if ("${params.DEVICE}" == "orin-nx" || "${params.DEVICE}" == "orin-agx") {
                         // unzip zipped image, remove .zst ending from path and use that for flashing usb drive. Remove unzipped image after flashing.
-                        sh "sudo zstd -d ${imageDir}${imageName}"
+                        sh "/run/wrappers/bin/sudo zstd -d ${imageDir}${imageName}"
                         unzippedPath = "${imageDir}${imageName}".minus(".zst")
-                        sh "sudo dd if=${unzippedPath} of=/dev/${USBDEVICE} bs=1M status=progress conv=fsync"
-                        sh "sudo rm -rf ${unzippedPath}"
+                        sh "/run/wrappers/bin/sudo dd if=${unzippedPath} of=/dev/${USBDEVICE} bs=1M status=progress conv=fsync"
+                        sh "/run/wrappers/bin/sudo rm -rf ${unzippedPath}"
                     } else if ("${params.DEVICE}" == "lenovo-x1"){
                         def buildData = readJSON file: "${params.resultsPath}/${params.buildID}/${params.buildID}.json"
                         imagePath = "${buildData['Output store paths'][0]}/disk1.raw"
                         println("${imagePath}")
-                        sh "sudo dd if=${imagePath} of=/dev/${USBDEVICE} bs=1M status=progress conv=fsync"
+                        sh "/run/wrappers/bin/sudo dd if=${imagePath} of=/dev/${USBDEVICE} bs=1M status=progress conv=fsync"
                     } else {
                         println("${params.image}")
-                        sh "sudo dd if=${params.image} of=/dev/${USBDEVICE} bs=1M status=progress conv=fsync"
+                        sh "/run/wrappers/bin/sudo dd if=${params.image} of=/dev/${USBDEVICE} bs=1M status=progress conv=fsync"
                     }
                 }
             }
@@ -148,9 +149,9 @@ pipeline {
             steps {
                 script{
                     if ("${params.DEVICE}" == "riscv"){
-                        sh "sudo usbsdmux ${sdMuxUsbPort} dut"
+                        sh "/run/wrappers/bin/sudo usbsdmux ${sdMuxUsbPort} dut"
                     } else {
-                        sh "./BrainStem_dev_kit/bin/AcronameHubCLI -u 1 -s ${usbHubSerial}"
+                        sh "/run/wrappers/bin/sudo AcronameHubCLI -u 1 -s ${usbHubSerial}"
                     }
                 }
             }
@@ -178,79 +179,65 @@ pipeline {
                 }
             }
         }
-        // stage('BAT tests') {
-        //     when {
-        //         expression {
-        //             buildResults.boot == 'SUCCESS'
-        //         }
-        //     }
-        //     steps {
-        //         script{
-        //             // Make directory for test results
-        //             sh "mkdir -p ${params.resultsPath}/${params.buildID}/${resultsDirectory}/bat"
-        //             build = build(
-        //                 job: "${batJob}", propagate: false,
-        //                 parameters: [
-        //                   [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${batSuite}"],
-        //                   [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
-        //                   [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
-        //                   [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "batAND${params.DEVICE}"],
-        //                   [$class: 'StringParameterValue', name: 'BUILD_ID', value: "${params.buildID}"],
-        //                   [$class: 'StringParameterValue', name: 'RESULTS_PATH', value: "${params.resultsPath}"]
-        //                 ]
-        //             )
-        //             // copy report and log
-        //             sh "cp ~/Jenkins-agent/workspace/${batJob}/Robot-Framework/test-suites/report.html ${params.resultsPath}/${params.buildID}/${resultsDirectory}/bat/report.html"
-        //             sh "cp ~/Jenkins-agent/workspace/${batJob}/Robot-Framework/test-suites/log.html ${params.resultsPath}/${params.buildID}/${resultsDirectory}/bat/log.html"
-        //             if(build.result == "SUCCESS") {
-        //                 buildResults."bat" = "SUCCESS"
-        //                 echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
-        //             } else {
-        //                 catchError(stageResult: 'FAILURE', buildResult: 'FAILURE'){
-        //                     error("BAT build failed")
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-        // stage('Performance tests') {
-        //     when {
-        //         expression {
-        //             buildResults.boot == 'SUCCESS'
-        //         }
-        //     }
-        //     steps {
-        //         script{
-        //             // Make directory for test results
-        //             sh "mkdir -p ${params.resultsPath}/${params.buildID}/${resultsDirectory}/performance"
-        //             build = build(
-        //                 job: "${performanceJob}", propagate: false,
-        //                 parameters: [
-        //                   [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${performanceSuite}"],
-        //                   [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
-        //                   [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
-        //                   [$class: 'StringParameterValue', name: 'BUILD_ID', value: "${params.buildID}"],
-        //                   [$class: 'StringParameterValue', name: 'RESULTS_PATH', value: "${params.resultsPath}"],
-        //                   [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "performanceAND${params.DEVICE}"]
-        //                 ]
-        //             )
-        //             // copy report, log and plots
-        //             sh "cp ~/Jenkins-agent/workspace/${performanceJob}/Robot-Framework/test-suites/report.html ${params.resultsPath}/${params.buildID}/${resultsDirectory}/performance/report.html"
-        //             sh "cp ~/Jenkins-agent/workspace/${performanceJob}/Robot-Framework/test-suites/log.html ${params.resultsPath}/${params.buildID}/${resultsDirectory}/performance/log.html"
-        //             // don't fail if there are no png files
-        //             sh "cp ~/Jenkins-agent/workspace/${performanceJob}/Robot-Framework/test-suites/*.png ${params.resultsPath}/${params.buildID}/${resultsDirectory}/performance/ || true"
-        //             if(build.result == "SUCCESS") {
-        //                 buildResults."bat" = "SUCCESS"
-        //                 echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
-        //             } else {
-        //                 echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
-        //                 catchError(stageResult: 'FAILURE'){
-        //                     error("Error during performance tests")
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+        stage('BAT tests') {
+            when {
+                expression {
+                    buildResults.boot == 'SUCCESS'
+                }
+            }
+            steps {
+                script{
+                    build = build(
+                        job: "${batJob}", propagate: false,
+                        parameters: [
+                          [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${batSuite}"],
+                          [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "buildID: "],
+                          [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
+                          [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "batAND${params.DEVICE}"],
+                          [$class: 'StringParameterValue', name: 'TARGET', value: "${params.TARGET}"]
+                        ]
+                    )
+                    if(build.result == "SUCCESS") {
+                        buildResults."bat" = "SUCCESS"
+                        echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
+                    } else {
+                        catchError(stageResult: 'FAILURE', buildResult: 'FAILURE'){
+                            error("BAT build failed")
+                        }
+                    }
+                }
+            }
+        }
+        stage('Performance tests') {
+            when {
+                expression {
+                    buildResults.boot == 'SUCCESS'
+                }
+            }
+            steps {
+                script{
+                    build = build(
+                        job: "${performanceJob}", propagate: false,
+                        parameters: [
+                          [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${performanceSuite}"],
+                          [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "buildID: "],
+                          [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
+                          [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "performanceAND${params.DEVICE}"],
+                          [$class: 'StringParameterValue', name: 'TARGET', value: "${params.TARGET}"]
+                        ]
+                    )
+                    if(build.result == "SUCCESS") {
+                        buildResults."bat" = "SUCCESS"
+                        echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
+                    } else {
+                        echo "BUILD NUMBER: ${build.number} SUCCESSFULLY BUILD"
+                        catchError(stageResult: 'FAILURE'){
+                            error("Error during performance tests")
+                        }
+                    }
+                }
+            }
+        }
         // stage('Turn off device') {
         //     steps {
         //       	script {

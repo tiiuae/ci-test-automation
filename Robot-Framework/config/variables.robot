@@ -10,6 +10,7 @@ Library    OperatingSystem
 ${BUILD_ID}       ${EMPTY}
 ${SWITCH_TOKEN}   ${EMPTY}
 ${SWITCH_SECRET}  ${EMPTY}
+${JOB}            ${EMPTY}
 
 
 *** Keywords ***
@@ -37,14 +38,15 @@ Set Variables
     Set Global Variable  ${ELEMENT_VM}         element-vm.ghaf
     Set Global Variable  ${APPFLOWY_VM}        appflowy-vm.ghaf
 
-    IF  $BUILD_ID != '${EMPTY}'
-        ${config}=     Read Config  ../config/${BUILD_ID}.json
-        Set Global Variable    ${JOB}    ${config['Job']}
-    END
+    # We might not need buildID for this use in future
+    # IF  $BUILD_ID != '${EMPTY}'
+    #     ${config}=     Read Config  ../config/${BUILD_ID}.json
+    #     Set Global Variable    ${JOB}    ${config['Job']}
+    # END
 
 
 Read Config
-    [Arguments]  ${file_path}=../config/test_config.json
+    [Arguments]  ${file_path}=/etc/jenkins/test_config.json
 
     ${file_data}=    OperatingSystem.Get File    ${file_path}
     TRY
