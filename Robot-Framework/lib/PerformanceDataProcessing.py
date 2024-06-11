@@ -12,19 +12,20 @@ from robot.api.deco import keyword
 class PerformanceDataProcessing:
 
     def __init__(self, device, build_number, job):
+        self.job = job
         self.device = device
         self.build_number = build_number
         self.data_dir = self._create_result_dir()
         self.build_type = job.split(".")[0]
 
-    def _get_job_name(self):
-        f = open(f"../config/{self.build_number}.json")
-        data = json.load(f)
-        job_name = data["Job"]
-        return job_name
+    # def _get_job_name(self):
+    #     f = open(f"../config/{self.build_number}.json")
+    #     data = json.load(f)
+    #     job_name = data["Job"]
+    #     return job_name
 
     def _create_result_dir(self):
-        job = self._get_job_name()
+        # job = self._get_job_name()
         data_dir = f"../../../Performance_test_results/{job}/"
         os.makedirs(data_dir, exist_ok=True)
         return data_dir
