@@ -26,7 +26,7 @@ class PerformanceDataProcessing:
 
     def _create_result_dir(self):
         # job = self._get_job_name()
-        data_dir = f"../../../Performance_test_results/{job}/"
+        data_dir = f"../../../Performance_test_results/{self.job}/"
         os.makedirs(data_dir, exist_ok=True)
         return data_dir
 
