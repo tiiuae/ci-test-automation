@@ -123,9 +123,9 @@ pipeline {
                         sh "sudo rm -rf ${unzippedPath}"
                     } else if ("${params.device}" == "lenovo-x1"){
                         def buildData = readJSON file: "${params.resultsPath}/${params.buildID}/${params.buildID}.json"
-                        imagePath = "${buildData['Output store paths'][0]}/disk1.raw"
+                        imagePath = "${buildData['Output store paths'][0]}/disk1.raw.zst"
                         println("${imagePath}")
-                        sh "sudo dd if=${imagePath} of=/dev/${USBDEVICE} bs=1M status=progress conv=fsync"
+                        sh "zstdcat ${imagePath} | sudo dd of=/dev/${USBDEVICE} bs=32M status=progress"
                     } else {
                         println("${params.image}")
                         sh "sudo dd if=${params.image} of=/dev/${USBDEVICE} bs=1M status=progress conv=fsync"
