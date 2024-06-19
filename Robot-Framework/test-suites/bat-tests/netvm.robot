@@ -14,7 +14,7 @@ Suite Teardown      Close All Connections
 ${netvm_ip}        192.168.101.1
 ${SSID}            test_network
 ${wifi_pswd}       test1234
-${netwotk_ip}      192.168.1.1
+${netwotk_ip}      1.1.1.1
 ${netvm_state}     ${EMPTY}
 ${ghaf_host_ssh}   ${EMPTY}
 ${netvm_ssh}       ${EMPTY}
@@ -38,13 +38,13 @@ Wifi passthrought into NetVM
     ...                 Connect to ghaf host  AND  Connect to netvm  AND
     ...                 Verify service status      service=wpa_supplicant.service
     Configure wifi      ${netvm_ssh}  ${SSID}  ${wifi_pswd}
-    Get wifi IP
-    Check Network Availability    ${netwotk_ip}  expected_result=True
+    ${if_name}  ${ip}   Get wifi IP
+    Check Network Availability    ${netwotk_ip}  ${if_name}  expected_result=True
     Log To Console                Switch connection to Ghaf Host
     Switch Connection	          ${ghaf_host_ssh}
-    Check Network Availability    ${netwotk_ip}  expected_result=False
+    Check Network Availability    ${netwotk_ip}  ${if_name}  expected_result=False
     Remove Wifi configuration
-    Check Network Availability    ${netwotk_ip}  expected_result=False
+    Check Network Availability    ${netwotk_ip}  ${if_name}  expected_result=False
     [Teardown]          Run Keywords  Remove Wifi configuration  AND  Close All Connections
 
 Wifi passthrought into NetVM on LenovoX1

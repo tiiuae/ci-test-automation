@@ -24,11 +24,11 @@ Ping Host
     Return From Keyword    ${ping_success}
 
 Check Network Availability
-    [Arguments]            ${host}  ${expected_result}=True  ${range}=5
+    [Arguments]            ${host}  ${interface}=eth0  ${expected_result}=True  ${range}=5
     Log To Console         Checking network ${host} availability, expected: ${expected_result}
     Set Global Variable    ${is_available}   False
     FOR   ${i}   IN RANGE  ${range}
-        Write    ping ${host} -c 1
+        Write    ping -I ${interface} ${host} -c 1
         TRY
             Read Until           1 received
             Set Global Variable  ${is_available}  True
@@ -366,6 +366,7 @@ Get wifi IP
         Sleep    1
     END
     IF   ${status} == False    FAIL    NetVM hasn't gotten an IP
+    [Return]    ${if_name}  ${ip}
 
 Check if ssh is ready on device
     [Arguments]    ${timeout}=30
