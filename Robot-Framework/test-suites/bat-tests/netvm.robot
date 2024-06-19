@@ -54,13 +54,13 @@ Wifi passthrought into NetVM on LenovoX1
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm
     Configure wifi      ${netvm_ssh}  ${SSID}  ${wifi_pswd}  lenovo=True
-    Get wifi IP
-    Check Network Availability    ${netwotk_ip}  expected_result=True
+    ${if_name}  ${ip}   Get wifi IP
+    Check Network Availability    ${netwotk_ip}  ${if_name}  expected_result=True
     Log To Console                Switch connection to Ghaf Host
     Switch Connection	          ${ghaf_host_ssh}
-    Check Network Availability    ${netwotk_ip}  expected_result=False
+    Check Network Availability    ${netwotk_ip}  ${if_name}  expected_result=False
     Remove Wifi configuration     lenovo=True
-    Check Network Availability    ${netwotk_ip}  expected_result=False
+    Check Network Availability    ${netwotk_ip}  ${if_name}  expected_result=False
     [Teardown]          Run Keywords  Remove Wifi configuration  lenovo=True  AND  Close All Connections
 
 NetVM stops and starts successfully

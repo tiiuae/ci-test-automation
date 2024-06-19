@@ -24,11 +24,15 @@ Ping Host
     Return From Keyword    ${ping_success}
 
 Check Network Availability
-    [Arguments]            ${host}  ${interface}=eth0  ${expected_result}=True  ${range}=5
+    [Arguments]            ${host}  ${interface}=None  ${expected_result}=True  ${range}=5
     Log To Console         Checking network ${host} availability, expected: ${expected_result}
     Set Global Variable    ${is_available}   False
     FOR   ${i}   IN RANGE  ${range}
-        Write    ping -I ${interface} ${host} -c 1
+        IF  '${interface}' == 'None'
+            Write    ping ${host} -c 1
+        ELSE
+            Write    ping -I ${interface} ${host} -c 1
+        END
         TRY
             Read Until           1 received
             Set Global Variable  ${is_available}  True
