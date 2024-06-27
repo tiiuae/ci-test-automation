@@ -146,7 +146,9 @@ Start XDG application
 Start Firefox
     [Documentation]  It's needed to set display variable manually because there is no real monitor connected to DUT
     Log To Console  ${\n}Starting Firefox
-    ${command_output}=    Execute Command    export WAYLAND_DISPLAY=wayland-1; nohup firefox > output.log 2>&1 &
+    ${command_output}   Execute Command    export WAYLAND_DISPLAY=wayland-1   #; nohup firefox > output.log 2>&1 &
+    ${firefox}          Execute Command    awk -F= '/^Exec/ {print $2; exit}' /run/current-system/sw/share/applications/Firefox.desktop
+    ${command_output}   Execute Command    nohup ${firefox} > output.log 2>&1 &
 
 Is process started
     [Arguments]    ${pid}
