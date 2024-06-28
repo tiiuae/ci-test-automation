@@ -68,10 +68,11 @@ Connect to netvm
     ...                  commands, like 'Execute Command'
     Connect to ghaf host
     Log To Console       Connecting to NetVM
+    Check if ssh is ready on netvm
     ${failed_connection}  Set variable  True
     FOR    ${i}    IN RANGE    10
         TRY
-            ${connection}=       Open Connection    ${NETVM_IP}    port=22    prompt=\$    timeout=30
+            ${connection}=       Open Connection    ${NETVM_IP}    port=22    prompt=\$
             ${output}=           Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${ghaf_host_ssh}
         EXCEPT    ChannelException: ChannelException(2, 'Connect failed')    type=LITERAL
             Sleep   1
