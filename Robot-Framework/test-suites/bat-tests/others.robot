@@ -45,6 +45,10 @@ Test end0 interface of Polarfire
     Write Data      ifconfig${\n}
     ${output}       SerialLibrary.Read Until    ghaf@ghaf-host:
     ${end0_ip}      Get ip from ifconfig   ${output}    end0
+    ${port_22_is_available}     Check if ssh is ready on device   ip=${end0_ip}   timeout=15
+    IF  ${port_22_is_available} == False
+        FAIL    Failed because port 22 of device was not available, tests can not be run.
+    END
     ${ssh}          Open Connection    ${end0_ip}   port=22    prompt=\$    timeout=30
     ${output}       Login      username=${LOGIN}    password=${PASSWORD}
     Should Contain  ${output}  ghaf@ghaf-host

@@ -368,10 +368,10 @@ Get wifi IP
     IF   ${status} == False    FAIL    NetVM hasn't gotten an IP
 
 Check if ssh is ready on device
-    [Arguments]    ${timeout}=30
+    [Arguments]    ${ip}= ${DEVICE_IP_ADDRESS}    ${timeout}=30
     ${is_ready} =  Set Variable    False
     FOR    ${i}    IN RANGE    ${timeout}
-        ${rc}  	${output}	 Run And Return Rc And Output   nc -zvw3 ${DEVICE_IP_ADDRESS} 22
+        ${rc}  	${output}	 Run And Return Rc And Output   nc -zvw3 ${ip} 22
         ${status}    Run Keyword And Return Status
         ...          Should Be Equal As Integers	${rc}	0
         IF  ${status}
