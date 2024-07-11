@@ -15,7 +15,8 @@ Suite Setup         Common Setup
 Suite Teardown      Close All Connections
 
 *** Variables ***
-@{changed_VM_tests}
+@{failed_VM_tests}
+@{improved_VM_tests}
 
 
 *** Test Cases ***
@@ -30,9 +31,13 @@ CPU One thread test
     &{cpu_data}         Parse Cpu Results   ${output}
     &{statistics}       Save Cpu Data       ${TEST NAME}  ${cpu_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
-    IF  "${statistics}[flag]" == "1"
+    IF  "${statistics}[flag]" == "-1"
         ${fail_msg}     Create fail message  ${statistics}
         FAIL            ${fail_msg}
+    END
+    IF  "${statistics}[flag]" == "1"
+        ${pass_msg}     Create improved message  ${statistics}
+        Pass Execution            ${pass_msg}
     END
 
 CPU multimple threads test
@@ -45,9 +50,13 @@ CPU multimple threads test
     &{cpu_data}         Parse Cpu Results   ${output}
     &{statistics}       Save Cpu Data       ${TEST NAME}  ${cpu_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
-    IF  "${statistics}[flag]" == "1"
+    IF  "${statistics}[flag]" == "-1"
         ${fail_msg}     Create fail message  ${statistics}
         FAIL            ${fail_msg}
+    END
+    IF  "${statistics}[flag]" == "1"
+        ${pass_msg}     Create improved message  ${statistics}
+        Pass Execution            ${pass_msg}
     END
 
 Memory Read One thread test
@@ -61,9 +70,13 @@ Memory Read One thread test
     &{mem_data}         Parse Memory Results   ${output}
     &{statistics}       Save Memory Data       ${TEST NAME}  ${mem_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
-    IF  "${statistics}[flag]" == "1"
+    IF  "${statistics}[flag]" == "-1"
         ${fail_msg}     Create fail message  ${statistics}
         FAIL            ${fail_msg}
+    END
+    IF  "${statistics}[flag]" == "1"
+        ${pass_msg}     Create improved message  ${statistics}
+        Pass Execution            ${pass_msg}
     END
 
 Memory Write One thread test
@@ -77,9 +90,13 @@ Memory Write One thread test
     &{mem_data}         Parse Memory Results   ${output}
     &{statistics}       Save Memory Data       ${TEST NAME}  ${mem_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
-    IF  "${statistics}[flag]" == "1"
+    IF  "${statistics}[flag]" == "-1"
         ${fail_msg}     Create fail message  ${statistics}
         FAIL            ${fail_msg}
+    END
+    IF  "${statistics}[flag]" == "1"
+        ${pass_msg}     Create improved message  ${statistics}
+        Pass Execution            ${pass_msg}
     END
 
 Memory Read multimple threads test
@@ -93,9 +110,13 @@ Memory Read multimple threads test
     &{mem_data}         Parse Memory Results   ${output}
     ${statistics}       Save Memory Data       ${TEST NAME}  ${mem_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
-    IF  "${statistics}[flag]" == "1"
+    IF  "${statistics}[flag]" == "-1"
         ${fail_msg}     Create fail message  ${statistics}
         FAIL            ${fail_msg}
+    END
+    IF  "${statistics}[flag]" == "1"
+        ${pass_msg}     Create improved message  ${statistics}
+        Pass Execution            ${pass_msg}
     END
 
 Memory Write multimple threads test
@@ -109,9 +130,13 @@ Memory Write multimple threads test
     &{mem_data}         Parse Memory Results   ${output}
     &{statistics}       Save Memory Data       ${TEST NAME}  ${mem_data}
     Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
-    IF  "${statistics}[flag]" == "1"
+    IF  "${statistics}[flag]" == "-1"
         ${fail_msg}     Create fail message  ${statistics}
         FAIL            ${fail_msg}
+    END
+    IF  "${statistics}[flag]" == "1"
+        ${pass_msg}     Create improved message  ${statistics}
+        Pass Execution            ${pass_msg}
     END
 
 FileIO test
@@ -138,21 +163,34 @@ FileIO test
     Log    <img src="${DEVICE}_${TEST NAME}_write.png" alt="Mem Plot" width="1200">   HTML
 
     ${fail_msg}=  Set Variable  ${EMPTY}
-    IF  "${statistics_rd}[flag]" == "1"
+    IF  "${statistics_rd}[flag]" == "-1"
         ${add_msg}     Create fail message  ${statistics_rd}
         ${fail_msg}=    Set Variable  READ:\n${add_msg}
     END
-    IF  "${statistics_wr}[flag]" == "1"
-        ${add_msg}      Create fail message  ${statistics_rd}
+    IF  "${statistics_wr}[flag]" == "-1"
+        ${add_msg}      Create fail message  ${statistics_wr}
         ${fail_msg}=    Set Variable  ${fail_msg}\nWRITE:\n${add_msg}
     END
-    IF  "${statistics_rd}[flag]" == "1" or "${statistics_wr}[flag]" == "1"
+    IF  "${statistics_rd}[flag]" == "-1" or "${statistics_wr}[flag]" == "-1"
         FAIL            ${fail_msg}
+    END
+
+    ${pass_msg}=  Set Variable  ${EMPTY}
+    IF  "${statistics_rd}[flag]" == "1"
+        ${add_msg}     Create improved message  ${statistics_rd}
+        ${pass_msg}=    Set Variable  READ:\n${add_msg}
+    END
+    IF  "${statistics_wr}[flag]" == "1"
+        ${add_msg}      Create improved message  ${statistics_wr}
+        ${pass_msg}=    Set Variable  ${pass_msg}\nWRITE:\n${add_msg}
+    END
+    IF  "${statistics_rd}[flag]" == "1" or "${statistics_wr}[flag]" == "1"
+        Pass Execution    ${pass_msg}
     END
 
 Sysbench test in NetVM
     [Documentation]      Run CPU and Memory benchmark using Sysbench in NetVM.
-    [Tags]               SP-T67-8    nuc  orin-agx  orin-nx  lenovo-x1
+    [Tags]               SP-T67-8    nuc  orin-agx  orin-nx
 
     Transfer Sysbench Test Script To NetVM
     ${output}            Execute Command    ./sysbench_test 1  sudo=True  sudo_password=${PASSWORD}
@@ -168,21 +206,36 @@ Sysbench test in NetVM
     Log    <img src="${DEVICE}_net-vm_${TEST NAME}_memory_read_1thread.png" alt="Mem Plot" width="1200">    HTML
     Log    <img src="${DEVICE}_net-vm_${TEST NAME}_memory_write_1thread.png" alt="Mem Plot" width="1200">    HTML
 
-    ${fail_msg}=  Set Variable  ${EMPTY}
-    IF  "${statistics_cpu}[flag]" == "1"
+    ${msg}=  Set Variable  ${EMPTY}
+    IF  "${statistics_cpu}[flag]" == "-1"
         ${add_msg}      Create fail message  ${statistics_cpu}
-        ${fail_msg}=    Set Variable  CPU:\n${add_msg}
+        ${msg}=    Set Variable  CPU:\n${add_msg}
+    END
+    IF  "${statistics_cpu}[flag]" == "1"
+        ${add_msg}      Create improved message  ${statistics_cpu}
+        ${msg}=    Set Variable  CPU:\n${add_msg}
+    END
+    IF  "${statistics_mem_rd}[flag]" == "-1"
+        ${add_msg}      Create fail message  ${statistics_mem_rd}
+        ${fail_msg}=    Set Variable  ${msg}\nMEM READ:\n${add_msg}
     END
     IF  "${statistics_mem_rd}[flag]" == "1"
-        ${add_msg}      Create fail message  ${statistics_mem_rd}
-        ${fail_msg}=    Set Variable  ${fail_msg}\nMEM READ:\n${add_msg}
+        ${add_msg}      Create improved message  ${statistics_mem_rd}
+        ${msg}=    Set Variable  ${msg}\nMEM READ:\n${add_msg}
     END
-    IF  "${statistics_mem_wr}[flag]" == "1"
+    IF  "${statistics_mem_wr}[flag]" == "-1"
         ${add_msg}      Create fail message  ${statistics_mem_wr}
         ${fail_msg}=    Set Variable  ${fail_msg}\nMEM WRITE:\n${add_msg}
     END
+    IF  "${statistics_mem_wr}[flag]" == "1"
+        ${add_msg}      Create improved message  ${statistics_mem_wr}
+        ${msg}=    Set Variable  ${msg}\nMEM WRITE:\n${add_msg}
+    END
+    IF  "${statistics_cpu}[flag]" == "-1" or "${statistics_mem_rd}[flag]" == "-1" or "${statistics_mem_wr}[flag]" == "-1"
+        FAIL  ${msg}
+    END
     IF  "${statistics_cpu}[flag]" == "1" or "${statistics_mem_rd}[flag]" == "1" or "${statistics_mem_wr}[flag]" == "1"
-        FAIL  ${fail_msg}
+        Pass Execution    ${msg}
     END
 
 Sysbench test in VMs on LenovoX1
@@ -195,6 +248,10 @@ Sysbench test in VMs on LenovoX1
     ...                                  gala-vm=2
     ...                                  zathura-vm=1
     ...                                  chromium-vm=4
+    ...                                  element-vm=4
+    ...                                  admin-vm=1
+    ...                                  appflowy-vm=1
+    ...                                  audio-vm=1
     ${vms}	Get Dictionary Keys	 ${threads}
     @{failed_vms} 	Create List
     Set Global Variable  @{failed_vms}
@@ -226,27 +283,22 @@ Sysbench test in VMs on LenovoX1
 
     ${length}       Get Length    ${failed_vms}
 
-    ${isEmpty}    Run Keyword And Return Status    Should Be Empty    ${changed_VM_tests}
-    IF  ${isEmpty} == False
-        IF  ${length} > 0
-            FAIL    Deviation detected in the following tests: "${changed_VM_tests}"\nSome of VMs were not tested due to connection fail: ${failed_vms}
-        ELSE
-            FAIL    Deviation detected in the following tests: "${changed_VM_tests}"
-        END
-    ELSE
-        Run Keyword If  ${length} > 0    Fail    Some of VMs were not tested due to connection fail: ${failed_vms}
-    END
-
-    ${isEmpty}    Run Keyword And Return Status    Should Be Empty    ${changed_VM_tests}
+    ${isEmpty}    Run Keyword And Return Status    Should Be Empty    ${failed_VM_tests}
     ${fail_msg}=  Set Variable  ${EMPTY}
     IF  ${isEmpty} == False
-      ${fail_msg}=  Set Variable  Deviation detected in the following tests: "${changed_VM_tests}"\n
+      ${fail_msg}=  Set Variable  Deviation detected in the following tests: "${failed_VM_tests}"\n
     END
     IF  ${length} > 0
       ${fail_msg}=  Set Variable  ${fail_msg}These VMs were not tested due to connection fail: ${failed_vms}
     END
     IF  ${isEmpty} == False or ${length} > 0
         FAIL  ${fail_msg}
+    END
+
+    ${isEmpty}    Run Keyword And Return Status    Should Be Empty    ${improved_VM_tests}
+    IF  ${isEmpty} == False
+      ${pass_msg}=  Set Variable  Performance improvement detected in the following tests: "${improved_VM_tests}"\n
+      Pass Execution    ${pass_msg}
     END
 
 
@@ -293,9 +345,13 @@ Save cpu results
     Log                ${output}
     &{data}            Parse Cpu Results     ${output}
     &{statistics}      Save Cpu Data         ${host}_${TEST NAME}_${test}  ${data}
-    IF  "${statistics}[flag]" == "1"
-        Append To List     ${changed_VM_tests}        ${host}_${test}
+    IF  "${statistics}[flag]" == "-1"
+        Append To List     ${failed_VM_tests}        ${host}_${test}
         Log to console     Deviation detected in test: ${host}_${test}
+    END
+    IF  "${statistics}[flag]" == "1"
+        Append To List     ${improved_VM_tests}      ${host}_${test}
+        Log to console     Improvement detected in test: ${host}_${test}
     END
 
 Save memory results
@@ -305,9 +361,13 @@ Save memory results
     Log                ${output}
     &{data}            Parse Memory Results  ${output}
     &{statistics}      Save Memory Data      ${host}_${TEST NAME}_${test}  ${data}
-    IF  "${statistics}[flag]" == "1"
-        Append To List     ${changed_VM_tests}        ${host}_${test}
+    IF  "${statistics}[flag]" == "-1"
+        Append To List     ${failed_VM_tests}        ${host}_${test}
         Log to console     Deviation detected in test: ${host}_${test}
+    END
+    IF  "${statistics}[flag]" == "1"
+        Append To List     ${improved_VM_tests}      ${host}_${test}
+        Log to console     Improvement detected in test: ${host}_${test}
     END
 
 Save sysbench results
