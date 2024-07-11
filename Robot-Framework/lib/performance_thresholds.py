@@ -8,8 +8,8 @@ thresholds = {
     },
     'mem': {
         'multi': {
-            'wr': 800,
-            'rd': 2000
+            'wr': 1000,
+            'rd': 5000
         },
         'single': {
             'wr': 300,

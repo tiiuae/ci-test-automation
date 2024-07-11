@@ -143,9 +143,11 @@ class PerformanceDataProcessing:
             # Flag indicating significant change in performance value
             flag = 0
 
+            # Check if performance has either decreased or increased significantly
             for i in range(len(d)):
-                if abs(d[i]) > threshold:
-                    # logging.info("Automated check: Performance has changed significantly")
+                if d[i] < -threshold:
+                    flag = -1
+                if d[i] > threshold:
                     flag = 1
 
             stats = self.truncate([mean, pstd] + d + [data_column[-1], data_column[-2], data_column[baseline_start]], 5)
@@ -213,7 +215,7 @@ class PerformanceDataProcessing:
 
                     statistics = self.detect_deviation(data['cpu_events_per_second'], baseline_start, threshold)
 
-                    if statistics['flag'] > 0:
+                    if statistics['flag'] != 0:
                         baseline_start = row_index
 
                     data['statistics'].append(statistics)
@@ -331,7 +333,7 @@ class PerformanceDataProcessing:
 
                     statistics = self.detect_deviation(data['data_transfer_speed'], baseline_start, threshold)
 
-                    if statistics['flag'] > 0:
+                    if statistics['flag'] != 0:
                         baseline_start = row_index
 
                     data['statistics'].append(statistics)
@@ -426,7 +428,7 @@ class PerformanceDataProcessing:
                     statistics_tx = self.detect_deviation(data['tx'], baseline_start, threshold)
                     statistics_rx = self.detect_deviation(data['rx'], baseline_start, threshold)
 
-                    if statistics_tx['flag'] > 0 or statistics_rx['flag'] > 0:
+                    if statistics_tx['flag'] != 0 or statistics_rx['flag'] != 0:
                         baseline_start = row_index
 
                     data['statistics_tx'].append(statistics_tx)
@@ -518,7 +520,7 @@ class PerformanceDataProcessing:
 
                     statistics = self.detect_deviation(data['throughput'], baseline_start, threshold)
 
-                    if statistics['flag'] > 0:
+                    if statistics['flag'] != 0:
                         baseline_start = row_index
 
                     data['statistics'].append(statistics)

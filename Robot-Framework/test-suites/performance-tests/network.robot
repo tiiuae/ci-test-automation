@@ -32,16 +32,29 @@ TCP speed test
     [Teardown]        Stop iperf server
 
     ${fail_msg}=  Set Variable  ${EMPTY}
-    IF  "${statistics_tx}[flag]" == "1"
+    IF  "${statistics_tx}[flag]" == "-1"
         ${add_msg}     Create fail message  ${statistics_tx}
         ${fail_msg}=  Set Variable  TX:\n${add_msg}
     END
-    IF  "${statistics_rx}[flag]" == "1"
+    IF  "${statistics_rx}[flag]" == "-1"
         ${add_msg}     Create fail message  ${statistics_tx}
         ${fail_msg}=  Set Variable  ${fail_msg}\nRX:\n${add_msg}
     END
-    IF  "${statistics_tx}[flag]" == "1" or "${statistics_rx}[flag]" == "1"
+    IF  "${statistics_tx}[flag]" == "-1" or "${statistics_rx}[flag]" == "-1"
         FAIL    ${fail_msg}
+    END
+
+    ${pass_msg}=  Set Variable  ${EMPTY}
+    IF  "${statistics_tx}[flag]" == "1"
+        ${add_msg}     Create improved message  ${statistics_tx}
+        ${pass_msg}=  Set Variable  TX:\n${add_msg}
+    END
+    IF  "${statistics_rx}[flag]" == "1"
+        ${add_msg}     Create improved message  ${statistics_tx}
+        ${pass_msg}=  Set Variable  ${pass_msg}\nRX:\n${add_msg}
+    END
+    IF  "${statistics_tx}[flag]" == "1" or "${statistics_rx}[flag]" == "1"
+        Pass Execution    ${pass_msg}
     END
 
 
@@ -58,16 +71,29 @@ UDP speed test
     [Teardown]        Stop iperf server
 
     ${fail_msg}=  Set Variable  ${EMPTY}
-    IF  "${statistics_tx}[flag]" == "1"
+    IF  "${statistics_tx}[flag]" == "-1"
         ${add_msg}     Create fail message  ${statistics_tx}
         ${fail_msg}=  Set Variable  TX:\n${add_msg}
     END
-    IF  "${statistics_rx}[flag]" == "1"
+    IF  "${statistics_rx}[flag]" == "-1"
         ${add_msg}     Create fail message  ${statistics_tx}
         ${fail_msg}=  Set Variable  ${fail_msg}RX:\n${add_msg}
     END
-    IF  "${statistics_tx}[flag]" == "1" or "${statistics_rx}[flag]" == "1"
+    IF  "${statistics_tx}[flag]" == "-1" or "${statistics_rx}[flag]" == "-1"
         FAIL    ${fail_msg}
+    END
+
+    ${pass_msg}=  Set Variable  ${EMPTY}
+    IF  "${statistics_tx}[flag]" == "1"
+        ${add_msg}     Create improved message  ${statistics_tx}
+        ${pass_msg}=  Set Variable  TX:\n${add_msg}
+    END
+    IF  "${statistics_rx}[flag]" == "1"
+        ${add_msg}     Create improved message  ${statistics_tx}
+        ${pass_msg}=  Set Variable  ${pass_msg}\nRX:\n${add_msg}
+    END
+    IF  "${statistics_tx}[flag]" == "1" or "${statistics_rx}[flag]" == "1"
+        Pass Execution    ${pass_msg}
     END
 
 
