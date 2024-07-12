@@ -256,3 +256,10 @@ def get_failed_units(output):
     pattern = re.compile(r"^\s*●?\s*([\w-]+\.service)\b", re.MULTILINE)
     services = pattern.findall(output)
     return services
+
+def extract_vm_names(output):
+    # Remove ANSI escape codes
+    cleaned_string = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', output)
+    lines = cleaned_string.split('\n')
+    vm_names = [line.split(':')[0] for line in lines if line]
+    return vm_names
