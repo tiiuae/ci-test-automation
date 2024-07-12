@@ -4,6 +4,7 @@
 *** Settings ***
 Documentation       Common system tests
 Resource            ../../resources/ssh_keywords.resource
+Library             ../../lib/output_parser.py
 
 *** Test Cases ***
 
@@ -35,4 +36,15 @@ Check systemctl status
     [Tags]             bat  SP-T104  nuc  orin-agx  orin-nx  riscv
     [Setup]     Connect
     Verify Systemctl status
+    [Teardown]  Close All Connections
+
+Check all VMs are running
+    [Documentation]    Verify systemctl status of all VMs is running
+    [Tags]      bat  SP-T73  lenovo-x1
+    [Setup]     Connect
+    ${output}   Execute Command    microvm -l
+    @{vms}      Extract VM names   ${output}
+    FOR   ${vm}  IN  @{vms}
+        ${status}=    Run Keyword And Continue On Failure    Verify service status  service=microvm@${vm}
+    END
     [Teardown]  Close All Connections
