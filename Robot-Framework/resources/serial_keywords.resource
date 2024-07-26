@@ -102,3 +102,4 @@ Get ethernet IP address
     ${output}     SerialLibrary.Read Until    ghaf@ghaf-host:
     ${ip}         Get ip from ifconfig    ${output}   eth0
     Set Global Variable  ${DEVICE_IP_ADDRESS}  ${ip}
+    [Teardown]    Delete All Ports
