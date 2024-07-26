@@ -4,6 +4,7 @@
 *** Settings ***
 Documentation       Common system tests
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/serial_keywords.resource
 Library             ../../lib/output_parser.py
 
 *** Test Cases ***
@@ -40,7 +41,7 @@ Check systemctl status
 
 Check all VMs are running
     [Documentation]    Verify systemctl status of all VMs is running
-    [Tags]      bat  SP-T73  lenovo-x1
+    [Tags]             bat  SP-T73  lenovo-x1
     [Setup]     Connect
     ${output}   Execute Command    microvm -l
     @{vms}      Extract VM names   ${output}
@@ -48,3 +49,18 @@ Check all VMs are running
         ${status}=    Run Keyword And Continue On Failure    Verify service status  service=microvm@${vm}
     END
     [Teardown]  Close All Connections
+
+Check serial connection
+    [Documentation]    Check serial connection
+    [Tags]             bat  nuc  orin-agx  orin-nx  riscv  SP-T56  SP-T179
+    [Setup]     Open Serial Port
+    FOR    ${i}    IN RANGE    120
+        Write Data    ${\n}
+        ${output} =    SerialLibrary.Read Until
+        ${status} =    Run Keyword And Return Status    Should contain    ${output}    ghaf
+        IF    ${status}    BREAK
+        Sleep   1
+    END
+    IF    ${status} == False   Fail  Device is not available via serial port, used port: ${SERIAL_PORT}
+    [Teardown]  Delete All Ports
+
