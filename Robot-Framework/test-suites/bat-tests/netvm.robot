@@ -54,7 +54,6 @@ Wifi passthrought into NetVM on LenovoX1
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm
     Configure wifi      ${netvm_ssh}  ${SSID}  ${wifi_pswd}  lenovo=True
-    Get wifi IP
     Check Network Availability    ${netwotk_ip}  expected_result=True
     Log To Console                Switch connection to Ghaf Host
     Switch Connection	          ${ghaf_host_ssh}
@@ -121,7 +120,7 @@ Configure wifi
     Switch Connection  ${netvm_ssh}
     Log To Console     Configuring Wifi
     IF  ${lenovo}
-        Execute Command    wifi-connector -s ${SSID} -p ${passw}   sudo=True    sudo_password=${PASSWORD}
+        Execute Command    nmcli dev wifi connect ${SSID} password ${passw}   sudo=True    sudo_password=${PASSWORD}
     ELSE
         Execute Command    sh -c "wpa_passphrase ${SSID} ${passw} > /etc/wpa_supplicant.conf"   sudo=True    sudo_password=${PASSWORD}
         Execute Command    systemctl restart wpa_supplicant.service   sudo=True    sudo_password=${PASSWORD}
@@ -132,7 +131,7 @@ Remove Wifi configuration
     Switch Connection   ${netvm_ssh}
     Log To Console      Removing Wifi configuration
     IF  ${lenovo}
-        Execute Command    wifi-connector -d   sudo=True    sudo_password=${PASSWORD}
+        Execute Command    nmcli con down id ${SSID}   sudo=True    sudo_password=${PASSWORD}
     ELSE
         Execute Command    rm /etc/wpa_supplicant.conf  sudo=True    sudo_password=${PASSWORD}
         Execute Command    systemctl restart wpa_supplicant.service  sudo=True    sudo_password=${PASSWORD}
