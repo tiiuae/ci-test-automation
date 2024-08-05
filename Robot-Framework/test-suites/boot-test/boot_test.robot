@@ -76,9 +76,8 @@ Turn OFF Device
     ELSE
         Turn Plug Off
     END
-    Sleep    5
-    ${device_is_available}   Ping Host   ${DEVICE_IP_ADDRESS}
-    IF  ${device_is_available} == False
+    ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
+    IF  ${device_not_available} == True
         Log To Console    Device is down
     ELSE
         Log To Console    Device is UP after the end of the test.
@@ -153,3 +152,8 @@ Check If Device Is Up
             Check Serial Connection
         END
     END
+
+Check If Ping Fails
+    [Documentation]  Check that ping is not getting response from host
+    ${out}   Run and Return RC   ping ${DEVICE_IP_ADDRESS} -c 1
+    Should Be Equal   ${out}  ${1}
