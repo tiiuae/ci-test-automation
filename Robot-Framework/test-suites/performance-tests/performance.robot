@@ -147,7 +147,22 @@ FileIO test
     [Tags]              fileio  SP-T67-7  nuc  orin-agx  orin-nx  lenovo-x1
 
     Transfer FileIO Test Script To DUT
-    Execute Command      ./fileio_test ${threads_number}  sudo=True  sudo_password=${PASSWORD}
+
+    # In case of Lenovo-X1 run the test in /gp_storage which has more disk space than /home/ghaf
+    # Results are still saved to /home/ghaf
+    IF  "LenovoX1" in "${DEVICE}"
+        Execute Command      cp ./fileio_test /gp_storage  sudo=True  sudo_password=${PASSWORD}
+        Execute Command      cd /gp_storage  sudo=True  sudo_password=${PASSWORD}
+        Execute Command      ./fileio_test ${threads_number} /gp_storage  sudo=True  sudo_password=${PASSWORD}
+        Execute Command      cd /home/ghaf  sudo=True  sudo_password=${PASSWORD}
+    ELSE
+        Execute Command      ./fileio_test ${threads_number}  sudo=True  sudo_password=${PASSWORD}
+    END
+
+    ${test_info}  Execute Command    cat sysbench_results/test_info
+    IF  "Insufficient disk space" in $test_info
+        FAIL            Insufficient disk space for fileio test.
+    END
 
     ${fileio_rd_output}  Execute Command    cat sysbench_results/fileio_rd_report
     Log                  ${fileio_rd_output}
