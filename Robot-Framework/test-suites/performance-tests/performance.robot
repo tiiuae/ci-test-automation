@@ -21,6 +21,19 @@ Suite Teardown      Close All Connections
 
 *** Test Cases ***
 
+nvpmodel check test
+    [Documentation]     If power mode changed it would probably have an effect on performance test results.
+    ...                 Ensure that the power mode level is as expected (3) on Orin AGX/NX targets. Do not apply to
+    ...                 other targets.
+    [Tags]              nvpmodel  SP-T185  orin-agx  orin-nx
+    [Setup]             Skip If   not ("Orin" in "${DEVICE}")
+    ...                 Skipped because this test does not apply to other than Orin AGX/NX targets.
+    ${ExpectedNVPmode}  Set Variable  3
+    ${output}           Execute Command     nvpmodel-check ${ExpectedNVPmode}
+    IF  not ("Power mode check ok: ${ExpectedNVPmode}" in $output)
+        FAIL  ${output}\n\nExpected: ${ExpectedNVPmode}
+    END
+
 CPU One thread test
     [Documentation]     Run a CPU benchmark using Sysbench with a duration of 10 seconds and a SINGLE thread.
     ...                 The benchmark records to csv CPU events per second, events per thread, and latency data.
@@ -150,7 +163,7 @@ FileIO test
 
     # In case of Lenovo-X1 run the test in /gp_storage which has more disk space than /home/ghaf
     # Results are still saved to /home/ghaf
-    IF  "LenovoX1" in "${DEVICE}"
+    IF  "Lenovo" in "${DEVICE}"
         Execute Command      cp ./fileio_test /gp_storage  sudo=True  sudo_password=${PASSWORD}
         Execute Command      cd /gp_storage  sudo=True  sudo_password=${PASSWORD}
         Execute Command      ./fileio_test ${threads_number} /gp_storage  sudo=True  sudo_password=${PASSWORD}
