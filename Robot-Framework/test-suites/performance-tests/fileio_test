@@ -4,9 +4,6 @@
 THREADS="$1"
 DISK_CHECK_DIRECTORY="${2:-/}"
 
-# Default expected power mode
-ExpectedPowerModeNo=3
-
 # Create a directory for the results and copy this script into it
 RESULT_DIR="/home/ghaf/sysbench_results"
 echo -e "\nCreating directory for test results:\n$RESULT_DIR"
@@ -19,23 +16,6 @@ echo -e "\nSaving information about test environment to $RESULT_DIR/test_info\n"
 echo -e "$(lscpu)" "\n\n" "$(free)" "\n\n" "$(df)" "\n\n" > $RESULT_DIR/test_info
 echo -e "\nHost: $(hostname)\n" | tee -a $RESULT_DIR/test_info
 echo -e "\nRunning the test in $DISK_CHECK_DIRECTORY" | tee -a $RESULT_DIR/test_info
-
-# Check cpu architecture for specific actions
-if lscpu | grep -qw "aarch64"; then
-    echo -e "\nSystem architecture is aarch64." | tee -a $RESULT_DIR/test_info
-    if hostname | grep -qw "ghaf-host"; then
-        echo -e "$(nvpmodel -q)" "\n" >> $RESULT_DIR/test_info
-        ModeNo=$(nvpmodel -q | awk -F: 'NR==2 {print $1}')
-        if [ $ModeNo -eq $ExpectedPowerModeNo ]; then
-            echo "Power mode check ok: ${ModeNo}" | tee -a $RESULT_DIR/test_info
-        else
-            echo "Unexpected power mode detected: ${ModeNo}" | tee -a $RESULT_DIR/test_info
-            exit 1
-        fi
-    else
-        echo -e "\nVirtual environment detected. Power mode not checked." | tee -a $RESULT_DIR/test_info
-    fi
-fi
 
 # Calculate total memory in kB and set FILE_TOTAL_SIZE 4GB higher than the total memory
 TOTAL_MEM_kB=$(free | awk -F: 'NR==2 {print $2}' | awk '{print $1}')
