@@ -125,6 +125,18 @@ pipeline {
                         def buildData = readJSON file: "${params.resultsPath}/${params.buildID}/${params.buildID}.json"
                         imagePath = "${buildData['Output store paths'][0]}/disk1.raw.zst"
                         println("${imagePath}")
+                        echo "Wiping filesystem..."
+                        def SECTOR = 512
+                        def MIB_TO_SECTORS = 20480
+                        // Disk size in 512-byte sectors
+                        def SECTORS = sh(script: "sudo blockdev --getsz /dev/${USBDEVICE}", returnStdout: true).trim()
+                        // Unmount possible mounted filesystems
+                        sh "sync; sudo umount -q /dev/${USBDEVICE}* || true"
+                        // Wipe first 10MiB of disk
+                        sh "sudo dd if=/dev/zero of=/dev/${USBDEVICE} bs=${SECTOR} count=${MIB_TO_SECTORS} conv=fsync status=none"
+                        // Wipe last 10MiB of disk
+                        sh "sudo dd if=/dev/zero of=/dev/${USBDEVICE} bs=${SECTOR} count=${MIB_TO_SECTORS} seek=\$(( ${SECTORS} - ${MIB_TO_SECTORS} )) conv=fsync status=none"
+                        echo "Flashing..."
                         sh "zstdcat ${imagePath} | sudo dd of=/dev/${USBDEVICE} bs=32M status=progress"
                     } else {
                         println("${params.image}")
