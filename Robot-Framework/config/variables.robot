@@ -36,6 +36,7 @@ Set Variables
     Set Global Variable  ${ZATHURA_VM}         zathura-vm
     Set Global Variable  ${ELEMENT_VM}         element-vm
     Set Global Variable  ${APPFLOWY_VM}        appflowy-vm
+    Set Global Variable  ${BUSINESS_VM}        business-vm
 
     IF  $BUILD_ID != '${EMPTY}'
         ${config}=     Read Config  ../config/${BUILD_ID}.json
