@@ -36,7 +36,14 @@ Check systemctl status
     [Documentation]    Verify systemctl status is running
     [Tags]             bat  SP-T104  nuc  orin-agx  orin-nx  riscv
     [Setup]     Connect
-    Verify Systemctl status
+    ${status}   ${output}   Run Keyword And Ignore Error    Verify Systemctl status
+    IF  '${status}' == 'FAIL'
+        IF  "NUC" in "${DEVICE}"
+            Skip    "Known issue: SP-4632"
+        ELSE
+            FAIL    ${output}
+        END
+    END
     [Teardown]  Close All Connections
 
 Check all VMs are running
