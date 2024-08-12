@@ -3,11 +3,14 @@
 
 import csv
 import os
+import shutil
+import pandas
 import json
 import matplotlib.pyplot as plt
 import logging
 from robot.api.deco import keyword
 from performance_thresholds import *
+import parse_perfbench
 
 
 class PerformanceDataProcessing:
@@ -58,6 +61,12 @@ class PerformanceDataProcessing:
                 cpu_data['cpu_events_per_thread_stddev'],
                 self.device]
         self._write_to_csv(test_name, data)
+
+    @keyword("Parse and Copy Perfbench To Csv")
+    def parse_and_copy_perfbench_to_csv(self):
+
+        perf_result_heading, perf_bit_result_heading = parse_perfbench.parse_perfbench_data(self.build_number,self.device, self.data_dir)
+        return perf_result_heading, perf_bit_result_heading
 
     @keyword
     def write_mem_to_csv(self, test_name, mem_data):
@@ -288,6 +297,142 @@ class PerformanceDataProcessing:
         plt.tight_layout()
         plt.savefig(f'../test-suites/{self.device}_{test_name}.png')
         return statistics
+
+    def normalize_columns(self, csv_file_name, normalize_to):
+        # Set the various results to the same range.
+        # This makes it easier to notice significant change in any of the result parameters with one glimpse
+        # If columns are plotted later on the whole picture is well displayed
+        build_info_size = 1 # First columns containing buildata
+        file_path = os.path.join(self.data_dir, f"{self.device}_{csv_file_name}")
+        print("Normalizing results from file: ", file_path)
+        data = pandas.read_csv(file_path)
+        column_max = data.max(numeric_only=True)
+        # Cut away the index column which is numeric but not measurement data to be normalized
+        max_values = column_max[1:]
+        data_rows = len(data.axes[0])
+        data_columns = len(max_values)
+        # Normalize all columns between 0...normalize_to
+        for i in range(build_info_size, (build_info_size + data_columns)):
+            for j in range(data_rows):
+                normalized = data.iat[j, i] / max_values[i - build_info_size]
+                data.iloc[[j],[i]] = normalized * normalize_to
+        data.to_csv(self.data_dir + "/" + f"{self.device}_normalized_{csv_file_name}", index=False)
+
+    def calc_statistics(self, csv_file_name):
+        build_info_size = 1 # First columns containing buildata
+        data = pandas.read_csv(self.data_dir + "/" + csv_file_name)
+
+        # Calculate column averages
+        column_avgs = data.mean(numeric_only=True)
+        column_stds = data.std(numeric_only=True)
+        column_min = data.min(numeric_only=True)
+        column_max = data.max(numeric_only=True)
+
+        # Cut away the index column which is numeric but not measurement data to be included in calculations
+        avgs = column_avgs.tolist()[1:]
+        stds = column_stds.tolist()[1:]
+        min_values = column_min.tolist()[1:]
+        max_values = column_max.tolist()[1:]
+
+        data_rows = len(data.axes[0])
+        data_columns = len(avgs)
+
+        # Detect significant deviations from column mean
+        # Find the result which is furthest away from the column mean.
+        # Not taking into account those results which are within 1 std from column mean.
+        max_deviations = ['-'] * (data_columns + build_info_size)
+        for i in range(build_info_size, (build_info_size + data_columns)):
+            for j in range(data_rows):
+                if abs(data.iat[j, i] - avgs[i - build_info_size]) > stds[i - build_info_size]:
+                    distance = abs(data.iat[j, i] - avgs[i - build_info_size]) / stds[i - build_info_size]
+                    if max_deviations[i] == '-':
+                        max_deviations[i] = distance
+                    elif distance > max_deviations[i]:
+                        max_deviations[i] = distance
+
+        # Check if values of the last data row are 1 std away from their column mean.
+        last_row_deviations = ['-'] * (data_columns + build_info_size)
+        last_row_deviations[build_info_size - 1] = "LRD"
+        for i in range(build_info_size, build_info_size + data_columns):
+            if abs(data.iat[data_rows - 1, i] - avgs[i - build_info_size]) > stds[i - build_info_size]:
+                distance = (data.iat[data_rows - 1, i] - avgs[i - build_info_size]) / stds[i - build_info_size]
+                last_row_deviations[i] = distance
+
+        shutil.copyfile(self.data_dir + "/" + csv_file_name, self.data_dir + "/raw_" + csv_file_name)
+
+        with open(self.data_dir + "/" + csv_file_name, 'a') as f:
+
+            writer_object = csv.writer(f)
+
+            writer_object.writerow([])
+            writer_object.writerow(last_row_deviations)
+            writer_object.writerow(self.create_stats_row(build_info_size - 1, "average", avgs))
+            writer_object.writerow(self.create_stats_row(build_info_size - 1, "std", stds))
+            writer_object.writerow([])
+            writer_object.writerow(self.create_stats_row(build_info_size - 1, "max", max_values))
+            writer_object.writerow(self.create_stats_row(build_info_size - 1, "min", min_values))
+
+            f.close()
+
+    def create_stats_row(self, shift, label, value_list):
+        row = ['-'] * shift
+        row.append(label)
+        row = row + value_list
+        return row
+
+
+    @keyword("Read Perfbench Csv And Plot")
+    def read_perfbench_csv_and_plot(self, test_name, file_name, headers):
+        self.normalize_columns(file_name, 100)
+        fname = "normalized_" + file_name
+        data = {}
+        file_path = os.path.join(self.data_dir, f"{self.device}_{fname}")
+        with open(file_path ,'r') as csvfile:
+            lines = csv.reader(csvfile)
+            heading = next(lines)
+            logging.info("Reading data from csv file..." )
+            logging.info(file_path)
+
+            data_lines = []
+            for row in lines:
+                data_lines.append(row)
+
+            build_counter = {}  # To keep track of duplicate builds
+            index = 0
+            data = {"build_numbers":[]}
+
+            for header in headers:
+                data.update({
+                header:[]})
+                for row in data_lines:
+                    if header == "build_numbers":
+                        build = str(row[0])
+                        if build in build_counter:
+                            build_counter[build] += 1
+                            modified_build = f"{build}-{build_counter[build]}"
+                        else:
+                            build_counter[build] = 0
+                            modified_build = build
+                        data['build_numbers'].append(modified_build)
+                    else:
+                        data[header].append(float(row[index]))
+                index +=1
+
+        plt.figure(figsize=(20, 15))
+        plt.set_loglevel('WARNING')
+        plt.subplot(1, 1, 1)
+        plt.ticklabel_format(axis='y', style='plain')
+
+        for key, value in data.items():
+            if key not in ['build_numbers']:
+                plt.plot(data['build_numbers'], value, marker='o', linestyle='-', label=key)
+        plt.legend(title="Perfbench measurements", loc="lower left", ncol=3)
+        plt.yticks(fontsize=14)
+        plt.title(f'Perfbench results: {file_name}', loc='right', fontweight="bold", fontsize=16)
+        plt.grid(True)
+        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+        plt.tight_layout()
+        plt.savefig(f'../test-suites/{self.device}_{test_name}_{file_name}.png')
 
     @keyword
     def read_mem_csv_and_plot(self, test_name):
@@ -719,6 +864,24 @@ class PerformanceDataProcessing:
             plt.tight_layout()
             plt.savefig(f'../test-suites/{self.device}_{test_name}_{test}.png')
             plt.close()
+
+    @keyword("Combine Normalized Data")
+    def combine_normalized_data(self, test_name, src):
+        """ Copy latest normalized perfbench results to combined result file. """
+        file_path = os.path.join(self.data_dir, f"{self.device}_{test_name}.csv")
+        with open(src, 'r') as src_f:
+            src_lines = csv.reader(src_f)
+            src_heading = next(src_lines)
+            with open(file_path, 'a+', newline='') as dst_f:
+                writer_object = csv.writer(dst_f)
+                try:
+                    data = pandas.read_csv(file_path)
+                except:
+                    writer_object.writerow(src_heading)
+                for row in src_lines:
+                    writer_object.writerow(row)
+                dst_f.close()
+            src_f.close()
 
     @keyword
     def save_cpu_data(self, test_name, cpu_data):
