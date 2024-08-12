@@ -4,7 +4,6 @@
 import re
 from datetime import datetime
 
-
 def get_systemctl_status(output):
     output = re.sub(r'\033\[.*?m', '', output)   # remove colors from serial console output
     match = re.search(r'State: (\w+)', output)
