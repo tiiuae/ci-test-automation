@@ -63,8 +63,18 @@ Start Element on LenovoX1
     [Setup]           Connect to netvm
     Connect to VM          ${GUI_VM}
     Start XDG application  Element
-    Connect to VM          ${ELEMENT_VM}
+    Connect to VM          ${COMMS_VM}
     Check that the application was started    element
+    [Teardown]  Kill process  @{app_pids}
+
+Start Slack on LenovoX1
+    [Documentation]   Start Slack in dedicated VM and verify process started
+    [Tags]            bat   SP-T191   lenovo-x1
+    [Setup]           Connect to netvm
+    Connect to VM          ${GUI_VM}
+    Start XDG application  Slack
+    Connect to VM          ${COMMS_VM}
+    Check that the application was started    slack
     [Teardown]  Kill process  @{app_pids}
 
 Start Appflowy on LenovoX1

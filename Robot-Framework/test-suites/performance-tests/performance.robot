@@ -275,7 +275,7 @@ Sysbench test in VMs on LenovoX1
     ...                                  gala-vm=2
     ...                                  zathura-vm=1
     ...                                  chromium-vm=4
-    ...                                  element-vm=4
+    ...                                  comms-vm=4
     ...                                  admin-vm=1
     ...                                  appflowy-vm=1
     ...                                  audio-vm=1
