@@ -27,6 +27,7 @@
           robotframework-retryfailed = self.packages.${system}.robotframework-retryfailed;
           robotframework-seriallibrary = self.packages.${system}.robotframework-seriallibrary;
         };
+        robotframework-jsonlibrary = pkgs.python3Packages.callPackage ./pkgs/robotframework-jsonlibrary {};
         robotframework-retryfailed = pkgs.python3Packages.callPackage ./pkgs/robotframework-retryfailed {};
         robotframework-seriallibrary = pkgs.python3Packages.callPackage ./pkgs/robotframework-seriallibrary {};
         robotframework-advancedlogging = pkgs.python3Packages.callPackage ./pkgs/robotframework-advancedlogging {};
@@ -43,6 +44,7 @@
           (python3.withPackages (ps:
             with ps; [
               robotframework
+              self.packages.${system}.robotframework-jsonlibrary
               self.packages.${system}.robotframework-retryfailed
               self.packages.${system}.robotframework-seriallibrary
               self.packages.${system}.robotframework-advancedlogging
