@@ -52,6 +52,7 @@
               pyserial
               python-kasa
               pytz
+              pandas
             ]))
         ];
       };
