@@ -492,7 +492,10 @@ class PerformanceDataProcessing:
         if "write" in test_name:
             threshold = thresholds['fileio']['wr']
         else:
-            threshold = thresholds['fileio']['rd']
+            if "Lenovo" in self.device:
+                threshold = thresholds['fileio']['rd_lenovo-x1']
+            else:
+                threshold = thresholds['fileio']['rd']
 
         with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
             csvreader = csv.reader(csvfile)

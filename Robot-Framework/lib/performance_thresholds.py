@@ -18,7 +18,8 @@ thresholds = {
     },
     'fileio': {
         'wr': 10,
-        'rd': 20
+        'rd': 20,
+        'rd_lenovo-x1': 200
     },
     'iperf': 10
 }

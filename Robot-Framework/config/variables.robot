@@ -34,7 +34,7 @@ Set Variables
     Set Global Variable  ${CHROMIUM_VM}        chromium-vm
     Set Global Variable  ${GALA_VM}            gala-vm
     Set Global Variable  ${ZATHURA_VM}         zathura-vm
-    Set Global Variable  ${ELEMENT_VM}         element-vm
+    Set Global Variable  ${COMMS_VM}           comms-vm
     Set Global Variable  ${APPFLOWY_VM}        appflowy-vm
     Set Global Variable  ${BUSINESS_VM}        business-vm
 
