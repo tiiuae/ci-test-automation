@@ -18,4 +18,9 @@ Check that the application was started
     END
     Should Not Be Empty  ${app_pids}  ${app_name} is not started
     Log To Console       ${app_name} is started
-    
+
+Check If Ping Fails
+    [Documentation]  Check that ping is not getting response from host
+    # ${out}   Run and Return RC   ping ${DEVICE_IP_ADDRESS} -c 1
+    ${result}  Run Process  ping  ${DEVICE_IP_ADDRESS}  -c1  timeout=1s
+    Should Not Be Equal   ${result.rc}  ${0}

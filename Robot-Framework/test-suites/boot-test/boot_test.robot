@@ -153,7 +153,5 @@ Check If Device Is Up
         END
     END
 
-Check If Ping Fails
-    [Documentation]  Check that ping is not getting response from host
-    ${out}   Run and Return RC   ping ${DEVICE_IP_ADDRESS} -c 1
-    Should Be Equal   ${out}  ${1}
+
+
