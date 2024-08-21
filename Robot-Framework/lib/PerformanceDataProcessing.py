@@ -92,6 +92,16 @@ class PerformanceDataProcessing:
                 self.device]
         self._write_to_csv(test_name, data)
 
+    @keyword("Write Boot time to csv")
+    def write_boot_time_to_csv(self, test_name, boot_data):
+        data = [self.build_number,
+                boot_data['time_from_nixos_menu_tos_ssh'],
+                boot_data['time_from_reboot_to_desktop_available'],
+                boot_data['response_to_ping'],
+                boot_data['response_to_ssh'],
+                self.device]
+        self._write_to_csv(test_name, data)
+
     def truncate(self, list, significant_figures):
         truncated_list = []
         for item in list:
@@ -577,6 +587,78 @@ class PerformanceDataProcessing:
         plt.savefig(f'../test-suites/{self.device}_{test_name}.png')
         return statistics
 
+    @keyword("Read Bootime CSV and Plot")
+    def read_bootime_csv_and_plot(self, test_name):
+        data = {
+                'build_numbers': [],
+                'time_from_nixos_menu_tos_ssh':[],
+                'time_from_reboot_to_desktop_available':[],
+                'response_to_ping':[],
+                'response_to_ssh':[],
+                }
+        with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
+            csvreader = csv.reader(csvfile)
+            logging.info("Reading data from csv file..." )
+            logging.info(f"{self.data_dir}{self.device}_{test_name}.csv")
+            build_counter = {}  # To keep track of duplicate builds
+            for row in csvreader:
+                print("row on", row)
+                if row[-1] == self.device:
+                    build = str(row[0])
+                    if build in build_counter:
+                        build_counter[build] += 1
+                        modified_build = f"{build}-{build_counter[build]}"
+                    else:
+                        build_counter[build] = 0
+                        modified_build = build
+                    data['build_numbers'].append(modified_build)
+                    data['time_from_nixos_menu_tos_ssh'].append(float(row[1]))
+                    data['time_from_reboot_to_desktop_available'].append(float(row[2]))
+                    data['response_to_ping'].append(float(row[3]))
+                    data['response_to_ssh'].append(float(row[4]))
+
+        plt.figure(figsize=(20, 10))
+        plt.set_loglevel('WARNING')
+        plt.subplot(4, 1, 1)
+        plt.ticklabel_format(axis='y', style='plain')
+        plt.plot(data['build_numbers'], data['time_from_nixos_menu_tos_ssh'], marker='o', linestyle='-', color='b')
+        plt.yticks(fontsize=14)
+        plt.title('Time from nixos menu to ssh', loc='right', fontweight="bold", fontsize=16)
+        plt.ylabel('seconds', fontsize=12)
+        plt.grid(True)
+        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+
+        plt.subplot(4, 1, 2)
+        plt.ticklabel_format(axis='y', style='plain')
+        plt.plot(data['build_numbers'], data['time_from_reboot_to_desktop_available'], marker='o', linestyle='-', color='b')
+        plt.yticks(fontsize=14)
+        plt.title('Time since reboot to desktop avaialble', loc='right', fontweight="bold", fontsize=16)
+        plt.ylabel('seconds', fontsize=12)
+        plt.grid(True)
+        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+
+        plt.subplot(4, 1, 3)
+        plt.ticklabel_format(axis='y', style='plain')
+        plt.plot(data['build_numbers'], data['response_to_ping'], marker='o', linestyle='-', color='b')
+        plt.yticks(fontsize=14)
+        plt.title('Response to ping', loc='right', fontweight="bold", fontsize=16)
+        plt.ylabel('seconds', fontsize=12)
+        plt.grid(True)
+        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+
+        plt.subplot(4, 1, 4)
+        plt.ticklabel_format(axis='y', style='plain')
+        plt.plot(data['build_numbers'], data['response_to_ssh'], marker='o', linestyle='-', color='b')
+        plt.yticks(fontsize=14)
+        plt.title('Response to ssh', loc='right', fontweight="bold", fontsize=16)
+        plt.ylabel('seconds', fontsize=12)
+        plt.grid(True)
+        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+        plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
+
+        plt.tight_layout()
+        plt.savefig(f'../test-suites/{self.device}_{test_name}.png')
+
     def extract_numeric_part(self, build_identifier):
         parts = build_identifier.split('-')
         base_number = int(''.join(filter(str.isdigit, parts[0])))
@@ -644,6 +726,11 @@ class PerformanceDataProcessing:
         self.write_cpu_to_csv(test_name, cpu_data)
         return self.read_cpu_csv_and_plot(test_name)
 
+    @keyword("Save Boot time Data")
+    def save_boot_time_data(self, test_name, boot_data):
+
+        self.write_boot_time_to_csv(test_name, boot_data)
+        return self.read_bootime_csv_and_plot(test_name)
 
     @keyword
     def save_memory_data(self, test_name, memory_data):

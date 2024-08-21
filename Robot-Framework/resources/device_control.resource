@@ -29,3 +29,13 @@ Reboot LenovoX1
     END
     Log To Console    Turning device on...
     Press Button      ${DEVICE}-ON
+
+Soft Reboot Device
+    [Documentation]  Reboot device from command line
+    ${device_is_available}   Ping Host   ${DEVICE_IP_ADDRESS}
+    IF  ${device_is_available}
+        Connect to ghaf host
+        ${output}  Execute Command  reboot  sudo=True  sudo_password=${password}
+        Log  ${output}
+        Log To Console  Rebooting device from command line
+    END
