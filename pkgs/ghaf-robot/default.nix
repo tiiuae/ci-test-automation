@@ -4,6 +4,7 @@
   plugp100,
   python3,
   robotframework-advancedlogging,
+  robotframework-jsonlibrary,
   robotframework-retryfailed,
   robotframework-seriallibrary,
   stdenv,
@@ -20,9 +21,11 @@ writeShellApplication {
       ps.pyserial
       ps.python-kasa
       ps.pytz
+      ps.pandas
 
       # These are taken from this flake
       robotframework-advancedlogging
+      robotframework-jsonlibrary
       robotframework-retryfailed
       robotframework-seriallibrary
       PyP100
