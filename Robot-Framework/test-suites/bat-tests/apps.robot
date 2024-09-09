@@ -32,6 +32,7 @@ Start Chromium on LenovoX1
     Verify service status  range=15  service=microvm@chromium-vm.service  expected_status=active  expected_state=running
     Connect to netvm
     Connect to VM       ${GUI_VM}
+    Check if ssh is ready on vm    ${CHROMIUM_VM}
     Start XDG application   Chromium
     Connect to VM       ${CHROMIUM_VM}
     Check that the application was started    chromium
@@ -42,6 +43,7 @@ Start Zathura on LenovoX1
     [Tags]            bat   SP-T112   lenovo-x1
     [Setup]           Connect to netvm
     Connect to VM       ${GUI_VM}
+    Check if ssh is ready on vm    ${ZATHURA_VM}
     Start XDG application   'PDF Viewer'
     Connect to VM       ${ZATHURA_VM}
     Check that the application was started    zathura
@@ -52,6 +54,7 @@ Start Gala on LenovoX1
     [Tags]            bat   SP-T111   lenovo-x1
     [Setup]           Connect to netvm
     Connect to VM       ${GUI_VM}
+    Check if ssh is ready on vm    ${GALA_VM}
     Start XDG application   GALA
     Connect to VM       ${GALA_VM}
     Check that the application was started    gala
@@ -62,6 +65,7 @@ Start Element on LenovoX1
     [Tags]            bat   SP-T57   lenovo-x1
     [Setup]           Connect to netvm
     Connect to VM          ${GUI_VM}
+    Check if ssh is ready on vm    ${COMMS_VM}
     Start XDG application  Element
     Connect to VM          ${COMMS_VM}
     Check that the application was started    element
@@ -72,6 +76,7 @@ Start Slack on LenovoX1
     [Tags]            bat   SP-T191   lenovo-x1
     [Setup]           Connect to netvm
     Connect to VM          ${GUI_VM}
+    Check if ssh is ready on vm    ${COMMS_VM}
     Start XDG application  Slack
     Connect to VM          ${COMMS_VM}
     Check that the application was started    slack
@@ -82,6 +87,7 @@ Start Appflowy on LenovoX1
     [Tags]            bat   appflowy   lenovo-x1
     [Setup]           Connect to netvm
     Connect to VM          ${GUI_VM}
+    Check if ssh is ready on vm    appflowy-vm
     Start XDG application  AppFlowy
     Connect to VM          ${APPFLOWY_VM}
     Check that the application was started    appflowy
