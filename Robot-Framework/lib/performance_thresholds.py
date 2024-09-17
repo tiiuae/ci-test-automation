@@ -3,23 +3,23 @@
 
 thresholds = {
     'cpu': {
-        'multi': 300,
-        'single': 100
+        'multi': 700,
+        'single': 40
     },
     'mem': {
         'multi': {
-            'wr': 1000,
-            'rd': 5000
+            'wr': 1400,
+            'rd': 9000
         },
         'single': {
-            'wr': 300,
-            'rd': 500
+            'wr': 350,
+            'rd': 250
         }
     },
     'fileio': {
-        'wr': 10,
-        'rd': 20,
-        'rd_lenovo-x1': 200
+        'wr': 20,
+        'rd': 40,
+        'rd_lenovo-x1': 420
     },
     'iperf': 10
 }
