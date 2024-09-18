@@ -41,6 +41,8 @@ Set Variables
     Set Global Variable  ${COMMS_VM}           comms-vm
     Set Global Variable  ${APPFLOWY_VM}        appflowy-vm
     Set Global Variable  ${BUSINESS_VM}        business-vm
+    Set Global Variable  ${ADMIN_VM}           admin-vm
+    Set Global Variable  @{VMS}                ${GUI_VM}  ${CHROMIUM_VM}  ${GALA_VM}  ${ZATHURA_VM}  ${COMMS_VM}  ${BUSINESS_VM}  ${ADMIN_VM}
 
     IF  $BUILD_ID != '${EMPTY}'
         ${config}=     Read Config  ../config/${BUILD_ID}.json

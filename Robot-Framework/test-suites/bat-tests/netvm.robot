@@ -6,6 +6,7 @@ Documentation       Testing Network VM
 Force Tags          netvm
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/virtualization_keywords.resource
+Resource            ../../resources/connection_keywords.resource
 Resource            ../../config/variables.robot
 Suite Teardown      Close All Connections
 
@@ -93,33 +94,6 @@ Restart NetVM
     Sleep  ${delay}
     Start NetVM
     Check if ssh is ready on netvm
-
-Configure wifi
-    [Arguments]         ${netvm_ssh}  ${SSID}  ${passw}
-    Switch Connection   ${netvm_ssh}
-    Log To Console      Configuring Wifi
-    Set Log Level       NONE
-    Execute Command     nmcli dev wifi connect ${SSID} password ${passw}   sudo=True    sudo_password=${PASSWORD}
-    Set Log Level       INFO
-
-Remove Wifi configuration
-    [Arguments]         ${SSID}
-    Switch Connection   ${netvm_ssh}
-    Log To Console      Removing Wifi configuration
-    Execute Command     nmcli connection delete id ${SSID}
-
-Turn OFF WiFi
-    [Arguments]         ${SSID}
-    Switch Connection   ${netvm_ssh}
-    Log To Console      Turning off Wifi
-    Execute Command     nmcli con down id ${SSID}   sudo=True    sudo_password=${PASSWORD}
-
-Turn ON WiFi
-    [Arguments]         ${SSID}
-    Switch Connection   ${netvm_ssh}
-    Log To Console      Turning on Wifi
-    Execute Command     nmcli con up id ${SSID}    sudo=True    sudo_password=${PASSWORD}
-
 
 Stop NetVM
     [Documentation]     Ensure that NetVM is started, stop it and check the status.
