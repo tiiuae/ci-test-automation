@@ -10,6 +10,7 @@ Library    OperatingSystem
 ${BUILD_ID}       ${EMPTY}
 ${SWITCH_TOKEN}   ${EMPTY}
 ${SWITCH_SECRET}  ${EMPTY}
+${TA_WIFI_PSWD}   ${EMPTY}
 
 
 *** Keywords ***
@@ -23,6 +24,10 @@ Set Variables
     Set Global Variable  ${SOCKET_IP_ADDRESS}  ${config['addresses']['${DEVICE}']['socket_ip_address']}
     Set Global Variable  ${PLUG_TYPE}          ${config['addresses']['${DEVICE}']['plug_type']}
     Set Global Variable  ${THREADS_NUMBER}     ${config['addresses']['${DEVICE}']['threads']}
+    Set Global Variable  ${TA_WIFI_PSWD}       ${config['addresses']['${DEVICE}']['ta_wifi_password']}
+    Set Global Variable  ${TA_USERNAME}        ${config['addresses']['${DEVICE}']['ta_username']}
+    Set Global Variable  ${TA_PSWD}             ${config['addresses']['${DEVICE}']['ta_pswd']}
+    Set Global Variable  ${GRAFANA_LOGS}       ${config['addresses']['${DEVICE}']['grafana_logs']}
     Set Global Variable  ${NETVM_NAME}         net-vm
     Set Global Variable  ${CHROMIUM_VM_NAME}   chromium-vm
     Set Global Variable  ${GUI_VM_NAME}        gui-vm
@@ -37,6 +42,8 @@ Set Variables
     Set Global Variable  ${COMMS_VM}           comms-vm
     Set Global Variable  ${APPFLOWY_VM}        appflowy-vm
     Set Global Variable  ${BUSINESS_VM}        business-vm
+    Set Global Variable  ${ADMIN_VM}           admin-vm
+    Set Global Variable  @{VMS}                ${GUI_VM}  ${CHROMIUM_VM}  ${GALA_VM}  ${ZATHURA_VM}  ${COMMS_VM}  ${APPFLOWY_VM}  ${BUSINESS_VM}  ${ADMIN_VM}
 
     IF  $BUILD_ID != '${EMPTY}'
         ${config}=     Read Config  ../config/${BUILD_ID}.json

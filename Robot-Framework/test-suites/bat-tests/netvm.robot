@@ -6,6 +6,7 @@ Documentation       Testing Network VM
 Force Tags          netvm
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/virtualization_keywords.resource
+Resource            ../../resources/connection_keywords.resource
 Resource            ../../config/variables.robot
 Suite Teardown      Close All Connections
 
@@ -114,28 +115,6 @@ Restart NetVM
     Sleep  ${delay}
     Start NetVM
     Check if ssh is ready on netvm
-
-Configure wifi
-    [Arguments]   ${netvm_ssh}  ${SSID}  ${passw}  ${lenovo}=False
-    Switch Connection  ${netvm_ssh}
-    Log To Console     Configuring Wifi
-    IF  ${lenovo}
-        Execute Command    nmcli dev wifi connect ${SSID} password ${passw}   sudo=True    sudo_password=${PASSWORD}
-    ELSE
-        Execute Command    sh -c "wpa_passphrase ${SSID} ${passw} > /etc/wpa_supplicant.conf"   sudo=True    sudo_password=${PASSWORD}
-        Execute Command    systemctl restart wpa_supplicant.service   sudo=True    sudo_password=${PASSWORD}
-    END
-
-Remove Wifi configuration
-    [Arguments]         ${lenovo}=False
-    Switch Connection   ${netvm_ssh}
-    Log To Console      Removing Wifi configuration
-    IF  ${lenovo}
-        Execute Command    nmcli con down id ${SSID}   sudo=True    sudo_password=${PASSWORD}
-    ELSE
-        Execute Command    rm /etc/wpa_supplicant.conf  sudo=True    sudo_password=${PASSWORD}
-        Execute Command    systemctl restart wpa_supplicant.service  sudo=True    sudo_password=${PASSWORD}
-    END
 
 Stop NetVM
     [Documentation]     Ensure that NetVM is started, stop it and check the status.
