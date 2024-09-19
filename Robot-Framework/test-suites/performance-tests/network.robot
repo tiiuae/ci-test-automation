@@ -37,7 +37,7 @@ TCP speed test
         ${fail_msg}=  Set Variable  TX:\n${add_msg}
     END
     IF  "${statistics_rx}[flag]" == "-1"
-        ${add_msg}     Create fail message  ${statistics_tx}
+        ${add_msg}     Create fail message  ${statistics_rx}
         ${fail_msg}=  Set Variable  ${fail_msg}\nRX:\n${add_msg}
     END
     IF  "${statistics_tx}[flag]" == "-1" or "${statistics_rx}[flag]" == "-1"
@@ -50,7 +50,7 @@ TCP speed test
         ${pass_msg}=  Set Variable  TX:\n${add_msg}
     END
     IF  "${statistics_rx}[flag]" == "1"
-        ${add_msg}     Create improved message  ${statistics_tx}
+        ${add_msg}     Create improved message  ${statistics_rx}
         ${pass_msg}=  Set Variable  ${pass_msg}\nRX:\n${add_msg}
     END
     IF  "${statistics_tx}[flag]" == "1" or "${statistics_rx}[flag]" == "1"
