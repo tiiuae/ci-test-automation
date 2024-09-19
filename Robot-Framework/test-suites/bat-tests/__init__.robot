@@ -5,6 +5,7 @@
 Documentation       BAT tests
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/serial_keywords.resource
+Resource            ../../resources/common_keywords.resource
 Suite Setup         Common Setup
 Suite Teardown      Common Teardown
 
@@ -32,16 +33,6 @@ Common Teardown
         Log journctl
     END
     Close All Connections
-
-Run journalctl recording
-    ${output}     Execute Command    journalctl > jrnl.txt
-    ${output}     Execute Command    nohup journalctl -f >> jrnl.txt 2>&1 &
-
-Log journctl
-    ${output}     Execute Command    cat jrnl.txt
-    Log           ${output}
-    @{pid}        Find pid by name   journalctl
-    Kill process  @{pid}
 
 Log versions
     ${ghaf_version}     Execute Command   ghaf-version
