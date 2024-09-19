@@ -458,3 +458,23 @@ Check Storagevm Size
     Log  ${storage}
     ${size}  Get Regexp Matches  ${storage}  (?im)(storagevm\\s*)(\\d{1,3}G)(\\s*\\d{1,3}.\\s*)(\\d{1,3})  4
     RETURN  ${size}[0]
+
+Check ssh connection status
+    [Documentation]    Check if there is already an active ssh connection to vm_name
+    [Arguments]        ${vm_name}
+    ${status}   ${hostname}      Run Keyword And Ignore Error  Execute Command  hostname
+    IF  $vm_name in $hostname
+        RETURN  ${True}
+    ELSE
+        RETURN  ${False}
+    END
+
+Connect to VM if not already connected
+    [Documentation]    Connect only if there is not already an active connection
+    [Arguments]        ${vm_name}
+    ${connected}   Check ssh connection status   ${vm_name}
+    IF  not ${connected}
+        Connect
+        Connect to netvm
+        Connect to VM   ${vm_name}
+    END
