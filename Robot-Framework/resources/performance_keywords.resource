@@ -16,4 +16,5 @@ Create fail message
 Create improved message
     [Arguments]       ${stats}
     ${improve_message}=  Set Variable   Significant improvement detected!\nThreshold ${stats}[threshold]\nMeasurement result ${stats}[measurement]\nPrevious measurement ${stats}[prev_meas] (d: ${stats}[d_previous])\nFirst meas of the last stable period ${stats}[baseline1] (d: ${stats}[d_baseline1])\nMean of last stable period ${stats}[mean] (d: ${stats}[d_mean])\n
-    RETURN            ${improve_message}
+    [Return]          ${improve_message}
+
