@@ -55,7 +55,7 @@ Get Boot times
     ...  welcome_note=$(date -d "$(journalctl --output=short-iso | grep gui-vm | grep "Welcome" | tail -1 | awk '{print $1}')" "+%s")
     ...  echo $welcome_note
     ${cmd4}  Catenate  SEPARATOR=\n
-    ...  bar_configured_note=$(date -d "$(journalctl --output=short-iso | grep "Bar configured" | tail -1 | awk '{print $1}')" "+%s")
+    ...  bar_configured_note=$(date -d "$(journalctl --output=short-iso | grep "Started ewwbar" | tail -1 | awk '{print $1}')" "+%s")
     ...  echo $bar_configured_note
 
     ${start_time}  DateTime.Get Current Date
