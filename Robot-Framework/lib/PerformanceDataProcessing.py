@@ -83,10 +83,10 @@ class PerformanceDataProcessing:
 
     @keyword
     def write_speed_to_csv(self, test_name, speed_data):
-        data = [self.build_number,
-                speed_data['tx'],
-                speed_data['rx'],
-                self.device]
+        data = [self.build_number]
+        for key in speed_data.keys():
+                data.append(speed_data[key])
+        data.append(self.device)
         self._write_to_csv(test_name, data)
 
     def write_fileio_data_to_csv(self, test_name, data):
