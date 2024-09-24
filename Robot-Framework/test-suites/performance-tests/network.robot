@@ -96,9 +96,29 @@ UDP speed test
         Pass Execution    ${pass_msg}
     END
 
+Performance test TCP Big Frames
+    [Documentation]  Start server on agent pc. Send data from dut to agent and measure throughput
+    [Setup]  Start Iperf Server
+    [Teardown]  Stop Iperf Server
+    ${output}         Run Process   iperf3 -c ${AGENT_IP_ADDRESS} -f M -t 10   shell=True
+    Should Contain    ${output.stdout}    iperf Done.
+    Log               ${output.stdout}
+    &{tcp_speed}      Parse iperf output   ${output.stdout}
+    [Return]          &{tcp_speed}
+
+Performance test TCP Small Frames
+    [Documentation]  Start server on agent pc. Send data from dut to agent and measure throughput
+
+Performance test UDP Big Frames
+    [Documentation]  Start server on agent pc. Send data from dut to agent and measure throughput
+
+Performance test UDP Small Frames
+    [Documentation]  Start server on agent pc. Send data from dut to agent and measure throughput
+
+Late
+
 
 *** Keywords ***
-
 Common Setup
     Set Variables     ${DEVICE}
     Run Keyword If  "${DEVICE_IP_ADDRESS}" == ""    Get ethernet IP address
@@ -150,3 +170,12 @@ Check iperf was started
         Sleep    1
     END
     IF   ${status} == False    FAIL    Iperf server was not started
+
+Start Iperf Server
+    [Documentation]  Start iperf server
+    Start Process  iperf -s -D  shell=True
+
+Stop Iperf Server
+    [Documentation]  Kill iperf server
+    ${result}  Run Process  pkill iperf
+    Should Be Equal   ${result.rc}  ${0}
