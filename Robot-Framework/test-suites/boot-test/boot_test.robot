@@ -8,6 +8,7 @@ Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/device_control.resource
 Resource            ../../config/variables.robot
+Resource            ../../resources/common_keywords.resource
 
 
 *** Variables ***
