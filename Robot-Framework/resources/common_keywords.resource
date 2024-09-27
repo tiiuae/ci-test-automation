@@ -24,6 +24,3 @@ Check If Ping Fails
     ${result}  Run Process  ping  ${DEVICE_IP_ADDRESS}  -c1  timeout=1s
     Should Not Be Equal   ${result.rc}  ${0}
 
-Get IP address
-    [Documentation]  Get PC ip address
-    ${out}  Run   ifconfig

@@ -202,6 +202,27 @@ def parse_iperf_output(output):
         "rx": rx
     }
 
+def parse_iperf_output2(output, receive=True, transfer=True):
+    tx_pattern = r'\s(\d+(\.\d+)?) MBytes\/sec.*sender'
+    rx_pattern = r'\s(\d+(\.\d+)?) MBytes\/sec.*receiver'
+    result = {}
+
+    if transfer:
+        match = re.search(tx_pattern, output)
+        if match:
+            tx = match.group(1)
+            result.update({"tx":tx})
+        else:
+            raise Exception(f"Couldn't parse TX, pattern: {tx_pattern}")
+    if receive:
+        match = re.search(rx_pattern, output)
+        if match:
+            rx = match.group(1)
+            result.update({"rx":rx})
+        else:
+            raise Exception(f"Couldn't parse RX, pattern: {rx_pattern}")
+
+        return result
 
 def get_ip_from_ifconfig(output, if_name):
     pattern = if_name + r'.*?\n.*?inet (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'

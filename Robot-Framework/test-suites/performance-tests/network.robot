@@ -13,8 +13,9 @@ Library             ../../lib/output_parser.py
 Library             Process
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${JOB}
 Library             Collections
-Suite Setup         Common Setup
-Suite Teardown      Close All Connections
+Library             JSONLibrary
+Suite Setup         Run Keywords  Common Setup  AND  Switch MTU  mtu=9184
+Suite Teardown      Run Keywords  Switch MTU  AND  Close All Connections
 
 
 *** Test Cases ***
@@ -96,26 +97,117 @@ UDP speed test
         Pass Execution    ${pass_msg}
     END
 
-Performance test TCP Big Frames
+Measure TCP TX Throughput Small Packets
     [Documentation]  Start server on agent pc. Send data from dut to agent and measure throughput
-    [Setup]  Start Iperf Server
-    [Teardown]  Stop Iperf Server
-    ${output}         Run Process   iperf3 -c ${AGENT_IP_ADDRESS} -f M -t 10   shell=True
-    Should Contain    ${output.stdout}    iperf Done.
+    [Tags]  tcp_iperf_tx
+    [Setup]  Run iperf server on DUT
+    [Teardown]        Stop iperf server
+    ${output}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t 10 -R -J   shell=True
     Log               ${output.stdout}
-    &{tcp_speed}      Parse iperf output   ${output.stdout}
-    [Return]          &{tcp_speed}
+    Get Throughput Values  ${output.stdout}
 
-Performance test TCP Small Frames
+Measure TCP RX Throughput Small Packets
     [Documentation]  Start server on agent pc. Send data from dut to agent and measure throughput
+    [Tags]  tcp_iperf_rx
+    [Setup]  Run iperf server on DUT
+    [Teardown]        Stop iperf server
+    ${output}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t 10 -J   shell=True
+    Log               ${output.stdout}
+    Get Throughput Values  ${output.stdout}
 
-Performance test UDP Big Frames
+Measure TCP Bidir Throughput Small Packets
     [Documentation]  Start server on agent pc. Send data from dut to agent and measure throughput
+    [Tags]  tcp_iperf_bidir
+    [Setup]  Run iperf server on DUT
+    [Teardown]        Stop iperf server
+    ${output}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t 10 -J --bidir  shell=True
+    Log               ${output.stdout}
+    Get Throughput Values  ${output.stdout}  sum_sent_bidir_reverse
+    Get Throughput Values  ${output.stdout}  sum_received_bidir_reverse
 
-Performance test UDP Small Frames
+Measure UDP TX Throughput Small Packets
     [Documentation]  Start server on agent pc. Send data from dut to agent and measure throughput
+    [Tags]  udp_iperf_tx
+    [Setup]  Run iperf server on DUT
+    [Teardown]        Stop iperf server
+    ${output}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 10000G -f M -t 10 -R -J   shell=True
+    Log               ${output.stdout}
+    Get Throughput Values  ${output.stdout}
 
-Late
+Measure UDP RX Throughput Small Packets
+    [Documentation]  Start server on agent pc. Send data from dut to agent and measure throughput
+    [Tags]  udp_iperf_rx
+    [Setup]  Run iperf server on DUT
+    [Teardown]        Stop iperf server
+    ${output}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 10000G -f M -t 10 -J   shell=True
+    Log               ${output.stdout}
+    Get Throughput Values  ${output.stdout}
+
+Measure UDP Bidir Throughput Small Packets
+    [Documentation]  Start server on agent pc. Send data from dut to agent and measure throughput
+    [Tags]  udp_iperf_bidir
+    [Setup]  Run iperf server on DUT
+    [Teardown]        Stop iperf server
+    ${output}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 10000G -f M -t 10 -J --bidir  shell=True
+    Log               ${output.stdout}
+    Get Throughput Values  ${output.stdout}  sum_sent_bidir_reverse
+    Get Throughput Values  ${output.stdout}  sum_received_bidir_reverse
+
+Measure TCP TX Throughput Big Packets
+    [Documentation]  Start server on agent pc. Send data from dut to agent and measure throughput
+    [Tags]  tcp_iperf_tx
+    [Setup]  Run iperf server on DUT
+    [Teardown]        Stop iperf server
+    ${output}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t 10 -R -J   shell=True
+    Log               ${output.stdout}
+    Get Throughput Values  ${output.stdout}
+
+Measure TCP RX Throughput Big Packets
+    [Documentation]  Start server on agent pc. Send data from dut to agent and measure throughput
+    [Tags]  tcp_iperf_rx
+    [Setup]  Run iperf server on DUT
+    [Teardown]        Stop iperf server
+    ${output}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t 10 -J   shell=True
+    Log               ${output.stdout}
+    Get Throughput Values  ${output.stdout}
+
+Measure TCP Bidir Throughput Big Packets
+    [Documentation]  Start server on agent pc. Send data from dut to agent and measure throughput
+    [Tags]  tcp_iperf_bidir
+    [Setup]  Run iperf server on DUT
+    [Teardown]        Stop iperf server
+    ${output}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t 10 -J --bidir  shell=True
+    Log               ${output.stdout}
+    Get Throughput Values  ${output.stdout}  sum_sent_bidir_reverse
+    Get Throughput Values  ${output.stdout}  sum_received_bidir_reverse
+
+Measure UDP TX Throughput Big Packets
+    [Documentation]  Start server on agent pc. Send data from dut to agent and measure throughput
+    [Tags]  udp_iperf_tx
+    [Setup]  Run iperf server on DUT
+    [Teardown]        Stop iperf server
+    ${output}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 10000G -f M -t 10 -R -J   shell=True
+    Log               ${output.stdout}
+    Get Throughput Values  ${output.stdout}
+
+Measure UDP RX Throughput Big Packets
+    [Documentation]  Start server on agent pc. Send data from dut to agent and measure throughput
+    [Tags]  udp_iperf_rx
+    [Setup]  Run iperf server on DUT
+    [Teardown]        Stop iperf server
+    ${output}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 10000G -f M -t 10 -J   shell=True
+    Log               ${output.stdout}
+    Get Throughput Values  ${output.stdout}
+
+Measure UDP Bidir Throughput Big Packets
+    [Documentation]  Start server on agent pc. Send data from dut to agent and measure throughput
+    [Tags]  udp_iperf_bidir
+    [Setup]  Run iperf server on DUT
+    [Teardown]        Stop iperf server
+    ${output}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 10000G -f M -t 10 -J --bidir  shell=True
+    Log               ${output.stdout}
+    Get Throughput Values  ${output.stdout}  sum_sent_bidir_reverse
+    Get Throughput Values  ${output.stdout}  sum_received_bidir_reverse
 
 
 *** Keywords ***
@@ -175,7 +267,19 @@ Start Iperf Server
     [Documentation]  Start iperf server
     Start Process  iperf -s -D  shell=True
 
-Stop Iperf Server
-    [Documentation]  Kill iperf server
-    ${result}  Run Process  pkill iperf
-    Should Be Equal   ${result.rc}  ${0}
+Get Throughput Values
+    [Documentation]  Return MB per second value
+    [Arguments]  ${output}  ${summary}=sum_received
+    ${json_results}  Convert String To Json  ${output}
+    ${values}  Get Value From Json  ${json_results}  $..${summary}
+    ${MBps}  Evaluate  ${values[0]['bits_per_second']}/1000000
+    Should Be True  ${MBps} > ${800}
+
+Switch MTU
+    [Documentation]  Set interface mtu to max
+    [Arguments]  ${dut_if_name}=enp0s13f0u1  ${agent_if_name}=enp0s31f6  ${mtu}=1500
+    Execute Command  ip link set dev ${dut_if_name} mtu ${mtu}  sudo=True  sudo_password=${PASSWORD}
+    ${output}  Execute Command  ifconfig
+    Log  ${output}
+    ${output}  Run   sudo ip link set dev ${agent_if_name} mtu ${mtu}
+    Log  ${output}
