@@ -183,10 +183,10 @@ Measure TCP Bidir Throughput Big Packets
 
 Measure UDP TX Throughput Big Packets
     [Documentation]  Start server on agent pc. Send data from dut to agent and measure throughput
-    [Tags]  udp_iperf_tx
+    [Tags]  udp_iperf_tx_big
     [Setup]  Run iperf server on DUT
     [Teardown]        Stop iperf server
-    ${output}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 10000G -f M -t 10 -R -J   shell=True
+    ${output}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b ${bandwidth}G -f M -t 10 -R -J   shell=True
     Log               ${output.stdout}
     Get Throughput Values  ${output.stdout}
 
@@ -273,11 +273,11 @@ Get Throughput Values
     ${json_results}  Convert String To Json  ${output}
     ${values}  Get Value From Json  ${json_results}  $..${summary}
     ${MBps}  Evaluate  ${values[0]['bits_per_second']}/1000000
-    Should Be True  ${MBps} > ${800}
+    Run Keyword And Continue On Failure  Should Be True  ${MBps} > ${800}
 
 Switch MTU
     [Documentation]  Set interface mtu to max
-    [Arguments]  ${dut_if_name}=enp0s13f0u1  ${agent_if_name}=enp0s31f6  ${mtu}=1500
+    [Arguments]  ${dut_if_name}=enp0s13f0u1  ${agent_if_name}=enp0s20f0u1u2  ${mtu}=1500
     Execute Command  ip link set dev ${dut_if_name} mtu ${mtu}  sudo=True  sudo_password=${PASSWORD}
     ${output}  Execute Command  ifconfig
     Log  ${output}
