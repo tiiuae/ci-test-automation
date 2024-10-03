@@ -71,3 +71,12 @@ Check serial connection
     IF    ${status} == False   Fail  Device is not available via serial port, used port: ${SERIAL_PORT}
     [Teardown]  Delete All Ports
 
+Check Memory status
+    [Documentation]  Check that there is enough memory available
+    [Tags]  bat  lenovo-x1  SSRCSP-5321
+    [Setup]     Connect
+    [Teardown]  Close All Connections
+    ${ssd}  Check External SSD Size
+    ${storage}  Check Storagevm Size
+    Should Be True  ${ssd} > ${storage} > ${100}
+    Should Be True  ${${ssd}*${0.80}} <= ${storage}
