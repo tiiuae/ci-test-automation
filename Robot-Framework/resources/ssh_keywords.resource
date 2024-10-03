@@ -421,3 +421,16 @@ Restart VM
     Sleep  ${delay}
     Start VM  ${vm_name}
     Check if ssh is ready on netvm
+
+Check External SSD Size
+    [Documentation]  Check the size of ssd used in setup
+    ${lsblk}  Execute Command  lsblk
+    ${size}  Get Regexp Matches  ${lsblk}  (?im)(sda .*\\d*:\\d{1}.*\\d{1}\\s)(\\d{1,3})  2
+    RETURN  ${size}[0]
+
+Check Storagevm Size
+    [Documentation]  Check the size of storagevm
+    ${storage}  Execute Command  df -h
+    Log  ${storage}
+    ${size}  Get Regexp Matches  ${storage}  (?im)(storagevm\\s*)(\\d{1,3}G)(\\s*\\d{1,3}.\\s*)(\\d{1,3})  4
+    RETURN  ${size}[0]
