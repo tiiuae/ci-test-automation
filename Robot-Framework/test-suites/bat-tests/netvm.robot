@@ -32,7 +32,7 @@ Verify NetVM is started
 
 Wifi passthrought into NetVM
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              bat   SP-T50  nuc  orin-agx
+    [Tags]              bat   SP-T50
     ...                 test:retry(1)
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm  AND
