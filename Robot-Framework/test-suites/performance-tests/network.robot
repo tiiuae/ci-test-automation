@@ -13,8 +13,8 @@ Library             ../../lib/output_parser.py
 Library             Process
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${JOB}
 Library             Collections
-Suite Setup         Common Setup
-Suite Teardown      Close All Connections
+# Suite Setup         Common Setup
+# Suite Teardown      Close All Connections
 
 
 *** Test Cases ***

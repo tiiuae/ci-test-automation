@@ -5,6 +5,7 @@
 Documentation       Performance tests
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
+Resource            ../../resources/common_keywords.resource
 Suite Setup         Common Setup
 Suite Teardown      Common Teardown
 
@@ -13,6 +14,11 @@ Suite Teardown      Common Teardown
 
 Common Setup
     Set Variables   ${DEVICE}
+    Run Keyword If  "${DEVICE_IP_ADDRESS}" == ""    Get ethernet IP address
+    Connect
+    Run journalctl recording
 
 Common Teardown
+    Connect
+    Log journctl
     Close All Connections

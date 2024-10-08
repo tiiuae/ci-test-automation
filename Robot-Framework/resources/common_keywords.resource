@@ -24,3 +24,13 @@ Check If Ping Fails
     # ${out}   Run and Return RC   ping ${DEVICE_IP_ADDRESS} -c 1
     ${result}  Run Process  ping  ${DEVICE_IP_ADDRESS}  -c1  timeout=1s
     Should Not Be Equal   ${result.rc}  ${0}
+
+Run journalctl recording
+    ${output}     Execute Command    journalctl > jrnl.txt
+    ${output}     Execute Command    nohup journalctl -f >> jrnl.txt 2>&1 &
+
+Log journctl
+    ${output}     Execute Command    cat jrnl.txt
+    Log           ${output}
+    @{pid}        Find pid by name   journalctl
+    Kill process  @{pid}

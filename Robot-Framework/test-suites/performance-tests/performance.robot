@@ -11,8 +11,8 @@ Resource            ../../resources/performance_keywords.resource
 Library             ../../lib/output_parser.py
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${JOB}
 Library             Collections
-Suite Setup         Common Setup
-Suite Teardown      Close All Connections
+# Suite Setup         Common Setup
+# Suite Teardown      Close All Connections
 
 *** Variables ***
 @{failed_VM_tests}
