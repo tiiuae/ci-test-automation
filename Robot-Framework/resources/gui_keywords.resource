@@ -1,0 +1,109 @@
+# SPDX-FileCopyrightText: 2022-2024 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
+*** Settings ***
+Resource            ../config/variables.robot
+Library             ../lib/gui_testing.py
+Library             Collections
+
+*** Variables ***
+@{start_menu}       ../gui-ref-images/ewwbar_start_menu.png
+
+*** Keywords ***
+
+Login on Lenovo-X1
+    [Documentation]   Login and verify that task bar is available
+    Start ydotoold
+    Log To Console    Typing username and password to login
+    Type string and press enter  ghaf
+    Type string and press enter  ghaf
+    Log To Console    Check if menu icon is available on desktop
+    Locate image on screen  @{start_menu}  0.95  15
+    Connect to VM     ghaf-host-debug
+
+Log out on Lenovo-X1
+    [Documentation]   Log out and optionally verify that desktop is not available
+    [Arguments]        ${log_out_icon}=../gui-ref-images/logout.png
+    Start ydotoold
+    Log To Console    Going to click the app menu icon
+    Locate and click  @{start_menu}  0.95  5
+    Log To Console    Going to click the Log Out icon
+    Locate and click  ${log_out_icon}  0.95  5
+    ${logout_status}=   Verify logout
+    IF  $logout_status == "logged_out"
+        PASS
+    ELSE
+        FAIL  Log out failed. Desktop is still running.
+    END
+
+Type string and press enter
+    [Arguments]   ${string}
+    Log To Console    Typing ${string}
+    Execute Command   ydotool type ${string}  sudo=True  sudo_password=${PASSWORD}
+    Log To Console    Pressing Enter
+    Execute Command   ydotool key -d 0 28:1 28:0  sudo=True  sudo_password=${PASSWORD}
+
+Locate image on screen
+    [Documentation]    Take a screenshot. Locate given image on the screenshot.
+    ...                Return center coordinates of the image in mouse coordinate system
+    [Arguments]        ${image_to_be_searched}  ${confidence}=0.999   ${iterations}=5
+    ${coordinates}=  Set Variable  ${EMPTY}
+    ${pass_status}=  Set Variable  FAIL
+    FOR   ${i}   IN RANGE  ${iterations}
+        Log To Console    Taking screenshot
+        Execute Command   rm screenshot.png
+        ${rc} =    Execute Command  grim screenshot.png  return_stdout=False  return_rc=${true}
+        IF  "${rc}" == "0"
+            SSHLibrary.Get File  screenshot.png   screenshot.png
+            Log To Console    Locating image ${image_to_be_searched} on screenshot
+            ${pass_status}  ${coordinates}  Run Keyword And Ignore Error  Locate image  ${image_to_be_searched}   ${confidence}
+        END
+        IF    $pass_status=='PASS'    BREAK
+    END
+    IF    $pass_status=='FAIL'    FAIL  Image recognition failure: ${image_to_be_searched}
+    Log To Console    Coordinates: ${coordinates}
+    ${mouse_x}  Get From Dictionary   ${coordinates}  x
+    ${mouse_y}  Get From Dictionary   ${coordinates}  y
+    RETURN  ${mouse_x}  ${mouse_y}
+
+Locate and click
+    [Arguments]   ${image_to_be_searched}  ${confidence}=0.99  ${iterations}=5
+    ${mouse_x}  ${mouse_y}  Locate image on screen  ${image_to_be_searched}   ${confidence}
+    Execute Command   ydotool mousemove --absolute -x ${mouse_x} -y ${mouse_y}  sudo=True  sudo_password=${PASSWORD}
+    Execute Command   ydotool click 0xC0  sudo=True  sudo_password=${PASSWORD}
+
+Start ydotoold
+    [Documentation]    Start ydotool daemon if it is not already running.
+    ${ydotoold_state}=    Execute Command    sh -c 'ps aux | grep ydotoold | grep -v grep'
+    IF  $ydotoold_state == '${EMPTY}'
+        Log To Console    Starting ydotool daemon
+        Run Keyword And Ignore Error  Execute Command   -b /run/current-system/sw/bin/ydotoold --socket-path /tmp/.ydotool_socket  sudo=True  sudo_password=${PASSWORD}  timeout=3
+        ${ydotoold_state}=    Execute Command    sh -c 'ps aux | grep ydotoold | grep -v grep'
+        Should Not Be Empty  ${ydotoold_state}  failed to start ydotool daemon
+    ELSE
+        Log To Console    Check: ydotool daemon running
+    END
+
+Stop ydotoold
+    [Documentation]    Kill ydotool daemon
+    Log To Console    Stopping ydotool daemon
+    Execute Command   pkill ydotoold  sudo=True  sudo_password=${PASSWORD}
+
+Move cursor to corner
+    [Documentation]    Move the cursor to the upper left corner so that it will not block searching further gui screenshots
+    Log To Console    Moving cursor to corner from blocking further image detection
+    Start ydotoold
+    Execute Command   ydotool mousemove --absolute -x 50 -y 50  sudo=True  sudo_password=${PASSWORD}
+
+Verify logout
+    [Documentation]    Check that dekstop is not available by running 'grim' which should have return code 1 in this case
+    [Arguments]        ${iterations}=10
+    ${status}=  Set Variable  ${EMPTY}
+    FOR   ${i}   IN RANGE  ${iterations}
+        ${rc} =    Execute Command  grim check.png  return_stdout=False  return_rc=${true}
+        IF  "${rc}" == "1"
+            ${status}=  Set Variable  logged_out
+            BREAK
+        END
+    END
+    RETURN  ${status}

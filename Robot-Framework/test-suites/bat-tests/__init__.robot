@@ -5,8 +5,8 @@
 Documentation       BAT tests
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/serial_keywords.resource
-Suite Setup         Common Setup
-Suite Teardown      Common Teardown
+# Suite Setup         Common Setup
+# Suite Teardown      Common Teardown
 
 *** Variables ***
 
