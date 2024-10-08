@@ -25,6 +25,8 @@ Set Variables
     Set Global Variable  ${PLUG_TYPE}          ${config['addresses']['${DEVICE}']['plug_type']}
     Set Global Variable  ${THREADS_NUMBER}     ${config['addresses']['${DEVICE}']['threads']}
     Set Global Variable  ${SWITCH_BOT}         ${config['addresses']['${DEVICE}']['switch_bot']}
+    Set Global Variable  ${TA_USERNAME}        ${config['addresses']['${DEVICE}']['ta_username']}
+    Set Global Variable  ${TA_WIFI_PSWD}       ${config['addresses']['${DEVICE}']['ta_wifi_password']}
     Set Global Variable  ${NETVM_NAME}         net-vm
     Set Global Variable  ${CHROMIUM_VM_NAME}   chromium-vm
     Set Global Variable  ${GUI_VM_NAME}        gui-vm

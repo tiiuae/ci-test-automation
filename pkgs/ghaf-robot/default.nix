@@ -7,6 +7,7 @@
   robotframework-jsonlibrary,
   robotframework-retryfailed,
   robotframework-seriallibrary,
+  robotframework-browser,
   stdenv,
   writeShellApplication,
 }:
@@ -28,6 +29,7 @@ writeShellApplication {
       robotframework-jsonlibrary
       robotframework-retryfailed
       robotframework-seriallibrary
+      robotframework-browser
       PyP100
       plugp100
     ]))
