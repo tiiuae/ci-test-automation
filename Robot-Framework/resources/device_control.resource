@@ -24,11 +24,11 @@ Reboot LenovoX1
     ${device_is_available}   Ping Host   ${DEVICE_IP_ADDRESS}
     IF  ${device_is_available}
         Log To Console    ${\n}Turning device off...
-        Press Button      ${DEVICE}-OFF
+        Press Button      ${SWITCH_BOT}-OFF
         Sleep    ${delay}
     END
     Log To Console    Turning device on...
-    Press Button      ${DEVICE}-ON
+    Press Button      ${SWITCH_BOT}-ON
 
 Soft Reboot Device
     [Documentation]  Reboot device from command line

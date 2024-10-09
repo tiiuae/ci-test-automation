@@ -73,7 +73,7 @@ Turn OFF Device
     [Setup]     Run Keyword If  "${DEVICE_IP_ADDRESS}" == ""    Get ethernet IP address
     Log To Console    ${\n}Turning device off...
     IF  "${DEVICE_TYPE}" == "lenovo-x1"
-        Press Button      ${DEVICE}-OFF
+        Press Button      ${SWITCH_BOT}-OFF
     ELSE
         Turn Plug Off
     END
@@ -90,7 +90,7 @@ Turn ON Device
     [Tags]            turnon
     Log To Console    ${\n}Turning device on...
     IF  "${DEVICE_TYPE}" == "lenovo-x1"
-        Press Button      ${DEVICE}-ON
+        Press Button      ${SWITCH_BOT}-ON
     ELSE
         Turn Plug On
     END

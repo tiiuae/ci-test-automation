@@ -10,6 +10,7 @@ Library    OperatingSystem
 ${BUILD_ID}       ${EMPTY}
 ${SWITCH_TOKEN}   ${EMPTY}
 ${SWITCH_SECRET}  ${EMPTY}
+${DEVICE_TYPE}    ${EMPTY}
 
 
 *** Keywords ***
@@ -41,6 +42,10 @@ Set Variables
     IF  $BUILD_ID != '${EMPTY}'
         ${config}=     Read Config  ../config/${BUILD_ID}.json
         Set Global Variable    ${JOB}    ${config['Job']}
+    END
+
+    IF  "${DEVICE_TYPE}" == "lenovo-x1"
+        Set Global Variable  ${SWITCH_BOT}     ${config['addresses']['${DEVICE}']['switch_bot']}
     END
 
 
