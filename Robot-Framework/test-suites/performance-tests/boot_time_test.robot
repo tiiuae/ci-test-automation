@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing target device bootup time.
-Force Tags          ssh_boot_test  performance
+Force Tags          ssh_boot_test
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
