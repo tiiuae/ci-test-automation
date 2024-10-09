@@ -134,14 +134,14 @@ Start application
     Log To Console   ${\n}Starting ${app_name}
     ${output}        Execute Command    cat /etc/xdg/weston/weston.ini
     ${path}          Get App Path  ${output}  ${app_name}
-    Execute Command  nohup sh -c '$(${path})' > output.log 2>&1 &
+    Execute Command  nohup sh -c '${path}' > output.log 2>&1 &
 
 Start XDG application
     [Arguments]      ${app_name}
     Log To Console   ${\n}Starting ${app_name}
     ${output}        Execute Command    cat /run/current-system/sw/share/applications/${app_name}.desktop
     ${path}          Get App Path From Desktop  ${output}
-    Execute Command  nohup sh -c '$(${path})' > output.log 2>&1 &
+    Execute Command  nohup sh -c '${path}' > output.log 2>&1 &
 
 Start Firefox
     [Documentation]  It's needed to set display variable manually because there is no real monitor connected to DUT

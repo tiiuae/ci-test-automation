@@ -24,7 +24,7 @@ Start Firefox
     Connect
     Start Firefox
     Check that the application was started    firefox
-    [Teardown]  Kill process  @{app_pids}
+    [Teardown]  Kill Process And Log journalctl
 
 Start Chromium on LenovoX1
     [Documentation]   Start Chromium in dedicated VM and verify process started
@@ -36,7 +36,7 @@ Start Chromium on LenovoX1
     Start XDG application   Chromium
     Connect to VM       ${CHROMIUM_VM}
     Check that the application was started    chromium
-    [Teardown]  Kill process  @{app_pids}
+    [Teardown]  Kill Process And Log journalctl
 
 Start Zathura on LenovoX1
     [Documentation]   Start Zathura in dedicated VM and verify process started
@@ -47,7 +47,7 @@ Start Zathura on LenovoX1
     Start XDG application   'PDF Viewer'
     Connect to VM       ${ZATHURA_VM}
     Check that the application was started    zathura
-    [Teardown]  Kill process  @{app_pids}
+    [Teardown]  Kill Process And Log journalctl
 
 Start Gala on LenovoX1
     [Documentation]   Start Gala in dedicated VM and verify process started
@@ -58,7 +58,7 @@ Start Gala on LenovoX1
     Start XDG application   GALA
     Connect to VM       ${GALA_VM}
     Check that the application was started    gala
-    [Teardown]  Kill process  @{app_pids}
+    [Teardown]  Kill Process And Log journalctl
 
 Start Element on LenovoX1
     [Documentation]   Start Element in dedicated VM and verify process started
@@ -69,7 +69,7 @@ Start Element on LenovoX1
     Start XDG application  Element
     Connect to VM          ${COMMS_VM}
     Check that the application was started    element
-    [Teardown]  Kill process  @{app_pids}
+    [Teardown]  Kill Process And Log journalctl
 
 Start Slack on LenovoX1
     [Documentation]   Start Slack in dedicated VM and verify process started
@@ -80,15 +80,23 @@ Start Slack on LenovoX1
     Start XDG application  Slack
     Connect to VM          ${COMMS_VM}
     Check that the application was started    slack
-    [Teardown]  Kill process  @{app_pids}
+    [Teardown]  Kill Process And Log journalctl
 
 Start Appflowy on LenovoX1
     [Documentation]   Start Appflowy in dedicated VM and verify process started
-    [Tags]            bat   appflowy   lenovo-x1
+    [Tags]            appflowy   lenovo-x1  # Removed bat tag until final decision of this app is made
     [Setup]           Connect to netvm
     Connect to VM          ${GUI_VM}
     Check if ssh is ready on vm    appflowy-vm
     Start XDG application  AppFlowy
     Connect to VM          ${APPFLOWY_VM}
     Check that the application was started    appflowy
-    [Teardown]  Kill process  @{app_pids}
+    [Teardown]  Kill Process And Log journalctl
+
+
+*** Keywords ***
+Kill Process And Log journalctl
+    [Documentation]  Kill all running process and log journalctl
+    ${output}     Execute Command    journalctl
+    Log  ${output}
+    Kill process  @{app_pids}
