@@ -12,9 +12,6 @@ Suite Teardown      Close All Connections
 
 *** Variables ***
 ${netvm_ip}        192.168.101.1
-${SSID}            test_network
-${wifi_pswd}       test1234
-${netwotk_ip}      192.168.1.1
 ${netvm_state}     ${EMPTY}
 ${ghaf_host_ssh}   ${EMPTY}
 ${netvm_ssh}       ${EMPTY}
@@ -32,35 +29,17 @@ Verify NetVM is started
 
 Wifi passthrought into NetVM
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              bat   SP-T111
-    ...                 test:retry(1)
-    [Setup]             Run Keywords
-    ...                 Connect to ghaf host  AND  Connect to netvm  AND
-    ...                 Verify service status      service=wpa_supplicant.service
-    Configure wifi      ${netvm_ssh}  ${SSID}  ${wifi_pswd}
-    Get wifi IP
-    Check Network Availability    ${netwotk_ip}  expected_result=True
-    Log To Console                Switch connection to Ghaf Host
-    Switch Connection	          ${ghaf_host_ssh}
-    Check Network Availability    ${netwotk_ip}  expected_result=False
-    Remove Wifi configuration
-    Check Network Availability    ${netwotk_ip}  expected_result=False
-    [Teardown]          Run Keywords  Remove Wifi configuration  AND  Close All Connections
-
-Wifi passthrought into NetVM on LenovoX1
-    [Documentation]     Verify that wifi works inside netvm on LenovoX1 laptop
-    [Tags]              bat   SP-T101  lenovo-x1
-    ...                 test:retry(1)
+    [Tags]              bat   SP-T101   SP-T111  nuc  orin-agx  lenovo-x1
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm
-    Configure wifi      ${netvm_ssh}  ${SSID}  ${wifi_pswd}  lenovo=True
-    Check Network Availability    ${netwotk_ip}  expected_result=True
-    Log To Console                Switch connection to Ghaf Host
-    Switch Connection	          ${ghaf_host_ssh}
-    Check Network Availability    ${netwotk_ip}  expected_result=False
-    Remove Wifi configuration     lenovo=True
-    Check Network Availability    ${netwotk_ip}  expected_result=False
-    [Teardown]          Run Keywords  Remove Wifi configuration  lenovo=True  AND  Close All Connections
+    Configure wifi      ${netvm_ssh}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
+    Get wifi IP
+    Check Network Availability    8.8.8.8   expected_result=True
+    Turn OFF WiFi       ${TEST_WIFI_SSID}
+    Check Network Availability    8.8.8.8   expected_result=False
+    Turn ON WiFi        ${TEST_WIFI_SSID}
+    Check Network Availability    8.8.8.8   expected_result=True
+    [Teardown]          Run Keywords  Remove Wifi configuration  ${TEST_WIFI_SSID}  AND  Close All Connections
 
 NetVM stops and starts successfully
     [Documentation]     Verify that NetVM stops properly and starts after that
@@ -116,26 +95,31 @@ Restart NetVM
     Check if ssh is ready on netvm
 
 Configure wifi
-    [Arguments]   ${netvm_ssh}  ${SSID}  ${passw}  ${lenovo}=False
-    Switch Connection  ${netvm_ssh}
-    Log To Console     Configuring Wifi
-    IF  ${lenovo}
-        Execute Command    nmcli dev wifi connect ${SSID} password ${passw}   sudo=True    sudo_password=${PASSWORD}
-    ELSE
-        Execute Command    sh -c "wpa_passphrase ${SSID} ${passw} > /etc/wpa_supplicant.conf"   sudo=True    sudo_password=${PASSWORD}
-        Execute Command    systemctl restart wpa_supplicant.service   sudo=True    sudo_password=${PASSWORD}
-    END
+    [Arguments]         ${netvm_ssh}  ${SSID}  ${passw}
+    Switch Connection   ${netvm_ssh}
+    Log To Console      Configuring Wifi
+    Set Log Level       NONE
+    Execute Command     nmcli dev wifi connect ${SSID} password ${passw}   sudo=True    sudo_password=${PASSWORD}
+    Set Log Level       INFO
 
 Remove Wifi configuration
-    [Arguments]         ${lenovo}=False
+    [Arguments]         ${SSID}
     Switch Connection   ${netvm_ssh}
     Log To Console      Removing Wifi configuration
-    IF  ${lenovo}
-        Execute Command    nmcli con down id ${SSID}   sudo=True    sudo_password=${PASSWORD}
-    ELSE
-        Execute Command    rm /etc/wpa_supplicant.conf  sudo=True    sudo_password=${PASSWORD}
-        Execute Command    systemctl restart wpa_supplicant.service  sudo=True    sudo_password=${PASSWORD}
-    END
+    Execute Command     nmcli connection delete id ${SSID}
+
+Turn OFF WiFi
+    [Arguments]         ${SSID}
+    Switch Connection   ${netvm_ssh}
+    Log To Console      Turning off Wifi
+    Execute Command     nmcli con down id ${SSID}   sudo=True    sudo_password=${PASSWORD}
+
+Turn ON WiFi
+    [Arguments]         ${SSID}
+    Switch Connection   ${netvm_ssh}
+    Log To Console      Turning on Wifi
+    Execute Command     nmcli con up id ${SSID}    sudo=True    sudo_password=${PASSWORD}
+
 
 Stop NetVM
     [Documentation]     Ensure that NetVM is started, stop it and check the status.

@@ -33,7 +33,9 @@ Check Network Availability
             Read Until           1 received
             Set Global Variable  ${is_available}  True
             Log To Console  ${host} is available
-            BREAK
+            IF    ${expected_result} == True
+                BREAK
+            END
         EXCEPT
             IF    ${expected_result} == False
                 Log To Console  ${host} is unavailable
@@ -362,7 +364,7 @@ Install iperf tool
     END
 
 Get Wifi Interface name
-    ${if_name}=    Execute Command    iw dev | awk '$1=="Interface"{print $2}'
+    ${if_name}=    Execute Command    nmcli device status | grep wifi | head -n 1 | awk '{print $1}'
     RETURN         ${if_name}
 
 Get wifi IP
