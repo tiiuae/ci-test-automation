@@ -33,7 +33,9 @@ Check Network Availability
             Read Until           1 received
             Set Global Variable  ${is_available}  True
             Log To Console  ${host} is available
-            BREAK
+            IF    ${expected_result} == True
+                BREAK
+            END
         EXCEPT
             IF    ${expected_result} == False
                 Log To Console  ${host} is unavailable

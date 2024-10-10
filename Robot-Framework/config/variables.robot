@@ -7,9 +7,11 @@ Library    OperatingSystem
 
 *** Variables ***
 
-${BUILD_ID}       ${EMPTY}
-${SWITCH_TOKEN}   ${EMPTY}
-${SWITCH_SECRET}  ${EMPTY}
+${BUILD_ID}        ${EMPTY}
+${SWITCH_TOKEN}    ${EMPTY}
+${SWITCH_SECRET}   ${EMPTY}
+${TEST_WIFI_SSID}  ${EMPTY}
+${TEST_WIFI_PSWD}  ${EMPTY}
 
 
 *** Keywords ***
