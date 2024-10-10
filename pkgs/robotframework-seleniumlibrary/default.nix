@@ -16,7 +16,6 @@
 buildPythonPackage rec {
   pname = "robotframework-seleniumlibrary";
   version = "6.6.1";
-  pyproject = true;
 
   # no tests included in PyPI tarball
   src = fetchFromGitHub {
@@ -26,9 +25,9 @@ buildPythonPackage rec {
     sha256 = "sha256-ULY0FH1RFQIlhS45LU3vUKi6urZJHiDgi6NdqU5tV2g=";
   };
 
-  build-system = [ setuptools ];
+  format = "setuptools";
 
-  dependencies = [
+  propagatedBuildInputs = [
     click
     robotframework
     robotframework-pythonlibcore
