@@ -14,6 +14,7 @@ zipImagePath = ''
 bootSuite = 'boot-test/'
 performanceSuite = 'performance-tests/'
 batSuite = 'bat-tests/'
+efibootSuite = 'efibootmgr/'
 deviceName = ''
 usbHubSerial = ''
 sdMuxUsbPort = ''
@@ -30,7 +31,9 @@ pipeline {
                     bootJob = "${splitted[0]}/Testing/boot_test"
                     batJob = "${splitted[0]}/Testing/smoke_tests"
                     performanceJob = "${splitted[0]}/Testing/Performance_tests"
+                    removebootmanagerJob = "${splitted[0]}/Testing/remove_efibootentries"
                     turnoffJob =  "${splitted[0]}/Testing/turn_off_device"
+                    turnonJob =  "${splitted[0]}/Testing/turn_on_device"
                     configPath = "/home/${params.label}/Jenkins-agent/workspace/${splitted[0]}/Testing/test_config.json"
 
                     // Check for which agent and which target device
@@ -156,6 +159,25 @@ pipeline {
                 }
             }
         }
+        stage('Installer') {
+            steps {
+                script{
+                    if ("${params.job}" == "lenovo-x1-carbon-gen10-debug-installer"){
+                        build = build(
+                            job: "${turnonJob}", propagate: false,
+                            parameters: [
+                              [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
+                              [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
+                              [$class: 'StringParameterValue', name: 'DEVICE_TYPE', value: "${params.device}"]
+                            ]
+                        )
+                        sh "python3 installer.py ${deviceName} ghaf"
+                        sh "./BrainStem_dev_kit/bin/AcronameHubCLI -u 0 -s ${usbHubSerial}"
+                        // no need to reboot device (it will be done in boot test)
+                    }
+                }
+            }
+        }
         stage('Boot Test') {
             steps {
               	script{
@@ -255,6 +277,22 @@ pipeline {
                             error("Error during performance tests")
                         }
                     }
+                }
+            }
+        }
+        stage('Remove Linux Boot Manager') {
+            steps {
+              	script {
+              	    if ("${params.job}" == "lenovo-x1-carbon-gen11-debug-installer"){
+                    build = build(
+                        job: "${batJob}", propagate: false,
+                        parameters: [
+                          [$class: 'StringParameterValue', name: 'RF_SUITE', value: "${efibootSuite}"],
+                          [$class: 'StringParameterValue', name: 'DESCRIPTION', value: "${params.server} buildID: ${params.buildID}"],
+                          [$class: 'StringParameterValue', name: 'DEVICE_NAME', value: "${deviceName}"],
+                          [$class: 'StringParameterValue', name: 'INCLD_TAG', value: "efiboot-modAND${params.device}"]
+                        ]
+                    )
                 }
             }
         }
