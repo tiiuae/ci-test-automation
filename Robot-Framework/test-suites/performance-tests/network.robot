@@ -117,14 +117,14 @@ Run TCP test
     Should Contain    ${output.stdout}    iperf Done.
     Log               ${output.stdout}
     &{tcp_speed}      Parse iperf output   ${output.stdout}
-    [Return]          &{tcp_speed}
+    RETURN            &{tcp_speed}
 
 Run UDP test
     ${output}         Run Process   iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t 10   shell=True
     Should Contain    ${output.stdout}    iperf Done.
     Log               ${output.stdout}
     &{udp_speed}      Parse iperf output   ${output.stdout}
-    [Return]          &{udp_speed}
+    RETURN            &{udp_speed}
 
 Clear iptables rules
     [Documentation]  Clear IP tables rules to open ports

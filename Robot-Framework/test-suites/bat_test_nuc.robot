@@ -90,7 +90,7 @@ Get VM Device Path
         END
     END
     IF   ${status} == False    FAIL    Device path was not found!
-    [Return]     ${device}
+    RETURN     ${device}
 
 Open Serial Port
     Add Port   /dev/ttyUSB0

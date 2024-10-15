@@ -53,14 +53,14 @@ Connect
     ${connection}=    Open Connection    ${IP}    port=${PORT}    prompt=\$    timeout=30
     ${output}=        Login     username=${LOGIN}    password=${PASSWORD}
     Should Contain    ${output}    ${target_output}
-    [Return]          ${connection}
+    RETURN            ${connection}
 
 Connect to ghaf host
     [Documentation]      Open ssh connection to ghaf host
     Log To Console       Connecting to Ghaf Host
     ${connection}        Connect
     Set Global Variable  ${ghaf_host_ssh}    ${connection}
-    [Return]             ${connection}
+    RETURN               ${connection}
 
 Connect to netvm
     [Documentation]      Connect to netvm directly from test run machine, using
@@ -82,7 +82,7 @@ Connect to netvm
     END
     IF  ${failed_connection}    FAIL  Couldn't connect NetVM
     Set Global Variable  ${netvm_ssh}    ${connection}
-    [Return]             ${netvm_ssh}
+    RETURN               ${netvm_ssh}
 
 Connect to VM
     [Arguments]          ${vm_name}
@@ -102,7 +102,7 @@ Connect to VM
     END
     IF  ${failed_connection}    FAIL  Couldn't connect ${vm_name}
 
-    [Return]             ${connection}
+    RETURN             ${connection}
 
 Verify Systemctl status
     [Arguments]    ${range}=60
@@ -154,7 +154,7 @@ Is process started
     [Arguments]    ${pid}
     ${rc}=      Execute Command    ps -p ${pid}   return_rc=True
     ${status}=  Run Keyword And Return Status   Should Be Equal As Integers	 ${rc[1]}	0
-    [Return]    ${status}
+    RETURN      ${status}
 
 Find pid by name
     [Arguments]   ${proc_name}
@@ -163,7 +163,7 @@ Find pid by name
     Log           ${output}
     @{pids}=      Find Pid    ${output}  ${proc_name}
     Log To Console    Found PIDs for process '${proc_name}':\n${pids}
-    [Return]      @{pids}
+    RETURN        @{pids}
 
 Kill process
     [Arguments]    @{pids}    ${sig}=15
@@ -209,7 +209,7 @@ Verify service status
     ELSE
         Fail  systemctl status ${service} ${result}, expected: ${expected_status} and ${expected_state}
     END
-    [Return]    ${status}  ${state}
+    RETURN    ${status}  ${state}
 
 Verify service shutdown status
     [Documentation]   Check if service was stopped properly
@@ -273,7 +273,7 @@ Get Ghaf Version
     Should Be Equal As Integers     ${rc}   0   Couldn't get ghaf version, command return code
     Log To Console    ghaf-version: ${output}
     ${major}  ${minor}     Parse Ghaf Version   ${output}
-    [Return]    ${major}  ${minor}
+    RETURN    ${major}  ${minor}
 
 Get Nixos Version
     [Documentation]    Get version of NixOS, Example:
@@ -282,7 +282,7 @@ Get Nixos Version
     Should Be Equal As Integers     ${rc}   0   Couldn't get ghaf version, command return code
     Log To Console    nixos-version: ${output}
     ${major}  ${minor}  ${date}  ${commit}  ${name}     Parse Nixos Version   ${output}
-    [Return]    ${major}  ${minor}  ${date}  ${commit}  ${name}
+    RETURN    ${major}  ${minor}  ${date}  ${commit}  ${name}
 
 Save log
     Connect
@@ -345,7 +345,7 @@ Install iperf tool
 
 Get Wifi Interface name
     ${if_name}=    Execute Command    iw dev | awk '$1=="Interface"{print $2}'
-    [Return]       ${if_name}
+    RETURN         ${if_name}
 
 Get wifi IP
     [Documentation]     Parse ifconfig output and looks for wifi IP
@@ -383,7 +383,7 @@ Check if ssh is ready on device
         Log to console  Port 22 (ssh) of ${DEVICE} is not ready after ${timeout}
     END
 
-    [Return]  ${is_ready}
+    RETURN  ${is_ready}
 
 Check QSPI Version is up to date
     ${output}      Execute Command    ota-check-firmware

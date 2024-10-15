@@ -32,7 +32,7 @@ Get list of PCI IDs
     ${stdout}    ${stderr}    ${rc}=    Execute Command    ${cmd}    return_stdout=True    return_stderr=True    return_rc=True
     Should Be Equal As Integers    ${rc}    0
     @{lines}=    Split To Lines    ${stdout}
-    [return]    @{lines}
+    RETURN       @{lines}
 
 Get microvm PCI passthrough list
     [Documentation]     Returns PCI Addresses, like 0001:01:00.0
@@ -42,7 +42,7 @@ Get microvm PCI passthrough list
     ${stdout}    ${stderr}    ${rc}=    Execute Command    ${cmd}    return_stdout=True    return_stderr=True    return_rc=True
     Should Be Equal As Integers    ${rc}    0
     @{lines}=    Split To Lines    ${stdout}
-    [return]    @{lines}
+    RETURN       @{lines}
 
 Get PCI ID from PCI Address
     [Documentation]     Gets VENDORID:DEVICEID pair from sysfs
@@ -51,4 +51,4 @@ Get PCI ID from PCI Address
     ${stdout}    ${stderr}    ${rc}=    Execute Command    ${cmd}    return_stdout=True    return_stderr=True    return_rc=True
     Should Be Equal As Integers    ${rc}    0
     ${stripped}=    Strip String    ${stdout}
-    [return]    ${stripped}
+    RETURN          ${stripped}
