@@ -19,8 +19,19 @@ Check that the application was started
     Should Not Be Empty  ${app_pids}  ${app_name} is not started
     Log To Console       ${app_name} is started
 
+Check Application Login Page
+    [Documentation]  Check that application is able to connect to Internet and login page is available
+    [Arguments]  ${application}=outlook
+    @{browser_ids}  SeleniumLibrary.Get Browser Ids
+    Log  ${browser_ids}
+
+    ${source}  SeleniumLibrary.Get source
+    Log  ${source}
+
+    ${handles}  SeleniumLibrary.Get Window Handles
+    Log  ${handles}
+
 Check If Ping Fails
     [Documentation]  Check that ping is not getting response from host
-    # ${out}   Run and Return RC   ping ${DEVICE_IP_ADDRESS} -c 1
     ${result}  Run Process  ping  ${DEVICE_IP_ADDRESS}  -c1  timeout=1s
     Should Not Be Equal   ${result.rc}  ${0}
