@@ -367,7 +367,8 @@ Get wifi IP
 
 Check if ssh is ready on device
     [Arguments]    ${timeout}=30
-    ${is_ready} =  Set Variable    False
+    ${is_ready}    Set Variable    False
+    ${start_time}  Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
         ${rc}  	${output}	 Run And Return Rc And Output   nc -zvw3 ${DEVICE_IP_ADDRESS} 22
         ${status}    Run Keyword And Return Status
@@ -377,7 +378,12 @@ Check if ssh is ready on device
             ${is_ready} =  Set Variable    True
             BREAK
         END
-        Sleep    1
+        ${diff}=    Evaluate    int(time.time()) - int(${start_time})
+        IF   ${diff} < ${timeout}
+            Sleep    1
+        ELSE
+            BREAK
+        END
     END
     IF   ${is_ready} == False
         Log to console  Port 22 (ssh) of ${DEVICE} is not ready after ${timeout}
