@@ -8,23 +8,29 @@ Resource            ../../resources/serial_keywords.resource
 Suite Setup         Common Setup
 Suite Teardown      Common Teardown
 
+*** Variables ***
+
+${connection}       ${NONE}
 
 *** Keywords ***
 
 Common Setup
     Set Variables   ${DEVICE}
     Run Keyword If  "${DEVICE_IP_ADDRESS}" == ""    Get ethernet IP address
-    ${port_22_is_available}     Check if ssh is ready on device   timeout=180
+    ${port_22_is_available}     Check if ssh is ready on device   timeout=60
     IF  ${port_22_is_available} == False
         FAIL    Failed because port 22 of device was not available, tests can not be run.
     END
-    Connect
+    ${connection}       Connect
+    Set Suite Variable  ${connection}
     Log versions
     Run journalctl recording
 
 Common Teardown
-    Connect
-    Log journctl
+    IF  ${connection}
+        Connect
+        Log journctl
+    END
     Close All Connections
 
 Run journalctl recording
