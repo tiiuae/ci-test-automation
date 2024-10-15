@@ -11,9 +11,9 @@ Library             Collections
 Create fail message
     [Arguments]       ${stats}
     ${fail_message}=  Set Variable   Significant deviation detected\nThreshold ${stats}[threshold]\nMeasurement result ${stats}[measurement]\nPrevious measurement ${stats}[prev_meas] (d: ${stats}[d_previous])\nFirst meas of the last stable period ${stats}[baseline1] (d: ${stats}[d_baseline1])\nMean of last stable period ${stats}[mean] (d: ${stats}[d_mean])\n
-    [Return]          ${fail_message}
+    RETURN            ${fail_message}
 
 Create improved message
     [Arguments]       ${stats}
     ${improve_message}=  Set Variable   Significant improvement detected!\nThreshold ${stats}[threshold]\nMeasurement result ${stats}[measurement]\nPrevious measurement ${stats}[prev_meas] (d: ${stats}[d_previous])\nFirst meas of the last stable period ${stats}[baseline1] (d: ${stats}[d_baseline1])\nMean of last stable period ${stats}[mean] (d: ${stats}[d_mean])\n
-    [Return]          ${improve_message}
+    RETURN            ${improve_message}

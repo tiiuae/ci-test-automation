@@ -104,5 +104,4 @@ Check Log For Notification
     Should Not Be Empty  ${notification}
     ${time}  Subtract Time From Time  ${notification}  ${current_time}
     Should Be True  0 < ${time} < 120
-
     RETURN  ${time}
