@@ -69,7 +69,7 @@ Connect to netvm
     Connect to ghaf host
     Log To Console       Connecting to NetVM
     ${failed_connection}  Set variable  True
-    FOR    ${i}    IN RANGE    10
+    FOR    ${i}    IN RANGE    3
         TRY
             ${connection}=       Open Connection    ${NETVM_IP}    port=22    prompt=\$    timeout=30
             ${output}=           Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${ghaf_host_ssh}
@@ -89,7 +89,7 @@ Connect to VM
     Log To Console       Connecting to ${vm_name}
     Check if ssh is ready on vm        ${vm_name}
     ${failed_connection}  Set variable  True
-    FOR    ${i}    IN RANGE    20
+    FOR    ${i}    IN RANGE    3
         TRY
             ${connection}=       Open Connection    ${vm_name}    port=22    prompt=\$    timeout=30
             ${output}=           Login    username=${LOGIN}        password=${PASSWORD}    jumphost_index_or_alias=${netvm_ssh}
