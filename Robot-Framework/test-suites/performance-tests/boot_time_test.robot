@@ -54,9 +54,9 @@ Get Boot times
     ${cmd3}  Catenate  SEPARATOR=\n
     ...  welcome_note=$(date -d "$(journalctl --output=short-iso | grep gui-vm | grep "Welcome" | tail -1 | awk '{print $1}')" "+%s")
     ...  echo $welcome_note
-    ${cmd4}  Catenate  SEPARATOR=\n
-    ...  bar_configured_note=$(date -d "$(journalctl --output=short-iso | grep "Started ewwbar" | tail -1 | awk '{print $1}')" "+%s")
-    ...  echo $bar_configured_note
+    ${freedesktop}  Catenate  SEPARATOR=\n
+    ...  freedesktop=$(date -d "$(journalctl --output=short-iso | grep "Successfully activated service 'org.freedesktop.systemd1'" | tail -1 | awk '{print $1}')" "+%s")
+    ...  echo $freedesktop
 
     ${start_time}  DateTime.Get Current Date
     Log to console  Start checking ping and ssh response
@@ -76,7 +76,7 @@ Get Boot times
     Connect to netvm
     Connect to VM  ${GUI_VM}
     ${time_from_reboot_to_desktop_available}  Run Keyword And Continue On Failure
-    ...  Wait Until Keyword Succeeds  ${TIME_TO_DESKTOP_AFTER_REBOOT}s  1s  Check Log For Notification  ${cmd4}  ${start_time_epoc}
+    ...  Wait Until Keyword Succeeds  ${TIME_TO_DESKTOP_AFTER_REBOOT}s  1s  Check Log For Notification  ${freedesktop}  ${start_time_epoc}
 
     ${ping_response_seconds}  IF  ${ping_response}  DateTime.Subtract Date From Date  ${ping_end_time}  ${start_time}    exclude_millis=True
     ${ssh_response_seconds}  IF  ${ssh_response}  DateTime.Subtract Date From Date  ${ssh_end_time}  ${start_time}    exclude_millis=True
