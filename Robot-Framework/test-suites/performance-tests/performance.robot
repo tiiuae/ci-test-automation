@@ -280,7 +280,6 @@ Sysbench test in VMs on LenovoX1
     ...                                  chromium-vm=4
     ...                                  comms-vm=4
     ...                                  admin-vm=1
-    ...                                  appflowy-vm=1
     ...                                  audio-vm=1
     ${vms}	Get Dictionary Keys	 ${threads}
     @{failed_vms} 	Create List
