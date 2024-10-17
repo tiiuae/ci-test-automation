@@ -24,6 +24,7 @@ Set Variables
     Set Global Variable  ${SOCKET_IP_ADDRESS}  ${config['addresses']['${DEVICE}']['socket_ip_address']}
     Set Global Variable  ${PLUG_TYPE}          ${config['addresses']['${DEVICE}']['plug_type']}
     Set Global Variable  ${THREADS_NUMBER}     ${config['addresses']['${DEVICE}']['threads']}
+    Set Global Variable  ${SWITCH_BOT}         ${config['addresses']['${DEVICE}']['switch_bot']}
     Set Global Variable  ${NETVM_NAME}         net-vm
     Set Global Variable  ${CHROMIUM_VM_NAME}   chromium-vm
     Set Global Variable  ${GUI_VM_NAME}        gui-vm
@@ -42,10 +43,6 @@ Set Variables
     IF  $BUILD_ID != '${EMPTY}'
         ${config}=     Read Config  ../config/${BUILD_ID}.json
         Set Global Variable    ${JOB}    ${config['Job']}
-    END
-
-    IF  "${DEVICE_TYPE}" == "lenovo-x1"
-        Set Global Variable  ${SWITCH_BOT}     ${config['addresses']['${DEVICE}']['switch_bot']}
     END
 
 
