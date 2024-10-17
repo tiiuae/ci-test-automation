@@ -34,10 +34,10 @@ Measure Soft Boot Time
 Measure Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
     [Tags]  SP-T192  lenovo-x1
-    Press Button      ${DEVICE}-OFF
+    Press Button      ${SWITCH_BOT}-OFF
     Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
     Sleep  5  # Wait until switchbot has pressed and returned button
-    Press Button      ${DEVICE}-ON
+    Press Button      ${SWITCH_BOT}-ON
     Get Boot times  hard  image_name=Hard Boot Times
 
 
