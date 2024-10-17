@@ -42,6 +42,7 @@
       devShell = pkgs.mkShell {
         buildInputs = with pkgs; [
           iperf
+          file
           (python3.withPackages (ps:
             with ps; [
               robotframework
@@ -56,6 +57,8 @@
               python-kasa
               pytz
               pandas
+              pyscreeze
+              python3Packages.opencv4
             ]))
         ];
       };

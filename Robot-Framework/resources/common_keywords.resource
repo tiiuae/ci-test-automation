@@ -19,8 +19,19 @@ Check that the application was started
     Should Not Be Empty  ${app_pids}  ${app_name} is not started
     Log To Console       ${app_name} is started
 
+Check that the application is not running
+    [Arguments]          ${app_name}  ${range}=2
+    ${pids}=  Set Variable  ${EMPTY}
+    FOR   ${i}   IN RANGE  ${range}
+        ${keyword_status}  ${pids}  Run Keyword And Ignore Error   Find pid by name    ${app_name}
+        ${status}    Run Keyword And Return Status   Should Be Empty  ${pids}
+        IF    ${status}    BREAK
+        Sleep   1
+    END
+    Should Be Empty   ${pids}   ${app_name} is still running
+    Log To Console    ${app_name} not running
+
 Check If Ping Fails
     [Documentation]  Check that ping is not getting response from host
-    # ${out}   Run and Return RC   ping ${DEVICE_IP_ADDRESS} -c 1
     ${result}  Run Process  ping  ${DEVICE_IP_ADDRESS}  -c1  timeout=1s
     Should Not Be Equal   ${result.rc}  ${0}
