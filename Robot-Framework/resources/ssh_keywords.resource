@@ -66,16 +66,23 @@ Connect to netvm
     [Documentation]      Connect to netvm directly from test run machine, using
     ...                  jumphost, this allows using standard SSHLibrary
     ...                  commands, like 'Execute Command'
+    [Arguments]    ${timeout}=60
     Connect to ghaf host
     Log To Console       Connecting to NetVM
     ${failed_connection}  Set variable  True
-    FOR    ${i}    IN RANGE    3
+    ${start_time}  Get Time	epoch
+    FOR    ${i}    IN RANGE    10
         TRY
             ${connection}=       Open Connection    ${NETVM_IP}    port=22    prompt=\$    timeout=30
             ${output}=           Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${ghaf_host_ssh}
         EXCEPT    ChannelException: ChannelException(2, 'Connect failed')    type=LITERAL
-            Sleep   1
-            CONTINUE
+            ${diff}=    Evaluate    int(time.time()) - int(${start_time})
+            IF   ${diff} < ${timeout}
+                Sleep    1
+                CONTINUE
+            ELSE
+                BREAK
+            END
         END
         ${failed_connection}  Set variable  False
         BREAK
@@ -292,7 +299,8 @@ Save log
     Close All Connections
 
 Check if ssh is ready on netvm
-    [Arguments]    ${timeout}=30
+    [Arguments]    ${timeout}=60
+    ${start_time}  Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
         ${output}  ${rc}    Execute Command    nc -zvw3 192.168.101.1 22    return_rc=True
         ${status}    Run Keyword And Return Status
@@ -300,12 +308,19 @@ Check if ssh is ready on netvm
         IF  ${status}
             BREAK
         END
-        Sleep    1
+        ${diff}=    Evaluate    int(time.time()) - int(${start_time})
+        IF   ${diff} < ${timeout}
+            Sleep    1
+            CONTINUE
+        ELSE
+            BREAK
+        END
     END
     IF   ${status} == False    FAIL    Port 22 of NetVM is not ready after ${timeout}
 
 Check if ssh is ready on vm
     [Arguments]    ${vm}  ${timeout}=30
+    ${start_time}  Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
         ${output}  ${rc}    Execute Command    nc -zvw3 ${vm} 22    return_rc=True
         ${status}    Run Keyword And Return Status
@@ -313,7 +328,12 @@ Check if ssh is ready on vm
         IF  ${status}
             BREAK
         END
-        Sleep    1
+        ${diff}=    Evaluate    int(time.time()) - int(${start_time})
+        IF   ${diff} < ${timeout}
+            Sleep    1
+        ELSE
+            BREAK
+        END
     END
     IF   ${status} == False    FAIL    Port 22 of ${vm} is not ready after ${timeout}
 
@@ -367,7 +387,8 @@ Get wifi IP
 
 Check if ssh is ready on device
     [Arguments]    ${timeout}=30
-    ${is_ready} =  Set Variable    False
+    ${is_ready}    Set Variable    False
+    ${start_time}  Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
         ${rc}  	${output}	 Run And Return Rc And Output   nc -zvw3 ${DEVICE_IP_ADDRESS} 22
         ${status}    Run Keyword And Return Status
@@ -377,7 +398,12 @@ Check if ssh is ready on device
             ${is_ready} =  Set Variable    True
             BREAK
         END
-        Sleep    1
+        ${diff}=    Evaluate    int(time.time()) - int(${start_time})
+        IF   ${diff} < ${timeout}
+            Sleep    1
+        ELSE
+            BREAK
+        END
     END
     IF   ${is_ready} == False
         Log to console  Port 22 (ssh) of ${DEVICE} is not ready after ${timeout}
