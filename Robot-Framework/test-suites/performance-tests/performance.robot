@@ -335,8 +335,7 @@ Perf-Bench test
     ...              Publish results in Jenkins
     [Tags]           SP-T174  riscv
     ${default_file_format}  Set Variable  perf_results_YYYY-MM-DD_BUILDER-BuildID_SDorEMMC
-    ${date}	 ${server}  Get Build Info
-    ${renamed_file}  Set Variable  perf_results_${date}_${server}-${BUILD_ID}_SD
+    ${renamed_file}  Set Variable  perf_results_${BUILD_ID}
 
     Log to console  Starting perf bench test
     ${output}  Execute Command  perf-test-icicle-kit
@@ -421,16 +420,6 @@ Save sysbench results
     Save cpu results      test=cpu${1thread}           host=${host}
     Save memory results   test=memory_read${1thread}   host=${host}
     Save memory results   test=memory_write${1thread}  host=${host}
-
-Get Build Info
-    [Documentation]  Read config file to get build date and server and return them.
-    ${out}  Run  cat ../config/${BUILD_ID}.json
-    ${json}  Convert Output To Json  ${out}
-    ${date}  Get From Dictionary   ${json}  Build started
-    ${date}  Convert Date  ${${date}}  result_format=%Y-%m-%d
-    ${server}  Get From Dictionary   ${json}  Server
-    ${server}  Split String From Right  ${server}  separator=.
-    RETURN  ${date}  ${server}[0]
 
 Read And Plot PerfBench Results
     [Documentation]  Copy normalised perfbench results to combined csv file on agent
