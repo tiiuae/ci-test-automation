@@ -21,7 +21,7 @@ Suite Teardown      Close All Connections
 
 TCP speed test
     [Documentation]   Measure RX and TX speed for TCP
-    [Tags]            tcp   SP-T91  nuc  orin-agx  orin-nx  riscv  lenovo-x1
+    [Tags]            tcp   SP-T86  nuc  orin-agx  orin-nx  riscv  lenovo-x1
     Run iperf server on DUT
     &{tcp_speed}      Run TCP test
     ${statistics}     Save Speed Data   ${TEST NAME}  ${tcp_speed}
@@ -60,7 +60,7 @@ TCP speed test
 
 UDP speed test
     [Documentation]   Measure RX and TX speed for UDP
-    [Tags]            udp   SP-T92  nuc  orin-agx  orin-nx  riscv  lenovo-x1
+    [Tags]            udp   SP-T87  nuc  orin-agx  orin-nx  riscv  lenovo-x1
     Run iperf server on DUT
     &{udp_speed}      Run UDP test
     ${statistics}     Save Speed Data   ${TEST NAME}  ${udp_speed}
