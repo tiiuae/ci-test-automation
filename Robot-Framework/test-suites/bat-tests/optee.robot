@@ -28,7 +28,7 @@ OP-TEE xtest
        ...              2. Delete corresponding "OP-TEE xtest XXXX" test case
        ...
        ...              (3. If everything is fixed (no more "-x"-flags), remove this comment!!)
-       [Tags]  bat  optee  optee-xtest  orin-agx  orin-nx  SP-T129
+       [Tags]  bat  optee  optee-xtest  orin-agx  orin-nx  SP-T122
 
        ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest -x 1008 -x 1033    sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
        Log     ${stdout}

@@ -16,7 +16,7 @@ Suite Teardown      Close All Connections
 
 Start Microsoft Outlook on LenovoX1
     [Documentation]   Start Microsoft Outlook in dedicated VM and verify process started
-    [Tags]  outlook  SP-T186
+    [Tags]  outlook  SP-T176
     Connect to netvm
     Connect to VM       ${GUI_VM}
     Start XDG application   "Microsoft Outlook"
@@ -26,7 +26,7 @@ Start Microsoft Outlook on LenovoX1
 
 Start Microsoft 365 on LenovoX1
     [Documentation]   Start Microsoft 365 in dedicated VM and verify process started
-    [Tags]  microsoft365  SP-T188
+    [Tags]  microsoft365  SP-T178
     Connect to netvm
     Connect to VM       ${GUI_VM}
     Start XDG application   "Microsoft 365"
@@ -36,7 +36,7 @@ Start Microsoft 365 on LenovoX1
 
 Start Microsoft Teams on LenovoX1
     [Documentation]   Start Microsoft Teams in dedicated VM and verify process started
-    [Tags]  teams  SP-T187
+    [Tags]  teams  SP-T177
     Connect to netvm
     Connect to VM       ${GUI_VM}
     Start XDG application   Teams
@@ -46,7 +46,7 @@ Start Microsoft Teams on LenovoX1
 
 Start Microsoft Trusted Browser on LenovoX1
     [Documentation]   Start Microsoft Trusted Browser in dedicated VM and verify process started
-    [Tags]  trusted_browser  SP-T189
+    [Tags]  trusted_browser  SP-T179
     Connect to netvm
     Connect to VM       ${GUI_VM}
     Start XDG application   "Trusted Browser"
