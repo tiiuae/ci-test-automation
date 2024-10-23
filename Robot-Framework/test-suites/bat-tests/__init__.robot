@@ -16,7 +16,7 @@ ${connection}       ${NONE}
 
 Common Setup
     Set Variables   ${DEVICE}
-    Run Keyword If  "${DEVICE_IP_ADDRESS}" == ""    Get ethernet IP address
+    Run Keyword If  "${DEVICE_IP_ADDRESS}" == "NONE"    Get ethernet IP address
     ${port_22_is_available}     Check if ssh is ready on device   timeout=60
     IF  ${port_22_is_available} == False
         FAIL    Failed because port 22 of device was not available, tests can not be run.
