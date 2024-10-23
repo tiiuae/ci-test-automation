@@ -350,7 +350,7 @@ Perf-Bench test
 
 Common Setup
     Set Variables   ${DEVICE}
-    Run Keyword If  "${DEVICE_IP_ADDRESS}" == ""    Get ethernet IP address
+    Run Keyword If  "${DEVICE_IP_ADDRESS}" == "NONE"    Get ethernet IP address
     Connect
 
 LenovoX1 Setup
