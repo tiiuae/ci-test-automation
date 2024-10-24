@@ -8,18 +8,23 @@ Library             Collections
 
 *** Variables ***
 
-${start_menu}       ./launcher.png
+${start_menu}         ./launcher.png
+${LOGGED_IN_STATUS}   ${True}
 
 *** Keywords ***
 
 GUI Log in
     [Documentation]   Login and verify that task bar is available
+    Verify logout
+    IF  ${LOGGED_IN_STATUS}
+        Log To Console          Already logged in. Skipping login.
+    ELSE
+        Log To Console          Logging in
+    END
     Start ydotoold
     Log To Console    Typing username and password to login
     Type string and press enter  ${LOGIN}
     Type string and press enter  ${PASSWORD}
-    Log To Console    Check if menu icon is available on desktop
-    Locate image on screen  ${start_menu}  0.95  15
 
 GUI Log out
     [Documentation]   Log out and optionally verify that desktop is not available
@@ -29,8 +34,6 @@ GUI Log out
     Locate and click   ./icon.png  0.95  5
     Get icon           ghaf-artwork  logout.svg  crop=0  background=black
     Locate and click   ./icon.png  0.95  5
-    Verify logout
-    Run Keyword If     ${LOGGED_IN_STATUS}  FAIL   Log out failed. Desktop is still running.
 
 Type string and press enter
     [Arguments]   ${string}
@@ -91,6 +94,11 @@ Move cursor to corner
     Log To Console    Moving cursor to corner from blocking further image detection
     Start ydotoold
     Execute Command   ydotool mousemove --absolute -x 50 -y 50  sudo=True  sudo_password=${PASSWORD}
+
+Verify login
+    [Documentation]    Check that launcher icon is available on desktop
+    Log To Console          Verifying login by trying to detect the launcher icon
+    Locate image on screen  ${start_menu}  0.95  15
 
 Verify logout
     [Documentation]    Check that dekstop is not available by running 'grim' which should have return code 1 in this case

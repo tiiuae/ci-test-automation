@@ -29,15 +29,8 @@ Common Setup
     END
     Run journalctl recording
     Save most common icons and paths to icons
-    Verify logout
-    Log To Console              LOGGED_IN_STATUS at start
-    Log To Console              ${LOGGED_IN_STATUS}
-    IF  ${LOGGED_IN_STATUS}
-        Log To Console          Already logged in. Skipping login at suite setup.
-    ELSE
-        Log To Console          Logging in
-        GUI Log in
-    END
+    GUI Log in
+    Verify login
 
 Common Teardown
     Connect
@@ -45,7 +38,7 @@ Common Teardown
         Connect to netvm
         Connect to VM       ${GUI_VM}
     END
-    GUI Log out
+    # GUI Log out
     Log journctl
     Close All Connections
 
