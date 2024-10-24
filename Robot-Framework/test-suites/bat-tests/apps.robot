@@ -7,6 +7,9 @@ Force Tags          apps
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
 Resource            ../../resources/common_keywords.resource
+Library             ../../lib/gui_testing.py
+Library             Collections
+Library             BuiltIn
 Suite Teardown      Close All Connections
 
 
