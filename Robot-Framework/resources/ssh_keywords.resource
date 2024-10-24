@@ -257,9 +257,8 @@ Check file doesn't exist
 
 Verify Ghaf Version Format
     [Documentation]    Check that ghaf-version contains version number in the format:"dd.dd"
-    ${major}  ${minor}    Get Ghaf Version
-    Should Match Regexp	  ${major}    ^\\d{2}$
-    Should Match Regexp	  ${minor}    ^\\d{2}$
+    ${version}   Get Ghaf Version
+    Should Match Regexp	  ${version}  \\d{2}.\\d{2}.?\\d{0,2}\$
 
 Verify Nixos Version Format
     [Documentation]    Check that nixos-version contains version number in the format:"dd.dd",
@@ -279,8 +278,7 @@ Get Ghaf Version
     ${output}   ${rc}    Execute Command   ghaf-version   return_rc=True
     Should Be Equal As Integers     ${rc}   0   Couldn't get ghaf version, command return code
     Log To Console    ghaf-version: ${output}
-    ${major}  ${minor}     Parse Ghaf Version   ${output}
-    RETURN    ${major}  ${minor}
+    RETURN    ${output}
 
 Get Nixos Version
     [Documentation]    Get version of NixOS, Example:
