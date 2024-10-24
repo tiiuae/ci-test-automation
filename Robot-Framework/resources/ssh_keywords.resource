@@ -456,7 +456,7 @@ Check Storagevm Size
     [Documentation]  Check the size of storagevm
     ${storage}  Execute Command  df -h
     Log  ${storage}
-    ${size}  Get Regexp Matches  ${storage}  (?im)(storagevm\\s*)(\\d{1,3}G)(\\s*\\d{1,3}.\\s*)(\\d{1,3})  4
+    ${size}  Get Regexp Matches  ${storage}  (?im)(storagevm\\s*)(\\d{1,3}G)(\\s*.*\\s)(\\d{1,3})(G\\s)  4
     RETURN  ${size}[0]
 
 Check ssh connection status
