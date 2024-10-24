@@ -14,11 +14,11 @@ Suite Teardown      Close All Connections
 
 Boot to login screen
     [Documentation]   Check that device booted to login screen
-    [Tags]            bat   lenovo-x1   SP-T2
+    [Tags]            lenovo-x1   SP-T2
     Run Keyword If    ${LOGGED_IN_STATUS}  FAIL  Desktop was detected at setup. Device failed to boot to login screen.
 
 Log out and log in
-    [Tags]            bat   lenovo-x1   SP-T149
+    [Tags]            lenovo-x1   SP-T149
     Connect
     IF  "Lenovo" in "${DEVICE}"
         Connect to netvm
