@@ -1,5 +1,46 @@
 {
   "nodes": {
+    "blank": {
+      "locked": {
+        "lastModified": 1625557891,
+        "narHash": "sha256-O8/MWsPBGhhyPoPLHZAuoZiiHo9q6FLlEeIDEXuj6T4=",
+        "owner": "divnix",
+        "repo": "blank",
+        "rev": "5a5d2684073d9f563072ed07c871d577a6c614a8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "divnix",
+        "repo": "blank",
+        "type": "github"
+      }
+    },
+    "dream2nix": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "purescript-overlay": [
+          "blank"
+        ],
+        "pyproject-nix": [
+          "blank"
+        ]
+      },
+      "locked": {
+        "lastModified": 1729932741,
+        "narHash": "sha256-Ko3a3hWt7CbVn9Db0/Tj9zln3bB/CMIhlQsP92mUejU=",
+        "owner": "nix-community",
+        "repo": "dream2nix",
+        "rev": "7acdae705dcc79f307e752f749a9f513a0ed9b83",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "dream2nix",
+        "type": "github"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -36,6 +77,8 @@
     },
     "root": {
       "inputs": {
+        "blank": "blank",
+        "dream2nix": "dream2nix",
         "flake-utils": "flake-utils",
         "nixpkgs": "nixpkgs"
       }

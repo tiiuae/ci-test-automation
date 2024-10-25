@@ -4,12 +4,23 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     flake-utils.url = "github:numtide/flake-utils";
+    blank.url = "github:divnix/blank";
+    dream2nix = {
+      url = "github:nix-community/dream2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+
+      # Blank unused inputs, to prevent unneeded downloads
+      inputs.pyproject-nix.follows = "blank";
+      inputs.purescript-overlay.follows = "blank";
+    };
   };
 
   outputs = {
     self,
     nixpkgs,
     flake-utils,
+    dream2nix,
+    ...
   }: let
     systems = with flake-utils.lib.system; [
       x86_64-linux
@@ -31,6 +42,7 @@
         robotframework-jsonlibrary = pkgs.python3Packages.callPackage ./pkgs/robotframework-jsonlibrary {};
         robotframework-retryfailed = pkgs.python3Packages.callPackage ./pkgs/robotframework-retryfailed {};
         robotframework-seriallibrary = pkgs.python3Packages.callPackage ./pkgs/robotframework-seriallibrary {};
+        robotframework-browser = pkgs.python3Packages.callPackage ./pkgs/robotframework-browser { inherit dream2nix; };
         robotframework-advancedlogging = pkgs.python3Packages.callPackage ./pkgs/robotframework-advancedlogging {};
         pkcs7 = pkgs.python3Packages.callPackage ./pkgs/pkcs7 {}; # Requirement of PyP100
         PyP100 = pkgs.python3Packages.callPackage ./pkgs/PyP100 {inherit pkcs7;};
