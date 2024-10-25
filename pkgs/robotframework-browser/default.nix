@@ -2,12 +2,19 @@
   lib,
   buildPythonPackage,
   robotframework,
-  fetchpatch2
+  fetchpatch2,
+  fetchPypi
 }:
 buildPythonPackage rec {
   version = "18.9.1";
   pname = "robotframework-browser";
   format = "pyproject";
+
+  src = fetchPypi {
+    inherit pname version;
+    sha256 = "sha256-+6RXnLOtZJzQOoz3fu5T8gEphgf6x8/PHbP3iqrp/WI=";
+  };
+
 
  patches = [
    (fetchpatch2 {

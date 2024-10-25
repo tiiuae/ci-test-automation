@@ -26,13 +26,11 @@
           robotframework-advancedlogging = self.packages.${system}.robotframework-advancedlogging;
           robotframework-jsonlibrary = self.packages.${system}.robotframework-jsonlibrary;
           robotframework-retryfailed = self.packages.${system}.robotframework-retryfailed;
-          robotframework-seleniumlibrary = self.packages.${system}.robotframework-seleniumlibrary;
           robotframework-seriallibrary = self.packages.${system}.robotframework-seriallibrary;
           robotframework-browser = self.packages.${system}.robotframework-browser;
         };
         robotframework-jsonlibrary = pkgs.python3Packages.callPackage ./pkgs/robotframework-jsonlibrary {};
         robotframework-retryfailed = pkgs.python3Packages.callPackage ./pkgs/robotframework-retryfailed {};
-        robotframework-seleniumlibrary = pkgs.python3Packages.callPackage ./pkgs/robotframework-seleniumlibrary {};
         robotframework-seriallibrary = pkgs.python3Packages.callPackage ./pkgs/robotframework-seriallibrary {};
         robotframework-browser = pkgs.python3Packages.callPackage ./pkgs/robotframework-browser {};
         robotframework-advancedlogging = pkgs.python3Packages.callPackage ./pkgs/robotframework-advancedlogging {};
@@ -53,7 +51,6 @@
               robotframework
               self.packages.${system}.robotframework-jsonlibrary
               self.packages.${system}.robotframework-retryfailed
-              self.packages.${system}.robotframework-seleniumlibrary
               self.packages.${system}.robotframework-seriallibrary
               self.packages.${system}.robotframework-browser
               self.packages.${system}.robotframework-advancedlogging
