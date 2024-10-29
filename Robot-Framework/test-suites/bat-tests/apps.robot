@@ -46,6 +46,7 @@ Start Zathura on LenovoX1
     [Tags]            bat   SP-T105   lenovo-x1
     [Setup]           Connect to netvm
     Connect to VM       ${GUI_VM}
+    Sleep  3
     Check if ssh is ready on vm    ${ZATHURA_VM}
     Start XDG application   'PDF Viewer'
     Connect to VM       ${ZATHURA_VM}
