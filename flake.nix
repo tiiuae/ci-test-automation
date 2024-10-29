@@ -29,7 +29,7 @@
   in
     flake-utils.lib.eachSystem systems (system: let
       pkgs = nixpkgs.legacyPackages.${system};
-    in {
+    in rec {
       packages = rec {
         ghaf-robot = pkgs.callPackage ./pkgs/ghaf-robot {
           PyP100 = self.packages.${system}.PyP100;
@@ -43,11 +43,19 @@
         robotframework-retryfailed = pkgs.python3Packages.callPackage ./pkgs/robotframework-retryfailed {};
         robotframework-seriallibrary = pkgs.python3Packages.callPackage ./pkgs/robotframework-seriallibrary {};
         robotframework-browser = pkgs.python3Packages.callPackage ./pkgs/robotframework-browser { inherit dream2nix; };
+        robotframework-browser-test = pkgs.python3Packages.callPackage ./pkgs/robotframework-browser/test.nix { inherit robotframework-browser; };
         robotframework-advancedlogging = pkgs.python3Packages.callPackage ./pkgs/robotframework-advancedlogging {};
         pkcs7 = pkgs.python3Packages.callPackage ./pkgs/pkcs7 {}; # Requirement of PyP100
         PyP100 = pkgs.python3Packages.callPackage ./pkgs/PyP100 {inherit pkcs7;};
         plugp100 = pkgs.python3Packages.callPackage ./pkgs/plugp100 {};
         default = ghaf-robot;
+      };
+
+      apps = {
+        robotframework-browser-test = {
+          program = "${packages.robotframework-browser-test}/bin/robotframework-browser-test";
+          type = "app";
+        };
       };
 
       # Development shell
