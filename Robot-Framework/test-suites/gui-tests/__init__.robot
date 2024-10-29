@@ -46,11 +46,11 @@ Save most common icons and paths to icons
     ...                     Śave paths to icon packs in gui-vm nix store
     ${adwaita}              Set Variable  /run/current-system/sw/share/icons/Adwaita
     Log To Console          Saving path to icon-pack
-    ${app_icon_pack_path}   Execute Command   echo /nix/store/$(ls /nix/store | grep icon-pack | tail -1)
+    ${app_icon_pack_path}   Execute Command   echo /nix/store/$(ls /nix/store | grep icon-pack | grep -v .drv)
     Set Global Variable     ${APP_ICON_PATH}  ${app_icon_pack_path}
     Log To Console          ${APP_ICON_PATH}
     Log To Console          Saving path to ghaf-artwork icons
-    ${ghaf_artwork_path}    Execute Command   echo /nix/store/$(ls /nix/store | grep ghaf-artwork | tail -1)/icons
+    ${ghaf_artwork_path}    Execute Command   echo /nix/store/$(ls /nix/store | grep ghaf-artwork- | grep -v .drv)/icons
     Set Global Variable     ${ARTWORK_PATH}  ${ghaf_artwork_path}
     Log To Console          ${ARTWORK_PATH}
     Log To Console          Saving gui icons
