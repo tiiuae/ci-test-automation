@@ -26,6 +26,7 @@
   zlib,
 }:
 let
+  # RF Browser require newer, exact this version
   protobuf = buildPythonPackage rec {
     pname = "protobuf";
     version = "5.28.3";
@@ -38,6 +39,8 @@ let
 
     build-system = [ setuptools ];
   };
+
+  # RF Browser require newer, exact this version
   grpcio = buildPythonPackage rec {
     pname = "grpcio";
     format = "setuptools";
@@ -79,14 +82,13 @@ let
       unset AR
     '';
 
-  GRPC_BUILD_WITH_BORING_SSL_ASM = "";
-  GRPC_PYTHON_BUILD_SYSTEM_OPENSSL = 1;
-  GRPC_PYTHON_BUILD_SYSTEM_ZLIB = 1;
-  GRPC_PYTHON_BUILD_SYSTEM_CARES = 1;
+    GRPC_BUILD_WITH_BORING_SSL_ASM = "";
+    GRPC_PYTHON_BUILD_SYSTEM_OPENSSL = 1;
+    GRPC_PYTHON_BUILD_SYSTEM_ZLIB = 1;
+    GRPC_PYTHON_BUILD_SYSTEM_CARES = 1;
   };
 
-  # the pypi source archive does not ship tests
-  doCheck = false;
+  # Missing dependency for RF Browser
   robotframework-assertion-engine = buildPythonPackage rec {
     pname = "robotframework-assertion-engine";
     version = "3.0.3";
@@ -113,6 +115,8 @@ let
     inherit pname version;
     sha256 = "sha256-+6RXnLOtZJzQOoz3fu5T8gEphgf6x8/PHbP3iqrp/WI=";
   };
+
+  # Extract JS wrapper source from python' one
   browser-wrapper-sources =  stdenv.mkDerivation {
     preferLocalBuild = true;
     pname = "browser-wrapper-sources";
@@ -123,8 +127,10 @@ let
       cp -rv Browser/wrapper $out
     '';
   };
+
+  # Build NodeJS part using dream2nix magic
   browser-wrapper = dream2nix.lib.evalModules {
-    packageSets.nixpkgs = pkgs; 
+    packageSets.nixpkgs = pkgs;
     modules = [
       ({ dream2nix, config, ...}: {
         imports = [
@@ -134,22 +140,30 @@ let
         mkDerivation.src = browser-wrapper-sources;
         deps = {...}: { inherit stdenv; };
         nodejs-package-lock-v3 = {
+          # FIXME: could we avoid IFD here?
           packageLockFile = "${config.mkDerivation.src}/package-lock.json";
         };
+
+        # Use prebuilts from nixpkgs, otherwise node-pre-gyp try to download binaries during build time
         nodejs-granular-v3.overrides."grpc-tools".mkDerivation.postPatch = ''
           find ${pkgs.grpc-tools}
           substituteInPlace package.json --replace-fail "node-pre-gyp install" "cp ${pkgs.grpc-tools}/bin/protoc bin/ && cp ${pkgs.grpc-tools}/bin/grpc_node_plugin bin";
         '';
+
+        # We don't need really build, just create node_modules
         mkDerivation.postPatch = ''
-          substituteInPlace package.json --replace-fail "node ./node/build.wrapper.js" "echo Nope" 
+          substituteInPlace package.json --replace-fail "node ./node/build.wrapper.js" "echo Nope"
         '';
+
+        # Make a wrapper of `node` with injected node_modules and PLAYWRIGHT_BROWSERS_PATH
         mkDerivation.nativeBuildInputs = [ which ];
         mkDerivation.postInstall = ''
           mkdir -p $out/bin
           which node
           makeWrapper "$(which node)" "$out/bin/node" \
-            --prefix NODE_PATH : ${placeholder "out"}/lib/node_modules \
+            --prefix NODE_PATH : ${placeholder "out"}/lib/node_modules/browser-wrapper/node_modules/ \
             --set-default PLAYWRIGHT_BROWSERS_PATH "${playwright-driver.passthru.browsers}"
+         cat $out/bin/node
         '';
         name = "browser-wrapper";
         inherit version;
@@ -162,12 +176,14 @@ buildPythonPackage rec {
   format = "setuptools";
   src = rf-browser-sources;
 
+  # Hijack our node wrapper
   postPatch = ''
     substituteInPlace Browser/playwright.py --replace-fail '"node"' '"${browser-wrapper}/bin/node"'
   '';
 
+  # playwright.py check if this directory exists in runtime, so inject symlink here as well
   postInstall = ''
-    ln -sf ${browser-wrapper}/lib/node_modules $out/lib/python3.11/site-packages/Browser/wrapper/node_modules 
+    ln -sf ${browser-wrapper}/lib/node_modules/browser-wrapper/node_modules $out/lib/python3.11/site-packages/Browser/wrapper/node_modules
   '';
 
 #  patches = [
