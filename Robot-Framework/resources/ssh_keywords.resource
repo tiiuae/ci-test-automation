@@ -49,9 +49,9 @@ Check Network Availability
 
 Connect
     [Documentation]   Set up the SSH connection to the device
-    [Arguments]       ${IP}=${DEVICE_IP_ADDRESS}    ${PORT}=22    ${target_output}=ghaf@ghaf-host
+    [Arguments]       ${IP}=${DEVICE_IP_ADDRESS}    ${PORT}=22    ${target_output}=ghaf@ghaf-host  ${jumphost_index_or_alias}=${EMPTY}
     ${connection}=    Open Connection    ${IP}    port=${PORT}    prompt=\$    timeout=30
-    ${output}=        Login     username=${LOGIN}    password=${PASSWORD}
+    ${output}=        Login     username=${LOGIN}    password=${PASSWORD}  jumphost_index_or_alias=${jumphost_index_or_alias}
     Should Contain    ${output}    ${target_output}
     RETURN            ${connection}
 
@@ -95,20 +95,22 @@ Connect to VM
     [Arguments]          ${vm_name}
     Log To Console       Connecting to ${vm_name}
     Check if ssh is ready on vm        ${vm_name}
-    ${failed_connection}  Set variable  True
-    FOR    ${i}    IN RANGE    3
-        TRY
-            ${connection}=       Open Connection    ${vm_name}    port=22    prompt=\$    timeout=30
-            ${output}=           Login    username=${LOGIN}        password=${PASSWORD}    jumphost_index_or_alias=${netvm_ssh}
-        EXCEPT    ChannelException: ChannelException(2, 'Connect failed')    type=LITERAL
-            Sleep   1
-            CONTINUE
-        END
-        ${failed_connection}  Set variable  False
-        BREAK
-    END
-    IF  ${failed_connection}    FAIL  Couldn't connect ${vm_name}
-
+    # ${failed_connection}  Set variable  True
+    ${connection}  Run Keyword And Return Status  Wait Until Keyword Succeeds  10s  1s  Connect  ${vm_name}  target_output=${vm_name}  jumphost_index_or_alias=${netvm_ssh}
+    Log  netvm_ssh: ${netvm_ssh}
+    # FOR    ${i}    IN RANGE    3
+    #     TRY
+    #         ${connection}=       Open Connection    ${vm_name}    port=22    prompt=\$    timeout=30
+    #         ${output}=           Login    username=${LOGIN}        password=${PASSWORD}    jumphost_index_or_alias=${netvm_ssh}
+    #     EXCEPT    ChannelException: ChannelException(2, 'Connect failed')    type=LITERAL
+    #         Sleep   1
+    #         CONTINUE
+    #     END
+    #     ${failed_connection}  Set variable  False
+    #     BREAK
+    # END
+    # IF  ${failed_connection}    FAIL  Couldn't connect ${vm_name}
+    IF  not ${connection}    FAIL  Couldn't connect ${vm_name}
     RETURN             ${connection}
 
 Verify Systemctl status
