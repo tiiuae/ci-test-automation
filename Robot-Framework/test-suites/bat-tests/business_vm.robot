@@ -44,8 +44,8 @@ Start Microsoft Teams on LenovoX1
     Check that the application was started    teams
     [Teardown]  Kill process  @{app_pids}
 
-Start Microsoft Trusted Browser on LenovoX1
-    [Documentation]   Start Microsoft Trusted Browser in dedicated VM and verify process started
+Start Trusted Browser on LenovoX1
+    [Documentation]   Start Trusted Browser in dedicated VM and verify process started
     [Tags]  trusted_browser  SP-T179
     Connect to netvm
     Connect to VM       ${GUI_VM}
