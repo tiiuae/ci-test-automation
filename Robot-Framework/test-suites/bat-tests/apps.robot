@@ -50,7 +50,7 @@ Start Zathura on LenovoX1
     Check if ssh is ready on vm    ${ZATHURA_VM}
     Start XDG application   'PDF Viewer'
     Connect to VM       ${ZATHURA_VM}
-    Check that the application was started    zathura
+    Wait Until Keyword Succeeds  10s  2s  Check that the application was started    zathura
     [Teardown]  Kill Process And Log journalctl
 
 Start Gala on LenovoX1
