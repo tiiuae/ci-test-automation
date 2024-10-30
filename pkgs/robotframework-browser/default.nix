@@ -24,6 +24,9 @@
   six,
   pkg-config,
   zlib,
+  chromium,
+  ffmpeg,
+  makeWrapper
 }:
 let
   # RF Browser require newer, exact this version
@@ -158,18 +161,31 @@ let
         # Make a wrapper of `node` with injected node_modules and PLAYWRIGHT_BROWSERS_PATH
         mkDerivation.nativeBuildInputs = [ which ];
         mkDerivation.postInstall = ''
-          mkdir -p $out/bin
-          which node
-          makeWrapper "$(which node)" "$out/bin/node" \
-            --prefix NODE_PATH : ${placeholder "out"}/lib/node_modules/browser-wrapper/node_modules/ \
-            --set-default PLAYWRIGHT_BROWSERS_PATH "${playwright-driver.passthru.browsers}"
-         cat $out/bin/node
+          mkdir -p $out/bin $out/browsers
+          python ${./make-browsers.py} \
+            $out/browsers \
+            $out/lib/node_modules/browser-wrapper/node_modules/playwright-core/browsers.json \
+            chromium=${chromium}/bin/chromium \
+            ffmpeg=${ffmpeg}/bin/ffmpeg
+          ln -sf $(which node) $out/bin/node
+          ln -sf $out/browsers $out/lib/node_modules/browser-wrapper/node_modules/playwright-core/.local-browsers
         '';
         name = "browser-wrapper";
         inherit version;
       })
     ];
   };
+  node-wrapper = runCommand "node-and-browser-wrapper" {
+    runLocal = true;
+    nativeBuildInputs = [ pkgs.python3 makeWrapper ];
+  } ''
+    mkdir -p $out/bin
+    ln -sf ${browser-wrapper}/browsers $out/browsers
+    makeWrapper "${browser-wrapper}/bin/node" "$out/bin/node" \
+      --prefix NODE_PATH : ${browser-wrapper}/lib/node_modules/browser-wrapper/node_modules/ \
+      --set-default PLAYWRIGHT_BROWSERS_PATH "${placeholder "out"}/browsers"
+    cat $out/bin/node
+  '';
 in
 buildPythonPackage rec {
   inherit pname version;
@@ -178,7 +194,7 @@ buildPythonPackage rec {
 
   # Hijack our node wrapper
   postPatch = ''
-    substituteInPlace Browser/playwright.py --replace-fail '"node"' '"${browser-wrapper}/bin/node"'
+    substituteInPlace Browser/playwright.py --replace-fail '"node"' '"${node-wrapper}/bin/node"'
   '';
 
   # playwright.py check if this directory exists in runtime, so inject symlink here as well
@@ -195,7 +211,7 @@ buildPythonPackage rec {
 
   doCheck = false; # Tests failing
   preCheck = ''
-    export PLAYWRIGHT_BROWSERS_PATH=${playwright-driver.browsers}
+    export PLAYWRIGHT_BROWSERS_PATH=${node-wrapper}/browsers
   '';
 
   pythonImportsCheck = [ "Browser" ];
