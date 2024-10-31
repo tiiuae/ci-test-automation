@@ -36,7 +36,9 @@ Start Microsoft Outlook on LenovoX1
 Logim to Microsoft Outlook on LenovoX1
     [Documentation]   Start Microsoft Outlook in dedicated VM and login
     [Tags]  outlook   SP-5328
-    # [Setup]  Run Keywords  Connect to netvm  AND  Connect to VM  ${GUI_VM}  AND  Login on Lenovo-X1
+
+    Run Keyword And Continue On Failure  GUI Log in
+    Run Keyword And Continue On Failure  Verify login
     # Configure wifi  ${netvm_ssh}  ${ta_wifi_ssid}  ${TA_WIFI_PSWD}  lenovo=True
     # Start ydotoold
     Log To Console    Typing username and password to login
