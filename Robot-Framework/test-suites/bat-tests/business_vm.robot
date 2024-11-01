@@ -39,7 +39,7 @@ Logim to Microsoft Outlook on LenovoX1
 
     Run Keyword And Continue On Failure  GUI Log in
     Run Keyword And Continue On Failure  Verify login
-    # Configure wifi  ${netvm_ssh}  ${ta_wifi_ssid}  ${TA_WIFI_PSWD}  lenovo=True
+    Configure wifi  ${netvm_ssh}  ${ta_wifi_ssid}  ${TA_WIFI_PSWD}  lenovo=True
     # Start ydotoold
     Log To Console    Typing username and password to login
     Browser.Open Browser  browser=chromium
