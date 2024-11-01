@@ -88,7 +88,7 @@ NetVM is wiped after restarting
 
 Verify wpa_supplicant.service is running
     [Documentation]     Verify that wpa_supplicant.service exists and is running
-    [Tags]              bat   SP-T77  nuc  orin-agx  lenovo-x1
+    [Tags]              bat   SP-T77
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm
     Switch Connection   ${netvm_ssh}
