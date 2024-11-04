@@ -160,6 +160,11 @@ let
 
         # Make a wrapper of `node` with injected node_modules and PLAYWRIGHT_BROWSERS_PATH
         mkDerivation.nativeBuildInputs = [ which ];
+
+        # Two notes:
+        # 1. Tree of browsers created via python scrip[t `make-browsers.py`, to avoid one more IFD
+        # 2. `$out/lib/node_modules/browser-wrapper/node_modules/playwright-core/.local-browsers` link provided, 
+        #    because playwright ignore PLAYWRIGHT_BROWSERS_PATH variable even if it set.
         mkDerivation.postInstall = ''
           mkdir -p $out/bin $out/browsers
           python ${./make-browsers.py} \
