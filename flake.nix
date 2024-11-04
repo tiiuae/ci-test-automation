@@ -38,6 +38,7 @@
           robotframework-jsonlibrary = self.packages.${system}.robotframework-jsonlibrary;
           robotframework-retryfailed = self.packages.${system}.robotframework-retryfailed;
           robotframework-seriallibrary = self.packages.${system}.robotframework-seriallibrary;
+          robotframework-browser = self.packages.${system}.robotframework-browser;
         };
         robotframework-jsonlibrary = pkgs.python3Packages.callPackage ./pkgs/robotframework-jsonlibrary {};
         robotframework-retryfailed = pkgs.python3Packages.callPackage ./pkgs/robotframework-retryfailed {};
