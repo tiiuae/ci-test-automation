@@ -20,11 +20,11 @@ GUI Log in
         Log To Console          Already logged in. Skipping login.
     ELSE
         Log To Console          Logging in
+        Start ydotoold
+        Log To Console    Typing username and password to login
+        Type string and press enter  ${LOGIN}
+        Type string and press enter  ${PASSWORD}
     END
-    Start ydotoold
-    Log To Console    Typing username and password to login
-    Type string and press enter  ${LOGIN}
-    Type string and press enter  ${PASSWORD}
 
 GUI Log out
     [Documentation]   Log out and optionally verify that desktop is not available
@@ -117,7 +117,7 @@ Verify logout
 
 Get icon
     [Documentation]    Copy icon svg file to test agent machine. Crop and convert the svg file to png.
-    [Arguments]        ${path}   ${icon_name}   ${crop}   ${background}=none   ${output_filename}=icon.png
+    [Arguments]        ${path}   ${icon_name}   ${crop}=0   ${background}=none   ${output_filename}=icon.png
     IF  $path == "app"
         SSHLibrary.Get File  ${APP_ICON_PATH}/${icon_name}   icon.svg
     ELSE IF  $path == "ghaf-artwork"
@@ -126,3 +126,22 @@ Get icon
         SSHLibrary.Get File  ${path}/${icon_name}   icon.svg
     END
     Convert app icon  ${crop}   ${background}   input_file=icon.svg  output_file=${output_filename}
+
+Check if locked
+    [Documentation]    Check if the screen lock has been activated
+    Log To Console     Searching for view-reveal-symbolic.svg
+    Get icon           ${ADWAITA}/symbolic/actions  view-reveal-symbolic.svg  background=black
+    Verify logout      2
+    IF  ${LOGGED_IN_STATUS}
+        ${status}   ${output}      Run Keyword And Ignore Error   Locate image on screen  ./icon.png  0.95  3
+        IF  '${status}' == 'PASS'
+            RETURN    ${True}
+        END
+    END
+    RETURN    ${False}
+
+GUI Unlock
+    [Documentation]    Unlock the screen be typing password
+    Start ydotoold
+    Log To Console     Typing password to unlock
+    Type string and press enter  ${PASSWORD}

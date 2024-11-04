@@ -29,7 +29,15 @@ Common Setup
     END
     Run journalctl recording
     Save most common icons and paths to icons
-    GUI Log in
+    Log To Console              Check if the screen is in locked state
+    ${lock}                     Check if locked
+    IF  ${lock}
+        Log To Console          Screen lock detected
+        Unlock
+    ELSE
+        Log To Console          Screen lock not active
+        GUI Log in
+    END
     Verify login
 
 Common Teardown
@@ -44,7 +52,7 @@ Common Teardown
 Save most common icons and paths to icons
     [Documentation]         Save those icons by name which will be used in multiple test cases
     ...                     Śave paths to icon packs in gui-vm nix store
-    ${adwaita}              Set Variable  /run/current-system/sw/share/icons/Adwaita
+    Set Global Variable     ${ADWAITA}        /run/current-system/sw/share/icons/Adwaita
     Log To Console          Saving path to icon-pack
     ${app_icon_pack_path}   Execute Command   echo /nix/store/$(ls /nix/store | grep icon-pack | grep -v .drv)
     Set Global Variable     ${APP_ICON_PATH}  ${app_icon_pack_path}
@@ -55,5 +63,5 @@ Save most common icons and paths to icons
     Log To Console          ${ARTWORK_PATH}
     Log To Console          Saving gui icons
     Get icon                ghaf-artwork  launcher.svg  crop=0  background=black  output_filename=launcher.png
-    Get icon                ${adwaita}/symbolic/ui  window-close-symbolic.svg  crop=0  output_filename=window-close.png  background=white
+    Get icon                ${ADWAITA}/symbolic/ui  window-close-symbolic.svg  crop=0  output_filename=window-close.png  background=white
     Negate app icon         window-close.png  window-close-neg.png
