@@ -72,6 +72,7 @@
               self.packages.${system}.robotframework-retryfailed
               self.packages.${system}.robotframework-seriallibrary
               self.packages.${system}.robotframework-advancedlogging
+              self.packages.${system}.robotframework-browser
               self.packages.${system}.PyP100
               self.packages.${system}.plugp100
               robotframework-sshlibrary
