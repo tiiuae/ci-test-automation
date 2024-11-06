@@ -50,7 +50,7 @@ Check that time is correct
     [Documentation]   Check that current system time is correct (time tolerance = 10 sec)
     [Arguments]       ${timezone}=UTC
 
-    ${is_started} =   Set Variable    False
+    ${is_synchronized} =   Set Variable    False
     FOR    ${i}    IN RANGE    3
         ${output}      Execute Command    timedatectl -a
         ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}  ${is_synchronized}   Parse time info  ${output}
