@@ -4,7 +4,8 @@
 thresholds = {
     'cpu': {
         'multi': 700,
-        'single': 40
+        'single': 40,
+        'single_nuc': 120
     },
     'mem': {
         'multi': {
@@ -13,7 +14,9 @@ thresholds = {
         },
         'single': {
             'wr': 350,
-            'rd': 250
+            'rd': 250,
+            'wr_nuc': 800,
+            'rd_nuc': 800
         }
     },
     'fileio': {

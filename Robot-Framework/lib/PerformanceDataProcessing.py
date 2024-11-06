@@ -203,7 +203,10 @@ class PerformanceDataProcessing:
 
         # Set threshold for fail depending on test type: single/multi thread
         if "One thread" in test_name or "1thread" in test_name:
-            threshold = thresholds['cpu']['single']
+            if "NUC" in self.device:
+                threshold = thresholds['cpu']['single_nuc']
+            else:
+               threshold = thresholds['cpu']['single']
         else:
             threshold = thresholds['cpu']['multi']
 
@@ -453,9 +456,15 @@ class PerformanceDataProcessing:
         # Set threshold for fail depending on test type: single/multi thread, write/read
         if "One thread" in test_name or "1thread" in test_name:
             if "rite" in test_name:
-                threshold = thresholds['mem']['single']['wr']
+                if "NUC" in self.device:
+                    threshold = thresholds['mem']['single']['wr_nuc']
+                else:
+                    threshold = thresholds['mem']['single']['wr']
             else:
-                threshold = thresholds['mem']['single']['rd']
+                if "NUC" in self.device:
+                    threshold = thresholds['mem']['single']['rd_nuc']
+                else:
+                    threshold = thresholds['mem']['single']['rd']
         else:
             if "rite" in test_name:
                 threshold = thresholds['mem']['multi']['wr']

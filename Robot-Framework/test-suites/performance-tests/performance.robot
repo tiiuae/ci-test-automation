@@ -256,7 +256,7 @@ Sysbench test in NetVM
     END
     IF  "${statistics_mem_wr}[flag]" == "-1"
         ${add_msg}      Create fail message  ${statistics_mem_wr}
-        ${fail_msg}=    Set Variable  ${fail_msg}\nMEM WRITE:\n${add_msg}
+        ${fail_msg}=    Set Variable  ${msg}\nMEM WRITE:\n${add_msg}
     END
     IF  "${statistics_mem_wr}[flag]" == "1"
         ${add_msg}      Create improved message  ${statistics_mem_wr}
