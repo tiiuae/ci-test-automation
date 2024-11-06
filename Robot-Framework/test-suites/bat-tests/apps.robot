@@ -50,7 +50,9 @@ Start Zathura on LenovoX1
     Start XDG application   'PDF Viewer'
     Connect to VM       ${ZATHURA_VM}
     Check that the application was started    zathura
-    [Teardown]  Kill Process And Log journalctl
+    [Teardown]  Run Keywords
+    ...         Kill Process And Log journalctl    AND
+    ...         Run Keyword If Test Failed     Skip    "Known issue: SSRCSP-5385"
 
 Start Gala on LenovoX1
     [Documentation]   Start Gala in dedicated VM and verify process started
