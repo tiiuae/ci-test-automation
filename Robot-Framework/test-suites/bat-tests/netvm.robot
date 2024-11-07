@@ -29,7 +29,7 @@ Verify NetVM is started
 
 Wifi passthrought into NetVM
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              bat   SP-T101   SP-T111  nuc  orin-agx  lenovo-x1
+    [Tags]              bat   SP-T101   SP-T111  orin-agx  lenovo-x1
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm
     Configure wifi      ${netvm_ssh}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
@@ -40,6 +40,18 @@ Wifi passthrought into NetVM
     Turn ON WiFi        ${TEST_WIFI_SSID}
     Check Network Availability    8.8.8.8   expected_result=True
     [Teardown]          Run Keywords  Remove Wifi configuration  ${TEST_WIFI_SSID}  AND  Close All Connections
+
+Wifi passthrought into NetVM (NUC)
+    [Documentation]     Verify that wifi works inside netvm
+    [Tags]              bat   SP-T111  nuc
+    [Setup]             Run Keywords
+    ...                 Connect to ghaf host  AND  Connect to netvm
+    Configure wifi via wpa_supplicant      ${netvm_ssh}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
+    Get wifi IP
+    Check Network Availability    8.8.8.8   expected_result=True
+    Remove wpa_supplicant configuration
+    Check Network Availability    8.8.8.8   expected_result=False
+    [Teardown]          Run Keywords  Remove wpa_supplicant configuration  AND  Close All Connections
 
 NetVM stops and starts successfully
     [Documentation]     Verify that NetVM stops properly and starts after that
@@ -67,7 +79,7 @@ NetVM is wiped after restarting
 
 Verify wpa_supplicant.service is running
     [Documentation]     Verify that wpa_supplicant.service exists and is running
-    [Tags]              bat   SP-T77
+    [Tags]              bat   SP-T77   nuc
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm
     Switch Connection   ${netvm_ssh}
@@ -149,3 +161,18 @@ Start NetVM if dead
     IF  '${netvm_state}' == 'dead'
         Start NetVM
     END
+
+Configure wifi via wpa_supplicant
+    [Arguments]         ${netvm_ssh}  ${SSID}  ${passw}  ${lenovo}=False
+    Switch Connection   ${netvm_ssh}
+    Log To Console      Configuring Wifi
+    Set Log Level       NONE
+    Execute Command     sh -c "wpa_passphrase ${SSID} ${passw} > /etc/wpa_supplicant.conf"   sudo=True    sudo_password=${PASSWORD}
+    Execute Command     systemctl restart wpa_supplicant.service   sudo=True    sudo_password=${PASSWORD}
+    Set Log Level       INFO
+
+Remove wpa_supplicant configuration
+    Switch Connection   ${netvm_ssh}
+    Log To Console      Removing Wifi configuration
+    Execute Command     rm /etc/wpa_supplicant.conf  sudo=True    sudo_password=${PASSWORD}
+    Execute Command     systemctl restart wpa_supplicant.service  sudo=True    sudo_password=${PASSWORD}
