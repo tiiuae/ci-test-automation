@@ -137,7 +137,7 @@ Start NetVM
     [Documentation]     Try to start NetVM service
     ...                 Pre-condition: requires active ssh connection to ghaf host.
     Log To Console          Going to start NetVM
-    Execute Command         systemctl start ${netvm_service}  sudo=True  sudo_password=${PASSWORD}
+    Execute Command         systemctl start ${netvm_service}  sudo=True  sudo_password=${PASSWORD}  timeout=60  output_during_execution=True
     ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=active  expected_state=running
     Set Global Variable     ${netvm_state}   ${state}
     Log To Console          NetVM is ${state}
