@@ -126,7 +126,7 @@ Stop NetVM
     ...                 Pre-condition: requires active ssh connection to ghaf host.
     Verify service status   service=${netvm_service}   expected_status=active   expected_state=running
     Log To Console          Going to stop NetVM
-    Execute Command         systemctl stop ${netvm_service}  sudo=True  sudo_password=${PASSWORD}
+    Execute Command         systemctl stop ${netvm_service}  sudo=True  sudo_password=${PASSWORD}  timeout=60  output_during_execution=True
     Sleep    3
     ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=inactive  expected_state=dead
     Verify service shutdown status   service=${netvm_service}
