@@ -22,6 +22,7 @@ writeShellApplication {
       ps.python-kasa
       ps.pytz
       ps.pandas
+      ps.pyscreeze
 
       # These are taken from this flake
       robotframework-advancedlogging
