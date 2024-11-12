@@ -151,3 +151,4 @@ GUI Unlock
     Start ydotoold
     Log To Console     Typing password to unlock
     Type string and press enter  ${PASSWORD}
+

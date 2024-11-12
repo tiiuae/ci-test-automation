@@ -80,3 +80,9 @@ Check If Device Is Up
             Check Serial Connection
         END
     END
+
+Log versions
+    ${ghaf_version}     Execute Command   ghaf-version
+    Log to console      Ghaf version: ${ghaf_version}
+    ${nixos_version}    Execute Command   nixos-version
+    Log to console      Nixos version: ${nixos_version}
