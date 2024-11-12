@@ -31,3 +31,16 @@ Turn ON WiFi
     Switch Connection   ${netvm_ssh}
     Log To Console      Turning on Wifi
     Execute Command     nmcli con up id ${SSID}    sudo=True    sudo_password=${PASSWORD}
+
+Initialize Variables And Connect
+    [Documentation]  Initialize variables. Connect to device and start logging
+    Set Variables   ${DEVICE}
+    Run Keyword If  "${DEVICE_IP_ADDRESS}" == "NONE"    Get ethernet IP address
+    ${port_22_is_available}     Check if ssh is ready on device   timeout=60
+    IF  ${port_22_is_available} == False
+        FAIL    Failed because port 22 of device was not available, tests can not be run.
+    END
+    ${CONNECTION}       Connect
+    Set Suite Variable  ${CONNECTION}
+    Log versions
+    Run journalctl recording
