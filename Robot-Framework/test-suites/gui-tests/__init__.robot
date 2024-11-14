@@ -33,7 +33,7 @@ Common Setup
     ${lock}                     Check if locked
     IF  ${lock}
         Log To Console          Screen lock detected
-        Unlock
+        GUI Unlock
     ELSE
         Log To Console          Screen lock not active
         GUI Log in
