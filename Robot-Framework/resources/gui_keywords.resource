@@ -130,7 +130,7 @@ Get icon
 Check if locked
     [Documentation]    Check if the screen lock has been activated
     Log To Console     Searching for view-reveal-symbolic.svg
-    Get icon           ${ADWAITA}/symbolic/actions  view-reveal-symbolic.svg  background=black
+    Get icon           ${ICON_THEME}/symbolic/actions  view-reveal-symbolic.svg  background=black
     Verify logout      2
     IF  ${LOGGED_IN_STATUS}
         ${status}   ${output}      Run Keyword And Ignore Error   Locate image on screen  ./icon.png  0.95  3
