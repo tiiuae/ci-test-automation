@@ -52,10 +52,10 @@ Common Teardown
 Save most common icons and paths to icons
     [Documentation]         Save those icons by name which will be used in multiple test cases
     ...                     Śave paths to icon packs in gui-vm nix store
-    Set Global Variable     ${ADWAITA}        /run/current-system/sw/share/icons/Adwaita
-    Log To Console          Saving path to icon-pack
-    ${app_icon_pack_path}   Execute Command   echo /nix/store/$(ls /nix/store | grep icon-pack | grep -v .drv)
-    Set Global Variable     ${APP_ICON_PATH}  ${app_icon_pack_path}
+    ${icons}                Execute Command   find $(echo $XDG_DATA_DIRS | tr ':' ' ') -type d -name "icons" 2>/dev/null
+    Set Global Variable     ${ICON_THEME}        ${icons}/Papirus-Dark
+    Log To Console          Saving path to app icon-pack
+    Set Global Variable     ${APP_ICON_PATH}  ${ICON_THEME}/128x128/apps
     Log To Console          ${APP_ICON_PATH}
     Log To Console          Saving path to ghaf-artwork icons
     ${ghaf_artwork_path}    Execute Command   echo /nix/store/$(ls /nix/store | grep ghaf-artwork- | grep -v .drv)/icons
@@ -63,5 +63,5 @@ Save most common icons and paths to icons
     Log To Console          ${ARTWORK_PATH}
     Log To Console          Saving gui icons
     Get icon                ghaf-artwork  launcher.svg  crop=0  background=black  output_filename=launcher.png
-    Get icon                ${ADWAITA}/symbolic/ui  window-close-symbolic.svg  crop=0  output_filename=window-close.png  background=white
+    Get icon                ${ICON_THEME}/symbolic/actions  window-close-symbolic.svg  crop=0  output_filename=window-close.png  background=white
     Negate app icon         window-close.png  window-close-neg.png
