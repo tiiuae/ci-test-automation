@@ -89,7 +89,7 @@ Start Slack on LenovoX1
 
 Start Appflowy on LenovoX1
     [Documentation]   Start Appflowy in dedicated VM and verify process started
-    [Tags]            appflowy   lenovo-x1  # Removed bat tag until final decision of this app is made
+    [Tags]            appflowy  # Removed bat tag & lenovo-x1 tag until final decision of this app is made
     [Setup]           Connect to netvm
     Connect to VM          ${GUI_VM}
     Check if ssh is ready on vm    appflowy-vm
