@@ -20,13 +20,13 @@ ${start_menu}       ./launcher.png
 
 *** Test Cases ***
 
-Start and close chromium via GUI on LenovoX1
-    [Documentation]   Start Chromium via GUI test automation and verify related process started
-    ...               Close Chromium via GUI test automation and verify related process stopped
+Start and close chrome via GUI on LenovoX1
+    [Documentation]   Start Chrome via GUI test automation and verify related process started
+    ...               Close Chrome via GUI test automation and verify related process stopped
     [Tags]            SP-T41   lenovo-x1
-    Get icon   app  chromium.svg  crop=30
-    Start app via GUI on LenovoX1   chromium-vm  chromium
-    Close app via GUI on LenovoX1   chromium-vm  chromium  ./window-close-neg.png
+    Get icon   app  google-chrome.svg  crop=30
+    Start app via GUI on LenovoX1   ${CHROME_VM}  chrome
+    Close app via GUI on LenovoX1   ${CHROME_VM}  google-chrome  ./window-close-neg.png
 
 Start and close Firefox via GUI on Orin AGX
     [Documentation]   Passing this test requires that display is connected to the target device

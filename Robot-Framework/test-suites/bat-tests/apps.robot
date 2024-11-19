@@ -26,16 +26,16 @@ Start Firefox
     Check that the application was started    firefox
     [Teardown]  Kill Process And Log journalctl
 
-Start Chromium on LenovoX1
-    [Documentation]   Start Chromium in dedicated VM and verify process started
+Start Chrome on LenovoX1
+    [Documentation]   Start Chrome in dedicated VM and verify process started
     [Tags]            bat   SP-T92   lenovo-x1
-    Verify service status  range=15  service=microvm@chromium-vm.service  expected_status=active  expected_state=running
+    Verify service status  range=15  service=microvm@chrome-vm.service  expected_status=active  expected_state=running
     Connect to netvm
     Connect to VM       ${GUI_VM}
-    Check if ssh is ready on vm    ${CHROMIUM_VM}
-    Start XDG application   Chromium
-    Connect to VM       ${CHROMIUM_VM}
-    Check that the application was started    chromium
+    Check if ssh is ready on vm    ${CHROME_VM}
+    Start XDG application   'Google Chrome'
+    Connect to VM       ${CHROME_VM}
+    Check that the application was started    chrome
     [Teardown]  Kill Process And Log journalctl
 
 Start Zathura on LenovoX1
