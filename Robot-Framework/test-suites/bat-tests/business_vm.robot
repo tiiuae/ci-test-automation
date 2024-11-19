@@ -51,5 +51,5 @@ Start Trusted Browser on LenovoX1
     Connect to VM       ${GUI_VM}
     Start XDG application   "Trusted Browser"
     Connect to VM       ${BUSINESS_VM}
-    Check that the application was started    chromium
+    Check that the application was started    chrome
     [Teardown]  Kill process  @{app_pids}

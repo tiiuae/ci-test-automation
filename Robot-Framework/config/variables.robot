@@ -35,7 +35,7 @@ Set Variables
     Set Global Variable  ${NETVM_SERVICE}      microvm@${NETVM_NAME}.service
     Set Global Variable  ${NETVM_IP}           192.168.101.1
     Set Global Variable  ${GUI_VM}             gui-vm
-    Set Global Variable  ${CHROMIUM_VM}        chromium-vm
+    Set Global Variable  ${CHROME_VM}          chrome-vm
     Set Global Variable  ${GALA_VM}            gala-vm
     Set Global Variable  ${ZATHURA_VM}         zathura-vm
     Set Global Variable  ${COMMS_VM}           comms-vm

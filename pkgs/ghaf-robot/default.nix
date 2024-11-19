@@ -1,6 +1,7 @@
 {
   PyP100,
   iperf,
+  imagemagick,
   plugp100,
   python3,
   robotframework-advancedlogging,
@@ -14,6 +15,7 @@ writeShellApplication {
   name = "ghaf-robot";
   runtimeInputs = [
     iperf
+    imagemagick
     (python3.withPackages (ps: [
       # These are taken from nixpkgs
       ps.robotframework
@@ -23,6 +25,7 @@ writeShellApplication {
       ps.pytz
       ps.pandas
       ps.pyscreeze
+      ps.opencv4
 
       # These are taken from this flake
       robotframework-advancedlogging
