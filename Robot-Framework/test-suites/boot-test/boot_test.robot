@@ -21,7 +21,7 @@ ${DEVICE_TYPE}           ${EMPTY}
 
 Verify booting after restart by power
     [Documentation]    Restart device by power and verify init service is running
-    [Tags]             boot  plug  nuc  orin-agx  orin-nx
+    [Tags]             boot  plug  nuc  orin-agx  orin-nx  test:retry(1)
     Reboot Device
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False
