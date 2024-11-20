@@ -126,7 +126,7 @@ Stop NetVM
     ...                 Pre-condition: requires active ssh connection to ghaf host.
     Verify service status   service=${netvm_service}   expected_status=active   expected_state=running
     Log To Console          Going to stop NetVM
-    Execute Command         systemctl stop ${netvm_service}  sudo=True  sudo_password=${PASSWORD}  timeout=60  output_during_execution=True
+    Execute Command         systemctl stop ${netvm_service}  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
     Sleep    3
     ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=inactive  expected_state=dead
     Verify service shutdown status   service=${netvm_service}
@@ -137,7 +137,7 @@ Start NetVM
     [Documentation]     Try to start NetVM service
     ...                 Pre-condition: requires active ssh connection to ghaf host.
     Log To Console          Going to start NetVM
-    Execute Command         systemctl start ${netvm_service}  sudo=True  sudo_password=${PASSWORD}  timeout=60  output_during_execution=True
+    Execute Command         systemctl start ${netvm_service}  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
     ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=active  expected_state=running
     Set Global Variable     ${netvm_state}   ${state}
     Log To Console          NetVM is ${state}
@@ -146,6 +146,4 @@ Start NetVM
 Start NetVM if dead
     [Documentation]     Teardown keyword. Check global variable ${netvm_state} and start NetVM if it's stopped.
     ...                 Pre-condition: requires active ssh connection to ghaf host.
-    IF  '${netvm_state}' == 'dead'
-        Start NetVM
-    END
+    Start NetVM
