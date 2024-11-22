@@ -3,6 +3,7 @@
 
 *** Settings ***
 Resource            ../config/variables.robot
+Library             OperatingSystem
 
 
 *** Keywords ***
@@ -43,6 +44,9 @@ Run journalctl recording
 Log journctl
     ${output}     Execute Command    cat jrnl.txt
     Log           ${output}
+    OperatingSystem.Create File   ${SUITE_NAME}_jrnl.txt  ${output}
+    ${out}  Run  ls -la
+    Log  ${out}
     @{pid}        Find pid by name   journalctl
     Kill process  @{pid}
 

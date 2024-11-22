@@ -101,4 +101,6 @@ Kill Process And Log journalctl
     [Documentation]  Kill all running process and log journalctl
     ${output}     Execute Command    journalctl
     Log  ${output}
+    ${name}  Replace String  ${TEST_NAME}  ${SPACE}  _
+    OperatingSystem.Create File   ${name}_jrnl.txt  ${output}
     Kill process  @{app_pids}
