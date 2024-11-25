@@ -12,7 +12,7 @@ Library             ../../lib/output_parser.py
 Test ghaf version format
     [Documentation]    Test getting Ghaf version and verify its format:
     ...                Expected format: major.minor.yyyymmdd.commit_hash
-    [Tags]             bat   SP-T54  nuc  orin-agx  orin-nx  riscv  lenovo-x1
+    [Tags]             bat   pre-merge   SP-T54  nuc  orin-agx  orin-nx  riscv  lenovo-x1
     [Setup]     Connect
     Verify Ghaf Version Format
     [Teardown]  Close All Connections
@@ -20,7 +20,7 @@ Test ghaf version format
 Test nixos version format
     [Documentation]    Test getting Nixos version and verify its format:
     ...                Expected format: major.minor.yyyymmdd.commit_hash (name)
-    [Tags]             bat   SP-T55  nuc  orin-agx  orin-nx  riscv  lenovo-x1
+    [Tags]             bat   pre-merge   SP-T55  nuc  orin-agx  orin-nx  riscv  lenovo-x1
     [Setup]     Connect
     Verify Nixos Version Format
     [Teardown]  Close All Connections
@@ -34,7 +34,7 @@ Check QSPI version
 
 Check systemctl status
     [Documentation]    Verify systemctl status is running
-    [Tags]             bat  SP-T98  nuc  orin-agx  orin-nx  riscv
+    [Tags]             bat   pre-merge  SP-T98  nuc  orin-agx  orin-nx  riscv
     [Setup]     Connect
     ${status}   ${output}   Run Keyword And Ignore Error    Verify Systemctl status
     IF  '${status}' == 'FAIL'
@@ -48,7 +48,7 @@ Check systemctl status
 
 Check all VMs are running
     [Documentation]    Verify systemctl status of all VMs is running
-    [Tags]             bat  SP-T68  lenovo-x1
+    [Tags]             bat   pre-merge  SP-T68  lenovo-x1
     [Setup]     Connect
     ${output}   Execute Command    microvm -l
     @{vms}      Extract VM names   ${output}
