@@ -21,7 +21,7 @@ ${netvm_ssh}       ${EMPTY}
 
 Verify NetVM is started
     [Documentation]         Verify that NetVM is active and running
-    [Tags]                  bat   SP-T45  nuc  orin-agx  orin-nx  lenovo-x1
+    [Tags]                  bat   pre-merge   SP-T45  nuc  orin-agx  orin-nx  lenovo-x1
     [Setup]                 Connect to ghaf host
     Verify service status   service=${netvm_service}
     Check Network Availability      ${netvm_ip}    expected_result=True    range=5
@@ -29,7 +29,7 @@ Verify NetVM is started
 
 Wifi passthrought into NetVM
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              bat   SP-T101   SP-T111  orin-agx  lenovo-x1
+    [Tags]              bat   pre-merge   SP-T101   SP-T111  orin-agx  lenovo-x1
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm
     Configure wifi      ${netvm_ssh}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
@@ -43,14 +43,14 @@ Wifi passthrought into NetVM
 
 NetVM stops and starts successfully
     [Documentation]     Verify that NetVM stops properly and starts after that
-    [Tags]              bat   SP-T47  SP-T90  nuc  orin-nx  lenovo-x1
+    [Tags]              bat   pre-merge   SP-T47  SP-T90  nuc  orin-nx  lenovo-x1
     [Setup]     Connect to ghaf host
     Restart NetVM
     [Teardown]  Run Keywords  Start NetVM if dead   AND  Close All Connections
 
 NetVM is wiped after restarting
     [Documentation]     Verify that created file will be removed after restarting VM
-    [Tags]              bat   SP-T48  nuc  orin-nx  lenovo-x1
+    [Tags]              bat   pre-merge   SP-T48  nuc  orin-nx  lenovo-x1
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm
     Switch Connection   ${netvm_ssh}
@@ -76,7 +76,7 @@ Verify wpa_supplicant.service is running
 
 Verify NetVM PCI device passthrough
     [Documentation]     Verify that proper PCI devices have been passed through to the NetVM
-    [Tags]              bat   SP-T96  nuc  orin-agx  orin-nx
+    [Tags]              bat   pre-merge   SP-T96  nuc  orin-agx  orin-nx
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm
     Verify microvm PCI device passthrough    host_connection=${ghaf_host_ssh}    vm_connection=${netvm_ssh}    vmname=${NETVM_NAME}
