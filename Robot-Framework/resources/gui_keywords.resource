@@ -9,7 +9,7 @@ Library             Collections
 
 *** Variables ***
 
-${start_menu}         ./launcher.png
+${START_MENU}         ./launcher.png
 ${LOGGED_IN_STATUS}   ${True}
 
 *** Keywords ***
@@ -104,7 +104,7 @@ Move cursor to corner
 Verify login
     [Documentation]    Check that launcher icon is available on desktop
     Log To Console          Verifying login by trying to detect the launcher icon
-    Locate image on screen  ${start_menu}  0.95  15
+    Locate image on screen  ${START_MENU}  0.95  15
 
 Verify logout
     [Documentation]    Check that dekstop is not available by running 'grim' which should have return code 1 in this case

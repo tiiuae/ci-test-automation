@@ -7,21 +7,15 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/common_keywords.resource
+Resource            ../../resources/connection_keywords.resource
 Library             ../../lib/gui_testing.py
-Suite Setup         Common Setup
-Suite Teardown      Common Teardown
+Suite Setup         Run Keywords  Initialize Variables, Connect And Start Logging  AND  Login To Gui
+Suite Teardown      End Gui-vm Logging And Close Connections
 
 
 *** Keywords ***
 
-Common Setup
-    Set Variables           ${DEVICE}
-    Run Keyword If          "${DEVICE_IP_ADDRESS}" == ""    Get ethernet IP address
-    ${port_22_is_available}     Check if ssh is ready on device   timeout=180
-    IF  ${port_22_is_available} == False
-        FAIL    Failed because port 22 of device was not available, tests can not be run.
-    END
-    Connect
+Login To GUI
     IF  "Lenovo" in "${DEVICE}"
         Verify service status   range=15  service=microvm@gui-vm.service  expected_status=active  expected_state=running
         Connect to netvm
@@ -48,5 +42,11 @@ Common Setup
     Locate and click  ${start_menu}  0.95  5
     Move cursor to corner
 
-Common Teardown
+End Gui-vm Logging And Close Connections
+    Connect
+    IF  "Lenovo" in "${DEVICE}"
+        Connect to netvm
+        Connect to VM       ${GUI_VM}
+    END
+    Log journctl
     Close All Connections

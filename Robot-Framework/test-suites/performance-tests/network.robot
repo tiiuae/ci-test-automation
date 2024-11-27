@@ -9,12 +9,13 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../config/variables.robot
 Resource            ../../resources/performance_keywords.resource
+Resource            ../../resources/connection_keywords.resource
 Library             ../../lib/output_parser.py
 Library             Process
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${JOB}
 Library             Collections
 Library             JSONLibrary
-Suite Setup         Common Setup
+Suite Setup         Initialize Variables And Connect
 Suite Teardown      Close All Connections
 
 
@@ -154,11 +155,6 @@ Measure UDP Bidir Throughput Big Packets
 
 
 *** Keywords ***
-Common Setup
-    Set Variables     ${DEVICE}
-    Run Keyword If  "${DEVICE_IP_ADDRESS}" == "NONE"    Get ethernet IP address
-    Connect
-
 Run iperf server on DUT
     [Documentation]   Run iperf on DUT in server mode
     Clear iptables rules

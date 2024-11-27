@@ -12,10 +12,10 @@ Suite Teardown      Close All Connections
 
 
 *** Variables ***
-${netvm_ip}        192.168.101.1
-${netvm_state}     ${EMPTY}
-${ghaf_host_ssh}   ${EMPTY}
-${netvm_ssh}       ${EMPTY}
+${NETVM_IP}        192.168.101.1
+${NETVM_STATE}     ${EMPTY}
+${GHAF_HOST_SSH}   ${EMPTY}
+${NETVM_SSH}       ${EMPTY}
 
 
 *** Test Cases ***
@@ -25,7 +25,7 @@ Verify NetVM is started
     [Tags]                  bat   pre-merge   SP-T45  nuc  orin-agx  orin-nx  lenovo-x1
     [Setup]                 Connect to ghaf host
     Verify service status   service=${netvm_service}
-    Check Network Availability      ${netvm_ip}    expected_result=True    range=5
+    Check Network Availability      ${NETVM_IP}    expected_result=True    range=5
     [Teardown]              Close All Connections
 
 Wifi passthrought into NetVM
@@ -33,7 +33,7 @@ Wifi passthrought into NetVM
     [Tags]              bat   pre-merge   SP-T101   SP-T111  orin-agx  lenovo-x1
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm
-    Configure wifi      ${netvm_ssh}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
+    Configure wifi      ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
     Check Network Availability    8.8.8.8   expected_result=True
     Turn OFF WiFi       ${TEST_WIFI_SSID}
@@ -65,13 +65,13 @@ NetVM is wiped after restarting
     [Tags]              bat   pre-merge   SP-T48  nuc  orin-nx  lenovo-x1
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm
-    Switch Connection   ${netvm_ssh}
+    Switch Connection   ${NETVM_SSH}
     Create file         /etc/test.txt
-    Switch Connection   ${ghaf_host_ssh}
+    Switch Connection   ${GHAF_HOST_SSH}
     Restart NetVM
     Close All Connections
     Connect to ghaf host
-    Check Network Availability      ${netvm_ip}    expected_result=True    range=5
+    Check Network Availability      ${NETVM_IP}    expected_result=True    range=5
     Connect to netvm
     Log To Console      Create if created file still exists
     Check file doesn't exist    /etc/test.txt
@@ -82,7 +82,7 @@ Verify NetVM PCI device passthrough
     [Tags]              bat   pre-merge   SP-T96  nuc  orin-agx  orin-nx
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm
-    Verify microvm PCI device passthrough    host_connection=${ghaf_host_ssh}    vm_connection=${netvm_ssh}    vmname=${NETVM_NAME}
+    Verify microvm PCI device passthrough    host_connection=${GHAF_HOST_SSH}    vm_connection=${NETVM_SSH}    vmname=${NETVM_NAME}
     [Teardown]          Run Keywords   Close All Connections
 
 
@@ -106,7 +106,7 @@ Stop NetVM
     Sleep    3
     ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=inactive  expected_state=dead
     Verify service shutdown status   service=${netvm_service}
-    Set Global Variable     ${netvm_state}   ${state}
+    Set Global Variable     ${NETVM_STATE}   ${state}
     Log To Console          NetVM is ${state}
 
 Start NetVM
@@ -115,12 +115,12 @@ Start NetVM
     Log To Console          Going to start NetVM
     Execute Command         systemctl start ${netvm_service}  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
     ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=active  expected_state=running
-    Set Global Variable     ${netvm_state}   ${state}
+    Set Global Variable     ${NETVM_STATE}   ${state}
     Log To Console          NetVM is ${state}
     Wait until NetVM service started
 
 Start NetVM if dead
-    [Documentation]     Teardown keyword. Check global variable ${netvm_state} and start NetVM if it's stopped.
+    [Documentation]     Teardown keyword. Check global variable ${NETVM_STATE} and start NetVM if it's stopped.
     ...                 Pre-condition: requires active ssh connection to ghaf host.
     Start NetVM
 

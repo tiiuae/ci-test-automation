@@ -9,17 +9,18 @@ Resource            ../../resources/device_control.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../config/variables.robot
 Resource            ../../resources/performance_keywords.resource
+Resource            ../../resources/connection_keywords.resource
 Library             ../../lib/output_parser.py
 Library             ../../lib/parse_perfbench.py
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${JOB}
 Library             Collections
 Library             DateTime
-Suite Setup         Common Setup
+Suite Setup         Initialize Variables And Connect
 Suite Teardown      Close All Connections
 
 *** Variables ***
-@{failed_VM_tests}
-@{improved_VM_tests}
+@{FAIED_VM_TESTS}
+@{IMPROVED_VM_TESTS}
 
 
 *** Test Cases ***
@@ -289,8 +290,8 @@ Sysbench test in VMs on LenovoX1
     ...                                  admin-vm=1
     ...                                  audio-vm=1
     ${vms}	Get Dictionary Keys	 ${threads}
-    @{failed_vms} 	Create List
-    Set Global Variable  @{failed_vms}
+    @{FAILED_VMS} 	Create List
+    Set Global Variable  @{FAILED_VMS}
 
     Connect to netvm
 
@@ -317,23 +318,23 @@ Sysbench test in VMs on LenovoX1
     Log    <img src="${DEVICE}_${TEST NAME}_memory_read.png" alt="Mem Plot" width="1200">    HTML
     Log    <img src="${DEVICE}_${TEST NAME}_memory_write.png" alt="Mem Plot" width="1200">    HTML
 
-    ${length}       Get Length    ${failed_vms}
+    ${length}       Get Length    ${FAILED_VMS}
 
-    ${isEmpty}    Run Keyword And Return Status    Should Be Empty    ${failed_VM_tests}
+    ${isEmpty}    Run Keyword And Return Status    Should Be Empty    ${FAIED_VM_TESTS}
     ${fail_msg}=  Set Variable  ${EMPTY}
     IF  ${isEmpty} == False
-      ${fail_msg}=  Set Variable  Deviation detected in the following tests: "${failed_VM_tests}"\n
+      ${fail_msg}=  Set Variable  Deviation detected in the following tests: "${FAIED_VM_TESTS}"\n
     END
     IF  ${length} > 0
-      ${fail_msg}=  Set Variable  ${fail_msg}These VMs were not tested due to connection fail: ${failed_vms}
+      ${fail_msg}=  Set Variable  ${fail_msg}These VMs were not tested due to connection fail: ${FAILED_VMS}
     END
     IF  ${isEmpty} == False or ${length} > 0
         FAIL  ${fail_msg}
     END
 
-    ${isEmpty}    Run Keyword And Return Status    Should Be Empty    ${improved_VM_tests}
+    ${isEmpty}    Run Keyword And Return Status    Should Be Empty    ${IMPROVED_VM_TESTS}
     IF  ${isEmpty} == False
-      ${pass_msg}=  Set Variable  Performance improvement detected in the following tests: "${improved_VM_tests}"\n
+      ${pass_msg}=  Set Variable  Performance improvement detected in the following tests: "${IMPROVED_VM_TESTS}"\n
       Pass Execution    ${pass_msg}
     END
 
@@ -354,11 +355,6 @@ Perf-Bench test
     Log    <img src="${DEVICE}_${TEST NAME}_perf_find_bit_results.csv.png" alt="PerfBench Bit Results" width="1200">       HTML
 
 *** Keywords ***
-
-Common Setup
-    Set Variables   ${DEVICE}
-    Run Keyword If  "${DEVICE_IP_ADDRESS}" == "NONE"    Get ethernet IP address
-    Connect
 
 LenovoX1 Setup
     [Documentation]    Reboot LenovoX1
@@ -383,7 +379,7 @@ Transfer Sysbench Test Script To VM
     [Arguments]        ${vm}
     IF  "${vm}" != "net-vm"
         ${vm_fail}    ${result} =    Run Keyword And Ignore Error    Connect to VM    ${vm}
-        Run Keyword If    '${vm_fail}' == 'FAIL'   Append To List	 ${failed_vms}	  ${vm}
+        Run Keyword If    '${vm_fail}' == 'FAIL'   Append To List	 ${FAILED_VMS}	  ${vm}
         Run Keyword If    '${vm_fail}' == 'FAIL'   Return From Keyword  ${vm_fail}
         Log to console    Successfully connected to ${vm}
     END
@@ -398,11 +394,11 @@ Save cpu results
     &{data}            Parse Cpu Results     ${output}
     &{statistics}      Save Cpu Data         ${host}_${TEST NAME}_${test}  ${data}
     IF  "${statistics}[flag]" == "-1"
-        Append To List     ${failed_VM_tests}        ${host}_${test}
+        Append To List     ${FAIED_VM_TESTS}        ${host}_${test}
         Log to console     Deviation detected in test: ${host}_${test}
     END
     IF  "${statistics}[flag]" == "1"
-        Append To List     ${improved_VM_tests}      ${host}_${test}
+        Append To List     ${IMPROVED_VM_TESTS}      ${host}_${test}
         Log to console     Improvement detected in test: ${host}_${test}
     END
 
@@ -414,11 +410,11 @@ Save memory results
     &{data}            Parse Memory Results  ${output}
     &{statistics}      Save Memory Data      ${host}_${TEST NAME}_${test}  ${data}
     IF  "${statistics}[flag]" == "-1"
-        Append To List     ${failed_VM_tests}        ${host}_${test}
+        Append To List     ${FAIED_VM_TESTS}        ${host}_${test}
         Log to console     Deviation detected in test: ${host}_${test}
     END
     IF  "${statistics}[flag]" == "1"
-        Append To List     ${improved_VM_tests}      ${host}_${test}
+        Append To List     ${IMPROVED_VM_TESTS}      ${host}_${test}
         Log to console     Improvement detected in test: ${host}_${test}
     END
 
