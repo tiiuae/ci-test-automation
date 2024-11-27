@@ -42,5 +42,8 @@ Initialize Variables And Connect
     END
     ${CONNECTION}       Connect
     Set Suite Variable  ${CONNECTION}
+
+Initialize Variables, Connect And Start Logging
+    Initialize Variables And Connect
     Log versions
     Run journalctl recording

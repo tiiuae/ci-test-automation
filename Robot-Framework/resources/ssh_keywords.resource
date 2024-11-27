@@ -11,8 +11,7 @@ Library             ../lib/output_parser.py
 
 
 *** Variables ***
-${netvm_ip}        192.168.101.1
-${failed_connection}  True
+${NETVM_IP}        192.168.101.1
 
 *** Keywords ***
 
@@ -26,12 +25,12 @@ Ping Host
 Check Network Availability
     [Arguments]            ${host}  ${expected_result}=True  ${range}=5
     Log To Console         Checking network ${host} availability, expected: ${expected_result}
-    Set Global Variable    ${is_available}   False
+    Set Global Variable    ${IS_AVAILABLE}   False
     FOR   ${i}   IN RANGE  ${range}
         Write    ping ${host} -c 1
         TRY
             Read Until           1 received
-            Set Global Variable  ${is_available}  True
+            Set Global Variable  ${IS_AVAILABLE}  True
             Log To Console  ${host} is available
             IF    ${expected_result} == True
                 BREAK
@@ -45,8 +44,8 @@ Check Network Availability
             END
         END
     END
-    IF    ${is_available} != ${expected_result}
-        FAIL    Expected availability of ${host}: ${expected_result}, in fact: ${is_available}
+    IF    ${IS_AVAILABLE} != ${expected_result}
+        FAIL    Expected availability of ${host}: ${expected_result}, in fact: ${IS_AVAILABLE}
     END
 
 Connect
@@ -61,7 +60,7 @@ Connect to ghaf host
     [Documentation]      Open ssh connection to ghaf host
     Log To Console       Connecting to Ghaf Host
     ${connection}        Connect
-    Set Global Variable  ${ghaf_host_ssh}    ${connection}
+    Set Global Variable  ${GHAF_HOST_SSH}    ${connection}
     RETURN               ${connection}
 
 Connect to netvm
@@ -76,7 +75,7 @@ Connect to netvm
     FOR    ${i}    IN RANGE    10
         TRY
             ${connection}=       Open Connection    ${NETVM_IP}    port=22    prompt=\$    timeout=30
-            ${output}=           Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${ghaf_host_ssh}
+            ${output}=           Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${GHAF_HOST_SSH}
         EXCEPT    ChannelException: ChannelException(2, 'Connect failed')    type=LITERAL
             ${diff}=    Evaluate    int(time.time()) - int(${start_time})
             IF   ${diff} < ${timeout}
@@ -434,7 +433,7 @@ Stop VM
     Sleep    3
     ${status}  ${state}=    Verify service status  service=microvm@${vm_name}.service  expected_status=inactive  expected_state=dead
     Verify service shutdown status   service=microvm@${vm_name}.service
-    Set Global Variable     ${vm_state}   ${state}
+    Set Global Variable     ${VM_STATE}   ${state}
     Log To Console          ${vm_name} is ${state}
 
 Start VM
@@ -444,7 +443,7 @@ Start VM
     Log To Console          Going to start ${vm_name}
     Execute Command         systemctl start microvm@${vm_name}.service  sudo=True  sudo_password=${PASSWORD}
     ${status}  ${state}=    Verify service status  service=microvm@${vm_name}.service  expected_status=active  expected_state=running
-    Set Global Variable     ${vm_state}   ${state}
+    Set Global Variable     ${VM_STATE}   ${state}
     Log To Console          ${vm_name} is ${state}
     Wait until NetVM service started
 

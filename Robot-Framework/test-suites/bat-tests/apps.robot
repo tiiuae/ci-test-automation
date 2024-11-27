@@ -11,7 +11,7 @@ Suite Teardown      Close All Connections
 
 
 *** Variables ***
-@{app_pids}         ${EMPTY}
+@{APP_PIDS}         ${EMPTY}
 
 
 *** Test Cases ***
@@ -102,4 +102,4 @@ Kill Process And Log journalctl
     [Documentation]  Kill all running process and log journalctl
     ${output}     Execute Command    journalctl
     Log  ${output}
-    Kill process  @{app_pids}
+    Kill process  @{APP_PIDS}
