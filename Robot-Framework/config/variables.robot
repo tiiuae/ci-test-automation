@@ -13,6 +13,7 @@ ${SWITCH_SECRET}   ${EMPTY}
 ${TEST_WIFI_SSID}  ${EMPTY}
 ${TEST_WIFI_PSWD}  ${EMPTY}
 ${DEVICE_TYPE}     ${EMPTY}
+${LOGIN}           ghaf
 
 
 *** Keywords ***
@@ -43,6 +44,25 @@ Set Variables
     Set Global Variable  ${BUSINESS_VM}        business-vm
     Set Global Variable  ${ADMIN_VM}           admin-vm
     Set Global Variable  @{VMS}                ${GUI_VM}  ${CHROME_VM}  ${GALA_VM}  ${ZATHURA_VM}  ${COMMS_VM}  ${BUSINESS_VM}  ${ADMIN_VM}
+
+    Set Log Level       NONE
+
+    ${result} 	Run Process    sh    -c    cat /run/secrets/dut-pass       shell=true
+    Set Global Variable        ${PASSWORD}         ${result.stdout}
+    ${result} 	Run Process    sh    -c    cat /run/secrets/plug-login     shell=true
+    Set Global Variable        ${PLUG_USERNAME}    ${result.stdout}
+    ${result} 	Run Process    sh    -c    cat /run/secrets/plug-pass      shell=true
+    Set Global Variable        ${PLUG_PASSWORD}    ${result.stdout}
+    ${result} 	Run Process    sh    -c    cat /run/secrets/switch-token   shell=true
+    Set Global Variable        ${SWITCH_TOKEN}     ${result.stdout}
+    ${result} 	Run Process    sh    -c    cat /run/secrets/switch-secret  shell=true
+    Set Global Variable        ${SWITCH_SECRET}    ${result.stdout}
+    ${result} 	Run Process    sh    -c    cat /run/secrets/wifi-ssid      shell=true
+    Set Global Variable        ${TEST_WIFI_SSID}   ${result.stdout}
+    ${result} 	Run Process    sh    -c    cat /run/secrets/wifi-password  shell=true
+    Set Global Variable        ${TEST_WIFI_PSWD}   ${result.stdout}
+
+    Set Log Level       INFO
 
     IF  $BUILD_ID != '${EMPTY}'
         ${config}=     Read Config  ../config/${BUILD_ID}.json
