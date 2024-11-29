@@ -1,3 +1,4 @@
+
 # SPDX-FileCopyrightText: 2022-2024 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
@@ -19,7 +20,7 @@ GUI Log in
     IF  ${LOGGED_IN_STATUS}
         Log To Console          Already logged in. Skipping login.
     ELSE
-        Log To Console          Logging in
+        Log To Console          Logged out state detected. Logging in.
         Start ydotoold
         Log To Console    Typing username and password to login
         Type string and press enter  ${LOGIN}
@@ -36,9 +37,11 @@ GUI Log out
     Locate and click   ./icon.png  0.95  5
 
 Type string and press enter
-    [Arguments]   ${string}
+    [Arguments]   ${string}=${EMPTY}
     Log To Console    Typing
-    Execute Command   ydotool type ${string}  sudo=True  sudo_password=${PASSWORD}
+    IF  $string != '${EMPTY}'
+        Execute Command   ydotool type ${string}  sudo=True  sudo_password=${PASSWORD}
+    END
     Log To Console    Pressing Enter
     Execute Command   ydotool key -d 0 28:1 28:0  sudo=True  sudo_password=${PASSWORD}
 
@@ -46,12 +49,13 @@ Locate image on screen
     [Documentation]    Take a screenshot. Locate given image on the screenshot.
     ...                Return center coordinates of the image in mouse coordinate system
     [Arguments]        ${image_to_be_searched}  ${confidence}=0.999   ${iterations}=5
-    ${coordinates}=  Set Variable  ${EMPTY}
-    ${pass_status}=  Set Variable  FAIL
+    ${coordinates}=        Set Variable  ${EMPTY}
+    ${pass_status}=        Set Variable  FAIL
     FOR   ${i}   IN RANGE  ${iterations}
-        Log To Console    Taking screenshot
-        Execute Command   rm screenshot.png
-        ${rc} =    Execute Command  grim screenshot.png  return_stdout=False  return_rc=${true}
+        Log To Console     Taking screenshot
+        Execute Command    rm screenshot.png
+        ${rc}=             Set Variable   1
+        ${rc}=             Execute Command  grim screenshot.png  return_stdout=False  return_rc=${true}   timeout=5
         IF  "${rc}" == "0"
             SSHLibrary.Get File  screenshot.png   screenshot.png
             Log To Console    Locating image ${image_to_be_searched} on screenshot
@@ -129,10 +133,12 @@ Get icon
 
 Check if locked
     [Documentation]    Check if the screen lock has been activated
-    Log To Console     Searching for view-reveal-symbolic.svg
-    Get icon           ${ICON_THEME}/symbolic/actions  view-reveal-symbolic.svg  background=black
     Verify logout      2
     IF  ${LOGGED_IN_STATUS}
+        Start ydotoold
+        Type string and press enter
+        Log To Console     Searching for view-reveal-symbolic.svg
+        Get icon           ${ICON_THEME}/symbolic/actions  view-reveal-symbolic.svg  background=black
         ${status}   ${output}      Run Keyword And Ignore Error   Locate image on screen  ./icon.png  0.95  3
         IF  '${status}' == 'PASS'
             RETURN    ${True}
