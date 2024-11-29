@@ -9,7 +9,7 @@ Resource            ../../config/variables.robot
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/gui_keywords.resource
 Library             ../../lib/gui_testing.py
-Suite Teardown      Close All Connections
+Suite Teardown      GUI Apps Teardown
 
 
 *** Variables ***
@@ -74,7 +74,7 @@ Close app via GUI on LenovoX1
     Start ydotoold
 
     Log To Console    Going to click the close button of the application window
-    Locate and click  ${close_button}  0.85  5
+    Locate and click  ${close_button}  0.8  5
 
     Connect to VM       ${app-vm}
     Check that the application is not running    ${app}   5
@@ -123,3 +123,12 @@ Close app via GUI on Orin AGX
     [Teardown]    Run Keywords    Kill process  @{app_pids}
     ...           AND             Move cursor to corner
     ...           AND             Stop ydotoold
+
+GUI Apps Teardown
+    Connect
+    IF  "Lenovo" in "${DEVICE}"
+        Connect to netvm
+        Connect to VM       ${GUI_VM}
+    END
+    Log journctl
+    Close All Connections
