@@ -41,9 +41,10 @@
       # Development shell
       devShell = pkgs.mkShell {
         buildInputs = with pkgs; [
-          iperf
           file
+          grafana-loki
           imagemagick
+          iperf
           (python3.withPackages (ps:
             with ps; [
               robotframework
