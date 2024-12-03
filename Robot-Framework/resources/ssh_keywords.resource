@@ -145,9 +145,18 @@ Start application
     ${path}          Get App Path  ${output}  ${app_name}
     Execute Command  nohup sh -c '${path}' > output.log 2>&1 &
 
+Check application name
+    [Documentation]  Check written format of application
+    [Arguments]  ${app_name}
+    ${app_name}  Strip String  ${app_name}  characters="'
+    ${output}    Execute Command    ls /run/current-system/sw/share/applications/
+    ${app}       Get Regexp Matches  ${output}  (?im)${app_name}
+    RETURN  '${app}[0]'
+
 Start XDG application
     [Arguments]      ${app_name}
     Log To Console   ${\n}Starting ${app_name}
+    ${app_name}      Check application name  ${app_name}
     ${output}        Execute Command    cat /run/current-system/sw/share/applications/${app_name}.desktop
     ${path}          Get App Path From Desktop  ${output}
     Execute Command  nohup sh -c '${path}' > output.log 2>&1 &
