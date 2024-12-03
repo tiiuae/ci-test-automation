@@ -32,7 +32,7 @@ Start and close Firefox via GUI on Orin AGX
     [Documentation]   Passing this test requires that display is connected to the target device
     ...               Start Firefox via GUI test automation and verify related process started
     ...               Close Firefox via GUI test automation and verify related process stopped
-    [Tags]            SP-T41   orin-agx
+    [Tags]            SP-T41   # orin-agx can be added after arranging display connection for Orin-AGX in the test setup
     Get icon  app  firefox.svg  crop=30
     Start app via GUI on Orin AGX   firefox
     Close app via GUI on Orin AGX   firefox
