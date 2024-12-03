@@ -15,7 +15,7 @@ Suite Teardown      Close All Connections
 *** Test Cases ***
 
 Start Microsoft Outlook on LenovoX1
-    [Documentation]   Start Microsoft Outlook in dedicated VM and verify process started
+    [Documentation]   Start Microsoft Outlook in Business-vm and verify process started
     [Tags]  outlook  SP-T176
     Connect to netvm
     Connect to VM       ${GUI_VM}
@@ -25,7 +25,7 @@ Start Microsoft Outlook on LenovoX1
     [Teardown]  Kill process  @{app_pids}
 
 Start Microsoft 365 on LenovoX1
-    [Documentation]   Start Microsoft 365 in dedicated VM and verify process started
+    [Documentation]   Start Microsoft 365 in Business-vm and verify process started
     [Tags]  microsoft365  SP-T178
     Connect to netvm
     Connect to VM       ${GUI_VM}
@@ -35,7 +35,7 @@ Start Microsoft 365 on LenovoX1
     [Teardown]  Kill process  @{app_pids}
 
 Start Microsoft Teams on LenovoX1
-    [Documentation]   Start Microsoft Teams in dedicated VM and verify process started
+    [Documentation]   Start Microsoft Teams in Business-vm and verify process started
     [Tags]  teams  SP-T177
     Connect to netvm
     Connect to VM       ${GUI_VM}
@@ -45,11 +45,41 @@ Start Microsoft Teams on LenovoX1
     [Teardown]  Kill process  @{app_pids}
 
 Start Trusted Browser on LenovoX1
-    [Documentation]   Start Trusted Browser in dedicated VM and verify process started
+    [Documentation]   Start Trusted Browser in Business-vm and verify process started
     [Tags]  trusted_browser  SP-T179
     Connect to netvm
     Connect to VM       ${GUI_VM}
     Start XDG application   "Trusted Browser"
     Connect to VM       ${BUSINESS_VM}
     Check that the application was started    chrome
+    [Teardown]  Kill process  @{app_pids}
+
+Start Video Editor on LenovoX1
+    [Documentation]   Start Video Editor in Business-vm and verify process started
+    [Tags]  video_editor  SP-T244
+    Connect to netvm
+    Connect to VM       ${GUI_VM}
+    Start XDG application   "Video Editor"
+    Connect to VM       ${BUSINESS_VM}
+    Check that the application was started    lossless
+    [Teardown]  Kill process  @{app_pids}
+
+Start Text Editor on LenovoX1
+    [Documentation]   Start Text Editor in Business-vm and verify process started
+    [Tags]  text_editor  SP-T243
+    Connect to netvm
+    Connect to VM       ${GUI_VM}
+    Start XDG application   "Text Editor"
+    Connect to VM       ${BUSINESS_VM}
+    Check that the application was started    text-editor
+    [Teardown]  Kill process  @{app_pids}
+
+Start Xarchiver on LenovoX1
+    [Documentation]   Start Xarchiver in Business-vm and verify process started
+    [Tags]  xarchiver  SP-T242
+    Connect to netvm
+    Connect to VM       ${GUI_VM}
+    Start XDG application   "Xarchiver"
+    Connect to VM       ${BUSINESS_VM}
+    Check that the application was started    xarchiver
     [Teardown]  Kill process  @{app_pids}
