@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing launching applications via GUI
-Force Tags          gui
+Force Tags          gui   gui-apps
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
 Resource            ../../resources/common_keywords.resource
