@@ -44,6 +44,25 @@ Set Variables
     Set Global Variable  ${ADMIN_VM}           admin-vm
     Set Global Variable  @{VMS}                ${GUI_VM}  ${CHROME_VM}  ${GALA_VM}  ${ZATHURA_VM}  ${COMMS_VM}  ${BUSINESS_VM}  ${ADMIN_VM}
 
+    Set Log Level       NONE
+
+    Set Global Variable        ${PLUG_USERNAME}    ghaftester@gmail.com
+    Set Global Variable        ${LOGIN}            ghaf
+    ${result} 	Run Process    sh    -c    cat /run/secrets/dut-pass       shell=true
+    Set Global Variable        ${PASSWORD}         ghaf
+    ${result} 	Run Process    sh    -c    cat /run/secrets/plug-pass      shell=true
+    Set Global Variable        ${PLUG_PASSWORD}    ${result.stdout}
+    ${result} 	Run Process    sh    -c    cat /run/secrets/switch-token   shell=true
+    Set Global Variable        ${SWITCH_TOKEN}     ${result.stdout}
+    ${result} 	Run Process    sh    -c    cat /run/secrets/switch-secret  shell=true
+    Set Global Variable        ${SWITCH_SECRET}    ${result.stdout}
+    ${result} 	Run Process    sh    -c    cat /run/secrets/wifi-ssid      shell=true
+    Set Global Variable        ${TEST_WIFI_SSID}   ${result.stdout}
+    ${result} 	Run Process    sh    -c    cat /run/secrets/wifi-password  shell=true
+    Set Global Variable        ${TEST_WIFI_PSWD}   ${result.stdout}
+
+    Set Log Level       INFO
+
     IF  $BUILD_ID != '${EMPTY}'
         ${config}=     Read Config  ../config/${BUILD_ID}.json
         Set Global Variable    ${JOB}    ${config['Job']}
