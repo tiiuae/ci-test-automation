@@ -44,6 +44,8 @@ Set Variables
     Set Global Variable  ${ADMIN_VM}           admin-vm
     Set Global Variable  @{VMS}                ${GUI_VM}  ${CHROME_VM}  ${GALA_VM}  ${ZATHURA_VM}  ${COMMS_VM}  ${BUSINESS_VM}  ${ADMIN_VM}
 
+    Run Keyword And Ignore Error  Set Global Variable  ${RPI_IP_ADDRESS}  ${config['addresses']['measurement_agent']['device_ip_address']}
+
     IF  $BUILD_ID != '${EMPTY}'
         ${config}=     Read Config  ../config/${BUILD_ID}.json
         Set Global Variable    ${JOB}    ${config['Job']}
