@@ -15,7 +15,7 @@ Test Setup         Run Keywords  Connect to netvm  AND  Connect to VM  ${GUI_VM}
 @{app_pids}         ${EMPTY}
 
 
-*** Test Case ***
+*** Test Cases ***
 Start Calculator on LenovoX1
     [Documentation]   Start Calculator and verify process started
     [Tags]            calculator  SP-T202
