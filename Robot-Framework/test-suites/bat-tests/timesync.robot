@@ -10,8 +10,8 @@ Suite Teardown      Close All Connections
 
 
 *** Variables ***
-${wrong_time}       01/11/23 11:00:00 UTC
-${change_time}      ${EMPTY}
+${WRONG_TIME}       01/11/23 11:00:00 UTC
+${CHANGE_TIME}      ${EMPTY}
 
 
 *** Test Cases ***
@@ -25,7 +25,7 @@ Time synchronization
     Check that time is correct  timezone=UTC
 
     Stop timesync daemon
-    Set time  ${wrong_time}
+    Set time  ${WRONG_TIME}
     Check time was changed
 
     Start timesync daemon
@@ -67,9 +67,9 @@ Check that time is correct
     Compare local and universal time
 
 Set time
-    [Arguments]       ${time}=${wrong_time}
-    ${change_time}    Get Time	epoch
-    ${change_time}    Set Global Variable     ${change_time}
+    [Arguments]       ${time}=${WRONG_TIME}
+    ${epoch_time}     Get Time	epoch
+    ${CHANGE_TIME}    Set Global Variable     ${epoch_time}
     Log To Console    Setting time ${time}
     Execute Command   hwclock --set --date="${time}"  sudo=True  sudo_password=${PASSWORD}
     Execute Command   hwclock -s  sudo=True  sudo_password=${PASSWORD}
@@ -77,11 +77,11 @@ Set time
 
 Check time was changed
     [Documentation]   Check that current system time is equal to given (time tolerance = 10 sec)
-    [Arguments]       ${time}=${wrong_time}  ${timezone}=UTC
+    [Arguments]       ${time}=${WRONG_TIME}  ${timezone}=UTC
     ${output}         Execute Command    timedatectl -a
     ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}  ${is_synchronized}   Parse time info  ${output}
     ${now}            Get Time  epoch
-    ${time_diff}      Evaluate  ${now} - ${change_time}
+    ${time_diff}      Evaluate  ${now} - ${CHANGE_TIME}
     ${expected_time}  Convert To UTC  ${time}
     Log To Console    Comparing device time: ${universal_time} and time which was set ${expected_time}
     ${time_close}     Is time close  ${universal_time}  ${expected_time}  tolerance_seconds=${time_diff}
