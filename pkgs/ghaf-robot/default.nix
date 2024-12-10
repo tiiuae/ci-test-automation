@@ -2,6 +2,7 @@
   PyP100,
   iperf,
   imagemagick,
+  ffmpeg,
   plugp100,
   python3,
   robotframework-advancedlogging,
@@ -16,6 +17,7 @@ writeShellApplication {
   runtimeInputs = [
     iperf
     imagemagick
+    ffmpeg
     (python3.withPackages (ps: [
       # These are taken from nixpkgs
       ps.robotframework

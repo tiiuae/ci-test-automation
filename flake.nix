@@ -44,6 +44,7 @@
           file
           grafana-loki
           imagemagick
+          ffmpeg
           iperf
           (python3.withPackages (ps:
             with ps; [
