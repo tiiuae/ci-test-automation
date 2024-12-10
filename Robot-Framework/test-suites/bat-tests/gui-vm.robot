@@ -41,7 +41,7 @@ Start Bluetooth Settings on LenovoX1
     [Documentation]   Start Bluetooth Settings and verify process started
     [Tags]            bluetooth_settings  SP-T204
     Start XDG application  'Bluetooth Settings'
-    Check that the application was started    bt-launcher
+    Check that the application was started    blueman
     [Teardown]  Kill process  @{app_pids}
 
 Start Audio Control on LenovoX1
