@@ -33,10 +33,10 @@ Common Setup
     ${lock}                     Check if locked
     IF  ${lock}
         Log To Console          Screen lock detected
-        GUI Unlock
+        Unlock
     ELSE
         Log To Console          Screen lock not active. Checking if logged in...
-        GUI Log in
+        Log in
     END
     Verify login
     # Open and close app launcher menu to workaround a bug (icons not visible at first launch of app menu)
