@@ -62,6 +62,12 @@ Set Variables
     ${result} 	Run Process    sh    -c    cat /run/secrets/wifi-password  shell=true
     Set Global Variable        ${TEST_WIFI_PSWD}   ${result.stdout}
 
+    Run Keyword And Ignore Error  Set Global Variable  ${RPI_IP_ADDRESS}  ${config['addresses']['measurement_agent']['device_ip_address']}
+    ${result} 	Run Process    sh    -c    cat /run/secrets/pi-login  shell=true
+    Set Global Variable        ${LOGIN_PI}   ${result.stdout}
+    ${result} 	Run Process    sh    -c    cat /run/secrets/pi-pass  shell=true
+    Set Global Variable        ${PASSWORD_PI}   ${result.stdout}
+
     Set Log Level       INFO
 
     IF  $BUILD_ID != '${EMPTY}'
