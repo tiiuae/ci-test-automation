@@ -160,32 +160,39 @@ FileIO test
     ...                 The benchmark records File Operations, Throughput, Average Events per Thread,
     ...                 and Latency for read and write operations.
     ...                 Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]              fileio  SP-T61-7  nuc  orin-agx  orin-nx
+    [Tags]              fileio  SP-T61-7  nuc  orin-agx  orin-nx  lenovo-x1
 
     Transfer FileIO Test Script To DUT
 
-    # In case of Lenovo-X1 run the test in /gp_storage which has more disk space than /home/ghaf
-    # Results are still saved to /home/ghaf
+    # In case of Lenovo-X1 run the test in /gp_storage which has more disk space
+    # Results are saved to /tmp
     IF  "Lenovo" in "${DEVICE}"
-        Execute Command      cp ./fileio_test /gp_storage  sudo=True  sudo_password=${PASSWORD}
-        Execute Command      cd /gp_storage  sudo=True  sudo_password=${PASSWORD}
-        Execute Command      ./fileio_test ${threads_number} /gp_storage  sudo=True  sudo_password=${PASSWORD}
-        Execute Command      cd /home/ghaf  sudo=True  sudo_password=${PASSWORD}
+        Execute Command       cp /tmp/fileio_test /gp_storage  sudo=True  sudo_password=${PASSWORD}
+        Write                 sudo su
+        ${out}                SSHLibrary.Read Until   password for ghaf:
+        ${out}                Write        ${PASSWORD}
+        Write                 cd /gp_storage
+        Write                 /gp_storage/fileio_test ${threads_number} /gp_storage
+        Set Client Configuration	  timeout=900
+        ${out}                SSHLibrary.Read Until   Test finished.
+        Set Client Configuration	  timeout=30
+        Log                  ${out}
     ELSE
-        Execute Command      ./fileio_test ${threads_number}  sudo=True  sudo_password=${PASSWORD}
+        Execute Command      /tmp/fileio_test ${threads_number}  sudo=True  sudo_password=${PASSWORD}
     END
 
-    ${test_info}  Execute Command    cat sysbench_results/test_info
+    ${test_info}  Execute Command    cat /tmp/sysbench_results/test_info
     IF  "Insufficient disk space" in $test_info
         FAIL            Insufficient disk space for fileio test.
     END
 
-    ${fileio_rd_output}  Execute Command    cat sysbench_results/fileio_rd_report
+    Log to console       Parsing the test results
+    ${fileio_rd_output}  Execute Command    cat /tmp/sysbench_results/fileio_rd_report
     Log                  ${fileio_rd_output}
     &{fileio_rd_data}    Parse FileIO Read Results   ${fileio_rd_output}
     &{statistics_rd}     Save FileIO Data       ${TEST NAME}_read  ${fileio_rd_data}
 
-    ${fileio_wr_output}  Execute Command    cat sysbench_results/fileio_wr_report
+    ${fileio_wr_output}  Execute Command    cat /tmp/sysbench_results/fileio_wr_report
     Log                  ${fileio_wr_output}
     &{fileio_wr_data}    Parse FileIO Write Results   ${fileio_wr_output}
     &{statistics_wr}     Save FileIO Data       ${TEST NAME}_write  ${fileio_wr_data}
@@ -293,7 +300,7 @@ Sysbench test in VMs on LenovoX1
         IF  '${vm_fail}' == 'FAIL'
             Log to Console  Skipping tests for ${vm} because couldn't connect to it
         ELSE
-            ${output}       Execute Command       ./sysbench_test ${threads_n}  sudo=True  sudo_password=${PASSWORD}
+            ${output}       Execute Command      /tmp/sysbench_test ${threads_n}  sudo=True  sudo_password=${PASSWORD}
             Run Keyword If    ${threads_n} > 1   Save sysbench results   ${vm}
             Save sysbench results   ${vm}   _1thread
             Switch Connection    ${netvm_ssh}
@@ -364,14 +371,13 @@ LenovoX1 Setup
     ${output}          Execute Command    ssh-keygen -R ${NETVM_IP}
 
 Transfer FileIO Test Script To DUT
-    Put File           performance-tests/fileio_test    /home/ghaf
-    Execute Command    chmod 777 fileio_test
+    Put File           performance-tests/fileio_test    /tmp
+    Execute Command    chmod 777 /tmp/fileio_test
 
 Transfer Sysbench Test Script To NetVM
     Connect to netvm
     Put File           performance-tests/sysbench_test    /tmp
     Execute Command    chmod 777 /tmp/sysbench_test
-    Execute Command    cd /tmp
 
 Transfer Sysbench Test Script To VM
     [Arguments]        ${vm}
@@ -381,9 +387,8 @@ Transfer Sysbench Test Script To VM
         Run Keyword If    '${vm_fail}' == 'FAIL'   Return From Keyword  ${vm_fail}
         Log to console    Successfully connected to ${vm}
     END
-    Put File           performance-tests/sysbench_test    /home/ghaf
-    Execute Command    chmod 777 sysbench_test
-
+    Put File           performance-tests/sysbench_test    /tmp
+    Execute Command    chmod 777 /tmp/sysbench_test
 
 Save cpu results
     [Arguments]        ${test}=cpu  ${host}=ghaf_host
