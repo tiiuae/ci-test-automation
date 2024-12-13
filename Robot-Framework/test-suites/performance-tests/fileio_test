@@ -5,7 +5,7 @@ THREADS="$1"
 DISK_CHECK_DIRECTORY="${2:-/}"
 
 # Create a directory for the results and copy this script into it
-RESULT_DIR="/home/ghaf/sysbench_results"
+RESULT_DIR="/tmp/sysbench_results"
 echo -e "\nCreating directory for test results:\n$RESULT_DIR"
 mkdir -p $RESULT_DIR
 FileName=${0##*/}
