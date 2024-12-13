@@ -62,6 +62,9 @@ Set Variables
     ${result} 	Run Process    sh    -c    cat /run/secrets/wifi-password  shell=true
     Set Global Variable        ${TEST_WIFI_PSWD}   ${result.stdout}
 
+    Set Global Variable        ${USER_LOGIN}       testuser
+    Set Global Variable        ${USER_PASSWORD}    testpw
+
     Set Log Level       INFO
 
     IF  $BUILD_ID != '${EMPTY}'

@@ -94,14 +94,14 @@ Connect to netvm
     RETURN               ${netvm_ssh}
 
 Connect to VM
-    [Arguments]          ${vm_name}
+    [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}
     Log To Console       Connecting to ${vm_name}
     Check if ssh is ready on vm        ${vm_name}
     ${failed_connection}  Set variable  True
     FOR    ${i}    IN RANGE    3
         TRY
             ${connection}=       Open Connection    ${vm_name}    port=22    prompt=\$    timeout=30
-            ${output}=           Login    username=${LOGIN}        password=${PASSWORD}    jumphost_index_or_alias=${netvm_ssh}
+            ${output}=           Login    username=${user}        password=${pw}    jumphost_index_or_alias=${netvm_ssh}
         EXCEPT    ChannelException: ChannelException(2, 'Connect failed')    type=LITERAL
             Sleep   1
             CONTINUE
@@ -184,12 +184,12 @@ Find pid by name
     RETURN        @{pids}
 
 Kill process
-    [Arguments]    @{pids}    ${sig}=15
+    [Arguments]    @{pids}    ${sig}=9
     FOR   ${pid}  IN  @{pids}
         IF  '${PID}' == '${EMPTY}'
             BREAK
         END
-        Execute Command    kill -${sig} ${pid}
+        Execute Command    kill -${sig} ${pid}  sudo=True  sudo_password=${password}  timeout=15
         FOR    ${i}    IN RANGE   5
             ${ps_exists}=    Is Process Started    ${pid}
             IF  ${ps_exists}
@@ -489,3 +489,19 @@ Connect to VM if not already connected
         Connect to netvm
         Connect to VM   ${vm_name}
     END
+
+Detect first boot
+    [Documentation]    Determine desktop state after boot by attempting login to gui-vm as testuser
+    Log To Console          Detecting if this is first boot by trying test user credentials
+    Verify service status   range=15  service=microvm@gui-vm.service  expected_status=active  expected_state=running
+    Connect to netvm
+    ${status}   ${output}   Run Keyword And Ignore Error   Connect to VM   ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
+    IF   $status=='PASS'
+        Log To Console          Test user exists
+        RETURN  ${False}
+    END
+    RETURN   ${True}
+
+Create test user
+    Log To Console      Creating test user
+    Execute Command     systemctl start setup-test-user.service  sudo=True  sudo_password=${password}
