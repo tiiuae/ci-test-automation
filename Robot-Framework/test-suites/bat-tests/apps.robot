@@ -31,7 +31,7 @@ Start Chrome on LenovoX1
     [Tags]            bat   pre-merge   SP-T92   lenovo-x1
     Verify service status  range=15  service=microvm@chrome-vm.service  expected_status=active  expected_state=running
     Connect to netvm
-    Connect to VM       ${GUI_VM}
+    Connect to VM       ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
     Check if ssh is ready on vm    ${CHROME_VM}
     Start XDG application   'Google Chrome'
     Connect to VM       ${CHROME_VM}
@@ -42,7 +42,7 @@ Start Zathura on LenovoX1
     [Documentation]   Start Zathura in dedicated VM and verify process started
     [Tags]            bat   pre-merge   SP-T105   lenovo-x1
     [Setup]           Connect to netvm
-    Connect to VM       ${GUI_VM}
+    Connect to VM       ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
     Check if ssh is ready on vm    ${ZATHURA_VM}
     Start XDG application   'PDF Viewer'
     Connect to VM       ${ZATHURA_VM}
@@ -55,7 +55,7 @@ Start Gala on LenovoX1
     [Documentation]   Start Gala in dedicated VM and verify process started
     [Tags]            bat   pre-merge   SP-T104   lenovo-x1
     [Setup]           Connect to netvm
-    Connect to VM       ${GUI_VM}
+    Connect to VM       ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
     Check if ssh is ready on vm    ${GALA_VM}
     Start XDG application   GALA
     Connect to VM       ${GALA_VM}
@@ -66,7 +66,7 @@ Start Element on LenovoX1
     [Documentation]   Start Element in dedicated VM and verify process started
     [Tags]            bat   pre-merge   SP-T52   lenovo-x1
     [Setup]           Connect to netvm
-    Connect to VM          ${GUI_VM}
+    Connect to VM          ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
     Check if ssh is ready on vm    ${COMMS_VM}
     Start XDG application  Element
     Connect to VM          ${COMMS_VM}
@@ -77,7 +77,7 @@ Start Slack on LenovoX1
     [Documentation]   Start Slack in dedicated VM and verify process started
     [Tags]            bat   pre-merge   SP-T181   lenovo-x1
     [Setup]           Connect to netvm
-    Connect to VM          ${GUI_VM}
+    Connect to VM          ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
     Check if ssh is ready on vm    ${COMMS_VM}
     Start XDG application  Slack
     Connect to VM          ${COMMS_VM}
@@ -88,7 +88,7 @@ Start Appflowy on LenovoX1
     [Documentation]   Start Appflowy in dedicated VM and verify process started
     [Tags]            appflowy  # Removed bat tag & lenovo-x1 tag until final decision of this app is made
     [Setup]           Connect to netvm
-    Connect to VM          ${GUI_VM}
+    Connect to VM          ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
     Check if ssh is ready on vm    appflowy-vm
     Start XDG application  AppFlowy
     Connect to VM          ${APPFLOWY_VM}

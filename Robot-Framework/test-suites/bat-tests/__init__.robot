@@ -27,6 +27,19 @@ Common Setup
     Log versions
     Run journalctl recording
 
+    IF  "Lenovo" in "${DEVICE}"
+        ${first_boot}             Detect first boot
+        IF  ${first_boot}
+            Close All Connections
+            ${connection}         Connect
+            Connect to netvm
+            Connect to VM         ${GUI_VM}
+            Create test user
+        END
+        Close All Connections
+        ${connection}             Connect
+    END
+
 Common Teardown
     IF  ${connection}
         Connect
