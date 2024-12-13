@@ -14,7 +14,7 @@ ${LOGGED_IN_STATUS}   ${True}
 
 *** Keywords ***
 
-GUI Log in
+Log in
     [Documentation]   Login and verify that task bar is available
     Verify logout
     IF  ${LOGGED_IN_STATUS}
@@ -27,7 +27,7 @@ GUI Log in
         Type string and press enter  ${PASSWORD}
     END
 
-GUI Log out
+Log out
     [Documentation]   Log out and optionally verify that desktop is not available
     [Arguments]        ${log_out_icon}=./logout.png
     Start ydotoold
@@ -146,7 +146,7 @@ Check if locked
     END
     RETURN    ${False}
 
-GUI Unlock
+Unlock
     [Documentation]    Unlock the screen be typing password
     Start ydotoold
     Log To Console     Typing password to unlock
