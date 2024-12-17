@@ -160,7 +160,7 @@ FileIO test
     ...                 The benchmark records File Operations, Throughput, Average Events per Thread,
     ...                 and Latency for read and write operations.
     ...                 Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]              fileio  SP-T61-7  nuc  orin-agx  orin-nx  lenovo-x1
+    [Tags]              fileio  SP-T61-7  nuc  orin-agx  orin-nx
 
     Transfer FileIO Test Script To DUT
 
@@ -272,7 +272,7 @@ Sysbench test in NetVM
 Sysbench test in VMs on LenovoX1
     [Documentation]      Run CPU and Memory benchmark using Sysbench in Virtual Machines
     ...                  for 1 thread and MULTIPLE threads if there are more than 1 thread in VM.
-    [Tags]               SP-T61-9    lenovo-x1
+    [Tags]               SP-T61-9
     &{threads}    	Create Dictionary    net-vm=1
     ...                                  gui-vm=2
     ...                                  gala-vm=2
@@ -370,7 +370,8 @@ Transfer FileIO Test Script To DUT
 Transfer Sysbench Test Script To NetVM
     Connect to netvm
     Put File           performance-tests/sysbench_test    /home/ghaf
-    Execute Command    chmod 777 sysbench_test
+    Execute Command    chmod 777 /tmp/sysbench_test
+    Execute Command    cd /tmp
 
 Transfer Sysbench Test Script To VM
     [Arguments]        ${vm}
@@ -382,6 +383,7 @@ Transfer Sysbench Test Script To VM
     END
     Put File           performance-tests/sysbench_test    /home/ghaf
     Execute Command    chmod 777 sysbench_test
+
 
 Save cpu results
     [Arguments]        ${test}=cpu  ${host}=ghaf_host
