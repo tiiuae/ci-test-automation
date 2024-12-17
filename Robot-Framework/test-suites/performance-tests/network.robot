@@ -163,7 +163,7 @@ Run iperf server on DUT
     [Documentation]   Run iperf on DUT in server mode
     Clear iptables rules
     ${command}        Set Variable    iperf -s
-    Execute Command   nohup ${command} > output.log 2>&1 &
+    Execute Command   nohup ${command} > /tmp/output.log 2>&1 &
     Check iperf was started
 
 Clear iptables rules
