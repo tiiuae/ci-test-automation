@@ -6,6 +6,7 @@ Documentation       BAT tests
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/common_keywords.resource
+Resource            ../../resources/gui_keywords.resource
 Suite Setup         Common Setup
 Suite Teardown      Common Teardown
 
@@ -29,13 +30,16 @@ Common Setup
 
     IF  "Lenovo" in "${DEVICE}"
         ${first_boot}             Detect first boot
+        Close All Connections
+        ${connection}         Connect
+        Connect to netvm
+        Connect to VM         ${GUI_VM}
+        Save most common icons and paths to icons
         IF  ${first_boot}
-            Close All Connections
-            ${connection}         Connect
-            Connect to netvm
-            Connect to VM         ${GUI_VM}
             Create test user
         END
+        GUI Log in
+        GUI Log out
         Close All Connections
         ${connection}             Connect
     END

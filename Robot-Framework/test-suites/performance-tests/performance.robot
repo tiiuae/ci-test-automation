@@ -369,7 +369,7 @@ Transfer FileIO Test Script To DUT
 
 Transfer Sysbench Test Script To NetVM
     Connect to netvm
-    Put File           performance-tests/sysbench_test    /home/ghaf
+    Put File           performance-tests/sysbench_test    /tmp
     Execute Command    chmod 777 /tmp/sysbench_test
     Execute Command    cd /tmp
 
