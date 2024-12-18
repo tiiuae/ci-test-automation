@@ -32,7 +32,7 @@ Record Video With Camera
     [Tags]  SP-T236
     Connect to netvm
     Connect to VM           ${BUSINESS_VM}
-    Execute Command         rm video*
+    Execute Command         rm /tmp/video*
     @{recorded_video_ids}   Create List
     ${listed_devices}       Execute Command  v4l2-ctl --list-devices
     ${video_devices}        Get Regexp Matches  ${listed_devices}  (?im)(.*\\S*.*)(video)(\\d{1})  3
@@ -42,7 +42,7 @@ Record Video With Camera
         ${video_caps}       Get Regexp Matches  ${video}  (?im)(.*\\S*Device Caps.*\\s*)(.*\\S*)  2
         IF  'Video Capture' in '${video_caps}[0]'
             Log To Console      Recording video${id} for 5s
-            Execute Command     ffmpeg -i /dev/video${id} -t 5 -vcodec mpeg4 video${id}.avi  timeout=7
+            Execute Command     ffmpeg -i /dev/video${id} -t 5 -vcodec mpeg4 /tmp/video${id}.avi  timeout=7
             Append To List      ${recorded_video_ids}  ${id}
         END
     END
@@ -56,20 +56,20 @@ Record Video With Camera
 Verify Video File
     [Documentation]  Verify that file size is not 0 and that video is not all black
     [Arguments]  ${id}
-    ${video_files}      Execute Command  ls -la
+    ${video_files}      Execute Command  ls -la /tmp/
     Should Contain      ${video_files}  video${id}.avi
-    ${out}              Execute Command  du -sh video${id}.avi
+    ${out}              Execute Command  du -sh /tmp/video${id}.avi
     ${size}             Get Regexp Matches  ${out}  (?m)(\\d{1,4})(.*\\s*video.*)  1
     Should Be True      ${size}[0] > 0  msg=Video was not properly captured.
-    Verify Video Has Different Colors  video${id}.avi
+    Verify Video Has Different Colors  /tmp/video${id}.avi
 
 Verify Video Has Different Colors
     [Documentation]  Take frames from video and check that image is not all same color
     [Arguments]  ${video}
     # Take screenshot every third second
-    Execute Command      ffmpeg -i ${video} -r 1/3 image%04d.png
-    SSHLibrary.Get File  image0001.png   image0001.png
-    Execute Command      rm image*
+    Execute Command      ffmpeg -i ${video} -r 1/3 /tmp/image%04d.png
+    SSHLibrary.Get File  /tmp/image0001.png   image0001.png
+    Execute Command      rm /tmp/image*
     Run                  magick image0001.png -identify colors.txt
 
     # Check that all colors are not the same
