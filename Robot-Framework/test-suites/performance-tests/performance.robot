@@ -231,7 +231,7 @@ Sysbench test in NetVM
     [Tags]               SP-T61-8    nuc  orin-agx  orin-nx
 
     Transfer Sysbench Test Script To NetVM
-    ${output}            Execute Command    ./sysbench_test 1  sudo=True  sudo_password=${PASSWORD}
+    ${output}            Execute Command    /tmp/sysbench_test 1   sudo=True  sudo_password=${PASSWORD}
 
     &{threads}    	            Create Dictionary	 net-vm=1
     Save sysbench results       net-vm   _1thread
@@ -279,7 +279,7 @@ Sysbench test in NetVM
 Sysbench test in VMs on LenovoX1
     [Documentation]      Run CPU and Memory benchmark using Sysbench in Virtual Machines
     ...                  for 1 thread and MULTIPLE threads if there are more than 1 thread in VM.
-    [Tags]               SP-T61-9
+    [Tags]               SP-T61-9   lenovo-x1
     &{threads}    	Create Dictionary    net-vm=1
     ...                                  gui-vm=2
     ...                                  gala-vm=2
@@ -393,7 +393,7 @@ Transfer Sysbench Test Script To VM
 Save cpu results
     [Arguments]        ${test}=cpu  ${host}=ghaf_host
 
-    ${output}          Execute Command       cat sysbench_results/${test}_report
+    ${output}          Execute Command       cat /tmp/sysbench_results/${test}_report
     Log                ${output}
     &{data}            Parse Cpu Results     ${output}
     &{statistics}      Save Cpu Data         ${host}_${TEST NAME}_${test}  ${data}
@@ -409,7 +409,7 @@ Save cpu results
 Save memory results
     [Arguments]        ${test}=memory_read  ${host}=ghaf_host
 
-    ${output}          Execute Command       cat sysbench_results/${test}_report
+    ${output}          Execute Command       cat /tmp/sysbench_results/${test}_report
     Log                ${output}
     &{data}            Parse Memory Results  ${output}
     &{statistics}      Save Memory Data      ${host}_${TEST NAME}_${test}  ${data}
