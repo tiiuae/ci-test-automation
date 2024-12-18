@@ -41,8 +41,8 @@ Start Chrome on LenovoX1
 Start Zathura on LenovoX1
     [Documentation]   Start Zathura in dedicated VM and verify process started
     [Tags]            bat   pre-merge   SP-T105   lenovo-x1
-    [Setup]           Log in for apps
-    # Connect to VM       ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
+    [Setup]           Connect to netvm
+    Connect to VM       ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
     Check if ssh is ready on vm    ${ZATHURA_VM}
     Start XDG application   'PDF Viewer'
     Connect to VM       ${ZATHURA_VM}
@@ -54,9 +54,8 @@ Start Zathura on LenovoX1
 Start Gala on LenovoX1
     [Documentation]   Start Gala in dedicated VM and verify process started
     [Tags]            bat   pre-merge   SP-T104   lenovo-x1
-    [Setup]           Log in for apps
-    # Connect to VM       ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
-    Connect to VM       ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
+    [Setup]           Connect to netvm
+    Connect to VM          ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
     Check if ssh is ready on vm    ${GALA_VM}
     Start XDG application   GALA
     Connect to VM       ${GALA_VM}
