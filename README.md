@@ -26,6 +26,10 @@ the Python dependencies are available, run `nix develop`.
 
 For more information, see [drcontrol-README.md](./drcontrol/drcontrol-README.md).
 
+## kmtronic_4ch_control.py and kmtronic_4ch_status.py
+
+For more information, see [README.md](./KMTronic/README.md).
+
 ## Git commit hook
 
 When contributing to this repo you should take the git commit hook into use.

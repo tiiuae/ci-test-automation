@@ -8,6 +8,7 @@ Library             BuiltIn
 Library             String
 Library             AdvancedLogging
 Library             ../lib/output_parser.py
+Library             ../lib/KMTronicLibrary.py   ${RELAY_SERIAL_PORT}
 
 *** Keywords ***
 Open Serial Port
@@ -18,6 +19,41 @@ Open Serial Port
     ...        parity=N
     ...        stopbits=1
     ...        timeout=${timeout}
+
+Open Relay Serial Port
+    [Arguments]    ${serialr_port}    ${timeout}=1.0    ${baudrate}=9600
+    Add Port   ${serialr_port}
+    ...        baudrate=${baudrate}
+    ...        bytesize=8
+    ...        parity=N
+    ...        stopbits=1
+    ...        timeout=${timeout}
+
+Turn Relay Off
+    [Documentation]   Turn given ${relay_number} relay off.
+    [Arguments]    ${relay_number}
+    Set Relay State    ${relay_number}    OFF
+    Sleep    1s
+    ${state}=    Get Relay State    ${relay_number}
+    ${status} =    Run Keyword And Return Status     Should Be Equal As Strings    ${state}    OFF
+    IF    ${status}
+        Log To Console    Relay number:${relay_number} is turned OFF!
+    ELSE
+        FAIL     Relay number:${relay_number} failed to turn OFF!
+    END
+
+Turn Relay On
+    [Documentation]   Turn given ${relay_number} relay on.
+    [Arguments]    ${relay_number}
+    Set Relay State    ${relay_number}   ON
+    Sleep    1s
+    ${state}=    Get Relay State    ${relay_number}
+    ${status} =    Run Keyword And Return Status     Should Be Equal As Strings    ${state}    ON
+    IF    ${status}
+        Log To Console    Relay number:${relay_number} is turned ON!
+    ELSE
+        FAIL     Relay number:${relay_number} failed to turn ON!
+    END
 
 Check Serial Connection
     [Documentation]    Check if device is available by serial

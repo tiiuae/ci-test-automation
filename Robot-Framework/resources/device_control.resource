@@ -18,6 +18,16 @@ Reboot Device
     Log To Console    Turning device on...
     Turn Plug On
 
+Reboot Device Via Relay
+    [Arguments]       ${delay}=5
+    [Documentation]   Turn off power of device, wait for given amount of seconds and turn on the power
+    # Open Relay Serial Port    ${RELAY_SERIAL_PORT}
+    Log To Console    ${\n}Turning device off...
+    Turn Relay Off    ${RELAY_NUMBER}
+    Sleep    ${delay}
+    Log To Console    Turning device on...
+    Turn Relay On     ${RELAY_NUMBER}
+
 Reboot LenovoX1
     [Arguments]       ${delay}=20
     [Documentation]   Turn off the laptop by pressing power button for 10 sec turn on by short pressing power button
