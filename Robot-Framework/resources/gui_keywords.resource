@@ -14,7 +14,7 @@ ${LOGGED_IN_STATUS}   ${True}
 
 *** Keywords ***
 
-GUI Log in
+Log in via GUI
     [Documentation]   Login and verify that task bar is available
     Verify logout
     IF  ${LOGGED_IN_STATUS}
@@ -27,7 +27,7 @@ GUI Log in
         Type string and press enter  ${USER_PASSWORD}
     END
 
-GUI Log out
+Log out
     [Documentation]   Log out and optionally verify that desktop is not available
     [Arguments]        ${log_out_icon}=./logout.png
     Start ydotoold
@@ -110,6 +110,7 @@ Verify logout
     [Documentation]    Check that dekstop is not available by running 'grim' which should have return code 1 in this case
     [Arguments]        ${iterations}=5
     ${status}=  Set Variable  ${EMPTY}
+    Connect to VM           ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
     FOR   ${i}   IN RANGE  ${iterations}
         ${rc}=    Execute Command  grim check.png  return_stdout=False  return_rc=${true}
         IF  "${rc}" == "1"
@@ -120,6 +121,7 @@ Verify logout
         END
         Sleep  1
     END
+    [Teardown]  Connect to VM           ${GUI_VM}
 
 Get icon
     [Documentation]    Copy icon svg file to test agent machine. Crop and convert the svg file to png.
@@ -148,7 +150,7 @@ Check if locked
     END
     RETURN    ${False}
 
-GUI Unlock
+Unlock
     [Documentation]    Unlock the screen be typing password
     Start ydotoold
     Log To Console     Typing password to unlock
