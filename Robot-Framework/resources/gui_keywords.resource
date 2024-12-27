@@ -7,6 +7,7 @@ Resource            ../config/variables.robot
 Library             ../lib/gui_testing.py
 Library             Collections
 
+
 *** Variables ***
 
 ${START_MENU}         ./launcher.png
@@ -16,6 +17,7 @@ ${LOGGED_IN_STATUS}   ${True}
 
 GUI Log in
     [Documentation]   Login and verify that task bar is available
+    Switch Connection    ${CONNECTION}
     Verify logout
     IF  ${LOGGED_IN_STATUS}
         Log To Console          Already logged in. Skipping login.
@@ -26,10 +28,12 @@ GUI Log in
         Type string and press enter  ${USER_LOGIN}
         Type string and press enter  ${USER_PASSWORD}
     END
+    Verify login
 
 GUI Log out
     [Documentation]   Log out and optionally verify that desktop is not available
     [Arguments]        ${log_out_icon}=./logout.png
+    Switch Connection    ${CONNECTION}
     Start ydotoold
     Get icon           ghaf-artwork  power.svg  crop=0  background=black
     Locate and click   ./icon.png  0.95  5
@@ -38,6 +42,7 @@ GUI Log out
 
 Type string and press enter
     [Arguments]   ${string}=${EMPTY}
+    Connect to VM           ${GUI_VM}
     Log To Console    Typing
     IF  $string != '${EMPTY}'
         Execute Command   ydotool type ${string}  sudo=True  sudo_password=${PASSWORD}
@@ -55,7 +60,6 @@ Locate image on screen
     FOR   ${i}   IN RANGE  ${iterations}
         Log To Console     Taking screenshot
         Execute Command    rm screenshot.png
-        ${rc}=             Set Variable   1
         ${rc}=             Execute Command  grim screenshot.png  return_stdout=False  return_rc=${true}   timeout=5
         IF  "${rc}" == "0"
             SSHLibrary.Get File  screenshot.png   screenshot.png
@@ -80,6 +84,7 @@ Locate and click
 
 Start ydotoold
     [Documentation]    Start ydotool daemon if it is not already running.
+    Connect to VM  ${GUI_VM}
     ${ydotoold_state}=    Execute Command    sh -c 'ps aux | grep ydotoold | grep -v grep'
     IF  $ydotoold_state == '${EMPTY}'
         Log To Console    Starting ydotool daemon
@@ -106,9 +111,16 @@ Verify login
     Log To Console          Verifying login by trying to detect the launcher icon
     Locate image on screen  ${START_MENU}  0.95  15
 
+Move cursor
+    Start ydotoold
+    ${x}    Evaluate  random.randint(50, 500)  modules=random
+    ${y}    Evaluate  random.randint(50, 500)  modules=random
+    Execute Command   ydotool mousemove --absolute -x ${x} -y ${y}  sudo=True  sudo_password=${PASSWORD}
+
 Verify logout
     [Documentation]    Check that dekstop is not available by running 'grim' which should have return code 1 in this case
     [Arguments]        ${iterations}=5
+
     ${status}=  Set Variable  ${EMPTY}
     Connect to VM           ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
     FOR   ${i}   IN RANGE  ${iterations}

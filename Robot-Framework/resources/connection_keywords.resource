@@ -40,8 +40,8 @@ Initialize Variables And Connect
     IF  ${port_22_is_available} == False
         FAIL    Failed because port 22 of device was not available, tests can not be run.
     END
-    ${CONNECTION}       Connect
-    Set Suite Variable  ${CONNECTION}
+    ${CONNECTION}        Connect to ghaf host
+    Set Global Variable  ${CONNECTION}
 
 Initialize Variables, Connect And Start Logging
     Initialize Variables And Connect
