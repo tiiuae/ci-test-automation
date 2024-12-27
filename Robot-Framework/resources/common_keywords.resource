@@ -3,6 +3,7 @@
 
 *** Settings ***
 Resource            ../config/variables.robot
+Resource            ../resources/gui_keywords.resource
 
 
 *** Keywords ***
@@ -11,12 +12,12 @@ Check that the application was started
     [Arguments]          ${app_name}  ${range}=2
     FOR   ${i}   IN RANGE  ${range}
         @{found_pids}        Find pid by name    ${app_name}
-        Set Global Variable  @{app_pids}  @{found_pids}
-        ${status}    Run Keyword And Return Status   Should Not Be Empty  ${app_pids}
+        Set Global Variable  @{APP_PIDS}  @{found_pids}
+        ${status}    Run Keyword And Return Status   Should Not Be Empty  ${APP_PIDS}
         IF    ${status}    BREAK
         Sleep   1
     END
-    Should Not Be Empty  ${app_pids}  ${app_name} is not started
+    Should Not Be Empty  ${APP_PIDS}  ${app_name} is not started
     Log To Console       ${app_name} is started
 
 Check that the application is not running
@@ -37,11 +38,10 @@ Check If Ping Fails
     Should Not Be Equal   ${result.rc}  ${0}
 
 Run journalctl recording
-    ${output}     Execute Command    journalctl > jrnl.txt
-    ${output}     Execute Command    nohup journalctl -f >> jrnl.txt 2>&1 &
+    ${output}     Execute Command    nohup journalctl -f >> /tmp/jrnl.txt 2>&1 &
 
 Log journctl
-    ${output}     Execute Command    cat jrnl.txt
+    ${output}     Execute Command    cat /tmp/jrnl.txt
     Log           ${output}
     @{pid}        Find pid by name   journalctl
     Kill process  @{pid}

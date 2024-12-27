@@ -89,8 +89,8 @@ Connect to netvm
         BREAK
     END
     IF  ${failed_connection}    FAIL  Couldn't connect NetVM
-    Set Global Variable  ${netvm_ssh}    ${connection}
-    RETURN               ${netvm_ssh}
+    Set Global Variable  ${NETVM_SSH}    ${connection}
+    RETURN               ${NETVM_SSH}
 
 Connect to VM
     [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}
@@ -159,6 +159,9 @@ Start XDG application
     ${output}        Execute Command    cat /run/current-system/sw/share/applications/${app_name}.desktop
     ${path}          Get App Path From Desktop  ${output}
     Execute Command  nohup sh -c '${path}' > output.log 2>&1 &
+    Sleep    8
+    ${output}        Execute Command  cat output.log
+    Log    ${output}
 
 Start Firefox
     [Documentation]  It's needed to set display variable manually because there is no real monitor connected to DUT
@@ -328,6 +331,7 @@ Check if ssh is ready on netvm
 
 Check if ssh is ready on vm
     [Arguments]    ${vm}  ${timeout}=30
+    Switch Connection    ${NETVM_SSH}
     ${start_time}  Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
         ${output}  ${rc}    Execute Command    nc -zvw3 ${vm} 22    return_rc=True
@@ -491,6 +495,7 @@ Connect to VM if not already connected
 
 Detect first boot
     [Documentation]    Determine desktop state after boot by attempting login to gui-vm as testuser
+    Connect
     Log To Console          Detecting if this is first boot by trying test user credentials
     Verify service status   range=15  service=microvm@gui-vm.service  expected_status=active  expected_state=running
     Connect to netvm

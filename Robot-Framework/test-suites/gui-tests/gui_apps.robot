@@ -14,7 +14,7 @@ Suite Teardown      GUI Apps Teardown
 
 *** Variables ***
 
-@{app_pids}         ${EMPTY}
+@{APP_PIDS}         ${EMPTY}
 ${start_menu}       ./launcher.png
 
 
@@ -88,7 +88,7 @@ Close app via GUI on LenovoX1
     Check that the application is not running    ${app}   5
 
     # In case closing the app via GUI failed
-    [Teardown]    Run Keywords    Kill process  @{app_pids}
+    [Teardown]    Run Keywords    Kill process  @{APP_PIDS}
     ...           AND             Connect to VM     ${GUI_VM}
     ...           AND             Move cursor to corner
     ...           AND             Stop ydotoold
@@ -128,7 +128,7 @@ Close app via GUI on Orin AGX
     Check that the application is not running    ${app}   5
 
     # In case closing the app via GUI failed
-    [Teardown]    Run Keywords    Kill process  @{app_pids}
+    [Teardown]    Run Keywords    Kill process  @{APP_PIDS}
     ...           AND             Move cursor to corner
     ...           AND             Stop ydotoold
 
