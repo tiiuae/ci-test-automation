@@ -397,6 +397,21 @@ Get wifi IP
     END
     IF   ${status} == False    FAIL    NetVM hasn't gotten an IP
 
+Get Virtual Network Interface IP
+    [Documentation]     Parse ifconfig output and look for ethint0 IP
+    ${if_name}=    Set Variable   ethint0
+    FOR    ${i}    IN RANGE    20
+        ${output}     Execute Command      ifconfig
+        Log           ${output}
+        ${ip}         Get ip from ifconfig    ${output}   ${if_name}
+        IF  $ip != '${EMPTY}'
+            Log       ${ip}
+            RETURN    ${ip}
+        END
+        Sleep    1
+    END
+    FAIL    IP address not found.
+
 Check if ssh is ready on device
     [Arguments]    ${timeout}=30
     ${is_ready}    Set Variable    False
