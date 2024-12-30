@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2022-2024 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
+sudo iptables -F
+
+echo "" > /tmp/server_received.txt
+
+for i in {1..30}
+do
+  echo "" >> /tmp/server_received.txt
+  echo "iteration $i - $(date)" >> /tmp/server_received.txt
+  timeout 1.7 nc -l 5201 >> /tmp/server_received.txt 2>&1
+  sleep 0.5
+done
