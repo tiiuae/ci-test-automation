@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2022-2025 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
 # Threads variable needs to be given on the command line.
 # For example: ./sysbench_simplified_test 20
 THREADS="$1"

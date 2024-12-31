@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2022-2025 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
 import time
 import hmac
 import hashlib
