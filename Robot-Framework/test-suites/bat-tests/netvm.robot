@@ -34,7 +34,7 @@ Wifi passthrought into NetVM
     [Setup]             Run Keywords
     ...                 Connect to ghaf host  AND  Connect to netvm
     Configure wifi      ${netvm_ssh}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
-    Get wifi IP
+    Get Network Interface IP      wifi
     Check Network Availability    8.8.8.8   expected_result=True
     Turn OFF WiFi       ${TEST_WIFI_SSID}
     Check Network Availability    8.8.8.8   expected_result=False
