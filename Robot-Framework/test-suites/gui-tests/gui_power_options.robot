@@ -8,8 +8,9 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/common_keywords.resource
+Resource            ../../resources/power_meas_keywords.resource
 Library             ../../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
-Suite Teardown      Close All Connections
+Test Teardown       Close All Connections
 
 
 *** Test Cases ***
@@ -19,7 +20,13 @@ GUI Suspend and wake up
     ...               Check that the device is suspended.
     ...               Wake up by pressing the power button for 1 sec.
     ...               Check that the device is awake.
+    ...               Logs device power consumption during the test
+    ...               if power measurement tooling is set.
     [Tags]            lenovo-x1   SP-T208-2
+    Start power measurement       ${BUILD_ID}   timeout=180
+    Set start timestamp
+    Connect to netvm
+    Connect to VM                 ${GUI_VM}
     Click power menu item         suspend
     ${device_not_available}       Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
     IF  ${device_not_available} == True
@@ -27,8 +34,10 @@ GUI Suspend and wake up
     ELSE
         FAIL                      Device failed to suspend.
     END
-    Log To Console    Waking the device up by pressing the power button for 1 sec
-    Press Button      ${SWITCH_BOT}-ON
+    Log To Console                Letting the device stay suspended for 30 sec
+    BuiltIn.Sleep                 30
+    Log To Console                Waking the device up by pressing the power button for 1 sec
+    Press Button                ${SWITCH_BOT}-ON
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False
         FAIL                      The device did suspend but failed to wake up
@@ -44,11 +53,15 @@ GUI Suspend and wake up
         FAIL                      Screen lock not active after wake up
     END
     Unlock
+    Generate power plot           ${BUILD_ID}   ${TEST NAME}
+    Stop recording power
 
 GUI Lock and Unlock
     [Documentation]   Lock the screen via GUI taskbar lock icon and check that the screen is locked.
     ...               Unlock lock screen by typing the password and check that desktop is available
     [Tags]            lenovo-x1   SP-T208-3   SP-T208-4   lock
+    Connect to netvm
+    Connect to VM                 ${GUI_VM}
     Click power menu item         lock
     ${lock}                       Check if locked
     IF  ${lock}
