@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2022-2025 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
 # Test set to be run with sysbench
 
 # These variables need to be given on the command line. For example: ./fileio_test 20
