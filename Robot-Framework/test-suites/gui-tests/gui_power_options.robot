@@ -8,6 +8,7 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/common_keywords.resource
+Resource            ../../resources/power_meas_keywords.resource
 Library             ../../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
 Suite Teardown      Close All Connections
 
@@ -19,7 +20,14 @@ GUI Suspend and wake up
     ...               Check that the device is suspended.
     ...               Wake up by pressing the power button for 1 sec.
     ...               Check that the device is awake.
+    ...               Logs device power consumption during the test
+    ...               if power measurement tooling is set.
     [Tags]            lenovo-x1   SP-T208-2
+    Start power measurement       ${BUILD_ID}   timeout=180
+    Switch Connection             ${ghaf_host_ssh}
+    Set start timestamp
+    Connect to netvm
+    Connect to VM                 ${GUI_VM}
     Click power menu item         suspend
     ${device_not_available}       Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
     IF  ${device_not_available} == True
@@ -44,6 +52,11 @@ GUI Suspend and wake up
         FAIL                      Screen lock not active after wake up
     END
     Unlock
+    Generate power plot           ${BUILD_ID}   ${TEST NAME}
+    Stop recording power
+    Switch Connection             ${ghaf_host_ssh}
+    Connect to netvm
+    Connect to VM                 ${GUI_VM}
 
 GUI Lock
     [Documentation]   Lock the screen via GUI taskbar lock icon.

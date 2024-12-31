@@ -21,7 +21,7 @@ Common Setup
     IF  ${port_22_is_available} == False
         FAIL    Failed because port 22 of device was not available, tests can not be run.
     END
-    Connect
+    Connect to ghaf host
     IF  "Lenovo" in "${DEVICE}"
         Verify service status   range=15  service=microvm@gui-vm.service  expected_status=active  expected_state=running
         Connect to netvm
