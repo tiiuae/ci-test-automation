@@ -110,16 +110,19 @@ Verify logout
     [Documentation]    Check that dekstop is not available by running 'grim' which should have return code 1 in this case
     [Arguments]        ${iterations}=5
     ${status}=  Set Variable  ${EMPTY}
+    Connect to VM           ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
     FOR   ${i}   IN RANGE  ${iterations}
         ${rc}=    Execute Command  grim check.png  return_stdout=False  return_rc=${true}
         IF  "${rc}" == "1"
             Set Global Variable  ${LOGGED_IN_STATUS}  ${False}
+            Connect to VM           ${GUI_VM}
             BREAK
         ELSE
             Set Global Variable  ${LOGGED_IN_STATUS}  ${True}
         END
         Sleep  1
     END
+    Connect to VM           ${GUI_VM}
 
 Get icon
     [Documentation]    Copy icon svg file to test agent machine. Crop and convert the svg file to png.
