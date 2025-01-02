@@ -28,6 +28,14 @@ Start and close chrome via GUI on LenovoX1
     Start app via GUI on LenovoX1   ${CHROME_VM}  chrome
     Close app via GUI on LenovoX1   ${CHROME_VM}  google-chrome  ./window-close-neg.png
 
+Start and close PDF Viewer via GUI on LenovoX1
+    [Documentation]   Start PDF Viewer via GUI test automation and verify related process started
+    ...               Close PDF Viewer via GUI test automation and verify related process stopped
+    [Tags]            SP-T70   lenovo-x1
+    Get icon   app  zathura.svg  crop=30
+    Start app via GUI on LenovoX1   ${ZATHURA_VM}  zathura
+    Close app via GUI on LenovoX1   ${ZATHURA_VM}  zathura  ./window-close-neg.png
+
 Start and close Firefox via GUI on Orin AGX
     [Documentation]   Passing this test requires that display is connected to the target device
     ...               Start Firefox via GUI test automation and verify related process started
