@@ -27,6 +27,8 @@ BAT tests setup
 BAT tests teardown
     Connect to ghaf host
     Log journctl
-    Connect to netvm
-    GUI Log out
+    IF  "Lenovo" in "${DEVICE}"
+        Connect to netvm
+        GUI Log out
+    END
     Close All Connections
