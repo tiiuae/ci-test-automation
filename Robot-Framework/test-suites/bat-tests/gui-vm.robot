@@ -7,8 +7,8 @@ Force Tags          gui-vm-apps  bat  lenovo-x1
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
 Resource            ../../resources/common_keywords.resource
-Test Setup          Run Keywords  Connect to netvm  AND  Connect to VM  ${GUI_VM}  ${USER_LOGIN}  ${USER_PASSWORD}
-Test Teardown       Gui-vm apps teardown
+Test Setup          Gui-vm Apps Test Setup
+Test Teardown       Gui-vm Apps Test Teardown
 
 
 *** Variables ***
@@ -55,7 +55,11 @@ Start File Manager on LenovoX1
 
 *** Keywords ***
 
-Gui-vm apps teardown
+Gui-vm Apps Test Setup
+    Connect to netvm
+    Connect to VM  ${GUI_VM}  ${USER_LOGIN}  ${USER_PASSWORD}
+
+Gui-vm Apps Test Teardown
     Connect to VM       ${GUI_VM}
     Kill process        @{APP_PIDS}
     Connect to VM       ${GUI_VM}  ${USER_LOGIN}  ${USER_PASSWORD}

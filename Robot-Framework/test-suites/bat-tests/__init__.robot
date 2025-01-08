@@ -26,7 +26,8 @@ BAT tests setup
     Switch Connection    ${CONNECTION}
 
 BAT tests teardown
-    Connect to ghaf host
+    ${connection}   Connect
+    Set Global Variable   ${CONNECTION}   ${connection}
     Log journctl
     IF  "Lenovo" in "${DEVICE}"
         Connect to netvm

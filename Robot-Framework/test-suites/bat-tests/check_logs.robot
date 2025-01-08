@@ -3,12 +3,12 @@
 
 *** Settings ***
 Documentation       Testing logging
-Force Tags          logging  lenovo-x1
+Force Tags          bat   logging  lenovo-x1
 Resource            ../../config/variables.robot
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/connection_keywords.resource
 Library             DateTime
-Suite Setup         Set Variables   ${DEVICE}
+Suite Setup         Connect to netvm
 Suite Teardown      Close All Connections
 
 
@@ -21,7 +21,6 @@ ${GRAFANA_LOGS}       https://loki.ghaflogs.vedenemo.dev
 Check Grafana logs
     [Documentation]  Check that all virtual machines are sending logs to Grafana
     [Tags]           SP-T172
-    [Setup]          Connect to netvm
     [Teardown]       Remove Wifi configuration  ${TEST_WIFI_SSID}
     Configure wifi   ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Check Internet Connection

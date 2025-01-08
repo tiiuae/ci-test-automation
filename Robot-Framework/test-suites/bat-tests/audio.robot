@@ -3,29 +3,28 @@
 
 *** Settings ***
 Documentation       Testing audio applicaton
-Force Tags          audio  lenovo-x1
+Force Tags          audio
 Resource            ../../__framework__.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/connection_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
-Suite Setup         Initialize Variables And Connect
-Suite Teardown      Close All Connections
-Test Timeout        2 minutes
+Test Setup          Connect to netvm
+Test Teardown       Close All Connections
+Test Timeout        3 minutes
 
 
 *** Test Cases ***
 Record Audio And Verify
     [Documentation]  Record short audio with pulseaudio tool. Verify audio clip is bigger than default empty file (40Kb)
     [Teardown]  Execute Command  rm /tmp/test*.wav  sudo=True  sudo_password=${PASSWORD}
-    [Tags]  SSRCSP-T247
-    Connect to netvm
+    [Tags]      SSRCSP-T247   lenovo-x1
     FOR  ${vm}  IN  ${CHROME_VM}  ${BUSINESS_VM}
         Connect to VM  ${vm}
         # Execute Command timeouts in business-vm, but it is executing the command
         Log To Console  Recording audio file
-        Run Keyword And Ignore Error  Execute Command  parecord -r /tmp/test_${vm}.wav  timeout=10
+        Run Keyword And Ignore Error  Execute Command  parecord -r /tmp/test_${vm}.wav  sudo=True  sudo_password=${PASSWORD}  timeout=10
         Sleep  5
         Execute Command  pkill parecord  timeout=10  sudo=True  sudo_password=${PASSWORD}
         Sleep  1
@@ -35,12 +34,11 @@ Record Audio And Verify
 
 Check Audio devices
     [Documentation]  List audio sinks and sources in business-vm and chrome-vm and check status is running
-    [Tags]  SSRCSP-T246
-    Connect to netvm
+    [Tags]      SSRCSP-T246   lenovo-x1
     FOR  ${vm}  IN  ${CHROME_VM}  ${BUSINESS_VM}
         Connect to VM  ${vm}
-        ${sources}  Execute Command  pactl list sources
-        ${sinks}  Execute Command  pactl list sinks
+        ${sources}  Execute Command  pactl list sources   sudo=True  sudo_password=${PASSWORD}
+        ${sinks}  Execute Command  pactl list sinks   sudo=True  sudo_password=${PASSWORD}
         Should Not Be Empty  ${sources}
         Should Not Be Empty  ${sinks}
     END

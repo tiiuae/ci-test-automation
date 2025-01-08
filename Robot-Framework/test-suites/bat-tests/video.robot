@@ -3,15 +3,15 @@
 
 *** Settings ***
 Documentation       Testing camera application
-Force Tags          video  lenovo-x1
+Force Tags          bat   video  lenovo-x1
 Resource            ../../__framework__.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/connection_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
-Suite Setup         Initialize Variables And Connect
-Suite Teardown      Close All Connections
+Test Setup          Connect to netvm
+Test Teardown       Close All Connections
 Test Timeout        2 minutes
 
 
@@ -19,7 +19,6 @@ Test Timeout        2 minutes
 Check Camera Application
     [Documentation]  Check that camera application is available in business-vm and not in other vm
     [Tags]  SP-T235
-    Connect to netvm
     FOR  ${vm}  IN  @{VMS}
         Connect to VM       ${vm}
         ${out}  Execute Command  v4l2-ctl --list-devices  sudo=True  sudo_password=${PASSWORD}
@@ -30,7 +29,6 @@ Check Camera Application
 Record Video With Camera
     [Documentation]  Start Camera application and record short video
     [Tags]  SP-T236
-    Connect to netvm
     Connect to VM           ${BUSINESS_VM}
     Execute Command         rm /tmp/video*  sudo=True  sudo_password=${PASSWORD}
     @{recorded_video_ids}   Create List
