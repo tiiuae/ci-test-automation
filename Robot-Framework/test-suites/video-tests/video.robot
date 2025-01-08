@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Documentation       Testing camera applicaton
+Documentation       Testing camera application
 Force Tags          video  lenovo-x1
 Resource            ../../__framework__.resource
 Resource            ../../resources/serial_keywords.resource
@@ -22,7 +22,7 @@ Check Camera Application
     Connect to netvm
     FOR  ${vm}  IN  @{VMS}
         Connect to VM       ${vm}
-        ${out}  Execute Command  v4l2-ctl --list-devices
+        ${out}  Execute Command  v4l2-ctl --list-devices  sudo=True  sudo_password=${PASSWORD}
         Log  ${out}
         IF  '${vm}' == '${BUSINESS_VM}'  Should Contain  ${out}  /dev/video  ELSE  Should Not Contain  ${out}  /dev/video
     END
@@ -32,17 +32,17 @@ Record Video With Camera
     [Tags]  SP-T236
     Connect to netvm
     Connect to VM           ${BUSINESS_VM}
-    Execute Command         rm /tmp/video*
+    Execute Command         rm /tmp/video*  sudo=True  sudo_password=${PASSWORD}
     @{recorded_video_ids}   Create List
-    ${listed_devices}       Execute Command  v4l2-ctl --list-devices
+    ${listed_devices}       Execute Command  v4l2-ctl --list-devices  sudo=True  sudo_password=${PASSWORD}
     ${video_devices}        Get Regexp Matches  ${listed_devices}  (?im)(.*\\S*.*)(video)(\\d{1})  3
     FOR  ${id}  IN  @{video_devices}
-        ${video}            Execute Command  v4l2-ctl --device=/dev/video${id} --all
+        ${video}            Execute Command  v4l2-ctl --device=/dev/video${id} --all  sudo=True  sudo_password=${PASSWORD}
         # Check if video device is able to capture video
         ${video_caps}       Get Regexp Matches  ${video}  (?im)(.*\\S*Device Caps.*\\s*)(.*\\S*)  2
         IF  'Video Capture' in '${video_caps}[0]'
             Log To Console      Recording video${id} for 5s
-            Execute Command     ffmpeg -i /dev/video${id} -t 5 -vcodec mpeg4 /tmp/video${id}.avi  timeout=7
+            Execute Command     ffmpeg -i /dev/video${id} -t 5 -vcodec mpeg4 /tmp/video${id}.avi  timeout=15  sudo=True  sudo_password=${PASSWORD}
             Append To List      ${recorded_video_ids}  ${id}
         END
     END
@@ -67,7 +67,7 @@ Verify Video Has Different Colors
     [Documentation]  Take frames from video and check that image is not all same color
     [Arguments]  ${video}
     # Take screenshot every third second
-    Execute Command      ffmpeg -i ${video} -r 1/3 /tmp/image%04d.png
+    Execute Command      ffmpeg -i ${video} -r 1/3 /tmp/image%04d.png  sudo=True  sudo_password=${PASSWORD}
     SSHLibrary.Get File  /tmp/image0001.png   image0001.png
     Execute Command      rm /tmp/image*
     Run                  magick image0001.png -identify colors.txt
