@@ -288,7 +288,8 @@ Sysbench test in VMs on LenovoX1
     ...                                  chrome-vm=4
     ...                                  comms-vm=4
     ...                                  admin-vm=1
-    ...                                  audio-vm=1
+    ...                                  audio-vm=2
+    ...                                  business-vm=4
     ${vms}	Get Dictionary Keys	 ${threads}
     @{FAILED_VMS} 	Create List
     Set Global Variable  @{FAILED_VMS}
