@@ -61,4 +61,4 @@ Gui-vm apps teardown
     Connect to VM       ${GUI_VM}  ${USER_LOGIN}  ${USER_PASSWORD}
     ${app_log}          Execute command    cat output.log
     Log                 ${app_log}
-    Move cursor
+    Close All Connections

@@ -8,8 +8,7 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/virtualization_keywords.resource
 Resource            ../../config/variables.robot
 Resource            ../../resources/common_keywords.resource
-Test Setup          Move cursor
-Test Teardown       Kill process  @{APP_PIDS}
+Test Teardown       Business Apps Test Teardown
 
 
 *** Test Cases ***
@@ -76,3 +75,10 @@ Start Xarchiver on LenovoX1
     Start XDG application   "Xarchiver"
     Connect to VM       ${BUSINESS_VM}
     Check that the application was started    xarchiver
+
+
+*** Keywords ***
+
+Business Apps Test Teardown
+    Kill process       @{APP_PIDS}
+    Close All Connections

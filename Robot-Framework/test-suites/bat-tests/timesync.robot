@@ -19,7 +19,7 @@ ${change_time}      ${EMPTY}
 Time synchronization
     [Documentation]   Stop timesyncd, change time on ghaf host and check that time was changed
     ...               Start timesyncd and check that time was synchronized
-    [Tags]            bat   SP-T97   nuc  orin-agx  orin-nx  riscv
+    [Tags]            bat   SP-T97   nuc  orin-agx  orin-nx  riscv  lenovo-x1
 
     ${host}  Connect
     Check that time is correct  timezone=UTC
@@ -68,12 +68,12 @@ Check that time is correct
 
 Set time
     [Arguments]       ${time}=${wrong_time}
-    ${change_time}    Get Time	epoch
-    ${change_time}    Set Test Variable     ${change_time}
-    Log To Console    Setting time ${time}
-    Execute Command   hwclock --set --date="${time}"  sudo=True  sudo_password=${PASSWORD}
-    Execute Command   hwclock -s  sudo=True  sudo_password=${PASSWORD}
-    ${output}         Execute Command  timedatectl -a
+    ${change_time}        Get Time	epoch
+    Set Test Variable     ${change_time}  ${change_time}
+    Log To Console        Setting time ${time}
+    Execute Command       hwclock --set --date="${time}"  sudo=True  sudo_password=${PASSWORD}
+    Execute Command       hwclock -s  sudo=True  sudo_password=${PASSWORD}
+    ${output}             Execute Command  timedatectl -a
 
 Check time was changed
     [Documentation]   Check that current system time is equal to given (time tolerance = 10 sec)
