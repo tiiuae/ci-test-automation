@@ -7,6 +7,7 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/connection_keywords.resource
+Resource            ../../resources/gui_keywords.resource
 Suite Setup         BAT tests setup
 Suite Teardown      BAT tests teardown
 
@@ -21,14 +22,15 @@ BAT tests setup
         Connect to VM         ${GUI_VM}
         Save most common icons and paths to icons
         Create test user
-        GUI Log in
+        Log in via GUI
     END
+    Switch Connection    ${CONNECTION}
 
 BAT tests teardown
     Connect to ghaf host
     Log journctl
     IF  "Lenovo" in "${DEVICE}"
         Connect to netvm
-        GUI Log out
+        Log out
     END
     Close All Connections

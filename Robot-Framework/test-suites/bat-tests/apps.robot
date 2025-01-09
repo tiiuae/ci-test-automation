@@ -7,7 +7,6 @@ Force Tags          apps
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
 Resource            ../../resources/common_keywords.resource
-Test Setup          Run Keywords  Move cursor  AND  Switch Connection  ${CONNECTION}
 
 
 *** Variables ***
@@ -103,3 +102,4 @@ Kill Process And Log journalctl
     ${output}     Execute Command    journalctl
     Log  ${output}
     Kill process  @{APP_PIDS}
+    Close All Connections

@@ -29,6 +29,8 @@ Log in via GUI
         Type string and press enter  ${USER_PASSWORD}
     END
     Verify login
+    Log To Console    Disabling automated lock and suspend
+    Execute Command   systemctl --user stop swayidle
 
 Log out
     [Documentation]   Log out and optionally verify that desktop is not available
@@ -69,7 +71,6 @@ Locate image on screen
         IF    $pass_status=='PASS'    BREAK
         Sleep  0.5
     END
-    Connect to VM           ${GUI_VM}
     IF    $pass_status=='FAIL'    FAIL  Image recognition failure: ${image_to_be_searched}
     Log To Console    Coordinates: ${coordinates}
     ${mouse_x}  Get From Dictionary   ${coordinates}  x
@@ -79,6 +80,7 @@ Locate image on screen
 Locate and click
     [Arguments]   ${image_to_be_searched}  ${confidence}=0.99  ${iterations}=5
     ${mouse_x}  ${mouse_y}  Locate image on screen  ${image_to_be_searched}   ${confidence}
+    Connect to VM     ${GUI_VM}
     Execute Command   ydotool mousemove --absolute -x ${mouse_x} -y ${mouse_y}  sudo=True  sudo_password=${PASSWORD}
     Execute Command   ydotool click 0xC0  sudo=True  sudo_password=${PASSWORD}
 
