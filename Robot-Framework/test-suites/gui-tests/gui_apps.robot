@@ -26,7 +26,7 @@ Start and close chrome via GUI on LenovoX1
     [Tags]            SP-T41   lenovo-x1
     Get icon   app  google-chrome.svg  crop=30
     Start app via GUI on LenovoX1   ${CHROME_VM}  chrome
-    Close app via GUI on LenovoX1   ${CHROME_VM}  google-chrome  ./window-close-neg.png
+    Close app via GUI on LenovoX1   ${CHROME_VM}  google-chrome  ./window-close-neg.png   2
 
 Start and close PDF Viewer via GUI on LenovoX1
     [Documentation]   Start PDF Viewer via GUI test automation and verify related process started
@@ -74,21 +74,32 @@ Close app via GUI on LenovoX1
     [Arguments]        ${app-vm}
     ...                ${app}
     ...                ${close_button}=./window-close.png
-
+    ...                ${windows_to_close}=1
     Connect to netvm
-    Connect to VM       ${app-vm}
+    Connect to VM                             ${app-vm}
     Check that the application was started    ${app}
-    Connect to VM       ${GUI_VM}
+    Connect to VM                             ${GUI_VM}
     Start ydotoold
-
-    Log To Console    Going to click the close button of the application window
-    Locate and click  ${close_button}  0.8  5
-
-    Connect to VM       ${app-vm}
-    Check that the application is not running    ${app}   5
-
+    Log To Console                            Going to click the close button of the application window
+    Locate and click                          ${close_button}  0.8  5
+    Connect to VM                             ${app-vm}
+    ${status}           Run Keyword And Return Status  Check that the application is not running  ${app}  5
+    IF  "${windows_to_close}" != "1"
+        # At first launch chrome opens window for selecting account.
+        # If this window is closed the actual browser window still opens.
+        # So need to prepare to close another window in chrome test case.
+        IF  '${status}' != 'True'
+            Connect to VM       ${GUI_VM}
+            Locate and click    ${close_button}  0.8  5
+            Connect to VM       ${app-vm}
+            ${status}           Run Keyword And Return Status  Check that the application is not running  ${app}  5
+        END
+    END
+    IF  '${status}' != 'True'
+        FAIL  Failed to close the application
+    END
     # In case closing the app via GUI failed
-    [Teardown]    Run Keywords    Kill process  @{APP_PIDS}
+    [Teardown]    Run Keywords    Kill process      @{APP_PIDS}
     ...           AND             Connect to VM     ${GUI_VM}
     ...           AND             Move cursor to corner
     ...           AND             Stop ydotoold
@@ -133,10 +144,11 @@ Close app via GUI on Orin AGX
     ...           AND             Stop ydotoold
 
 GUI Apps Teardown
-    Connect
     IF  "Lenovo" in "${DEVICE}"
         Connect to netvm
         Connect to VM       ${GUI_VM}
+    ELSE
+        Connect
     END
     Log journctl
     Close All Connections

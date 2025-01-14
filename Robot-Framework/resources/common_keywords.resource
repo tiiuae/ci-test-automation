@@ -25,6 +25,7 @@ Check that the application is not running
     ${pids}=  Set Variable  ${EMPTY}
     FOR   ${i}   IN RANGE  ${range}
         ${keyword_status}  ${pids}  Run Keyword And Ignore Error   Find pid by name    ${app_name}
+        Set Global Variable  @{APP_PIDS}  @{pids}
         ${status}    Run Keyword And Return Status   Should Be Empty  ${pids}
         IF    ${status}    BREAK
         Sleep   1
