@@ -15,9 +15,10 @@ import parse_perfbench
 
 class PerformanceDataProcessing:
 
-    def __init__(self, device, build_number, job):
+    def __init__(self, device, build_number, commit, job):
         self.device = device
         self.build_number = build_number
+        self.commit = commit[:6]
         self.data_dir = self._create_result_dir()
         self.build_type = job.split(".")[0]
 
@@ -52,7 +53,7 @@ class PerformanceDataProcessing:
 
     @keyword
     def write_cpu_to_csv(self, test_name, cpu_data):
-        data = [self.build_number,
+        data = [self.commit,
                 cpu_data['cpu_events_per_second'],
                 cpu_data['min_latency'],
                 cpu_data['avg_latency'],
@@ -65,12 +66,12 @@ class PerformanceDataProcessing:
     @keyword("Parse and Copy Perfbench To Csv")
     def parse_and_copy_perfbench_to_csv(self):
 
-        perf_result_heading, perf_bit_result_heading = parse_perfbench.parse_perfbench_data(self.build_number,self.device, self.data_dir)
+        perf_result_heading, perf_bit_result_heading = parse_perfbench.parse_perfbench_data(self.commit,self.device, self.data_dir)
         return perf_result_heading, perf_bit_result_heading
 
     @keyword
     def write_mem_to_csv(self, test_name, mem_data):
-        data = [self.build_number,
+        data = [self.commit,
                 mem_data['operations_per_second'],
                 mem_data['data_transfer_speed'],
                 mem_data['min_latency'],
@@ -83,14 +84,14 @@ class PerformanceDataProcessing:
 
     @keyword
     def write_speed_to_csv(self, test_name, speed_data):
-        data = [self.build_number]
+        data = [self.commit]
         for key in speed_data.keys():
                 data.append(speed_data[key])
         data.append(self.device)
         self._write_to_csv(test_name, data)
 
     def write_fileio_data_to_csv(self, test_name, data):
-        data = [self.build_number,
+        data = [self.commit,
                 data['file_operations'],
                 data['throughput'],
                 data['min_latency'],
@@ -103,7 +104,7 @@ class PerformanceDataProcessing:
 
     @keyword("Write Boot time to csv")
     def write_boot_time_to_csv(self, test_name, boot_data):
-        data = [self.build_number,
+        data = [self.commit,
                 boot_data['time_from_nixos_menu_tos_ssh'],
                 boot_data['time_from_reboot_to_desktop_available'],
                 boot_data['response_to_ping'],
@@ -191,7 +192,7 @@ class PerformanceDataProcessing:
     @keyword
     def read_cpu_csv_and_plot(self, test_name):
         data = {
-            'build_numbers': [],
+            'commit': [],
             'cpu_events_per_second': [],
             'min_latency': [],
             'avg_latency': [],
@@ -227,7 +228,7 @@ class PerformanceDataProcessing:
                     else:
                         build_counter[build] = 0
                         modified_build = build
-                    data['build_numbers'].append(modified_build)
+                    data['commit'].append(modified_build)
                     data['cpu_events_per_second'].append(float(row[1]))
                     data['min_latency'].append(float(row[2]))
                     data['avg_latency'].append(float(row[3]))
@@ -257,40 +258,40 @@ class PerformanceDataProcessing:
         # Plot 1: CPU Events per Second
         plt.subplot(3, 1, 1)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['build_numbers'], data['cpu_events_per_second'], marker='o', linestyle='-', color='b')
+        plt.plot(data['commit'], data['cpu_events_per_second'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('CPU Events per Second', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('CPU Events per Second', fontsize=16)
         plt.grid(True)
-        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
 
         # Plot 2: CPU Events per Thread
         plt.subplot(3, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['build_numbers'], data['cpu_events_per_thread'], marker='o', linestyle='-', color='b')
+        plt.plot(data['commit'], data['cpu_events_per_thread'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('CPU Events per Thread', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('CPU Events per Thread', fontsize=16)
         plt.grid(True)
-        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
         # Create line chart with error bars on the same subplot
-        plt.errorbar(data['build_numbers'], data['cpu_events_per_thread'],
+        plt.errorbar(data['commit'], data['cpu_events_per_thread'],
                      yerr=data['cpu_events_per_thread_stddev'],
                      capsize=4)
 
         # Plot 3: Latency
         plt.subplot(3, 1, 3)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['build_numbers'], data['avg_latency'], marker='o', linestyle='-', color='b', label='Avg')
+        plt.plot(data['commit'], data['avg_latency'], marker='o', linestyle='-', color='b', label='Avg')
         plt.ylabel('Avg Latency (ms)', fontsize=16)
         plt.legend(loc='upper left')
         plt.xlabel('Build Number', fontsize=16)
-        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
         plt.ylabel('Max/Min Latency (ms)', fontsize=16)
         plt.yticks(fontsize=14)
         plt.twinx()
-        plt.plot(data['build_numbers'], data['max_latency'], marker='o', linestyle='-', color='r', label='Max')
-        plt.plot(data['build_numbers'], data['min_latency'], marker='o', linestyle='-', color='g', label='Min')
+        plt.plot(data['commit'], data['max_latency'], marker='o', linestyle='-', color='r', label='Max')
+        plt.plot(data['commit'], data['min_latency'], marker='o', linestyle='-', color='g', label='Min')
         plt.legend(loc='upper right')
         plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
         plt.grid(True)
@@ -402,13 +403,13 @@ class PerformanceDataProcessing:
 
             build_counter = {}  # To keep track of duplicate builds
             index = 0
-            data = {"build_numbers":[]}
+            data = {"commit":[]}
 
             for header in headers:
                 data.update({
                 header:[]})
                 for row in data_lines:
-                    if header == "build_numbers":
+                    if header == "commit":
                         build = str(row[0])
                         if build in build_counter:
                             build_counter[build] += 1
@@ -416,7 +417,7 @@ class PerformanceDataProcessing:
                         else:
                             build_counter[build] = 0
                             modified_build = build
-                        data['build_numbers'].append(modified_build)
+                        data['commit'].append(modified_build)
                     else:
                         data[header].append(float(row[index]))
                 index +=1
@@ -427,20 +428,20 @@ class PerformanceDataProcessing:
         plt.ticklabel_format(axis='y', style='plain')
 
         for key, value in data.items():
-            if key not in ['build_numbers']:
-                plt.plot(data['build_numbers'], value, marker='o', linestyle='-', label=key)
+            if key not in ['commit']:
+                plt.plot(data['commit'], value, marker='o', linestyle='-', label=key)
         plt.legend(title="Perfbench measurements", loc="lower left", ncol=3)
         plt.yticks(fontsize=14)
         plt.title(f'Perfbench results: {file_name}', loc='right', fontweight="bold", fontsize=16)
         plt.grid(True)
-        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
         plt.tight_layout()
         plt.savefig(f'../test-suites/{self.device}_{test_name}_{file_name}.png')
 
     @keyword
     def read_mem_csv_and_plot(self, test_name):
         data = {
-            'build_numbers': [],
+            'commit': [],
             'operations_per_second': [],
             'data_transfer_speed': [],
             'min_latency': [],
@@ -486,7 +487,7 @@ class PerformanceDataProcessing:
                     else:
                         build_counter[build] = 0
                         modified_build = build
-                    data['build_numbers'].append(modified_build)
+                    data['commit'].append(modified_build)
                     data['operations_per_second'].append(float(row[1]))
                     data['data_transfer_speed'].append(float(row[2]))
                     data['min_latency'].append(float(row[3]))
@@ -517,37 +518,37 @@ class PerformanceDataProcessing:
         # Plot 1: Operations Per Second
         plt.subplot(3, 1, 1)
         plt.ticklabel_format(axis='y', style='sci', useMathText=True)
-        plt.plot(data['build_numbers'], data['operations_per_second'], marker='o', linestyle='-', color='b')
+        plt.plot(data['commit'], data['operations_per_second'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('Operations per Second', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('Operations per Second', fontsize=16)
         plt.grid(True)
-        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
 
         # Plot 2: Data Transfer Speed
         plt.subplot(3, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['build_numbers'], data['data_transfer_speed'], marker='o', linestyle='-', color='b')
+        plt.plot(data['commit'], data['data_transfer_speed'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('Data Transfer Speed', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('Data Transfer Speed (MiB/sec)', fontsize=16)
         plt.grid(True)
-        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
 
         # Plot 3: Latency
         plt.subplot(3, 1, 3)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['build_numbers'], data['avg_latency'], marker='o', linestyle='-', color='b', label='Avg')
+        plt.plot(data['commit'], data['avg_latency'], marker='o', linestyle='-', color='b', label='Avg')
         plt.ylabel('Avg Latency (ms)', fontsize=16)
         plt.legend(loc='upper left')
         plt.grid(True)
         plt.xlabel('Build Number', fontsize=16)
-        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
         plt.ylabel('Max/Min Latency (ms)', fontsize=16)
         plt.yticks(fontsize=14)
         plt.twinx()
-        plt.plot(data['build_numbers'], data['max_latency'], marker='o', linestyle='-', color='r', label='Max')
-        plt.plot(data['build_numbers'], data['min_latency'], marker='o', linestyle='-', color='g', label='Min')
+        plt.plot(data['commit'], data['max_latency'], marker='o', linestyle='-', color='r', label='Max')
+        plt.plot(data['commit'], data['min_latency'], marker='o', linestyle='-', color='g', label='Min')
         plt.legend(loc='upper right')
         plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
 
@@ -560,7 +561,7 @@ class PerformanceDataProcessing:
     @keyword
     def read_speed_csv_and_plot(self, test_name):
         data = {
-            'build_numbers': [],
+            'commit': [],
             'tx': [],
             'rx': [],
             'statistics_tx': [],
@@ -585,7 +586,7 @@ class PerformanceDataProcessing:
                     else:
                         build_counter[build] = 0
                         modified_build = build
-                    data['build_numbers'].append(modified_build)
+                    data['commit'].append(modified_build)
                     data['tx'].append(float(row[1]))
                     data['rx'].append(float(row[2]))
 
@@ -612,22 +613,22 @@ class PerformanceDataProcessing:
         # Plot 1: TX
         plt.subplot(2, 1, 1)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['build_numbers'], data['tx'], marker='o', linestyle='-', color='b')
+        plt.plot(data['commit'], data['tx'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('Transmitting Speed', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('TX Speed (MBytes/sec)', fontsize=16)
         plt.grid(True)
-        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
 
         # Plot 2: RX
         plt.subplot(2, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['build_numbers'], data['rx'], marker='o', linestyle='-', color='b')
+        plt.plot(data['commit'], data['rx'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('Receiving Speed', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('RX Speed (MBytes/sec)', fontsize=16)
         plt.grid(True)
-        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
 
         plt.xlabel('Build Number', fontsize=16)
 
@@ -640,7 +641,7 @@ class PerformanceDataProcessing:
     @keyword
     def read_fileio_data_csv_and_plot(self, test_name):
         data = {
-            'build_numbers': [],
+            'commit': [],
             'file_operations': [],
             'throughput': [],
             'min_latency': [],
@@ -676,7 +677,7 @@ class PerformanceDataProcessing:
                     else:
                         build_counter[build] = 0
                         modified_build = build
-                    data['build_numbers'].append(modified_build)
+                    data['commit'].append(modified_build)
                     data['file_operations'].append(float(row[1]))
                     data['throughput'].append(float(row[2]))
                     data['min_latency'].append(float(row[3]))
@@ -703,32 +704,32 @@ class PerformanceDataProcessing:
 
         plt.subplot(3, 1, 1)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['build_numbers'], data['file_operations'], marker='o', linestyle='-', color='b')
+        plt.plot(data['commit'], data['file_operations'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('File operation', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('File operation per second', fontsize=16)
         plt.grid(True)
-        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
 
         plt.subplot(3, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['build_numbers'], data['throughput'], marker='o', linestyle='-', color='b')
+        plt.plot(data['commit'], data['throughput'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('Throughput', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('Throughput, MiB/s', fontsize=16)
         plt.grid(True)
-        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
 
         plt.subplot(3, 1, 3)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['build_numbers'], data['avg_latency'], marker='o', linestyle='-', color='b', label='Avg')
+        plt.plot(data['commit'], data['avg_latency'], marker='o', linestyle='-', color='b', label='Avg')
         plt.ylabel('Avg Latency (ms)', fontsize=16)
         plt.legend(loc='upper left')
         plt.xlabel('Build Number', fontsize=16)
-        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
         plt.twinx()
-        plt.plot(data['build_numbers'], data['max_latency'], marker='o', linestyle='-', color='r', label='Max')
-        plt.plot(data['build_numbers'], data['min_latency'], marker='o', linestyle='-', color='g', label='Min')
+        plt.plot(data['commit'], data['max_latency'], marker='o', linestyle='-', color='r', label='Max')
+        plt.plot(data['commit'], data['min_latency'], marker='o', linestyle='-', color='g', label='Min')
         plt.yticks(fontsize=14)
         plt.ylabel('Max/Min Latency (ms)', fontsize=16)
         plt.legend(loc='upper right')
@@ -744,7 +745,7 @@ class PerformanceDataProcessing:
     @keyword("Read Bootime CSV and Plot")
     def read_bootime_csv_and_plot(self, test_name):
         data = {
-                'build_numbers': [],
+                'commit': [],
                 'time_from_nixos_menu_tos_ssh':[],
                 'time_from_reboot_to_desktop_available':[],
                 'response_to_ping':[],
@@ -765,7 +766,7 @@ class PerformanceDataProcessing:
                     else:
                         build_counter[build] = 0
                         modified_build = build
-                    data['build_numbers'].append(modified_build)
+                    data['commit'].append(modified_build)
                     data['time_from_nixos_menu_tos_ssh'].append(float(row[1]))
                     data['time_from_reboot_to_desktop_available'].append(float(row[2]))
                     data['response_to_ping'].append(float(row[3]))
@@ -775,39 +776,39 @@ class PerformanceDataProcessing:
         plt.set_loglevel('WARNING')
         plt.subplot(4, 1, 1)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['build_numbers'], data['time_from_nixos_menu_tos_ssh'], marker='o', linestyle='-', color='b')
+        plt.plot(data['commit'], data['time_from_nixos_menu_tos_ssh'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('Time from nixos menu to ssh', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('seconds', fontsize=12)
         plt.grid(True)
-        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
 
         plt.subplot(4, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['build_numbers'], data['time_from_reboot_to_desktop_available'], marker='o', linestyle='-', color='b')
+        plt.plot(data['commit'], data['time_from_reboot_to_desktop_available'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('Time since reboot to desktop avaialble', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('seconds', fontsize=12)
         plt.grid(True)
-        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
 
         plt.subplot(4, 1, 3)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['build_numbers'], data['response_to_ping'], marker='o', linestyle='-', color='b')
+        plt.plot(data['commit'], data['response_to_ping'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('Response to ping', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('seconds', fontsize=12)
         plt.grid(True)
-        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
 
         plt.subplot(4, 1, 4)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['build_numbers'], data['response_to_ssh'], marker='o', linestyle='-', color='b')
+        plt.plot(data['commit'], data['response_to_ssh'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('Response to ssh', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('seconds', fontsize=12)
         plt.grid(True)
-        plt.xticks(data['build_numbers'], rotation=45, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
         plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
@@ -849,7 +850,7 @@ class PerformanceDataProcessing:
                     if build_data:
                         build_data = build_data[-10:]  # Keep only the last 10 builds
                         data[test][vm_name] = {
-                            'build_numbers': [build[0] for build in build_data],
+                            'commit': [build[0] for build in build_data],
                             'values': [build[1] for build in build_data],
                             'threads': threads
                         }
@@ -861,14 +862,14 @@ class PerformanceDataProcessing:
 
             for i, (vm_name, vm_data) in enumerate(data[test].items()):
                 if vm_data:
-                    indices = [sorted_builds.index(build) for build in vm_data['build_numbers']]
+                    indices = [sorted_builds.index(build) for build in vm_data['commit']]
                     plt.bar([x + i * 0.1 for x in indices], vm_data['values'], width=0.1,
                             label=f"{vm_name} ({vm_data['threads']} threads)" if "1thread" not in test else vm_name)
 
             plt.title(f'Comparison of {test} results for VMs\n(build type: {self.build_type}, device: {self.device})')
             plt.xlabel('Builds')
             plt.ylabel('Data transfer speed, MB/s' if 'memory' in test else 'Events per second')
-            plt.xticks(range(len(sorted_builds)), sorted_builds, rotation=45)
+            plt.xticks(range(len(sorted_builds)), sorted_builds, rotation=90)
             plt.legend()
             plt.tight_layout()
             plt.savefig(f'../test-suites/{self.device}_{test_name}_{test}.png')
