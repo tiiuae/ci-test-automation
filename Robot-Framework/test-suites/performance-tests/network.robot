@@ -12,7 +12,7 @@ Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/connection_keywords.resource
 Library             ../../lib/output_parser.py
 Library             Process
-Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${JOB}
+Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
 Library             Collections
 Library             JSONLibrary
 Suite Setup         Initialize Variables And Connect

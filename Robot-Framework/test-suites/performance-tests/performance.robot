@@ -12,7 +12,7 @@ Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/connection_keywords.resource
 Library             ../../lib/output_parser.py
 Library             ../../lib/parse_perfbench.py
-Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${JOB}
+Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
 Library             Collections
 Library             DateTime
 Suite Setup         Initialize Variables And Connect
