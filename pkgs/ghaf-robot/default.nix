@@ -9,6 +9,7 @@
   robotframework-jsonlibrary,
   robotframework-retryfailed,
   robotframework-seriallibrary,
+  robotframework-sshlibrary,
   stdenv,
   writeShellApplication,
 }:
@@ -21,7 +22,8 @@ writeShellApplication {
     (python3.withPackages (ps: [
       # These are taken from nixpkgs
       ps.robotframework
-      ps.robotframework-sshlibrary
+      # ps.robotframework-sshlibrary
+      robotframework-sshlibrary
       ps.pyserial
       ps.python-kasa
       ps.pytz
