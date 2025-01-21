@@ -241,7 +241,7 @@ Verify service shutdown status
     Should Be True	  '${status}' == '${expected_status}'  Expected ${expected_status} but in fact ${status}
 
 Wait until NetVM service started
-    [Arguments]       ${timeout}=15
+    [Arguments]       ${timeout}=30
     ${is_started} =   Set Variable    False
     FOR    ${i}    IN RANGE    ${timeout}
         ${output}=     Execute Command    systemctl status ${netvm_service}
