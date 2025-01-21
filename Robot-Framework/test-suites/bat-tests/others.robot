@@ -48,7 +48,7 @@ Check systemctl status
 
 Check all VMs are running
     [Documentation]    Verify systemctl status of all VMs is running
-    [Tags]             bat   pre-merge  SP-T68  lenovo-x1
+    [Tags]             bat  SP-T68  lenovo-x1
     [Setup]     Connect
     ${output}   Execute Command    microvm -l
     @{vms}      Extract VM names   ${output}

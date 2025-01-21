@@ -17,7 +17,7 @@ Resource            ../../resources/common_keywords.resource
 
 Start Firefox
     [Documentation]   Start Firefox and verify process started
-    [Tags]            bat   pre-merge   SP-T41  nuc  orin-agx
+    [Tags]            bat  SP-T41  nuc  orin-agx
     [Setup]           Skip If   "${JOB}" == "nvidia-jetson-orin-agx-debug-nodemoapps-from-x86_64.x86_64-linux"
     ...               Skipped because this build doesn't contain applications
     Connect
@@ -39,7 +39,7 @@ Start Chrome on LenovoX1
 
 Start Zathura on LenovoX1
     [Documentation]   Start Zathura in dedicated VM and verify process started
-    [Tags]            bat   pre-merge   SP-T105   lenovo-x1
+    [Tags]            bat  SP-T105   lenovo-x1
     Connect to netvm
     Check if ssh is ready on vm    ${ZATHURA_VM}
     Connect to VM       ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
@@ -52,7 +52,7 @@ Start Zathura on LenovoX1
 
 Start Gala on LenovoX1
     [Documentation]   Start Gala in dedicated VM and verify process started
-    [Tags]            bat   pre-merge   SP-T104   lenovo-x1
+    [Tags]            bat  SP-T104   lenovo-x1
     Connect to netvm
     Check if ssh is ready on vm    ${GALA_VM}
     Connect to VM          ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
@@ -63,7 +63,7 @@ Start Gala on LenovoX1
 
 Start Element on LenovoX1
     [Documentation]   Start Element in dedicated VM and verify process started
-    [Tags]            bat   pre-merge   SP-T52   lenovo-x1
+    [Tags]            bat  SP-T52   lenovo-x1
     Connect to netvm
     Check if ssh is ready on vm    ${COMMS_VM}
     Connect to VM          ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
@@ -74,7 +74,7 @@ Start Element on LenovoX1
 
 Start Slack on LenovoX1
     [Documentation]   Start Slack in dedicated VM and verify process started
-    [Tags]            bat   pre-merge   SP-T181   lenovo-x1
+    [Tags]            bat  SP-T181   lenovo-x1
     Connect to netvm
     Check if ssh is ready on vm    ${COMMS_VM}
     Connect to VM          ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
