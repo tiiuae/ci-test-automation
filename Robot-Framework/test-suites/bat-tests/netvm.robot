@@ -31,8 +31,7 @@ Verify NetVM is started
 Wifi passthrought into NetVM
     [Documentation]     Verify that wifi works inside netvm
     [Tags]              bat  SP-T101   SP-T111  orin-agx  lenovo-x1
-    [Setup]             Run Keywords
-    ...                 Connect to ghaf host  AND  Connect to netvm
+    [Setup]             Connect to netvm
     Configure wifi      ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
     Check Network Availability    8.8.8.8   expected_result=True
@@ -45,8 +44,7 @@ Wifi passthrought into NetVM
 Wifi passthrought into NetVM (NUC)
     [Documentation]     Verify that wifi works inside netvm
     [Tags]              bat   SP-T111  nuc
-    [Setup]             Run Keywords
-    ...                 Connect to ghaf host  AND  Connect to netvm
+    [Setup]             Connect to netvm
     Configure wifi via wpa_supplicant      ${netvm_ssh}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Check Network Availability    8.8.8.8   expected_result=True
     Remove wpa_supplicant configuration
@@ -56,32 +54,29 @@ Wifi passthrought into NetVM (NUC)
 NetVM stops and starts successfully
     [Documentation]     Verify that NetVM stops properly and starts after that
     [Tags]              bat  SP-T47  SP-T90  nuc  orin-nx  lenovo-x1
-    [Setup]     Connect to ghaf host
+    [Setup]             Connect to ghaf host
     Restart NetVM
-    [Teardown]  Run Keywords  Start NetVM if dead   AND  Close All Connections
+    [Teardown]          Run Keywords  Start NetVM if dead   AND  Close All Connections
 
 NetVM is wiped after restarting
     [Documentation]     Verify that created file will be removed after restarting VM
     [Tags]              bat  SP-T48  nuc  orin-nx  lenovo-x1
-    [Setup]             Run Keywords
-    ...                 Connect to ghaf host  AND  Connect to netvm
-    Switch Connection   ${NETVM_SSH}
+    [Setup]             Connect to netvm
     Create file         /etc/test.txt
     Switch Connection   ${GHAF_HOST_SSH}
     Restart NetVM
     Close All Connections
     Connect to ghaf host
-    Check Network Availability      ${NETVM_IP}    expected_result=True    range=5
+    Check Network Availability      ${NETVM_IP}    expected_result=True    range=15
     Connect to netvm
-    Log To Console      Create if created file still exists
+    Log To Console      Check if created file still exists
     Check file doesn't exist    /etc/test.txt
     [Teardown]          Run Keywords   Close All Connections
 
 Verify NetVM PCI device passthrough
     [Documentation]     Verify that proper PCI devices have been passed through to the NetVM
     [Tags]              bat  SP-T96  nuc  orin-agx  orin-nx
-    [Setup]             Run Keywords
-    ...                 Connect to ghaf host  AND  Connect to netvm
+    [Setup]             Connect to netvm
     Verify microvm PCI device passthrough    host_connection=${GHAF_HOST_SSH}    vm_connection=${NETVM_SSH}    vmname=${NETVM_NAME}
     [Teardown]          Run Keywords   Close All Connections
 
@@ -91,7 +86,7 @@ Verify NetVM PCI device passthrough
 Restart NetVM
     [Documentation]    Stop NetVM via systemctl, wait ${delay} and start NetVM
     ...                Pre-condition: requires active ssh connection to ghaf host.
-    [Arguments]        ${delay}=3
+    [Arguments]        ${delay}=5
     Stop NetVM
     Sleep  ${delay}
     Start NetVM

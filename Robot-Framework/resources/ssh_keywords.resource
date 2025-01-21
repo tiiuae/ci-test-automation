@@ -503,7 +503,6 @@ Connect to VM if not already connected
     [Arguments]        ${vm_name}
     ${connected}   Check ssh connection status   ${vm_name}
     IF  not ${connected}
-        Connect
         Connect to netvm
         Connect to VM   ${vm_name}
     END
