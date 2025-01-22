@@ -17,7 +17,8 @@ Resource            ../../resources/common_keywords.resource
 
 Start Firefox
     [Documentation]   Start Firefox and verify process started
-    [Tags]            bat  SP-T41  nuc  orin-agx
+    ...               Known Issues: Firefox is temporarily disabled from target SW (nuc, orin-agx)
+    [Tags]            bat  SP-T41
     [Setup]           Skip If   "${JOB}" == "nvidia-jetson-orin-agx-debug-nodemoapps-from-x86_64.x86_64-linux"
     ...               Skipped because this build doesn't contain applications
     Connect
