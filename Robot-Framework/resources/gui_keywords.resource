@@ -28,9 +28,9 @@ Log in via GUI
         Type string and press enter  ${USER_LOGIN}
         Type string and press enter  ${USER_PASSWORD}
     END
+    Try to reset scaling
     Verify login
-    Log To Console    Disabling automated lock and suspend
-    Execute Command   systemctl --user stop swayidle
+    Stop swayidle
 
 Log out
     [Documentation]   Log out and optionally verify that desktop is not available
@@ -185,3 +185,28 @@ Save most common icons and paths to icons
     Get icon                ghaf-artwork  launcher.svg  crop=0  background=black  output_filename=launcher.png
     Get icon                ${ICON_THEME}/symbolic/actions  window-close-symbolic.svg  crop=0  output_filename=window-close.png  background=white
     Negate app icon         window-close.png  window-close-neg.png
+
+Try to reset scaling
+    [Documentation]    Disable hidpi-auto-scaling
+    Log To Console     Trying to reset scaling
+    Connect to VM      ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
+    FOR   ${i}   IN RANGE  5
+        Execute Command   systemctl --user start hidpi-auto-scaling-reset
+        Execute Command   journalctl --since "5 seconds ago" --user -u hidpi-auto-scaling-reset
+        ${status}=        Run Keyword And Return Status    Should contain    ${output}    Finished
+        IF  ${status}
+            Execute Command   systemctl --user reload ewwbar
+            Log To Console    Auto scaling reset succeeded
+            BREAK
+        Sleep    1
+        END
+    END
+    IF  not ${status}
+        Log To Console   Auto scaling reset failed
+    END
+
+Stop swayidle
+    [Documentation]    Stop swayidle to prevent automatic suspension
+    Log To Console    Disabling automated lock and suspend
+    Connect to VM     ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
+    Execute Command   systemctl --user stop swayidle
