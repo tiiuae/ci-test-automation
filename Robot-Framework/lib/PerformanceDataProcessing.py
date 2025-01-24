@@ -858,18 +858,17 @@ class PerformanceDataProcessing:
 
         for test in tests:
             plt.figure(figsize=(10, 6))
-            sorted_builds = sorted(all_builds[test], key=self.extract_numeric_part)
 
             for i, (vm_name, vm_data) in enumerate(data[test].items()):
                 if vm_data:
-                    indices = [sorted_builds.index(build) for build in vm_data['commit']]
+                    indices = [list(all_builds[test]).index(build) for build in vm_data['commit']]
                     plt.bar([x + i * 0.1 for x in indices], vm_data['values'], width=0.1,
                             label=f"{vm_name} ({vm_data['threads']} threads)" if "1thread" not in test else vm_name)
 
             plt.title(f'Comparison of {test} results for VMs\n(build type: {self.build_type}, device: {self.device})')
             plt.xlabel('Builds')
             plt.ylabel('Data transfer speed, MB/s' if 'memory' in test else 'Events per second')
-            plt.xticks(range(len(sorted_builds)), sorted_builds, rotation=90)
+            plt.xticks(range(len(all_builds[test])), all_builds[test], rotation=90)
             plt.legend()
             plt.tight_layout()
             plt.savefig(f'../test-suites/{self.device}_{test_name}_{test}.png')
