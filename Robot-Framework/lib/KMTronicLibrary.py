@@ -12,18 +12,22 @@ class KMTronicLibrary:
 
     def __init__(self, port):
         """Initialize the serial connection"""
-        self.ser = serial.Serial(
-            port=port,  # Port to which the device is connected
-            baudrate=9600,  # Baud rate
-            bytesize=serial.EIGHTBITS,  # Number of data bits
-            parity=serial.PARITY_NONE,  # No parity
-            stopbits=serial.STOPBITS_ONE,  # One stop bit
-            timeout=1  # Timeout for reading data
-        )
-        if self.ser.is_open:
-            print(f"Connection established successfully on port {port}.")
+        if port == 'NONE':
+            self.ser = None
+            print("No serial connection initialized (port set to 'NONE').")
         else:
-            raise RuntimeError(f"Failed to open connection on port {port}")
+            self.ser = serial.Serial(
+                port=port,  # Port to which the device is connected
+                baudrate=9600,  # Baud rate
+                bytesize=serial.EIGHTBITS,  # Number of data bits
+                parity=serial.PARITY_NONE,  # No parity
+                stopbits=serial.STOPBITS_ONE,  # One stop bit
+                timeout=1  # Timeout for reading data
+            )
+            if self.ser.is_open:
+                print(f"Connection established successfully on port {port}.")
+            else:
+                raise RuntimeError(f"Failed to open connection on port {port}")
 
     def close_relay_board_connection(self):
         """
