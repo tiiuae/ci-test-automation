@@ -4,7 +4,6 @@
 *** Settings ***
 Documentation       BAT tests
 Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/connection_keywords.resource
 Resource            ../../resources/gui_keywords.resource
