@@ -12,6 +12,7 @@ Library             Collections
 
 ${START_MENU}         ./launcher.png
 ${LOGGED_IN_STATUS}   ${True}
+${DISABLE_LOGOUT}     ${EMPTY}
 
 *** Keywords ***
 
@@ -35,6 +36,12 @@ Log in via GUI
 Log out
     [Documentation]   Log out and optionally verify that desktop is not available
     [Arguments]        ${log_out_icon}=./logout.png
+    # Allow disabling logout in case of running test automation locally from ghaf-host.
+    # This prevents terminal from being shutdown and allows test run to finish.
+    IF  $DISABLE_LOGOUT == 'true'
+        Log To Console    Log out disabled. Skipping log out procedure.
+        RETURN
+    END
     Start ydotoold
     Get icon           ghaf-artwork  power.svg  crop=0  background=black
     Locate and click   ./icon.png  0.95  5

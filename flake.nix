@@ -89,6 +89,7 @@
               pandas
               pyscreeze
               python3Packages.opencv4
+              paramiko
             ]))
         ];
       };

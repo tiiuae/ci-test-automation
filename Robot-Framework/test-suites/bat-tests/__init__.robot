@@ -7,8 +7,13 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/connection_keywords.resource
 Resource            ../../resources/gui_keywords.resource
+Library             OperatingSystem
 Suite Setup         BAT tests setup
 Suite Teardown      BAT tests teardown
+
+
+*** Variables ***
+${DISABLE_LOGOUT}     ${EMPTY}
 
 
 *** Keywords ***
