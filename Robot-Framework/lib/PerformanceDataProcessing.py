@@ -824,7 +824,7 @@ class PerformanceDataProcessing:
         tests = ['cpu_1thread', 'memory_read_1thread', 'memory_write_1thread', 'cpu', 'memory_read', 'memory_write']
         data = {test: {} for test in tests}
 
-        all_builds = {test: set() for test in tests}
+        all_builds = {test: [] for test in tests}
 
         for vm_name, threads in vms_dict.items():
             for test in tests:
@@ -854,14 +854,16 @@ class PerformanceDataProcessing:
                             'values': [build[1] for build in build_data],
                             'threads': threads
                         }
-                        all_builds[test].update([build[0] for build in build_data])
+                        for build in [build[0] for build in build_data]:
+                            if build not in all_builds[test]:
+                                all_builds[test].append(build)
 
         for test in tests:
             plt.figure(figsize=(10, 6))
 
             for i, (vm_name, vm_data) in enumerate(data[test].items()):
                 if vm_data:
-                    indices = [list(all_builds[test]).index(build) for build in vm_data['commit']]
+                    indices = [all_builds[test].index(build) for build in vm_data['commit']]
                     plt.bar([x + i * 0.1 for x in indices], vm_data['values'], width=0.1,
                             label=f"{vm_name} ({vm_data['threads']} threads)" if "1thread" not in test else vm_name)
 
