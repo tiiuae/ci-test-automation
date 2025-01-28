@@ -14,6 +14,7 @@ ${TEST_WIFI_SSID}  ${EMPTY}
 ${TEST_WIFI_PSWD}  ${EMPTY}
 ${DEVICE_TYPE}     ${EMPTY}
 ${LOGIN}           ghaf
+${CONFIG_PATH}     ../config/test_config.json
 
 
 *** Keywords ***
@@ -21,14 +22,21 @@ ${LOGIN}           ghaf
 Set Variables
     [Arguments]  ${device}
 
-    ${config}=     Read Config
-    Set Global Variable  ${SERIAL_PORT}        ${config['addresses']['${DEVICE}']['serial_port']}
-    Set Global Variable  ${RELAY_SERIAL_PORT}  ${config['addresses']['relay_serial_port']}
-    Set Global Variable  ${DEVICE_IP_ADDRESS}  ${config['addresses']['${DEVICE}']['device_ip_address']}
-    Set Global Variable  ${SOCKET_IP_ADDRESS}  ${config['addresses']['${DEVICE}']['socket_ip_address']}
-    Set Global Variable  ${PLUG_TYPE}          ${config['addresses']['${DEVICE}']['plug_type']}
-    Set Global Variable  ${THREADS_NUMBER}     ${config['addresses']['${DEVICE}']['threads']}
-    Set Global Variable  ${SWITCH_BOT}         ${config['addresses']['${DEVICE}']['switch_bot']}
+    IF  $CONFIG_PATH == 'None'
+        Log To Console    No path for test_config.json given. Ignore reading the config variables.
+        Set Global Variable  ${RELAY_SERIAL_PORT}   NONE
+    ELSE
+        ${config}=     Read Config    ${CONFIG_PATH}
+        Set Global Variable  ${SERIAL_PORT}        ${config['addresses']['${DEVICE}']['serial_port']}
+        Set Global Variable  ${RELAY_SERIAL_PORT}  ${config['addresses']['relay_serial_port']}
+        Set Global Variable  ${DEVICE_IP_ADDRESS}  ${config['addresses']['${DEVICE}']['device_ip_address']}
+        Set Global Variable  ${SOCKET_IP_ADDRESS}  ${config['addresses']['${DEVICE}']['socket_ip_address']}
+        Set Global Variable  ${PLUG_TYPE}          ${config['addresses']['${DEVICE}']['plug_type']}
+        Set Global Variable  ${THREADS_NUMBER}     ${config['addresses']['${DEVICE}']['threads']}
+        Set Global Variable  ${SWITCH_BOT}         ${config['addresses']['${DEVICE}']['switch_bot']}
+        Run Keyword And Ignore Error    Set Global Variable  ${RELAY_NUMBER}      ${config['addresses']['${DEVICE}']['relay_number']}
+        Run Keyword And Ignore Error    Set Global Variable  ${RPI_IP_ADDRESS}    ${config['addresses']['measurement_agent']['device_ip_address']}
+    END
     Set Global Variable  ${NETVM_NAME}         net-vm
     Set Global Variable  ${NETVM_SERVICE}      microvm@${NETVM_NAME}.service
     Set Global Variable  ${NETVM_IP}           192.168.100.1
@@ -42,18 +50,17 @@ Set Variables
     Set Global Variable  ${BUSINESS_VM}        business-vm
     Set Global Variable  ${ADMIN_VM}           admin-vm
     Set Global Variable  @{VMS}                ${GUI_VM}  ${CHROME_VM}  ${GALA_VM}  ${ZATHURA_VM}  ${COMMS_VM}  ${BUSINESS_VM}  ${ADMIN_VM}
-    Run Keyword And Ignore Error    Set Global Variable  ${RELAY_NUMBER}      ${config['addresses']['${DEVICE}']['relay_number']}
 
     Set Log Level       NONE
 
-
-    Run Keyword And Ignore Error    Set Global Variable  ${RPI_IP_ADDRESS}    ${config['addresses']['measurement_agent']['device_ip_address']}
     ${result} 	Run Process    sh    -c    cat /run/secrets/pi-login  shell=true
     Set Global Variable        ${LOGIN_PI}   ${result.stdout}
     ${result} 	Run Process    sh    -c    cat /run/secrets/pi-pass  shell=true
     Set Global Variable        ${PASSWORD_PI}   ${result.stdout}
     ${result} 	Run Process    sh    -c    cat /run/secrets/dut-pass       shell=true
-    Set Global Variable        ${PASSWORD}         ${result.stdout}
+    IF  $result.stdout != '${EMPTY}'
+        Set Global Variable        ${PASSWORD}         ${result.stdout}
+    END
     ${result} 	Run Process    sh    -c    cat /run/secrets/plug-login     shell=true
     Set Global Variable        ${PLUG_USERNAME}    ${result.stdout}
     ${result} 	Run Process    sh    -c    cat /run/secrets/plug-pass      shell=true
@@ -66,8 +73,18 @@ Set Variables
     Set Global Variable        ${TEST_WIFI_SSID}   ${result.stdout}
     ${result} 	Run Process    sh    -c    cat /run/secrets/wifi-password  shell=true
     Set Global Variable        ${TEST_WIFI_PSWD}   ${result.stdout}
-    Set Global Variable        ${USER_LOGIN}       testuser
-    Set Global Variable        ${USER_PASSWORD}    testpw
+    ${result} 	Run Process    sh    -c    cat /etc/secrets/testuser       shell=true
+    IF  $result.stdout != '${EMPTY}'
+        Set Global Variable        ${USER_LOGIN}         ${result.stdout}
+    ELSE
+        Set Global Variable        ${USER_LOGIN}         testuser
+    END
+    ${result} 	Run Process    sh    -c    cat /etc/secrets/testpw         shell=true
+    IF  $result.stdout != '${EMPTY}'
+        Set Global Variable        ${USER_PASSWORD}      ${result.stdout}
+    ELSE
+        Set Global Variable        ${USER_PASSWORD}      testpw
+    END
 
     Set Log Level       INFO
 
@@ -78,7 +95,7 @@ Set Variables
 
 
 Read Config
-    [Arguments]  ${file_path}=../config/test_config.json
+    [Arguments]  ${file_path}
 
     ${file_data}=    OperatingSystem.Get File    ${file_path}
     TRY
