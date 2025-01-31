@@ -17,7 +17,31 @@
     ];
   in
     flake-utils.lib.eachSystem systems (system: let
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = nixpkgs.legacyPackages.${system}.appendOverlays [
+        (self: super: {
+          python3 = let
+            python = let
+              packageOverrides = pyself: pysuper: {
+                asyncclick = pysuper.asyncclick.overridePythonAttrs (old: {
+                  version = "8.1.8.0-async";
+                  src = self.fetchFromGitHub {
+                    owner = "python-trio";
+                    repo = "asyncclick";
+                    rev = "995a2ff3e31826c87cc419fa26e5c019bd115927"; # Matching $version tag, I used commit hash instead tag, because they tends to delete tags (avnik)
+                    sha256 = "sha256-J294pYuNOSm7v2BbwDpzn3uelAnZ3ip2U1gWuchhOtA=";
+                  };
+                  nativeBuildInputs = with pysuper; [flit-core] ++ (old.nativeBuildInputs or []);
+                });
+              };
+            in
+              super.python3.override {
+                inherit packageOverrides;
+                self = python;
+              };
+          in
+            python;
+        })
+      ];
     in {
       packages = rec {
         ghaf-robot = pkgs.callPackage ./pkgs/ghaf-robot {
