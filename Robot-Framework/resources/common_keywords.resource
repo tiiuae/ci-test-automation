@@ -42,10 +42,14 @@ Run journalctl recording
     ${output}     Execute Command    nohup journalctl -f >> /tmp/jrnl.txt 2>&1 &
 
 Log journctl
-    ${jrnl_size}    Execute Command    ls -lh /tmp/jrnl.txt
+    ${jrnl_size}  Execute Command    ls -lh /tmp/jrnl.txt
     Log           ${jrnl_size}
-    ${jrnl}       Execute Command    cat /tmp/jrnl.txt   timeout=10
-    Log           ${jrnl}
+    IF  "NX" in "${DEVICE}"
+        Log To Console    Skip reading journlctl
+    ELSE
+        ${jrnl}   Execute Command    cat /tmp/jrnl.txt   timeout=10
+        Log       ${jrnl}
+    END
     @{pid}        Find pid by name   journalctl
     Kill process  @{pid}
 
