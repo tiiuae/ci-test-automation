@@ -94,7 +94,7 @@ Connect to netvm
 
 Connect to VM
     [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}
-    Log To Console       Connecting to ${vm_name}
+    Log To Console       Connecting to ${vm_name} as ${user}
     Check if ssh is ready on vm        ${vm_name}
     ${failed_connection}  Set variable  True
     FOR    ${i}    IN RANGE    3
