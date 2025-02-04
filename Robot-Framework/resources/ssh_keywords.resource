@@ -61,7 +61,7 @@ Connect
     RETURN            ${connection}
 
 Connect to ghaf host
-    [Documentation]      Open SSH connection to Ghaf Host through net-vm
+    [Documentation]      Open SSH connection to Ghaf Host
     IF  "Lenovo" in "${DEVICE}"
         ${connection}        Connect
         Set Global Variable  ${NETVM_SSH}    ${connection}
@@ -74,7 +74,7 @@ Connect to ghaf host
     RETURN               ${GHAF_HOST_SSH}
 
 Connect to netvm
-    [Documentation]      Open ssh connection net-vm
+    [Documentation]      Open ssh connection to net-vm
     ${connected}   Check ssh connection status   net-vm
     IF  not ${connected}
         IF  "Lenovo" in "${DEVICE}"

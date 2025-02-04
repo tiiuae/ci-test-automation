@@ -19,7 +19,7 @@ Suite Setup         Initialize Variables And Connect
 Suite Teardown      Close All Connections
 
 *** Variables ***
-@{FAIED_VM_TESTS}
+@{FAILED_VM_TESTS}
 @{IMPROVED_VM_TESTS}
 
 
@@ -321,10 +321,10 @@ Sysbench test in VMs on LenovoX1
 
     ${length}       Get Length    ${FAILED_VMS}
 
-    ${isEmpty}    Run Keyword And Return Status    Should Be Empty    ${FAIED_VM_TESTS}
+    ${isEmpty}    Run Keyword And Return Status    Should Be Empty    ${FAILED_VM_TESTS}
     ${fail_msg}=  Set Variable  ${EMPTY}
     IF  ${isEmpty} == False
-      ${fail_msg}=  Set Variable  Deviation detected in the following tests: "${FAIED_VM_TESTS}"\n
+      ${fail_msg}=  Set Variable  Deviation detected in the following tests: "${FAILED_VM_TESTS}"\n
     END
     IF  ${length} > 0
       ${fail_msg}=  Set Variable  ${fail_msg}These VMs were not tested due to connection fail: ${FAILED_VMS}
@@ -395,7 +395,7 @@ Save cpu results
     &{data}            Parse Cpu Results     ${output}
     &{statistics}      Save Cpu Data         ${host}_${TEST NAME}_${test}  ${data}
     IF  "${statistics}[flag]" == "-1"
-        Append To List     ${FAIED_VM_TESTS}        ${host}_${test}
+        Append To List     ${FAILED_VM_TESTS}        ${host}_${test}
         Log to console     Deviation detected in test: ${host}_${test}
     END
     IF  "${statistics}[flag]" == "1"
@@ -411,7 +411,7 @@ Save memory results
     &{data}            Parse Memory Results  ${output}
     &{statistics}      Save Memory Data      ${host}_${TEST NAME}_${test}  ${data}
     IF  "${statistics}[flag]" == "-1"
-        Append To List     ${FAIED_VM_TESTS}        ${host}_${test}
+        Append To List     ${FAILED_VM_TESTS}        ${host}_${test}
         Log to console     Deviation detected in test: ${host}_${test}
     END
     IF  "${statistics}[flag]" == "1"

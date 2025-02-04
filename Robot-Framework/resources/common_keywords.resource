@@ -82,6 +82,19 @@ Check If Device Is Up
         END
     END
 
+Check if netvm has started on Lenovo-X1
+    [Arguments]    ${iterations}=10
+    FOR    ${i}    IN RANGE    ${iterations}
+        ${pass_status}  ${connection}  Run Keyword And Ignore Error    Connect    target_output=ghaf@net-vm
+        IF    $pass_status=='PASS'
+            RETURN
+        ELSE
+            Close All Connections
+        END
+        Sleep  1
+    END
+    FAIL   Failed to connect net-vm
+
 Log versions
     ${ghaf_version}     Execute Command   ghaf-version
     Log to console      Ghaf version: ${ghaf_version}

@@ -90,10 +90,11 @@ GUI Reboot
     ELSE
         Log To Console            Device started
     END
-    Connect
     IF  "Lenovo" in "${DEVICE}"
         Connect to netvm
         Connect to VM             ${GUI_VM}
+    ELSE
+        Connect to ghaf host
     END
     Verify logout
     Log To Console                LOGGED_IN_STATUS after reboot
