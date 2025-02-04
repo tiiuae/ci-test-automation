@@ -47,8 +47,7 @@ Verify booting LenovoX1
     ELSE
         Log To Console  The device started
     END
-
-    Connect
+    Check if netvm has started on Lenovo-X1
     Verify service status   service=init.scope
 
     [Teardown]   Teardown

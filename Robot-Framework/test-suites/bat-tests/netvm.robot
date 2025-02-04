@@ -66,7 +66,7 @@ NetVM is wiped after restarting
     Restart NetVM
     Close All Connections
     Connect to ghaf host
-    Check Network Availability      ${DEVICE_IP_ADDRESS}    expected_result=True    range=15
+    Check Network Availability      ${NETVM_IP}    expected_result=True    range=15
     Connect to netvm
     Log To Console      Check if created file still exists
     Check file doesn't exist    /etc/test.txt

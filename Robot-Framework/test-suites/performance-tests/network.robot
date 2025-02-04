@@ -26,7 +26,7 @@ ${PERF_TEST_TIME}  10
 *** Test Cases ***
 Measure TCP Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]   tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1  SSRCSP-T227
+    [Tags]   tcp  nuc  orin-agx  orin-nx  riscv  SSRCSP-T227
     [Setup]            Run iperf server on DUT
     [Teardown]         Stop iperf server
     &{speed_data}      Create Dictionary
@@ -45,7 +45,7 @@ Measure TCP Throughput Small Packets
 
 Measure TCP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1  SSRCSP-T228
+    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  SSRCSP-T228
     [Setup]             Run iperf server on DUT
     [Teardown]          Stop iperf server
     &{speed_data}       Create Dictionary
@@ -60,7 +60,7 @@ Measure TCP Bidir Throughput Small Packets
 
 Measure TCP Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1  SSRCSP-T229
+    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  SSRCSP-T229
     [Setup]            Run iperf server on DUT
     [Teardown]         Stop iperf server
     &{speed_data}      Create Dictionary
@@ -76,7 +76,7 @@ Measure TCP Throughput Big Packets
 
 Measure TCP Bidir Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1  SSRCSP-T230
+    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  SSRCSP-T230
     [Setup]            Run iperf server on DUT
     [Teardown]         Stop iperf server
     &{speed_data}      Create Dictionary
@@ -91,7 +91,7 @@ Measure TCP Bidir Throughput Big Packets
 
 Measure UDP TX Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1  SSRCSP-T231
+    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  SSRCSP-T231
     [Setup]            Run iperf server on DUT
     [Teardown]         Stop iperf server
     &{speed_data}      Create Dictionary
@@ -108,7 +108,7 @@ Measure UDP TX Throughput Small Packets
 
 Measure UDP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1  SSRCSP-T232
+    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  SSRCSP-T232
     [Setup]            Run iperf server on DUT
     [Teardown]         Stop iperf server
     &{speed_data}      Create Dictionary
@@ -123,7 +123,7 @@ Measure UDP Bidir Throughput Small Packets
 
 Measure UDP Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  udp  nuc  orin-agx  orin-nx  riscv  lenovo-x1  SSRCSP-T233
+    [Tags]  udp  nuc  orin-agx  orin-nx  riscv  SSRCSP-T233
     [Setup]            Run iperf server on DUT
     [Teardown]         Stop iperf server
     &{speed_data}      Create Dictionary
@@ -140,7 +140,7 @@ Measure UDP Throughput Big Packets
 
 Measure UDP Bidir Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  udp  nuc  orin-agx  orin-nx  riscv  lenovo-x1  SSRCSP-T234
+    [Tags]  udp  nuc  orin-agx  orin-nx  riscv  SSRCSP-T234
     [Setup]            Run iperf server on DUT
     [Teardown]         Stop iperf server
     &{speed_data}      Create Dictionary
