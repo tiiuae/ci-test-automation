@@ -46,29 +46,64 @@ Check Network Availability
     END
 
 Connect
-    [Documentation]   Set up the SSH connection to the device through net-vm
-    [Arguments]       ${IP}=${DEVICE_IP_ADDRESS}    ${PORT}=22    ${target_output}=ghaf@net-vm
+    [Documentation]   Set up the SSH connection to the device
+    [Arguments]       ${IP}=${DEVICE_IP_ADDRESS}    ${PORT}=22    ${target_output}=None
+    IF  '${target_output}' != 'None'
+        Log To Console    Expecting ${target_output} target output
+    ELSE IF  "Lenovo" in "${DEVICE}"
+        ${target_output}  Set Variable  ghaf@net-vm
+    ELSE
+        ${target_output}  Set Variable  ghaf@ghaf-host
+    END
     ${connection}=    Open Connection    ${IP}    port=${PORT}    prompt=\$    timeout=30
     ${output}=        Login     username=${LOGIN}    password=${PASSWORD}
     Should Contain    ${output}    ${target_output}
     RETURN            ${connection}
 
-Connect to netvm
-    [Documentation]      Open ssh connection net-vm
-    ${connection}        Connect
-    Set Global Variable  ${NETVM_SSH}    ${connection}
-    RETURN               ${NETVM_SSH}
-
 Connect to ghaf host
     [Documentation]      Open SSH connection to Ghaf Host through net-vm
-    [Arguments]    ${timeout}=60
-    Log To Console       Connecting to Ghaf Host via NetVM
+    IF  "Lenovo" in "${DEVICE}"
+        ${connection}        Connect
+        Set Global Variable  ${NETVM_SSH}    ${connection}
+        ${connection}        Connect to VM       ${HOST_IP}
+    ELSE
+        Log To Console       Connecting to Ghaf Host
+        ${connection}        Connect
+    END
+    Set Global Variable  ${GHAF_HOST_SSH}    ${connection}
+    RETURN               ${GHAF_HOST_SSH}
+
+Connect to netvm
+    [Documentation]      Open ssh connection net-vm
+    ${connected}   Check ssh connection status   net-vm
+    IF  not ${connected}
+        IF  "Lenovo" in "${DEVICE}"
+            ${connection}   Connect
+        ELSE
+            Connect to ghaf host
+            Log To Console       Connecting to NetVM
+            ${connection}        Connect to VM        ${NETVM_NAME}
+        END
+        Set Global Variable  ${NETVM_SSH}    ${connection}
+        RETURN               ${NETVM_SSH}
+    END
+
+Connect to VM
+    [Documentation]      Connect to any VM or ghaf-host over internal virtual network
+    [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=60
+    Log To Console       Connecting to ${vm_name} as ${user}
+    Check if ssh is ready on vm        ${vm_name}
     ${failed_connection}  Set variable  True
-    ${start_time}  Get Time     epoch
+    ${start_time}  Get Time	epoch
+    IF  "Lenovo" in "${DEVICE}"
+        ${jumphost}   Set Variable  ${NETVM_SSH}
+    ELSE
+        ${jumphost}   Set Variable  ${GHAF_HOST_SSH}
+    END
     FOR    ${i}    IN RANGE    10
         TRY
-            ${connection}=       Open Connection    ${HOST_IP}    port=22    prompt=\$    timeout=30
-            ${output}=           Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${NETVM_SSH}
+            ${connection}=       Open Connection    ${vm_name}    port=22    prompt=\$    timeout=30
+            ${output}=           Login    username=${user}        password=${pw}    jumphost_index_or_alias=${jumphost}
         EXCEPT    ChannelException: ChannelException(2, 'Connect failed')    type=LITERAL
             ${diff}=    Evaluate    int(time.time()) - int(${start_time})
             IF   ${diff} < ${timeout}
@@ -81,28 +116,7 @@ Connect to ghaf host
         ${failed_connection}  Set variable  False
         BREAK
     END
-    IF  ${failed_connection}    FAIL  Couldn't connect to Ghaf Host
-    Set Global Variable  ${GHAF_HOST_SSH}    ${connection}
-    RETURN               ${GHAF_HOST_SSH}
-
-Connect to VM
-    [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}
-    Log To Console       Connecting to ${vm_name} as ${user}
-    Check if ssh is ready on vm        ${vm_name}
-    ${failed_connection}  Set variable  True
-    FOR    ${i}    IN RANGE    3
-        TRY
-            ${connection}=       Open Connection    ${vm_name}    port=22    prompt=\$    timeout=30
-            ${output}=           Login    username=${user}        password=${pw}    jumphost_index_or_alias=${netvm_ssh}
-        EXCEPT    ChannelException: ChannelException(2, 'Connect failed')    type=LITERAL
-            Sleep   1
-            CONTINUE
-        END
-        ${failed_connection}  Set variable  False
-        BREAK
-    END
     IF  ${failed_connection}    FAIL  Couldn't connect ${vm_name}
-
     RETURN             ${connection}
 
 Verify Systemctl status
@@ -324,7 +338,6 @@ Check if ssh is ready on netvm
 
 Check if ssh is ready on vm
     [Arguments]    ${vm}  ${timeout}=30
-    Switch Connection    ${NETVM_SSH}
     ${start_time}  Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
         ${output}  ${rc}    Execute Command    nc -zvw3 ${vm} 22    return_rc=True
