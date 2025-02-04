@@ -10,6 +10,9 @@ Library             Process
 Library             ../lib/output_parser.py
 
 
+*** Variables ***
+${NETVM_IP}        192.168.101.1
+
 *** Keywords ***
 
 Ping Host
@@ -46,29 +49,33 @@ Check Network Availability
     END
 
 Connect
-    [Documentation]   Set up the SSH connection to the device through net-vm
-    [Arguments]       ${IP}=${DEVICE_IP_ADDRESS}    ${PORT}=22    ${target_output}=ghaf@net-vm
+    [Documentation]   Set up the SSH connection to the device
+    [Arguments]       ${IP}=${DEVICE_IP_ADDRESS}    ${PORT}=22    ${target_output}=ghaf@ghaf-host
     ${connection}=    Open Connection    ${IP}    port=${PORT}    prompt=\$    timeout=30
     ${output}=        Login     username=${LOGIN}    password=${PASSWORD}
     Should Contain    ${output}    ${target_output}
     RETURN            ${connection}
 
-Connect to netvm
-    [Documentation]      Open ssh connection net-vm
-    ${connection}        Connect
-    Set Global Variable  ${NETVM_SSH}    ${connection}
-    RETURN               ${NETVM_SSH}
-
 Connect to ghaf host
-    [Documentation]      Open SSH connection to Ghaf Host through net-vm
+    [Documentation]      Open ssh connection to ghaf host
+    Log To Console       Connecting to Ghaf Host
+    ${connection}        Connect
+    Set Global Variable  ${GHAF_HOST_SSH}    ${connection}
+    RETURN               ${connection}
+
+Connect to netvm
+    [Documentation]      Connect to netvm directly from test run machine, using
+    ...                  jumphost, this allows using standard SSHLibrary
+    ...                  commands, like 'Execute Command'
     [Arguments]    ${timeout}=60
-    Log To Console       Connecting to Ghaf Host via NetVM
+    Connect to ghaf host
+    Log To Console       Connecting to NetVM
     ${failed_connection}  Set variable  True
-    ${start_time}  Get Time     epoch
+    ${start_time}  Get Time	epoch
     FOR    ${i}    IN RANGE    10
         TRY
-            ${connection}=       Open Connection    ${HOST_IP}    port=22    prompt=\$    timeout=30
-            ${output}=           Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${NETVM_SSH}
+            ${connection}=       Open Connection    ${NETVM_IP}    port=22    prompt=\$    timeout=30
+            ${output}=           Login    username=${LOGIN}     password=${PASSWORD}    jumphost_index_or_alias=${GHAF_HOST_SSH}
         EXCEPT    ChannelException: ChannelException(2, 'Connect failed')    type=LITERAL
             ${diff}=    Evaluate    int(time.time()) - int(${start_time})
             IF   ${diff} < ${timeout}
@@ -81,9 +88,9 @@ Connect to ghaf host
         ${failed_connection}  Set variable  False
         BREAK
     END
-    IF  ${failed_connection}    FAIL  Couldn't connect to Ghaf Host
-    Set Global Variable  ${GHAF_HOST_SSH}    ${connection}
-    RETURN               ${GHAF_HOST_SSH}
+    IF  ${failed_connection}    FAIL  Couldn't connect NetVM
+    Set Global Variable  ${NETVM_SSH}    ${connection}
+    RETURN               ${NETVM_SSH}
 
 Connect to VM
     [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}
@@ -306,7 +313,7 @@ Check if ssh is ready on netvm
     [Arguments]    ${timeout}=60
     ${start_time}  Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
-        ${output}  ${rc}    Execute Command    nc -zvw3 ${NETVM_IP} 22    return_rc=True
+        ${output}  ${rc}    Execute Command    nc -zvw3 192.168.101.1 22    return_rc=True
         ${status}    Run Keyword And Return Status
         ...          Should Be Equal As Integers    ${rc}    0
         IF  ${status}

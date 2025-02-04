@@ -24,7 +24,7 @@ Check Grafana logs
     [Teardown]       Remove Wifi configuration  ${TEST_WIFI_SSID}
     Configure wifi   ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Check Internet Connection
-    Connect to VM    ${ADMIN_VM}
+    Connect to ghaf host
     ${mac}           Execute Command  cat /var/lib/private/alloy/MACAddress  sudo=True  sudo_password=${PASSWORD}
     ${date}          DateTime.Get Current Date  result_format=%Y-%m-%d
     Wait Until Keyword Succeeds  60s  2s  Check Logs Are available  ${date}  ${mac}

@@ -40,7 +40,6 @@ Initialize Variables And Connect
     IF  ${port_22_is_available} == False
         FAIL    Failed because port 22 of device was not available, tests can not be run.
     END
-    Connect to netvm
     ${CONNECTION}        Connect to ghaf host
     Set Global Variable  ${CONNECTION}
 
