@@ -35,7 +35,6 @@ Log in via GUI
 Log out
     [Documentation]   Log out and optionally verify that desktop is not available
     [Arguments]        ${log_out_icon}=./logout.png
-    Switch Connection    ${CONNECTION}
     Start ydotoold
     Get icon           ghaf-artwork  power.svg  crop=0  background=black
     Locate and click   ./icon.png  0.95  5
