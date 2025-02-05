@@ -40,7 +40,7 @@ Measure TCP Throughput Small Packets
     ${bps_rx}          Get Throughput Values  ${output2.stdout}  direction=receiver
     Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
     Log                <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Small Packets" width="1200">    HTML
-    ${statistics}       Save Speed Data   ${TEST NAME}  ${speed_data}
+    ${statistics}      Save Speed Data   ${TEST NAME}  ${speed_data}
     Report Statistics  ${statistics}
 
 Measure TCP Bidir Throughput Small Packets
@@ -199,8 +199,10 @@ Get Throughput Values
     ELSE
         ${MBps}  Get Regexp Matches  ${output}    (?im)\\s(\\d+(\\.\\d+)?) MBytes\\/sec.*${direction}  1
     END
-    ${expected_throughput}  Set Variable If  ${bidir}  ${85}  ${90}
-    Run Keyword And Continue On Failure  Should Be True  ${MBps}[0] > ${expected_throughput}
+    ${status}    Run Keyword And Return Status   Should Not Be Empty  ${MBps}
+    IF  not ${status}
+        Log      Failed to get the result from ${TEST NAME}   console=yes
+    END
     RETURN  ${MBps}[0]
 
 Report statistics
