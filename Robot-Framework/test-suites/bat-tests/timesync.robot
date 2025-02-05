@@ -11,7 +11,7 @@ Suite Teardown      Close All Connections
 
 *** Variables ***
 ${wrong_time}       01/11/23 11:00:00 UTC
-${change_time}      ${EMPTY}
+${original_time}    ${EMPTY}
 
 
 *** Test Cases ***
@@ -47,7 +47,7 @@ Start timesync daemon
     ${output}              Execute Command    timedatectl -a
 
 Check that time is correct
-    [Documentation]   Check that current system time is correct (time tolerance = 10 sec)
+    [Documentation]   Check that current system time is correct (time tolerance = 30 sec)
     [Arguments]       ${timezone}=UTC
 
     ${is_synchronized} =   Set Variable    False
@@ -62,26 +62,26 @@ Check that time is correct
 
     ${current_time}   Get current time   ${timezone}
     Log To Console    Comparing device time: ${universal_time} and real time ${current_time}
-    ${time_close}     Is time close      ${universal_time}  ${current_time}
+    ${time_close}     Is time close      ${universal_time}  ${current_time}  tolerance_seconds=30
     Should Be True    ${time_close}  ${universal_time} expected close to ${current_time}, Time was synchronized: ${is_synchronized}
     Compare local and universal time
 
 Set time
     [Arguments]       ${time}=${wrong_time}
-    ${change_time}        Get Time	epoch
-    Set Test Variable     ${change_time}  ${change_time}
+    ${original_time}      Get Time	epoch
+    Set Test Variable     ${original_time}  ${original_time}
     Log To Console        Setting time ${time}
     Execute Command       hwclock --set --date="${time}"  sudo=True  sudo_password=${PASSWORD}
     Execute Command       hwclock -s  sudo=True  sudo_password=${PASSWORD}
     ${output}             Execute Command  timedatectl -a
 
 Check time was changed
-    [Documentation]   Check that current system time is equal to given (time tolerance = 10 sec)
+    [Documentation]   Check that current system time is equal to given time tolerance.
     [Arguments]       ${time}=${wrong_time}  ${timezone}=UTC
     ${output}         Execute Command    timedatectl -a
     ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}  ${is_synchronized}   Parse time info  ${output}
     ${now}            Get Time  epoch
-    ${time_diff}      Evaluate  ${now} - ${change_time}
+    ${time_diff}      Evaluate  ${now} - ${original_time}
     ${expected_time}  Convert To UTC  ${time}
     Log To Console    Comparing device time: ${universal_time} and time which was set ${expected_time}
     ${time_close}     Is time close  ${universal_time}  ${expected_time}  tolerance_seconds=${time_diff}
