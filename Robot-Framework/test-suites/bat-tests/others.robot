@@ -77,7 +77,15 @@ Check Memory status
     [Tags]  bat  lenovo-x1  SSRCSP-5321
     [Setup]     Connect to ghaf host
     [Teardown]  Close All Connections
-    ${ssd}          Check External SSD Size
-    ${storage}      Check Storagevm Size
-    Should Be True  ${ssd} > ${storage} > ${100}
-    Should Be True  ${${ssd}*${0.80}} <= ${storage}
+    ${lsblk}  Execute Command  lsblk
+    log       ${lsblk}
+    ${SSD}    run keyword and return status  should contain   ${lsblk}   sda
+    ${eMMC}   run keyword and return status  should contain   ${lsblk}   nvme0n1p
+
+    ${memory}  run keyword if  ${SSD}   Check External SSD Size
+    ...    ELSE IF             ${eMMC}  Check Internal eMMC Size
+    ...    ELSE                Fail     Failure. Something missing? No SSD or eMMC partitions captured!
+
+    ${storage}  Check Storagevm Size
+    Should Be True  ${memory} > ${storage} > ${100}
+    Should Be True  ${${memory}*${0.80}} <= ${storage}
