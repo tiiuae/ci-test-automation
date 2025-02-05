@@ -483,9 +483,17 @@ Restart VM
 
 Check External SSD Size
     [Documentation]  Check the size of ssd used in setup
+    Log to console   Memory to be checked: SSD
     ${lsblk}  Execute Command  lsblk
     ${size}  Get Regexp Matches  ${lsblk}  (?im)(sda .*\\d*:\\d{1}.*\\d{1}\\s)(\\d{1,3})  2
     RETURN  ${size}[0]
+
+Check Internal eMMC Size
+    [Documentation]  Check the size of eMMC used in setup
+    Log to console   Memory to be checked: eMMC
+    ${lsblk}  Execute Command  lsblk
+    ${size}   Get Regexp Matches  ${lsblk}  (?im)(nvme0n1 .*\\d*:\\d{1}.*\\d{1}\\s)(\\d{1,3})  2
+    RETURN    ${size}[0]
 
 Check Storagevm Size
     [Documentation]  Check the size of storagevm
