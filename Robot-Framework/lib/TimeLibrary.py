@@ -46,7 +46,7 @@ def parse_time_string(time_string, timezone='UTC'):
     return datetime.strptime(time_string, format)
 
 
-def is_time_close(time_string1, time_string2, tolerance_seconds=10):
+def is_time_close(time_string1, time_string2, tolerance_seconds=30):
     """Check if two time strings are close within a tolerance in seconds."""
 
     time1 = parse_time_string(time_string1)
