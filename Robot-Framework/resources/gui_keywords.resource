@@ -191,7 +191,7 @@ Try to reset scaling
     Connect to VM      ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
     FOR   ${i}   IN RANGE  5
         Execute Command   systemctl --user start hidpi-auto-scaling-reset
-        Execute Command   journalctl --since "5 seconds ago" --user -u hidpi-auto-scaling-reset
+        ${output}         Execute Command   journalctl --since "5 seconds ago" --user -u hidpi-auto-scaling-reset
         ${status}=        Run Keyword And Return Status    Should contain    ${output}    Finished
         IF  ${status}
             Execute Command   systemctl --user reload ewwbar
