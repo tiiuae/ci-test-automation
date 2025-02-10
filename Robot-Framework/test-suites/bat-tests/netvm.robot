@@ -29,7 +29,7 @@ Verify NetVM is started
 
 Wifi passthrought into NetVM
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              bat  SP-T101   SP-T111  orin-agx  lenovo-x1
+    [Tags]              bat  SP-T101   SP-T111  orin-agx
     [Setup]             Connect to netvm
     Configure wifi      ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
