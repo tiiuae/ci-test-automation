@@ -7,7 +7,7 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/connection_keywords.resource
-Library             ../../lib/gui_testing.py
+Library             ../../lib/GuiTesting.py   ${OUTPUT_DIR}/outputs/gui-temp/
 Suite Setup         Run Keywords  Initialize Variables, Connect And Start Logging  AND  GUI Tests Setup
 Suite Teardown      Close All Connections
 

@@ -8,7 +8,7 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/gui_keywords.resource
-Library             ../../lib/gui_testing.py
+Library             ../../lib/GuiTesting.py   ${OUTPUT_DIR}/outputs/gui-temp/
 Suite Teardown      GUI Apps Teardown
 
 
@@ -100,7 +100,7 @@ Start app via GUI on LenovoX1
     [Documentation]    Start Application via GUI test automation and verify related process started
     [Arguments]        ${app-vm}
     ...                ${app}
-    ...                ${launch_icon}=./icon.png
+    ...                ${launch_icon}=icon.png
 
     Connect to VM if not already connected  gui-vm
     Check if ssh is ready on vm    ${app-vm}

@@ -3,7 +3,7 @@
 
 *** Settings ***
 Resource            ../config/variables.robot
-Library             ../lib/parse_power_data.py
+Library             ../lib/ParsePowerData.py    ${POWER_MEASUREMENT_DIR}
 Library             SSHLibrary
 Library             DateTime
 
@@ -79,7 +79,7 @@ Get power record
         RETURN
     END
     Run Keyword And Ignore Error  Connect to measurement agent
-    Run Keyword And Ignore Error  SSHLibrary.Get File           /home/ghaf/ghaf/power_data/${file_name}  ../../../power_measurements/
+    Run Keyword And Ignore Error  SSHLibrary.Get File           /home/ghaf/ghaf/power_data/${file_name}  ${POWER_MEASUREMENT_DIR}
 
 Save power measurement interval
     [Documentation]   Extract measurement data within given time interval
@@ -94,7 +94,7 @@ Save power measurement interval
         Log To Console    Invalid timestamp critera for extracting power data
         RETURN
     END
-    Run Keyword And Ignore Error    Extract time interval   ../../../power_measurements/${file_name}  ${start_time}   ${end_time}
+    Run Keyword And Ignore Error    Extract time interval   ${POWER_MEASUREMENT_DIR}${file_name}  ${start_time}   ${end_time}
 
 Generate power plot
     [Documentation]   Extract power data from start_timestamp to current time.
@@ -109,7 +109,7 @@ Generate power plot
     Run Keyword And Ignore Error      Get power record    ${id}.csv
     Run Keyword And Ignore Error      Save power measurement interval   ${id}.csv  '${start_timestamp}'  '${end_timestamp}'
     Run Keyword And Ignore Error      Generate graph    power_interval.csv  ${test_name}
-    Run Keyword And Ignore Error      Log   <img src="power_test.png" alt="Power plot" width="1200">    HTML
+    Run Keyword And Ignore Error      Log   <img src="${POWER_MEASUREMENT_DIR}power_test.png" alt="Power plot" width="1200">    HTML
 
 Set start timestamp
     ${current_time}   DateTime.Get Current Date   UTC  exclude_millis=yes
@@ -126,5 +126,5 @@ Log average power
         Log To Console    No connection to power measurement device. Ignoring all power measurement related keywords.
         RETURN
     END
-    ${keyword_status}   ${mean_P}     Run Keyword And Ignore Error  Mean power  ${file_name}
+    ${keyword_status}   ${mean_P}     Run Keyword And Ignore Error  Mean power  ${POWER_MEASUREMENT_DIR}${file_name}
     # TODO: With the statistics tools of performance testing also average power values could be plotted and monitored
