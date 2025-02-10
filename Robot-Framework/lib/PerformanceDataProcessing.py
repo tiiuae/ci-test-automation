@@ -15,25 +15,35 @@ import parse_perfbench
 
 class PerformanceDataProcessing:
 
-    def __init__(self, device, build_number, commit, job):
+    def __init__(self, device, build_number, commit, job, perf_data_dir, config_path, plot_dir):
         self.device = device
         self.build_number = build_number
         self.commit = commit[:6]
-        self.data_dir = self._create_result_dir()
+        self.perf_data_dir = perf_data_dir
+        self.config_path = config_path
+        self.plot_dir = plot_dir
+        self.data_dir = self._create_result_dirs()
         self.build_type = job.split(".")[0]
 
     def _get_job_name(self):
-        f = open(f"../config/{self.build_number}.json")
-        data = json.load(f)
-        job_name = data["Job"]
+        if self.config_path != "None":
+            f = open(self.config_path + f"/{self.build_number}.json")
+            data = json.load(f)
+            job_name = data["Job"]
+        else:
+            job_name = "dummy_job"
         return job_name
 
-    def _create_result_dir(self):
+    def _create_result_dirs(self):
         job = self._get_job_name()
-        data_dir = f"../../../Performance_test_results/{job}/"
+        data_dir = self.perf_data_dir + f"{job}/"
+        logging.info(f"Creating {data_dir}")
         os.makedirs(data_dir, exist_ok=True)
         statistics_dir = f"{data_dir}statistics"
         os.makedirs(statistics_dir, exist_ok=True)
+        if self.plot_dir != "./":
+            logging.info(f"Creating {self.plot_dir}")
+            os.makedirs(self.plot_dir, exist_ok=True)
         return data_dir
 
     def _write_to_csv(self, test_name, data):
@@ -66,7 +76,7 @@ class PerformanceDataProcessing:
     @keyword("Parse and Copy Perfbench To Csv")
     def parse_and_copy_perfbench_to_csv(self):
 
-        perf_result_heading, perf_bit_result_heading = parse_perfbench.parse_perfbench_data(self.commit,self.device, self.data_dir)
+        perf_result_heading, perf_bit_result_heading = parse_perfbench.parse_perfbench_data(self.commit, self.device, self.data_dir)
         return perf_result_heading, perf_bit_result_heading
 
     @keyword
@@ -299,7 +309,7 @@ class PerformanceDataProcessing:
         plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
-        plt.savefig(f'../test-suites/{self.device}_{test_name}.png')
+        plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
         return statistics
 
     def normalize_columns(self, csv_file_name, normalize_to):
@@ -436,7 +446,7 @@ class PerformanceDataProcessing:
         plt.grid(True)
         plt.xticks(data['commit'], rotation=90, fontsize=14)
         plt.tight_layout()
-        plt.savefig(f'../test-suites/{self.device}_{test_name}_{file_name}.png')
+        plt.savefig(self.plot_dir + f'{self.device}_{test_name}_{file_name}.png')
 
     @keyword
     def read_mem_csv_and_plot(self, test_name):
@@ -555,7 +565,7 @@ class PerformanceDataProcessing:
         plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
-        plt.savefig(f'../test-suites/{self.device}_{test_name}.png')
+        plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
         return statistics
 
     @keyword
@@ -635,7 +645,7 @@ class PerformanceDataProcessing:
         plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
-        plt.savefig(f'../test-suites/{self.device}_{test_name}.png')
+        plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
         return statistics
 
     @keyword
@@ -739,7 +749,7 @@ class PerformanceDataProcessing:
         plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
-        plt.savefig(f'../test-suites/{self.device}_{test_name}.png')
+        plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
         return statistics
 
     @keyword("Read Bootime CSV and Plot")
@@ -812,7 +822,7 @@ class PerformanceDataProcessing:
         plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
-        plt.savefig(f'../test-suites/{self.device}_{test_name}.png')
+        plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
 
     def extract_numeric_part(self, build_identifier):
         parts = build_identifier.split('-')
@@ -873,7 +883,7 @@ class PerformanceDataProcessing:
             plt.xticks(range(len(all_builds[test])), all_builds[test], rotation=90)
             plt.legend()
             plt.tight_layout()
-            plt.savefig(f'../test-suites/{self.device}_{test_name}_{test}.png')
+            plt.savefig(self.plot_dir + f'{self.device}_{test_name}_{test}.png')
             plt.close()
 
     @keyword("Combine Normalized Data")
