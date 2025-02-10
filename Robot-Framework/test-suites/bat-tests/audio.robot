@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing audio applicaton
-Force Tags          audio
+Force Tags          audio   bat
 Resource            ../../__framework__.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/common_keywords.resource
@@ -13,6 +13,11 @@ Resource            ../../config/variables.robot
 Test Setup          Connect to netvm
 Test Teardown       Close All Connections
 Test Timeout        3 minutes
+
+
+*** Variables ***
+
+${AUDIO_DIR}    ${OUTPUT_DIR}/outputs/audio-temp
 
 
 *** Test Cases ***
@@ -28,8 +33,8 @@ Record Audio And Verify
         Sleep  5
         Execute Command  pkill parecord  timeout=10  sudo=True  sudo_password=${PASSWORD}
         Sleep  1
-        SSHLibrary.Get File  /tmp/test_${vm}.wav  test_${vm}.wav
-        Check Audio File  test_${vm}.wav
+        SSHLibrary.Get File  /tmp/test_${vm}.wav  ${AUDIO_DIR}/test_${vm}.wav
+        Check Audio File  ${AUDIO_DIR}/test_${vm}.wav
     END
 
 Check Audio devices

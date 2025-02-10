@@ -4,7 +4,7 @@
 
 *** Settings ***
 Resource            ../config/variables.robot
-Library             ../lib/gui_testing.py
+Library             ../lib/GuiTesting.py    ${OUTPUT_DIR}/outputs/gui-temp/
 Library             Collections
 
 
@@ -13,6 +13,7 @@ Library             Collections
 ${START_MENU}         ./launcher.png
 ${LOGGED_IN_STATUS}   ${True}
 ${DISABLE_LOGOUT}     ${EMPTY}
+${GUI_TEMP_DIR}       ${OUTPUT_DIR}/outputs/gui-temp/
 
 *** Keywords ***
 
@@ -35,7 +36,6 @@ Log in via GUI
 
 Log out
     [Documentation]   Log out and optionally verify that desktop is not available
-    [Arguments]        ${log_out_icon}=./logout.png
     # Allow disabling logout in case of running test automation locally from ghaf-host.
     # This prevents terminal from being shutdown and allows test run to finish.
     IF  $DISABLE_LOGOUT == 'true'
@@ -44,9 +44,9 @@ Log out
     END
     Start ydotoold
     Get icon           ghaf-artwork  power.svg  crop=0  background=black
-    Locate and click   ./icon.png  0.95  5
+    Locate and click   icon.png  0.95  5
     Get icon           ghaf-artwork  logout.svg  crop=0  background=black
-    Locate and click   ./icon.png  0.95  5
+    Locate and click   icon.png  0.95  5
 
 Type string and press enter
     [Arguments]   ${string}=${EMPTY}
@@ -70,9 +70,9 @@ Locate image on screen
         Execute Command    rm screenshot.png
         ${rc}=             Execute Command  grim screenshot.png  return_stdout=False  return_rc=${true}   timeout=5
         IF  "${rc}" == "0"
-            SSHLibrary.Get File  screenshot.png   screenshot.png
+            SSHLibrary.Get File  screenshot.png   ${GUI_TEMP_DIR}screenshot.png
             Log To Console    Locating image ${image_to_be_searched} on screenshot
-            ${pass_status}  ${coordinates}  Run Keyword And Ignore Error  Locate image  ${image_to_be_searched}   ${confidence}
+            ${pass_status}  ${coordinates}  Run Keyword And Ignore Error  Locate image  ${GUI_TEMP_DIR}${image_to_be_searched}   ${confidence}
         END
         IF    $pass_status=='PASS'    BREAK
         Sleep  0.5
@@ -146,13 +146,13 @@ Get icon
     [Documentation]    Copy icon svg file to test agent machine. Crop and convert the svg file to png.
     [Arguments]        ${path}   ${icon_name}   ${crop}=0   ${background}=none   ${output_filename}=icon.png
     IF  $path == "app"
-        SSHLibrary.Get File  ${APP_ICON_PATH}/${icon_name}   icon.svg
+        SSHLibrary.Get File  ${APP_ICON_PATH}/${icon_name}   ${GUI_TEMP_DIR}icon.svg
     ELSE IF  $path == "ghaf-artwork"
-        SSHLibrary.Get File  ${ARTWORK_PATH}/${icon_name}   icon.svg
+        SSHLibrary.Get File  ${ARTWORK_PATH}/${icon_name}   ${GUI_TEMP_DIR}icon.svg
     ELSE
-        SSHLibrary.Get File  ${path}/${icon_name}   icon.svg
+        SSHLibrary.Get File  ${path}/${icon_name}   ${GUI_TEMP_DIR}icon.svg
     END
-    Convert app icon  ${crop}   ${background}   input_file=icon.svg  output_file=${output_filename}
+    Convert app icon  ${crop}   ${background}   input_file=${GUI_TEMP_DIR}icon.svg  output_file=${GUI_TEMP_DIR}${output_filename}
 
 Check if locked
     [Documentation]    Check if the screen lock has been activated
@@ -162,7 +162,7 @@ Check if locked
         Type string and press enter
         Log To Console     Searching for view-reveal-symbolic.svg
         Get icon           ${ICON_THEME}/symbolic/actions  view-reveal-symbolic.svg  background=black
-        ${status}   ${output}      Run Keyword And Ignore Error   Locate image on screen  ./icon.png  0.95  3
+        ${status}   ${output}      Run Keyword And Ignore Error   Locate image on screen  icon.png  0.95  3
         IF  '${status}' == 'PASS'
             RETURN    ${True}
         END
@@ -182,15 +182,15 @@ Save most common icons and paths to icons
     Set Global Variable     ${ICON_THEME}        ${icons}/Papirus
     Log To Console          Saving path to app icon-pack
     Set Global Variable     ${APP_ICON_PATH}  ${ICON_THEME}/128x128/apps
-    Log To Console          ${APP_ICON_PATH}
+    Log                     ${APP_ICON_PATH}  console=True
     Log To Console          Saving path to ghaf-artwork icons
     ${ghaf_artwork_path}    Execute Command   echo /nix/store/$(ls /nix/store | grep ghaf-artwork- | grep -v .drv)/icons
     Set Global Variable     ${ARTWORK_PATH}  ${ghaf_artwork_path}
-    Log To Console          ${ARTWORK_PATH}
+    Log                     ${ARTWORK_PATH}  console=True
     Log To Console          Saving gui icons
     Get icon                ghaf-artwork  launcher.svg  crop=0  background=black  output_filename=launcher.png
     Get icon                ${ICON_THEME}/symbolic/actions  window-close-symbolic.svg  crop=0  output_filename=window-close.png  background=white
-    Negate app icon         window-close.png  window-close-neg.png
+    Negate app icon         ${GUI_TEMP_DIR}window-close.png  ${GUI_TEMP_DIR}window-close-neg.png
 
 Try to reset scaling
     [Documentation]    Disable hidpi-auto-scaling
