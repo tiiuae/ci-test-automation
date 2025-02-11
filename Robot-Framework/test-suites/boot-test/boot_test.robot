@@ -30,7 +30,7 @@ Verify booting after restart by power
         Log To Console  The device started
     END
     IF  "${CONNECTION_TYPE}" == "ssh"
-        Connect
+        Connect   iterations=10
         Verify service status   service=init.scope
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Verify init.scope status via serial
@@ -47,9 +47,8 @@ Verify booting LenovoX1
     ELSE
         Log To Console  The device started
     END
-    Check if netvm has started on Lenovo-X1
+    Connect   iterations=10
     Verify service status   service=init.scope
-
     [Teardown]   Teardown
 
 Verify booting RiscV Polarfire

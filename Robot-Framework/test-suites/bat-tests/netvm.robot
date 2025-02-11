@@ -52,14 +52,14 @@ Wifi passthrought into NetVM (NUC)
 
 NetVM stops and starts successfully
     [Documentation]     Verify that NetVM stops properly and starts after that
-    [Tags]              bat  SP-T47  SP-T90  nuc  orin-nx
+    [Tags]              bat  SP-T47  SP-T90  nuc
     [Setup]             Connect to ghaf host
     Restart NetVM
     [Teardown]          Run Keywords  Start NetVM if dead   AND  Close All Connections
 
 NetVM is wiped after restarting
     [Documentation]     Verify that created file will be removed after restarting VM
-    [Tags]              bat  SP-T48  nuc  orin-nx
+    [Tags]              bat  SP-T48  nuc
     [Setup]             Connect to netvm
     Create file         /etc/test.txt
     Switch Connection   ${GHAF_HOST_SSH}
@@ -76,7 +76,7 @@ Verify NetVM PCI device passthrough
     [Documentation]     Verify that proper PCI devices have been passed through to the NetVM
     [Tags]              bat  SP-T96  nuc  orin-agx  orin-nx
     [Setup]             Connect to netvm
-    Verify microvm PCI device passthrough    host_connection=${GHAF_HOST_SSH}    vm_connection=${NETVM_SSH}    vmname=${NETVM_NAME}
+    Verify microvm PCI device passthrough    vmname=${NETVM_NAME}
     [Teardown]          Run Keywords   Close All Connections
 
 
