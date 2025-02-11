@@ -91,7 +91,7 @@ GUI Reboot
         Log To Console            Device started
     END
     IF  "Lenovo" in "${DEVICE}"
-        Connect to netvm
+        ${NETVM_SSH}              Connect   iterations=10
         Connect to VM             ${GUI_VM}
     ELSE
         Connect to ghaf host
