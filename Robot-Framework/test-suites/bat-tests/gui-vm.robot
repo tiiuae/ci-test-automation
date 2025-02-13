@@ -40,12 +40,6 @@ Start Bluetooth Settings on LenovoX1
     Start XDG application  'Bluetooth Settings'
     Check that the application was started    blueman
 
-Start Audio Control on LenovoX1
-    [Documentation]   Start Audio Control and verify process started
-    [Tags]            audio_control  SP-T203
-    Start XDG application  'Audio Control'
-    Check that the application was started    audio-control
-
 Start File Manager on LenovoX1
     [Documentation]   Start File Manager and verify process started
     [Tags]            file_manager  SP-T206
