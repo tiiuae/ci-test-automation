@@ -59,9 +59,9 @@ Connect
     # Ghaf-host is accessible on these targets for a short period of time at boot.
     Log    Trying to connect to ${target_output}  console=True
     FOR    ${i}    IN RANGE    ${iterations}
-        ${connection}=    Open Connection    ${IP}    port=${PORT}    prompt=\$    timeout=30
-        ${output}=        Login     username=${LOGIN}    password=${PASSWORD}
-        ${pass_status}  ${output}  Run Keyword And Ignore Error  Should Contain    ${output}    ${target_output}
+        ${pass_status}  ${connection}    Run Keyword And Ignore Error  Open Connection    ${IP}       port=${PORT}    prompt=\$    timeout=30
+        ${pass_status}  ${login_output}  Run Keyword And Ignore Error  Login     username=${LOGIN}    password=${PASSWORD}
+        ${pass_status}  ${output}        Run Keyword And Ignore Error  Should Contain     ${login_output}   ${target_output}
         IF    $pass_status=='PASS'
             RETURN  ${connection}
         ELSE
