@@ -90,6 +90,7 @@ GUI Reboot
     ELSE
         Log To Console            Device started
     END
+    Sleep  30
     IF  "Lenovo" in "${DEVICE}"
         ${NETVM_SSH}              Connect   iterations=10
         Connect to VM             ${GUI_VM}
