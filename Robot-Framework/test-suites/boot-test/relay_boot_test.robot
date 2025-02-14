@@ -30,6 +30,9 @@ Verify booting after restart by power
     ELSE
         Log To Console  The device started
     END
+    IF  "NX" in "${DEVICE}"
+        Sleep  30
+    END
     IF  "${CONNECTION_TYPE}" == "ssh"
         Connect   iterations=10
         Verify service status   service=init.scope
@@ -48,6 +51,7 @@ Verify booting LenovoX1
     ELSE
         Log To Console  The device started
     END
+    Sleep  30
     Connect   iterations=10
     Verify service status   service=init.scope
     [Teardown]   Test Teardown
