@@ -59,10 +59,17 @@ Connect
     # Ghaf-host is accessible on these targets for a short period of time at boot.
     Log    Trying to connect to ${target_output}  console=True
     FOR    ${i}    IN RANGE    ${iterations}
-        ${pass_status}  ${connection}    Run Keyword And Ignore Error  Open Connection    ${IP}       port=${PORT}    prompt=\$    timeout=30
-        ${pass_status}  ${login_output}  Run Keyword And Ignore Error  Login     username=${LOGIN}    password=${PASSWORD}
+        log to console  \n***iteration:${i}
+        ${pass_status}  ${connection}    Run Keyword And Ignore Error   Open Connection    ${IP}       port=${PORT}    prompt=\$    timeout=10
+        Log to console  \n***Pass_status-connection: ${pass_status}-${connection}
+        ${login_output}   Login     username=${LOGIN}    password=${PASSWORD}
+        Log to console  \n***login_output**:${login_output}*****
+        Log to console  \n***Should Contain: ${login_output} - ${target_output}
+        Log  ${login_output}
         ${pass_status}  ${output}        Run Keyword And Ignore Error  Should Contain     ${login_output}   ${target_output}
+        Log to console  \n***Pass_status_:${pass_status}-${output}*****\n
         IF    $pass_status=='PASS'
+            Log to console  \n***Returned connection: ${connection}
             RETURN  ${connection}
         ELSE
             Close All Connections
@@ -200,7 +207,6 @@ Find pid by name
     [Arguments]   ${proc_name}
     Log To Console    Looking for pids of the proccess ${proc_name}
     ${output}=    Execute Command    sh -c 'ps aux | grep "${proc_name}" | grep -v grep'
-    Log           ${output}
     @{pids}=      Find Pid    ${output}  ${proc_name}
     Log To Console    Found PIDs for process '${proc_name}':\n${pids}
     RETURN        @{pids}
