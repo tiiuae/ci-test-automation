@@ -19,6 +19,7 @@ GUI Tests Setup
         Verify service status   range=15  service=microvm@gui-vm.service  expected_status=active  expected_state=running
         Connect to netvm
         Connect to VM           ${GUI_VM}
+        Create test user
     END
     Run journalctl recording
     Save most common icons and paths to icons
