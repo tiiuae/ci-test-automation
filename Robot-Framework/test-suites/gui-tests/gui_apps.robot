@@ -39,18 +39,18 @@ Start and close PDF Viewer via GUI on LenovoX1
 Start and close Calculator via GUI on LenovoX1
     [Documentation]   Start Calculator via GUI test automation and verify related process started
     ...               Close Calculator via GUI test automation and verify related process stopped
-    [Tags]            SRCSP-T202  lenovo-x1
+    [Tags]            SSRCSP-T202  lenovo-x1
     Get icon   app  gnome-calculator.svg   crop=10
     Start app via GUI on LenovoX1   ${GUI_VM}  gnome-calculator
     Close app via GUI on LenovoX1   ${GUI_VM}  gnome-calculator  ./window-close.png
 
 Start and close Bluetooth Settings via GUI on LenovoX1
-    [Documentation]   Start Falcon AI via GUI test automation and verify related process started
-    ...               Close Falcon AI via GUI test automation and verify related process stopped
+    [Documentation]   Start Bluetooh via GUI test automation and verify related process started
+    ...               Close Blutooth via via GUI test automation and verify related process stopped
     [Tags]            SSRCSP-T204  lenovo-x1
     Get icon   app  blueman.svg   crop=30
-    Start app via GUI on LenovoX1   ${GUI_VM}  blueman-manager
-    Close app via GUI on LenovoX1   ${GUI_VM}  blueman-manager  ./window-close-neg.png
+    Start app via GUI on LenovoX1   ${GUI_VM}  blueman
+    Close app via GUI on LenovoX1   ${GUI_VM}  blueman  ./window-close-neg.png
 
 Start and close Control Panel via GUI on LenovoX1
     [Documentation]   Start Control Panel via GUI test automation and verify related process started
