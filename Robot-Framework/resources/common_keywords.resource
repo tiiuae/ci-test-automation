@@ -42,8 +42,10 @@ Run journalctl recording
     ${output}     Execute Command    nohup journalctl -f >> /tmp/jrnl.txt 2>&1 &
 
 Log journctl
-    ${output}     Execute Command    cat /tmp/jrnl.txt
-    Log           ${output}
+    ${jrnl_size}    Execute Command    ls -lh /tmp/jrnl.txt
+    Log           ${jrnl_size}
+    ${jrnl}       Execute Command    cat /tmp/jrnl.txt   timeout=10
+    Log           ${jrnl}
     @{pid}        Find pid by name   journalctl
     Kill process  @{pid}
 
