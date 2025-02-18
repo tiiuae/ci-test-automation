@@ -63,6 +63,7 @@ Connect
         ${pass_status}  ${login_output}  Run Keyword And Ignore Error  Login     username=${LOGIN}    password=${PASSWORD}
         ${pass_status}  ${output}        Run Keyword And Ignore Error  Should Contain     ${login_output}   ${target_output}
         IF    $pass_status=='PASS'
+            Log To Console    Connected succesfully to ${target_output}
             RETURN  ${connection}
         ELSE
             Close All Connections
@@ -130,6 +131,7 @@ Connect to VM
         BREAK
     END
     IF  ${failed_connection}    FAIL  Couldn't connect ${vm_name}
+    Log To Console     Connected succesfully to ${vm_name}
     RETURN             ${connection}
 
 Verify Systemctl status
