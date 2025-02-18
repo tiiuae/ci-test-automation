@@ -34,7 +34,7 @@ Check QSPI version
 
 Check systemctl status
     [Documentation]    Verify systemctl status is running
-    [Tags]             bat   pre-merge  SP-T98  nuc  orin-agx  riscv  # orin-nx failing is a known issue
+    [Tags]             bat   pre-merge  SP-T98  nuc  orin-agx  riscv  lenovo-x1  # orin-nx failing is a known issue
     [Setup]     Connect to ghaf host
     ${status}   ${output}   Run Keyword And Ignore Error    Verify Systemctl status
     IF  '${status}' == 'FAIL'
