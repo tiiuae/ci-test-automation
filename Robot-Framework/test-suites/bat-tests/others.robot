@@ -40,9 +40,9 @@ Check systemctl status
     IF  '${status}' == 'FAIL'
         IF  "NUC" in "${DEVICE}"
             Skip    "Known issue: SP-4632"
-        ELSE IF "NX" in "${DEVICE}"
+        ELSE IF   "NX" in "${DEVICE}"
             Skip    "Known issue: SSRCSP-6208"
-        ELSE IF "AGX" in "${DEVICE}"
+        ELSE IF   "AGX" in "${DEVICE}"
             Skip    "Known issue: SSRCSP-6208"
         ELSE
             FAIL    ${output}
