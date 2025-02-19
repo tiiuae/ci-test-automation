@@ -76,6 +76,7 @@ Connect
             Log To Console    Connected succesfully to ${target_output}
             IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}"
                 Set Global Variable  ${NETVM_SSH}    ${connection}
+            END
             RETURN  ${connection}
         ELSE
             Close All Connections
