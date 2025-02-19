@@ -26,15 +26,13 @@ Test IP spoofing
     Launch netcat test script         ${stealer_vm}  nc_stealer
     Log To Console                    Waiting 40 sec for the test to finish
     Sleep                             40
-    Close All Connections
     Check the result files
+    Close All Connections
 
 
 *** Keywords ***
 
 Prepare netcat server script
-    Connect to netvm
-    Check if ssh is ready on vm       ${server_vm}
     Connect to VM                     ${server_vm}
     ${ip_server}                      Get Virtual Network Interface IP
     Set Suite Variable                ${ip_server}  ${ip_server}
@@ -42,8 +40,6 @@ Prepare netcat server script
     Execute Command                   chmod 777 /tmp/nc_server
 
 Prepare netcat client script
-    Connect to netvm
-    Check if ssh is ready on vm       ${client_vm}
     Connect to VM                     ${client_vm}
     Put File                          security-tests/nc_client   /tmp
     Execute Command                   echo 'ip_server=${ip_server}' > /tmp/tmp_file
@@ -52,8 +48,6 @@ Prepare netcat client script
     Execute Command                   chmod 777 /tmp/nc_client
 
 Prepare netcat stealer script
-    Connect to netvm
-    Check if ssh is ready on vm       ${stealer_vm}
     Connect to VM                     ${stealer_vm}
     ${ip_stealer}                     Get Virtual Network Interface IP
     Put File                          security-tests/nc_stealer   /tmp
@@ -68,9 +62,6 @@ Launch netcat test script
     Run Keyword And Ignore Error      Execute Command  -b /tmp/${script_name}  sudo=True  sudo_password=${PASSWORD}  timeout=3
 
 Check the result files
-    Connect
-    Connect to netvm
-    Check if ssh is ready on vm       ${stealer_vm}
     Connect to VM                     ${stealer_vm}
     ${stolen}                         Execute Command    cat /tmp/stolen.txt | grep packet
     Log                               ${stolen}
