@@ -44,12 +44,8 @@ Run journalctl recording
 Log journctl
     ${jrnl_size}  Execute Command    ls -lh /tmp/jrnl.txt
     Log           ${jrnl_size}
-    IF  "NX" in "${DEVICE}"
-        Log To Console    Skip reading journlctl
-    ELSE
-        ${jrnl}   Execute Command    cat /tmp/jrnl.txt   timeout=10
-        Log       ${jrnl}
-    END
+    ${jrnl}       Execute Command    cat /tmp/jrnl.txt
+    Log           ${jrnl}
     @{pid}        Find pid by name   journalctl
     Kill process  @{pid}
 

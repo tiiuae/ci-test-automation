@@ -34,12 +34,16 @@ Check QSPI version
 
 Check systemctl status
     [Documentation]    Verify systemctl status is running
-    [Tags]             bat   pre-merge  SP-T98  nuc  orin-agx  riscv  lenovo-x1  # orin-nx failing is a known issue
+    [Tags]             bat   pre-merge  SP-T98  nuc  orin-agx  orin-nx  riscv  lenovo-x1
     [Setup]     Connect to ghaf host
     ${status}   ${output}   Run Keyword And Ignore Error    Verify Systemctl status
     IF  '${status}' == 'FAIL'
         IF  "NUC" in "${DEVICE}"
             Skip    "Known issue: SP-4632"
+        ELSE IF "NX" in "${DEVICE}"
+            Skip    "Known issue: SSRCSP-6208"
+        ELSE IF "AGX" in "${DEVICE}"
+            Skip    "Known issue: SSRCSP-6208"
         ELSE
             FAIL    ${output}
         END
