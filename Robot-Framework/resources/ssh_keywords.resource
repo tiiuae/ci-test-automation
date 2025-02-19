@@ -45,6 +45,16 @@ Check Network Availability
         FAIL    Expected availability of ${host}: ${expected_result}, in fact: ${IS_AVAILABLE}
     END
 
+Login with timeout
+    [Arguments]       ${username}=${LOGIN}    ${password}=${PASSWORD}   ${timeout}=10   ${jumphost}=None
+    [Timeout]         ${timeout}
+    IF  $jumphost != 'None'
+        ${login_output}   Login   username=${username}    password=${password}    jumphost_index_or_alias=${jumphost}
+    ELSE
+        ${login_output}   Login   username=${username}    password=${password}
+    END
+    RETURN            ${login_output}
+
 Connect
     [Documentation]   Set up the SSH connection to the device
     [Arguments]       ${IP}=${DEVICE_IP_ADDRESS}    ${PORT}=22    ${target_output}=None   ${iterations}=1
@@ -60,10 +70,12 @@ Connect
     Log    Trying to connect to ${target_output}  console=True
     FOR    ${i}    IN RANGE    ${iterations}
         ${pass_status}  ${connection}    Run Keyword And Ignore Error  Open Connection    ${IP}       port=${PORT}    prompt=\$    timeout=30
-        ${pass_status}  ${login_output}  Run Keyword And Ignore Error  Login     username=${LOGIN}    password=${PASSWORD}
+        ${pass_status}  ${login_output}  Run Keyword And Ignore Error  Login with timeout    username=${LOGIN}    password=${PASSWORD}
         ${pass_status}  ${output}        Run Keyword And Ignore Error  Should Contain     ${login_output}   ${target_output}
         IF    $pass_status=='PASS'
             Log To Console    Connected succesfully to ${target_output}
+            IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}"
+                Set Global Variable  ${NETVM_SSH}    ${connection}
             RETURN  ${connection}
         ELSE
             Close All Connections
@@ -78,7 +90,7 @@ Connect to ghaf host
     IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}"
         ${connection}        Connect
         Set Global Variable  ${NETVM_SSH}    ${connection}
-        ${connection}        Connect to VM       ${HOST_IP}
+        ${connection}        Connect to VM       ghaf-host
     ELSE
         Log To Console       Connecting to Ghaf Host
         ${connection}        Connect
@@ -117,7 +129,8 @@ Connect to VM
     FOR    ${i}    IN RANGE    10
         TRY
             ${connection}=       Open Connection    ${vm_name}    port=22    prompt=\$    timeout=30
-            ${output}=           Login    username=${user}        password=${pw}    jumphost_index_or_alias=${jumphost}
+            ${login_output}=     Login with timeout    username=${user}        password=${pw}    jumphost=${jumphost}
+            Should Contain       ${login_output}   ${vm_name}
         EXCEPT    ChannelException: ChannelException(2, 'Connect failed')    type=LITERAL
             ${diff}=    Evaluate    int(time.time()) - int(${start_time})
             IF   ${diff} < ${timeout}
