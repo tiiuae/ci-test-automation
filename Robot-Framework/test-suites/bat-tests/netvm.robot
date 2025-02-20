@@ -27,9 +27,9 @@ Verify NetVM is started
     Check Network Availability      ${NETVM_IP}    expected_result=True    range=5
     [Teardown]              Close All Connections
 
-Wifi passthrought into NetVM
+Wifi passthrought into NetVM (Orin-AGX)
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              bat  SP-T101   SP-T111  orin-agx
+    [Tags]              bat  SP-T111  orin-agx
     [Setup]             Connect to netvm
     Configure wifi      ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
@@ -38,6 +38,22 @@ Wifi passthrought into NetVM
     Check Network Availability    8.8.8.8   expected_result=False
     Turn ON WiFi        ${TEST_WIFI_SSID}
     Check Network Availability    8.8.8.8   expected_result=True
+    [Teardown]          Run Keywords  Remove Wifi configuration  ${TEST_WIFI_SSID}  AND  Close All Connections
+
+Wifi passthrought into NetVM (Lenovo-X1)
+    [Documentation]     Verify that wifi works inside netvm
+    [Tags]              bat  SP-T101   lenovo-x1
+    [Setup]             Connect to netvm
+    Configure wifi      ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
+    Get wifi IP
+    Turn OFF WiFi       ${TEST_WIFI_SSID}
+    Sleep               1
+    ${pass_status}    ${output}   Run Keyword And Ignore Error    Get wifi IP
+        IF    $pass_status=='PASS'
+            FAIL    Expected: no IP address on wifi interface after turning wifi off.
+        END
+    Turn ON WiFi        ${TEST_WIFI_SSID}
+    Get wifi IP
     [Teardown]          Run Keywords  Remove Wifi configuration  ${TEST_WIFI_SSID}  AND  Close All Connections
 
 Wifi passthrought into NetVM (NUC)
