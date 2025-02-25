@@ -224,7 +224,7 @@ Find pid by name
 Kill process
     [Arguments]    @{pids}    ${sig}=9
     FOR   ${pid}  IN  @{pids}
-        IF  '${PID}' == '${EMPTY}'
+        IF  '${pid}' == '${EMPTY}'
             BREAK
         END
         Execute Command    kill -${sig} ${pid}  sudo=True  sudo_password=${password}  timeout=15
@@ -237,6 +237,18 @@ Kill process
             END
         END
         IF  ${ps_exists}  FAIL  Process ${pid} haven't stopped
+        # Check if any of the original pids are still running
+        ${any_running} =    Set Variable    False
+        FOR    ${check_pid}  IN  @{pids}
+            ${ps_exists} =    Is Process Started    ${check_pid}
+            IF  ${ps_exists}
+                ${any_running} =    Set Variable    True
+                BREAK
+            END
+        END
+        IF  not ${any_running}
+            BREAK
+        END
     END
     Log To Console    Killed processes: @{pids}
 
