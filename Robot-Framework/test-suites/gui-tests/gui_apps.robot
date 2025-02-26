@@ -36,10 +36,18 @@ Start and close PDF Viewer via GUI on LenovoX1
     Start app via GUI on LenovoX1   ${ZATHURA_VM}  zathura
     Close app via GUI on LenovoX1   ${ZATHURA_VM}  zathura  ./window-close-neg.png
 
+Start and close Sticky Notes via GUI on LenovoX1
+    [Documentation]   Start Sticky Notes via GUI test automation and verify related process started
+    ...               Close Sticky Notes via GUI test automation and verify related process stopped
+    [Tags]            SP-T201-2  lenovo-x1
+    Get icon   /run/current-system/sw/share/icons/hicolor/scalable/apps  com.vixalien.sticky.svg   crop=15
+    Start app via GUI on LenovoX1   ${GUI_VM}  sticky-wrapped  #.com.vixalien.sticky-wrapped
+    Close app via GUI on LenovoX1   ${GUI_VM}  sticky-wrapped  ./window-close.png
+
 Start and close Calculator via GUI on LenovoX1
     [Documentation]   Start Calculator via GUI test automation and verify related process started
     ...               Close Calculator via GUI test automation and verify related process stopped
-    [Tags]            SSRCSP-T202  lenovo-x1
+    [Tags]            SP-T202  lenovo-x1
     Get icon   app  gnome-calculator.svg   crop=10
     Start app via GUI on LenovoX1   ${GUI_VM}  gnome-calculator
     Close app via GUI on LenovoX1   ${GUI_VM}  gnome-calculator  ./window-close.png
@@ -47,7 +55,7 @@ Start and close Calculator via GUI on LenovoX1
 Start and close Bluetooth Settings via GUI on LenovoX1
     [Documentation]   Start Bluetooh via GUI test automation and verify related process started
     ...               Close Blutooth via via GUI test automation and verify related process stopped
-    [Tags]            SSRCSP-T204  lenovo-x1
+    [Tags]            SP-T204  lenovo-x1
     Get icon   app  blueman.svg   crop=30
     Start app via GUI on LenovoX1   ${GUI_VM}  blueman-manager-wrapped-wrapped
     Close app via GUI on LenovoX1   ${GUI_VM}  blueman-manager-wrapped-wrapped  ./window-close-neg.png
@@ -55,7 +63,7 @@ Start and close Bluetooth Settings via GUI on LenovoX1
 Start and close Control Panel via GUI on LenovoX1
     [Documentation]   Start Control Panel via GUI test automation and verify related process started
     ...               Close Control Panel via GUI test automation and verify related process stopped
-    [Tags]            SSRCSP-T205  lenovo-x1
+    [Tags]            SP-T205  lenovo-x1
     Get icon   app  gnome-control-center.svg   crop=10
     Start app via GUI on LenovoX1   ${GUI_VM}  ctrl-panel
     Close app via GUI on LenovoX1   ${GUI_VM}  ctrl-panel  ./window-close.png
@@ -63,10 +71,19 @@ Start and close Control Panel via GUI on LenovoX1
 Start and close File Manager via GUI on LenovoX1
     [Documentation]   Start File Manager via GUI test automation and verify related process started
     ...               Close File Manager via GUI test automation and verify related process stopped
-    [Tags]            SSRCSP-T206  lenovo-x1
+    [Tags]            SP-T206  lenovo-x1
     Get icon   app  xfce-filemanager.svg   crop=30
     Start app via GUI on LenovoX1   ${GUI_VM}  pcmanfm
     Close app via GUI on LenovoX1   ${GUI_VM}  pcmanfm  ./window-close-neg.png
+
+Start and close Falcon AI via GUI on LenovoX1
+    [Documentation]   Start Falcon AI via GUI test automation and verify related process started
+    ...               Close Falcon AI via GUI test automation and verify related process stopped
+    ...               Clicks the icon and some Alpaca window is opened.
+    [Tags]            SP-T223-2  lenovo-x1
+    Get icon   ghaf-artwork  falcon-icon.svg   crop=30
+    Start app via GUI on LenovoX1   ${GUI_VM}  alpaca-wrapped
+    Close app via GUI on LenovoX1   ${GUI_VM}  alpaca-wrapped  ./window-close.png
 
 Start and close Firefox via GUI on Orin AGX
     [Documentation]   Passing this test requires that display is connected to the target device

@@ -24,7 +24,7 @@ Start Calculator on LenovoX1
 
 Start Sticky Notes on LenovoX1
     [Documentation]   Start Sticky Notes and verify process started
-    [Tags]            sticky_notes  SP-T201
+    [Tags]            sticky_notes  SP-T201-1
     Start XDG application  'Sticky Notes'
     Check that the application was started    sticky-wrapped
 
@@ -46,6 +46,11 @@ Start File Manager on LenovoX1
     Start XDG application  'File Manager'
     Check that the application was started    pcmanfm
 
+Start Falcon AI on LenovoX1
+    [Documentation]   Start Falcon AI and verify process started
+    [Tags]            falcon_ai  SP-T223-1
+    Start XDG application  'Falcon AI'
+    Check that the application was started    alpaca-wrapped
 
 *** Keywords ***
 
