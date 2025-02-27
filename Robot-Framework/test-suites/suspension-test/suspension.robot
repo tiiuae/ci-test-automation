@@ -1,0 +1,169 @@
+# SPDX-FileCopyrightText: 2022-2025 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
+*** Settings ***
+Documentation       Testing automatic suspension of Lenovo-X1
+Force Tags          gui   suspension
+Resource            ../../resources/ssh_keywords.resource
+Resource            ../../config/variables.robot
+Resource            ../../resources/common_keywords.resource
+Resource            ../../resources/gui_keywords.resource
+Resource            ../../resources/device_control.resource
+Resource            ../../resources/connection_keywords.resource
+Library             ../../lib/output_parser.py
+Library             JSONLibrary
+Suite Setup         Suspension setup
+
+*** Test Cases ***
+
+Automatic suspension
+    [Documentation]   Wait and check that
+    ...               in the beginning brightness is 96000
+    ...               in 4 min - the screen dims (brightness is 24000)
+    ...               in 5 min - the screen locks (brightness is 24000)
+    ...               in 7,5 min - screen turns off
+    ...               in 15 min - the laptop is suspended
+    ...               in 5 min press the button and check that laptop woke up
+    [Tags]            SP-T162   lenovo-x1
+    [Setup]           Test setup
+
+    Check the screen state   on
+    Check screen brightness  96000
+
+    Wait     240
+    Check screen brightness  24000
+
+    Wait     10
+    Check notification       The system will suspend soon due to inactivity.    ${last_id}
+    Check the screen state   on
+
+    Wait     50
+
+    # to do: check that screen is locked
+
+    Wait     150
+    Check the screen state   off
+
+    Wait     450
+    Check if device was suspended
+
+    Wait     300
+    Wake up device
+
+*** Keywords ***
+
+Test setup
+
+    ${guivm_connection}  Connect to VM    ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
+    Get mako path
+    ${last_id}           Get last notification id
+    Set Suite Variable   ${last_id}    ${last_id}
+    Move cursor
+    Switch Connection    ${guivm_connection}
+
+Wait
+    [Arguments]     ${sec}
+    ${time}         Get Time
+    Log to console  ${time}: waiting for ${sec} sec
+    Sleep           ${sec}
+
+Check screen brightness
+    [Arguments]       ${brightness}    ${timeout}=10
+    FOR  ${i}  IN RANGE  ${timeout}
+        ${output}     Execute Command    ls /nix/store | grep brightnessctl | grep -v .drv
+        ${output}     Execute Command    /nix/store/${output}/bin/brightnessctl get
+        ${status}     Run Keyword And Return Status    Should be Equal   ${output}    ${brightness}
+        IF  ${status}
+            BREAK
+        ELSE
+            Sleep    1
+        END
+    END
+    IF  ${status} == False    FAIL    The screen brightness is ${output}, expected ${brightness}
+
+Check notification
+    [Arguments]       ${text}  ${last_id}
+    [Documentation]   First need to know the number of the last notification to check the new one
+    ${notifications}  Execute Command  /nix/store/${mako_path}/bin/makoctl history
+    Log               ${notifications}
+    ${notifications}  Parse notifications    ${notifications}
+
+    ${last_matching_id}    Set Variable    None
+    FOR    ${key}     ${value}    IN    &{notifications}
+        ${status}     Run Keyword And Return Status    Should Be Equal    ${value}    Automatic suspend
+        IF    ${status}
+            ${last_matching_id}    Set Variable    ${key}
+            BREAK
+        END
+    END
+
+    Run Keyword If    "$last_matching_id" == "None"    Fail    No matching notifications found!
+    Log    The last notification "Automatic suspend" has ID: ${last_matching_id}
+
+    IF    ${last_matching_id} > ${last_id}
+        Log to console    The new ID (${last_matching_id}) is greater than the previous one (${last_id}).
+    ELSE
+        FAIL   The new ID (${last_matching_id}) is NOT greater than the previous one (${last_id}).
+    END
+    [Teardown]    Execute Command         rm notifications.txt
+
+Get last notification id
+    ${notifications}    Execute Command   /nix/store/${mako_path}/bin/makoctl history
+    IF  "${notifications}" == ""
+        ${last_id}      Set Variable    0
+    ELSE
+        ${last_id}      Get last mako notification id   ${notifications}
+    END
+    Log to console      The last notification in the list has ID: ${last_id}
+    RETURN              ${last_id}
+
+Get mako path
+    ${output}           Execute Command     ls /nix/store | grep mako | grep -v .drv
+    ${result}           Extract mako path   ${output}
+    Set Suite Variable  ${mako_path}    ${result}
+
+Check the screen state
+    [Arguments]         ${state}
+    ${output}           Execute Command    ls /nix/store | grep wlopm | grep -v .drv
+    ${output}  ${err}   Execute Command    WAYLAND_DISPLAY=wayland-0 /nix/store/${output}/bin/wlopm    return_stderr=True
+    Log to console      Screen state: ${output}
+    Should Contain      ${output}    ${state}
+
+Check if device was suspended
+    ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
+    IF  ${device_not_available} == True
+        Log To Console  Device is suspended
+    ELSE
+        Log To Console  Device is available
+        FAIL    Device was not suspended
+    END
+
+Wake up device
+    Log To Console    Pressing the power button...
+    Press Button      ${SWITCH_BOT}-ON
+    Check If Device Is Up    range=120
+    IF    ${IS_AVAILABLE} == False
+        FAIL  The device did not start
+    ELSE
+        Log To Console  The device started
+    END
+
+Suspension setup
+
+    Reboot LenovoX1
+    Check If Device Is Up
+    IF    ${IS_AVAILABLE} == False
+        FAIL    The device did not start
+    ELSE
+        Log To Console  The device started
+    END
+    Sleep  30
+    Connect   iterations=10
+
+    Initialize Variables, Connect And Start Logging
+    Connect to VM        ${GUI_VM}
+    Save most common icons and paths to icons
+    Create test user
+    Log in via GUI       stop_swayidle=False
+
+    Verify login

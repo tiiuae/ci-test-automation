@@ -19,6 +19,7 @@ ${GUI_TEMP_DIR}       ${OUTPUT_DIR}/outputs/gui-temp/
 
 Log in via GUI
     [Documentation]   Login and verify that task bar is available
+    [Arguments]       ${stop_swayidle}=True
     Switch Connection    ${CONNECTION}
     Verify logout
     IF  ${LOGGED_IN_STATUS}
@@ -26,13 +27,15 @@ Log in via GUI
     ELSE
         Log To Console          Logged out state detected. Logging in.
         Start ydotoold
-        Log To Console    Typing username and password to login
+        Log To Console          Typing username and password to login
         Type string and press enter  ${USER_LOGIN}
         Type string and press enter  ${USER_PASSWORD}
     END
     Try to reset scaling
     Verify login
-    Stop swayidle
+    IF  ${stop_swayidle}
+        Stop swayidle
+    END
 
 Log out
     [Documentation]   Log out and optionally verify that desktop is not available
