@@ -159,6 +159,7 @@ Verify Systemctl status
         IF  '${status}' not in ['running', 'starting']
             Log To Console   Systemctl status is ${status}
             ${output}   Execute Command    systemctl list-units --state=failed
+            Log         ${output}
             ${failed_units}  Get failed units  ${output}
             Log To Console   Failed units: ${failed_units}
             FAIL    Systemctl is not running! Status is ${status}
