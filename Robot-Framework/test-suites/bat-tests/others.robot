@@ -39,11 +39,11 @@ Check systemctl status
     ${status}   ${output}   Run Keyword And Ignore Error    Verify Systemctl status
     IF  '${status}' == 'FAIL'
         IF  "NUC" in "${DEVICE}"
-            Skip    "Known issue: SP-4632"
+            Skip    "Known issue: SSRCSP-4632"
         ELSE IF   "NX" in "${DEVICE}"
-            Skip    "Known issue: SSRCSP-6208"
+            Skip    "Known issue: SSRCSP-6303"
         ELSE IF   "AGX" in "${DEVICE}"
-            Skip    "Known issue: SSRCSP-6208"
+            Skip    "Known issue: SSRCSP-6303"
         ELSE
             FAIL    ${output}
         END
