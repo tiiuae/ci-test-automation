@@ -149,7 +149,7 @@ Connect to VM
     RETURN             ${connection}
 
 Verify Systemctl status
-    [Arguments]    ${range}=60
+    [Arguments]    ${range}=60  ${close_conn}=true
     [Documentation]    Check is systemctl running with given loop ${range}
     ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
@@ -172,7 +172,7 @@ Verify Systemctl status
     END
     ${diff}=    Evaluate    int(time.time()) - int(${start_time})
     FAIL    Systemctl is not running after ${diff} sec! Status is ${status}
-    [Teardown]       Close Connection
+    [Teardown]       Run Keyword If  $close_conn == 'true'  Close All Connections
 
 Start application
     [Arguments]      ${app_name}
