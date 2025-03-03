@@ -37,7 +37,7 @@ GUI Suspend and wake up
     Log To Console                Letting the device stay suspended for 30 sec
     BuiltIn.Sleep                 30
     Log To Console                Waking the device up by pressing the power button for 1 sec
-    Press Button                ${SWITCH_BOT}-ON
+    Press Button                  ${SWITCH_BOT}-ON
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False
         FAIL                      The device did suspend but failed to wake up
