@@ -8,7 +8,7 @@ Library             BuiltIn
 Library             String
 Library             Process
 Library             ../lib/output_parser.py
-
+Library        DebugLibrary
 
 *** Keywords ***
 
@@ -359,23 +359,42 @@ Save log
     Close All Connections
 
 Check if ssh is ready on netvm
-    [Arguments]    ${timeout}=60
+    [Arguments]    ${timeout}=30
     ${start_time}  Get Time	epoch
+    Sleep  5
     FOR    ${i}    IN RANGE    ${timeout}
+        ${ping_output}=   SSHLibrary.Write   ping ${NETVM_IP} -c 3
+        #${ping_success}    Run Keyword And Return Status    Should Contain    ${ping_output}    1 received
+        #${ping_result}  ssh_keywords.Ping Host  ${NETVM_IP}
+        #${ping_result}  SSHLibrary.Write   ping  ${NETVM_IP} -c 5
+        #Log to console  ${NETVM_IP} 22-Ping_output: ${ping_output}  #-success?:${ping_success}
+        #log  ${ping_output}
+        #Log to console  Netvm_ip: round-${i}-${NETVM_IP}
+        #Log to console  ghaf_ssh_host_ip: round-${i}-${GHAF_HOST_SSH}
+        #Log to console  ${NETVM_IP} 22-Ping_result: ${ping_output}}
+
         ${output}  ${rc}    Execute Command    nc -zvw3 ${NETVM_IP} 22    return_rc=True
+        #${output}  ${rc}    Execute Command    nc -lvw3 ${NETVM_IP} 22 >> filename_${i}.out   return_rc=True
+        #Debug
+        #Execute Command  ping -c 3  ${NETVM_IP}
+
+        Log to console  ${NETVM_IP} 22: round-${i}-rc:${rc}
+        Log to console  -----
         ${status}    Run Keyword And Return Status
         ...          Should Be Equal As Integers    ${rc}    0
         IF  ${status}
             BREAK
         END
-        ${diff}=    Evaluate    int(time.time()) - int(${start_time})
-        IF   ${diff} < ${timeout}
-            Sleep    1
-            CONTINUE
-        ELSE
-            BREAK
-        END
+        #${diff}=    Evaluate    int(time.time()) - int(${start_time})
+        #IF   ${diff} < ${timeout}
+        #    Sleep    2
+        #    CONTINUE
+        #ELSE
+        #    BREAK
+        #END
+        sleep   2
     END
+    #Debug
     IF   ${status} == False    FAIL    Port 22 of NetVM is not ready after ${timeout}
 
 Check if ssh is ready on vm
