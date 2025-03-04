@@ -68,14 +68,14 @@ Wifi passthrought into NetVM (NUC)
 
 NetVM stops and starts successfully
     [Documentation]     Verify that NetVM stops properly and starts after that
-    [Tags]              bat  SP-T47  SP-T90  nuc
+    [Tags]              bat  SP-T47  SP-T90  nuc  orin-agx
     [Setup]             Connect to ghaf host
     Restart NetVM
     [Teardown]          Run Keywords  Start NetVM if dead   AND  Close All Connections
 
 NetVM is wiped after restarting
     [Documentation]     Verify that created file will be removed after restarting VM
-    [Tags]              bat  SP-T48  nuc
+    [Tags]              bat  SP-T48  nuc  orin-agx
     [Setup]             Connect to netvm
     Create file         /etc/test.txt
     Switch Connection   ${GHAF_HOST_SSH}
