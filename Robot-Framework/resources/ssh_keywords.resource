@@ -8,7 +8,7 @@ Library             BuiltIn
 Library             String
 Library             Process
 Library             ../lib/output_parser.py
-
+Library        DebugLibrary
 
 *** Keywords ***
 
@@ -360,9 +360,17 @@ Save log
 
 Check if ssh is ready on netvm
     [Arguments]    ${timeout}=60
+    #Sleep   5
     ${start_time}  Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
+        #${ping_output}=   SSHLibrary.Write   ping ${NETVM_IP} -c 3
+        #log to console   >>>>> round-${i} ${NETVM_IP} ping_output:${ping_output}
+        #log              ${ping_output}
+
         ${output}  ${rc}    Execute Command    nc -zvw3 ${NETVM_IP} 22    return_rc=True
+
+        #Log to console  ${NETVM_IP} 22: round-${i}-rc:${rc}
+        #Log to console  -----
         ${status}    Run Keyword And Return Status
         ...          Should Be Equal As Integers    ${rc}    0
         IF  ${status}

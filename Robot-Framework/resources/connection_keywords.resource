@@ -18,13 +18,14 @@ Remove Wifi configuration
     [Arguments]         ${SSID}
     Switch Connection   ${netvm_ssh}
     Log To Console      Removing Wifi configuration
-    Execute Command     nmcli connection delete id ${SSID}
+    Execute Command     nmcli connection delete id ${SSID}  sudo=True    sudo_password=${PASSWORD}
 
 Turn OFF WiFi
     [Arguments]         ${SSID}
     Switch Connection   ${netvm_ssh}
     Log To Console      Turning off Wifi
     Execute Command     nmcli con down id ${SSID}   sudo=True    sudo_password=${PASSWORD}
+    Sleep                2
 
 Turn ON WiFi
     [Arguments]         ${SSID}

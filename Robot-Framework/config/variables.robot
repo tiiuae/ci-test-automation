@@ -51,7 +51,7 @@ Set Variables
     Set Global Variable  ${ADMIN_VM}           admin-vm
     Set Global Variable  @{VMS}                ${GUI_VM}  ${CHROME_VM}  ${GALA_VM}  ${ZATHURA_VM}  ${COMMS_VM}  ${BUSINESS_VM}  ${ADMIN_VM}
 
-    Set Log Level       NONE
+    Set Log Level       TRACE
 
     ${result} 	Run Process    sh    -c    cat /run/secrets/pi-login  shell=true
     Set Global Variable        ${LOGIN_PI}   ${result.stdout}
@@ -86,7 +86,7 @@ Set Variables
         Set Global Variable        ${USER_PASSWORD}      testpw
     END
 
-    Set Log Level       INFO
+    Set Log Level       TRACE
 
     IF  $BUILD_ID != '${EMPTY}'
         ${config}=     Read Config  ../config/${BUILD_ID}.json
