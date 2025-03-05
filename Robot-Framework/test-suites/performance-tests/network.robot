@@ -15,8 +15,12 @@ Library             Process
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
 Library             Collections
 Library             JSONLibrary
-Suite Setup         Initialize Variables And Connect
-Suite Teardown      Close All Connections
+Suite Setup         Run keywords  Initialize Variables And Connect
+...                 AND  Select network connection to use
+...                 AND  Run iperf server on DUT
+Suite Teardown      Run keywords  Stop iperf server
+...                 AND  Close port 5201 from iptables
+...                 AND  Close All Connections
 
 
 *** Variables ***
@@ -26,9 +30,7 @@ ${PERF_TEST_TIME}  10
 *** Test Cases ***
 Measure TCP Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]   tcp  nuc  orin-agx  orin-nx  riscv  SSRCSP-T227
-    [Setup]            Run iperf server on DUT
-    [Teardown]         Stop iperf server
+    [Tags]   tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1  SSRCSP-T227
     &{speed_data}      Create Dictionary
     # DUT sends
     ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -36,6 +38,7 @@ Measure TCP Throughput Small Packets
     # DUT receives
     ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME}    shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output2.stdout}
+    Check iperf3 got results     ${output1}  ${output2}
     ${bps_tx}          Get Throughput Values  ${output1.stdout}
     ${bps_rx}          Get Throughput Values  ${output2.stdout}  direction=receiver
     Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
@@ -45,12 +48,11 @@ Measure TCP Throughput Small Packets
 
 Measure TCP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  SSRCSP-T228
-    [Setup]             Run iperf server on DUT
-    [Teardown]          Stop iperf server
+    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1  SSRCSP-T228
     &{speed_data}       Create Dictionary
     ${output}           Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                 ${output.stdout}
+    Check iperf3 got results     ${output}
     ${bps_tx}           Get Throughput Values  ${output.stdout}  bidir=True
     ${bps_rx}           Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
     Set To Dictionary   ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
@@ -60,13 +62,12 @@ Measure TCP Bidir Throughput Small Packets
 
 Measure TCP Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  SSRCSP-T229
-    [Setup]            Run iperf server on DUT
-    [Teardown]         Stop iperf server
+    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1  SSRCSP-T229
     &{speed_data}      Create Dictionary
     ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
     ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output1.stdout}
+    Check iperf3 got results     ${output1}  ${output2}
     ${bps_tx}          Get Throughput Values  ${output1.stdout}
     ${bps_rx}          Get Throughput Values  ${output2.stdout}  direction=receiver
     Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
@@ -76,12 +77,11 @@ Measure TCP Throughput Big Packets
 
 Measure TCP Bidir Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  SSRCSP-T230
-    [Setup]            Run iperf server on DUT
-    [Teardown]         Stop iperf server
+    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1  SSRCSP-T230
     &{speed_data}      Create Dictionary
     ${output}          Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output.stdout}
+    Check iperf3 got results     ${output}
     ${bps_tx}          Get Throughput Values  ${output.stdout}  bidir=True
     ${bps_rx}          Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
     Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
@@ -91,14 +91,13 @@ Measure TCP Bidir Throughput Big Packets
 
 Measure UDP TX Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  SSRCSP-T231
-    [Setup]            Run iperf server on DUT
-    [Teardown]         Stop iperf server
+    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1  SSRCSP-T231
     &{speed_data}      Create Dictionary
     ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output1.stdout}
     ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output2.stdout}
+    Check iperf3 got results     ${output1}  ${output2}
     ${bps_tx}          Get Throughput Values  ${output1.stdout}
     ${bps_rx}          Get Throughput Values  ${output2.stdout}  direction=receiver
     Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
@@ -108,12 +107,11 @@ Measure UDP TX Throughput Small Packets
 
 Measure UDP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  SSRCSP-T232
-    [Setup]            Run iperf server on DUT
-    [Teardown]         Stop iperf server
+    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1  SSRCSP-T232
     &{speed_data}      Create Dictionary
     ${output}          Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output.stdout}
+    Check iperf3 got results     ${output}
     ${bps_tx}          Get Throughput Values  ${output.stdout}  bidir=True
     ${bps_rx}          Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
     Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
@@ -123,14 +121,13 @@ Measure UDP Bidir Throughput Small Packets
 
 Measure UDP Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  udp  nuc  orin-agx  orin-nx  riscv  SSRCSP-T233
-    [Setup]            Run iperf server on DUT
-    [Teardown]         Stop iperf server
+    [Tags]  udp  nuc  orin-agx  orin-nx  riscv  lenovo-x1  SSRCSP-T233
     &{speed_data}      Create Dictionary
     ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 100G -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output1.stdout}
     ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 100G -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output2.stdout}
+    Check iperf3 got results     ${output1}  ${output2}
     ${bps_tx}          Get Throughput Values  ${output1.stdout}
     ${bps_rx}          Get Throughput Values  ${output2.stdout}  direction=receiver
     Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
@@ -140,12 +137,11 @@ Measure UDP Throughput Big Packets
 
 Measure UDP Bidir Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  udp  nuc  orin-agx  orin-nx  riscv  SSRCSP-T234
-    [Setup]            Run iperf server on DUT
-    [Teardown]         Stop iperf server
+    [Tags]  udp  nuc  orin-agx  orin-nx  riscv  lenovo-x1  SSRCSP-T234
     &{speed_data}      Create Dictionary
     ${output}          Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 10000G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output.stdout}
+    Check iperf3 got results     ${output}
     ${bps_tx}          Get Throughput Values  ${output.stdout}  bidir=True
     ${bps_rx}          Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
     Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
@@ -153,11 +149,25 @@ Measure UDP Bidir Throughput Big Packets
     ${statistics}      Save Speed Data   ${TEST NAME}  ${speed_data}
     Report Statistics  ${statistics}
 
-
 *** Keywords ***
+Select network connection to use
+    [Documentation]  Select the connection to be used. This cannot be done in Keyword 'Initialize Variables And Connect'
+     ...             since it then breaks the  other test suites.
+     IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}"
+         ${CONNECTION}       Connect to netvm
+     ELSE
+         ${CONNECTION}       Connect to ghaf host
+     END
+     Set Global Variable  ${CONNECTION}
+    
 Run iperf server on DUT
     [Documentation]   Run iperf on DUT in server mode
-    Clear iptables rules
+    IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}"
+         Open port 5201 from iptables
+    ELSE
+         Clear iptables rules
+    END
+
     ${command}        Set Variable    iperf -s
     Execute Command   nohup ${command} > /tmp/output.log 2>&1 &
     Check iperf was started
@@ -165,6 +175,23 @@ Run iperf server on DUT
 Clear iptables rules
     [Documentation]  Clear IP tables rules to open ports
     Execute Command  iptables -F  sudo=True  sudo_password=${PASSWORD}
+
+Open port 5201 from iptables
+    [Documentation]  Firewall rule to open needed port for perf test.
+    Execute Command  iptables -I INPUT -m tcp -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
+    Execute Command  iptables -I INPUT -m udp -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
+
+    # Accept incoming packages that do belong to some already opened connection
+    Execute Command  iptables -I INPUT -m state RELATED, ESTABLISHED -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
+    Sleep        1
+
+Close port 5201 from iptables
+    [Documentation]  Firewall rule to close the port that was used in per testing
+    Execute Command  iptables -I INPUT -m tcp -p tcp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
+    Execute Command  iptables -I INPUT -m udp -p udp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
+
+    # Reject also incoming packages that do belong to some already opened connection
+    Execute Command  iptables -I INPUT -m state RELATED, ESTABLISHED -j DROP  sudo=True  sudo_password=${PASSWORD}
 
 Stop iperf server
     @{pid}=  Find pid by name  iperf
@@ -186,6 +213,14 @@ Check iperf was started
         Sleep    1
     END
     IF   ${status} == False    FAIL    Iperf server was not started
+
+Check iperf3 got results
+    [Documentation]     Check if starting iperf3 client was successful or not. (iperf3 is started 1 or 2 times per a test)
+    ...                 When starting as expected, output is '<result object with rc 0>'
+    ...                 In case of failure, output is: '<result object with rc 1>'
+    [Arguments]        ${result1}=${EMPTY}  ${result2}=${EMPTY}
+    ${failure}    Run Keyword And Return Status      Should Contain  ${result1}/${result2}    <result object with rc 1>
+    Run Keyword If  ${failure}  FAIL  'iperf3 -c' did not succeed, No needed results got!
 
 Get Throughput Values
     [Documentation]  Return MB per second value
