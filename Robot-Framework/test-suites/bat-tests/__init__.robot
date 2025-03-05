@@ -8,6 +8,7 @@ Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/connection_keywords.resource
 Resource            ../../resources/gui_keywords.resource
 Library             OperatingSystem
+Test Timeout        10 minutes
 Suite Setup         BAT tests setup
 Suite Teardown      BAT tests teardown
 
@@ -19,6 +20,7 @@ ${DISABLE_LOGOUT}     ${EMPTY}
 *** Keywords ***
 
 BAT tests setup
+    [timeout]    5 minutes
     Initialize Variables, Connect And Start Logging
 
     IF  "Lenovo" in "${DEVICE}"
@@ -31,6 +33,7 @@ BAT tests setup
     Switch Connection    ${CONNECTION}
 
 BAT tests teardown
+    [timeout]    5 minutes
     Connect to ghaf host
     Log journctl
     IF  "Lenovo" in "${DEVICE}"
