@@ -81,6 +81,6 @@ Check Memory status
     ...    ELSE IF             ${eMMC}  Check Internal eMMC Size
     ...    ELSE                Fail     Failure. Something missing? No SSD or eMMC partitions captured!
 
-    ${storage}  Check Storagevm Size
+    ${storage}  Check Persist Storage Size
     Should Be True  ${memory} > ${storage} > ${100}
     Should Be True  ${${memory}*${0.80}} <= ${storage}
