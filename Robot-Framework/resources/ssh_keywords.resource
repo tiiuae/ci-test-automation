@@ -537,11 +537,11 @@ Check Internal eMMC Size
     ${size}   Get Regexp Matches  ${lsblk}  (?im)(nvme0n1 .*\\d*:\\d{1}.*\\d{1}\\s)(\\d{1,3})  2
     RETURN    ${size}[0]
 
-Check Storagevm Size
-    [Documentation]  Check the size of storagevm
+Check Persist Storage Size
+    [Documentation]  Check the size of persistent storage
     ${storage}  Execute Command  df -h
     Log  ${storage}
-    ${size}  Get Regexp Matches  ${storage}  (?im)(storagevm\\s*)(\\d{1,3}G)(\\s*.*\\s)(\\d{1,3})(G\\s)  4
+    ${size}  Get Regexp Matches  ${storage}  (?im)(\\d{1,3}G)\(\\s*.*\\s)(\\d{1,3})(G)(\\s*.*\\s)/persist  3
     RETURN  ${size}[0]
 
 Check ssh connection status
