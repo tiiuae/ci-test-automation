@@ -5,14 +5,13 @@
 Documentation       Gathering performance data
 Force Tags          performance
 Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/device_control.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../config/variables.robot
 Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/connection_keywords.resource
 Library             ../../lib/output_parser.py
 Library             ../../lib/parse_perfbench.py
-Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
+Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}  ${PERF_DATA_DIR}  ${CONFIG_PATH}   ${PLOT_DIR}
 Library             Collections
 Library             DateTime
 Suite Setup         Initialize Variables And Connect
@@ -47,7 +46,7 @@ CPU One thread test
     Log                 ${output}
     &{cpu_data}         Parse Cpu Results   ${output}
     &{statistics}       Save Cpu Data       ${TEST NAME}  ${cpu_data}
-    Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
+    Log                 <img src="${PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
     IF  "${statistics}[flag]" == "-1"
         ${fail_msg}     Create fail message  ${statistics}
         FAIL            ${fail_msg}
@@ -66,7 +65,7 @@ CPU multimple threads test
     Log                 ${output}
     &{cpu_data}         Parse Cpu Results   ${output}
     &{statistics}       Save Cpu Data       ${TEST NAME}  ${cpu_data}
-    Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
+    Log                 <img src="${PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
     IF  "${statistics}[flag]" == "-1"
         ${fail_msg}     Create fail message  ${statistics}
         FAIL            ${fail_msg}
@@ -86,7 +85,7 @@ Memory Read One thread test
     Log                 ${output}
     &{mem_data}         Parse Memory Results   ${output}
     &{statistics}       Save Memory Data       ${TEST NAME}  ${mem_data}
-    Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
+    Log                 <img src="${PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
     IF  "${statistics}[flag]" == "-1"
         ${fail_msg}     Create fail message  ${statistics}
         FAIL            ${fail_msg}
@@ -106,7 +105,7 @@ Memory Write One thread test
     Log                 ${output}
     &{mem_data}         Parse Memory Results   ${output}
     &{statistics}       Save Memory Data       ${TEST NAME}  ${mem_data}
-    Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
+    Log                 <img src="${PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
     IF  "${statistics}[flag]" == "-1"
         ${fail_msg}     Create fail message  ${statistics}
         FAIL            ${fail_msg}
@@ -126,7 +125,7 @@ Memory Read multimple threads test
     Log                 ${output}
     &{mem_data}         Parse Memory Results   ${output}
     ${statistics}       Save Memory Data       ${TEST NAME}  ${mem_data}
-    Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
+    Log                 <img src="${PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
     IF  "${statistics}[flag]" == "-1"
         ${fail_msg}     Create fail message  ${statistics}
         FAIL            ${fail_msg}
@@ -146,7 +145,7 @@ Memory Write multimple threads test
     Log                 ${output}
     &{mem_data}         Parse Memory Results   ${output}
     &{statistics}       Save Memory Data       ${TEST NAME}  ${mem_data}
-    Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
+    Log                 <img src="${PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
     IF  "${statistics}[flag]" == "-1"
         ${fail_msg}     Create fail message  ${statistics}
         FAIL            ${fail_msg}
@@ -198,8 +197,8 @@ FileIO test
     &{fileio_wr_data}    Parse FileIO Write Results   ${fileio_wr_output}
     &{statistics_wr}     Save FileIO Data       ${TEST NAME}_write  ${fileio_wr_data}
 
-    Log    <img src="${DEVICE}_${TEST NAME}_read.png" alt="Mem Plot" width="1200">    HTML
-    Log    <img src="${DEVICE}_${TEST NAME}_write.png" alt="Mem Plot" width="1200">   HTML
+    Log    <img src="${PLOT_DIR}${DEVICE}_${TEST NAME}_read.png" alt="Mem Plot" width="1200">    HTML
+    Log    <img src="${PLOT_DIR}${DEVICE}_${TEST NAME}_write.png" alt="Mem Plot" width="1200">   HTML
 
     ${fail_msg}=  Set Variable  ${EMPTY}
     IF  "${statistics_rd}[flag]" == "-1"
@@ -241,9 +240,9 @@ Sysbench test in NetVM
     &{statistics_mem_rd}    Read Mem csv and plot  net-vm_${TEST NAME}_memory_read_1thread
     &{statistics_mem_wr}    Read Mem csv and plot  net-vm_${TEST NAME}_memory_write_1thread
 
-    Log    <img src="${DEVICE}_net-vm_${TEST NAME}_cpu_1thread.png" alt="CPU Plot" width="1200">       HTML
-    Log    <img src="${DEVICE}_net-vm_${TEST NAME}_memory_read_1thread.png" alt="Mem Plot" width="1200">    HTML
-    Log    <img src="${DEVICE}_net-vm_${TEST NAME}_memory_write_1thread.png" alt="Mem Plot" width="1200">    HTML
+    Log    <img src="${PLOT_DIR}${DEVICE}_net-vm_${TEST NAME}_cpu_1thread.png" alt="CPU Plot" width="1200">       HTML
+    Log    <img src="${PLOT_DIR}${DEVICE}_net-vm_${TEST NAME}_memory_read_1thread.png" alt="Mem Plot" width="1200">    HTML
+    Log    <img src="${PLOT_DIR}${DEVICE}_net-vm_${TEST NAME}_memory_write_1thread.png" alt="Mem Plot" width="1200">    HTML
 
     ${msg}=  Set Variable  ${EMPTY}
     IF  "${statistics_cpu}[flag]" == "-1"
@@ -311,13 +310,13 @@ Sysbench test in VMs on LenovoX1
 
     Read VMs data CSV and plot  test_name=${TEST NAME}  vms_dict=${threads}
 
-    Log    <img src="${DEVICE}_${TEST NAME}_cpu_1thread.png" alt="CPU Plot" width="1200">       HTML
-    Log    <img src="${DEVICE}_${TEST NAME}_memory_read_1thread.png" alt="Mem Plot" width="1200">    HTML
-    Log    <img src="${DEVICE}_${TEST NAME}_memory_write_1thread.png" alt="Mem Plot" width="1200">    HTML
+    Log    <img src="${PLOT_DIR}${DEVICE}_${TEST NAME}_cpu_1thread.png" alt="CPU Plot" width="1200">       HTML
+    Log    <img src="${PLOT_DIR}${DEVICE}_${TEST NAME}_memory_read_1thread.png" alt="Mem Plot" width="1200">    HTML
+    Log    <img src="${PLOT_DIR}${DEVICE}_${TEST NAME}_memory_write_1thread.png" alt="Mem Plot" width="1200">    HTML
 
-    Log    <img src="${DEVICE}_${TEST NAME}_cpu.png" alt="CPU Plot" width="1200">       HTML
-    Log    <img src="${DEVICE}_${TEST NAME}_memory_read.png" alt="Mem Plot" width="1200">    HTML
-    Log    <img src="${DEVICE}_${TEST NAME}_memory_write.png" alt="Mem Plot" width="1200">    HTML
+    Log    <img src="${PLOT_DIR}${DEVICE}_${TEST NAME}_cpu.png" alt="CPU Plot" width="1200">       HTML
+    Log    <img src="${PLOT_DIR}${DEVICE}_${TEST NAME}_memory_read.png" alt="Mem Plot" width="1200">    HTML
+    Log    <img src="${PLOT_DIR}${DEVICE}_${TEST NAME}_memory_write.png" alt="Mem Plot" width="1200">    HTML
 
     ${length}       Get Length    ${FAILED_VMS}
 
@@ -352,8 +351,8 @@ Perf-Bench test
     Run Process  rm ${default_file_format}  shell=True
 
     Read And Plot PerfBench Results
-    Log    <img src="${DEVICE}_${TEST NAME}_perf_results.csv.png" alt="PerfBench Results" width="1200">       HTML
-    Log    <img src="${DEVICE}_${TEST NAME}_perf_find_bit_results.csv.png" alt="PerfBench Bit Results" width="1200">       HTML
+    Log    <img src="${PLOT_DIR}${DEVICE}_${TEST NAME}_perf_results.csv.png" alt="PerfBench Results" width="1200">       HTML
+    Log    <img src="${PLOT_DIR}${DEVICE}_${TEST NAME}_perf_find_bit_results.csv.png" alt="PerfBench Bit Results" width="1200">       HTML
 
 *** Keywords ***
 

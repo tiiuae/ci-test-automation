@@ -7,26 +7,35 @@ Library    OperatingSystem
 
 *** Variables ***
 
-${BUILD_ID}        ${EMPTY}
-${SWITCH_TOKEN}    ${EMPTY}
-${SWITCH_SECRET}   ${EMPTY}
-${TEST_WIFI_SSID}  ${EMPTY}
-${TEST_WIFI_PSWD}  ${EMPTY}
-${DEVICE_TYPE}     ${EMPTY}
-${LOGIN}           ghaf
-${CONFIG_PATH}     ../config/test_config.json
+${BUILD_ID}               ${EMPTY}
+${SWITCH_TOKEN}           ${EMPTY}
+${SWITCH_SECRET}          ${EMPTY}
+${TEST_WIFI_SSID}         ${EMPTY}
+${TEST_WIFI_PSWD}         ${EMPTY}
+${DEVICE_TYPE}            ${EMPTY}
+${JOB}                    ${EMPTY}
+${LOGIN}                  ghaf
+${CONFIG_PATH}            ../config
+${POWER_MEASUREMENT_DIR}  ../../../power_measurements/
+${PERF_DATA_DIR}          ../../../Performance_test_results/
+${PLOT_DIR}               ./
 
 
 *** Keywords ***
 
 Set Variables
     [Arguments]  ${device}
-
+    ${DIR_BODY}   ${DIR_END}     Split String From Right    ${OUTPUT_DIR}   /   1
+    IF  $DIR_END != 'test-suites'
+        Set Global Variable  ${POWER_MEASUREMENT_DIR}  ${OUTPUT_DIR}/outputs/power_measurements/
+        Set Global Variable  ${PERF_DATA_DIR}  ${OUTPUT_DIR}/outputs/Performance_test_results/
+        Set Global Variable  ${PLOT_DIR}  ${OUTPUT_DIR}/outputs/performance_plots/
+    END
     IF  $CONFIG_PATH == 'None'
         Log To Console    No path for test_config.json given. Ignore reading the config variables.
         Set Global Variable  ${RELAY_SERIAL_PORT}   NONE
     ELSE
-        ${config}=     Read Config    ${CONFIG_PATH}
+        ${config}=     Read Config    ${CONFIG_PATH}/test_config.json
         Set Global Variable  ${SERIAL_PORT}        ${config['addresses']['${DEVICE}']['serial_port']}
         Set Global Variable  ${RELAY_SERIAL_PORT}  ${config['addresses']['relay_serial_port']}
         Set Global Variable  ${DEVICE_IP_ADDRESS}  ${config['addresses']['${DEVICE}']['device_ip_address']}
@@ -89,8 +98,12 @@ Set Variables
     Set Log Level       INFO
 
     IF  $BUILD_ID != '${EMPTY}'
-        ${config}=     Read Config  ../config/${BUILD_ID}.json
+        ${config}=     Read Config  ${CONFIG_PATH}/${BUILD_ID}.json
         Set Global Variable    ${JOB}    ${config['Job']}
+    ELSE
+        IF  $JOB == '${EMPTY}'
+            Set Global Variable    ${JOB}    dummy_job
+        END
     END
 
 

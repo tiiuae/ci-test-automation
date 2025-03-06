@@ -15,6 +15,11 @@ Test Teardown       Close All Connections
 Test Timeout        2 minutes
 
 
+*** Variables ***
+
+${VIDEO_DIR}    ${OUTPUT_DIR}/outputs/video-temp
+
+
 *** Test Cases ***
 Check Camera Application
     [Documentation]  Check that camera application is available in business-vm and not in other vm
@@ -66,16 +71,17 @@ Verify Video Has Different Colors
     [Arguments]  ${video}
     # Take screenshot every third second
     Execute Command      ffmpeg -i ${video} -r 1/3 /tmp/image%04d.png  sudo=True  sudo_password=${PASSWORD}
-    SSHLibrary.Get File  /tmp/image0001.png   image0001.png
+    SSHLibrary.Get File  /tmp/image0001.png   ${VIDEO_DIR}/image0001.png
     Execute Command      rm /tmp/image*
-    Run                  magick image0001.png -identify colors.txt
+    Run                  magick ${VIDEO_DIR}/image0001.png -identify ${VIDEO_DIR}/colors.txt
+    Should Not Be Empty  ${VIDEO_DIR}/colors.txt  Failed to identify colors
 
     # Check that all colors are not the same
-    ${line}             Run  cat colors.txt | tail -1
+    ${line}             Run  cat ${VIDEO_DIR}/colors.txt | tail -1
     ${color}            Get Regexp Matches  ${line}  (?im)(.*:)(\\s.\\d{1,3},\\d{1,3},\\d{1,3}.)(\\s.*\\s)(.*)  4
-    ${all_lines}        Run  cat colors.txt
+    ${all_lines}        Run  cat ${VIDEO_DIR}/colors.txt
     ${matching_lines}   Get Lines Containing String   ${all_lines}  ${color}[0]
     ${line_count}       Get Line Count  ${matching_lines}
-    ${lines}            Run  wc colors.txt -l
+    ${lines}            Run  wc ${VIDEO_DIR}/colors.txt -l
     ${splitted_lines}   Split String  ${lines}
     Should Be True      ${line_count} < (${splitted_lines}[0]-${1})  msg=Captured video contains only one color. Maybe lid is closed?
