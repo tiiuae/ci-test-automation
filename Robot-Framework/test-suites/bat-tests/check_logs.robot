@@ -25,9 +25,9 @@ Check Grafana logs
     Configure wifi   ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Check Internet Connection
     Connect to VM    ${ADMIN_VM}
-    ${mac}           Execute Command  cat /var/lib/private/alloy/MACAddress  sudo=True  sudo_password=${PASSWORD}
+    ${id}           Execute Command  cat /etc/common/device-id  sudo=True  sudo_password=${PASSWORD}
     ${date}          DateTime.Get Current Date  result_format=%Y-%m-%d
-    Wait Until Keyword Succeeds  60s  2s  Check Logs Are available  ${date}  ${mac}
+    Wait Until Keyword Succeeds  60s  2s  Check Logs Are available  ${date}  ${id}
 
 
 *** Keywords ***
@@ -38,10 +38,10 @@ Check Internet Connection
 
 Check Logs Are available
     [Documentation]  Check that virtual machine's logs are available in Grafana
-    [Arguments]  ${date}  ${mac}
+    [Arguments]  ${date}  ${id}
     FOR  ${vm}  IN  @{VMS}
         Set Log Level  NONE
-        ${out}         Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" '{systemdJournalLogs="${mac}", nodename="${vm}"}'
+        ${out}         Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" '{systemdJournalLogs="${id}", nodename="${vm}"}'
         Set Log Level  INFO
         Log            ${out}
         Run Keyword And Continue On Failure  Should Contain  ${out}  ${date}
