@@ -165,15 +165,17 @@ FileIO test
 
     Transfer FileIO Test Script To DUT
 
-    # In case of Lenovo-X1 run the test in /gp_storage which has more disk space
+    # In case of Lenovo-X1 run the test in /persist which has more disk space
     # Results are saved to /tmp
     IF  "Lenovo" in "${DEVICE}"
-        Execute Command       cp /tmp/fileio_test /gp_storage  sudo=True  sudo_password=${PASSWORD}
+        Log to Console        Preparing for fileio test
+        Execute Command       cp /tmp/fileio_test /persist  sudo=True  sudo_password=${PASSWORD}
         Write                 sudo su
         ${out}                SSHLibrary.Read Until   password for ghaf:
         ${out}                Write        ${PASSWORD}
-        Write                 cd /gp_storage
-        Write                 /gp_storage/fileio_test ${threads_number} /gp_storage
+        Write                 cd /persist
+        Log to Console        Starting fileio test
+        Write                 /persist/fileio_test ${threads_number} /persist
         Set Client Configuration	  timeout=900
         ${out}                SSHLibrary.Read Until   Test finished.
         Set Client Configuration	  timeout=30
