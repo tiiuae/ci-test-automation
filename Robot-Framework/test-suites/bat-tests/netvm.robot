@@ -38,6 +38,9 @@ Wifi passthrought into NetVM (Orin-AGX)
     Check Network Availability    8.8.8.8   expected_result=False
     Turn ON WiFi        ${TEST_WIFI_SSID}
     Check Network Availability    8.8.8.8   expected_result=True
+    Turn OFF WiFi       ${TEST_WIFI_SSID}
+    Check Network Availability    8.8.8.8   expected_result=False
+    Sleep               1
     [Teardown]          Run Keywords  Remove Wifi configuration  ${TEST_WIFI_SSID}  AND  Close All Connections
 
 Wifi passthrought into NetVM (Lenovo-X1)
@@ -68,14 +71,14 @@ Wifi passthrought into NetVM (NUC)
 
 NetVM stops and starts successfully
     [Documentation]     Verify that NetVM stops properly and starts after that
-    [Tags]              bat  SP-T47  SP-T90  nuc
+    [Tags]              bat  SP-T47  SP-T90  nuc  orin-agx
     [Setup]             Connect to ghaf host
     Restart NetVM
     [Teardown]          Run Keywords  Start NetVM if dead   AND  Close All Connections
 
 NetVM is wiped after restarting
     [Documentation]     Verify that created file will be removed after restarting VM
-    [Tags]              bat  SP-T48  nuc
+    [Tags]              bat  SP-T48  nuc  orin-agx
     [Setup]             Connect to netvm
     Create file         /etc/test.txt
     Switch Connection   ${GHAF_HOST_SSH}
