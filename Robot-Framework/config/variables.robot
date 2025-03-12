@@ -46,19 +46,19 @@ Set Variables
         Run Keyword And Ignore Error    Set Global Variable  ${RELAY_NUMBER}      ${config['addresses']['${DEVICE}']['relay_number']}
         Run Keyword And Ignore Error    Set Global Variable  ${RPI_IP_ADDRESS}    ${config['addresses']['measurement_agent']['device_ip_address']}
     END
-    Set Global Variable  ${NETVM_NAME}         net-vm
-    Set Global Variable  ${NETVM_SERVICE}      microvm@${NETVM_NAME}.service
+    Set Global Variable  ${NET_VM}             net-vm
+    Set Global Variable  ${NETVM_SERVICE}      microvm@${NET_VM}.service
     Set Global Variable  ${NETVM_IP}           192.168.100.1
     Set Global Variable  ${HOST_IP}            192.168.100.2
-    Set Global Variable  ${GUI_VM}             gui-vm
-    Set Global Variable  ${CHROME_VM}          chrome-vm
-    Set Global Variable  ${GALA_VM}            gala-vm
-    Set Global Variable  ${ZATHURA_VM}         zathura-vm
-    Set Global Variable  ${COMMS_VM}           comms-vm
-    Set Global Variable  ${APPFLOWY_VM}        appflowy-vm
-    Set Global Variable  ${BUSINESS_VM}        business-vm
     Set Global Variable  ${ADMIN_VM}           admin-vm
-    Set Global Variable  @{VMS}                ${GUI_VM}  ${CHROME_VM}  ${GALA_VM}  ${ZATHURA_VM}  ${COMMS_VM}  ${BUSINESS_VM}  ${ADMIN_VM}
+    Set Global Variable  ${AUDIO_VM}           audio-vm
+    Set Global Variable  ${BUSINESS_VM}        business-vm
+    Set Global Variable  ${CHROME_VM}          chrome-vm
+    Set Global Variable  ${COMMS_VM}           comms-vm
+    Set Global Variable  ${GALA_VM}            gala-vm
+    Set Global Variable  ${GUI_VM}             gui-vm
+    Set Global Variable  ${ZATHURA_VM}         zathura-vm
+    Set Global Variable  @{VMS}                ${ADMIN_VM}  ${AUDIO_VM}  ${BUSINESS_VM}  ${CHROME_VM}  ${COMMS_VM}  ${GALA_VM}  ${GUI_VM}  ${ZATHURA_VM}
 
     Set Log Level       NONE
 

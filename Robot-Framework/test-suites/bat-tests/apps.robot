@@ -83,18 +83,7 @@ Start Slack on LenovoX1
     Connect to VM          ${COMMS_VM}
     Check that the application was started    slack
     [Teardown]  Kill Process And Log journalctl
-
-Start Appflowy on LenovoX1
-    [Documentation]   Start Appflowy in dedicated VM and verify process started
-    [Tags]            appflowy  # Removed bat tag & lenovo-x1 tag until final decision of this app is made
-    Connect to netvm
-    Check if ssh is ready on vm    appflowy-vm
-    Connect to VM          ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
-    Start XDG application  AppFlowy
-    Connect to VM          ${APPFLOWY_VM}
-    Check that the application was started    appflowy
-    [Teardown]  Kill Process And Log journalctl
-
+    
 
 *** Keywords ***
 

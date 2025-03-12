@@ -26,14 +26,14 @@ ${TIME_TO_DESKTOP_AFTER_REBOOT}  ${thresholds}[boot_time][time_to_desktop_after_
 
 Measure Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
-    [Tags]  SP-T187  lenovo-x1   dell-7330
+    [Tags]  SP-T187  dell-7330  #lenovo-x1 Does not work on X1 currently
     Soft Reboot Device
     Wait Until Keyword Succeeds  25s  2s  Check If Ping Fails
     Get Boot times
 
 Measure Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
-    [Tags]  SP-T182  lenovo-x1   dell-7330
+    [Tags]  SP-T182  dell-7330  #lenovo-x1 Does not work on X1 currently
     Press Button      ${SWITCH_BOT}-OFF
     Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
     Sleep  5  # Wait until switchbot has pressed and returned button

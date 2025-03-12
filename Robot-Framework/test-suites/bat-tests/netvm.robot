@@ -95,7 +95,7 @@ Verify NetVM PCI device passthrough
     [Documentation]     Verify that proper PCI devices have been passed through to the NetVM
     [Tags]              bat  SP-T96  nuc  orin-agx  orin-nx
     [Setup]             Connect to netvm
-    Verify microvm PCI device passthrough    vmname=${NETVM_NAME}
+    Verify microvm PCI device passthrough    vmname=${NET_VM}
     [Teardown]          Run Keywords   Close All Connections
 
 

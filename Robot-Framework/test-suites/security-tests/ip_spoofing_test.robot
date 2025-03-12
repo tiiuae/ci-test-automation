@@ -75,6 +75,6 @@ Check the result files
     IF  $stolen != '${EMPTY}'
         FAIL    Stealer VM managed to receive packets via ip spoofing
     END
-    IF  $server == '${EMPTY}' and $stolen == '${EMPTY}'
+    IF  $server_received == '${EMPTY}' and $stolen == '${EMPTY}'
         FAIL    No packets received by server or stealer VM
     END
