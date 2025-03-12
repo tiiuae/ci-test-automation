@@ -108,7 +108,7 @@ Connect to netvm
         ELSE
             Connect to ghaf host
             Log To Console       Connecting to NetVM
-            ${connection}        Connect to VM        ${NETVM_NAME}
+            ${connection}        Connect to VM        ${NET_VM}
         END
         Set Global Variable  ${NETVM_SSH}    ${connection}
         RETURN               ${NETVM_SSH}
@@ -118,7 +118,7 @@ Connect to VM
     [Documentation]      Connect to any VM or ghaf-host over internal virtual network
     [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=60
     ${connected}   Check ssh connection status   net-vm
-    Log To Console       Connecting to ${vm_name} as ${user}
+    Log To Console       Connecting to ${vm_name} as ${user}...   no_newline=true
     Check if ssh is ready on vm        ${vm_name}
     ${failed_connection}  Set variable  True
     ${start_time}  Get Time	epoch
@@ -145,7 +145,7 @@ Connect to VM
         BREAK
     END
     IF  ${failed_connection}    FAIL  Couldn't connect ${vm_name}
-    Log To Console     Connected succesfully to ${vm_name}
+    Log To Console     Connected
     RETURN             ${connection}
 
 Verify Systemctl status
