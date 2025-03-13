@@ -78,6 +78,9 @@ Connect
                 Set Global Variable  ${NETVM_SSH}    ${connection}
             END
             RETURN  ${connection}
+        ELSE IF    "ghaf-host" in $output
+            Wait until NetVM service started
+            BREAK
         ELSE
             Close All Connections
             Log To Console    Failed to connect.
