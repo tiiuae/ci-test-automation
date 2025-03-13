@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing launching applications on gui-vm
-Force Tags          gui-vm-apps  bat  lenovo-x1
+Force Tags          gui-vm-apps  bat  lenovo-x1   dell-7330
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
 Resource            ../../resources/common_keywords.resource

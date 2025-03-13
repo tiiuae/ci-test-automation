@@ -28,7 +28,7 @@ Start Firefox
 
 Start Chrome on LenovoX1
     [Documentation]   Start Chrome in dedicated VM and verify process started
-    [Tags]            bat   pre-merge   SP-T92   lenovo-x1
+    [Tags]            bat   pre-merge   SP-T92   lenovo-x1   dell-7330
     Verify service status  range=15  service=microvm@chrome-vm.service  expected_status=active  expected_state=running
     Connect to netvm
     Check if ssh is ready on vm    ${CHROME_VM}
@@ -40,7 +40,7 @@ Start Chrome on LenovoX1
 
 Start Zathura on LenovoX1
     [Documentation]   Start Zathura in dedicated VM and verify process started
-    [Tags]            bat  SP-T105   lenovo-x1
+    [Tags]            bat  SP-T105   lenovo-x1   dell-7330
     Connect to netvm
     Check if ssh is ready on vm    ${ZATHURA_VM}
     Connect to VM       ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
@@ -53,7 +53,7 @@ Start Zathura on LenovoX1
 
 Start Gala on LenovoX1
     [Documentation]   Start Gala in dedicated VM and verify process started
-    [Tags]            bat  SP-T104   lenovo-x1
+    [Tags]            bat  SP-T104   lenovo-x1   dell-7330
     Connect to netvm
     Check if ssh is ready on vm    ${GALA_VM}
     Connect to VM          ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
@@ -64,7 +64,7 @@ Start Gala on LenovoX1
 
 Start Element on LenovoX1
     [Documentation]   Start Element in dedicated VM and verify process started
-    [Tags]            bat  SP-T52   lenovo-x1
+    [Tags]            bat  SP-T52   lenovo-x1   dell-7330
     Connect to netvm
     Check if ssh is ready on vm    ${COMMS_VM}
     Connect to VM          ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
@@ -75,7 +75,7 @@ Start Element on LenovoX1
 
 Start Slack on LenovoX1
     [Documentation]   Start Slack in dedicated VM and verify process started
-    [Tags]            bat  SP-T181   lenovo-x1
+    [Tags]            bat  SP-T181   lenovo-x1   dell-7330
     Connect to netvm
     Check if ssh is ready on vm    ${COMMS_VM}
     Connect to VM          ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
