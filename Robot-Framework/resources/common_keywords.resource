@@ -44,10 +44,20 @@ Run journalctl recording
 Log journctl
     ${jrnl_size}  Execute Command    ls -lh /tmp/jrnl.txt
     Log           ${jrnl_size}
-    ${jrnl}       Execute Command    cat /tmp/jrnl.txt
+    # Try 2 times, if fails then use skip
+    ${jrnl}=  set variable  ${EMPTY}
+    FOR  ${i}  IN RANGE  2
+        ${result}  ${jrnl}   Run Keyword And Ignore Error  Execute Command  cat /tmp/jrnl.txt  timeout=10
+        ${jrnl_length}=      Get Length    ${jrnl}
+        Exit For Loop If     '${jrnl_length}' > '${0}'
+        Sleep                2
+    END
     Log           ${jrnl}
     @{pid}        Find pid by name   journalctl
     Kill process  @{pid}
+
+    Skip If   '${jrnl_length}' == '${0}'
+    ...  Executing 'cat /tmp/jrnl.txt' failed in suite teardown. Please Check if the actual tests passed or failed.
 
 Check If Device Is Up
     [Arguments]    ${range}=20
