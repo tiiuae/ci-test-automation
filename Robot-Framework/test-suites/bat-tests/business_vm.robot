@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing Business VM
-Force Tags          bat  businessvm  lenovo-x1
+Force Tags          bat  businessvm  lenovo-x1   dell-7330
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/virtualization_keywords.resource
 Resource            ../../config/variables.robot

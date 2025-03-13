@@ -19,7 +19,7 @@ ${original_time}    ${EMPTY}
 Time synchronization
     [Documentation]   Stop timesyncd, change time on ghaf host and check that time was changed
     ...               Start timesyncd and check that time was synchronized
-    [Tags]            bat   SP-T97   nuc  orin-agx  orin-nx  riscv  lenovo-x1
+    [Tags]            bat   SP-T97   nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330
 
     ${host}  Connect
     Check that time is correct  timezone=UTC

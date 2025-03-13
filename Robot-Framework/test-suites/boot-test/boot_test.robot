@@ -42,7 +42,7 @@ Verify booting after restart by power
 
 Verify booting LenovoX1
     [Documentation]    Restart LenovoX1 by power and verify init service is running
-    [Tags]             boot  plug  lenovo-x1
+    [Tags]             boot  plug  lenovo-x1   dell-7330
     Reboot LenovoX1
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False

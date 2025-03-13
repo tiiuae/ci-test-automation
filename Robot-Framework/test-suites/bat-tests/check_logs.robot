@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing logging
-Force Tags          bat   logging  lenovo-x1
+Force Tags          bat   logging  lenovo-x1   dell-7330
 Resource            ../../config/variables.robot
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/connection_keywords.resource
