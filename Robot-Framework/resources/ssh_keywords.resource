@@ -60,7 +60,7 @@ Connect
     [Arguments]       ${IP}=${DEVICE_IP_ADDRESS}    ${PORT}=22    ${target_output}=None   ${iterations}=1
     IF  '${target_output}' != 'None'
         Log To Console    Expecting ${target_output} target output
-    ELSE IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}"
+    ELSE IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
         ${target_output}  Set Variable  ghaf@net-vm
     ELSE
         ${target_output}  Set Variable  ghaf@ghaf-host
