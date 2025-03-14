@@ -22,6 +22,7 @@ Suite Teardown      Run keywords  Stop iperf server
 ...                 AND  Close port 5201 from iptables
 ...                 AND  Close All Connections
 
+Library  DebugLibrary
 
 *** Variables ***
 ${PERF_TEST_TIME}  10
@@ -30,13 +31,14 @@ ${PERF_TEST_TIME}  10
 *** Test Cases ***
 Measure TCP Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]   tcp  nuc  orin-agx  riscv  lenovo-x1   dell-7330  SSRCSP-T227
+    [Tags]   tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SSRCSP-T227
     &{speed_data}      Create Dictionary
     # DUT sends
-    ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
+    ${output1}       Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  stdout=${OUTPUT_DIR}/stdout.txt	stderr=STDOUT  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output1.stdout}
+
     # DUT receives
-    ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME}    shell=True  timeout=${${PERF_TEST_TIME}+10}
+    ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME}    shell=True  stdout=${OUTPUT_DIR}/stdout.txt	stderr=STDOUT  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output2.stdout}
     Check iperf3 got results     ${output1}  ${output2}
     ${bps_tx}          Get Throughput Values  ${output1.stdout}
@@ -48,7 +50,7 @@ Measure TCP Throughput Small Packets
 
 Measure TCP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  orin-agx  riscv  lenovo-x1   dell-7330  SSRCSP-T228
+    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SSRCSP-T228
     &{speed_data}       Create Dictionary
     ${output}           Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                 ${output.stdout}
@@ -62,7 +64,7 @@ Measure TCP Bidir Throughput Small Packets
 
 Measure TCP Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  tcp  nuc  orin-agx  riscv  lenovo-x1   dell-7330  SSRCSP-T229
+    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SSRCSP-T229
     &{speed_data}      Create Dictionary
     ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
     ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -77,7 +79,7 @@ Measure TCP Throughput Big Packets
 
 Measure TCP Bidir Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  orin-agx  riscv  lenovo-x1   dell-7330  SSRCSP-T230
+    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SSRCSP-T230
     &{speed_data}      Create Dictionary
     ${output}          Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output.stdout}
@@ -91,7 +93,7 @@ Measure TCP Bidir Throughput Big Packets
 
 Measure UDP TX Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  tcp  nuc  orin-agx  riscv  lenovo-x1   dell-7330  SSRCSP-T231
+    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SSRCSP-T231
     &{speed_data}      Create Dictionary
     ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output1.stdout}
@@ -107,7 +109,7 @@ Measure UDP TX Throughput Small Packets
 
 Measure UDP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  orin-agx  riscv  lenovo-x1   dell-7330  SSRCSP-T232
+    [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SSRCSP-T232
     &{speed_data}      Create Dictionary
     ${output}          Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output.stdout}
@@ -121,7 +123,7 @@ Measure UDP Bidir Throughput Small Packets
 
 Measure UDP Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  udp  nuc  orin-agx  riscv  lenovo-x1   dell-7330  SSRCSP-T233
+    [Tags]  udp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SSRCSP-T233
     &{speed_data}      Create Dictionary
     ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 100G -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output1.stdout}
@@ -137,7 +139,7 @@ Measure UDP Throughput Big Packets
 
 Measure UDP Bidir Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  udp  nuc  orin-agx  riscv  lenovo-x1   dell-7330  SSRCSP-T234
+    [Tags]  udp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SSRCSP-T234
     &{speed_data}      Create Dictionary
     ${output}          Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 10000G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output.stdout}
@@ -159,6 +161,7 @@ Select network connection to use
          ${CONNECTION}       Connect to ghaf host
      END
      Set Global Variable  ${CONNECTION}
+
     
 Run iperf server on DUT
     [Documentation]   Run iperf on DUT in server mode
@@ -178,20 +181,20 @@ Clear iptables rules
 
 Open port 5201 from iptables
     [Documentation]  Firewall rule to open needed port for perf test.
-    Execute Command  iptables -I INPUT -m tcp -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
-    Execute Command  iptables -I INPUT -m udp -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
-
-    # Accept incoming packages that do belong to some already opened connection
-    Execute Command  iptables -I INPUT -m state RELATED, ESTABLISHED -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
-    Sleep        1
+    # Insert rules to open tcp and udp connections for port 5201
+    ${result}  ${rc}  Execute Command  iptables --insert INPUT -m tcp -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    Should Be Equal   ${rc}  ${0}
+    ${result}  ${rc}  Execute Command  iptables --insert INPUT -m udp -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    Should Be Equal   ${rc}  ${0}
 
 Close port 5201 from iptables
     [Documentation]  Firewall rule to close the port that was used in per testing
-    Execute Command  iptables -I INPUT -m tcp -p tcp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
-    Execute Command  iptables -I INPUT -m udp -p udp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
 
-    # Reject also incoming packages that do belong to some already opened connection
-    Execute Command  iptables -I INPUT -m state RELATED, ESTABLISHED -j DROP  sudo=True  sudo_password=${PASSWORD}
+    # Delete the rules we made in KW 'Open port 5201 from iptables'. The rules are the 2 first ones in INPUT -chain.
+    ${result}   Execute Command  iptables --delete INPUT 1    sudo=True  sudo_password=${PASSWORD}   return_rc=${true}
+    Should Be Equal   ${result[1]}  ${0}
+    ${result}   Execute Command  iptables --delete INPUT 1    sudo=True  sudo_password=${PASSWORD}   return_rc=${true}
+    Should Be Equal   ${result[1]}  ${0}
 
 Stop iperf server
     @{pid}=  Find pid by name  iperf
@@ -205,13 +208,19 @@ Check iperf was started
     ${is_started} =   Set Variable    False
     FOR    ${i}    IN RANGE    ${timeout}
         ${output}=     Execute Command    sh -c 'ps aux | grep "iperf" | grep -v grep'
+        #log to console  iperf started:${output}
         ${status} =    Run Keyword And Return Status    Should Contain    ${output}    iperf -s
         IF    ${status}
+            #${is_s tarted} =  Set Variable    True  ${output}
             ${is_started} =  Set Variable    True
             BREAK
         END
         Sleep    1
     END
+
+    @{pid} =   ssh_keywords.Find pid by name   iperf
+    log to console  @{pid}
+
     IF   ${status} == False    FAIL    Iperf server was not started
 
 Check iperf3 got results
