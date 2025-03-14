@@ -22,6 +22,7 @@ Suite Teardown      Run keywords  Stop iperf server
 ...                 AND  Close port 5201 from iptables
 ...                 AND  Close All Connections
 
+Library  DebugLibrary
 
 *** Variables ***
 ${PERF_TEST_TIME}  10
@@ -33,11 +34,14 @@ Measure TCP Throughput Small Packets
     [Tags]   tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1  SSRCSP-T227
     &{speed_data}      Create Dictionary
     # DUT sends
-    ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
+    ${output1}       Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  stdout=${OUTPUT_DIR}/stdout.txt	stderr=STDOUT  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output1.stdout}
+    Log                ${output1.stderr}
+
     # DUT receives
-    ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME}    shell=True  timeout=${${PERF_TEST_TIME}+10}
+    ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME}    shell=True  stdout=${OUTPUT_DIR}/stdout.txt	stderr=STDOUT  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output2.stdout}
+    Log                ${output2.stderr}
     Check iperf3 got results     ${output1}  ${output2}
     ${bps_tx}          Get Throughput Values  ${output1.stdout}
     ${bps_rx}          Get Throughput Values  ${output2.stdout}  direction=receiver
@@ -159,6 +163,7 @@ Select network connection to use
          ${CONNECTION}       Connect to ghaf host
      END
      Set Global Variable  ${CONNECTION}
+
     
 Run iperf server on DUT
     [Documentation]   Run iperf on DUT in server mode
@@ -178,20 +183,20 @@ Clear iptables rules
 
 Open port 5201 from iptables
     [Documentation]  Firewall rule to open needed port for perf test.
-    Execute Command  iptables -I INPUT -m tcp -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
-    Execute Command  iptables -I INPUT -m udp -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
 
+    ${result}  ${rc}  Execute Command  iptables -I INPUT -m tcp -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    ${result}  ${rc}  Execute Command  iptables -I INPUT -m udp -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+
+    #log to console  port1_${port1.rc}
     # Accept incoming packages that do belong to some already opened connection
-    Execute Command  iptables -I INPUT -m state RELATED, ESTABLISHED -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
-    Sleep        1
+    ${result}  ${rc}  Execute Command  iptables -I INPUT -m state RELATED, ESTABLISHED -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
 
 Close port 5201 from iptables
     [Documentation]  Firewall rule to close the port that was used in per testing
-    Execute Command  iptables -I INPUT -m tcp -p tcp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
-    Execute Command  iptables -I INPUT -m udp -p udp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
-
+    ${result}  ${rc}  Execute Command  iptables -I INPUT -m tcp -p tcp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    ${result}  ${rc}  Execute Command  iptables -I INPUT -m udp -p udp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
     # Reject also incoming packages that do belong to some already opened connection
-    Execute Command  iptables -I INPUT -m state RELATED, ESTABLISHED -j DROP  sudo=True  sudo_password=${PASSWORD}
+    ${result}  ${rc}  Execute Command  iptables -I INPUT -m state RELATED, ESTABLISHED -j DROP  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
 
 Stop iperf server
     @{pid}=  Find pid by name  iperf
@@ -205,14 +210,15 @@ Check iperf was started
     ${is_started} =   Set Variable    False
     FOR    ${i}    IN RANGE    ${timeout}
         ${output}=     Execute Command    sh -c 'ps aux | grep "iperf" | grep -v grep'
+        log to console  iperf started:${output}
         ${status} =    Run Keyword And Return Status    Should Contain    ${output}    iperf -s
         IF    ${status}
-            ${is_started} =  Set Variable    True
+            ${is_started} =  Set Variable    True  ${output}
             BREAK
         END
-        Sleep    1
     END
     IF   ${status} == False    FAIL    Iperf server was not started
+    @{pid}=  Find pid by name  iperf
 
 Check iperf3 got results
     [Documentation]     Check if starting iperf3 client was successful or not. (iperf3 is started 1 or 2 times per a test)
