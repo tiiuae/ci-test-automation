@@ -21,8 +21,6 @@ ${GRAFANA_LOGS}       https://loki.ghaflogs.vedenemo.dev
 Check Grafana logs
     [Documentation]  Check that all virtual machines are sending logs to Grafana
     [Tags]           SP-T172
-    [Teardown]       Remove Wifi configuration  ${TEST_WIFI_SSID}
-    Configure wifi   ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Check Internet Connection
     Connect to VM    ${ADMIN_VM}
     ${id}           Execute Command  cat /etc/common/device-id  sudo=True  sudo_password=${PASSWORD}
