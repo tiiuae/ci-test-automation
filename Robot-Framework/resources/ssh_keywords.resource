@@ -13,9 +13,9 @@ Library             ../lib/output_parser.py
 *** Keywords ***
 
 Ping Host
-    [Arguments]        ${hostname}
+    [Arguments]        ${hostname}  ${timeout}=10
     [Documentation]    Ping the given hostname once and return boolen result
-    ${ping_output}=    Run Process   ping ${hostname} -c 1   shell=True
+    ${ping_output}=    Run Process   ping ${hostname} -c 1 -W ${timeout}   shell=True
     ${ping_success}    Run Keyword And Return Status    Should Contain    ${ping_output.stdout}    1 received
     Return From Keyword    ${ping_success}
 

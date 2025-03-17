@@ -25,10 +25,8 @@ thresholds = {
         'rd_lenovo-x1': 420
     },
     'boot_time': {
-        'time_to_bootup': 60,
-        'time_to_respond_to_ssh': 40,
-        'time_to_respond_to_ping': 40,
-        'time_to_desktop_after_reboot': 100
+        'time_to_respond_to_ping': 10,
+        'time_to_desktop_after_reboot': 12
     },
     'iperf': 10
 }

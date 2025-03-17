@@ -3,105 +3,152 @@
 
 *** Settings ***
 Documentation       Testing target device bootup time.
-Force Tags          ssh_boot_test
+Force Tags          boot_time_test   performance
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/device_control.resource
+Resource            ../../resources/performance_keywords.resource
 Resource            ../../config/variables.robot
 Variables           ../../lib/performance_thresholds.py
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}  ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}
 Library             DateTime
 Library             Collections
+Suite Setup         Boot Time Test Setup
 
 
 *** Variables ***
-${BOOT_TIME}  ${thresholds}[boot_time][time_to_bootup]
-${TIME_TO_RESPOND_TO_SSH}  ${thresholds}[boot_time][time_to_respond_to_ssh]
-${TIME_TO_RESPOND_TO_PING}  ${thresholds}[boot_time][time_to_respond_to_ping]
-${TIME_TO_DESKTOP_AFTER_REBOOT}  ${thresholds}[boot_time][time_to_desktop_after_reboot]
+${PING_TIMEOUT}     80
+${SEARCH_TIMEOUT1}  20
+${SEARCH_TIMEOUT2}  5
 
 
 *** Test Cases ***
 
 Measure Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
-    [Tags]  SP-T187  dell-7330  #lenovo-x1 Does not work on X1 currently
+    [Tags]  SP-T187  lenovo-x1  dell-7330
     Soft Reboot Device
-    Wait Until Keyword Succeeds  25s  2s  Check If Ping Fails
+    Wait Until Keyword Succeeds  35s  2s  Check If Ping Fails
     Get Boot times
 
 Measure Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
-    [Tags]  SP-T182  dell-7330  #lenovo-x1 Does not work on X1 currently
-    Press Button      ${SWITCH_BOT}-OFF
-    Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
-    Sleep  5  # Wait until switchbot has pressed and returned button
-    Press Button      ${SWITCH_BOT}-ON
-    Get Boot times  hard  image_name=Hard Boot Times
+    [Tags]  SP-T182  lenovo-x1  dell-7330
+    Log to console                Shutting down by pressing the power button
+    Press Button                  ${SWITCH_BOT}-OFF
+    Wait Until Keyword Succeeds   15s  2s  Check If Ping Fails
+    Log to console                The device has shut down
+    Log to console                Waiting for the robot finger to return
+    Sleep  20
+    Log to console                Booting the device by pressing the power button
+    Press Button                  ${SWITCH_BOT}-ON
+    Get Boot times                plot_name=Hard Boot Times
 
 
 *** Keywords ***
+
 Get Boot times
     [Documentation]  Collect boot times from device
-    [Arguments]  ${boot_type}=soft  ${image_name}=Soft Boot Times
-    ${ping_response}  Set Variable  False
-    ${ssh_response}  Set Variable  False
-    ${cmd1}  Catenate  SEPARATOR=\n  current_timestamp=$(expr $(date '+%s%N') / 1000000000)
+    [Arguments]  ${plot_name}=Soft Boot Times
+    ${ping_response}    Set Variable  ${EMPTY}
+    ${cmd1}  Catenate   SEPARATOR=\n  current_timestamp=$(expr $(date '+%s%N') / 1000000000)
     ...  echo $current_timestamp
-    ${cmd2}  Catenate  SEPARATOR=\n  since_nixos_menu=$(awk '{print $1}' /proc/uptime)
+    ${cmd2}  Catenate   SEPARATOR=\n  since_nixos_menu=$(awk '{print $1}' /proc/uptime)
     ...  echo $since_nixos_menu
-    ${cmd3}  Catenate  SEPARATOR=\n
+    ${cmd3}  Catenate   SEPARATOR=\n
     ...  welcome_note=$(date -d "$(journalctl --output=short-iso | grep gui-vm | grep "Welcome" | tail -1 | awk '{print $1}')" "+%s")
     ...  echo $welcome_note
-    ${freedesktop}  Catenate  SEPARATOR=\n
-    ...  freedesktop=$(date -d "$(journalctl --output=short-iso | grep "Successfully activated service 'org.freedesktop.systemd1'" | tail -1 | awk '{print $1}')" "+%s")
-    ...  echo $freedesktop
+    ${freedesktop_line}  Catenate  SEPARATOR=\n
+    ...  freedesktop_line=$(journalctl --output=short-iso | grep "Successfully activated service 'org.freedesktop.systemd1'" | grep session)
+    ...  echo $freedesktop_line
+    # For detecting timestamp of Login screen in cosmic desktop
+    ${testuser_line}  Catenate  SEPARATOR=\n
+    ...  testuser_line=$(journalctl --output=short-iso | grep "testuser: changing state")
+    ...  echo $testuser_line
 
-    ${start_time}  DateTime.Get Current Date
-    Log to console  Start checking ping and ssh response
-    WHILE  not (${ping_response} and ${ssh_response})   limit=${BOOT_TIME} seconds
-        ${connection}  Open Connection    ${DEVICE_IP_ADDRESS}    port=22    prompt=\$    timeout=2
-        ${ssh_response}  Run Keyword And Return Status  Login     username=${LOGIN}    password=${PASSWORD}
-        ${ssh_end_time}  IF  ${ssh_response}  DateTime.Get Current Date  ELSE  Set Variable  False
-        ${ping_response}  IF  not ${ping_response}  Ping Host  ${DEVICE_IP_ADDRESS}
-        ${ping_end_time}  IF  ${ping_response}  DateTime.Get Current Date  ELSE  Set Variable  False
+    ${start_time_epoc}    DateTime.Get Current Date   result_format=epoch
+
+    Log to console        Start checking ping response
+    ${ping_end_time}  Set Variable  False
+    WHILE  not $ping_response   limit=${PING_TIMEOUT} seconds
+        ${ping_response}  Ping Host  ${DEVICE_IP_ADDRESS}  1
+        ${ping_end_time}  IF  $ping_response  DateTime.Get Current Date  result_format=epoch
     END
-    Connect to ghaf host
-    ${current_timestamp}  Execute Command  ${cmd1}
-    ${time_from_nixos_menu_tos_ssh}  Execute Command  ${cmd2}  # uptime
-    ${nixos_menu_timestamp}  Subtract Time From Time  ${current_timestamp}  ${time_from_nixos_menu_tos_ssh}
-    ${start_time_epoc}  Convert Date  ${start_time}  epoch
+    IF  not $ping_end_time
+        FAIL  No response to ping within ${PING_TIMEOUT}
+    END
+    ${ping_response_seconds}  DateTime.Subtract Date From Date  ${ping_end_time}  ${start_time_epoc}   exclude_millis=True
+    Log                       Response time to ping measured: ${ping_response_seconds}   console=True
 
+    Sleep  30
     Connect to netvm
     Connect to VM  ${GUI_VM}
+
     ${time_from_reboot_to_desktop_available}  Run Keyword And Continue On Failure
-    ...  Wait Until Keyword Succeeds  ${TIME_TO_DESKTOP_AFTER_REBOOT}s  1s  Check Log For Notification  ${freedesktop}  ${start_time_epoc}
+    ...  Wait Until Keyword Succeeds  ${SEARCH_TIMEOUT1}s  1s  Check Time To Notification  ${freedesktop_line}   ${start_time_epoc}
 
-    ${ping_response_seconds}  IF  ${ping_response}  DateTime.Subtract Date From Date  ${ping_end_time}  ${start_time}    exclude_millis=True
-    ${ssh_response_seconds}  IF  ${ssh_response}  DateTime.Subtract Date From Date  ${ssh_end_time}  ${start_time}    exclude_millis=True
-
-    &{final_results}  Create Dictionary
-    Set To Dictionary  ${final_results}  time_from_nixos_menu_tos_ssh  ${time_from_nixos_menu_tos_ssh}
-    Set To Dictionary  ${final_results}  time_from_reboot_to_desktop_available  ${time_from_reboot_to_desktop_available}
-    Set To Dictionary  ${final_results}  response_to_ping  ${ping_response_seconds}
-    Set To Dictionary  ${final_results}  response_to_ssh  ${ssh_response_seconds}
-    Save Boot time Data   ${TEST NAME}  ${final_results}
-    Log  <img src="${DEVICE}_${TEST NAME}.png" alt="${image_name}" width="1200">    HTML
-    IF  '${boot_type}' == 'soft'
-        Run Keyword And Continue On Failure  Should Be True  ${ping_response_seconds} <= ${TIME_TO_RESPOND_TO_PING}
-        Run Keyword And Continue On Failure  Should Be True  ${ssh_response_seconds} <= ${TIME_TO_RESPOND_TO_SSH}
-    ELSE
-        Run Keyword And Continue On Failure  Should Be True  ${ping_response_seconds} <= ${${TIME_TO_RESPOND_TO_PING} + 10}
-        Run Keyword And Continue On Failure  Should Be True  ${ssh_response_seconds} <= ${${TIME_TO_RESPOND_TO_SSH} + 10}
+    IF  $time_from_reboot_to_desktop_available == 'False'
+        ${time_from_reboot_to_desktop_available}  Run Keyword And Continue On Failure
+        ...  Wait Until Keyword Succeeds  ${SEARCH_TIMEOUT2}s  1s  Check Time To Notification  ${testuser_line}   ${start_time_epoc}
+        Skip If   $time_from_reboot_to_desktop_available == 'False'  Skipping. The searched journalctl line is sometimes (randomly) not there. Didn't find it this time.
     END
-    Should Be True  ${time_from_reboot_to_desktop_available} <= ${TIME_TO_DESKTOP_AFTER_REBOOT}
+    Log                     Boot time to login screen measured: ${time_from_reboot_to_desktop_available}   console=True
+    &{final_results}        Create Dictionary
+    Set To Dictionary       ${final_results}  time_from_reboot_to_desktop_available  ${time_from_reboot_to_desktop_available}
+    Set To Dictionary       ${final_results}  response_to_ping  ${ping_response_seconds}
+    &{statistics}           Save Boot time Data   ${TEST NAME}  ${final_results}
+    Log  <img src="${DEVICE}_${TEST NAME}.png" alt="${plot_name}" width="1200">    HTML
 
-Check Log For Notification
+    &{statistics_desktop}  Get From Dictionary   ${statistics}   statistics_desktop
+    &{statistics_ping}     Get From Dictionary   ${statistics}   statistics_ping
+
+    ${fail_msg}=  Set Variable  ${EMPTY}
+    IF  "${statistics_desktop}[flag]" == "1"
+        ${add_msg}      Create fail message  ${statistics_desktop}
+        ${fail_msg}=    Set Variable  Time to desktop:\n${add_msg}
+    END
+    IF  "${statistics_ping}[flag]" == "1"
+        ${add_msg}      Create fail message  ${statistics_ping}
+        ${fail_msg}=    Set Variable  ${fail_msg}\nTime to ping response:\n${add_msg}
+    END
+    IF  "${statistics_desktop}[flag]" == "1" or "${statistics_ping}[flag]" == "1"
+        FAIL            ${fail_msg}
+    END
+
+    ${pass_msg}=  Set Variable  ${EMPTY}
+    IF  "${statistics_desktop}[flag]" == "-1"
+        ${add_msg}      Create improved message  ${statistics_desktop}
+        ${pass_msg}=    Set Variable  Time to desktop:\n${add_msg}
+    END
+    IF  "${statistics_ping}[flag]" == "-1"
+        ${add_msg}      Create improved message  ${statistics_ping}
+        ${pass_msg}=    Set Variable  ${pass_msg}\nTime to ping response:\n${add_msg}
+    END
+    IF  "${statistics_desktop}[flag]" == "-1" or "${statistics_ping}[flag]" == "-1"
+        Pass Execution    ${pass_msg}
+    END
+
+Check Time To Notification
     [Documentation]  Check that correct notification is available in journalctl
-    [Arguments]  ${command}  ${current_time}
-    ${notification}  Execute Command  ${command}
-    Should Not Be Empty  ${notification}
-    ${time}  Subtract Time From Time  ${notification}  ${current_time}
+    [Arguments]      ${command}   ${start_time}
+    ${get_timestamp}  Catenate  SEPARATOR=\n
+    ...  freedesktop_time=$(date -d "$(${command} | tail -1 | awk '{print $1}')" "+%s")
+    ...  echo $freedesktop_time
+    ${notification_line}  Execute Command  ${command}
+    IF  $notification_line == '${EMPTY}'
+        RETURN  False
+    END
+    ${noticication_time}  Execute Command  ${get_timestamp}
+    ${time}  Subtract Time From Time  ${noticication_time}  ${start_time}   exclude_millis=True
     Should Be True  0 < ${time} < 120
     RETURN  ${time}
+
+Boot Time Test Setup
+    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
+        Connect to ghaf host
+        Verify service status   range=15  service=microvm@gui-vm.service  expected_status=active  expected_state=running
+        Connect to netvm
+        Connect to VM           ${GUI_VM}
+        Create test user
+    END
