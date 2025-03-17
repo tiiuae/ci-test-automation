@@ -115,10 +115,8 @@ class PerformanceDataProcessing:
     @keyword("Write Boot time to csv")
     def write_boot_time_to_csv(self, test_name, boot_data):
         data = [self.commit,
-                boot_data['time_from_nixos_menu_tos_ssh'],
                 boot_data['time_from_reboot_to_desktop_available'],
                 boot_data['response_to_ping'],
-                boot_data['response_to_ssh'],
                 self.device]
         self._write_to_csv(test_name, data)
 
@@ -146,7 +144,7 @@ class PerformanceDataProcessing:
 
             data_sum = 0
             for value in data_column_cut:
-               data_sum = (value - mean) ** 2 + data_sum
+                data_sum = (value - mean) ** 2 + data_sum
             pstd = (data_sum / len(data_column_cut)) ** (1/2)
 
             # Automatically calculated pstd can vary wildly in case of multiple successive major changes in results.
@@ -756,18 +754,27 @@ class PerformanceDataProcessing:
     def read_bootime_csv_and_plot(self, test_name):
         data = {
                 'commit': [],
-                'time_from_nixos_menu_tos_ssh':[],
                 'time_from_reboot_to_desktop_available':[],
                 'response_to_ping':[],
-                'response_to_ssh':[],
+                'statistics_desktop': [],
+                'statistics_ping': [],
                 }
+
+        desktop_threshold = thresholds['boot_time']['time_to_desktop_after_reboot']
+        ping_threshold = thresholds['boot_time']['time_to_respond_to_ping']
+
+        statistics_desktop = None
+        statistics_ping = None
+
         with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
             csvreader = csv.reader(csvfile)
             logging.info("Reading data from csv file..." )
             logging.info(f"{self.data_dir}{self.device}_{test_name}.csv")
             build_counter = {}  # To keep track of duplicate builds
+            baseline_start = 0
+            row_index = 0
             for row in csvreader:
-                print("row on", row)
+                # print(row)
                 if row[-1] == self.device:
                     build = str(row[0])
                     if build in build_counter:
@@ -776,33 +783,39 @@ class PerformanceDataProcessing:
                     else:
                         build_counter[build] = 0
                         modified_build = build
-                    data['commit'].append(modified_build)
-                    data['time_from_nixos_menu_tos_ssh'].append(float(row[1]))
-                    data['time_from_reboot_to_desktop_available'].append(float(row[2]))
-                    data['response_to_ping'].append(float(row[3]))
-                    data['response_to_ssh'].append(float(row[4]))
+                    if row[1] != '' and row[2] != '':
+                        data['commit'].append(modified_build)
+                        data['time_from_reboot_to_desktop_available'].append(float(row[1]))
+                        data['response_to_ping'].append(float(row[2]))
+
+                        statistics_desktop = self.detect_deviation(data['time_from_reboot_to_desktop_available'], baseline_start, desktop_threshold)
+                        statistics_ping = self.detect_deviation(data['response_to_ping'], baseline_start, ping_threshold)
+                        if statistics_desktop['flag'] != 0:
+                            baseline_start = row_index
+                        data['statistics_desktop'].append(statistics_desktop)
+                        if statistics_ping['flag'] != 0:
+                            baseline_start = row_index
+                        data['statistics_ping'].append(statistics_ping)
+                        row_index = row_index + 1
+
+            self._write_statistics_to_csv(test_name, data)
+
+        for key in data.keys():
+            data[key] = data[key][-40:]
 
         plt.figure(figsize=(20, 10))
         plt.set_loglevel('WARNING')
+
         plt.subplot(4, 1, 1)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['commit'], data['time_from_nixos_menu_tos_ssh'], marker='o', linestyle='-', color='b')
+        plt.plot(data['commit'], data['time_from_reboot_to_desktop_available'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
-        plt.title('Time from nixos menu to ssh', loc='right', fontweight="bold", fontsize=16)
+        plt.title('Time from reboot to desktop available', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('seconds', fontsize=12)
         plt.grid(True)
         plt.xticks(data['commit'], rotation=90, fontsize=14)
 
         plt.subplot(4, 1, 2)
-        plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['commit'], data['time_from_reboot_to_desktop_available'], marker='o', linestyle='-', color='b')
-        plt.yticks(fontsize=14)
-        plt.title('Time since reboot to desktop avaialble', loc='right', fontweight="bold", fontsize=16)
-        plt.ylabel('seconds', fontsize=12)
-        plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
-
-        plt.subplot(4, 1, 3)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(data['commit'], data['response_to_ping'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
@@ -811,18 +824,15 @@ class PerformanceDataProcessing:
         plt.grid(True)
         plt.xticks(data['commit'], rotation=90, fontsize=14)
 
-        plt.subplot(4, 1, 4)
-        plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['commit'], data['response_to_ssh'], marker='o', linestyle='-', color='b')
-        plt.yticks(fontsize=14)
-        plt.title('Response to ssh', loc='right', fontweight="bold", fontsize=16)
-        plt.ylabel('seconds', fontsize=12)
-        plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
-        plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
-
         plt.tight_layout()
         plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
+
+        statistics = {
+            'statistics_desktop': statistics_desktop,
+            'statistics_ping': statistics_ping
+        }
+
+        return statistics
 
     def extract_numeric_part(self, build_identifier):
         parts = build_identifier.split('-')
