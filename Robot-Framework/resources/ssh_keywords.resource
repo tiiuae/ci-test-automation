@@ -127,11 +127,10 @@ Connect to VM
     ELSE
         ${jumphost}   Set Variable  ${GHAF_HOST_SSH}
     END
+    # Opening connection
     FOR    ${i}    IN RANGE    10
         TRY
             ${connection}=       Open Connection    ${vm_name}    port=22    prompt=\$    timeout=30
-            ${login_output}=     Login with timeout    username=${user}        password=${pw}    jumphost=${jumphost}
-            Should Contain       ${login_output}   ${vm_name}
         EXCEPT    ChannelException: ChannelException(2, 'Connect failed')    type=LITERAL
             ${diff}=    Evaluate    int(time.time()) - int(${start_time})
             IF   ${diff} < ${timeout}
@@ -144,8 +143,21 @@ Connect to VM
         ${failed_connection}  Set variable  False
         BREAK
     END
-    IF  ${failed_connection}    FAIL  Couldn't connect ${vm_name}
-    Log To Console     Connected
+    IF  ${failed_connection}   FAIL  Couldn't connect ${vm_name}
+    Log To Console             Connection opened.
+
+    # Logging in to vm
+    ${logged_in}  Set Variable  False
+    FOR    ${i}    IN RANGE     5
+        ${status}  ${login_output}   Run Keyword And Ignore Error  Login with timeout  username=${user}  password=${pw}  jumphost=${jumphost}
+        ${logged_in}            Run Keyword And Return Status  Should Contain  ${login_output}  ${vm_name}
+        Exit For Loop If        ${logged_in}
+        Sleep                   2
+    END
+    IF  not ${logged_in}  FAIL            Could not login to ${vm_name} as ${user}.
+    Log To Console  Connected and logged in.
+    
+    # If connected and logged in successfully
     RETURN             ${connection}
 
 Verify Systemctl status
