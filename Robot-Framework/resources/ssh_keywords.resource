@@ -271,7 +271,7 @@ Verify service status
     ${finished}       Set Variable  False
 
     ${welcome_check}  Set Variable If  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"    False    True
-    
+
     FOR    ${i}    IN RANGE    ${range}
         ${output}  ${stderr}  ${rc}=   Execute Command  systemctl status ${service}  return_stderr=True  return_rc=True
         Log           stdout: ${output}\nstderr: ${stderr}
@@ -281,7 +281,7 @@ Verify service status
         ${status}     Run Keyword And Return Status    Should Be True	'${status}' == '${expected_status}'  Expected ${expected_status} but in fact ${status}
         ${state}      Run Keyword And Return Status    Should Be True	'${state}' == '${expected_state}'    Expected ${expected_state} but in fact ${state}
 
-        # 'Welcome to NixOS' is not got if 'non-vm service' or if service is expected to be inactive/dead.
+        # 'Welcome to NixOS' is not got if 'non-vm service' or if service is expected to be inactive/dead
         IF  ${vmservice} and '${expected_state}' == 'running' and ${status} and ${state} and ${welcome_check}
             ${finished}    Run Keyword And Return Status    Should Contain    ${output}    Welcome to NixOS
             IF  ${finished}

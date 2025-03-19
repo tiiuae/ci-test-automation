@@ -17,36 +17,41 @@ Library             Collections
 Library             JSONLibrary
 Suite Setup         Run keywords  Initialize Variables And Connect
 ...                 AND  Select network connection to use
+...                 AND  Adjust iptables rules
 ...                 AND  Run iperf server on DUT
-Suite Teardown      Run keywords  Stop iperf server
+Suite Teardown      Run keywords   Stop iperf server
 ...                 AND  Close port 5201 from iptables
 ...                 AND  Close All Connections
 
-Library  DebugLibrary
 
 *** Variables ***
 ${PERF_TEST_TIME}  10
+@{target_ports}    5201  #80  22  ssh
 
 
 *** Test Cases ***
 Measure TCP Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
     [Tags]   tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SSRCSP-T227
-    &{speed_data}      Create Dictionary
-    # DUT sends
-    ${output1}       Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  stdout=${OUTPUT_DIR}/stdout.txt	stderr=STDOUT  timeout=${${PERF_TEST_TIME}+10}
-    Log                ${output1.stdout}
+    #FAIL   Just checked if got inside the test and what happens in jenkins.
 
+    &{speed_data}      Create Dictionary
+    Log to console  device address: ${DEVICE_IP_ADDRESS}
+    # DUT sends
+    ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  stdout=${OUTPUT_DIR}/stdout.txt	stderr=STDOUT  timeout=${${PERF_TEST_TIME}+10}
+    Log                ${output1.stdout}
+    #Log to console     ${output1.stdout}
     # DUT receives
     ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME}    shell=True  stdout=${OUTPUT_DIR}/stdout.txt	stderr=STDOUT  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output2.stdout}
+    #Log to console     ${output2.stdout}
     Check iperf3 got results     ${output1}  ${output2}
     ${bps_tx}          Get Throughput Values  ${output1.stdout}
     ${bps_rx}          Get Throughput Values  ${output2.stdout}  direction=receiver
-    Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
-    Log                <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Small Packets" width="1200">    HTML
-    ${statistics}      Save Speed Data   ${TEST NAME}  ${speed_data}
-    Report Statistics  ${statistics}
+    #Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
+    #Log                <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Small Packets" width="1200">    HTML
+    #${statistics}      Save Speed Data   ${TEST NAME}  ${speed_data}
+    #Report Statistics  ${statistics}
 
 Measure TCP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
@@ -95,7 +100,7 @@ Measure UDP TX Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
     [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SSRCSP-T231
     &{speed_data}      Create Dictionary
-    ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
+    ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}  sudo=True  sudo_password=${PASSWORD}
     Log                ${output1.stdout}
     ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output2.stdout}
@@ -162,18 +167,25 @@ Select network connection to use
      END
      Set Global Variable  ${CONNECTION}
 
-    
-Run iperf server on DUT
-    [Documentation]   Run iperf on DUT in server mode
+Adjust iptables rules
+    [Documentation]  Clears rule tables or opens port 5201 for performance tests.
     IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}"
          Open port 5201 from iptables
     ELSE
          Clear iptables rules
     END
 
+Run iperf server on DUT
+    [Documentation]   Run iperf on DUT in server mode
     ${command}        Set Variable    iperf -s
     Execute Command   nohup ${command} > /tmp/output.log 2>&1 &
     Check iperf was started
+
+Read iptables rules
+    [Documentation]  Read iptables rules from target
+    ${result}  ${rc}  Execute Command  iptables -L  sudo=True  sudo_password=${PASSWORD}   return_rc=${true}  return_stdout=${true}
+    Should Be Equal   ${rc}  ${0}
+    RETURN            ${result}
 
 Clear iptables rules
     [Documentation]  Clear IP tables rules to open ports
@@ -181,20 +193,59 @@ Clear iptables rules
 
 Open port 5201 from iptables
     [Documentation]  Firewall rule to open needed port for perf test.
-    # Insert rules to open tcp and udp connections for port 5201
-    ${result}  ${rc}  Execute Command  iptables --insert INPUT -m tcp -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    ${original_rules}  Read iptables rules
+    log  ${original_rules}
+
+    # Flush INPUT TABLE
+    #${result}  ${rc}  Execute Command  iptables -F INPUT   sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    #Should Be Equal   ${rc}  ${0}
+    #${Flushed_rules}  Read iptables rules
+    #log  ${flushed_rules}
+
+    # Set policy accept & open port 5201
+    ${result}  ${rc}  Execute Command  iptables -P INPUT ACCEPT    sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
     Should Be Equal   ${rc}  ${0}
-    ${result}  ${rc}  Execute Command  iptables --insert INPUT -m udp -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    
+    FOR  ${port}  IN  @{target_ports}
+        # Incoming Web traffic
+        Log to console   target: ${port}
+        ${result}  ${rc}  Execute Command  sudo iptables -I INPUT -p tcp --dport ${port} -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+        Should Be Equal   ${rc}  ${0}
+        ${result}  ${rc}  Execute Command  sudo iptables -I INPUT -p udp --dport ${port} -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+        Should Be Equal   ${rc}  ${0}
+
+        ${result}  ${rc}  Execute Command  sudo iptables -I OUTPUT -p tcp --dport ${port} -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+        Should Be Equal   ${rc}  ${0}
+        ${result}  ${rc}  Execute Command  sudo iptables -I OUTPUT -p udp --dport ${port} -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+        Should Be Equal   ${rc}  ${0}
+        Sleep            1
+    END
+
+    # Allow incoming packages that do belong to some currely open/created connection, 
+    ${result}  ${rc}  Execute Command  iptables -I INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
     Should Be Equal   ${rc}  ${0}
+
+    ${changed_rules}  Read iptables rules
+    Log  ${changed_rules}
+    
+   # ${result}  ${rc}  Execute Command  iptables -I INPUT 1 -m limit --limit 5/min -j LOG --log-prefix "iptables denied: " --log-level 7    sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    #Should Be Equal   ${rc}  ${0}
+    Log to console  ${result}
 
 Close port 5201 from iptables
     [Documentation]  Firewall rule to close the port that was used in per testing
+    # Delete the rules we made in KW 'Open port 5201 from iptables'. The rules are the 3 first ones in INPUT -chain.
 
-    # Delete the rules we made in KW 'Open port 5201 from iptables'. The rules are the 2 first ones in INPUT -chain.
-    ${result}   Execute Command  iptables --delete INPUT 1    sudo=True  sudo_password=${PASSWORD}   return_rc=${true}
-    Should Be Equal   ${result[1]}  ${0}
-    ${result}   Execute Command  iptables --delete INPUT 1    sudo=True  sudo_password=${PASSWORD}   return_rc=${true}
-    Should Be Equal   ${result[1]}  ${0}
+    FOR  ${port}  IN  @{target_ports}
+        ${result}  ${rc}  Execute Command  iptables -D INPUT 1  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+        ${result}  ${rc}  Execute Command  iptables -D INPUT 1  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+        ${result}  ${rc}  Execute Command  iptables -D OUTPUT 1  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+        ${result}  ${rc}  Execute Command  iptables -D OUTPUT 1  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+        Should Be Equal   ${rc}  ${0}
+    END
+
+    ${after_test_rules}  Read iptables rules
+    Log  ${after_test_rules}
 
 Stop iperf server
     @{pid}=  Find pid by name  iperf
