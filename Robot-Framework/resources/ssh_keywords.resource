@@ -127,11 +127,10 @@ Connect to VM
     ELSE
         ${jumphost}   Set Variable  ${GHAF_HOST_SSH}
     END
+    # Opening connection
     FOR    ${i}    IN RANGE    10
         TRY
             ${connection}=       Open Connection    ${vm_name}    port=22    prompt=\$    timeout=30
-            ${login_output}=     Login with timeout    username=${user}        password=${pw}    jumphost=${jumphost}
-            Should Contain       ${login_output}   ${vm_name}
         EXCEPT    ChannelException: ChannelException(2, 'Connect failed')    type=LITERAL
             ${diff}=    Evaluate    int(time.time()) - int(${start_time})
             IF   ${diff} < ${timeout}
@@ -141,12 +140,24 @@ Connect to VM
                 BREAK
             END
         END
-        ${failed_connection}  Set variable  False
+        ${failed_connection}    Set variable  False
         BREAK
     END
     IF  ${failed_connection}    FAIL  Couldn't connect ${vm_name}
-    Log To Console     Connected
-    RETURN             ${connection}
+
+    # Logging in to vm
+    ${logged_in}  Set Variable  False
+    FOR    ${i}    IN RANGE     5
+        ${status}  ${login_output}   Run Keyword And Ignore Error  Login with timeout  username=${user}  password=${pw}  jumphost=${jumphost}
+        ${logged_in}            Run Keyword And Return Status  Should Contain  ${login_output}  ${vm_name}
+        Exit For Loop If        ${logged_in}
+        Sleep                   2
+    END
+    IF  not ${logged_in}  FAIL  Could not login to ${vm_name} as ${user}.
+    Log To Console  Connected and logged in.
+    
+    # If connected and logged in successfully
+    RETURN  ${connection}
 
 Verify Systemctl status
     [Arguments]    ${range}=60  ${close_conn}=true
@@ -255,27 +266,36 @@ Kill process
 
 Verify service status
     [Documentation]   Check if service is running with given loop ${range}
-    [Arguments]       ${range}=1   ${service}=${EMPTY}   ${expected_status}=active   ${expected_state}=running  ${expected_rc}=0
+    [Arguments]       ${range}=45  ${service}=${EMPTY}   ${expected_status}=active   ${expected_state}=running  ${expected_rc}=0
+    ${vmservice}      Run Keyword And Return Status  Should Contain  ${service}  microvm@
+    ${finished}       Set Variable  False
+    
     FOR    ${i}    IN RANGE    ${range}
         ${output}  ${stderr}  ${rc}=   Execute Command  systemctl status ${service}  return_stderr=True  return_rc=True
         Log           stdout: ${output}\nstderr: ${stderr}
         Should Not Be Equal As Integers	    ${rc}	4   Stderr: "${stderr}", Return code
-        ${result}    Get Service Status    ${output}
-        ${status}   ${state}    Get Service Status    ${output}
-        ${status}    Run Keyword And Return Status    Should Be True	'${status}' == '${expected_status}'  Expected ${expected_status} but in fact ${status}
-        ${state}     Run Keyword And Return Status    Should Be True	'${state}' == '${expected_state}'    Expected ${expected_state} but in fact ${state}
-        IF  ${status} and ${state}
+        ${result}     Get Service Status    ${output}
+        ${status}     ${state}    Get Service Status    ${output}
+        ${status}     Run Keyword And Return Status    Should Be True	'${status}' == '${expected_status}'  Expected ${expected_status} but in fact ${status}
+        ${state}      Run Keyword And Return Status    Should Be True	'${state}' == '${expected_state}'    Expected ${expected_state} but in fact ${state}
+
+        # 'Welcome to NixOS' is not got if 'non-vm service' or if service is expected to be inactive/dead.
+        IF  ${vmservice} and '${expected_state}' == 'running' and ${status} and ${state}
             ${finished}    Run Keyword And Return Status    Should Contain    ${output}    Welcome to NixOS
             IF  ${finished}
                 BREAK
             END
+        ELSE IF  ${status} and ${state}
+            ${finished}     Set Variable  True
+            BREAK
         END
-        Log To Console   ${\n}systemctl status ${service} ${result}
         Sleep    1
     END
-    IF    ${status} and ${state}
-        Log To Console   ${\n}systemctl status ${service} ${result}
+
+    IF  ${finished}
+        Log To Console  ${\n}systemctl status ${service} ${result}
     ELSE
+        Log To Console  Verify service status failed. Last lines of systemctl status -log: ${output[-300:]}
         Fail  systemctl status ${service} ${result}, expected: ${expected_status} and ${expected_state}
     END
     RETURN    ${status}  ${state}
