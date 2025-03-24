@@ -19,6 +19,7 @@ ${CONFIG_PATH}            ../config
 ${POWER_MEASUREMENT_DIR}  ../../../power_measurements/
 ${PERF_DATA_DIR}          ../../../Performance_test_results/
 ${PLOT_DIR}               ./
+${REL_PLOT_DIR}           ./
 
 
 *** Keywords ***
@@ -30,6 +31,7 @@ Set Variables
         Set Global Variable  ${POWER_MEASUREMENT_DIR}  ${OUTPUT_DIR}/outputs/power_measurements/
         Set Global Variable  ${PERF_DATA_DIR}  ${OUTPUT_DIR}/outputs/Performance_test_results/
         Set Global Variable  ${PLOT_DIR}  ${OUTPUT_DIR}/outputs/performance_plots/
+        Set Global Variable  ${REL_PLOT_DIR}  ./outputs/performance_plots/
     END
     IF  $CONFIG_PATH == 'None'
         Log To Console    No path for test_config.json given. Ignore reading the config variables.
