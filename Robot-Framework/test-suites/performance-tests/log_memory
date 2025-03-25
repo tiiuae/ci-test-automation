@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: 2022-2025 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
+test_dir="$1"
+id="$2"
+status_file="$3"
+
+echo "time,total_mem,used_mem,available_mem" > ${test_dir}/ballooning_${id}.csv
+start_time=$(date +%s.%3N)
+for i in $(seq 240); do
+    current_time=$(date +%s.%3N)
+    elapsed_time=$(awk "BEGIN {print $current_time - $start_time}")
+    total=$(free --mega | awk -F: 'NR==2 {print $2}' | awk '{print $1}')
+    used=$(free --mega | awk -F: 'NR==2 {print $2}' | awk '{print $2}')
+    avail=$(free --mega | awk -F: 'NR==2 {print $2}' | awk '{print $6}')
+    echo "${elapsed_time},${total},${used},${avail}" >> ${test_dir}/ballooning_${id}.csv
+    if [[ $(cat ${status_file}) == "stage2" ]]
+    then
+        break
+    fi
+    sleep 0.5
+done
