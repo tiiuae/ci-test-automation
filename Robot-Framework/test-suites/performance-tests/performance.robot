@@ -168,7 +168,7 @@ FileIO test
 
     # In case of Lenovo-X1 run the test in /persist which has more disk space
     # Results are saved to /tmp
-    IF  "Lenovo" in "${DEVICE}"
+    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Log to Console        Preparing for fileio test
         Execute Command       cp /tmp/fileio_test /persist  sudo=True  sudo_password=${PASSWORD}
         Write                 sudo su

@@ -153,7 +153,7 @@ Measure UDP Bidir Throughput Big Packets
 Select network connection to use
     [Documentation]  Select the connection to be used. This cannot be done in Keyword 'Initialize Variables And Connect'
      ...             since it then breaks the  other test suites.
-     IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}"
+     IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
          ${CONNECTION}       Connect to netvm
      ELSE
          ${CONNECTION}       Connect to ghaf host
@@ -162,7 +162,7 @@ Select network connection to use
     
 Run iperf server on DUT
     [Documentation]   Run iperf on DUT in server mode
-    IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}"
+    IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
          Open port 5201 from iptables
     ELSE
          Clear iptables rules
