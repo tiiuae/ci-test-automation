@@ -193,7 +193,7 @@ Close app via GUI on Orin AGX
     ...           AND             Stop ydotoold
 
 GUI Apps Teardown
-    IF  "Lenovo" in "${DEVICE}"
+    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Connect to netvm
         Connect to VM       ${GUI_VM}
     ELSE

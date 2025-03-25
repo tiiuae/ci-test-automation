@@ -74,7 +74,7 @@ Connect
         ${pass_status}  ${output}        Run Keyword And Ignore Error  Should Contain     ${login_output}   ${target_output}
         IF    $pass_status=='PASS'
             Log To Console    Connected succesfully to ${target_output}
-            IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}"
+            IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
                 Set Global Variable  ${NETVM_SSH}    ${connection}
             END
             RETURN  ${connection}
@@ -88,7 +88,7 @@ Connect
 
 Connect to ghaf host
     [Documentation]      Open SSH connection to Ghaf Host
-    IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}"
+    IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
         ${connection}        Connect
         Set Global Variable  ${NETVM_SSH}    ${connection}
         ${connection}        Connect to VM       ghaf-host
@@ -103,7 +103,7 @@ Connect to netvm
     [Documentation]      Open ssh connection to net-vm
     ${connected}   Check ssh connection status   net-vm
     IF  not ${connected}
-        IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}"
+        IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
             ${connection}   Connect
         ELSE
             Connect to ghaf host
@@ -122,7 +122,7 @@ Connect to VM
     Check if ssh is ready on vm        ${vm_name}
     ${failed_connection}  Set variable  True
     ${start_time}  Get Time	epoch
-    IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}"
+    IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
         ${jumphost}   Set Variable  ${NETVM_SSH}
     ELSE
         ${jumphost}   Set Variable  ${GHAF_HOST_SSH}

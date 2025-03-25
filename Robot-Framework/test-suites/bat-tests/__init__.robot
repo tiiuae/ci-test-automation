@@ -23,7 +23,7 @@ BAT tests setup
     [timeout]    5 minutes
     Initialize Variables, Connect And Start Logging
 
-    IF  "Lenovo" in "${DEVICE}"
+    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Connect to netvm
         Connect to VM         ${GUI_VM}
         Save most common icons and paths to icons
@@ -36,7 +36,7 @@ BAT tests teardown
     [timeout]    5 minutes
     Connect to ghaf host
     Log journctl
-    IF  "Lenovo" in "${DEVICE}"
+    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Log out
     END
     Close All Connections

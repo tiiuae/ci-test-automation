@@ -15,7 +15,7 @@ Suite Teardown      Close All Connections
 *** Keywords ***
 
 GUI Tests Setup
-    IF  "Lenovo" in "${DEVICE}"
+    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Verify service status   range=15  service=microvm@gui-vm.service  expected_status=active  expected_state=running
         Connect to netvm
         Connect to VM           ${GUI_VM}
