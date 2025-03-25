@@ -38,7 +38,7 @@ Start Bluetooth Settings on LenovoX1
     [Documentation]   Start Bluetooth Settings and verify process started
     [Tags]            bluetooth_settings  SP-T204
     Start XDG application  'Bluetooth Settings'
-    Check that the application was started    blueman
+    Check that the application was started    blueman-manager
 
 Start File Manager on LenovoX1
     [Documentation]   Start File Manager and verify process started
