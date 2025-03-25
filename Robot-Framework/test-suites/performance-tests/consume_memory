@@ -1,0 +1,29 @@
+# SPDX-FileCopyrightText: 2022-2025 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
+# Script for consuming memory of a virtual machine fast but not too fast,
+# giving ballooning monitor time to react and increase the available memory.
+# Speed of consuming the memory depends on the size of the copied source file.
+# Setting source file size to greater than 2,5MB can enable too fast memory
+# consumption causing the script to be killed before finishing.
+
+write_iterations=$1
+status_file="$2"
+
+# Create a 2MB source file
+mkdir /dev/shm/test
+for i in $(seq 80000); do
+    echo "fillthememorywiththisdata" >> /dev/shm/test/source
+done
+
+# Fill the memory by copying the source file
+for index in $(seq ${write_iterations}); do
+    cp /dev/shm/test/source /dev/shm/test/file${index}
+    if [[ $(cat ${status_file}) == "stage1" ]]
+    then
+        break
+    fi
+done
+
+sleep 1
+echo stage1 > ${status_file}
