@@ -273,6 +273,8 @@ Verify service status
     FOR    ${i}    IN RANGE    ${range}
         ${output}  ${stderr}  ${rc}=   Execute Command  systemctl status ${service}  return_stderr=True  return_rc=True
         Log           stdout: ${output}\nstderr: ${stderr}
+        # Error codes: 3=program is not running / 4=program or service status is unknown
+        Should Not Be Equal As Integers	    ${rc}	3   Stderr: "${stderr}", Return code
         Should Not Be Equal As Integers	    ${rc}	4   Stderr: "${stderr}", Return code
         ${result}     Get Service Status    ${output}
         ${status}     ${state}    Get Service Status    ${output}
