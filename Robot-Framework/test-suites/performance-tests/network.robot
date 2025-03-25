@@ -48,10 +48,10 @@ Measure TCP Throughput Small Packets
     Check iperf3 got results     ${output1}  ${output2}
     ${bps_tx}          Get Throughput Values  ${output1.stdout}
     ${bps_rx}          Get Throughput Values  ${output2.stdout}  direction=receiver
-    #Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
-    #Log                <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Small Packets" width="1200">    HTML
-    #${statistics}      Save Speed Data   ${TEST NAME}  ${speed_data}
-    #Report Statistics  ${statistics}
+    Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
+    Log                <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Small Packets" width="1200">    HTML
+    ${statistics}      Save Speed Data   ${TEST NAME}  ${speed_data}
+    Report Statistics  ${statistics}
 
 Measure TCP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
@@ -100,7 +100,7 @@ Measure UDP TX Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
     [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SSRCSP-T231
     &{speed_data}      Create Dictionary
-    ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}  sudo=True  sudo_password=${PASSWORD}
+    ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output1.stdout}
     ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output2.stdout}
@@ -221,7 +221,7 @@ Open port 5201 from iptables
         Sleep            1
     END
 
-    # Allow incoming packages that do belong to some currely open/created connection, 
+    # Allow incoming packages that do belong to some currently open/created connection,
     ${result}  ${rc}  Execute Command  iptables -I INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
     Should Be Equal   ${rc}  ${0}
 
@@ -234,11 +234,12 @@ Open port 5201 from iptables
 
 Close port 5201 from iptables
     [Documentation]  Firewall rule to close the port that was used in per testing
-    # Delete the rules we made in KW 'Open port 5201 from iptables'. The rules are the 3 first ones in INPUT -chain.
-
+    # Delete the rules we made in KW 'Open port 5201 from iptables'.
     FOR  ${port}  IN  @{target_ports}
         ${result}  ${rc}  Execute Command  iptables -D INPUT 1  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
         ${result}  ${rc}  Execute Command  iptables -D INPUT 1  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+        ${result}  ${rc}  Execute Command  iptables -D INPUT 1  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+
         ${result}  ${rc}  Execute Command  iptables -D OUTPUT 1  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
         ${result}  ${rc}  Execute Command  iptables -D OUTPUT 1  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
         Should Be Equal   ${rc}  ${0}
