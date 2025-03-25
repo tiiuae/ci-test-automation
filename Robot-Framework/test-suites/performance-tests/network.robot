@@ -19,32 +19,26 @@ Suite Setup         Run keywords  Initialize Variables And Connect
 ...                 AND  Select network connection to use
 ...                 AND  Adjust iptables rules
 ...                 AND  Run iperf server on DUT
-Suite Teardown      Run keywords   Stop iperf server
+Suite Teardown      Run keywords  Stop iperf server
 ...                 AND  Close port 5201 from iptables
 ...                 AND  Close All Connections
 
 
 *** Variables ***
 ${PERF_TEST_TIME}  10
-@{target_ports}    5201  #80  22  ssh
-
 
 *** Test Cases ***
 Measure TCP Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
     [Tags]   tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SSRCSP-T227
-    #FAIL   Just checked if got inside the test and what happens in jenkins.
 
     &{speed_data}      Create Dictionary
-    Log to console  device address: ${DEVICE_IP_ADDRESS}
     # DUT sends
     ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  stdout=${OUTPUT_DIR}/stdout.txt	stderr=STDOUT  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output1.stdout}
-    #Log to console     ${output1.stdout}
     # DUT receives
     ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME}    shell=True  stdout=${OUTPUT_DIR}/stdout.txt	stderr=STDOUT  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output2.stdout}
-    #Log to console     ${output2.stdout}
     Check iperf3 got results     ${output1}  ${output2}
     ${bps_tx}          Get Throughput Values  ${output1.stdout}
     ${bps_rx}          Get Throughput Values  ${output2.stdout}  direction=receiver
@@ -196,41 +190,25 @@ Open port 5201 from iptables
     ${original_rules}  Read iptables rules
     log  ${original_rules}
 
-    # Flush INPUT TABLE
-    #${result}  ${rc}  Execute Command  iptables -F INPUT   sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
-    #Should Be Equal   ${rc}  ${0}
-    #${Flushed_rules}  Read iptables rules
-    #log  ${flushed_rules}
-
     # Set policy accept & open port 5201
     ${result}  ${rc}  Execute Command  iptables -P INPUT ACCEPT    sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
     Should Be Equal   ${rc}  ${0}
-    
-    FOR  ${port}  IN  @{target_ports}
-        # Incoming Web traffic
-        Log to console   target: ${port}
-        ${result}  ${rc}  Execute Command  sudo iptables -I INPUT -p tcp --dport ${port} -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
-        Should Be Equal   ${rc}  ${0}
-        ${result}  ${rc}  Execute Command  sudo iptables -I INPUT -p udp --dport ${port} -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
-        Should Be Equal   ${rc}  ${0}
 
-        ${result}  ${rc}  Execute Command  sudo iptables -I OUTPUT -p tcp --dport ${port} -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
-        Should Be Equal   ${rc}  ${0}
-        ${result}  ${rc}  Execute Command  sudo iptables -I OUTPUT -p udp --dport ${port} -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
-        Should Be Equal   ${rc}  ${0}
-        Sleep            1
-    END
-
+    ${result}  ${rc}  Execute Command  sudo iptables -I INPUT -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    Should Be Equal   ${rc}  ${0}
+    ${result}  ${rc}  Execute Command  sudo iptables -I INPUT -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    Should Be Equal   ${rc}  ${0}
     # Allow incoming packages that do belong to some currently open/created connection,
     ${result}  ${rc}  Execute Command  iptables -I INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
     Should Be Equal   ${rc}  ${0}
 
+    ${result}  ${rc}  Execute Command  sudo iptables -I OUTPUT -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    Should Be Equal   ${rc}  ${0}
+    ${result}  ${rc}  Execute Command  sudo iptables -I OUTPUT -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    Should Be Equal   ${rc}  ${0}
+
     ${changed_rules}  Read iptables rules
     Log  ${changed_rules}
-    
-   # ${result}  ${rc}  Execute Command  iptables -I INPUT 1 -m limit --limit 5/min -j LOG --log-prefix "iptables denied: " --log-level 7    sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
-    #Should Be Equal   ${rc}  ${0}
-    Log to console  ${result}
 
 Close port 5201 from iptables
     [Documentation]  Firewall rule to close the port that was used in per testing
@@ -260,10 +238,8 @@ Check iperf was started
     ${is_started} =   Set Variable    False
     FOR    ${i}    IN RANGE    ${timeout}
         ${output}=     Execute Command    sh -c 'ps aux | grep "iperf" | grep -v grep'
-        #log to console  iperf started:${output}
         ${status} =    Run Keyword And Return Status    Should Contain    ${output}    iperf -s
         IF    ${status}
-            #${is_s tarted} =  Set Variable    True  ${output}
             ${is_started} =  Set Variable    True
             BREAK
         END
