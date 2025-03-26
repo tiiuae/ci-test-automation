@@ -29,12 +29,16 @@ OP-TEE xtest
        ...
        ...              (3. If everything is fixed (no more "-x"-flags), remove this comment!!)
        [Tags]  bat  optee  optee-xtest  orin-agx  orin-nx  SP-T122
-
-       ${current_dir}    ${stderr}    ${rc}=   Execute Command  pwd  return_stdout=True    return_stderr=True    return_rc=True
-       Should Be Equal As Integers    ${rc}    0
        ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest -x 1008 -x 1033    sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
        Log     ${stdout}
        Should Be Equal As Integers    ${rc}    0
+        @{pid}=  Find pid by name  xtest -x 1008 -x 1033
+
+       # If test fails (gets stucked etc), take these steps to enable next test running.
+        [Teardown]  Run Keyword If Test Failed  Run Keywords
+        ...         Kill process and close connections   xtest -x 1008 -x 1033  AND
+        ...         Close All Connections    AND
+        ...         Connect to ghaf host
 
 
 OP-TEE xtest 1008
@@ -169,3 +173,10 @@ Test Public Key usage
     Should Be Equal As Integers    ${rc}    0
     Should Contain    ${stdout}    Signature is valid
     Should Not Contain    ${stdout}    Invalid signature
+
+Kill process and close connections
+    [Documentation]  Checks if certain process running and kills it.
+    [Arguments]    ${process}=${EMPTY}
+    @{pid}=  Find pid by name  ${process}
+    Kill process  @{pid}
+    Close All Connections
