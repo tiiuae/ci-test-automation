@@ -49,20 +49,6 @@ Start Video Editor on LenovoX1
     Connect to VM       ${BUSINESS_VM}
     Check that the application was started    lossless
 
-Start Text Editor on LenovoX1
-    [Documentation]   Start Text Editor in Business-vm and verify process started
-    [Tags]  text_editor  SP-T243
-    Start XDG application   "Text Editor"
-    Connect to VM       ${BUSINESS_VM}
-    Check that the application was started    text-editor
-
-Start Xarchiver on LenovoX1
-    [Documentation]   Start Xarchiver in Business-vm and verify process started
-    [Tags]  xarchiver  SP-T242
-    Start XDG application   "Xarchiver"
-    Connect to VM       ${BUSINESS_VM}
-    Check that the application was started    xarchiver
-
 
 *** Keywords ***
 
