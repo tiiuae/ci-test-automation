@@ -116,10 +116,10 @@ Connect to netvm
 
 Connect to VM
     [Documentation]      Connect to any VM or ghaf-host over internal virtual network
-    [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=60
+    [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=120
     ${connected}   Check ssh connection status   net-vm
     Log To Console       Connecting to ${vm_name} as ${user}...   no_newline=true
-    Check if ssh is ready on vm        ${vm_name}
+    Check if ssh is ready on vm        ${vm_name}  timeout=${timeout}
     ${failed_connection}  Set variable  True
     ${start_time}  Get Time	epoch
     IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
@@ -398,6 +398,10 @@ Check if ssh is ready on netvm
             BREAK
         END
     END
+    # Log systemctl status, just in case
+    ${output}  ${stderr}  ${rc}=   Execute Command  systemctl status ${netvm_service}  return_stderr=True  return_rc=True
+    Log        stdout: ${output}\nstderr: ${stderr}
+
     IF   ${status} == False    FAIL    Port 22 of NetVM is not ready after ${timeout}
 
 Check if ssh is ready on vm

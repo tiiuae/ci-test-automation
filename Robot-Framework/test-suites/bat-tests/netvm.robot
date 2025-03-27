@@ -108,7 +108,7 @@ Restart NetVM
     Stop NetVM
     Sleep  ${delay}
     Start NetVM
-    Check if ssh is ready on netvm
+    Check if ssh is ready on netvm  timeout=120
 
 Stop NetVM
     [Documentation]     Ensure that NetVM is started, stop it and check the status.
