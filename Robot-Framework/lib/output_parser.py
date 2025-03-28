@@ -252,7 +252,7 @@ def get_app_path_from_desktop(output):
     return path
 
 def get_failed_units(output):
-    pattern = re.compile(r"^\s*●?\s*([\w-]+\.service)\b", re.MULTILINE)
+    pattern = re.compile(r"^\s*●?\s*([\w@.-]+\.service)\b", re.MULTILINE)
     services = pattern.findall(output)
     return services
 
