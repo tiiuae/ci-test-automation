@@ -23,7 +23,6 @@ Suite Teardown      Run keywords   Stop iperf server
 ...                 AND  Close port 5201 from iptables
 ...                 AND  Close All Connections
 
-
 *** Variables ***
 ${PERF_TEST_TIME}  10
 
@@ -34,11 +33,11 @@ Measure TCP Throughput Small Packets
     #FAIL   Just checked if got inside the test and what happens in jenkins.
 
     &{speed_data}      Create Dictionary
-    Log to console  device address: ${DEVICE_IP_ADDRESS}
     # DUT sends
-    ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  stdout=${OUTPUT_DIR}/stdout.txt	stderr=STDOUT  timeout=${${PERF_TEST_TIME}+10}
-    Log                ${output1.stdout}
+    ${output1}    Run Process   iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  stdout=${OUTPUT_DIR}/stdout.txt	stderr=STDOUT   timeout=${${PERF_TEST_TIME}+10}
+    Should Be Equal As Strings  ${output1}  <result object with rc 0>
     # DUT receives
+    ${processes}  Execute Command  ps aux | grep iperf
     ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME}    shell=True  stdout=${OUTPUT_DIR}/stdout.txt	stderr=STDOUT  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output2.stdout}
     Check iperf3 got results     ${output1}  ${output2}
@@ -48,6 +47,7 @@ Measure TCP Throughput Small Packets
     Log                <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Small Packets" width="1200">    HTML
     ${statistics}      Save Speed Data   ${TEST NAME}  ${speed_data}
     Report Statistics  ${statistics}
+    [Teardown]    Run Keyword If Test Failed  Run Keywords  Stop iperf server  AND   Run iperf server on DUT
 
 Measure TCP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
@@ -55,6 +55,7 @@ Measure TCP Bidir Throughput Small Packets
     &{speed_data}       Create Dictionary
     ${output}           Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                 ${output.stdout}
+    ${processes}  Execute Command  ps aux | grep iperf
     Check iperf3 got results     ${output}
     ${bps_tx}           Get Throughput Values  ${output.stdout}  bidir=True
     ${bps_rx}           Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
@@ -68,6 +69,7 @@ Measure TCP Throughput Big Packets
     [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SSRCSP-T229
     &{speed_data}      Create Dictionary
     ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
+    ${processes}  Execute Command  ps aux | grep iperf
     ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output1.stdout}
     Check iperf3 got results     ${output1}  ${output2}
