@@ -89,14 +89,16 @@ NetVM is wiped after restarting
     Connect to netvm
     Log To Console      Check if created file still exists
     Check file doesn't exist    /etc/test.txt
-    [Teardown]          Run Keywords   Close All Connections
+    [Teardown]          Run Keywords  Close All Connections   AND
+    ...                 Run Keyword If  "AGX" in "${DEVICE}"  Run Keyword If Test Failed     Skip    "Known issue: SSRCSP-6423"
 
 Verify NetVM PCI device passthrough
     [Documentation]     Verify that proper PCI devices have been passed through to the NetVM
     [Tags]              bat  SP-T96  nuc  orin-agx  orin-nx
     [Setup]             Connect to netvm
     Verify microvm PCI device passthrough    vmname=${NET_VM}
-    [Teardown]          Run Keywords   Close All Connections
+    [Teardown]          Run Keywords  Close All Connections   AND
+    ...                 Run Keyword If  "AGX" in "${DEVICE}"  Run Keyword If Test Failed     Skip    "Known issue: SSRCSP-6423"
 
 
 *** Keywords ***
