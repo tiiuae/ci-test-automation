@@ -23,7 +23,6 @@ Suite Teardown      Run keywords   Stop iperf server
 ...                 AND  Close port 5201 from iptables
 ...                 AND  Close All Connections
 
-
 *** Variables ***
 ${PERF_TEST_TIME}  10
 
@@ -31,15 +30,16 @@ ${PERF_TEST_TIME}  10
 Measure TCP Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
     [Tags]   tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SSRCSP-T227
-    #FAIL   Just checked if got inside the test and what happens in jenkins.
 
     &{speed_data}      Create Dictionary
-    Log to console  device address: ${DEVICE_IP_ADDRESS}
     # DUT sends
-    ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  stdout=${OUTPUT_DIR}/stdout.txt	stderr=STDOUT  timeout=${${PERF_TEST_TIME}+10}
+    ${output1}    Run Process   iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  stdout=${OUTPUT_DIR}/stdout.txt	stderr=STDOUT   timeout=${${PERF_TEST_TIME}+20}
+    #Should Be Equal As Strings  ${output1}  <result object with rc 0>
     Log                ${output1.stdout}
     # DUT receives
-    ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME}    shell=True  stdout=${OUTPUT_DIR}/stdout.txt	stderr=STDOUT  timeout=${${PERF_TEST_TIME}+10}
+    ${processes}  Execute Command  ps aux | grep iperf
+    #Log to console  Active 'iperf/3' processes: ${processes}
+    ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME}    shell=True  stdout=${OUTPUT_DIR}/stdout.txt	stderr=STDOUT  timeout=${${PERF_TEST_TIME}+20}
     Log                ${output2.stdout}
     Check iperf3 got results     ${output1}  ${output2}
     ${bps_tx}          Get Throughput Values  ${output1.stdout}
@@ -48,6 +48,7 @@ Measure TCP Throughput Small Packets
     Log                <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Small Packets" width="1200">    HTML
     ${statistics}      Save Speed Data   ${TEST NAME}  ${speed_data}
     Report Statistics  ${statistics}
+    [Teardown]    Run Keyword If Test Failed  Run Keywords  Stop iperf server  AND   Run iperf server on DUT
 
 Measure TCP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
@@ -55,6 +56,7 @@ Measure TCP Bidir Throughput Small Packets
     &{speed_data}       Create Dictionary
     ${output}           Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                 ${output.stdout}
+    ${processes}  Execute Command  ps aux | grep iperf
     Check iperf3 got results     ${output}
     ${bps_tx}           Get Throughput Values  ${output.stdout}  bidir=True
     ${bps_rx}           Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
@@ -68,6 +70,7 @@ Measure TCP Throughput Big Packets
     [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SSRCSP-T229
     &{speed_data}      Create Dictionary
     ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
+    ${processes}  Execute Command  ps aux | grep iperf
     ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                ${output1.stdout}
     Check iperf3 got results     ${output1}  ${output2}
@@ -214,6 +217,15 @@ Open port 5201 from iptables
 
 Close port 5201 from iptables
     [Documentation]  Firewall rule to close the port that was used in per testing
+    #In case that connection is lost, create new connection
+    #${port_22_is_available}     Check if ssh is ready on device   timeout=20
+    #IF  ${port_22_is_available} == False
+    #    Fail   Failed because port 22 of device was not available, tests can not be run.
+    #END
+    #${CONNECTION} =   Connect to ghaf host
+    #Set Global Variable   ${CONNECTION}
+    #Select network connection to use
+    
     # Delete the rules we made in KW 'Open port 5201 from iptables'.
     ${result}  ${rc}  Execute Command  iptables -D INPUT 1  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
     ${result}  ${rc}  Execute Command  iptables -D INPUT 1  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
@@ -225,6 +237,11 @@ Close port 5201 from iptables
 
     ${after_test_rules}  Read iptables rules
     Log  ${after_test_rules}
+
+    ${output}     Execute Command    journalctl    #--since "2025-03-31 11:45:00"
+    Log  ${output}
+    SSHLibrary.Get file   /tmp/output.log   ${OUTPUT_DIR}/iperfs_log.txt
+    OperatingSystem.File Should Exist     ${OUTPUT_DIR}/iperfs_log.txt
 
 Stop iperf server
     @{pid}=  Find pid by name  iperf
@@ -238,19 +255,13 @@ Check iperf was started
     ${is_started} =   Set Variable    False
     FOR    ${i}    IN RANGE    ${timeout}
         ${output}=     Execute Command    sh -c 'ps aux | grep "iperf" | grep -v grep'
-        #log to console  iperf started:${output}
         ${status} =    Run Keyword And Return Status    Should Contain    ${output}    iperf -s
         IF    ${status}
-            #${is_s tarted} =  Set Variable    True  ${output}
             ${is_started} =  Set Variable    True
             BREAK
         END
-        Sleep    1
+        Sleep    5
     END
-
-    @{pid} =   ssh_keywords.Find pid by name   iperf
-    log to console  @{pid}
-
     IF   ${status} == False    FAIL    Iperf server was not started
 
 Check iperf3 got results
