@@ -262,3 +262,13 @@ def extract_vm_names(output):
     lines = cleaned_string.split('\n')
     vm_names = [line.split(':')[0] for line in lines if line]
     return vm_names
+
+def extract_mako_path(output):
+    pattern = "(?m)^[a-z0-9-]+-mako-[\d.]+$"
+    match = re.search(pattern, output)
+    if match:
+        return match.group(0)
+    else:
+        print(f"Couldn't find mako path with pattern {pattern}")
+        return None
+
