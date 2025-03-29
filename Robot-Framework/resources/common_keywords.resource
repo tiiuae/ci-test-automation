@@ -44,8 +44,9 @@ Run journalctl recording
 Log journctl
     ${jrnl_size}  Execute Command    ls -lh /tmp/jrnl.txt
     Log           ${jrnl_size}
-    ${jrnl}       Execute Command    cat /tmp/jrnl.txt
-    Log           ${jrnl}
+    # Copy journal log file to Robot outputs
+    SSHLibrary.Get file   /tmp/jrnl.txt   ${OUTPUT_DIR}/jrnl.txt
+    OperatingSystem.File Should Exist     ${OUTPUT_DIR}/jrnl.txt
     @{pid}        Find pid by name   journalctl
     Kill process  @{pid}
 
