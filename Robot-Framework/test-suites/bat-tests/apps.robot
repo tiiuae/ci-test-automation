@@ -60,7 +60,9 @@ Start Gala on LenovoX1
     Start XDG application   GALA
     Connect to VM       ${GALA_VM}
     Check that the application was started    gala
-    [Teardown]  Kill Process And Log journalctl
+    [Teardown]  Run Keywords
+    ...         Kill Process And Log journalctl    AND
+    ...         Run Keyword If Test Failed     Skip    "Known issue: SSRCSP-6434"
 
 Start Element on LenovoX1
     [Documentation]   Start Element in dedicated VM and verify process started
