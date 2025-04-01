@@ -5,12 +5,21 @@ import pandas as pd
 import logging
 import matplotlib.pyplot as plt
 import csv
+import os
 
 
 class ParsePowerData:
 
-    def __init__(self, power_meas_dir):
+    def __init__(self, power_meas_dir, plot_dir):
         self.power_meas_dir = power_meas_dir
+        self.plot_dir = plot_dir
+        self._create_plot_dir()
+
+    def _create_plot_dir(self):
+        if self.plot_dir != "./":
+            logging.info(f"Creating {self.plot_dir}")
+            os.makedirs(self.plot_dir, exist_ok=True)
+        return
 
     def extract_time_interval(self, csv_file, start_time, end_time):
         columns = ['time', 'meas_counter', 'power']
@@ -65,7 +74,7 @@ class ParsePowerData:
         # Set maximum for tick number
         plt.locator_params(axis='x', nbins=40)
 
-        plt.savefig(self.power_meas_dir + "power_test.png")
+        plt.savefig(self.plot_dir + f'power_{test_name}.png')
         return
 
     def mean_power(self, csv_file):

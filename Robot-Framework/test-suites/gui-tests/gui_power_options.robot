@@ -42,7 +42,7 @@ GUI Suspend and wake up
     IF    ${IS_AVAILABLE} == False
         FAIL                      The device did suspend but failed to wake up
     ELSE
-        Log To Console            Device succesfully woke up after suspend
+        Log To Console            Device successfully woke up after suspend
     END
     Log To Console                Checking if the screen is in locked state after wake up
     ${lock}                       Check if locked

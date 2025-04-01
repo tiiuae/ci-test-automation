@@ -3,7 +3,7 @@
 
 *** Settings ***
 Resource            ../config/variables.robot
-Library             ../lib/ParsePowerData.py    ${POWER_MEASUREMENT_DIR}
+Library             ../lib/ParsePowerData.py    ${POWER_MEASUREMENT_DIR}    ${PLOT_DIR}
 Library             SSHLibrary
 Library             DateTime
 
@@ -49,7 +49,6 @@ Connect to measurement agent
     ${status}  ${output}    Run Keyword And Ignore Error  Switch Connection       ${SSH_MEASUREMENT}
     IF  '${status}'=='PASS'
         Log To Console          Switched connection to measurement agent.
-        Set Global Variable     ${SSH_MEASUREMENT}  ${SSH_MEASUREMENT}
         RETURN                  ${SSH_MEASUREMENT}
     END
     Log To Console          Connecting to measurement agent
@@ -94,7 +93,7 @@ Save power measurement interval
         Log To Console    Invalid timestamp critera for extracting power data
         RETURN
     END
-    Run Keyword And Ignore Error    Extract time interval   ${POWER_MEASUREMENT_DIR}${file_name}  ${start_time}   ${end_time}
+    Run Keyword And Ignore Error    Extract time interval   ${file_name}  ${start_time}   ${end_time}
 
 Generate power plot
     [Documentation]   Extract power data from start_timestamp to current time.
@@ -105,11 +104,11 @@ Generate power plot
         RETURN
     END
     ${end_timestamp}                  Get current timestamp
-    Run Keyword And Ignore Error      Connect to measurement agent
-    Run Keyword And Ignore Error      Get power record    ${id}.csv
-    Run Keyword And Ignore Error      Save power measurement interval   ${id}.csv  '${start_timestamp}'  '${end_timestamp}'
-    Run Keyword And Ignore Error      Generate graph    power_interval.csv  ${test_name}
-    Run Keyword And Ignore Error      Log   <img src="${POWER_MEASUREMENT_DIR}power_test.png" alt="Power plot" width="1200">    HTML
+    Connect to measurement agent
+    Get power record                  ${id}.csv
+    Save power measurement interval   ${id}.csv  '${start_timestamp}'  '${end_timestamp}'
+    Generate graph                    power_interval.csv  ${test_name}
+    Log                               <img src="${REL_PLOT_DIR}power_${test_name}.png" alt="Power plot" width="1200">    HTML
 
 Set start timestamp
     ${current_time}   DateTime.Get Current Date   UTC  exclude_millis=yes
