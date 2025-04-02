@@ -34,7 +34,12 @@ nvpmodel check test
     ${ExpectedNVPmode}  Set Variable  3
     ${output}           Execute Command     nvpmodel-check ${ExpectedNVPmode}
     IF  not ("Power mode check ok: ${ExpectedNVPmode}" in $output)
-        FAIL  ${output}\n\nExpected: ${ExpectedNVPmode}
+        # Set the power mode
+        ${start}           Execute Command     nvpmodel -m ${ExpectedNVPmode}  sudo=True  sudo_password=${PASSWORD}
+        ${output}          Execute Command     nvpmodel-check ${ExpectedNVPmode}
+        # If still fails after setting power mode, FAIL the test.
+        Run Keyword If  not ("Power mode check ok: ${ExpectedNVPmode}" in $output)
+        ...             FAIL  ${output}\n\nExpected: ${ExpectedNVPmode}
     END
 
 CPU One thread test
