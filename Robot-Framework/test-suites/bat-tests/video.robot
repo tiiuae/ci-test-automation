@@ -14,7 +14,6 @@ Test Setup          Connect to netvm
 Test Teardown       Close All Connections
 Test Timeout        2 minutes
 
-
 *** Variables ***
 
 ${VIDEO_DIR}    ${OUTPUT_DIR}/outputs/video-temp
@@ -26,9 +25,12 @@ Check Camera Application
     [Tags]  SP-T235
     FOR  ${vm}  IN  @{VMS}
         Connect to VM       ${vm}
-        ${out}  Execute Command  v4l2-ctl --list-devices  sudo=True  sudo_password=${PASSWORD}
-        Log  ${out}
-        IF  '${vm}' == '${BUSINESS_VM}'  Should Contain  ${out}  /dev/video  ELSE  Should Not Contain  ${out}  /dev/video
+        Sleep        2s
+        ${stdout}    ${stderr}    ${rc}   Execute Command  v4l2-ctl --list-devices  sudo=True  sudo_password=${PASSWORD}
+        ...  return_stdout=True  return_stderr=True  return_rc=True
+        Log  ${stdout}
+        Log  ${stderr}
+        IF  '${vm}' == '${BUSINESS_VM}'  Should Contain  ${stdout}  /dev/video  ELSE  Should Not Contain  ${stdout}  /dev/video
     END
 
 Record Video With Camera
