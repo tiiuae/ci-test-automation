@@ -201,12 +201,16 @@ Check application name
     RETURN  '${app}[0]'
 
 Start XDG application
-    [Arguments]      ${app_name}
+    [Arguments]      ${app_name}  ${gui_vm_app}=false
     Log To Console   ${\n}Starting ${app_name}
     ${app_name}      Check application name  ${app_name}
     ${output}        Execute Command    cat /run/current-system/sw/share/applications/${app_name}.desktop
     ${path}          Get App Path From Desktop  ${output}
-    Execute Command  nohup sh -c '${path}' > output.log 2>&1 &
+    IF  $gui_vm_app
+        Execute Command  nohup sh -c 'DISPLAY=:1 ${path}' > output.log 2>&1 &
+    ELSE
+        Execute Command  nohup sh -c '${path}' > output.log 2>&1 &
+    END
     Sleep    8
     ${output}        Execute Command  cat output.log
     Log    ${output}
@@ -225,9 +229,13 @@ Is process started
     RETURN      ${status}
 
 Find pid by name
-    [Arguments]   ${proc_name}
-    Log To Console    Looking for pids of the proccess ${proc_name}
-    ${output}=    Execute Command    sh -c 'ps aux | grep "${proc_name}" | grep -v grep'
+    [Arguments]   ${proc_name}  ${exact_match}=false
+    Log To Console    Looking for pids of the process ${proc_name}
+    IF  $exact_match=='true'
+        ${output}=    Execute Command    sh -c 'ps aux | grep -E " ${proc_name}$" | grep -v grep'
+    ELSE
+        ${output}=    Execute Command    sh -c 'ps aux | grep "${proc_name}" | grep -v grep'
+    END
     Log           ${output}
     @{pids}=      Find Pid    ${output}  ${proc_name}
     Log To Console    Found PIDs for process '${proc_name}':\n${pids}
