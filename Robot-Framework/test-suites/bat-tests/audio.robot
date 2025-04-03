@@ -24,7 +24,7 @@ ${AUDIO_DIR}    ${OUTPUT_DIR}/outputs/audio-temp
 Record Audio And Verify
     [Documentation]  Record short audio with pulseaudio tool. Verify audio clip is bigger than default empty file (40Kb)
     [Teardown]  Execute Command  rm /tmp/test*.wav  sudo=True  sudo_password=${PASSWORD}
-    [Tags]      SSRCSP-T247   lenovo-x1   dell-7330
+    [Tags]      SP-T247   lenovo-x1   dell-7330
     FOR  ${vm}  IN  ${CHROME_VM}  ${BUSINESS_VM}
         Connect to VM  ${vm}
         # Execute Command timeouts in business-vm, but it is executing the command
@@ -39,7 +39,7 @@ Record Audio And Verify
 
 Check Audio devices
     [Documentation]  List audio sinks and sources in business-vm and chrome-vm and check status is running
-    [Tags]      SSRCSP-T246   lenovo-x1   dell-7330
+    [Tags]      SP-T246   lenovo-x1   dell-7330
     FOR  ${vm}  IN  ${CHROME_VM}  ${BUSINESS_VM}
         Connect to VM  ${vm}
         ${sources}  Execute Command  pactl list sources   sudo=True  sudo_password=${PASSWORD}

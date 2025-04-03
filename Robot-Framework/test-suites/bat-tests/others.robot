@@ -71,7 +71,7 @@ Check serial connection
 
 Check Memory status
     [Documentation]  Check that there is enough memory available
-    [Tags]  bat  lenovo-x1   dell-7330  SSRCSP-5321
+    [Tags]  bat  lenovo-x1   dell-7330  SP-5321
     ${lsblk}  Execute Command  lsblk
     log       ${lsblk}
     ${SSD}    run keyword and return status  should contain   ${lsblk}   sda
