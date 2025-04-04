@@ -34,6 +34,11 @@ OP-TEE xtest
        Log     ${stdout}
        Should Be Equal As Integers    ${rc}    0
 
+       # If test fails (gets stucked etc), take these steps to enable next test running.
+        [Teardown]  Run Keyword If Test Failed  Run Keywords
+        ...         Kill process and close connections   xtest -x 1008 -x 1033  AND
+        ...         Connect to ghaf host
+
 
 OP-TEE xtest 1008
     [Documentation]   Xtest 1008
@@ -167,3 +172,10 @@ Test Public Key usage
     Should Be Equal As Integers    ${rc}    0
     Should Contain    ${stdout}    Signature is valid
     Should Not Contain    ${stdout}    Invalid signature
+
+Kill process and close connections
+    [Documentation]  Checks if certain process running and kills it.
+    [Arguments]    ${process}=${EMPTY}
+    @{pid}=  Find pid by name  ${process}
+    Kill process  @{pid}
+    Close All Connections
