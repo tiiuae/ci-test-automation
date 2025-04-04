@@ -10,10 +10,14 @@ Library             Collections
 
 Create fail message
     [Arguments]       ${stats}
-    ${fail_message}=  Set Variable   Significant deviation detected\nThreshold ${stats}[threshold]\nMeasurement result ${stats}[measurement]\nPrevious measurement ${stats}[prev_meas] (d: ${stats}[d_previous])\nFirst meas of the last stable period ${stats}[baseline1] (d: ${stats}[d_baseline1])\nMean of last stable period ${stats}[mean] (d: ${stats}[d_mean])\n
+    ${percent_raw}=   Evaluate  100*(${stats}[d_previous]/${stats}[prev_meas])
+    ${{percent}=      Convert To Number  ${percent_raw}  1
+    ${fail_message}=  Set Variable   Significant deviation detected (${percent} %)\nThreshold ${stats}[threshold]\nMeasurement result ${stats}[measurement]\nPrevious measurement ${stats}[prev_meas] (d: ${stats}[d_previous])\nFirst meas of the last stable period ${stats}[baseline1] (d: ${stats}[d_baseline1])\nMean of last stable period ${stats}[mean] (d: ${stats}[d_mean])\n
     RETURN            ${fail_message}
 
 Create improved message
     [Arguments]       ${stats}
-    ${improve_message}=  Set Variable   Significant improvement detected!\nThreshold ${stats}[threshold]\nMeasurement result ${stats}[measurement]\nPrevious measurement ${stats}[prev_meas] (d: ${stats}[d_previous])\nFirst meas of the last stable period ${stats}[baseline1] (d: ${stats}[d_baseline1])\nMean of last stable period ${stats}[mean] (d: ${stats}[d_mean])\n
+    ${percent_raw}=   Evaluate  100*(${stats}[d_previous]/${stats}[prev_meas])
+    ${{percent}=      Convert To Number  ${percent_raw}  1
+    ${improve_message}=  Set Variable   Significant improvement detected! (${percent} %)\nThreshold ${stats}[threshold]\nMeasurement result ${stats}[measurement]\nPrevious measurement ${stats}[prev_meas] (d: ${stats}[d_previous])\nFirst meas of the last stable period ${stats}[baseline1] (d: ${stats}[d_baseline1])\nMean of last stable period ${stats}[mean] (d: ${stats}[d_mean])\n
     RETURN            ${improve_message}
