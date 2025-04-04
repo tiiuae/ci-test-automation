@@ -15,6 +15,7 @@ Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_I
 Library             DateTime
 Library             Collections
 Suite Setup         Boot Time Test Setup
+Suite Teardown      Close All Connections
 
 
 *** Variables ***
