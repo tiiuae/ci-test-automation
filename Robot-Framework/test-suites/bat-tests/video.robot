@@ -26,9 +26,15 @@ Check Camera Application
     [Tags]  SP-T235
     FOR  ${vm}  IN  @{VMS}
         Connect to VM       ${vm}
-        ${out}  Execute Command  v4l2-ctl --list-devices  sudo=True  sudo_password=${PASSWORD}
-        Log  ${out}
-        IF  '${vm}' == '${BUSINESS_VM}'  Should Contain  ${out}  /dev/video  ELSE  Should Not Contain  ${out}  /dev/video
+            FOR  ${index}  IN RANGE  0  10
+                ${stdout}    ${stderr}    ${rc}   Execute Command  v4l2-ctl --list-devices  sudo=True  sudo_password=${PASSWORD}
+                ...  return_stdout=True  return_stderr=True  return_rc=True
+                ${expected_result}  Run Keyword If   '${vm}' == '${BUSINESS_VM}'  Run Keyword And Return Status  Should Contain  ${stdout}  /dev/video
+                ...                 ELSE  Run Keyword And Return Status  Should Not Contain  ${stdout}  /dev/video
+                Exit For Loop If  ${expected_result}
+                Sleep  1s
+            END
+            Run Keyword If  not ${expected_result}  Fail  Response checking of command 'sudo v4l2-ctl --list-devices' Failed.
     END
     [Teardown]  Run Keyword If   "Dell" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6450"
 
