@@ -159,7 +159,7 @@ Select network connection to use
          ${CONNECTION}       Connect to ghaf host
      END
      Set Global Variable  ${CONNECTION}
-    
+
 Run iperf server on DUT
     [Documentation]   Run iperf on DUT in server mode
     IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
@@ -252,7 +252,7 @@ Report statistics
         ${fail_msg}=  Set Variable  TX:\n${add_msg}
     END
     IF  "${statistics_rx}[flag]" == "-1"
-        ${add_msg}     Create fail message  ${statistics_tx}
+        ${add_msg}     Create fail message  ${statistics_rx}
         ${fail_msg}=  Set Variable  ${fail_msg}RX:\n${add_msg}
     END
     IF  "${statistics_tx}[flag]" == "-1" or "${statistics_rx}[flag]" == "-1"
@@ -265,11 +265,11 @@ Report statistics
         ${pass_msg}=  Set Variable  TX:\n${add_msg}
     END
     IF  "${statistics_rx}[flag]" == "1"
-        ${add_msg}     Create improved message  ${statistics_tx}
+        ${add_msg}     Create improved message  ${statistics_rx}
         ${pass_msg}=  Set Variable  ${pass_msg}\nRX:\n${add_msg}
     END
     IF  "${statistics_tx}[flag]" == "1" or "${statistics_rx}[flag]" == "1"
         Pass Execution    ${pass_msg}
     END
 
-    ${msg}  Set Variable  ${EMPTY}
+
