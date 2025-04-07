@@ -31,123 +31,123 @@ ${PERF_TEST_TIME}  10
 Measure TCP Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
     [Tags]   tcp  nuc  orin-agx  riscv  lenovo-x1   dell-7330  SP-T227
-    &{speed_data}      Create Dictionary
+    &{speed_data}           Create Dictionary
     # DUT sends
-    ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
-    Log                ${output1.stdout}
+    ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
+    Log                     ${output1.stdout}
     # DUT receives
-    ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME}    shell=True  timeout=${${PERF_TEST_TIME}+10}
-    Log                ${output2.stdout}
+    ${output2}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME}    shell=True  timeout=${${PERF_TEST_TIME}+10}
+    Log                     ${output2.stdout}
     Check iperf3 got results     ${output1}  ${output2}
-    ${bps_tx}          Get Throughput Values  ${output1.stdout}
-    ${bps_rx}          Get Throughput Values  ${output2.stdout}  direction=receiver
-    Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
-    Log                <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Small Packets" width="1200">    HTML
-    ${statistics}      Save Speed Data   ${TEST NAME}  ${speed_data}
-    Report Statistics  ${statistics}
+    ${bps_tx}               Get Throughput Values  ${output1.stdout}
+    ${bps_rx}               Get Throughput Values  ${output2.stdout}  direction=receiver
+    Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
+    Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Small Packets" width="1200">    HTML
+    ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
+    Determine Test Status   ${statistics}
 
 Measure TCP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
     [Tags]  tcp  nuc  orin-agx  riscv  lenovo-x1   dell-7330  SP-T228
-    &{speed_data}       Create Dictionary
-    ${output}           Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
-    Log                 ${output.stdout}
+    &{speed_data}           Create Dictionary
+    ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
+    Log                     ${output.stdout}
     Check iperf3 got results     ${output}
-    ${bps_tx}           Get Throughput Values  ${output.stdout}  bidir=True
-    ${bps_rx}           Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
-    Set To Dictionary   ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
-    Log                 <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Bidir Transfer Small Packets" width="1200">    HTML
-    ${statistics}       Save Speed Data   ${TEST NAME}  ${speed_data}
-    Report Statistics   ${statistics}
+    ${bps_tx}               Get Throughput Values  ${output.stdout}  bidir=True
+    ${bps_rx}               Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
+    Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
+    Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Bidir Transfer Small Packets" width="1200">    HTML
+    ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
+    Determine Test Status   ${statistics}
 
 Measure TCP Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
     [Tags]  tcp  nuc  orin-agx  riscv  lenovo-x1   dell-7330  SP-T229
-    &{speed_data}      Create Dictionary
-    ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
-    ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
-    Log                ${output1.stdout}
+    &{speed_data}           Create Dictionary
+    ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
+    ${output2}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
+    Log                     ${output1.stdout}
     Check iperf3 got results     ${output1}  ${output2}
-    ${bps_tx}          Get Throughput Values  ${output1.stdout}
-    ${bps_rx}          Get Throughput Values  ${output2.stdout}  direction=receiver
-    Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
-    Log                <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Big Packets" width="1200">    HTML
-    ${statistics}      Save Speed Data   ${TEST NAME}  ${speed_data}
-    Report Statistics  ${statistics}
+    ${bps_tx}               Get Throughput Values  ${output1.stdout}
+    ${bps_rx}               Get Throughput Values  ${output2.stdout}  direction=receiver
+    Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
+    Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Big Packets" width="1200">    HTML
+    ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
+    Determine Test Status   ${statistics}
 
 Measure TCP Bidir Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
     [Tags]  tcp  nuc  orin-agx  riscv  lenovo-x1   dell-7330  SP-T230
-    &{speed_data}      Create Dictionary
-    ${output}          Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
-    Log                ${output.stdout}
+    &{speed_data}           Create Dictionary
+    ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
+    Log                     ${output.stdout}
     Check iperf3 got results     ${output}
-    ${bps_tx}          Get Throughput Values  ${output.stdout}  bidir=True
-    ${bps_rx}          Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
-    Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
-    Log                <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Bidir Transfer Big Packets" width="1200">    HTML
-    ${statistics}      Save Speed Data   ${TEST NAME}  ${speed_data}
-    Report Statistics  ${statistics}
+    ${bps_tx}               Get Throughput Values  ${output.stdout}  bidir=True
+    ${bps_rx}               Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
+    Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
+    Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Bidir Transfer Big Packets" width="1200">    HTML
+    ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
+    Determine Test Status   ${statistics}
 
 Measure UDP TX Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
     [Tags]  tcp  nuc  orin-agx  riscv  lenovo-x1   dell-7330  SP-T231
-    &{speed_data}      Create Dictionary
-    ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
-    Log                ${output1.stdout}
-    ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
-    Log                ${output2.stdout}
+    &{speed_data}           Create Dictionary
+    ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
+    Log                     ${output1.stdout}
+    ${output2}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
+    Log                     ${output2.stdout}
     Check iperf3 got results     ${output1}  ${output2}
-    ${bps_tx}          Get Throughput Values  ${output1.stdout}
-    ${bps_rx}          Get Throughput Values  ${output2.stdout}  direction=receiver
-    Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
-    Log                <img src="${DEVICE}_${TEST NAME}.png" alt="UDP Transfer Small Packets" width="1200">    HTML
-    ${statistics}      Save Speed Data   ${TEST NAME}  ${speed_data}
-    Report Statistics  ${statistics}
+    ${bps_tx}               Get Throughput Values  ${output1.stdout}
+    ${bps_rx}               Get Throughput Values  ${output2.stdout}  direction=receiver
+    Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
+    Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="UDP Transfer Small Packets" width="1200">    HTML
+    ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
+    Determine Test Status   ${statistics}
 
 Measure UDP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
     [Tags]  tcp  nuc  orin-agx  riscv  lenovo-x1   dell-7330  SP-T232
-    &{speed_data}      Create Dictionary
-    ${output}          Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
-    Log                ${output.stdout}
+    &{speed_data}           Create Dictionary
+    ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
+    Log                     ${output.stdout}
     Check iperf3 got results     ${output}
-    ${bps_tx}          Get Throughput Values  ${output.stdout}  bidir=True
-    ${bps_rx}          Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
-    Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
-    Log                <img src="${DEVICE}_${TEST NAME}.png" alt="UDP" Bidir Transfer Small Packets" width="1200">    HTML
-    ${statistics}      Save Speed Data   ${TEST NAME}  ${speed_data}
-    Report Statistics  ${statistics}
+    ${bps_tx}               Get Throughput Values  ${output.stdout}  bidir=True
+    ${bps_rx}               Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
+    Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
+    Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="UDP" Bidir Transfer Small Packets" width="1200">    HTML
+    ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
+    Determine Test Status   ${statistics}
 
 Measure UDP Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
     [Tags]  udp  nuc  orin-agx  riscv  lenovo-x1   dell-7330  SP-T233
-    &{speed_data}      Create Dictionary
-    ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 100G -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
-    Log                ${output1.stdout}
-    ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 100G -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
-    Log                ${output2.stdout}
+    &{speed_data}           Create Dictionary
+    ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 100G -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
+    Log                     ${output1.stdout}
+    ${output2}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 100G -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
+    Log                     ${output2.stdout}
     Check iperf3 got results     ${output1}  ${output2}
-    ${bps_tx}          Get Throughput Values  ${output1.stdout}
-    ${bps_rx}          Get Throughput Values  ${output2.stdout}  direction=receiver
-    Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
-    Log                <img src="${DEVICE}_${TEST NAME}.png" alt="UDP Transfer Big Packets" width="1200">    HTML
-    ${statistics}      Save Speed Data   ${TEST NAME}  ${speed_data}
-    Report Statistics  ${statistics}
+    ${bps_tx}               Get Throughput Values  ${output1.stdout}
+    ${bps_rx}               Get Throughput Values  ${output2.stdout}  direction=receiver
+    Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
+    Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="UDP Transfer Big Packets" width="1200">    HTML
+    ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
+    Determine Test Status   ${statistics}
 
 Measure UDP Bidir Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
     [Tags]  udp  nuc  orin-agx  riscv  lenovo-x1   dell-7330  SP-T234
-    &{speed_data}      Create Dictionary
-    ${output}          Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 10000G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
-    Log                ${output.stdout}
+    &{speed_data}           Create Dictionary
+    ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 10000G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
+    Log                     ${output.stdout}
     Check iperf3 got results     ${output}
-    ${bps_tx}          Get Throughput Values  ${output.stdout}  bidir=True
-    ${bps_rx}          Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
-    Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
-    Log                <img src="${DEVICE}_${TEST NAME}.png" alt="UDP Bidir Transfer Big Packets" width="1200">    HTML
-    ${statistics}      Save Speed Data   ${TEST NAME}  ${speed_data}
-    Report Statistics  ${statistics}
+    ${bps_tx}               Get Throughput Values  ${output.stdout}  bidir=True
+    ${bps_rx}               Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
+    Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
+    Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="UDP Bidir Transfer Big Packets" width="1200">    HTML
+    ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
+    Determine Test Status   ${statistics}
 
 *** Keywords ***
 Select network connection to use
@@ -239,37 +239,3 @@ Get Throughput Values
         Log      Failed to get the result from ${TEST NAME}   console=yes
     END
     RETURN  ${MBps}[0]
-
-Report statistics
-    [Documentation]  Check deviation of iperf results
-    [Arguments]  ${statistics}
-    ${statistics_tx}  Get From Dictionary  ${statistics}  tx
-    ${statistics_rx}  Get From Dictionary  ${statistics}  rx
-
-    ${fail_msg}=  Set Variable  ${EMPTY}
-    IF  "${statistics_tx}[flag]" == "-1"
-        ${add_msg}     Create fail message  ${statistics_tx}
-        ${fail_msg}=  Set Variable  TX:\n${add_msg}
-    END
-    IF  "${statistics_rx}[flag]" == "-1"
-        ${add_msg}     Create fail message  ${statistics_rx}
-        ${fail_msg}=  Set Variable  ${fail_msg}RX:\n${add_msg}
-    END
-    IF  "${statistics_tx}[flag]" == "-1" or "${statistics_rx}[flag]" == "-1"
-        FAIL    ${fail_msg}
-    END
-
-    ${pass_msg}=  Set Variable  ${EMPTY}
-    IF  "${statistics_tx}[flag]" == "1"
-        ${add_msg}     Create improved message  ${statistics_tx}
-        ${pass_msg}=  Set Variable  TX:\n${add_msg}
-    END
-    IF  "${statistics_rx}[flag]" == "1"
-        ${add_msg}     Create improved message  ${statistics_rx}
-        ${pass_msg}=  Set Variable  ${pass_msg}\nRX:\n${add_msg}
-    END
-    IF  "${statistics_tx}[flag]" == "1" or "${statistics_rx}[flag]" == "1"
-        Pass Execution    ${pass_msg}
-    END
-
-
