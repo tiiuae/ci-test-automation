@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Documentation       Testing audio applicaton
+Documentation       Testing audio application
 Force Tags          audio   bat
 Resource            ../../__framework__.resource
 Resource            ../../resources/serial_keywords.resource

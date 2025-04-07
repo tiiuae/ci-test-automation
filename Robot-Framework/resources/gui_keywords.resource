@@ -180,7 +180,7 @@ Unlock
 
 Save most common icons and paths to icons
     [Documentation]         Save those icons by name which will be used in multiple test cases
-    ...                     Śave paths to icon packs in gui-vm nix store
+    ...                     Save paths to icon packs in gui-vm nix store
     ${icons}                Execute Command   find $(echo $XDG_DATA_DIRS | tr ':' ' ') -type d -name "icons" 2>/dev/null
     Set Global Variable     ${ICON_THEME}        ${icons}/Papirus
     Log To Console          Saving path to app icon-pack

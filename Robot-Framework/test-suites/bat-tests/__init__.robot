@@ -35,7 +35,7 @@ BAT tests setup
 BAT tests teardown
     [timeout]    5 minutes
     Connect to ghaf host
-    Log journctl
+    Log journalctl
     IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Log out
     END

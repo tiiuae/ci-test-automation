@@ -53,8 +53,8 @@ Start and close Calculator via GUI on LenovoX1
     Close app via GUI on LenovoX1   ${GUI_VM}  gnome-calculator  ./window-close.png
 
 Start and close Bluetooth Settings via GUI on LenovoX1
-    [Documentation]   Start Bluetooh via GUI test automation and verify related process started
-    ...               Close Blutooth via via GUI test automation and verify related process stopped
+    [Documentation]   Start Bluetooth via GUI test automation and verify related process started
+    ...               Close Bluetooth via via GUI test automation and verify related process stopped
     [Tags]            SP-T204  lenovo-x1
     Get icon   app  blueman.svg   crop=30
     Start app via GUI on LenovoX1   ${GUI_VM}  blueman-manager-wrapped-wrapped
@@ -199,5 +199,5 @@ GUI Apps Teardown
     ELSE
         Connect
     END
-    Log journctl
+    Log journalctl
     Close All Connections

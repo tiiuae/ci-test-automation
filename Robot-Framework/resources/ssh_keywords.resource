@@ -14,7 +14,7 @@ Library             ../lib/output_parser.py
 
 Ping Host
     [Arguments]        ${hostname}  ${timeout}=10
-    [Documentation]    Ping the given hostname once and return boolen result
+    [Documentation]    Ping the given hostname once and return boolean result
     ${ping_output}=    Run Process   ping ${hostname} -c 1 -W ${timeout}   shell=True
     ${ping_success}    Run Keyword And Return Status    Should Contain    ${ping_output.stdout}    1 received
     Return From Keyword    ${ping_success}
@@ -73,7 +73,7 @@ Connect
         ${pass_status}  ${login_output}  Run Keyword And Ignore Error  Login with timeout    username=${LOGIN}    password=${PASSWORD}
         ${pass_status}  ${output}        Run Keyword And Ignore Error  Should Contain     ${login_output}   ${target_output}
         IF    $pass_status=='PASS'
-            Log To Console    Connected succesfully to ${target_output}
+            Log To Console    Connected successfully to ${target_output}
             IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
                 Set Global Variable  ${NETVM_SSH}    ${connection}
             END
@@ -226,7 +226,7 @@ Is process started
 
 Find pid by name
     [Arguments]   ${proc_name}
-    Log To Console    Looking for pids of the proccess ${proc_name}
+    Log To Console    Looking for pids of the process ${proc_name}
     ${output}=    Execute Command    sh -c 'ps aux | grep "${proc_name}" | grep -v grep'
     Log           ${output}
     @{pids}=      Find Pid    ${output}  ${proc_name}
@@ -427,7 +427,7 @@ Install sysbench tool
         ${command_output}=    Execute Command    nix-env --query --installed
         Log To Console    ${\n}Installed packages:${\n}${command_output}
         Should Contain    ${command_output}    sysbench    sysbench tool was not installed
-        Log To Console    sysbench tool was succesfully installed
+        Log To Console    sysbench tool was successfully installed
     ELSE
         Log To Console    ${\n}sysbench tool was already installed
     END
@@ -440,7 +440,7 @@ Install iperf tool
         ${command_output}=    Execute Command    nix-env --query --installed
         Log To Console    ${\n}Installed packages:${\n}${command_output}
         Should Contain    ${command_output}    iperf    iperf tool was not installed
-        Log To Console    iperf tool was succesfully installed
+        Log To Console    iperf tool was successfully installed
     ELSE
         Log To Console    ${\n}iperf tool was already installed
     END
