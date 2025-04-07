@@ -333,13 +333,34 @@ Create file
     [Arguments]        ${file_name}
     Log To Console     Creating file ${file_name}
     Execute Command    touch ${file_name}  sudo=True  sudo_password=${password}
-    SSHLibrary.File Should Exist  ${file_name}
+    Check file exists  ${file_name}
 
-Check file doesn't exist
-    [Documentation]    Check file doesn't exist
+Remove file
+    [Documentation]    Remove file with given path & name, requires existing ssh connection
+    [Arguments]        ${file_name}
+    Log To Console     Removing file ${file_name}
+    Execute Command    rm ${file_name}  sudo=True  sudo_password=${password}
+    Check file doesn't exist  ${file_name}
+
+Copy file
+    [Documentation]    Copy file, requires existing ssh connection
+    [Arguments]        ${file_1}    ${file_2}
+    Log To Console     Copying file ${file_1} to ${file_2}
+    ${output}  ${rc}   Execute Command    cp ${file_1} ${file_2}   return_rc=True  sudo=True  sudo_password=${password}
+
+Check file exists
+    [Documentation]    Check file exists, requires existing ssh connection
     [Arguments]        ${file_name}
     Log To Console     Check if file ${file_name} exists
-    SSHLibrary.File Should Not Exist  ${file_name}
+    ${output}  ${rc}   Execute Command    ls ${file_name}   return_rc=True  sudo=True  sudo_password=${password}
+    Should Be Equal As Integers   ${rc}   0
+
+Check file doesn't exist
+    [Documentation]    Check file doesn't exist, requires existing ssh connection
+    [Arguments]        ${file_name}
+    Log To Console     Check if file ${file_name} exists
+    ${output}  ${rc}   Execute Command    ls ${file_name}   return_rc=True  sudo=True  sudo_password=${password}
+    Should Be Equal As Integers   ${rc}   2
     Log To Console     File ${file_name} doesn't exist
 
 Verify Ghaf Version Format
