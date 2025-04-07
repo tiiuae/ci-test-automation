@@ -27,7 +27,7 @@ Verify NetVM is started
     Check Network Availability      ${NETVM_IP}    expected_result=True    range=5
     [Teardown]              Close All Connections
 
-Wifi passthrought into NetVM (Orin-AGX)
+Wifi passthrough into NetVM (Orin-AGX)
     [Documentation]     Verify that wifi works inside netvm
     [Tags]              bat  SP-T111  orin-agx
     [Setup]             Connect to netvm
@@ -43,7 +43,7 @@ Wifi passthrought into NetVM (Orin-AGX)
     Sleep               1
     [Teardown]          Run Keywords  Remove Wifi configuration  ${TEST_WIFI_SSID}  AND  Close All Connections
 
-Wifi passthrought into NetVM (Lenovo-X1)
+Wifi passthrough into NetVM (Lenovo-X1)
     [Documentation]     Verify that wifi works inside netvm
     [Tags]              bat  SP-T101   lenovo-x1   dell-7330
     [Setup]             Connect to netvm
@@ -59,7 +59,7 @@ Wifi passthrought into NetVM (Lenovo-X1)
     Get wifi IP
     [Teardown]          Run Keywords  Remove Wifi configuration  ${TEST_WIFI_SSID}  AND  Close All Connections
 
-Wifi passthrought into NetVM (NUC)
+Wifi passthrough into NetVM (NUC)
     [Documentation]     Verify that wifi works inside netvm
     [Tags]              bat   SP-T111  nuc
     [Setup]             Connect to netvm

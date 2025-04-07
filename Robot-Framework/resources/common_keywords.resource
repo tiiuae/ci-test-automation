@@ -41,7 +41,7 @@ Check If Ping Fails
 Run journalctl recording
     ${output}     Execute Command    nohup journalctl -f >> /tmp/jrnl.txt 2>&1 &
 
-Log journctl
+Log journalctl
     ${jrnl_size}  Execute Command    ls -lh /tmp/jrnl.txt
     Log           ${jrnl_size}
     # Copy journal log file to Robot outputs
@@ -57,7 +57,7 @@ Check If Device Is Up
     FOR    ${i}    IN RANGE    ${range}
         ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
         IF    ${ping}
-            Log To Console    Ping ${DEVICE_IP_ADDRESS} successfull
+            Log To Console    Ping ${DEVICE_IP_ADDRESS} successful
             BREAK
         END
         Sleep  1
