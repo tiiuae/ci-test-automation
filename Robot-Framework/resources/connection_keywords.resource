@@ -9,7 +9,7 @@ Resource            ../config/variables.robot
 Configure wifi
     [Arguments]         ${netvm_ssh}  ${SSID}  ${passw}
     Switch Connection   ${netvm_ssh}
-    Log To Console      Configuring Wifi
+    Log To Console      Configuring Wifi: MoreLogging: netvm_ssh:${netvm_ssh} SSID:${SSID} passw:${passw}
     Set Log Level       NONE
     Execute Command     nmcli dev wifi connect ${SSID} password ${passw}   sudo=True    sudo_password=${PASSWORD}
     Set Log Level       INFO
@@ -18,7 +18,9 @@ Remove Wifi configuration
     [Arguments]         ${SSID}
     Switch Connection   ${netvm_ssh}
     Log To Console      Removing Wifi configuration
-    Execute Command     nmcli connection delete id ${SSID}
+    ${stdout}  ${stderr}  ${rc}=  Execute Command  nmcli connection delete id ${SSID}
+    ...   sudo=True   sudo_password=${PASSWORD}   return_stdout=True   return_stderr=True   return_rc=True
+    Should Be Equal As Integers    ${rc}    0
 
 Turn OFF WiFi
     [Arguments]         ${SSID}

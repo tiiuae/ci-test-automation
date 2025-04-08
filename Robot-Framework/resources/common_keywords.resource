@@ -41,9 +41,12 @@ Check If Ping Fails
 Run journalctl recording
     ${output}     Execute Command    nohup journalctl -f >> /tmp/jrnl.txt 2>&1 &
 
-Log journctl
-    ${output}     Execute Command    cat /tmp/jrnl.txt
-    Log           ${output}
+Log journalctl
+    ${jrnl_size}  Execute Command    ls -lh /tmp/jrnl.txt
+    Log           ${jrnl_size}
+    # Copy journal log file to Robot outputs
+    SSHLibrary.Get file   /tmp/jrnl.txt   ${OUTPUT_DIR}/jrnl.txt
+    OperatingSystem.File Should Exist     ${OUTPUT_DIR}/jrnl.txt
     @{pid}        Find pid by name   journalctl
     Kill process  @{pid}
 

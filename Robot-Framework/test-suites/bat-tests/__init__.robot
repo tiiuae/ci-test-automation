@@ -28,7 +28,7 @@ BAT tests setup
 BAT tests teardown
     ${connection}   Connect
     Set Global Variable   ${CONNECTION}   ${connection}
-    Log journctl
+    Log journalctl
     IF  "Lenovo" in "${DEVICE}"
         Connect to netvm
         Log out

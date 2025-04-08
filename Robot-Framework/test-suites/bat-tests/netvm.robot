@@ -30,7 +30,7 @@ Verify NetVM is started
 
 Wifi passthrought into NetVM
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              bat  SP-T101   SP-T111  orin-agx  lenovo-x1
+    [Tags]              bat  SP-T101   SP-T111    lenovo-x1
     [Setup]             Connect to netvm
     Configure wifi      ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
@@ -39,6 +39,9 @@ Wifi passthrought into NetVM
     Check Network Availability    8.8.8.8   expected_result=False
     Turn ON WiFi        ${TEST_WIFI_SSID}
     Check Network Availability    8.8.8.8   expected_result=True
+    Turn OFF WiFi       ${TEST_WIFI_SSID}
+    Check Network Availability    8.8.8.8   expected_result=False
+    Sleep               1
     [Teardown]          Run Keywords  Remove Wifi configuration  ${TEST_WIFI_SSID}  AND  Close All Connections
 
 Wifi passthrought into NetVM (NUC)
