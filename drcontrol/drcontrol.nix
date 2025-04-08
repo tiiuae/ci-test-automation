@@ -1,11 +1,10 @@
 {
-  lib,
-  python3Packages,
-  libftdi,
+  buildPythonApplication,
+  pylibftdi,
 }:
-python3Packages.buildPythonApplication {
+buildPythonApplication {
   pname = "drcontrol";
   version = "0.13";
-  propagatedBuildInputs = [python3Packages.pylibftdi];
+  propagatedBuildInputs = [ pylibftdi ];
   src = ./.;
 }
