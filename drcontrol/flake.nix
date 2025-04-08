@@ -16,7 +16,7 @@
     ];
   in
     flake-utils.lib.eachSystem systems (system: {
-      packages.drcontrol = nixpkgs.legacyPackages.${system}.callPackage ./drcontrol.nix {};
+      packages.drcontrol = nixpkgs.legacyPackages.${system}.python3Packages.callPackage ./drcontrol.nix {};
       packages.default = self.packages.${system}.drcontrol;
       formatter = nixpkgs.legacyPackages.${system}.alejandra;
     });
