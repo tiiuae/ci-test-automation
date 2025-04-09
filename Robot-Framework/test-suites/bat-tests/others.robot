@@ -40,6 +40,8 @@ Check systemctl status
             Skip    "Known issue: SSRCSP-6303"
         ELSE IF   "AGX" in "${DEVICE}"
             Skip    "Known issue: SSRCSP-6303"
+        ELSE IF   "Dell" in "${DEVICE}" and "autovt@ttyUSB0.service" in "${output}"
+            Skip    "Known issue: SSRCSP-6450"
         ELSE
             FAIL    ${output}
         END

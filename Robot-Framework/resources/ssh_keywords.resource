@@ -167,22 +167,25 @@ Verify Systemctl status
         ${output}=    Execute Command    systemctl status
         ${status}=    Get Systemctl Status    ${output}
         Log  ${output}
+
+        ${data_failed_units}   Execute Command    systemctl list-units --state=failed
+        Log  ${data_failed_units}
+        ${failed_units}  Get failed units  ${data_failed_units}
+        Log To Console   Failed units: ${failed_units}
+
         IF  '${status}' not in ['running', 'starting']
             Log To Console   Systemctl status is ${status}
-            ${output}   Execute Command    systemctl list-units --state=failed
-            Log         ${output}
-            ${failed_units}  Get failed units  ${output}
-            Log To Console   Failed units: ${failed_units}
-            FAIL    Systemctl is not running! Status is ${status}
+            FAIL    Systemctl is not running! Status is ${status}. Failed processes are: ${failed_units}
         ELSE IF    '${status}' == 'running'
             ${diff}=    Evaluate    int(time.time()) - int(${start_time})
             Log To Console   Systemctl status is ${status} after ${diff} sec
+            Log To Console   --> Possible failed processes?: ${failed_units}
             RETURN
         END
         Sleep    1
     END
     ${diff}=    Evaluate    int(time.time()) - int(${start_time})
-    FAIL    Systemctl is not running after ${diff} sec! Status is ${status}
+    FAIL    Systemctl is not running after ${diff} sec! Status is ${status}. Failed processes?: ${failed_units}
     [Teardown]       Run Keyword If  $close_conn == 'true'  Close All Connections
 
 Start application
