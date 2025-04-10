@@ -88,7 +88,7 @@ Locate image on screen
 
 Locate and click
     [Arguments]   ${image_to_be_searched}  ${confidence}=0.99  ${iterations}=5
-    ${mouse_x}  ${mouse_y}  Locate image on screen  ${image_to_be_searched}   ${confidence}
+    ${mouse_x}  ${mouse_y}  Locate image on screen  ${image_to_be_searched}   ${confidence}  ${iterations}
     Connect to VM     ${GUI_VM}
     Execute Command   ydotool mousemove --absolute -x ${mouse_x} -y ${mouse_y}  sudo=True  sudo_password=${PASSWORD}
     Execute Command   ydotool click 0xC0  sudo=True  sudo_password=${PASSWORD}
