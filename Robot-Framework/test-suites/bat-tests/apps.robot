@@ -83,7 +83,20 @@ Start Slack on LenovoX1
     Connect to VM          ${COMMS_VM}
     Check that the application was started    slack
     [Teardown]  Kill Process And Log journalctl
-    
+
+Open PDF with Zathura
+    [Documentation]    Open PDF file in the Chrome VM and check that Zathura app is started and opens the file
+    [Tags]             bat  SP-T131   lenovo-x1   dell-7330
+    Connect to netvm
+    Connect to VM      ${CHROME_VM}
+    Put File           ../test-files/test_pdf.pdf         /tmp
+    Open PDF           /tmp/test_pdf.pdf
+    Connect to VM      ${ZATHURA_VM}
+    Check that the application was started    zathura    10
+    [Teardown]  Run Keywords  Remove the file in VM    /tmp/test_pdf.pdf    ${CHROME_VM}    AND
+    ...                       Connect to VM      ${ZATHURA_VM}    AND
+    ...                       Kill Process And Log journalctl
+
 
 *** Keywords ***
 
@@ -93,3 +106,9 @@ Kill Process And Log journalctl
     Log  ${output}
     Kill process  @{APP_PIDS}
     Close All Connections
+
+Remove the file in VM
+    [Arguments]        ${file_name}    ${vm}
+    Connect to VM      ${vm}
+    Remove file        ${file_name}
+    Check file doesn't exist    ${file_name}
