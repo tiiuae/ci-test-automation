@@ -7,6 +7,7 @@ Resource            ../config/variables.robot
 Library             BuiltIn
 Library             String
 Library             Process
+Library             String
 Library             ../lib/output_parser.py
 
 
@@ -46,7 +47,7 @@ Check Network Availability
     END
 
 Login with timeout
-    [Arguments]       ${username}=${LOGIN}    ${password}=${PASSWORD}   ${timeout}=10   ${jumphost}=None
+    [Arguments]       ${username}=${LOGIN}    ${password}=${PASSWORD}   ${timeout}=30   ${jumphost}=None
     [Timeout]         ${timeout}
     IF  $jumphost != 'None'
         ${login_output}   Login   username=${username}    password=${password}    jumphost_index_or_alias=${jumphost}
@@ -213,6 +214,14 @@ Start XDG application
     Sleep    8
     ${output}        Execute Command  cat output.log
     Log    ${output}
+
+Open PDF
+    [Arguments]      ${pdf_file}
+    ${output}        Execute Command    cat /run/current-system/sw/share/applications/ghaf-pdf-xdg.desktop  sudo=True  sudo_password=${PASSWORD}    return_stderr=True
+    ${path}          Get App Path From Desktop  ${output}[0]
+    ${xdgopen}       Get Substring      ${path}    0    -3
+    Log to console   Trying to open ${pdf_file}
+    Execute Command  echo ${PASSWORD} | sudo -S nohup sh -c '${xdgopen} ${pdf_file}' > /tmp/out.log 2>&1 &
 
 Start Firefox
     [Documentation]  It's needed to set display variable manually because there is no real monitor connected to DUT
