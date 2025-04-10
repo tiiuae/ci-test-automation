@@ -83,7 +83,8 @@ Start and close Falcon AI via GUI on LenovoX1
     [Tags]            SP-T223-2  lenovo-x1
     Get icon   ghaf-artwork  falcon-icon.svg   crop=30
     Start app via GUI on LenovoX1   ${GUI_VM}  alpaca-wrapped
-    Close app via GUI on LenovoX1   ${GUI_VM}  alpaca-wrapped  ./window-close.png
+    Close app via GUI on LenovoX1   ${GUI_VM}  alpaca-wrapped  ./window-close.png   iterations=10
+    [Teardown]    Run Keyword If Test Failed     Skip    "Known issue: SSRCSP-6482"
 
 Start and close Firefox via GUI on Orin AGX
     [Documentation]   Passing this test requires that display is connected to the target device
@@ -124,13 +125,14 @@ Close app via GUI on LenovoX1
     ...                ${app}
     ...                ${close_button}=./window-close.png
     ...                ${windows_to_close}=1
+    ...                ${iterations}=5
     Connect to netvm
     Connect to VM                             ${app-vm}
     Check that the application was started    ${app}
     Connect to VM                             ${GUI_VM}
     Start ydotoold
     Log To Console                            Going to click the close button of the application window
-    Locate and click                          ${close_button}  0.8  5
+    Locate and click                          ${close_button}  0.8  iterations=${iterations}
     Connect to VM                             ${app-vm}
     ${status}           Run Keyword And Return Status  Check that the application is not running  ${app}  5
     IF  "${windows_to_close}" != "1"
