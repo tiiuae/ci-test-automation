@@ -32,8 +32,9 @@ File sharing from Business-VM to Chrome-VM
 *** Keywords ***
 
 File sharing test
-    [Documentation]
-    [Arguments]    ${vm1}    ${vm2}
+    [Documentation]    Create file in the 'Unsafe share' folder on one VM, copy in GuiVM,
+    ...                and check that file is available in the another VM
+    [Arguments]        ${vm1}    ${vm2}
     Set Test Variable  ${vm1_in_guivm}    /Shares/'Unsafe ${vm1} share'
     Set Test Variable  ${vm2_in_guivm}    /Shares/'Unsafe ${vm2} share'
     Connect to VM      ${vm1}

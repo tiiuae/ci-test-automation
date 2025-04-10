@@ -206,13 +206,20 @@ Check application name
 Start XDG application
     [Arguments]      ${app_name}
     Log To Console   ${\n}Starting ${app_name}
-    ${app_name}      Check application name  ${app_name}
-    ${output}        Execute Command    cat /run/current-system/sw/share/applications/${app_name}.desktop
+    ${app_name}      Check application name    xdgopenfile
+    ${output}        Execute Command    cat /run/current-system/sw/share/applications/xdgopenfile.desktop
     ${path}          Get App Path From Desktop  ${output}
     Execute Command  nohup sh -c '${path}' > output.log 2>&1 &
     Sleep    8
     ${output}        Execute Command  cat output.log
     Log    ${output}
+
+Open PDF
+    [Arguments]      ${pdf_file}
+    ${output}        Execute Command    cat /run/current-system/sw/share/applications/ghaf-pdf-xdg.desktop  sudo=True  sudo_password=${password}    return_stderr=True
+    ${path}          Get App Path From Desktop  ${output}
+    ${xdgopen}       Evaluate    ${path}[:-3]
+    Execute Command  nohup sh -c '${xdgopen} ${pdf_file}' > output.log 2>&1 &
 
 Start Firefox
     [Documentation]  It's needed to set display variable manually because there is no real monitor connected to DUT
