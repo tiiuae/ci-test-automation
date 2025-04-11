@@ -164,6 +164,4 @@ Suspension setup
     Connect to VM        ${GUI_VM}
     Save most common icons and paths to icons
     Create test user
-    Log in via GUI       stop_swayidle=False
-
-    Verify login
+    Log in, unlock and verify   stop_swayidle=False
