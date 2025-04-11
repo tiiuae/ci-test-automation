@@ -28,10 +28,10 @@ Start Sticky Notes on LenovoX1
     Start XDG application  'Sticky Notes'
     Check that the application was started    sticky-wrapped
 
-Start Control Panel on LenovoX1
-    [Documentation]   Start Control Panel and verify process started
+Start Ghaf Control Panel on LenovoX1
+    [Documentation]   Start Ghaf Control Panel and verify process started
     [Tags]            control_panel  SP-T205
-    Start XDG application  'Control Panel'
+    Start XDG application   'Ghaf Control Panel'
     Check that the application was started    ctrl-panel
 
 Start Bluetooth Settings on LenovoX1
