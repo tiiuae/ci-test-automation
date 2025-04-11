@@ -10,6 +10,7 @@ Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/connection_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
+Library             Collections
 Test Setup          Connect to netvm
 Test Teardown       Close All Connections
 Test Timeout        2 minutes
@@ -24,19 +25,22 @@ ${VIDEO_DIR}    ${OUTPUT_DIR}/outputs/video-temp
 Check Camera Application
     [Documentation]  Check that camera application is available in business-vm and not in other vm
     [Tags]  SP-T235
+    ${failed_vm}    Create List
     FOR  ${vm}  IN  @{VMS}
         Connect to VM       ${vm}
-            FOR  ${index}  IN RANGE  0  10
+            FOR  ${i}  IN RANGE  0  10
                 ${stdout}    ${stderr}    ${rc}   Execute Command  v4l2-ctl --list-devices  sudo=True  sudo_password=${PASSWORD}
                 ...  return_stdout=True  return_stderr=True  return_rc=True
-                ${expected_result}  Run Keyword If   '${vm}' == '${BUSINESS_VM}'  Run Keyword And Return Status  Should Contain  ${stdout}  /dev/video
+                ${expected_result}  Run Keyword If  '${vm}' == '${BUSINESS_VM}'  Run Keyword And Return Status  Should Contain  ${stdout}  /dev/video
                 ...                 ELSE  Run Keyword And Return Status  Should Not Contain  ${stdout}  /dev/video
                 Exit For Loop If  ${expected_result}
                 Sleep  1s
             END
-            Run Keyword If  not ${expected_result}  Fail  Response checking of command 'sudo v4l2-ctl --list-devices' Failed.
+            Run Keyword If  not ${expected_result}  Append To List  ${failed_vm}   ${vm}
     END
-    [Teardown]  Run Keyword If   "Dell" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6450"
+
+    Run Keyword If  "Dell" in "${DEVICE}" and "${BUSINESS_VM}" in "${failed_vm}"  Skip   "Known issue: SSRCSP-6450". Failed vm:${failed_vm}.
+    ...  ELSE IF  "${failed_vm}" != "[]"  FAIL  Response checking for command 'sudo v4l2-ctl --list-devices' failed for vm:${failed_vm}.
 
 Record Video With Camera
     [Documentation]  Start Camera application and record short video
