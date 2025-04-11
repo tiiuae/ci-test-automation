@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 thresholds = {
+    # Baselines of a test will be automatically re-tuned if this number of deviations are detected in a row (to the same direction)
+    'wait_until_reset': 5,
     'cpu': {
         'multi': 700,
         'single': 40,
@@ -25,8 +27,8 @@ thresholds = {
         'rd_lenovo-x1': 420
     },
     'boot_time': {
-        'time_to_respond_to_ping': 10,
-        'time_to_desktop_after_reboot': 12
+        'response_to_ping': 10,
+        'time_to_desktop': 12
     },
     'iperf': 10
 }

@@ -61,36 +61,10 @@ class PerformanceDataProcessing:
             writer.writerow(data.keys())
             writer.writerows(zip(*(data.values())))
 
-    @keyword
-    def write_cpu_to_csv(self, test_name, cpu_data):
-        data = [self.commit,
-                cpu_data['cpu_events_per_second'],
-                cpu_data['min_latency'],
-                cpu_data['avg_latency'],
-                cpu_data['max_latency'],
-                cpu_data['cpu_events_per_thread'],
-                cpu_data['cpu_events_per_thread_stddev'],
-                self.device]
-        self._write_to_csv(test_name, data)
-
     @keyword("Parse and Copy Perfbench To Csv")
     def parse_and_copy_perfbench_to_csv(self):
-
         perf_result_heading, perf_bit_result_heading = parse_perfbench.parse_perfbench_data(self.commit, self.device, self.data_dir)
         return perf_result_heading, perf_bit_result_heading
-
-    @keyword
-    def write_mem_to_csv(self, test_name, mem_data):
-        data = [self.commit,
-                mem_data['operations_per_second'],
-                mem_data['data_transfer_speed'],
-                mem_data['min_latency'],
-                mem_data['avg_latency'],
-                mem_data['max_latency'],
-                mem_data['avg_events_per_thread'],
-                mem_data['events_per_thread_stddev'],
-                self.device]
-        self._write_to_csv(test_name, data)
 
     @keyword
     def write_speed_to_csv(self, test_name, speed_data):
@@ -112,12 +86,11 @@ class PerformanceDataProcessing:
                 self.device]
         self._write_to_csv(test_name, data)
 
-    @keyword("Write Boot time to csv")
-    def write_boot_time_to_csv(self, test_name, boot_data):
-        data = [self.commit,
-                boot_data['time_from_reboot_to_desktop_available'],
-                boot_data['response_to_ping'],
-                self.device]
+    def write_test_data_to_csv(self, test_name, test_data):
+        data = [self.commit]
+        for i in test_data:
+            data.append(test_data[i])
+        data.append(self.device)
         self._write_to_csv(test_name, data)
 
     def truncate(self, list, significant_figures):
@@ -126,44 +99,57 @@ class PerformanceDataProcessing:
             truncated_list.append(float(f'{item:.{significant_figures}g}'))
         return truncated_list
 
-    def detect_deviation(self, data_column, baseline_start, threshold):
+    def detect_deviation(self, data_column, baseline_start, threshold, deviations=[]):
         # Calculate mean and population standard deviation of the results
         # Check if last value changes more than threshold from
-        #   mean
-        #   the second last value
-        #   first value of the baseline period
+        #   last "normal" measurement result
+        #   mean of measurement results since baseline_start, omitting deviated results
+        #   first value of the last stable baseline period
 
         flag = 0
+        baseline_end = 0
 
-        # Slice the list to obtain "stable" baseline for mean and std calculations
+        # Slice the list since baseline_start for mean and std calculations
         data_column_cut = data_column[baseline_start:-1]
 
         if len(data_column_cut) > 0:
 
-            mean = sum(data_column_cut) / len(data_column_cut)
+            # Pick the deviations from data_column and calculate their sum
+            sum_deviations = sum([data_column[i] for i in deviations])
 
+            # Calculate mean, omitting the values which are labeled deviations
+            mean = (sum(data_column_cut) - sum_deviations) / (len(data_column_cut) - len(deviations))
+
+            # Calculate standard deviation, omitting the values which are labeled deviations
+            # Find also the last non-deviated measurement result
             data_sum = 0
-            for value in data_column_cut:
-                data_sum = (value - mean) ** 2 + data_sum
-            pstd = (data_sum / len(data_column_cut)) ** (1/2)
+            baseline_values = 0
+            for i in range(baseline_start, len(data_column) - 1):
+                if i not in deviations:
+                    baseline_end = i
+                    baseline_values += 1
+                    data_sum = (data_column[i] - mean) ** 2 + data_sum
+            pstd = (data_sum / baseline_values) ** (1 / 2)
+
 
             # Automatically calculated pstd can vary wildly in case of multiple successive major changes in results.
             # So this is not a good idea although looks nice:
             # if pstd > 0:
             #     distance = abs(data_column[-1] - mean) / pstd
             #     if distance > 3 * std:
-            #         return [distance, mean, pstd]
+            #         # Deviation detected
+            #         pass
             # Instead it is better to set some threshold manually (based on calculated pstd history of "stable" periods)
 
             d = [0] * 3
 
-            # Monitor change from previous measurement. This will catch multiple successive changes
-            d[0] = data_column[-1] - data_column[-2]
+            # Monitor deviation from the last "stable" measurement result.
+            d[0] = data_column[-1] - data_column[baseline_end]
 
             # Monitor deviation from the mean of the last "stable" baseline period
             d[1] = data_column[-1] - mean
 
-            # Change from the first measurement of the last stable period,
+            # Monitor deviation from the first measurement of the last stable period,
             # meaning there are no deviations detected within that period.
             # This will catch slow monotonic change over time.
             d[2] = data_column[-1] - data_column[baseline_start]
@@ -175,10 +161,11 @@ class PerformanceDataProcessing:
             for i in range(len(d)):
                 if d[i] < -threshold:
                     flag = -1
+                    break
                 if d[i] > threshold:
                     flag = 1
 
-            stats = self.truncate([mean, pstd] + d + [data_column[-1], data_column[-2], data_column[baseline_start]], 5)
+            stats = self.truncate([mean, pstd] + d + [data_column[-1], data_column[baseline_end], data_column[baseline_start]], 5)
 
         else:
             stats = [0] * 8
@@ -186,16 +173,123 @@ class PerformanceDataProcessing:
         statistics_dictionary = {
             'flag': flag,
             'threshold': threshold,
-            'mean': stats[0],
-            'pstd': stats[1],
-            'd_previous': stats[2],
+            'd_baseline_start': stats[4],
             'd_mean': stats[3],
-            'd_baseline1': stats[4],
-            'measurement': stats[5],
-            'prev_meas': stats[6],
-            'baseline1': stats[7]
+            'd_baseline_end': stats[2],
+            'baseline_start': data_column[baseline_start],
+            'mean': stats[0],
+            'baseline_end': data_column[baseline_end],
+            'baseline_pstd': stats[1],
+            'measurement': data_column[-1]
         }
         return statistics_dictionary
+
+    def calculate_statistics(self, test_name, data, monitored_value, threshold):
+        # monitored_value: list of labels
+        # threshold: dictionary or list of single value
+
+        data_key_list = list(data.keys())
+        value_count = len(monitored_value)
+        statistics = None
+
+        with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
+            csvreader = csv.reader(csvfile)
+            logging.info("Reading data from csv file...")
+            build_counter = {}  # To keep track of duplicate builds
+            baseline_start = 0
+            deviation_counter = [0] * value_count
+            new_baseline_start = 0
+            row_index = 0
+            deviations = []
+            for row in csvreader:
+                if row[-1] == self.device:
+                    build = str(row[0])
+                    if build in build_counter:
+                        build_counter[build] += 1
+                        modified_build = f"{build}-{build_counter[build]}"
+                    else:
+                        build_counter[build] = 0
+                        modified_build = build
+                    data['commit'].append(modified_build)
+                    for key_index in range(1, len(row) - 1):
+                        data[data_key_list[key_index]].append(float(row[key_index]))
+
+                    logging.info("check0")
+
+                    logging.info(data)
+
+                    statistics = {}
+                    counter = 0
+                    for value in monitored_value:
+
+                        logging.info(value)
+
+                        if value_count < 2:
+                            select_threshold = 0
+                        else:
+                            select_threshold = value
+
+                        logging.info(select_threshold)
+                        logging.info(threshold)
+                        logging.info(threshold[select_threshold])
+                        logging.info(data[value])
+
+                        statistics.update({value: self.detect_deviation(data[value], baseline_start, threshold[select_threshold], deviations)})
+
+                        logging.info("check1")
+
+                        logging.info(statistics)
+
+                        if statistics[value]['flag'] != 0:
+                            deviations.append(row_index)
+                            if abs(deviation_counter[counter]) < 1:
+                                new_baseline_start = row_index
+                            else:
+                                if statistics[value]['flag'] * deviation_counter[counter] < 0:
+                                    deviation_counter[counter] = 0
+                                    new_baseline_start = row_index
+                            deviation_counter[counter] += statistics[value]['flag']
+                            statistics[value]['flag'] = statistics[value]['flag'] * abs(deviation_counter[counter])
+                            if abs(deviation_counter[counter]) > thresholds['wait_until_reset'] - 1:
+                                logging.info("check2")
+                                deviation_counter[counter] = 0
+                                deviations = []
+                                baseline_start = new_baseline_start
+                        else:
+                            deviation_counter[counter] = 0
+                        data[data_key_list[counter - value_count]].append(statistics[value])
+                        counter += 1
+
+                    row_index = row_index + 1
+
+        logging.info("check3")
+
+        # Create a dictionary of lists out of data['statistics'] which is a list of dictionaries
+        all_stats = {}
+        for counter in range(value_count):
+            stats_dict = {}
+            stat_keys = list(data[data_key_list[counter - value_count]][0].keys())
+            logging.info("check4")
+            for i in stat_keys:
+                value_list = []
+                for j in range(len(data[data_key_list[counter - value_count]])):
+                    value_list.append(data[data_key_list[counter - value_count]][j][i])
+                stats_dict.update([(i + str(counter) , value_list)])
+            logging.info(all_stats)
+            logging.info(stats_dict)
+            all_stats.update(stats_dict)
+
+        logging.info(all_stats)
+
+        # Remove the last (statistics) items from the data dictionary
+        for counter in range(value_count):
+            data.popitem()
+
+        # Write data and rearranged statistics into csv file for debugging
+        self._write_statistics_to_csv(test_name, data | all_stats)
+
+        # Return the statistics of the last measurement already saved to variable statistics
+        return statistics
 
     @keyword
     def read_cpu_csv_and_plot(self, test_name):
@@ -219,43 +313,10 @@ class PerformanceDataProcessing:
         else:
             threshold = thresholds['cpu']['multi']
 
-        statistics = None
-
-        with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
-            csvreader = csv.reader(csvfile)
-            logging.info("Reading data from csv file...")
-            build_counter = {}  # To keep track of duplicate builds
-            baseline_start = 0
-            row_index = 0
-            for row in csvreader:
-                if row[7] == self.device:
-                    build = str(row[0])
-                    if build in build_counter:
-                        build_counter[build] += 1
-                        modified_build = f"{build}-{build_counter[build]}"
-                    else:
-                        build_counter[build] = 0
-                        modified_build = build
-                    data['commit'].append(modified_build)
-                    data['cpu_events_per_second'].append(float(row[1]))
-                    data['min_latency'].append(float(row[2]))
-                    data['avg_latency'].append(float(row[3]))
-                    data['max_latency'].append(float(row[4]))
-                    data['cpu_events_per_thread'].append(float(row[5]))
-                    data['cpu_events_per_thread_stddev'].append(float(row[6]))
-
-                    statistics = self.detect_deviation(data['cpu_events_per_second'], baseline_start, threshold)
-
-                    if statistics['flag'] != 0:
-                        baseline_start = row_index
-
-                    data['statistics'].append(statistics)
-                    row_index = row_index + 1
-
-            self._write_statistics_to_csv(test_name, data)
+        return_statistics = self.calculate_statistics(test_name, data, ['cpu_events_per_second'], [threshold])
 
         if "VMs" in test_name:
-            return statistics
+            return return_statistics
 
         for key in data.keys():
             data[key] = data[key][-40:]
@@ -308,90 +369,7 @@ class PerformanceDataProcessing:
 
         plt.tight_layout()
         plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
-        return statistics
-
-    def normalize_columns(self, csv_file_name, normalize_to):
-        # Set the various results to the same range.
-        # This makes it easier to notice significant change in any of the result parameters with one glimpse
-        # If columns are plotted later on the whole picture is well displayed
-        build_info_size = 1 # First columns containing buildata
-        file_path = os.path.join(self.data_dir, f"{self.device}_{csv_file_name}")
-        print("Normalizing results from file: ", file_path)
-        data = pandas.read_csv(file_path)
-        column_max = data.max(numeric_only=True)
-        # Cut away the index column which is numeric but not measurement data to be normalized
-        max_values = column_max[1:]
-        data_rows = len(data.axes[0])
-        data_columns = len(max_values)
-        # Normalize all columns between 0...normalize_to
-        for i in range(build_info_size, (build_info_size + data_columns)):
-            for j in range(data_rows):
-                normalized = data.iat[j, i] / max_values[i - build_info_size]
-                data.iloc[[j],[i]] = normalized * normalize_to
-        data.to_csv(self.data_dir + "/" + f"{self.device}_normalized_{csv_file_name}", index=False)
-
-    def calc_statistics(self, csv_file_name):
-        build_info_size = 1 # First columns containing buildata
-        data = pandas.read_csv(self.data_dir + "/" + csv_file_name)
-
-        # Calculate column averages
-        column_avgs = data.mean(numeric_only=True)
-        column_stds = data.std(numeric_only=True)
-        column_min = data.min(numeric_only=True)
-        column_max = data.max(numeric_only=True)
-
-        # Cut away the index column which is numeric but not measurement data to be included in calculations
-        avgs = column_avgs.tolist()[1:]
-        stds = column_stds.tolist()[1:]
-        min_values = column_min.tolist()[1:]
-        max_values = column_max.tolist()[1:]
-
-        data_rows = len(data.axes[0])
-        data_columns = len(avgs)
-
-        # Detect significant deviations from column mean
-        # Find the result which is furthest away from the column mean.
-        # Not taking into account those results which are within 1 std from column mean.
-        max_deviations = ['-'] * (data_columns + build_info_size)
-        for i in range(build_info_size, (build_info_size + data_columns)):
-            for j in range(data_rows):
-                if abs(data.iat[j, i] - avgs[i - build_info_size]) > stds[i - build_info_size]:
-                    distance = abs(data.iat[j, i] - avgs[i - build_info_size]) / stds[i - build_info_size]
-                    if max_deviations[i] == '-':
-                        max_deviations[i] = distance
-                    elif distance > max_deviations[i]:
-                        max_deviations[i] = distance
-
-        # Check if values of the last data row are 1 std away from their column mean.
-        last_row_deviations = ['-'] * (data_columns + build_info_size)
-        last_row_deviations[build_info_size - 1] = "LRD"
-        for i in range(build_info_size, build_info_size + data_columns):
-            if abs(data.iat[data_rows - 1, i] - avgs[i - build_info_size]) > stds[i - build_info_size]:
-                distance = (data.iat[data_rows - 1, i] - avgs[i - build_info_size]) / stds[i - build_info_size]
-                last_row_deviations[i] = distance
-
-        shutil.copyfile(self.data_dir + "/" + csv_file_name, self.data_dir + "/raw_" + csv_file_name)
-
-        with open(self.data_dir + "/" + csv_file_name, 'a') as f:
-
-            writer_object = csv.writer(f)
-
-            writer_object.writerow([])
-            writer_object.writerow(last_row_deviations)
-            writer_object.writerow(self.create_stats_row(build_info_size - 1, "average", avgs))
-            writer_object.writerow(self.create_stats_row(build_info_size - 1, "std", stds))
-            writer_object.writerow([])
-            writer_object.writerow(self.create_stats_row(build_info_size - 1, "max", max_values))
-            writer_object.writerow(self.create_stats_row(build_info_size - 1, "min", min_values))
-
-            f.close()
-
-    def create_stats_row(self, shift, label, value_list):
-        row = ['-'] * shift
-        row.append(label)
-        row = row + value_list
-        return row
-
+        return return_statistics
 
     @keyword("Read Perfbench Csv And Plot")
     def read_perfbench_csv_and_plot(self, test_name, file_name, headers):
@@ -460,8 +438,6 @@ class PerformanceDataProcessing:
             'statistics': []
         }
 
-        statistics = None
-
         # Set threshold for fail depending on test type: single/multi thread, write/read
         if "One thread" in test_name or "1thread" in test_name:
             if "rite" in test_name:
@@ -480,42 +456,10 @@ class PerformanceDataProcessing:
             else:
                 threshold = thresholds['mem']['multi']['rd']
 
-        with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
-            csvreader = csv.reader(csvfile)
-            logging.info("Reading data from csv file...")
-            build_counter = {}  # To keep track of duplicate builds
-            baseline_start = 0
-            row_index = 0
-            for row in csvreader:
-                if row[8] == self.device:
-                    build = str(row[0])
-                    if build in build_counter:
-                        build_counter[build] += 1
-                        modified_build = f"{build}-{build_counter[build]}"
-                    else:
-                        build_counter[build] = 0
-                        modified_build = build
-                    data['commit'].append(modified_build)
-                    data['operations_per_second'].append(float(row[1]))
-                    data['data_transfer_speed'].append(float(row[2]))
-                    data['min_latency'].append(float(row[3]))
-                    data['avg_latency'].append(float(row[4]))
-                    data['max_latency'].append(float(row[5]))
-                    data['avg_events_per_thread'].append(float(row[6]))
-                    data['events_per_thread_stddev'].append(float(row[7]))
-
-                    statistics = self.detect_deviation(data['data_transfer_speed'], baseline_start, threshold)
-
-                    if statistics['flag'] != 0:
-                        baseline_start = row_index
-
-                    data['statistics'].append(statistics)
-                    row_index = row_index + 1
-
-            self._write_statistics_to_csv(test_name, data)
+        return_statistics = self.calculate_statistics(test_name, data, ['data_transfer_speed'], [threshold])
 
         if "VMs" in test_name:
-            return statistics
+            return return_statistics
 
         for key in data.keys():
             data[key] = data[key][-40:]
@@ -564,7 +508,7 @@ class PerformanceDataProcessing:
 
         plt.tight_layout()
         plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
-        return statistics
+        return return_statistics
 
     @keyword
     def read_speed_csv_and_plot(self, test_name):
@@ -659,7 +603,6 @@ class PerformanceDataProcessing:
             'events_per_thread_stddev': [],
             'statistics': []
         }
-        statistics = None
 
         # Set threshold for fail depending on test type: write/read
         if "write" in test_name:
@@ -670,39 +613,7 @@ class PerformanceDataProcessing:
             else:
                 threshold = thresholds['fileio']['rd']
 
-        with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
-            csvreader = csv.reader(csvfile)
-            logging.info("Reading data from csv file...")
-            build_counter = {}  # To keep track of duplicate builds
-            baseline_start = 0
-            row_index = 0
-            for row in csvreader:
-                if row[8] == self.device:
-                    build = str(row[0])
-                    if build in build_counter:
-                        build_counter[build] += 1
-                        modified_build = f"{build}-{build_counter[build]}"
-                    else:
-                        build_counter[build] = 0
-                        modified_build = build
-                    data['commit'].append(modified_build)
-                    data['file_operations'].append(float(row[1]))
-                    data['throughput'].append(float(row[2]))
-                    data['min_latency'].append(float(row[3]))
-                    data['avg_latency'].append(float(row[4]))
-                    data['max_latency'].append(float(row[5]))
-                    data['avg_events_per_thread'].append(float(row[6]))
-                    data['events_per_thread_stddev'].append(float(row[7]))
-
-                    statistics = self.detect_deviation(data['throughput'], baseline_start, threshold)
-
-                    if statistics['flag'] != 0:
-                        baseline_start = row_index
-
-                    data['statistics'].append(statistics)
-                    row_index = row_index + 1
-
-            self._write_statistics_to_csv(test_name, data)
+        return_statistics = self.calculate_statistics(test_name, data, 'throughput', threshold)
 
         for key in data.keys():
             data[key] = data[key][-40:]
@@ -748,57 +659,23 @@ class PerformanceDataProcessing:
 
         plt.tight_layout()
         plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
-        return statistics
+        return return_statistics
 
     @keyword("Read Bootime CSV and Plot")
     def read_bootime_csv_and_plot(self, test_name):
         data = {
                 'commit': [],
-                'time_from_reboot_to_desktop_available':[],
+                'time_to_desktop':[],
                 'response_to_ping':[],
                 'statistics_desktop': [],
                 'statistics_ping': [],
                 }
 
-        desktop_threshold = thresholds['boot_time']['time_to_desktop_after_reboot']
-        ping_threshold = thresholds['boot_time']['time_to_respond_to_ping']
+        threshold = {}
+        threshold.update({'time_to_desktop': thresholds['boot_time']['time_to_desktop']})
+        threshold.update({'response_to_ping': thresholds['boot_time']['response_to_ping']})
 
-        statistics_desktop = None
-        statistics_ping = None
-
-        with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
-            csvreader = csv.reader(csvfile)
-            logging.info("Reading data from csv file..." )
-            logging.info(f"{self.data_dir}{self.device}_{test_name}.csv")
-            build_counter = {}  # To keep track of duplicate builds
-            baseline_start = 0
-            row_index = 0
-            for row in csvreader:
-                # print(row)
-                if row[-1] == self.device:
-                    build = str(row[0])
-                    if build in build_counter:
-                        build_counter[build] += 1
-                        modified_build = f"{build}-{build_counter[build]}"
-                    else:
-                        build_counter[build] = 0
-                        modified_build = build
-                    if row[1] != '' and row[2] != '':
-                        data['commit'].append(modified_build)
-                        data['time_from_reboot_to_desktop_available'].append(float(row[1]))
-                        data['response_to_ping'].append(float(row[2]))
-
-                        statistics_desktop = self.detect_deviation(data['time_from_reboot_to_desktop_available'], baseline_start, desktop_threshold)
-                        statistics_ping = self.detect_deviation(data['response_to_ping'], baseline_start, ping_threshold)
-                        if statistics_desktop['flag'] != 0:
-                            baseline_start = row_index
-                        data['statistics_desktop'].append(statistics_desktop)
-                        if statistics_ping['flag'] != 0:
-                            baseline_start = row_index
-                        data['statistics_ping'].append(statistics_ping)
-                        row_index = row_index + 1
-
-            self._write_statistics_to_csv(test_name, data)
+        return_statistics = self.calculate_statistics(test_name, data, ['time_to_desktop', 'response_to_ping'], threshold)
 
         for key in data.keys():
             data[key] = data[key][-40:]
@@ -808,7 +685,7 @@ class PerformanceDataProcessing:
 
         plt.subplot(4, 1, 1)
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['commit'], data['time_from_reboot_to_desktop_available'], marker='o', linestyle='-', color='b')
+        plt.plot(data['commit'], data['time_to_desktop'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
         plt.title('Time from reboot to desktop available', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('seconds', fontsize=12)
@@ -827,12 +704,7 @@ class PerformanceDataProcessing:
         plt.tight_layout()
         plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
 
-        statistics = {
-            'statistics_desktop': statistics_desktop,
-            'statistics_ping': statistics_ping
-        }
-
-        return statistics
+        return return_statistics
 
     def extract_numeric_part(self, build_identifier):
         parts = build_identifier.split('-')
@@ -896,6 +768,121 @@ class PerformanceDataProcessing:
             plt.savefig(self.plot_dir + f'{self.device}_{test_name}_{test}.png')
             plt.close()
 
+    @keyword
+    def save_cpu_data(self, test_name, cpu_data):
+
+        self.write_test_data_to_csv(test_name, cpu_data)
+        return self.read_cpu_csv_and_plot(test_name)
+
+    @keyword("Save Boot time Data")
+    def save_boot_time_data(self, test_name, boot_data):
+
+        self.write_test_data_to_csv(test_name, boot_data)
+        return self.read_bootime_csv_and_plot(test_name)
+
+    @keyword
+    def save_memory_data(self, test_name, memory_data):
+
+        self.write_test_data_to_csv(test_name, memory_data)
+        return self.read_mem_csv_and_plot(test_name)
+
+    @keyword
+    def save_speed_data(self, test_name, speed_data):
+
+        self.write_speed_to_csv(test_name, speed_data)
+        return self.read_speed_csv_and_plot(test_name)
+
+    @keyword
+    def save_fileio_data(self, test_name, fileio_data):
+
+        self.write_fileio_data_to_csv(test_name, fileio_data)
+        return self.read_fileio_data_csv_and_plot(test_name)
+
+
+    # ---------------------------------------------------------------------
+    # Unused functions and functions related to riscv perf analysis
+    def normalize_columns(self, csv_file_name, normalize_to):
+        # Set the various results to the same range.
+        # This makes it easier to notice significant change in any of the result parameters with one glimpse
+        # If columns are plotted later on the whole picture is well displayed
+        build_info_size = 1 # First columns containing buildata
+        file_path = os.path.join(self.data_dir, f"{self.device}_{csv_file_name}")
+        print("Normalizing results from file: ", file_path)
+        data = pandas.read_csv(file_path)
+        column_max = data.max(numeric_only=True)
+        # Cut away the index column which is numeric but not measurement data to be normalized
+        max_values = column_max[1:]
+        data_rows = len(data.axes[0])
+        data_columns = len(max_values)
+        # Normalize all columns between 0...normalize_to
+        for i in range(build_info_size, (build_info_size + data_columns)):
+            for j in range(data_rows):
+                normalized = data.iat[j, i] / max_values[i - build_info_size]
+                data.iloc[[j],[i]] = normalized * normalize_to
+        data.to_csv(self.data_dir + "/" + f"{self.device}_normalized_{csv_file_name}", index=False)
+
+    def calc_statistics(self, csv_file_name):
+        build_info_size = 1 # First columns containing buildata
+        data = pandas.read_csv(self.data_dir + "/" + csv_file_name)
+
+        # Calculate column averages
+        column_avgs = data.mean(numeric_only=True)
+        column_stds = data.std(numeric_only=True)
+        column_min = data.min(numeric_only=True)
+        column_max = data.max(numeric_only=True)
+
+        # Cut away the index column which is numeric but not measurement data to be included in calculations
+        avgs = column_avgs.tolist()[1:]
+        stds = column_stds.tolist()[1:]
+        min_values = column_min.tolist()[1:]
+        max_values = column_max.tolist()[1:]
+
+        data_rows = len(data.axes[0])
+        data_columns = len(avgs)
+
+        # Detect significant deviations from column mean
+        # Find the result which is furthest away from the column mean.
+        # Not taking into account those results which are within 1 std from column mean.
+        max_deviations = ['-'] * (data_columns + build_info_size)
+        for i in range(build_info_size, (build_info_size + data_columns)):
+            for j in range(data_rows):
+                if abs(data.iat[j, i] - avgs[i - build_info_size]) > stds[i - build_info_size]:
+                    distance = abs(data.iat[j, i] - avgs[i - build_info_size]) / stds[i - build_info_size]
+                    if max_deviations[i] == '-':
+                        max_deviations[i] = distance
+                    elif distance > max_deviations[i]:
+                        max_deviations[i] = distance
+
+        # Check if values of the last data row are 1 std away from their column mean.
+        last_row_deviations = ['-'] * (data_columns + build_info_size)
+        last_row_deviations[build_info_size - 1] = "LRD"
+        for i in range(build_info_size, build_info_size + data_columns):
+            if abs(data.iat[data_rows - 1, i] - avgs[i - build_info_size]) > stds[i - build_info_size]:
+                distance = (data.iat[data_rows - 1, i] - avgs[i - build_info_size]) / stds[i - build_info_size]
+                last_row_deviations[i] = distance
+
+        shutil.copyfile(self.data_dir + "/" + csv_file_name, self.data_dir + "/raw_" + csv_file_name)
+
+        with open(self.data_dir + "/" + csv_file_name, 'a') as f:
+
+            writer_object = csv.writer(f)
+
+            writer_object.writerow([])
+            writer_object.writerow(last_row_deviations)
+            writer_object.writerow(self.create_stats_row(build_info_size - 1, "average", avgs))
+            writer_object.writerow(self.create_stats_row(build_info_size - 1, "std", stds))
+            writer_object.writerow([])
+            writer_object.writerow(self.create_stats_row(build_info_size - 1, "max", max_values))
+            writer_object.writerow(self.create_stats_row(build_info_size - 1, "min", min_values))
+
+            f.close()
+
+    def create_stats_row(self, shift, label, value_list):
+        row = ['-'] * shift
+        row.append(label)
+        row = row + value_list
+        return row
+
     @keyword("Combine Normalized Data")
     def combine_normalized_data(self, test_name, src):
         """ Copy latest normalized perfbench results to combined result file. """
@@ -913,33 +900,3 @@ class PerformanceDataProcessing:
                     writer_object.writerow(row)
                 dst_f.close()
             src_f.close()
-
-    @keyword
-    def save_cpu_data(self, test_name, cpu_data):
-
-        self.write_cpu_to_csv(test_name, cpu_data)
-        return self.read_cpu_csv_and_plot(test_name)
-
-    @keyword("Save Boot time Data")
-    def save_boot_time_data(self, test_name, boot_data):
-
-        self.write_boot_time_to_csv(test_name, boot_data)
-        return self.read_bootime_csv_and_plot(test_name)
-
-    @keyword
-    def save_memory_data(self, test_name, memory_data):
-
-        self.write_mem_to_csv(test_name, memory_data)
-        return self.read_mem_csv_and_plot(test_name)
-
-    @keyword
-    def save_speed_data(self, test_name, speed_data):
-
-        self.write_speed_to_csv(test_name, speed_data)
-        return self.read_speed_csv_and_plot(test_name)
-
-    @keyword
-    def save_fileio_data(self, test_name, fileio_data):
-
-        self.write_fileio_data_to_csv(test_name, fileio_data)
-        return self.read_fileio_data_csv_and_plot(test_name)

@@ -38,122 +38,80 @@ nvpmodel check test
     END
 
 CPU One thread test
-    [Documentation]     Run a CPU benchmark using Sysbench with a duration of 10 seconds and a SINGLE thread.
-    ...                 The benchmark records to csv CPU events per second, events per thread, and latency data.
-    ...                 Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]              cpu  SP-T61-1  nuc  orin-agx  orin-nx  lenovo-x1   dell-7330
-    ${output}           Execute Command    sysbench cpu --time=10 --threads=1 --cpu-max-prime=20000 run
-    Log                 ${output}
-    &{cpu_data}         Parse Cpu Results   ${output}
-    &{statistics}       Save Cpu Data       ${TEST NAME}  ${cpu_data}
-    Log                 <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
-    IF  "${statistics}[flag]" == "-1"
-        ${fail_msg}     Create fail message  ${statistics}
-        FAIL            ${fail_msg}
-    END
-    IF  "${statistics}[flag]" == "1"
-        ${pass_msg}     Create improved message  ${statistics}
-        Pass Execution            ${pass_msg}
-    END
+    [Documentation]         Run a CPU benchmark using Sysbench with a duration of 10 seconds and a SINGLE thread.
+    ...                     The benchmark records to csv CPU events per second, events per thread, and latency data.
+    ...                     Create visual plots to represent these metrics comparing to previous tests.
+    [Tags]                  cpu  SP-T61-1  nuc  orin-agx  orin-nx  lenovo-x1   dell-7330
+    ${output}               Execute Command    sysbench cpu --time=10 --threads=1 --cpu-max-prime=20000 run
+    Log                     ${output}
+    &{cpu_data}             Parse Cpu Results   ${output}
+    &{statistics}           Save Cpu Data       ${TEST NAME}  ${cpu_data}
+    Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
+    Determine Test Status   ${statistics}
 
 CPU multimple threads test
-    [Documentation]     Run a CPU benchmark using Sysbench with a duration of 10 seconds and MULTIPLE threads.
-    ...                 The benchmark records to csv CPU events per second, events per thread, and latency data.
-    ...                 Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]              cpu  SP-T61-2  nuc  orin-agx  orin-nx  lenovo-x1   dell-7330
-    ${output}           Execute Command    sysbench cpu --time=10 --threads=${threads_number} --cpu-max-prime=20000 run
-    Log                 ${output}
-    &{cpu_data}         Parse Cpu Results   ${output}
-    &{statistics}       Save Cpu Data       ${TEST NAME}  ${cpu_data}
-    Log                 <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
-    IF  "${statistics}[flag]" == "-1"
-        ${fail_msg}     Create fail message  ${statistics}
-        FAIL            ${fail_msg}
-    END
-    IF  "${statistics}[flag]" == "1"
-        ${pass_msg}     Create improved message  ${statistics}
-        Pass Execution            ${pass_msg}
-    END
+    [Documentation]         Run a CPU benchmark using Sysbench with a duration of 10 seconds and MULTIPLE threads.
+    ...                     The benchmark records to csv CPU events per second, events per thread, and latency data.
+    ...                     Create visual plots to represent these metrics comparing to previous tests.
+    [Tags]                  cpu  SP-T61-2  nuc  orin-agx  orin-nx  lenovo-x1   dell-7330
+    ${output}               Execute Command    sysbench cpu --time=10 --threads=${threads_number} --cpu-max-prime=20000 run
+    Log                     ${output}
+    &{cpu_data}             Parse Cpu Results   ${output}
+    &{statistics}           Save Cpu Data       ${TEST NAME}  ${cpu_data}
+    Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
+    Determine Test Status   ${statistics}
 
 Memory Read One thread test
-    [Documentation]     Run a memory benchmark using Sysbench for 60 seconds with a SINGLE thread.
-    ...                 The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
-    ...                 and Latency for READ operations.
-    ...                 Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]              memory  SP-T61-3  nuc  orin-agx  orin-nx  lenovo-x1   dell-7330
-    ${output}           Execute Command    sysbench memory --time=60 --memory-oper=read --threads=1 run
-    Log                 ${output}
-    &{mem_data}         Parse Memory Results   ${output}
-    &{statistics}       Save Memory Data       ${TEST NAME}  ${mem_data}
-    Log                 <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
-    IF  "${statistics}[flag]" == "-1"
-        ${fail_msg}     Create fail message  ${statistics}
-        FAIL            ${fail_msg}
-    END
-    IF  "${statistics}[flag]" == "1"
-        ${pass_msg}     Create improved message  ${statistics}
-        Pass Execution            ${pass_msg}
-    END
+    [Documentation]         Run a memory benchmark using Sysbench for 60 seconds with a SINGLE thread.
+    ...                     The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
+    ...                     and Latency for READ operations.
+    ...                     Create visual plots to represent these metrics comparing to previous tests.
+    [Tags]                  memory  SP-T61-3  nuc  orin-agx  orin-nx  lenovo-x1   dell-7330
+    ${output}               Execute Command    sysbench memory --time=60 --memory-oper=read --threads=1 run
+    Log                     ${output}
+    &{mem_data}             Parse Memory Results   ${output}
+    &{statistics}           Save Memory Data       ${TEST NAME}  ${mem_data}
+    Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
+    Determine Test Status   ${statistics}
 
 Memory Write One thread test
-    [Documentation]     Run a memory benchmark using Sysbench for 60 seconds with a SINGLE thread.
-    ...                 The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
-    ...                 and Latency for WRITE operations.
-    ...                 Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]              memory  SP-T61-4  nuc  orin-agx  orin-nx  lenovo-x1   dell-7330
-    ${output}           Execute Command    sysbench memory --time=60 --memory-oper=write --threads=1 run
-    Log                 ${output}
-    &{mem_data}         Parse Memory Results   ${output}
-    &{statistics}       Save Memory Data       ${TEST NAME}  ${mem_data}
-    Log                 <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
-    IF  "${statistics}[flag]" == "-1"
-        ${fail_msg}     Create fail message  ${statistics}
-        FAIL            ${fail_msg}
-    END
-    IF  "${statistics}[flag]" == "1"
-        ${pass_msg}     Create improved message  ${statistics}
-        Pass Execution            ${pass_msg}
-    END
+    [Documentation]         Run a memory benchmark using Sysbench for 60 seconds with a SINGLE thread.
+    ...                     The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
+    ...                     and Latency for WRITE operations.
+    ...                     Create visual plots to represent these metrics comparing to previous tests.
+    [Tags]                  memory  SP-T61-4  nuc  orin-agx  orin-nx  lenovo-x1   dell-7330
+    ${output}               Execute Command    sysbench memory --time=60 --memory-oper=write --threads=1 run
+    Log                     ${output}
+    &{mem_data}             Parse Memory Results   ${output}
+    &{statistics}           Save Memory Data       ${TEST NAME}  ${mem_data}
+    Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
+    Determine Test Status   ${statistics}
 
 Memory Read multimple threads test
-    [Documentation]     Run a memory benchmark using Sysbench for 60 seconds with MULTIPLE threads.
-    ...                 The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
-    ...                 and Latency for READ operations.
-    ...                 Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]              memory  SP-T61-5  nuc  orin-agx  orin-nx  lenovo-x1   dell-7330
-    ${output}           Execute Command    sysbench memory --time=60 --memory-oper=read --threads=${threads_number} run
-    Log                 ${output}
-    &{mem_data}         Parse Memory Results   ${output}
-    ${statistics}       Save Memory Data       ${TEST NAME}  ${mem_data}
-    Log                 <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
-    IF  "${statistics}[flag]" == "-1"
-        ${fail_msg}     Create fail message  ${statistics}
-        FAIL            ${fail_msg}
-    END
-    IF  "${statistics}[flag]" == "1"
-        ${pass_msg}     Create improved message  ${statistics}
-        Pass Execution            ${pass_msg}
-    END
+    [Documentation]         Run a memory benchmark using Sysbench for 60 seconds with MULTIPLE threads.
+    ...                     The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
+    ...                     and Latency for READ operations.
+    ...                     Create visual plots to represent these metrics comparing to previous tests.
+    [Tags]                  memory  SP-T61-5  nuc  orin-agx  orin-nx  lenovo-x1   dell-7330
+    ${output}               Execute Command    sysbench memory --time=60 --memory-oper=read --threads=${threads_number} run
+    Log                     ${output}
+    &{mem_data}             Parse Memory Results   ${output}
+    ${statistics}           Save Memory Data       ${TEST NAME}  ${mem_data}
+    Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
+    Determine Test Status   ${statistics}
 
 Memory Write multimple threads test
-    [Documentation]     Run a memory benchmark using Sysbench for 60 seconds with MULTIPLE threads.
-    ...                 The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
-    ...                 and Latency for WRITE operations.
-    ...                 Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]              memory  SP-T61-6  nuc  orin-agx  orin-nx  lenovo-x1   dell-7330
-    ${output}           Execute Command    sysbench memory --time=60 --memory-oper=write --threads=${threads_number} run
-    Log                 ${output}
-    &{mem_data}         Parse Memory Results   ${output}
-    &{statistics}       Save Memory Data       ${TEST NAME}  ${mem_data}
-    Log                 <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
-    IF  "${statistics}[flag]" == "-1"
-        ${fail_msg}     Create fail message  ${statistics}
-        FAIL            ${fail_msg}
-    END
-    IF  "${statistics}[flag]" == "1"
-        ${pass_msg}     Create improved message  ${statistics}
-        Pass Execution            ${pass_msg}
-    END
+    [Documentation]         Run a memory benchmark using Sysbench for 60 seconds with MULTIPLE threads.
+    ...                     The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
+    ...                     and Latency for WRITE operations.
+    ...                     Create visual plots to represent these metrics comparing to previous tests.
+    [Tags]                  memory  SP-T61-6  nuc  orin-agx  orin-nx  lenovo-x1   dell-7330
+    ${output}               Execute Command    sysbench memory --time=60 --memory-oper=write --threads=${threads_number} run
+    Log                     ${output}
+    &{mem_data}             Parse Memory Results   ${output}
+    &{statistics}           Save Memory Data       ${TEST NAME}  ${mem_data}
+    Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
+    Determine Test Status   ${statistics}
 
 FileIO test
     [Documentation]     Run a fileio benchmark using Sysbench for 30 seconds with MULTIPLE threads.
@@ -204,31 +162,9 @@ FileIO test
     Log    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}_read.png" alt="Mem Plot" width="1200">    HTML
     Log    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}_write.png" alt="Mem Plot" width="1200">   HTML
 
-    ${fail_msg}=  Set Variable  ${EMPTY}
-    IF  "${statistics_rd}[flag]" == "-1"
-        ${add_msg}     Create fail message  ${statistics_rd}
-        ${fail_msg}=    Set Variable  READ:\n${add_msg}
-    END
-    IF  "${statistics_wr}[flag]" == "-1"
-        ${add_msg}      Create fail message  ${statistics_wr}
-        ${fail_msg}=    Set Variable  ${fail_msg}\nWRITE:\n${add_msg}
-    END
-    IF  "${statistics_rd}[flag]" == "-1" or "${statistics_wr}[flag]" == "-1"
-        FAIL            ${fail_msg}
-    END
-
-    ${pass_msg}=  Set Variable  ${EMPTY}
-    IF  "${statistics_rd}[flag]" == "1"
-        ${add_msg}     Create improved message  ${statistics_rd}
-        ${pass_msg}=    Set Variable  READ:\n${add_msg}
-    END
-    IF  "${statistics_wr}[flag]" == "1"
-        ${add_msg}      Create improved message  ${statistics_wr}
-        ${pass_msg}=    Set Variable  ${pass_msg}\nWRITE:\n${add_msg}
-    END
-    IF  "${statistics_rd}[flag]" == "1" or "${statistics_wr}[flag]" == "1"
-        Pass Execution    ${pass_msg}
-    END
+    ${stats_list}=          Create List     ${statistics_rd}    ${statistics_wr}
+    ${label_list}=          Create List     read                write
+    Determine Test Status   ${stats_list}   ${label_list}
 
 Sysbench test in NetVM
     [Documentation]      Run CPU and Memory benchmark using Sysbench in NetVM.
@@ -248,37 +184,9 @@ Sysbench test in NetVM
     Log    <img src="${REL_PLOT_DIR}${DEVICE}_net-vm_${TEST NAME}_memory_read_1thread.png" alt="Mem Plot" width="1200">    HTML
     Log    <img src="${REL_PLOT_DIR}${DEVICE}_net-vm_${TEST NAME}_memory_write_1thread.png" alt="Mem Plot" width="1200">    HTML
 
-    ${msg}=  Set Variable  ${EMPTY}
-    IF  "${statistics_cpu}[flag]" == "-1"
-        ${add_msg}      Create fail message  ${statistics_cpu}
-        ${msg}=    Set Variable  CPU:\n${add_msg}
-    END
-    IF  "${statistics_cpu}[flag]" == "1"
-        ${add_msg}      Create improved message  ${statistics_cpu}
-        ${msg}=    Set Variable  CPU:\n${add_msg}
-    END
-    IF  "${statistics_mem_rd}[flag]" == "-1"
-        ${add_msg}      Create fail message  ${statistics_mem_rd}
-        ${fail_msg}=    Set Variable  ${msg}\nMEM READ:\n${add_msg}
-    END
-    IF  "${statistics_mem_rd}[flag]" == "1"
-        ${add_msg}      Create improved message  ${statistics_mem_rd}
-        ${msg}=    Set Variable  ${msg}\nMEM READ:\n${add_msg}
-    END
-    IF  "${statistics_mem_wr}[flag]" == "-1"
-        ${add_msg}      Create fail message  ${statistics_mem_wr}
-        ${fail_msg}=    Set Variable  ${msg}\nMEM WRITE:\n${add_msg}
-    END
-    IF  "${statistics_mem_wr}[flag]" == "1"
-        ${add_msg}      Create improved message  ${statistics_mem_wr}
-        ${msg}=    Set Variable  ${msg}\nMEM WRITE:\n${add_msg}
-    END
-    IF  "${statistics_cpu}[flag]" == "-1" or "${statistics_mem_rd}[flag]" == "-1" or "${statistics_mem_wr}[flag]" == "-1"
-        FAIL  ${msg}
-    END
-    IF  "${statistics_cpu}[flag]" == "1" or "${statistics_mem_rd}[flag]" == "1" or "${statistics_mem_wr}[flag]" == "1"
-        Pass Execution    ${msg}
-    END
+    ${stats_list}=          Create List     ${statistics_cpu}    ${statistics_mem_rd}   ${statistics_mem_wr}
+    ${label_list}=          Create List     cpu                  memory_read            memory_write
+    Determine Test Status   ${stats_list}   ${label_list}
 
 Sysbench test in VMs on LenovoX1
     [Documentation]      Run CPU and Memory benchmark using Sysbench in Virtual Machines
