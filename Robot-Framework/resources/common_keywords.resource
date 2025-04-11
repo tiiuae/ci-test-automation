@@ -9,9 +9,9 @@ Resource            ../resources/gui_keywords.resource
 *** Keywords ***
 
 Check that the application was started
-    [Arguments]          ${app_name}  ${range}=2
+    [Arguments]          ${app_name}  ${range}=2  ${exact_match}=false
     FOR   ${i}   IN RANGE  ${range}
-        @{found_pids}        Find pid by name    ${app_name}
+        @{found_pids}        Find pid by name    ${app_name}  ${exact_match}
         Set Global Variable  @{APP_PIDS}  @{found_pids}
         ${status}    Run Keyword And Return Status   Should Not Be Empty  ${APP_PIDS}
         IF    ${status}    BREAK
@@ -21,10 +21,10 @@ Check that the application was started
     Log To Console       ${app_name} is started
 
 Check that the application is not running
-    [Arguments]          ${app_name}  ${range}=2
+    [Arguments]          ${app_name}  ${range}=2  ${exact_match}=false
     ${pids}=  Set Variable  ${EMPTY}
     FOR   ${i}   IN RANGE  ${range}
-        ${keyword_status}  ${pids}  Run Keyword And Ignore Error   Find pid by name    ${app_name}
+        ${keyword_status}  ${pids}  Run Keyword And Ignore Error   Find pid by name    ${app_name}  ${exact_match}
         Set Global Variable  @{APP_PIDS}  @{pids}
         ${status}    Run Keyword And Return Status   Should Be Empty  ${pids}
         IF    ${status}    BREAK
