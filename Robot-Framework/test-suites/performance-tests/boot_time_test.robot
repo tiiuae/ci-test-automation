@@ -86,49 +86,21 @@ Get Boot times
     Connect to netvm
     Connect to VM  ${GUI_VM}
 
-    ${time_from_reboot_to_desktop_available}  Run Keyword And Continue On Failure
+    ${time_to_desktop}  Run Keyword And Continue On Failure
     ...  Wait Until Keyword Succeeds  ${SEARCH_TIMEOUT1}s  1s  Check Time To Notification  ${freedesktop_line}   ${start_time_epoc}
 
-    IF  $time_from_reboot_to_desktop_available == 'False'
-        ${time_from_reboot_to_desktop_available}  Run Keyword And Continue On Failure
+    IF  $time_to_desktop == 'False'
+        ${time_to_desktop}  Run Keyword And Continue On Failure
         ...  Wait Until Keyword Succeeds  ${SEARCH_TIMEOUT2}s  1s  Check Time To Notification  ${testuser_line}   ${start_time_epoc}
-        Skip If   $time_from_reboot_to_desktop_available == 'False'  Skipping. The searched journalctl line is sometimes (randomly) not there. Didn't find it this time.
+        Skip If   $time_to_desktop == 'False'  Skipping. The searched journalctl line is sometimes (randomly) not there. Didn't find it this time.
     END
-    Log                     Boot time to login screen measured: ${time_from_reboot_to_desktop_available}   console=True
+    Log                     Boot time to login screen measured: ${time_to_desktop}   console=True
     &{final_results}        Create Dictionary
-    Set To Dictionary       ${final_results}  time_from_reboot_to_desktop_available  ${time_from_reboot_to_desktop_available}
+    Set To Dictionary       ${final_results}  time_to_desktop  ${time_to_desktop}
     Set To Dictionary       ${final_results}  response_to_ping  ${ping_response_seconds}
     &{statistics}           Save Boot time Data   ${TEST NAME}  ${final_results}
     Log  <img src="${DEVICE}_${TEST NAME}.png" alt="${plot_name}" width="1200">    HTML
-
-    &{statistics_desktop}  Get From Dictionary   ${statistics}   statistics_desktop
-    &{statistics_ping}     Get From Dictionary   ${statistics}   statistics_ping
-
-    ${fail_msg}=  Set Variable  ${EMPTY}
-    IF  "${statistics_desktop}[flag]" == "1"
-        ${add_msg}      Create fail message  ${statistics_desktop}
-        ${fail_msg}=    Set Variable  Time to desktop:\n${add_msg}
-    END
-    IF  "${statistics_ping}[flag]" == "1"
-        ${add_msg}      Create fail message  ${statistics_ping}
-        ${fail_msg}=    Set Variable  ${fail_msg}\nTime to ping response:\n${add_msg}
-    END
-    IF  "${statistics_desktop}[flag]" == "1" or "${statistics_ping}[flag]" == "1"
-        FAIL            ${fail_msg}
-    END
-
-    ${pass_msg}=  Set Variable  ${EMPTY}
-    IF  "${statistics_desktop}[flag]" == "-1"
-        ${add_msg}      Create improved message  ${statistics_desktop}
-        ${pass_msg}=    Set Variable  Time to desktop:\n${add_msg}
-    END
-    IF  "${statistics_ping}[flag]" == "-1"
-        ${add_msg}      Create improved message  ${statistics_ping}
-        ${pass_msg}=    Set Variable  ${pass_msg}\nTime to ping response:\n${add_msg}
-    END
-    IF  "${statistics_desktop}[flag]" == "-1" or "${statistics_ping}[flag]" == "-1"
-        Pass Execution    ${pass_msg}
-    END
+    Determine Test Status   ${statistics}
 
 Check Time To Notification
     [Documentation]  Check that correct notification is available in journalctl

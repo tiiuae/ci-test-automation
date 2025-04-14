@@ -61,63 +61,16 @@ class PerformanceDataProcessing:
             writer.writerow(data.keys())
             writer.writerows(zip(*(data.values())))
 
-    @keyword
-    def write_cpu_to_csv(self, test_name, cpu_data):
-        data = [self.commit,
-                cpu_data['cpu_events_per_second'],
-                cpu_data['min_latency'],
-                cpu_data['avg_latency'],
-                cpu_data['max_latency'],
-                cpu_data['cpu_events_per_thread'],
-                cpu_data['cpu_events_per_thread_stddev'],
-                self.device]
-        self._write_to_csv(test_name, data)
-
     @keyword("Parse and Copy Perfbench To Csv")
     def parse_and_copy_perfbench_to_csv(self):
-
         perf_result_heading, perf_bit_result_heading = parse_perfbench.parse_perfbench_data(self.commit, self.device, self.data_dir)
         return perf_result_heading, perf_bit_result_heading
 
-    @keyword
-    def write_mem_to_csv(self, test_name, mem_data):
-        data = [self.commit,
-                mem_data['operations_per_second'],
-                mem_data['data_transfer_speed'],
-                mem_data['min_latency'],
-                mem_data['avg_latency'],
-                mem_data['max_latency'],
-                mem_data['avg_events_per_thread'],
-                mem_data['events_per_thread_stddev'],
-                self.device]
-        self._write_to_csv(test_name, data)
-
-    @keyword
-    def write_speed_to_csv(self, test_name, speed_data):
+    def write_test_data_to_csv(self, test_name, test_data):
         data = [self.commit]
-        for key in speed_data.keys():
-                data.append(speed_data[key])
+        for key in test_data:
+            data.append(test_data[key])
         data.append(self.device)
-        self._write_to_csv(test_name, data)
-
-    def write_fileio_data_to_csv(self, test_name, data):
-        data = [self.commit,
-                data['file_operations'],
-                data['throughput'],
-                data['min_latency'],
-                data['avg_latency'],
-                data['max_latency'],
-                data['avg_events_per_thread'],
-                data['events_per_thread_stddev'],
-                self.device]
-        self._write_to_csv(test_name, data)
-
-    @keyword("Write Boot time to csv")
-    def write_boot_time_to_csv(self, test_name, boot_data):
-        data = [self.commit,
-                boot_data['time_from_reboot_to_desktop_available'],
-                boot_data['response_to_ping'],
-                self.device]
         self._write_to_csv(test_name, data)
 
     def truncate(self, list, significant_figures):
@@ -126,44 +79,56 @@ class PerformanceDataProcessing:
             truncated_list.append(float(f'{item:.{significant_figures}g}'))
         return truncated_list
 
-    def detect_deviation(self, data_column, baseline_start, threshold):
+    def detect_deviation(self, data_column, baseline_start, threshold, deviations=[]):
         # Calculate mean and population standard deviation of the results
         # Check if last value changes more than threshold from
-        #   mean
-        #   the second last value
-        #   first value of the baseline period
+        #   last "normal" measurement result
+        #   mean of measurement results since baseline_start, omitting deviated results
+        #   first value of the last stable baseline period
 
         flag = 0
+        baseline_end = 0
 
-        # Slice the list to obtain "stable" baseline for mean and std calculations
+        # Slice the list since baseline_start for mean and std calculations
         data_column_cut = data_column[baseline_start:-1]
 
         if len(data_column_cut) > 0:
 
-            mean = sum(data_column_cut) / len(data_column_cut)
+            # Pick the deviations from data_column and calculate their sum
+            sum_deviations = sum([data_column[i] for i in deviations])
 
+            # Calculate mean, omitting the values which are labeled deviations
+            mean = (sum(data_column_cut) - sum_deviations) / (len(data_column_cut) - len(deviations))
+
+            # Calculate standard deviation, omitting the values which are labeled deviations
+            # Find also the last non-deviated measurement result
             data_sum = 0
-            for value in data_column_cut:
-                data_sum = (value - mean) ** 2 + data_sum
-            pstd = (data_sum / len(data_column_cut)) ** (1/2)
+            baseline_values = 0
+            for i in range(baseline_start, len(data_column) - 1):
+                if i not in deviations:
+                    baseline_end = i
+                    baseline_values += 1
+                    data_sum = (data_column[i] - mean) ** 2 + data_sum
+            pstd = (data_sum / baseline_values) ** (1 / 2)
 
             # Automatically calculated pstd can vary wildly in case of multiple successive major changes in results.
             # So this is not a good idea although looks nice:
             # if pstd > 0:
             #     distance = abs(data_column[-1] - mean) / pstd
             #     if distance > 3 * std:
-            #         return [distance, mean, pstd]
+            #         # Deviation detected
+            #         pass
             # Instead it is better to set some threshold manually (based on calculated pstd history of "stable" periods)
 
             d = [0] * 3
 
-            # Monitor change from previous measurement. This will catch multiple successive changes
-            d[0] = data_column[-1] - data_column[-2]
+            # Monitor deviation from the last "stable" measurement result.
+            d[0] = data_column[-1] - data_column[baseline_end]
 
             # Monitor deviation from the mean of the last "stable" baseline period
             d[1] = data_column[-1] - mean
 
-            # Change from the first measurement of the last stable period,
+            # Monitor deviation from the first measurement of the last stable period,
             # meaning there are no deviations detected within that period.
             # This will catch slow monotonic change over time.
             d[2] = data_column[-1] - data_column[baseline_start]
@@ -175,27 +140,141 @@ class PerformanceDataProcessing:
             for i in range(len(d)):
                 if d[i] < -threshold:
                     flag = -1
+                    break
                 if d[i] > threshold:
                     flag = 1
 
-            stats = self.truncate([mean, pstd] + d + [data_column[-1], data_column[-2], data_column[baseline_start]], 5)
+            stats = self.truncate([mean, pstd] + d + [data_column[-1], data_column[baseline_end], data_column[baseline_start]], 5)
 
         else:
             stats = [0] * 8
 
-        statistics_dictionary = {
+        statistics_directory = {
             'flag': flag,
             'threshold': threshold,
-            'mean': stats[0],
-            'pstd': stats[1],
-            'd_previous': stats[2],
+            'd_baseline_start': stats[4],
             'd_mean': stats[3],
-            'd_baseline1': stats[4],
-            'measurement': stats[5],
-            'prev_meas': stats[6],
-            'baseline1': stats[7]
+            'd_baseline_end': stats[2],
+            'baseline_start': data_column[baseline_start],
+            'mean': stats[0],
+            'baseline_end': data_column[baseline_end],
+            'baseline_pstd': stats[1],
+            'measurement': data_column[-1]
         }
-        return statistics_dictionary
+
+        return statistics_directory
+
+    def calculate_statistics(self, test_name, data, monitored_value, threshold):
+        # monitored_value: list of labels
+        # threshold: dictionary or list of single value
+
+        # For function return
+        new_statistics_row = None
+
+        # All statistics of all monitored values are gathered into this dictionary for csv file output
+        statistics = {}
+
+        data_key_list = list(data.keys())
+        value_count = len(monitored_value)
+
+        with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
+            csvreader = csv.reader(csvfile)
+            logging.info("Reading data from csv file...")
+            build_counter = {}  # To keep track of duplicate builds
+
+            # Separate deviation counter and baseline for each monitored value
+            baseline_start = {}
+            for value in monitored_value:
+                baseline_start.update({value: 0})
+            new_baseline_start = {}
+            for value in monitored_value:
+                new_baseline_start.update({value: 0})
+            deviation_counter = [0] * value_count
+            deviations = {}
+            for value in monitored_value:
+                deviations.update({value: []})
+
+            row_index = 0
+            for row in csvreader:
+                if row[-1] == self.device:
+                    build = str(row[0])
+                    if build in build_counter:
+                        build_counter[build] += 1
+                        modified_build = f"{build}-{build_counter[build]}"
+                    else:
+                        build_counter[build] = 0
+                        modified_build = build
+                    data['commit'].append(modified_build)
+                    for key_index in range(1, len(row) - 1):
+                        data[data_key_list[key_index]].append(float(row[key_index]))
+
+                    new_statistics_row = {}
+                    indexed_statistics_row = {}
+                    counter = 0
+                    for value in monitored_value:
+                        # Select threshold by value name only if there are multiple thresholds
+                        if len(threshold) < 2:
+                            select_threshold = 0
+                        else:
+                            select_threshold = value
+                        statistics_block = self.detect_deviation(data[value], baseline_start[value], threshold[select_threshold], deviations[value])
+
+                        # Monitor deviations of monitored_value(s)
+                        flag = statistics_block['flag']
+                        if flag != 0:
+                            # Keep track on deviated results to be able to omit random odd result from baseline
+                            deviations[value].append(row_index)
+                            if abs(deviation_counter[counter]) < 1:
+                                # Set potential start for new baseline
+                                new_baseline_start[value] = row_index
+                            else:
+                                # Check if new deviation is to opposite direction than previously
+                                if flag * deviation_counter[counter] < 0:
+                                    deviation_counter[counter] = 0
+                                    new_baseline_start[value] = row_index
+                            # Track of number of successive deviations
+                            deviation_counter[counter] += flag
+                            # Save direction (+/-) and number of successive deviations to statistics
+                            statistics_block['flag'] = flag * abs(deviation_counter[counter])
+                            # Trigger baseline change if number of successive deviations exceeds the defined limit
+                            if abs(deviation_counter[counter]) > thresholds['wait_until_reset'] - 1:
+                                deviation_counter[counter] = 0
+                                deviations[value] = []
+                                baseline_start[value] = new_baseline_start[value]
+                        else:
+                            deviation_counter[counter] = 0
+
+                        new_statistics_row.update({value: statistics_block})
+
+                        # Create indexed statistics row in case of multiple monitored_value
+                        indexed_statistics_block = {}
+                        for key in list(statistics_block.keys()):
+                            if value_count < 2:
+                                indexed_key = key
+                            else:
+                                indexed_key = key + str(counter)
+                            indexed_statistics_block.update({indexed_key: [statistics_block[key]]})
+                        indexed_statistics_row.update(indexed_statistics_block)
+
+                        counter += 1
+
+                    if row_index < 1:
+                        # On the first loop add the dictionary keys
+                        statistics = indexed_statistics_row
+                    else:
+                        # On the following loops append only lists
+                        for key in list(statistics.keys()):
+                            statistics[key].append(indexed_statistics_row[key][0])
+
+                    row_index = row_index + 1
+
+        # Write all statistics into csv file
+        self._write_statistics_to_csv(test_name, statistics)
+        # In case raw data is also necessary for debugging:
+        # self._write_statistics_to_csv(test_name, data | statistics)
+
+        # Return the statistics of the last measurement
+        return new_statistics_row
 
     @keyword
     def read_cpu_csv_and_plot(self, test_name):
@@ -206,8 +285,7 @@ class PerformanceDataProcessing:
             'avg_latency': [],
             'max_latency': [],
             'cpu_events_per_thread': [],
-            'cpu_events_per_thread_stddev': [],
-            'statistics': []
+            'cpu_events_per_thread_stddev': []
         }
 
         # Set threshold for fail depending on test type: single/multi thread
@@ -219,43 +297,10 @@ class PerformanceDataProcessing:
         else:
             threshold = thresholds['cpu']['multi']
 
-        statistics = None
-
-        with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
-            csvreader = csv.reader(csvfile)
-            logging.info("Reading data from csv file...")
-            build_counter = {}  # To keep track of duplicate builds
-            baseline_start = 0
-            row_index = 0
-            for row in csvreader:
-                if row[7] == self.device:
-                    build = str(row[0])
-                    if build in build_counter:
-                        build_counter[build] += 1
-                        modified_build = f"{build}-{build_counter[build]}"
-                    else:
-                        build_counter[build] = 0
-                        modified_build = build
-                    data['commit'].append(modified_build)
-                    data['cpu_events_per_second'].append(float(row[1]))
-                    data['min_latency'].append(float(row[2]))
-                    data['avg_latency'].append(float(row[3]))
-                    data['max_latency'].append(float(row[4]))
-                    data['cpu_events_per_thread'].append(float(row[5]))
-                    data['cpu_events_per_thread_stddev'].append(float(row[6]))
-
-                    statistics = self.detect_deviation(data['cpu_events_per_second'], baseline_start, threshold)
-
-                    if statistics['flag'] != 0:
-                        baseline_start = row_index
-
-                    data['statistics'].append(statistics)
-                    row_index = row_index + 1
-
-            self._write_statistics_to_csv(test_name, data)
+        return_statistics = self.calculate_statistics(test_name, data, ['cpu_events_per_second'], [threshold])
 
         if "VMs" in test_name:
-            return statistics
+            return return_statistics
 
         for key in data.keys():
             data[key] = data[key][-40:]
@@ -308,7 +353,407 @@ class PerformanceDataProcessing:
 
         plt.tight_layout()
         plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
-        return statistics
+        return return_statistics
+
+    @keyword
+    def change_dictionary_key(self, dict, key, new_key):
+        dict[new_key] = dict[key]
+        del dict[key]
+        return dict
+
+    @keyword
+    def read_mem_csv_and_plot(self, test_name):
+        data = {
+            'commit': [],
+            'operations_per_second': [],
+            'data_transfer_speed': [],
+            'min_latency': [],
+            'avg_latency': [],
+            'max_latency': [],
+            'avg_events_per_thread': [],
+            'events_per_thread_stddev': []
+        }
+
+        dictionary_key_name = None
+        # Set threshold for fail depending on test type: single/multi thread, write/read
+        if "One thread" in test_name or "1thread" in test_name:
+            if "rite" in test_name:
+                dictionary_key_name = 'write_1thread'
+                if "NUC" in self.device:
+                    threshold = thresholds['mem']['single']['wr_nuc']
+                else:
+                    threshold = thresholds['mem']['single']['wr']
+            else:
+                dictionary_key_name = 'read_1thread'
+                if "NUC" in self.device:
+                    threshold = thresholds['mem']['single']['rd_nuc']
+                else:
+                    threshold = thresholds['mem']['single']['rd']
+        else:
+            if "rite" in test_name:
+                dictionary_key_name = 'write_multi-thread'
+                threshold = thresholds['mem']['multi']['wr']
+            else:
+                dictionary_key_name = 'read_multi-thread'
+                threshold = thresholds['mem']['multi']['rd']
+
+        return_statistics = self.calculate_statistics(test_name, data, ['data_transfer_speed'], [threshold])
+        return_statistics = self.change_dictionary_key(return_statistics, 'data_transfer_speed', dictionary_key_name)
+
+        if "VMs" in test_name:
+            return return_statistics
+
+        for key in data.keys():
+            data[key] = data[key][-40:]
+
+        plt.figure(figsize=(20, 10))
+        plt.set_loglevel('WARNING')
+
+        # Plot 1: Operations Per Second
+        plt.subplot(3, 1, 1)
+        plt.ticklabel_format(axis='y', style='sci', useMathText=True)
+        plt.plot(data['commit'], data['operations_per_second'], marker='o', linestyle='-', color='b')
+        plt.yticks(fontsize=14)
+        plt.title('Operations per Second', loc='right', fontweight="bold", fontsize=16)
+        plt.ylabel('Operations per Second', fontsize=16)
+        plt.grid(True)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
+
+        # Plot 2: Data Transfer Speed
+        plt.subplot(3, 1, 2)
+        plt.ticklabel_format(axis='y', style='plain')
+        plt.plot(data['commit'], data['data_transfer_speed'], marker='o', linestyle='-', color='b')
+        plt.yticks(fontsize=14)
+        plt.title('Data Transfer Speed', loc='right', fontweight="bold", fontsize=16)
+        plt.ylabel('Data Transfer Speed (MiB/sec)', fontsize=16)
+        plt.grid(True)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
+
+        # Plot 3: Latency
+        plt.subplot(3, 1, 3)
+        plt.ticklabel_format(axis='y', style='plain')
+        plt.plot(data['commit'], data['avg_latency'], marker='o', linestyle='-', color='b', label='Avg')
+        plt.ylabel('Avg Latency (ms)', fontsize=16)
+        plt.legend(loc='upper left')
+        plt.grid(True)
+        plt.xlabel('Build Number', fontsize=16)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
+        plt.ylabel('Max/Min Latency (ms)', fontsize=16)
+        plt.yticks(fontsize=14)
+        plt.twinx()
+        plt.plot(data['commit'], data['max_latency'], marker='o', linestyle='-', color='r', label='Max')
+        plt.plot(data['commit'], data['min_latency'], marker='o', linestyle='-', color='g', label='Min')
+        plt.legend(loc='upper right')
+        plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
+
+        plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
+
+        plt.tight_layout()
+        plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
+        return return_statistics
+
+    @keyword
+    def read_speed_csv_and_plot(self, test_name):
+        data = {
+            'commit': [],
+            'tx': [],
+            'rx': []
+        }
+        threshold = thresholds['iperf']
+
+        return_statistics = self.calculate_statistics(test_name, data, ['tx', 'rx'], [threshold])
+
+        for key in data.keys():
+            data[key] = data[key][-40:]
+
+        plt.figure(figsize=(20, 10))
+        plt.set_loglevel('WARNING')
+
+        # Plot 1: TX
+        plt.subplot(2, 1, 1)
+        plt.ticklabel_format(axis='y', style='plain')
+        plt.plot(data['commit'], data['tx'], marker='o', linestyle='-', color='b')
+        plt.yticks(fontsize=14)
+        plt.title('Transmitting Speed', loc='right', fontweight="bold", fontsize=16)
+        plt.ylabel('TX Speed (MBytes/sec)', fontsize=16)
+        plt.grid(True)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
+
+        # Plot 2: RX
+        plt.subplot(2, 1, 2)
+        plt.ticklabel_format(axis='y', style='plain')
+        plt.plot(data['commit'], data['rx'], marker='o', linestyle='-', color='b')
+        plt.yticks(fontsize=14)
+        plt.title('Receiving Speed', loc='right', fontweight="bold", fontsize=16)
+        plt.ylabel('RX Speed (MBytes/sec)', fontsize=16)
+        plt.grid(True)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
+
+        plt.xlabel('Build Number', fontsize=16)
+
+        plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
+
+        plt.tight_layout()
+        plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
+        return return_statistics
+
+    @keyword
+    def read_fileio_data_csv_and_plot(self, test_name):
+        data = {
+            'commit': [],
+            'file_operations': [],
+            'throughput': [],
+            'min_latency': [],
+            'avg_latency': [],
+            'max_latency': [],
+            'avg_events_per_thread': [],
+            'events_per_thread_stddev': []
+        }
+
+        # Set threshold for fail depending on test type: write/read
+        if "write" in test_name:
+            threshold = thresholds['fileio']['wr']
+        else:
+            if "Lenovo" in self.device:
+                threshold = thresholds['fileio']['rd_lenovo-x1']
+            else:
+                threshold = thresholds['fileio']['rd']
+
+        return_statistics = self.calculate_statistics(test_name, data, ['throughput'], [threshold])
+
+        for key in data.keys():
+            data[key] = data[key][-40:]
+
+        plt.figure(figsize=(20, 10))
+        plt.set_loglevel('WARNING')
+
+        plt.subplot(3, 1, 1)
+        plt.ticklabel_format(axis='y', style='plain')
+        plt.plot(data['commit'], data['file_operations'], marker='o', linestyle='-', color='b')
+        plt.yticks(fontsize=14)
+        plt.title('File operation', loc='right', fontweight="bold", fontsize=16)
+        plt.ylabel('File operation per second', fontsize=16)
+        plt.grid(True)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
+
+        plt.subplot(3, 1, 2)
+        plt.ticklabel_format(axis='y', style='plain')
+        plt.plot(data['commit'], data['throughput'], marker='o', linestyle='-', color='b')
+        plt.yticks(fontsize=14)
+        plt.title('Throughput', loc='right', fontweight="bold", fontsize=16)
+        plt.ylabel('Throughput, MiB/s', fontsize=16)
+        plt.grid(True)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
+
+        plt.subplot(3, 1, 3)
+        plt.ticklabel_format(axis='y', style='plain')
+        plt.plot(data['commit'], data['avg_latency'], marker='o', linestyle='-', color='b', label='Avg')
+        plt.ylabel('Avg Latency (ms)', fontsize=16)
+        plt.legend(loc='upper left')
+        plt.xlabel('Build Number', fontsize=16)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
+        plt.twinx()
+        plt.plot(data['commit'], data['max_latency'], marker='o', linestyle='-', color='r', label='Max')
+        plt.plot(data['commit'], data['min_latency'], marker='o', linestyle='-', color='g', label='Min')
+        plt.yticks(fontsize=14)
+        plt.ylabel('Max/Min Latency (ms)', fontsize=16)
+        plt.legend(loc='upper right')
+        plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
+        plt.grid(True)
+
+        plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
+
+        plt.tight_layout()
+        plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
+        return return_statistics
+
+    @keyword("Read Bootime CSV and Plot")
+    def read_bootime_csv_and_plot(self, test_name):
+        data = {
+                'commit': [],
+                'time_to_desktop':[],
+                'response_to_ping':[],
+                'statistics_desktop': []
+                }
+
+        threshold = {}
+        threshold.update({'time_to_desktop': thresholds['boot_time']['time_to_desktop']})
+        threshold.update({'response_to_ping': thresholds['boot_time']['response_to_ping']})
+
+        return_statistics = self.calculate_statistics(test_name, data, ['time_to_desktop', 'response_to_ping'], threshold)
+
+        for key in data.keys():
+            data[key] = data[key][-40:]
+
+        plt.figure(figsize=(20, 10))
+        plt.set_loglevel('WARNING')
+
+        plt.subplot(4, 1, 1)
+        plt.ticklabel_format(axis='y', style='plain')
+        plt.plot(data['commit'], data['time_to_desktop'], marker='o', linestyle='-', color='b')
+        plt.yticks(fontsize=14)
+        plt.title('Time from reboot to desktop available', loc='right', fontweight="bold", fontsize=16)
+        plt.ylabel('seconds', fontsize=12)
+        plt.grid(True)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
+
+        plt.subplot(4, 1, 2)
+        plt.ticklabel_format(axis='y', style='plain')
+        plt.plot(data['commit'], data['response_to_ping'], marker='o', linestyle='-', color='b')
+        plt.yticks(fontsize=14)
+        plt.title('Response to ping', loc='right', fontweight="bold", fontsize=16)
+        plt.ylabel('seconds', fontsize=12)
+        plt.grid(True)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
+
+        plt.tight_layout()
+        plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
+
+        return return_statistics
+
+    def extract_numeric_part(self, build_identifier):
+        parts = build_identifier.split('-')
+        base_number = int(''.join(filter(str.isdigit, parts[0])))
+        suffix = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else -1
+        return (base_number, suffix)
+
+    def read_vms_data_csv_and_plot(self, test_name, vms_dict):
+        tests = ['cpu_1thread', 'memory_read_1thread', 'memory_write_1thread', 'cpu', 'memory_read', 'memory_write']
+        data = {test: {} for test in tests}
+
+        all_builds = {test: [] for test in tests}
+
+        for vm_name, threads in vms_dict.items():
+            for test in tests:
+                if "1thread" not in test and int(threads) == 1:
+                    continue
+
+                file_name = f"{self.data_dir}/{self.device}_{vm_name}_{test_name}_{test}.csv"
+                if not os.path.exists(file_name):
+                    continue
+
+                with open(file_name, 'r') as file:
+                    csvreader = csv.reader(file)
+                    build_counter = {}
+                    build_data = []
+                    for row in csvreader:
+                        if not row:
+                            continue
+                        build = row[0]
+                        build_counter[build] = build_counter.get(build, -1) + 1
+                        modified_build = f"{build}-{build_counter[build]}" if build_counter[build] > 0 else build
+                        build_data.append((modified_build, float(row[1 if 'cpu' in test else 2])))
+
+                    if build_data:
+                        build_data = build_data[-10:]  # Keep only the last 10 builds
+                        data[test][vm_name] = {
+                            'commit': [build[0] for build in build_data],
+                            'values': [build[1] for build in build_data],
+                            'threads': threads
+                        }
+                        for build in [build[0] for build in build_data]:
+                            if build not in all_builds[test]:
+                                all_builds[test].append(build)
+
+        for test in tests:
+            plt.figure(figsize=(10, 6))
+
+            for i, (vm_name, vm_data) in enumerate(data[test].items()):
+                if vm_data:
+                    indices = [all_builds[test].index(build) for build in vm_data['commit']]
+                    plt.bar([x + i * 0.1 for x in indices], vm_data['values'], width=0.1,
+                            label=f"{vm_name} ({vm_data['threads']} threads)" if "1thread" not in test else vm_name)
+
+            plt.title(f'Comparison of {test} results for VMs\n(build type: {self.build_type}, device: {self.device})')
+            plt.xlabel('Builds')
+            plt.ylabel('Data transfer speed, MB/s' if 'memory' in test else 'Events per second')
+            plt.xticks(range(len(all_builds[test])), all_builds[test], rotation=90)
+            plt.legend()
+            plt.tight_layout()
+            plt.savefig(self.plot_dir + f'{self.device}_{test_name}_{test}.png')
+            plt.close()
+
+    @keyword
+    def save_cpu_data(self, test_name, cpu_data):
+        self.write_test_data_to_csv(test_name, cpu_data)
+        return self.read_cpu_csv_and_plot(test_name)
+
+    @keyword("Save Boot time Data")
+    def save_boot_time_data(self, test_name, boot_data):
+        self.write_test_data_to_csv(test_name, boot_data)
+        return self.read_bootime_csv_and_plot(test_name)
+
+    @keyword
+    def save_memory_data(self, test_name, memory_data):
+        self.write_test_data_to_csv(test_name, memory_data)
+        return self.read_mem_csv_and_plot(test_name)
+
+    @keyword
+    def save_speed_data(self, test_name, speed_data):
+        self.write_test_data_to_csv(test_name, speed_data)
+        return self.read_speed_csv_and_plot(test_name)
+
+    @keyword
+    def save_fileio_data(self, test_name, fileio_data):
+        self.write_test_data_to_csv(test_name, fileio_data)
+        return self.read_fileio_data_csv_and_plot(test_name)
+
+
+    # ---------------------------------------------------------------------
+    # Unused functions and functions related to riscv perf analysis
+
+    @keyword("Read Perfbench Csv And Plot")
+    def read_perfbench_csv_and_plot(self, test_name, file_name, headers):
+        self.normalize_columns(file_name, 100)
+        fname = "normalized_" + file_name
+        data = {}
+        file_path = os.path.join(self.data_dir, f"{self.device}_{fname}")
+        with open(file_path ,'r') as csvfile:
+            lines = csv.reader(csvfile)
+            heading = next(lines)
+            logging.info("Reading data from csv file..." )
+            logging.info(file_path)
+
+            data_lines = []
+            for row in lines:
+                data_lines.append(row)
+
+            build_counter = {}  # To keep track of duplicate builds
+            index = 0
+            data = {"commit":[]}
+
+            for header in headers:
+                data.update({
+                header:[]})
+                for row in data_lines:
+                    if header == "commit":
+                        build = str(row[0])
+                        if build in build_counter:
+                            build_counter[build] += 1
+                            modified_build = f"{build}-{build_counter[build]}"
+                        else:
+                            build_counter[build] = 0
+                            modified_build = build
+                        data['commit'].append(modified_build)
+                    else:
+                        data[header].append(float(row[index]))
+                index +=1
+
+        plt.figure(figsize=(20, 15))
+        plt.set_loglevel('WARNING')
+        plt.subplot(1, 1, 1)
+        plt.ticklabel_format(axis='y', style='plain')
+
+        for key, value in data.items():
+            if key not in ['commit']:
+                plt.plot(data['commit'], value, marker='o', linestyle='-', label=key)
+        plt.legend(title="Perfbench measurements", loc="lower left", ncol=3)
+        plt.yticks(fontsize=14)
+        plt.title(f'Perfbench results: {file_name}', loc='right', fontweight="bold", fontsize=16)
+        plt.grid(True)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
+        plt.tight_layout()
+        plt.savefig(self.plot_dir + f'{self.device}_{test_name}_{file_name}.png')
 
     def normalize_columns(self, csv_file_name, normalize_to):
         # Set the various results to the same range.
@@ -392,510 +837,6 @@ class PerformanceDataProcessing:
         row = row + value_list
         return row
 
-
-    @keyword("Read Perfbench Csv And Plot")
-    def read_perfbench_csv_and_plot(self, test_name, file_name, headers):
-        self.normalize_columns(file_name, 100)
-        fname = "normalized_" + file_name
-        data = {}
-        file_path = os.path.join(self.data_dir, f"{self.device}_{fname}")
-        with open(file_path ,'r') as csvfile:
-            lines = csv.reader(csvfile)
-            heading = next(lines)
-            logging.info("Reading data from csv file..." )
-            logging.info(file_path)
-
-            data_lines = []
-            for row in lines:
-                data_lines.append(row)
-
-            build_counter = {}  # To keep track of duplicate builds
-            index = 0
-            data = {"commit":[]}
-
-            for header in headers:
-                data.update({
-                header:[]})
-                for row in data_lines:
-                    if header == "commit":
-                        build = str(row[0])
-                        if build in build_counter:
-                            build_counter[build] += 1
-                            modified_build = f"{build}-{build_counter[build]}"
-                        else:
-                            build_counter[build] = 0
-                            modified_build = build
-                        data['commit'].append(modified_build)
-                    else:
-                        data[header].append(float(row[index]))
-                index +=1
-
-        plt.figure(figsize=(20, 15))
-        plt.set_loglevel('WARNING')
-        plt.subplot(1, 1, 1)
-        plt.ticklabel_format(axis='y', style='plain')
-
-        for key, value in data.items():
-            if key not in ['commit']:
-                plt.plot(data['commit'], value, marker='o', linestyle='-', label=key)
-        plt.legend(title="Perfbench measurements", loc="lower left", ncol=3)
-        plt.yticks(fontsize=14)
-        plt.title(f'Perfbench results: {file_name}', loc='right', fontweight="bold", fontsize=16)
-        plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
-        plt.tight_layout()
-        plt.savefig(self.plot_dir + f'{self.device}_{test_name}_{file_name}.png')
-
-    @keyword
-    def read_mem_csv_and_plot(self, test_name):
-        data = {
-            'commit': [],
-            'operations_per_second': [],
-            'data_transfer_speed': [],
-            'min_latency': [],
-            'avg_latency': [],
-            'max_latency': [],
-            'avg_events_per_thread': [],
-            'events_per_thread_stddev': [],
-            'statistics': []
-        }
-
-        statistics = None
-
-        # Set threshold for fail depending on test type: single/multi thread, write/read
-        if "One thread" in test_name or "1thread" in test_name:
-            if "rite" in test_name:
-                if "NUC" in self.device:
-                    threshold = thresholds['mem']['single']['wr_nuc']
-                else:
-                    threshold = thresholds['mem']['single']['wr']
-            else:
-                if "NUC" in self.device:
-                    threshold = thresholds['mem']['single']['rd_nuc']
-                else:
-                    threshold = thresholds['mem']['single']['rd']
-        else:
-            if "rite" in test_name:
-                threshold = thresholds['mem']['multi']['wr']
-            else:
-                threshold = thresholds['mem']['multi']['rd']
-
-        with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
-            csvreader = csv.reader(csvfile)
-            logging.info("Reading data from csv file...")
-            build_counter = {}  # To keep track of duplicate builds
-            baseline_start = 0
-            row_index = 0
-            for row in csvreader:
-                if row[8] == self.device:
-                    build = str(row[0])
-                    if build in build_counter:
-                        build_counter[build] += 1
-                        modified_build = f"{build}-{build_counter[build]}"
-                    else:
-                        build_counter[build] = 0
-                        modified_build = build
-                    data['commit'].append(modified_build)
-                    data['operations_per_second'].append(float(row[1]))
-                    data['data_transfer_speed'].append(float(row[2]))
-                    data['min_latency'].append(float(row[3]))
-                    data['avg_latency'].append(float(row[4]))
-                    data['max_latency'].append(float(row[5]))
-                    data['avg_events_per_thread'].append(float(row[6]))
-                    data['events_per_thread_stddev'].append(float(row[7]))
-
-                    statistics = self.detect_deviation(data['data_transfer_speed'], baseline_start, threshold)
-
-                    if statistics['flag'] != 0:
-                        baseline_start = row_index
-
-                    data['statistics'].append(statistics)
-                    row_index = row_index + 1
-
-            self._write_statistics_to_csv(test_name, data)
-
-        if "VMs" in test_name:
-            return statistics
-
-        for key in data.keys():
-            data[key] = data[key][-40:]
-
-        plt.figure(figsize=(20, 10))
-        plt.set_loglevel('WARNING')
-
-        # Plot 1: Operations Per Second
-        plt.subplot(3, 1, 1)
-        plt.ticklabel_format(axis='y', style='sci', useMathText=True)
-        plt.plot(data['commit'], data['operations_per_second'], marker='o', linestyle='-', color='b')
-        plt.yticks(fontsize=14)
-        plt.title('Operations per Second', loc='right', fontweight="bold", fontsize=16)
-        plt.ylabel('Operations per Second', fontsize=16)
-        plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
-
-        # Plot 2: Data Transfer Speed
-        plt.subplot(3, 1, 2)
-        plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['commit'], data['data_transfer_speed'], marker='o', linestyle='-', color='b')
-        plt.yticks(fontsize=14)
-        plt.title('Data Transfer Speed', loc='right', fontweight="bold", fontsize=16)
-        plt.ylabel('Data Transfer Speed (MiB/sec)', fontsize=16)
-        plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
-
-        # Plot 3: Latency
-        plt.subplot(3, 1, 3)
-        plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['commit'], data['avg_latency'], marker='o', linestyle='-', color='b', label='Avg')
-        plt.ylabel('Avg Latency (ms)', fontsize=16)
-        plt.legend(loc='upper left')
-        plt.grid(True)
-        plt.xlabel('Build Number', fontsize=16)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
-        plt.ylabel('Max/Min Latency (ms)', fontsize=16)
-        plt.yticks(fontsize=14)
-        plt.twinx()
-        plt.plot(data['commit'], data['max_latency'], marker='o', linestyle='-', color='r', label='Max')
-        plt.plot(data['commit'], data['min_latency'], marker='o', linestyle='-', color='g', label='Min')
-        plt.legend(loc='upper right')
-        plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
-
-        plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
-
-        plt.tight_layout()
-        plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
-        return statistics
-
-    @keyword
-    def read_speed_csv_and_plot(self, test_name):
-        data = {
-            'commit': [],
-            'tx': [],
-            'rx': [],
-            'statistics_tx': [],
-            'statistics_rx': []
-        }
-        threshold = thresholds['iperf']
-        statistics_tx = None
-        statistics_rx = None
-
-        with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
-            csvreader = csv.reader(csvfile)
-            logging.info("Reading data from csv file...")
-            build_counter = {}  # To keep track of duplicate builds
-            baseline_start = 0
-            row_index = 0
-            for row in csvreader:
-                if row[3] == self.device:
-                    build = str(row[0])
-                    if build in build_counter:
-                        build_counter[build] += 1
-                        modified_build = f"{build}-{build_counter[build]}"
-                    else:
-                        build_counter[build] = 0
-                        modified_build = build
-                    data['commit'].append(modified_build)
-                    data['tx'].append(float(row[1]))
-                    data['rx'].append(float(row[2]))
-
-                    statistics_tx = self.detect_deviation(data['tx'], baseline_start, threshold)
-                    statistics_rx = self.detect_deviation(data['rx'], baseline_start, threshold)
-
-                    if statistics_tx['flag'] != 0 or statistics_rx['flag'] != 0:
-                        baseline_start = row_index
-
-                    data['statistics_tx'].append(statistics_tx)
-                    data['statistics_rx'].append(statistics_rx)
-                    row_index = row_index + 1
-
-            self._write_statistics_to_csv(test_name, data)
-
-        statistics = {'tx': statistics_tx, 'rx': statistics_rx}
-
-        for key in data.keys():
-            data[key] = data[key][-40:]
-
-        plt.figure(figsize=(20, 10))
-        plt.set_loglevel('WARNING')
-
-        # Plot 1: TX
-        plt.subplot(2, 1, 1)
-        plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['commit'], data['tx'], marker='o', linestyle='-', color='b')
-        plt.yticks(fontsize=14)
-        plt.title('Transmitting Speed', loc='right', fontweight="bold", fontsize=16)
-        plt.ylabel('TX Speed (MBytes/sec)', fontsize=16)
-        plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
-
-        # Plot 2: RX
-        plt.subplot(2, 1, 2)
-        plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['commit'], data['rx'], marker='o', linestyle='-', color='b')
-        plt.yticks(fontsize=14)
-        plt.title('Receiving Speed', loc='right', fontweight="bold", fontsize=16)
-        plt.ylabel('RX Speed (MBytes/sec)', fontsize=16)
-        plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
-
-        plt.xlabel('Build Number', fontsize=16)
-
-        plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
-
-        plt.tight_layout()
-        plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
-        return statistics
-
-    @keyword
-    def read_fileio_data_csv_and_plot(self, test_name):
-        data = {
-            'commit': [],
-            'file_operations': [],
-            'throughput': [],
-            'min_latency': [],
-            'avg_latency': [],
-            'max_latency': [],
-            'avg_events_per_thread': [],
-            'events_per_thread_stddev': [],
-            'statistics': []
-        }
-        statistics = None
-
-        # Set threshold for fail depending on test type: write/read
-        if "write" in test_name:
-            threshold = thresholds['fileio']['wr']
-        else:
-            if "Lenovo" in self.device:
-                threshold = thresholds['fileio']['rd_lenovo-x1']
-            else:
-                threshold = thresholds['fileio']['rd']
-
-        with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
-            csvreader = csv.reader(csvfile)
-            logging.info("Reading data from csv file...")
-            build_counter = {}  # To keep track of duplicate builds
-            baseline_start = 0
-            row_index = 0
-            for row in csvreader:
-                if row[8] == self.device:
-                    build = str(row[0])
-                    if build in build_counter:
-                        build_counter[build] += 1
-                        modified_build = f"{build}-{build_counter[build]}"
-                    else:
-                        build_counter[build] = 0
-                        modified_build = build
-                    data['commit'].append(modified_build)
-                    data['file_operations'].append(float(row[1]))
-                    data['throughput'].append(float(row[2]))
-                    data['min_latency'].append(float(row[3]))
-                    data['avg_latency'].append(float(row[4]))
-                    data['max_latency'].append(float(row[5]))
-                    data['avg_events_per_thread'].append(float(row[6]))
-                    data['events_per_thread_stddev'].append(float(row[7]))
-
-                    statistics = self.detect_deviation(data['throughput'], baseline_start, threshold)
-
-                    if statistics['flag'] != 0:
-                        baseline_start = row_index
-
-                    data['statistics'].append(statistics)
-                    row_index = row_index + 1
-
-            self._write_statistics_to_csv(test_name, data)
-
-        for key in data.keys():
-            data[key] = data[key][-40:]
-
-        plt.figure(figsize=(20, 10))
-        plt.set_loglevel('WARNING')
-
-        plt.subplot(3, 1, 1)
-        plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['commit'], data['file_operations'], marker='o', linestyle='-', color='b')
-        plt.yticks(fontsize=14)
-        plt.title('File operation', loc='right', fontweight="bold", fontsize=16)
-        plt.ylabel('File operation per second', fontsize=16)
-        plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
-
-        plt.subplot(3, 1, 2)
-        plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['commit'], data['throughput'], marker='o', linestyle='-', color='b')
-        plt.yticks(fontsize=14)
-        plt.title('Throughput', loc='right', fontweight="bold", fontsize=16)
-        plt.ylabel('Throughput, MiB/s', fontsize=16)
-        plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
-
-        plt.subplot(3, 1, 3)
-        plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['commit'], data['avg_latency'], marker='o', linestyle='-', color='b', label='Avg')
-        plt.ylabel('Avg Latency (ms)', fontsize=16)
-        plt.legend(loc='upper left')
-        plt.xlabel('Build Number', fontsize=16)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
-        plt.twinx()
-        plt.plot(data['commit'], data['max_latency'], marker='o', linestyle='-', color='r', label='Max')
-        plt.plot(data['commit'], data['min_latency'], marker='o', linestyle='-', color='g', label='Min')
-        plt.yticks(fontsize=14)
-        plt.ylabel('Max/Min Latency (ms)', fontsize=16)
-        plt.legend(loc='upper right')
-        plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
-        plt.grid(True)
-
-        plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
-
-        plt.tight_layout()
-        plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
-        return statistics
-
-    @keyword("Read Bootime CSV and Plot")
-    def read_bootime_csv_and_plot(self, test_name):
-        data = {
-                'commit': [],
-                'time_from_reboot_to_desktop_available':[],
-                'response_to_ping':[],
-                'statistics_desktop': [],
-                'statistics_ping': [],
-                }
-
-        desktop_threshold = thresholds['boot_time']['time_to_desktop_after_reboot']
-        ping_threshold = thresholds['boot_time']['time_to_respond_to_ping']
-
-        statistics_desktop = None
-        statistics_ping = None
-
-        with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
-            csvreader = csv.reader(csvfile)
-            logging.info("Reading data from csv file..." )
-            logging.info(f"{self.data_dir}{self.device}_{test_name}.csv")
-            build_counter = {}  # To keep track of duplicate builds
-            baseline_start = 0
-            row_index = 0
-            for row in csvreader:
-                # print(row)
-                if row[-1] == self.device:
-                    build = str(row[0])
-                    if build in build_counter:
-                        build_counter[build] += 1
-                        modified_build = f"{build}-{build_counter[build]}"
-                    else:
-                        build_counter[build] = 0
-                        modified_build = build
-                    if row[1] != '' and row[2] != '':
-                        data['commit'].append(modified_build)
-                        data['time_from_reboot_to_desktop_available'].append(float(row[1]))
-                        data['response_to_ping'].append(float(row[2]))
-
-                        statistics_desktop = self.detect_deviation(data['time_from_reboot_to_desktop_available'], baseline_start, desktop_threshold)
-                        statistics_ping = self.detect_deviation(data['response_to_ping'], baseline_start, ping_threshold)
-                        if statistics_desktop['flag'] != 0:
-                            baseline_start = row_index
-                        data['statistics_desktop'].append(statistics_desktop)
-                        if statistics_ping['flag'] != 0:
-                            baseline_start = row_index
-                        data['statistics_ping'].append(statistics_ping)
-                        row_index = row_index + 1
-
-            self._write_statistics_to_csv(test_name, data)
-
-        for key in data.keys():
-            data[key] = data[key][-40:]
-
-        plt.figure(figsize=(20, 10))
-        plt.set_loglevel('WARNING')
-
-        plt.subplot(4, 1, 1)
-        plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['commit'], data['time_from_reboot_to_desktop_available'], marker='o', linestyle='-', color='b')
-        plt.yticks(fontsize=14)
-        plt.title('Time from reboot to desktop available', loc='right', fontweight="bold", fontsize=16)
-        plt.ylabel('seconds', fontsize=12)
-        plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
-
-        plt.subplot(4, 1, 2)
-        plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['commit'], data['response_to_ping'], marker='o', linestyle='-', color='b')
-        plt.yticks(fontsize=14)
-        plt.title('Response to ping', loc='right', fontweight="bold", fontsize=16)
-        plt.ylabel('seconds', fontsize=12)
-        plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
-
-        plt.tight_layout()
-        plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
-
-        statistics = {
-            'statistics_desktop': statistics_desktop,
-            'statistics_ping': statistics_ping
-        }
-
-        return statistics
-
-    def extract_numeric_part(self, build_identifier):
-        parts = build_identifier.split('-')
-        base_number = int(''.join(filter(str.isdigit, parts[0])))
-        suffix = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else -1
-        return (base_number, suffix)
-
-    def read_vms_data_csv_and_plot(self, test_name, vms_dict):
-        tests = ['cpu_1thread', 'memory_read_1thread', 'memory_write_1thread', 'cpu', 'memory_read', 'memory_write']
-        data = {test: {} for test in tests}
-
-        all_builds = {test: [] for test in tests}
-
-        for vm_name, threads in vms_dict.items():
-            for test in tests:
-                if "1thread" not in test and int(threads) == 1:
-                    continue
-
-                file_name = f"{self.data_dir}/{self.device}_{vm_name}_{test_name}_{test}.csv"
-                if not os.path.exists(file_name):
-                    continue
-
-                with open(file_name, 'r') as file:
-                    csvreader = csv.reader(file)
-                    build_counter = {}
-                    build_data = []
-                    for row in csvreader:
-                        if not row:
-                            continue
-                        build = row[0]
-                        build_counter[build] = build_counter.get(build, -1) + 1
-                        modified_build = f"{build}-{build_counter[build]}" if build_counter[build] > 0 else build
-                        build_data.append((modified_build, float(row[1 if 'cpu' in test else 2])))
-
-                    if build_data:
-                        build_data = build_data[-10:]  # Keep only the last 10 builds
-                        data[test][vm_name] = {
-                            'commit': [build[0] for build in build_data],
-                            'values': [build[1] for build in build_data],
-                            'threads': threads
-                        }
-                        for build in [build[0] for build in build_data]:
-                            if build not in all_builds[test]:
-                                all_builds[test].append(build)
-
-        for test in tests:
-            plt.figure(figsize=(10, 6))
-
-            for i, (vm_name, vm_data) in enumerate(data[test].items()):
-                if vm_data:
-                    indices = [all_builds[test].index(build) for build in vm_data['commit']]
-                    plt.bar([x + i * 0.1 for x in indices], vm_data['values'], width=0.1,
-                            label=f"{vm_name} ({vm_data['threads']} threads)" if "1thread" not in test else vm_name)
-
-            plt.title(f'Comparison of {test} results for VMs\n(build type: {self.build_type}, device: {self.device})')
-            plt.xlabel('Builds')
-            plt.ylabel('Data transfer speed, MB/s' if 'memory' in test else 'Events per second')
-            plt.xticks(range(len(all_builds[test])), all_builds[test], rotation=90)
-            plt.legend()
-            plt.tight_layout()
-            plt.savefig(self.plot_dir + f'{self.device}_{test_name}_{test}.png')
-            plt.close()
-
     @keyword("Combine Normalized Data")
     def combine_normalized_data(self, test_name, src):
         """ Copy latest normalized perfbench results to combined result file. """
@@ -913,33 +854,3 @@ class PerformanceDataProcessing:
                     writer_object.writerow(row)
                 dst_f.close()
             src_f.close()
-
-    @keyword
-    def save_cpu_data(self, test_name, cpu_data):
-
-        self.write_cpu_to_csv(test_name, cpu_data)
-        return self.read_cpu_csv_and_plot(test_name)
-
-    @keyword("Save Boot time Data")
-    def save_boot_time_data(self, test_name, boot_data):
-
-        self.write_boot_time_to_csv(test_name, boot_data)
-        return self.read_bootime_csv_and_plot(test_name)
-
-    @keyword
-    def save_memory_data(self, test_name, memory_data):
-
-        self.write_mem_to_csv(test_name, memory_data)
-        return self.read_mem_csv_and_plot(test_name)
-
-    @keyword
-    def save_speed_data(self, test_name, speed_data):
-
-        self.write_speed_to_csv(test_name, speed_data)
-        return self.read_speed_csv_and_plot(test_name)
-
-    @keyword
-    def save_fileio_data(self, test_name, fileio_data):
-
-        self.write_fileio_data_to_csv(test_name, fileio_data)
-        return self.read_fileio_data_csv_and_plot(test_name)
