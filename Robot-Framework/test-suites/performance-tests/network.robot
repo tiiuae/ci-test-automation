@@ -16,8 +16,12 @@ Library             Process
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}  ${PERF_DATA_DIR}  ${CONFIG_PATH}   ${PLOT_DIR}
 Library             Collections
 Library             JSONLibrary
-Suite Setup         Network Setup
-Suite Teardown      Network Teardown
+Library             String
+Suite Setup         Run Keywords   Initialize Variables And Connect  AND
+...                 Select network connection to use  AND
+...                 Adjust iptables rules 
+Suite Teardown      Run Keywords  Close port 5201 from iptables  AND
+...                 Close All Connections
 Test Timeout        3 minutes
 Library  DebugLibrary
 
@@ -27,36 +31,36 @@ ${PERF_TEST_TIME}  10
 
 *** Test Cases ***
 Measure TCP Throughput Small Packets
-    [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Timeout]    3 minutes
+    [Documentation]    Start server on DUT. Send data from agent PC in reverse mode to get tx speed
+    [Setup]            Run iperf server on DUT
+    [Teardown]         Stop iperf server
+    [Timeout]          3 minutes
     [Tags]   tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SP-T227
-    Sleep            5
     &{speed_data}      Create Dictionary
-    Log to console  DUT sends
-    ${iperf_version}  Execute command   iperf3 -v  shell=True
-    ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+20}
-    Should be equal   "${output1}"  "<result object with rc 0>"
-    ${still}         Execute command  ps aux | grep iperf3 | grep -v grep  shell=True
-    log to console    ${still}
-    Log To Console     ${output1.stdout}
+    ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
+    Log To Console     1 phase done.
     Log                ${output1.stdout}
-    Log to console  DUT sends DONE
-    Log to console  DUT receives
-    ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME}    shell=True  timeout=${${PERF_TEST_TIME}+20}
-    Log                ${output2.stdout}
-    Should be equal   "${output2}"  "<result object with rc 0>"
-     ${still}         Execute command  ps aux | grep iperf3 | grep -v grep  shell=True
-    log to console    ${still}
+    ${output2}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME}    shell=True  timeout=${${PERF_TEST_TIME}+10}
+    Log To Console     2 phase done.
+    #Log                ${output2.stdout}
+    #Log To Console     ${output2.stdout}
+
     Check iperf3 got results     ${output1}  ${output2}
+    Log To Console     iperf3 results checked
     ${bps_tx}          Get Throughput Values  ${output1.stdout}
+    Log To Console     bps_tx done
     ${bps_rx}          Get Throughput Values  ${output2.stdout}  direction=receiver
+    Log To Console     bps_rx done
     Set To Dictionary  ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
     Log                <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Small Packets" width="1200">    HTML
     ${statistics}      Save Speed Data   ${TEST NAME}  ${speed_data}
     Report Statistics  ${statistics}
+    Log To Console     test done, then teaddown
 
 Measure TCP Bidir Throughput Small Packets
-    [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
+    [Documentation]     Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
+    [Setup]             Run iperf server on DUT
+    [Teardown]          Stop iperf server
     [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SP-T228
     &{speed_data}       Create Dictionary
     ${output}           Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -70,7 +74,9 @@ Measure TCP Bidir Throughput Small Packets
     Report Statistics   ${statistics}
 
 Measure TCP Throughput Big Packets
-    [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
+    [Documentation]    Start server on DUT. Send data from agent PC in reverse mode to get tx speed
+    [Setup]            Run iperf server on DUT
+    [Teardown]         Stop iperf server
     [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SP-T229
     &{speed_data}      Create Dictionary
     ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -85,7 +91,9 @@ Measure TCP Throughput Big Packets
     Report Statistics  ${statistics}
 
 Measure TCP Bidir Throughput Big Packets
-    [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
+    [Documentation]    Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
+    [Setup]            Run iperf server on DUT
+    [Teardown]         Stop iperf server
     [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SP-T230
     &{speed_data}      Create Dictionary
     ${output}          Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -O 5 -M 9000 -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -99,7 +107,9 @@ Measure TCP Bidir Throughput Big Packets
     Report Statistics  ${statistics}
 
 Measure UDP TX Throughput Small Packets
-    [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
+    [Documentation]    Start server on DUT. Send data from agent PC in reverse mode to get tx speed
+    [Setup]            Run iperf server on DUT
+    [Teardown]         Stop iperf server
     [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SP-T231
     &{speed_data}      Create Dictionary
     ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -116,6 +126,8 @@ Measure UDP TX Throughput Small Packets
 
 Measure UDP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
+    [Setup]          Run iperf server on DUT
+    [Teardown]       Stop iperf server
     [Tags]  tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SP-T232
     &{speed_data}      Create Dictionary
     ${output}          Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -129,7 +141,9 @@ Measure UDP Bidir Throughput Small Packets
     Report Statistics  ${statistics}
 
 Measure UDP Throughput Big Packets
-    [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
+    [Documentation]    Start server on DUT. Send data from agent PC in reverse mode to get tx speed
+    [Setup]            Run iperf server on DUT
+    [Teardown]         Stop iperf server
     [Tags]  udp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SP-T233
     &{speed_data}      Create Dictionary
     ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 100G -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -145,7 +159,9 @@ Measure UDP Throughput Big Packets
     Report Statistics  ${statistics}
 
 Measure UDP Bidir Throughput Big Packets
-    [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
+    [Documentation]    Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
+    [Setup]            Run iperf server on DUT
+    [Teardown]         Stop iperf server
     [Tags]  udp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SP-T234
     &{speed_data}      Create Dictionary
     ${output}          Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 10000G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -170,7 +186,7 @@ Select network connection to use
      Set Global Variable  ${CONNECTION}
 
 Adjust iptables rules
-    [Documentation]  Clears rule tables or opens port 5201 for performance tests.
+    [Documentation]  Opens port 5201 for performance tests.
     IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}"
          Open port 5201 from iptables
          Sleep  5
@@ -199,46 +215,60 @@ Open port 5201 from iptables
     ${original_rules}  Read iptables rules
     log  ${original_rules}
     # Save original rules
-    ${result}   Execute Command  sudo iptables-save > /tmp/iptables-orig.rules  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
-    SSHLibrary.Get file   /tmp/iptables-orig.rules    ${OUTPUT_DIR}/iptables-orig-rules.txt
-    # Set policy accept & open port 5201
-    ${result}  ${rc}  Execute Command  iptables -P INPUT ACCEPT    sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    ${result}   Execute Command  iptables-save > /tmp/iptables-original-rules.txt  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    SSHLibrary.Get file   /tmp/iptables-original-rules.txt    ${OUTPUT_DIR}/iptables-original-rules.txt
+
+    # Open port 5201 and set policy accept
+    ${result}  ${rc}  Execute Command  iptables -I INPUT -p tcp -m tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    Should Be Equal   ${rc}  ${0}
+    ${result}  ${rc}  Execute Command  iptables -I INPUT -p udp -m udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
     Should Be Equal   ${rc}  ${0}
 
-    ${result}  ${rc}  Execute Command  sudo iptables -I INPUT -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    ${result}  ${rc}  Execute Command  iptables -I OUTPUT -p tcp -m tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
     Should Be Equal   ${rc}  ${0}
-    ${result}  ${rc}  Execute Command  sudo iptables -I INPUT -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
-    Should Be Equal   ${rc}  ${0}
-
-    ${result}  ${rc}  Execute Command  sudo iptables -I OUTPUT -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
-    Should Be Equal   ${rc}  ${0}
-    ${result}  ${rc}  Execute Command  sudo iptables -I OUTPUT -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    ${result}  ${rc}  Execute Command  iptables -I OUTPUT -p udp -m udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
     Should Be Equal   ${rc}  ${0}
 
     # Allow incoming packages that do belong to some currently open/created connection,
     ${result}  ${rc}  Execute Command  iptables -I INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
     Should Be Equal   ${rc}  ${0}
-    Sleep            1
+
+    # Input policy DROP -> ACCEPT
+    ${result}  ${rc}  Execute Command  iptables -P INPUT ACCEPT    sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    Should Be Equal   ${rc}  ${0}
 
     # Save current rules
     ${changed_rules}  Read iptables rules
     Log  ${changed_rules}
-    ${result}   Execute Command  sudo iptables-save > /tmp/iptables-tampered.rules  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
-    SSHLibrary.Get file   /tmp/iptables-tampered.rules    ${OUTPUT_DIR}/iptables-tampered-rules.txt
+    ${result}   Execute Command  iptables-save > /tmp/iptables-tampered-rules.txt  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    Should Be True        "${result[1]}" == "0"
+    SSHLibrary.Get File   /tmp/iptables-tampered-rules.txt    ${OUTPUT_DIR}/iptables-tampered-rules.txt
 
 Close port 5201 from iptables
     [Documentation]  Firewall rule to close the port that was used in per testing
     # Take the original rules back into use
-    ${result}   Execute Command  sudo iptables-restore < /tmp/iptables-orig.rules  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
-    ${after_test_rules}  Read iptables rules
-    Log  ${after_test_rules}
-    # Delete files
-    ${rc}=    Execute Command    rm ${OUTPUT_DIR}/iptables-orig-rules.txt
-    ${rc}=    Execute Command    rm ${OUTPUT_DIR}/iptables-tampered-rules.txt
+    ${result}   Execute Command  iptables-restore /tmp/iptables-original-rules.txt  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    Should Be True        "${result[1]}" == "0"
+    Sleep        2
+    ${result}   Execute Command  iptables-save > /tmp/iptables-check-restored-rules.txt  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}
+    Should Be True        "${result[1]}" == "0"
+    SSHLibrary.Get File   /tmp/iptables-check-restored-rules.txt    ${OUTPUT_DIR}/iptables-check-restored-rules.txt
+
+    ${original_rules}    OperatingSystem.Get File    ${OUTPUT_DIR}/iptables-original-rules.txt
+    ${tampered_rules}    OperatingSystem.Get File    ${OUTPUT_DIR}/iptables-tampered-rules.txt
+    ${restored_rules}    OperatingSystem.Get File    ${OUTPUT_DIR}/iptables-check-restored-rules.txt
+
+    ${original_lines}   Get Line Count  ${original_rules}
+    ${tampered_lines}   Get Line Count  ${tampered_rules}
+    ${restored_lines}   Get Line Count  ${restored_rules}
+
+    Should Be True   ${tampered_lines} > ${original_lines}
+    Should Be True   ${restored_lines} == ${original_lines}
+
 
 Stop iperf server
-    ${journal_output}     Execute Command   journalctl --since today
-    Log           ${journal_output}
+    #${journal_output}     Execute Command   journalctl --since "10 minutes ago"
+    #Log           ${journal_output}
 
     SSHLibrary.Get file   /tmp/output.log     ${OUTPUT_DIR}/iperfs_log.txt
     OperatingSystem.File Should Exist         ${OUTPUT_DIR}/iperfs_log.txt
@@ -274,6 +304,7 @@ Check iperf3 got results
 Get Throughput Values
     [Documentation]  Return MB per second value
     [Arguments]  ${output}  ${direction}=sender  ${bidir}=False
+    log to console  in Get Throughput Values
     IF  ${bidir}
         IF  '${direction}' == 'sender'
             ${MBps}  Get Regexp Matches  ${output}    (?im).*TX-C.*\\s(\\d+(\\.\\d+)?) MBytes\\/sec.*${direction}  1
@@ -321,61 +352,8 @@ Report statistics
         Pass Execution    ${pass_msg}
     END
 
-    ${msg}  Set Variable  ${EMPTY}
 
-Network Setup
-    [Timeout]      3 minutes
-    Log to console  ..Initialize
-    Initialize Variables And Connect
-    #Log to console  ..PWR mode
-    #Set PowerMode
-    #Log to console  ..clocks
-    #Jetson Clocks
-    #Log to console  ..Select connection
-    Select network connection to use
 
-    Log to console  ..IP tables
-    Adjust iptables rules
-    Log to console  ..Iperf
-    Run iperf server on DUT
-    Log to console  ..done
-
-Network Teardown
-    [Timeout]      3 minutes
-    Stop iperf server
-    Close port 5201 from iptables
-    Close All Connections
-
-Set PowerMode
-    # Read original mode 
-    ${orig_pwr_mode}    Execute Command     nvpmodel -q
-    
-    # Set the power mode
-    #${ExpectedNVPmode}  Set Variable  3
-    #${start}           Execute Command     nvpmodel -m ${ExpectedNVPmode}  sudo=True  sudo_password=${PASSWORD}
-
-    #${output}          Execute Command     nvpmodel-check ${ExpectedNVPmode}
-    #Log to console     PowerModeOutput orig: ${orig_pwr_mode}
-    #Log to console     PowerModeOutput set: ${output}
-    # If still fails after setting power mode, FAIL the test.
-    #Run Keyword If  not ("Power mode check ok: ${ExpectedNVPmode}" in $output)
-    #...             FAIL  ${output}\n\nExpected: ${ExpectedNVPmode}
-
-Jetson clocks
-     ${orig_clocks}   Execute Command  /usr/bin/jetson_clocks --show   sudo=True  sudo_password=${PASSWORD}
-     Log to console  Jetson Clocks: ${orig_clocks}
-
-Failing test teardown
-    ${up}    Check If Ping Fails
-    Run keyword if  not ${up}  Run keywords
-    ...  Initialize Variables And Connect  AND
-    ...  Select network connection to use   AND
-    ...  Execute Command  sudo iptables-restore < /tmp/iptables-orig.rules  sudo=True  sudo_password=${PASSWORD}  return_rc=${true}  AND
-    ...  Log to console  ..IP tables  AND
-    ...  Adjust iptables rules  AND
-    ...  Log to console  ..Iperf  AND
-    ...  Run iperf server on DUT  AND
-    ...  Log to console  ..done
 
 
 
