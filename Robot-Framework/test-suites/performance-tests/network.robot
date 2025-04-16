@@ -31,6 +31,11 @@ ${PERF_TEST_TIME}  10
 Measure TCP Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
     [Tags]   tcp  nuc  orin-agx  orin-nx  riscv  lenovo-x1   dell-7330  SP-T227
+    Create file         /etc/journal.txt
+    ${journal_output}   Execute Command   journalctl --since "10 minutes ago" > /tmp/journal.txt
+    ${Firewall}   Execute Command  iptables -L  sudo=True  sudo_password=${PASSWORD}
+    SSHLibrary.Get file   /tmp/journal.txt    ${OUTPUT_DIR}/debug_journal.txt
+
     &{speed_data}      Create Dictionary
     # DUT sends
     ${output1}         Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -159,6 +164,7 @@ Select network connection to use
          ${CONNECTION}       Connect to ghaf host
      END
      Set Global Variable  ${CONNECTION}
+     Sleep     10
 
 Run iperf server on DUT
     [Documentation]   Run iperf on DUT in server mode
@@ -183,7 +189,7 @@ Open port 5201 from iptables
 
     # Accept incoming packages that do belong to some already opened connection
     Execute Command  iptables -I INPUT -m state RELATED, ESTABLISHED -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
-    Sleep        1
+
 
 Close port 5201 from iptables
     [Documentation]  Firewall rule to close the port that was used in per testing
@@ -192,6 +198,7 @@ Close port 5201 from iptables
 
     # Reject also incoming packages that do belong to some already opened connection
     Execute Command  iptables -I INPUT -m state RELATED, ESTABLISHED -j DROP  sudo=True  sudo_password=${PASSWORD}
+    Sleep        5
 
 Stop iperf server
     @{pid}=  Find pid by name  iperf

@@ -30,7 +30,10 @@ Verify booting after restart by power
         Log To Console  The device started
     END
     IF  "NX" in "${DEVICE}"
+        ${check1}   Run Keyword And Return Status  Verify service status   ${netvm_service}
         Sleep  30
+        ${check2}   Run Keyword And Return Status  Verify service status   ${netvm_service}
+        
     END
     IF  "${CONNECTION_TYPE}" == "ssh"
         Connect   iterations=10
