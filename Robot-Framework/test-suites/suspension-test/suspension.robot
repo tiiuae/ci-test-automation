@@ -10,6 +10,7 @@ Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/device_control.resource
 Resource            ../../resources/connection_keywords.resource
+Resource            ../../resources/power_meas_keywords.resource
 Library             ../../lib/output_parser.py
 Library             JSONLibrary
 Suite Setup         Suspension setup
@@ -28,10 +29,10 @@ Automatic suspension
     [Setup]           Test setup
 
     Check the screen state   on
-    Check screen brightness  96000
+    Check screen brightness  ${max_brightness}
 
     Wait     240
-    Check screen brightness  24000
+    Check screen brightness  ${dimmed_brightness}
 
     Wait     10
     Check notification       The system will suspend soon due to inactivity.    ${last_id}
@@ -46,9 +47,12 @@ Automatic suspension
 
     Wait     450
     Check if device was suspended
+    Start power measurement       ${BUILD_ID}   timeout=180
 
     Wait     300
     Wake up device
+    Generate power plot           ${BUILD_ID}   ${TEST NAME}
+    Stop recording power
 
 *** Keywords ***
 
@@ -60,6 +64,7 @@ Test setup
     Set Suite Variable   ${last_id}    ${last_id}
     Move cursor
     Switch Connection    ${guivm_connection}
+    Get expected brightness values
 
 Wait
     [Arguments]     ${sec}
@@ -67,12 +72,23 @@ Wait
     Log to console  ${time}: waiting for ${sec} sec
     Sleep           ${sec}
 
+Get expected brightness values
+    ${device}     Execute Command    ls /sys/class/backlight/
+    ${max}        Execute Command    cat /sys/class/backlight/${device}/max_brightness
+    Set Test Variable  ${max_brightness}     ${max}
+    Log to console     Max brightness value is ${max}
+    ${int_max}         Convert To Integer    ${max}
+    ${dimmed}          Evaluate   __import__('math').ceil(${int_max} / 4)
+    Log to console     Dimmed brightness is expected to be ~${dimmed}
+    Set Test Variable  ${dimmed_brightness}  ${dimmed}
+
 Check screen brightness
     [Arguments]       ${brightness}    ${timeout}=10
     FOR  ${i}  IN RANGE  ${timeout}
         ${output}     Execute Command    ls /nix/store | grep brightnessctl | grep -v .drv
         ${output}     Execute Command    /nix/store/${output}/bin/brightnessctl get
-        ${status}     Run Keyword And Return Status    Should be Equal   ${output}    ${brightness}
+        Log to console    Brightness is ${output}
+        ${status}     Run Keyword And Return Status  Should be Equal As Numbers   ${output}  ${brightness}
         IF  ${status}
             BREAK
         ELSE
