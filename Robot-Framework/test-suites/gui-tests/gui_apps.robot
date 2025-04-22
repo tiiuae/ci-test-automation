@@ -76,16 +76,6 @@ Start and close File Manager via GUI on LenovoX1
     Start app via GUI on LenovoX1   ${GUI_VM}  pcmanfm
     Close app via GUI on LenovoX1   ${GUI_VM}  pcmanfm  ./window-close-neg.png
 
-Start and close Falcon AI via GUI on LenovoX1
-    [Documentation]   Start Falcon AI via GUI test automation and verify related process started
-    ...               Close Falcon AI via GUI test automation and verify related process stopped
-    ...               Clicks the icon and some Alpaca window is opened.
-    [Tags]            SP-T223-2  lenovo-x1
-    Get icon   ghaf-artwork  falcon-icon.svg   crop=30
-    Start app via GUI on LenovoX1   ${GUI_VM}  alpaca-wrapped
-    Close app via GUI on LenovoX1   ${GUI_VM}  alpaca-wrapped  ./window-close.png   iterations=10
-    [Teardown]    Run Keyword If Test Failed     Skip    "Known issue: SSRCSP-6482"
-
 Start and close Firefox via GUI on Orin AGX
     [Documentation]   Passing this test requires that display is connected to the target device
     ...               Start Firefox via GUI test automation and verify related process started

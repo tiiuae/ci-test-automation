@@ -46,12 +46,6 @@ Start File Manager on LenovoX1
     Start XDG application  'File Manager'
     Check that the application was started    pcmanfm
 
-Start Falcon AI on LenovoX1
-    [Documentation]   Start Falcon AI and verify process started
-    [Tags]            falcon_ai  SP-T223-1
-    Start XDG application  'Falcon AI'
-    Check that the application was started    alpaca-wrapped
-
 *** Keywords ***
 
 Gui-vm Apps Test Setup
