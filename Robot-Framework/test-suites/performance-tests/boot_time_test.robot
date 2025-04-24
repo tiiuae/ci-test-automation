@@ -19,7 +19,7 @@ Suite Teardown      Close All Connections
 
 
 *** Variables ***
-${PING_TIMEOUT}     80
+${PING_TIMEOUT}     120
 ${SEARCH_TIMEOUT1}  20
 ${SEARCH_TIMEOUT2}  5
 
@@ -46,20 +46,56 @@ Measure Hard Boot Time
     Press Button                  ${SWITCH_BOT}-ON
     Get Boot times                plot_name=Hard Boot Times
 
+Measure Orin Soft Boot Time
+    [Documentation]  Measure how long it takes to device to boot up with soft reboot
+    [Tags]  SP-T187  orin-agx   orin-nx
+    Soft Reboot Device
+    Wait Until Keyword Succeeds  35s  2s  Check If Ping Fails
+    Get Time To Ping
+
+Measure Orin Hard Boot Time
+    [Documentation]  Measure how long it takes to device to boot up with hard reboot
+    [Tags]  SP-T182  orin-agx   orin-nx
+    Log to console                Shutting down by switching the power off
+    Turn Relay Off                ${RELAY_NUMBER}
+    Wait Until Keyword Succeeds   15s  2s  Check If Ping Fails
+    Log to console                The device has shut down
+    Log to console                Booting the device by switching the power on
+    Turn Relay On                 ${RELAY_NUMBER}
+    Get Time To Ping              plot_name=Hard Boot Times
+
 
 *** Keywords ***
+
+Measure Time To Ping
+    [Arguments]               ${start_time}
+    ${ping_response}          Set Variable  ${EMPTY}
+    Log to console            Start checking ping response
+    ${ping_end_time}          Set Variable  False
+    WHILE  not $ping_response   limit=${PING_TIMEOUT} seconds
+        ${ping_response}      Ping Host  ${DEVICE_IP_ADDRESS}  1
+        ${ping_end_time}      IF  $ping_response  DateTime.Get Current Date  result_format=epoch
+    END
+    IF  not $ping_end_time
+        FAIL                  No response to ping within ${PING_TIMEOUT}
+    END
+    ${ping_response_seconds}  DateTime.Subtract Date From Date  ${ping_end_time}  ${start_time}   exclude_millis=True
+    Log                       Response time to ping measured: ${ping_response_seconds}   console=True
+    RETURN                    ${ping_response_seconds}
+
+Get Time To Ping
+    [Arguments]  ${plot_name}=Soft Boot Times
+    ${start_time_epoc}            DateTime.Get Current Date   result_format=epoch
+    ${ping_response_seconds}      Measure Time To Ping  ${start_time_epoc}
+    &{final_results}              Create Dictionary
+    Set To Dictionary             ${final_results}  response_to_ping  ${ping_response_seconds}
+    &{statistics}                 Save Boot time Data   ${TEST NAME}  ${final_results}
+    Log  <img src="${DEVICE}_${TEST NAME}.png" alt="${plot_name}" width="1200">    HTML
+    Determine Test Status         ${statistics}
 
 Get Boot times
     [Documentation]  Collect boot times from device
     [Arguments]  ${plot_name}=Soft Boot Times
-    ${ping_response}    Set Variable  ${EMPTY}
-    ${cmd1}  Catenate   SEPARATOR=\n  current_timestamp=$(expr $(date '+%s%N') / 1000000000)
-    ...  echo $current_timestamp
-    ${cmd2}  Catenate   SEPARATOR=\n  since_nixos_menu=$(awk '{print $1}' /proc/uptime)
-    ...  echo $since_nixos_menu
-    ${cmd3}  Catenate   SEPARATOR=\n
-    ...  welcome_note=$(date -d "$(journalctl --output=short-iso | grep gui-vm | grep "Welcome" | tail -1 | awk '{print $1}')" "+%s")
-    ...  echo $welcome_note
     ${freedesktop_line}  Catenate  SEPARATOR=\n
     ...  freedesktop_line=$(journalctl --output=short-iso | grep "Successfully activated service 'org.freedesktop.systemd1'" | grep session)
     ...  echo $freedesktop_line
@@ -69,26 +105,12 @@ Get Boot times
     ...  echo $testuser_line
 
     ${start_time_epoc}    DateTime.Get Current Date   result_format=epoch
-
-    Log to console        Start checking ping response
-    ${ping_end_time}  Set Variable  False
-    WHILE  not $ping_response   limit=${PING_TIMEOUT} seconds
-        ${ping_response}  Ping Host  ${DEVICE_IP_ADDRESS}  1
-        ${ping_end_time}  IF  $ping_response  DateTime.Get Current Date  result_format=epoch
-    END
-    IF  not $ping_end_time
-        FAIL  No response to ping within ${PING_TIMEOUT}
-    END
-    ${ping_response_seconds}  DateTime.Subtract Date From Date  ${ping_end_time}  ${start_time_epoc}   exclude_millis=True
-    Log                       Response time to ping measured: ${ping_response_seconds}   console=True
-
+    ${ping_response_seconds}    Measure Time To Ping    ${start_time_epoc}
     Sleep  30
     Connect to netvm
     Connect to VM  ${GUI_VM}
-
     ${time_to_desktop}  Run Keyword And Continue On Failure
     ...  Wait Until Keyword Succeeds  ${SEARCH_TIMEOUT1}s  1s  Check Time To Notification  ${freedesktop_line}   ${start_time_epoc}
-
     IF  $time_to_desktop == 'False'
         ${time_to_desktop}  Run Keyword And Continue On Failure
         ...  Wait Until Keyword Succeeds  ${SEARCH_TIMEOUT2}s  1s  Check Time To Notification  ${testuser_line}   ${start_time_epoc}
@@ -100,7 +122,8 @@ Get Boot times
     Set To Dictionary       ${final_results}  response_to_ping  ${ping_response_seconds}
     &{statistics}           Save Boot time Data   ${TEST NAME}  ${final_results}
     Log  <img src="${DEVICE}_${TEST NAME}.png" alt="${plot_name}" width="1200">    HTML
-    Determine Test Status   ${statistics}
+    # In boot time test decrease in result value is considered improvement -> using inverted argument
+    Determine Test Status   ${statistics}   inverted=1
 
 Check Time To Notification
     [Documentation]  Check that correct notification is available in journalctl
