@@ -31,6 +31,9 @@ Automatic suspension
     Check the screen state   on
     Check screen brightness  ${max_brightness}
 
+    Start power measurement       ${BUILD_ID}   timeout=180
+    Set start timestamp
+
     Wait     240
     Check screen brightness  ${dimmed_brightness}
 
@@ -47,7 +50,6 @@ Automatic suspension
 
     Wait     450
     Check if device was suspended
-    Start power measurement       ${BUILD_ID}   timeout=180
 
     Wait     300
     Wake up device
