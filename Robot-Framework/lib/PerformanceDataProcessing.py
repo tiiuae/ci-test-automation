@@ -205,6 +205,7 @@ class PerformanceDataProcessing:
                         build_counter[build] = 0
                         modified_build = build
                     data['commit'].append(modified_build)
+
                     for key_index in range(1, len(row) - 1):
                         data[data_key_list[key_index]].append(float(row[key_index]))
 
@@ -569,18 +570,26 @@ class PerformanceDataProcessing:
 
     @keyword("Read Bootime CSV and Plot")
     def read_bootime_csv_and_plot(self, test_name):
-        data = {
+
+        # Omit time_to_desktop for Orin boot tests
+        threshold = {'time_to_desktop': thresholds['boot_time']['time_to_desktop'],
+                     'response_to_ping': thresholds['boot_time']['response_to_ping']}
+        monitored_values = ['time_to_desktop', 'response_to_ping']
+        if 'Orin' in test_name:
+            threshold = [thresholds['boot_time']['response_to_ping']]
+            monitored_values = ['response_to_ping']
+            data = {
+                    'commit': [],
+                    'response_to_ping':[],
+                    }
+        else:
+            data = {
                 'commit': [],
-                'time_to_desktop':[],
-                'response_to_ping':[],
-                'statistics_desktop': []
-                }
+                'time_to_desktop': [],
+                'response_to_ping': [],
+            }
 
-        threshold = {}
-        threshold.update({'time_to_desktop': thresholds['boot_time']['time_to_desktop']})
-        threshold.update({'response_to_ping': thresholds['boot_time']['response_to_ping']})
-
-        return_statistics = self.calculate_statistics(test_name, data, ['time_to_desktop', 'response_to_ping'], threshold)
+        return_statistics = self.calculate_statistics(test_name, data, monitored_values, threshold)
 
         for key in data.keys():
             data[key] = data[key][-40:]
@@ -588,16 +597,7 @@ class PerformanceDataProcessing:
         plt.figure(figsize=(20, 10))
         plt.set_loglevel('WARNING')
 
-        plt.subplot(4, 1, 1)
-        plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['commit'], data['time_to_desktop'], marker='o', linestyle='-', color='b')
-        plt.yticks(fontsize=14)
-        plt.title('Time from reboot to desktop available', loc='right', fontweight="bold", fontsize=16)
-        plt.ylabel('seconds', fontsize=12)
-        plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
-
-        plt.subplot(4, 1, 2)
+        plt.subplot(2, 1, 1)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(data['commit'], data['response_to_ping'], marker='o', linestyle='-', color='b')
         plt.yticks(fontsize=14)
@@ -605,6 +605,17 @@ class PerformanceDataProcessing:
         plt.ylabel('seconds', fontsize=12)
         plt.grid(True)
         plt.xticks(data['commit'], rotation=90, fontsize=14)
+
+        # Omit time_to_desktop for Orin boot tests
+        if not 'Orin' in test_name:
+            plt.subplot(2, 1, 2)
+            plt.ticklabel_format(axis='y', style='plain')
+            plt.plot(data['commit'], data['time_to_desktop'], marker='o', linestyle='-', color='b')
+            plt.yticks(fontsize=14)
+            plt.title('Time from reboot to desktop available', loc='right', fontweight="bold", fontsize=16)
+            plt.ylabel('seconds', fontsize=12)
+            plt.grid(True)
+            plt.xticks(data['commit'], rotation=90, fontsize=14)
 
         plt.tight_layout()
         plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')

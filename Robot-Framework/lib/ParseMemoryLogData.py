@@ -34,6 +34,3 @@ class ParseMemoryLogData:
         plt.xticks(range(start_time, end_time, step), fontsize=14)
         plt.savefig(plot_dir + f'mem_ballooning_{id}.png')
         return
-
-
-
