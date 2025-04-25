@@ -23,14 +23,11 @@ ${VIDEO_DIR}    ${OUTPUT_DIR}/outputs/video-temp
 *** Test Cases ***
 Check Camera Application
     [Documentation]  Check that camera application is available in business-vm and not in other vm
-    [Tags]  SP-T235
+    [Tags]           SP-T235
+    [Template]       Check if camera application is available in VM
     FOR  ${vm}  IN  @{VMS}
-        Connect to VM       ${vm}
-        ${out}  Execute Command  v4l2-ctl --list-devices  sudo=True  sudo_password=${PASSWORD}
-        Log  ${out}
-        IF  '${vm}' == '${BUSINESS_VM}'  Should Contain  ${out}  /dev/video  ELSE  Should Not Contain  ${out}  /dev/video
+        ${vm}
     END
-    [Teardown]  Run Keyword If   "Dell" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6450"
 
 Record Video With Camera
     [Documentation]  Start Camera application and record short video
@@ -57,6 +54,15 @@ Record Video With Camera
 
 
 *** Keywords ***
+
+Check if camera application is available in VM
+    [Arguments]     ${vm}
+    Connect to VM   ${vm}
+    ${out}          Execute Command  v4l2-ctl --list-devices  sudo=True  sudo_password=${PASSWORD}
+    Log             ${out}
+    IF  '${vm}' == '${BUSINESS_VM}'  Should Contain  ${out}  /dev/video  ELSE  Should Not Contain  ${out}  /dev/video
+    [Teardown]  Run Keyword If   "Dell" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6450"
+
 Verify Video File
     [Documentation]  Verify that file size is not 0 and that video is not all black
     [Arguments]  ${id}
