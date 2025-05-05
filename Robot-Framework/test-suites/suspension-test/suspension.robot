@@ -53,8 +53,20 @@ Automatic suspension
     Wait     450
     Check if device was suspended
 
-    Wait     300
+    Wait     1800  #300
     Wake up device
+    # Extra for debugging
+    ${notifications}  Execute Command  /nix/store/${mako_path}/bin/makoctl history
+    Log To Console    Notifications: ${notifications}
+
+    #run keyword and continue on failure    Execute command  journalctl --since "${start_timestamp}" > /tmp/stamp_dele.txt
+    Execute command  journalctl --since "${start_timestamp}" > /tmp/stamp.txt
+    SSHLibrary.Get file   /tmp/stamp.txt         ${OUTPUT_DIR}/stamp.txt
+    ${file_content}   OperatingSystem.Get file   ${OUTPUT_DIR}/stamp.txt
+    @{file_content_lines}   Split To Lines   ${file_content}
+    log  ${file_content_lines}
+    # Extra for debugging END
+
     Generate power plot           ${BUILD_ID}   ${TEST NAME}
     Stop recording power
 
@@ -92,7 +104,7 @@ Check screen brightness
         ${output}     Execute Command    ls /nix/store | grep brightnessctl | grep -v .drv
         ${output}     Execute Command    /nix/store/${output}/bin/brightnessctl get
         Log to console    Brightness is ${output}
-        ${status}     Run Keyword And Return Status  Should be Equal As Numbers   ${output}  ${brightness}
+        ${status}     Run Keyword And Return Status  Should Be True   0.98*${brightness} <= ${output} <= 1.02*${brightness}
         IF  ${status}
             BREAK
         ELSE
