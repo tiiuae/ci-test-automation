@@ -52,6 +52,7 @@ Measure Orin Soft Boot Time
     Soft Reboot Device
     Wait Until Keyword Succeeds  35s  2s  Check If Ping Fails
     Get Time To Ping
+    IF  "NX" in "${DEVICE}"      Sleep    30
 
 Measure Orin Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
@@ -63,6 +64,7 @@ Measure Orin Hard Boot Time
     Log to console                Booting the device by switching the power on
     Turn Relay On                 ${RELAY_NUMBER}
     Get Time To Ping              plot_name=Hard Boot Times
+    IF  "NX" in "${DEVICE}"       Sleep    30
 
 
 *** Keywords ***
