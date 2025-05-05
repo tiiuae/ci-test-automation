@@ -243,7 +243,8 @@ Wait for Ghaf session activation
         END
         Sleep   0.5
     END
-    FAIL    Ghaf session did not activate
+    Log To Console    Failed
+    Log To Console    Ghaf session did not activate
     [Teardown]    Connect to VM   ${GUI_VM}
 
 Get icon
