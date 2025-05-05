@@ -19,32 +19,56 @@ Test Teardown       Gui-vm Apps Test Teardown
 Start Calculator on LenovoX1
     [Documentation]   Start Calculator and verify process started
     [Tags]            calculator  SP-T202
-    Start XDG application  Calculator
+    Start XDG application  Calculator  gui_vm_app=true
     Check that the application was started    calculator
 
 Start Sticky Notes on LenovoX1
     [Documentation]   Start Sticky Notes and verify process started
     [Tags]            sticky_notes  SP-T201-1
-    Start XDG application  'Sticky Notes'
+    Start XDG application  'Sticky Notes'  gui_vm_app=true
     Check that the application was started    sticky-wrapped
 
 Start Ghaf Control Panel on LenovoX1
     [Documentation]   Start Ghaf Control Panel and verify process started
     [Tags]            control_panel  SP-T205
-    Start XDG application   'Ghaf Control Panel'
+    Start XDG application  'Ghaf Control Panel'  gui_vm_app=true
     Check that the application was started    ctrl-panel
 
 Start Bluetooth Settings on LenovoX1
     [Documentation]   Start Bluetooth Settings and verify process started
     [Tags]            bluetooth_settings  SP-T204
-    Start XDG application  'Bluetooth Settings'
-    Check that the application was started    blueman-manager
+    Start XDG application  'Bluetooth Settings'  gui_vm_app=true
+    Check that the application was started    blueman-manager-wrapped-wrapped
 
-Start File Manager on LenovoX1
-    [Documentation]   Start File Manager and verify process started
-    [Tags]            file_manager  SP-T206
-    Start XDG application  'File Manager'
-    Check that the application was started    pcmanfm
+Start COSMIC Files on LenovoX1
+    [Documentation]   Start Cosmic Files and verify process started
+    [Tags]            cosmic_files  SP-T206
+    IF  $COMPOSITOR == 'cosmic'
+        Start XDG application  com.system76.CosmicFiles  gui_vm_app=true
+        Check that the application was started    cosmic-files %U  exact_match=true
+    ELSE
+        Skip   App only available in Cosmic
+    END
+
+Start COSMIC Settings on LenovoX1
+    [Documentation]   Start Cosmic Settings and verify process started
+    [Tags]            cosmic_settings  SP-T254
+    IF  $COMPOSITOR == 'cosmic'
+        Start XDG application  com.system76.CosmicSettings  gui_vm_app=true
+        Check that the application was started    cosmic-settings  exact_match=true
+    ELSE
+        Skip   App only available in Cosmic
+    END
+
+Start COSMIC Text Editor on LenovoX1
+    [Documentation]   Start Cosmic Text Editor and verify process started
+    [Tags]            cosmic_editor  SP-T243
+    IF  $COMPOSITOR == 'cosmic'
+        Start XDG application   com.system76.CosmicEdit  gui_vm_app=true
+        Check that the application was started    cosmic-edit %F  exact_match=true
+    ELSE
+        Skip   App only available in Cosmic
+    END
 
 *** Keywords ***
 

@@ -10,8 +10,8 @@ Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/power_meas_keywords.resource
 Library             ../../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
+Test Setup          GUI Power Test Setup
 Test Teardown       Close All Connections
-
 
 *** Test Cases ***
 
@@ -25,9 +25,14 @@ GUI Suspend and wake up
     [Tags]            lenovo-x1   SP-T208-2
     Start power measurement       ${BUILD_ID}   timeout=180
     Set start timestamp
+    # Connect back to gui-vm after power measurement has been started
     Connect to netvm
     Connect to VM                 ${GUI_VM}
-    Click power menu item         suspend
+    IF  $COMPOSITOR == 'cosmic'
+        Select power menu option   index=4
+    ELSE
+        Select power menu option   icon_name=suspend
+    END
     ${device_not_available}       Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
     IF  ${device_not_available} == True
         Log To Console            Device suspended.
@@ -53,31 +58,33 @@ GUI Suspend and wake up
         FAIL                      Screen lock not active after wake up
     END
     Unlock
+    Verify desktop availability
     Generate power plot           ${BUILD_ID}   ${TEST NAME}
     Stop recording power
 
 GUI Lock and Unlock
-    [Documentation]   Lock the screen via GUI taskbar lock icon and check that the screen is locked.
-    ...               Unlock lock screen by typing the password and check that desktop is available
+    [Documentation]   Lock the screen via GUI power menu lock icon and check that the screen is locked.
+    ...               Unlock lock screen by typing the password and check that desktop is available.
     [Tags]            lenovo-x1   SP-T208-3   SP-T208-4   lock
-    Connect to netvm
-    Connect to VM                 ${GUI_VM}
-    Click power menu item         lock
-    ${lock}                       Check if locked
-    IF  ${lock}
-        Log To Console            Screen lock detected
+    IF  $COMPOSITOR == 'cosmic'
+        Select power menu option   index=2
     ELSE
-        Log To Console            Screen lock not active
-        FAIL                      Failed to lock the screen
+        Select power menu option   icon_name=lock
     END
+    ${lock}           Check if locked
+    IF  not ${lock}   FAIL    Failed to lock the screen
     Unlock
-    Verify login
+    Verify desktop availability
 
 GUI Reboot
-    [Documentation]   Reboot the device via GUI reboot icon.
+    [Documentation]   Reboot the device via GUI power menu reboot icon.
     ...               Check that it shuts down. Check that it turns on and boots to login screen.
-    [Tags]            lenovo-x1   SP-T208-1
-    Click power menu item         restart
+    [Tags]            SP-T208-1  lenovo-x1
+    IF  $COMPOSITOR == 'cosmic'
+        Select power menu option   index=5   confirmation=true
+    ELSE
+        Select power menu option   icon_name=restart
+    END
     ${device_not_available}       Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
     IF  ${device_not_available} == True
         Log To Console            Device is down
@@ -86,7 +93,7 @@ GUI Reboot
     END
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False
-        FAIL                      The device did shutdown but didn't start in reboot
+        FAIL                      The device did shutdown but didn't start in reboot.
     ELSE
         Log To Console            Device started
     END
@@ -97,32 +104,45 @@ GUI Reboot
     ELSE
         Connect to ghaf host
     END
-    Verify logout
-    Log To Console                LOGGED_IN_STATUS after reboot
-    Log To Console                ${LOGGED_IN_STATUS}
-    Run Keyword If                ${LOGGED_IN_STATUS}  FAIL  Desktop detected. Device failed to boot to login screen.
+    ${logout_status}     Check if logged out
+    IF   not ${logout_status}  FAIL  Desktop detected. Device failed to boot to login screen.
 
-GUI Log in and log out
-    [Documentation]   Login and verify logged in state.
-    ...               Logout via gui icon and verify that desktop is not available.
-    [Tags]            lenovo-x1   SP-T149   loginlogout
-    Connect to VM if not already connected  gui-vm
+GUI Log out and log in
+    [Documentation]   Logout via GUI power menu icon and verify logged out state.
+    ...               Login and verify that desktop is available.
+    [Tags]            lenovo-x1   SP-T149   logoutlogin
+    IF  $COMPOSITOR == 'cosmic'
+        Select power menu option   index=3   confirmation=true
+    ELSE
+        Log out via GUI
+    END
+    ${logout_status}            Check if logged out
+    IF  not ${logout_status}    FAIL  Logout failed.
     Log in via GUI
-    Verify login
-    Log out
-    Verify logout           iterations=5
-    Run Keyword If          ${LOGGED_IN_STATUS}  FAIL  Logout failed. Desktop still detected after 5 sec.
-
+    Verify desktop availability
 
 *** Keywords ***
 
-Click power menu item
-    [Arguments]    ${icon_name}
-    Connect to VM if not already connected  gui-vm
-    Start ydotoold
-    Log To Console                Going to click the power icon
-    Get icon                      ghaf-artwork  power.svg  crop=0  background=black
-    Locate and click              ./icon.png  0.95  5
-    Log To Console                Going to click the ${icon_name} icon
-    Get icon                      ghaf-artwork  ${icon_name}.svg  crop=0  background=black
-    Locate and click              ./icon.png  0.95  5
+GUI Power Test Setup
+    Connect to netvm
+    Connect to VM       ${GUI_VM}
+    Log in, unlock and verify
+
+Select power menu option
+    [Documentation]    Open power menu by clicking the icon.
+    ...                Navigate to index and click (cosmic) or locate image and click.
+    [Arguments]        ${icon_name}=""   ${index}=0   ${confirmation}=false
+    IF  $COMPOSITOR == 'cosmic'
+        Log To Console     Opening power menu
+        Locate and click   ./power.png  0.95  5
+        Tab and enter      tabs=${index}
+        # Some options have a separate confirmation window that needs to be clicked.
+        IF  '${confirmation}' == 'true'   Tab and enter   tabs=2
+    ELSE
+        Log To Console     Going to click the power icon
+        Get icon           ghaf-artwork  power.svg  crop=0  background=black
+        Locate and click   ./icon.png  0.95  5
+        Log To Console     Going to click the ${icon_name} icon
+        Get icon           ghaf-artwork  ${icon_name}.svg  crop=0  background=black
+        Locate and click   ./icon.png  0.95  5
+    END

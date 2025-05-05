@@ -40,7 +40,8 @@ Automatic suspension
     Check screen brightness  ${dimmed_brightness}
 
     Wait     10
-    Check notification       The system will suspend soon due to inactivity.    ${last_id}
+
+    IF  $COMPOSITOR != 'cosmic'   Check notification   The system will suspend soon due to inactivity.    ${last_id}
     Check the screen state   on
 
     Wait     50
@@ -145,7 +146,11 @@ Get mako path
 Check the screen state
     [Arguments]         ${state}
     ${output}           Execute Command    ls /nix/store | grep wlopm | grep -v .drv
-    ${output}  ${err}   Execute Command    WAYLAND_DISPLAY=wayland-0 /nix/store/${output}/bin/wlopm    return_stderr=True
+    IF  $COMPOSITOR == 'cosmic' 
+        ${output}  ${err}   Execute Command    WAYLAND_DISPLAY=wayland-1 /nix/store/${output}/bin/wlopm    return_stderr=True
+    ELSE
+        ${output}  ${err}   Execute Command    WAYLAND_DISPLAY=wayland-0 /nix/store/${output}/bin/wlopm    return_stderr=True
+    END
     Log to console      Screen state: ${output}
     Should Contain      ${output}    ${state}
 
@@ -184,6 +189,4 @@ Suspension setup
     Connect to VM        ${GUI_VM}
     Save most common icons and paths to icons
     Create test user
-    Log in via GUI       stop_swayidle=False
-
-    Verify login
+    Log in, unlock and verify   stop_swayidle=False

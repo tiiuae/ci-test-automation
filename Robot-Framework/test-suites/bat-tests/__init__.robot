@@ -22,13 +22,12 @@ ${DISABLE_LOGOUT}     ${EMPTY}
 BAT tests setup
     [timeout]    5 minutes
     Initialize Variables, Connect And Start Logging
-
     IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        Connect to netvm
         Connect to VM         ${GUI_VM}
+        Set compositor
         Save most common icons and paths to icons
         Create test user
-        Log in via GUI
+        Log in, unlock and verify
     END
     Switch Connection    ${CONNECTION}
 
@@ -37,6 +36,6 @@ BAT tests teardown
     Connect to ghaf host
     Log journalctl
     IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        Log out
+        Log out and verify
     END
     Close All Connections
