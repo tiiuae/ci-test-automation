@@ -31,7 +31,7 @@ Automatic suspension
     Check the screen state   on
     Check screen brightness  ${max_brightness}
 
-    Start power measurement       ${BUILD_ID}   timeout=180
+    Start power measurement       ${BUILD_ID}   timeout=1500
     Connect
     Connect to VM    ${GUI_VM}  ${USER_LOGIN}  ${USER_PASSWORD}
     Set start timestamp
