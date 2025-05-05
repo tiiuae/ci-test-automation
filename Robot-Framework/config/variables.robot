@@ -61,6 +61,7 @@ Set Variables
     Set Global Variable  ${GUI_VM}             gui-vm
     Set Global Variable  ${ZATHURA_VM}         zathura-vm
     Set Global Variable  @{VMS}                ${ADMIN_VM}  ${AUDIO_VM}  ${BUSINESS_VM}  ${CHROME_VM}  ${COMMS_VM}  ${GALA_VM}  ${GUI_VM}  ${ZATHURA_VM}
+    Set Global Variable  ${COMPOSITOR}         labwc
 
     Set Log Level       NONE
 
