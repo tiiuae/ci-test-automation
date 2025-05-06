@@ -25,8 +25,12 @@ Start Calculator on LenovoX1
 Start Sticky Notes on LenovoX1
     [Documentation]   Start Sticky Notes and verify process started
     [Tags]            sticky_notes  SP-T201-1
-    Start XDG application  'Sticky Notes'  gui_vm_app=true
-    Check that the application was started    sticky-wrapped
+    IF  $COMPOSITOR == 'cosmic'
+        Skip   App not available in Cosmic
+    ELSE
+        Start XDG application  'Sticky Notes'  gui_vm_app=true
+        Check that the application was started    sticky-wrapped
+    END
 
 Start Ghaf Control Panel on LenovoX1
     [Documentation]   Start Ghaf Control Panel and verify process started

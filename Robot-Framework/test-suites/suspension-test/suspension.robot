@@ -62,13 +62,11 @@ Automatic suspension
 *** Keywords ***
 
 Test setup
-
-    ${guivm_connection}  Connect to VM    ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
     Get mako path
     ${last_id}           Get last notification id
     Set Suite Variable   ${last_id}    ${last_id}
     Move cursor
-    Switch Connection    ${guivm_connection}
+    Connect to VM    ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
     Get expected brightness values
 
 Wait
@@ -88,11 +86,13 @@ Get expected brightness values
     Set Test Variable  ${dimmed_brightness}  ${dimmed}
 
 Check screen brightness
-    [Arguments]       ${brightness}    ${timeout}=10
+    [Arguments]       ${brightness}    ${timeout}=60
+    # 10 second timeout should be enough, but for some reason sometimes dimming the screen takes longer.
+    # To prevent unnecessary fails timeout has been increased.
     FOR  ${i}  IN RANGE  ${timeout}
         ${output}     Execute Command    ls /nix/store | grep brightnessctl | grep -v .drv
         ${output}     Execute Command    /nix/store/${output}/bin/brightnessctl get
-        Log to console    Brightness is ${output}
+        Log to console    Check ${i}: Brightness is ${output}
         ${status}     Run Keyword And Return Status  Should be Equal As Numbers   ${output}  ${brightness}
         IF  ${status}
             BREAK
@@ -187,6 +187,7 @@ Suspension setup
 
     Initialize Variables, Connect And Start Logging
     Connect to VM        ${GUI_VM}
+    Set compositor
     Save most common icons and paths to icons
     Create test user
     Log in, unlock and verify   stop_swayidle=False

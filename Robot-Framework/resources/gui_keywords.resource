@@ -149,6 +149,7 @@ Locate image on screen
     ${mouse_x}  Get From Dictionary   ${coordinates}  x
     ${mouse_y}  Get From Dictionary   ${coordinates}  y
     RETURN  ${mouse_x}  ${mouse_y}
+    [Teardown]    Connect to VM   ${GUI_VM}
 
 Locate and click
     [Arguments]   ${image_to_be_searched}  ${confidence}=0.99  ${iterations}=5
@@ -195,6 +196,7 @@ Verify desktop availability
     Locate image on screen  ${APP_MENU_LAUNCHER}  0.95  10
 
 Move cursor
+    Log To Console    Moving cursor to random location
     ${x}    Evaluate  random.randint(50, 500)  modules=random
     ${y}    Evaluate  random.randint(50, 500)  modules=random
     Execute Command   ydotool mousemove --absolute -x ${x} -y ${y}  sudo=True  sudo_password=${PASSWORD}
@@ -343,12 +345,14 @@ Try to reset scaling
             Log To Console   Auto scaling reset failed
         END
     END
+    [Teardown]    Connect to VM   ${GUI_VM}
 
 Stop swayidle
     [Documentation]    Stop swayidle to prevent automatic suspension
     Log To Console    Disabling automated lock and suspend
     Connect to VM     ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
     Execute Command   systemctl --user stop swayidle
+    [Teardown]    Connect to VM   ${GUI_VM}
 
 Set do not disturb state
     [Documentation]   Set do not disturb to true or false (cosmic only)
@@ -358,6 +362,7 @@ Set do not disturb state
         Connect to VM     ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
         Execute Command   echo ${state} > ~/.config/cosmic/com.system76.CosmicNotifications/v1/do_not_disturb
     END
+    [Teardown]    Connect to VM   ${GUI_VM}
 
 Set compositor
     [Documentation]   Set compositor to cosmic if cosmic process is running. By default compositor is set labwc.
