@@ -100,6 +100,11 @@ class PerformanceDataProcessing:
             # Calculate mean, omitting the values which are labeled deviations
             mean = (sum(data_column_cut) - sum_deviations) / (len(data_column_cut) - len(deviations))
 
+            # In case of relative threshold (string type including '%' character) calculate the absolute threshold as percentage from mean value
+            if type(threshold) == str:
+                threshold_float = mean * float(threshold[:-1]) / 100
+                threshold = self.truncate([threshold_float], 3)[0]
+
             # Calculate standard deviation, omitting the values which are labeled deviations
             # Find also the last non-deviated measurement result
             data_sum = 0
