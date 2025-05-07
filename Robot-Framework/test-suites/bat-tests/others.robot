@@ -26,7 +26,7 @@ Test nixos version format
 
 Check QSPI version
     [Documentation]    QSPI version should be up-to-date
-    [Tags]             bat   SP-T95   orin-agx  orin-nx
+    [Tags]             bat   pre-merge  SP-T95   orin-agx  orin-nx
     Check QSPI Version is up to date
 
 Check systemctl status
