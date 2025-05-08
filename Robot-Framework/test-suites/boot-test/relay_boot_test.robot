@@ -22,7 +22,7 @@ ${DEVICE_TYPE}           ${EMPTY}
 
 Verify booting after restart by power
     [Documentation]    Restart device by power and verify init service is running
-    [Tags]             relayboot  plug  nuc  orin-agx  orin-nx
+    [Tags]             relayboot  plug  nuc  orin-agx  orin-agx-64  orin-nx
     Reboot Device Via Relay
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False

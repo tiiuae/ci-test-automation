@@ -48,7 +48,7 @@ Measure Hard Boot Time
 
 Measure Orin Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
-    [Tags]  SP-T187  orin-agx   orin-nx
+    [Tags]  SP-T187  orin-agx  orin-agx-64  orin-nx
     Soft Reboot Device
     Wait Until Keyword Succeeds  35s  2s  Check If Ping Fails
     Get Time To Ping
@@ -56,7 +56,7 @@ Measure Orin Soft Boot Time
 
 Measure Orin Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
-    [Tags]  SP-T182  orin-agx   orin-nx
+    [Tags]  SP-T182  orin-agx  orin-agx-64  orin-nx
     Log to console                Shutting down by switching the power off
     Turn Relay Off                ${RELAY_NUMBER}
     Wait Until Keyword Succeeds   15s  2s  Check If Ping Fails

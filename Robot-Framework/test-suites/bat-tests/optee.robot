@@ -28,7 +28,7 @@ OP-TEE xtest
        ...              2. Delete corresponding "OP-TEE xtest XXXX" test case
        ...
        ...              (3. If everything is fixed (no more "-x"-flags), remove this comment!!)
-       [Tags]  bat  optee  optee-xtest  orin-agx  orin-nx  SP-T122
+       [Tags]  bat  optee  optee-xtest  orin-agx  orin-agx-64  orin-nx  SP-T122
 
        ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest -x 1008 -x 1033    sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
        Log     ${stdout}
@@ -39,7 +39,7 @@ OP-TEE xtest 1008
     [Documentation]   Xtest 1008
     ...               Test will be skipped in case of failure, because this is a known issue.
     ...               Please read OP-TEE Test suite comment
-    [Tags]  bat  optee  optee-xtest  orin-agx  orin-nx  SP-T129
+    [Tags]  bat  optee  optee-xtest  orin-agx  orin-agx-64  orin-nx  SP-T129
 
     ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest 1008   sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
     Should Be Equal As Integers    ${rc}    1
@@ -50,7 +50,7 @@ OP-TEE xtest 1033
     [Documentation]   Xtest 1033
     ...               Test will be skipped in case of failure, because this is a known issue.
     ...               Please read OP-TEE Test suite comment
-    [Tags]  bat  optee  optee-xtest  orin-agx  orin-nx  SP-T129
+    [Tags]  bat  optee  optee-xtest  orin-agx  orin-agx-64  orin-nx  SP-T129
 
     ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest 1033   sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
     Should Be Equal As Integers    ${rc}    1
@@ -63,7 +63,7 @@ Basic pkcs11-tool-optee test
     ...               calling OP-TEE. Then it generates RSA 2048-bit and ECDSA
     ...               secp256r1 keys, for which signing and signature
     ...               verification operations are tested.
-    [Tags]            bat  optee  SP-T113  orin-agx  orin-nx
+    [Tags]            bat  optee  SP-T113  orin-agx  orin-agx-64  orin-nx
 
     ${tool}=    Set Variable    "pkcs11-tool-optee"
     List key slots    ${tool}

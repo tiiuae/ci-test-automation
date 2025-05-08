@@ -21,7 +21,7 @@ ${NETVM_SSH}       ${EMPTY}
 
 Verify NetVM is started
     [Documentation]         Verify that NetVM is active and running
-    [Tags]                  bat  SP-T45  nuc  orin-agx  orin-nx  lenovo-x1   dell-7330
+    [Tags]                  bat  SP-T45  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1   dell-7330
     [Setup]                 Connect to ghaf host
     Verify service status   service=${netvm_service}
     Check Network Availability      ${NETVM_IP}    expected_result=True    range=5
@@ -29,7 +29,7 @@ Verify NetVM is started
 
 Wifi passthrough into NetVM (Orin-AGX)
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              bat  SP-T111  orin-agx
+    [Tags]              bat  SP-T111  orin-agx  orin-agx-64
     [Setup]             Connect to netvm
     Configure wifi      ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
@@ -71,14 +71,14 @@ Wifi passthrough into NetVM (NUC)
 
 NetVM stops and starts successfully
     [Documentation]     Verify that NetVM stops properly and starts after that
-    [Tags]              bat  SP-T47  SP-T90  nuc  orin-agx
+    [Tags]              bat  SP-T47  SP-T90  nuc  orin-agx  orin-agx-64
     [Setup]             Connect to ghaf host
     Restart NetVM
     [Teardown]          Run Keywords  Start NetVM if dead   AND  Close All Connections
 
 NetVM is wiped after restarting
     [Documentation]     Verify that created file will be removed after restarting VM
-    [Tags]              bat  SP-T48  nuc  orin-agx
+    [Tags]              bat  SP-T48  nuc  orin-agx  orin-agx-64
     [Setup]             Connect to netvm
     Create file         /etc/test.txt
     Switch Connection   ${GHAF_HOST_SSH}
@@ -94,7 +94,7 @@ NetVM is wiped after restarting
 
 Verify NetVM PCI device passthrough
     [Documentation]     Verify that proper PCI devices have been passed through to the NetVM
-    [Tags]              bat  SP-T96  nuc  orin-agx  orin-nx
+    [Tags]              bat  SP-T96  nuc  orin-agx  orin-agx-64  orin-nx
     [Setup]             Connect to netvm
     Verify microvm PCI device passthrough    vmname=${NET_VM}
     [Teardown]          Run Keywords  Close All Connections   AND
