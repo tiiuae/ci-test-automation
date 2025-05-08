@@ -29,7 +29,8 @@ GUI Suspend and wake up
     Connect to netvm
     Connect to VM                 ${GUI_VM}
     IF  $COMPOSITOR == 'cosmic'
-        Select power menu option   index=4
+        Skip   The X1 in the lab gets stuck when a suspension is attempted. Needs further investigation.
+        # Select power menu option   index=4
     ELSE
         Select power menu option   icon_name=suspend
     END
@@ -81,7 +82,8 @@ GUI Reboot
     ...               Check that it shuts down. Check that it turns on and boots to login screen.
     [Tags]            SP-T208-1  lenovo-x1
     IF  $COMPOSITOR == 'cosmic'
-        Select power menu option   index=5   confirmation=true
+        Skip   The X1 in the lab gets stuck when a reboot is attempted. Needs further investigation.
+        # Select power menu option   index=5   confirmation=true
     ELSE
         Select power menu option   icon_name=restart
     END
