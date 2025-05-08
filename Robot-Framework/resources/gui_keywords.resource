@@ -61,8 +61,11 @@ Log in via GUI
         Execute Command   ydotool mousemove --absolute -x 50 -y 50  sudo=True  sudo_password=${PASSWORD}
         Execute Command   ydotool click 0xC0  sudo=True  sudo_password=${PASSWORD}
     ELSE
+        IF  "Dell" in "${DEVICE}"    Sleep  15  # waiting for the login gui, slow with Dell.
         Type string and press enter  ${USER_LOGIN}
     END
+
+    IF  "Dell" in "${DEVICE}"    Sleep  5
     Type string and press enter  ${USER_PASSWORD}  confidential=True
 
 Log out via GUI
