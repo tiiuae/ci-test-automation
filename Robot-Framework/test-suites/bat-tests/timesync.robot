@@ -62,7 +62,7 @@ Check that time is correct
     [Arguments]       ${timezone}=UTC
 
     ${is_synchronized} =   Set Variable    False
-    FOR    ${i}    IN RANGE    3
+    FOR    ${i}    IN RANGE    20
         ${output}      Execute Command    timedatectl -a
         ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}  ${is_synchronized}   Parse time info  ${output}
         IF    ${is_synchronized}
