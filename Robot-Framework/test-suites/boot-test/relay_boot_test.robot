@@ -119,6 +119,9 @@ Test Teardown
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Run Keyword If Test Failed    serial_keywords.Save log
     END
+    Log to console  Test Start time: ${START_TIMESTAMP}
+    ${output}  Execute command  journalctl --since "30 minutes ago"
+    log  ${output}
 
 Teardown
     Close All Connections

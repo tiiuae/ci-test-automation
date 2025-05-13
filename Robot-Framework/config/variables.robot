@@ -3,10 +3,12 @@
 
 *** Settings ***
 Library    OperatingSystem
+Library    DateTime
 
 
 *** Variables ***
 
+${START_TIMESTAMP}        ${EMPTY}
 ${BUILD_ID}               ${EMPTY}
 ${SWITCH_TOKEN}           ${EMPTY}
 ${SWITCH_SECRET}          ${EMPTY}
@@ -26,6 +28,9 @@ ${REL_PLOT_DIR}           ./
 
 Set Variables
     [Arguments]  ${device}
+    ${current_time}       DateTime.Get Current Date   UTC  exclude_millis=yes
+    Set Global Variable  ${START_TIMESTAMP}    ${current_time}
+
     ${DIR_BODY}   ${DIR_END}     Split String From Right    ${OUTPUT_DIR}   /   1
     IF  $DIR_END != 'test-suites'
         Set Global Variable  ${POWER_MEASUREMENT_DIR}  ${OUTPUT_DIR}/outputs/power_measurements/
