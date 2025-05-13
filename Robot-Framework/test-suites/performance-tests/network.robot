@@ -10,27 +10,33 @@ Resource            ../../resources/serial_keywords.resource
 Resource            ../../config/variables.robot
 Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/connection_keywords.resource
+Resource            ../../resources/common_keywords.resource
 Library             ../../lib/output_parser.py
 Library             Process
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}  ${PERF_DATA_DIR}  ${CONFIG_PATH}   ${PLOT_DIR}
 Library             Collections
 Library             JSONLibrary
+Test Timeout        3 minutes
 Suite Setup         Run keywords  Initialize Variables And Connect
-...                 AND  Select network connection to use
+...            AND  Select network connection to use
+...            AND   Take relayboot journal
 ...                 AND  Run iperf server on DUT
-Suite Teardown      Run keywords  Stop iperf server
+Suite Teardown      Run keywords  Save Journal Log After Tests
+...                 AND  Stop iperf server
 ...                 AND  Close port 5201 from iptables
 ...                 AND  Close All Connections
 
 
 *** Variables ***
 ${PERF_TEST_TIME}  10
-
+${start_timestamp}  ${EMPTY}
 
 *** Test Cases ***
 Measure TCP Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
     [Tags]   tcp  nuc  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T227
+    #Pass Execution    No acutal test executed, just for debugging purposes
+
     &{speed_data}           Create Dictionary
     # DUT sends
     ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -155,8 +161,8 @@ Select network connection to use
      ...             since it then breaks the  other test suites.
      IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
          ${CONNECTION}       Connect to netvm
-     ELSE
-         ${CONNECTION}       Connect to ghaf host
+     #ELSE
+     #    ${CONNECTION}       Connect to ghaf host
      END
      Set Global Variable  ${CONNECTION}
 
@@ -239,3 +245,22 @@ Get Throughput Values
         Log      Failed to get the result from ${TEST NAME}   console=yes
     END
     RETURN  ${MBps}[0]
+
+Save Journal Log After Tests 
+    #Execute command  journalctl --since "${start_timestamp}" > /tmp/stamp.txt
+    Log to console  Test Start time: ${START_TIMESTAMP}
+    ${output}  Execute command  journalctl --since "30 minutes ago" > /tmp/jrnl.txt
+    SSHLibrary.Get file   /tmp/jrnl.txt         ${OUTPUT_DIR}/jrnl.txt
+    ${file_content}   OperatingSystem.Get file   ${OUTPUT_DIR}/jrnl.txt
+
+Take relayboot journal
+    ${output}  Execute command  journalctl --since "10 minutes ago"
+    log  ${output}
+
+#Network Teardown
+#    [Timeout]      3 minutes
+#    Log journctl
+#    Stop iperf server
+#    Close port 5201 from iptables
+#   # Debug
+#    Close All Connections
