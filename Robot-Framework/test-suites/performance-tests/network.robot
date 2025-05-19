@@ -256,7 +256,7 @@ Save Journal Log After Tests
     ${file_content}   OperatingSystem.Get file   ${OUTPUT_DIR}/jrnl.txt
 
 Take relayboot journal
-    ${output}  Execute command  journalctl --since "10 minutes ago"
+    ${output}  Execute command  journalctl --since "15 minutes ago"
     log  ${output}
 
 Initialize Variables And Connect Local
@@ -267,16 +267,22 @@ Initialize Variables And Connect Local
     IF  ${port_22_is_available} == False
         FAIL    Failed because port 22 of device was not available, tests can not be run.
     END
+
+
     ${CONNECTION}        Connect to netvm
+    Set Global Variable  ${CONNECTION}
+    Sleep  10
      Open port 5201 from iptables
      sleep   10
      ${command}        Set Variable    iperf -s
-      Execute Command   nohup ${command} > /tmp/output.log 2>&1 &
+     Execute Command   nohup ${command} > /tmp/output.log 2>&1 &
      Check iperf was started
+     ${CONNECTION}        Connect To Ghaf Host
+      Set Global Variable  ${CONNECTION}
     #Run iperf server on DUT
-    ${connected}    ssh_keywords.Check ssh connection status   net-vm
-    ${status}    ${hostname}    BuiltIn.Run Keyword And Ignore Error   Execute Command    hostname
-    ${CONNECTION}       Run keyword if  "${hostname}" != "net-vm"  Connect To Ghaf Host
+    #${connected}    ssh_keywords.Check ssh connection status   net-vm
+    #${status}    ${hostname}    BuiltIn.Run Keyword And Ignore Error   Execute Command    hostname
+    #${CONNECTION}       Run keyword if  "${hostname}" != "net-vm"  Connect To Ghaf Host
     #${connected_0_5}    ssh_keywords.Check ssh connection status   net-vm
     #${status_0_5}    ${hostname}    BuiltIn.Run Keyword And Ignore Error   Execute Command    hostname
     #Log to console  toinen netvm connection
@@ -284,11 +290,11 @@ Initialize Variables And Connect Local
     #${CONNECTION}       Connect to netvm
     #${connected_1}    ssh_keywords.Check ssh connection status   net-vm
     #${status_1}    ${hostname}    BuiltIn.Run Keyword And Ignore Error   Execute Command    hostname
-    Set Global Variable  ${CONNECTION}
-    Sleep  10
+    #Set Global Variable  ${CONNECTION}
+    #Sleep  10
     Take relayboot journal
     #Run iperf server on DUT
-    Open port 5201 from iptables
+    #Open port 5201 from iptables
     #ELSE
     #     Clear iptables rules
     #END
