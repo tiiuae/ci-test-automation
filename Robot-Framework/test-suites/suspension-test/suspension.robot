@@ -105,7 +105,7 @@ Check screen brightness
 Check notification
     [Arguments]       ${text}  ${last_id}
     [Documentation]   First need to know the number of the last notification to check the new one
-    ${notifications}  Execute Command  /nix/store/${mako_path}/bin/makoctl history
+    ${notifications}  Execute Command  /nix/store/${MAKO_PATH}/bin/makoctl history
     Log               ${notifications}
     ${notifications}  Parse notifications    ${notifications}
 
@@ -129,7 +129,7 @@ Check notification
     [Teardown]    Execute Command         rm notifications.txt
 
 Get last notification id
-    ${notifications}    Execute Command   /nix/store/${mako_path}/bin/makoctl history
+    ${notifications}    Execute Command   /nix/store/${MAKO_PATH}/bin/makoctl history
     IF  "${notifications}" == ""
         ${last_id}      Set Variable    0
     ELSE
@@ -137,11 +137,6 @@ Get last notification id
     END
     Log to console      The last notification in the list has ID: ${last_id}
     RETURN              ${last_id}
-
-Get mako path
-    ${output}           Execute Command     ls /nix/store | grep mako | grep -v .drv
-    ${result}           Extract mako path   ${output}
-    Set Suite Variable  ${mako_path}    ${result}
 
 Check the screen state
     [Arguments]         ${state}
