@@ -58,6 +58,7 @@ Start and close Sticky Notes via GUI on LenovoX1
         Start app via GUI on LenovoX1   ${GUI_VM}  sticky-wrapped
         Close app via GUI on LenovoX1   ${GUI_VM}  sticky-wrapped  ./window-close.png
     END
+    [Teardown]  Run Keyword If Test Failed     Skip    "Known issue: SSRCSP-6624"
 
 Start and close Calculator via GUI on LenovoX1
     [Documentation]   Start Calculator via GUI test automation and verify related process started
