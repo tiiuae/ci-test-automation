@@ -15,7 +15,7 @@ import parse_perfbench
 
 class PerformanceDataProcessing:
 
-    def __init__(self, device, build_number, commit, job, perf_data_dir, config_path, plot_dir):
+    def __init__(self, device, build_number, commit, job, perf_data_dir, config_path, plot_dir, low_limit):
         self.device = device
         self.build_number = build_number
         self.commit = commit[:6]
@@ -24,6 +24,8 @@ class PerformanceDataProcessing:
         self.plot_dir = plot_dir
         self.data_dir = self._create_result_dirs()
         self.build_type = job.split(".")[0]
+        self.zero_result_flag = -100
+        self.low_limit = float(low_limit)
 
     def _get_job_name(self):
         if self.config_path != "None":
@@ -92,7 +94,7 @@ class PerformanceDataProcessing:
         # Slice the list since baseline_start for mean and std calculations
         data_column_cut = data_column[baseline_start:-1]
 
-        if len(data_column_cut) > 0:
+        if len(data_column_cut) - len(deviations) > 0:
 
             # Pick the deviations from data_column and calculate their sum
             sum_deviations = sum([data_column[i] for i in deviations])
@@ -100,30 +102,43 @@ class PerformanceDataProcessing:
             # Calculate mean, omitting the values which are labeled deviations
             mean = (sum(data_column_cut) - sum_deviations) / (len(data_column_cut) - len(deviations))
 
-            # In case of relative threshold (string type including '%' character) calculate the absolute threshold as percentage from mean value
-            if type(threshold) == str:
-                threshold_float = mean * float(threshold[:-1]) / 100
-                threshold = self.truncate([threshold_float], 3)[0]
-
-            # Calculate standard deviation, omitting the values which are labeled deviations
-            # Find also the last non-deviated measurement result
+            # Calculate (custom) standard deviation, omitting the values which are too low.
+            # Cannot omit all deviations here. Otherwise there wouldn't be any real variation for std.
+            # Find also the last non-deviated measurement result.
             data_sum = 0
             baseline_values = 0
             for i in range(baseline_start, len(data_column) - 1):
-                if i not in deviations:
-                    baseline_end = i
+                if not data_column[i] < self.low_limit:
                     baseline_values += 1
                     data_sum = (data_column[i] - mean) ** 2 + data_sum
-            pstd = (data_sum / baseline_values) ** (1 / 2)
+                if i not in deviations:
+                    baseline_end = i
+            if baseline_values > 0:
+                pstd = (data_sum / baseline_values) ** (1 / 2)
+            else:
+                pstd = 0
 
-            # Automatically calculated pstd can vary wildly in case of multiple successive major changes in results.
-            # So this is not a good idea although looks nice:
-            # if pstd > 0:
-            #     distance = abs(data_column[-1] - mean) / pstd
-            #     if distance > 3 * std:
-            #         # Deviation detected
-            #         pass
-            # Instead it is better to set some threshold manually (based on calculated pstd history of "stable" periods)
+            if type(threshold) == str:
+                # In case of relative threshold (string type including '%' character) calculate the absolute threshold as percentage from mean value
+                if "%" in threshold:
+                    threshold_float = mean * float(threshold[:-1]) / 100
+                # Threshold given as multiple of standard deviations
+                elif "std" in threshold:
+                    threshold_float = pstd * float(threshold[:-3])
+                    # In certain situations standard deviation can get out of control and grow wildly leading to useless threshold (even greater than mean value)
+                    # Limit threshold to 1/3 of the mean value at maximum
+                    if threshold_float > mean / 3:
+                        threshold_float = mean / 3
+                else:
+                    logging.info("Incorrect threshold format: ")
+                    logging.info(threshold)
+                    return
+                threshold = self.truncate([threshold_float], 3)[0]
+
+                # If there is not yet enough measurement history mean and std values might be forced to 0.
+                # In such case set threshold so that test passes
+                if threshold < 0.001:
+                   threshold = data_column[-1]
 
             d = [0] * 3
 
@@ -154,6 +169,9 @@ class PerformanceDataProcessing:
         else:
             stats = [0] * 8
 
+        if data_column[-1] < self.low_limit:
+            flag = self.zero_result_flag
+
         statistics_directory = {
             'flag': flag,
             'threshold': threshold,
@@ -161,9 +179,9 @@ class PerformanceDataProcessing:
             'd_mean': stats[3],
             'd_baseline_end': stats[2],
             'baseline_start': data_column[baseline_start],
-            'mean': stats[0],
+            'baseline_mean': stats[0],
             'baseline_end': data_column[baseline_end],
-            'baseline_pstd': stats[1],
+            'baseline_std': stats[1],
             'measurement': data_column[-1]
         }
 
@@ -242,11 +260,21 @@ class PerformanceDataProcessing:
                             deviation_counter[counter] += flag
                             # Save direction (+/-) and number of successive deviations to statistics
                             statistics_block['flag'] = flag * abs(deviation_counter[counter])
-                            # Trigger baseline change if number of successive deviations exceeds the defined limit
-                            if abs(deviation_counter[counter]) > thresholds['wait_until_reset'] - 1:
-                                deviation_counter[counter] = 0
-                                deviations[value] = []
-                                baseline_start[value] = new_baseline_start[value]
+                            # Don't change baseline for invalid (zero) results
+                            if flag != self.zero_result_flag:
+                                # If there is zero label in the deviation counter from the previous measurements reset counter to -1
+                                if deviation_counter[counter] < self.zero_result_flag:
+                                    deviation_counter[counter] = -1
+                                    new_baseline_start[value] = row_index
+                                # Trigger baseline change if number of successive deviations exceeds the defined limit
+                                if abs(deviation_counter[counter]) > thresholds['wait_until_reset'] - 1:
+                                    deviation_counter[counter] = 0
+                                    deviations[value] = []
+                                    baseline_start[value] = new_baseline_start[value]
+                            else:
+                                # Keep the counter at -1 if the result is zero
+                                deviation_counter[counter] = -1
+                                statistics_block['flag'] = self.zero_result_flag
                         else:
                             deviation_counter[counter] = 0
 

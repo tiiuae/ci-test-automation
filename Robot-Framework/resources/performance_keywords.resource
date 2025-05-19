@@ -33,6 +33,9 @@ Determine Test Status
     ${msg}=                 Set Variable  ${EMPTY}
     FOR   ${i}  IN  @{keys}
         ${statistics}       Get From Dictionary      ${statistics_dict}    ${i}
+        IF  ${statistics}[measurement] < ${PERF_LOW_LIMIT}
+            FAIL            Measurement result is zero or too close to zero.\n\n${statistics}
+        END
         IF  ${statistics}[flag] != 0
             ${add_msg}      Create deviation message  ${statistics}     ${inverted}
             ${msg}          Set Variable  ${msg}${i}\n${add_msg}\n

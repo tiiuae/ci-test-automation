@@ -10,9 +10,15 @@ If a measurement differs more than threshold from any of the baselines:
 - first measurement of last baseline period
 it is labeled as deviation/improvement.
 
-Threshold can be given as absolute values (int/float)
-or as relative values (string including int/float and '%' at the end).
+Threshold can be given as
+- absolute value (int/float)
+- relative value (string including int/float and '%' at the end)
+- multiple of population standard deviation (string including int/float and 'std' at the end)
+
 In case of relative threshold the absolute threshold will be calculated as a percentage from the mean of the last baseline period.
+
+Threshold can be defined as multiple of standard deviation when the test case has accumulated some measurement result history.
+Threshold is limited to 1/3 of mean at maximum when using this std method.
 
 Parameter 'wait_until_reset':
 Baselines of a test will be automatically re-tuned if this number of
@@ -39,9 +45,9 @@ thresholds = {
         }
     },
     'fileio': {
-        'wr': 20,
-        'rd': 40,
-        'rd_lenovo-x1': 420
+        'wr': "3std",
+        'rd': "3std",
+        'rd_lenovo-x1': "3std"
     },
     'boot_time': {
         'response_to_ping': 10,
