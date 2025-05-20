@@ -30,6 +30,8 @@ BAT tests setup
         Log in, unlock and verify
     END
     Switch Connection    ${CONNECTION}
+    ${journal_log}    Execute command  journalctl --since "20 minutes ago"
+    Log     ${journal_log}
 
 BAT tests teardown
     [timeout]    5 minutes

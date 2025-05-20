@@ -71,14 +71,19 @@ Connect
     Log    Trying to connect to ${target_output}  console=True
     FOR    ${i}    IN RANGE    ${iterations}
         ${pass_status}  ${connection}    Run Keyword And Ignore Error  Open Connection    ${IP}       port=${PORT}    prompt=\$    timeout=30
+        Log to console  connection:${i}- ${pass_status} - ${connection}
         ${pass_status}  ${login_output}  Run Keyword And Ignore Error  Login with timeout    username=${LOGIN}    password=${PASSWORD}
+        Log to console  login:${i}- ${pass_status} - ${login_output}
         ${pass_status}  ${output}        Run Keyword And Ignore Error  Should Contain     ${login_output}   ${target_output}
+        Log to console  should contain:${i}- ${pass_status} - ${output}
         IF    $pass_status=='PASS'
             Log To Console    Connected successfully to ${target_output}
             IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
                 Set Global Variable  ${NETVM_SSH}    ${connection}
             END
             RETURN  ${connection}
+            Sleep  5
+            Log to console  Connected-${target_output}
         ELSE
             Close All Connections
             Log To Console    Failed to connect.
@@ -294,6 +299,7 @@ Verify service status
     
     FOR    ${i}    IN RANGE    ${range}
         ${output}  ${stderr}  ${rc}=   Execute Command  systemctl status ${service}  return_stderr=True  return_rc=True
+        Log to console  systemctl status: ${i}-${output}-${stderr}-${rc}
         Log           stdout: ${output}\nstderr: ${stderr}
         Should Not Be Equal As Integers	    ${rc}	4   Stderr: "${stderr}", Return code
         ${result}     Get Service Status    ${output}

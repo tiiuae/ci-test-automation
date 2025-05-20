@@ -7,17 +7,20 @@ Documentation       Network performance tests
 Force Tags          performance  network
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/serial_keywords.resource
+#Resource            ../../resources/common_keywords.resource
 Resource            ../../config/variables.robot
 Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/connection_keywords.resource
 Library             ../../lib/output_parser.py
+#Library             ../../lib/TimeLibrary.py
 Library             Process
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}  ${PERF_DATA_DIR}  ${CONFIG_PATH}   ${PLOT_DIR}
 Library             Collections
 Library             JSONLibrary
+#Library             DebugLibrary
 Suite Setup         Run keywords  Initialize Variables And Connect
 ...                 AND  Select network connection to use
-...                 AND  Run iperf server on DUT
+...                 AND  Restart netvm if needed
 Suite Teardown      Run keywords  Stop iperf server
 ...                 AND  Close port 5201 from iptables
 ...                 AND  Close All Connections
@@ -31,6 +34,35 @@ ${PERF_TEST_TIME}  10
 Measure TCP Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
     [Tags]   tcp  nuc  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T227
+    ${journal_log}    Execute command  journalctl --since "20 minutes ago"
+    Log     ${journal_log}
+    #Debug
+    # Debug Ensure times
+   # ${current_time_mikko}   Get current time   UTC
+     ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=active  expected_state=running   range=1
+     Log to console  Netvm:${status} - ${state}
+    #Set time  ${current_time_mikko}
+    #Sleep   10
+    #${output}        Execute Command   timedatectl -a
+    #${local_time}    ${universal_time}    ${rtc_time}    ${device_time_zone}    ${is_synchronized}   Parse Time Info   ${output}
+    #${time_close}    Is Time Close   ${universal_time}    ${local_time}    tolerance_seconds=30
+    #${time_close2}   Is Time Close   ${universal_time}    ${rtc_time} UTC    tolerance_seconds=30
+    #Should be True   ${time_close}
+    #Should be True   ${time_close2}
+    #Log to console   Times are checked rtc=local=universal
+    #Run keyword and continue on failure  Verify service status   service=${netvm_service}   expected_status=active   expected_state=running
+    #   Log To Console          Going to start NetVM
+    #${net-vm-status}    execute command  systemctl status microvm@net-vm.service
+    #log  ${net-vm-status}
+    #${what2}    Run keyword and continue on failure   Execute Command         systemctl start ${netvm_service}  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
+    #sleep  5
+    #${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=active  expected_state=running   range=1
+    #IF  not ${status} and ${state}
+        # Restart NetVM
+     #Actual test
+    #Run iperf server on DUT
+    
+    
     &{speed_data}           Create Dictionary
     # DUT sends
     ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -41,10 +73,10 @@ Measure TCP Throughput Small Packets
     Check iperf3 got results     ${output1}  ${output2}
     ${bps_tx}               Get Throughput Values  ${output1.stdout}
     ${bps_rx}               Get Throughput Values  ${output2.stdout}  direction=receiver
-    Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
-    Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Small Packets" width="1200">    HTML
-    ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
-    Determine Test Status   ${statistics}
+    #Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
+    #Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Small Packets" width="1200">    HTML
+    #${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
+    #Determine Test Status   ${statistics}
 
 Measure TCP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
@@ -239,3 +271,64 @@ Get Throughput Values
         Log      Failed to get the result from ${TEST NAME}   console=yes
     END
     RETURN  ${MBps}[0]
+
+Set time
+    [Arguments]       ${time}=${wrong_time}
+    ${original_time}      Get Time	epoch
+    Set Test Variable     ${original_time}  ${original_time}
+    Log To Console        Setting time ${time}
+    Execute Command       hwclock --set --date="${time}"  sudo=True  sudo_password=${PASSWORD}
+    Execute Command       hwclock -s  sudo=True  sudo_password=${PASSWORD}
+    ${output}             Execute Command  timedatectl -a
+
+Restart netvm if needed
+    ${net-vm-status}    execute command  systemctl status microvm@net-vm.service
+    log  ${net-vm-status}
+
+    ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=active  expected_state=running   #range=15
+    IF  "NX" in "${DEVICE}"
+        IF  not ${status}
+            Switch Connection   ${GHAF_HOST_SSH}
+            Restart NetVM
+            #Stop NetVM
+            #Sleep  5
+            #Start NetVM
+            Check if ssh is ready on netvm
+    
+        #Close All Connections
+        #Connect to ghaf host
+        #Check Network Availability      ${NETVM_IP}    expected_result=True    range=15
+        #Connect to netvm
+        END
+     END
+
+Restart NetVM
+    [Documentation]    Stop NetVM via systemctl, wait ${delay} and start NetVM
+    ...                Pre-condition: requires active ssh connection to ghaf host.
+    [Arguments]        ${delay}=5
+    Stop NetVM
+    Sleep  ${delay}
+    Start NetVM
+    Check if ssh is ready on netvm
+
+Stop NetVM
+    [Documentation]     Ensure that NetVM is started, stop it and check the status.
+    ...                 Pre-condition: requires active ssh connection to ghaf host.
+    Verify service status   service=${netvm_service}   expected_status=active   expected_state=running
+    Log To Console          Going to stop NetVM
+    Execute Command         systemctl stop ${netvm_service}  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
+    Sleep    3
+    ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=inactive  expected_state=dead
+    Verify service shutdown status   service=${netvm_service}
+    Set Global Variable     ${NETVM_STATE}   ${state}
+    Log To Console          NetVM is ${state}
+
+Start NetVM
+    [Documentation]     Try to start NetVM service
+    ...                 Pre-condition: requires active ssh connection to ghaf host.
+    Log To Console          Going to start NetVM
+    Execute Command         systemctl start ${netvm_service}  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
+    ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=active  expected_state=running
+    Set Global Variable     ${NETVM_STATE}   ${state}
+    Log To Console          NetVM is ${state}
+    Wait until NetVM service started

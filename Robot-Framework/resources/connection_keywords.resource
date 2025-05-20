@@ -36,12 +36,14 @@ Turn ON WiFi
 
 Initialize Variables And Connect
     [Documentation]  Initialize variables. Connect to device and start logging
+    Sleep    10
     Set Variables   ${DEVICE}
     Run Keyword If  "${DEVICE_IP_ADDRESS}" == "NONE"    Get ethernet IP address
     ${port_22_is_available}     Check if ssh is ready on device   timeout=60
     IF  ${port_22_is_available} == False
         FAIL    Failed because port 22 of device was not available, tests can not be run.
     END
+    Sleep  10
     ${CONNECTION}        Connect to ghaf host
     Set Global Variable  ${CONNECTION}
 
