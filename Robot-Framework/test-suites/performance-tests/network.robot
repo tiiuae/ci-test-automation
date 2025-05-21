@@ -11,13 +11,19 @@ Resource            ../../config/variables.robot
 Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/connection_keywords.resource
 Library             ../../lib/output_parser.py
+#Library             ../../lib/TimeLibrary.py
 Library             Process
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}  ${PERF_DATA_DIR}  ${CONFIG_PATH}   ${PLOT_DIR}
 Library             Collections
 Library             JSONLibrary
-Suite Setup         Run keywords  Initialize Variables And Connect
-...                 AND  Select network connection to use
+#Suite Setup         Run keywords  Initialize Variables And Connect
+Suite Setup         Run keywords   Log to console  Suite Setup -started
+...             AND         Initialize Variables And Connect Two
+...                 AND  Restart netvm if needed
+#...                 AND  Select network connection to use
+#...                 AND  Restart netvm if needed
 ...                 AND  Run iperf server on DUT
+...                 AND  log to console  Suite setup -done-
 Suite Teardown      Run keywords  Stop iperf server
 ...                 AND  Close port 5201 from iptables
 ...                 AND  Close All Connections
@@ -31,6 +37,8 @@ ${PERF_TEST_TIME}  10
 Measure TCP Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
     [Tags]   tcp  nuc  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T227
+    ${journal_log}    Execute command  journalctl --since "20 minutes ago"
+    Log     ${journal_log}
     &{speed_data}           Create Dictionary
     # DUT sends
     ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -41,10 +49,10 @@ Measure TCP Throughput Small Packets
     Check iperf3 got results     ${output1}  ${output2}
     ${bps_tx}               Get Throughput Values  ${output1.stdout}
     ${bps_rx}               Get Throughput Values  ${output2.stdout}  direction=receiver
-    Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
-    Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Small Packets" width="1200">    HTML
-    ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
-    Determine Test Status   ${statistics}
+    #Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
+    #Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Small Packets" width="1200">    HTML
+    #${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
+    #Determine Test Status   ${statistics}
 
 Measure TCP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
@@ -153,20 +161,24 @@ Measure UDP Bidir Throughput Big Packets
 Select network connection to use
     [Documentation]  Select the connection to be used. This cannot be done in Keyword 'Initialize Variables And Connect'
      ...             since it then breaks the  other test suites.
+     # In 'Initialize Variables And Connect' the connection is set for ghaf-host (KW:Connect to ghaf host) already
      IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
-         ${CONNECTION}       Connect to netvm
-     ELSE
-         ${CONNECTION}       Connect to ghaf host
-     END
-     Set Global Variable  ${CONNECTION}
+        ${port_22_is_available}     Check if ssh is ready on device   timeout=60
+        IF  ${port_22_is_available} == False
+            FAIL    Failed because port 22 of device was not available, tests can not be run.
+        END
 
+        ${CONNECTION}       Connect to netvm
+        Set Global Variable  ${CONNECTION}
+     END
+     
 Run iperf server on DUT
     [Documentation]   Run iperf on DUT in server mode
-    IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
-         Open port 5201 from iptables
-    ELSE
-         Clear iptables rules
-    END
+    #IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
+    #     Open port 5201 from iptables
+    #ELSE
+    #     Clear iptables rules
+    #END
 
     ${command}        Set Variable    iperf -s
     Execute Command   nohup ${command} > /tmp/output.log 2>&1 &
@@ -239,3 +251,87 @@ Get Throughput Values
         Log      Failed to get the result from ${TEST NAME}   console=yes
     END
     RETURN  ${MBps}[0]
+
+Restart netvm if needed
+    ${netvm_status}    Execute Command  systemctl status microvm@net-vm.service
+    Log   ${netvm_status}
+    ${running}  run keyword and return status  Should contain   ${netvm_status}  Active: active (running)
+
+    IF  "NX" in "${DEVICE}"
+        IF  not ${running}
+            #Switch Connection   ${GHAF_HOST_SSH}
+            Connect to ghaf host
+            Start NetVM
+            Check if ssh is ready on netvm
+            #Stop NetVM
+            #Sleep  5
+            #Start NetVM
+            #Check if ssh is ready on netvm
+            ${CONNECTION}       Connect to netvm
+
+        #Close All Connections
+        #Connect to ghaf host
+        #Check Network Availability      ${NETVM_IP}    expected_result=True    range=15
+        #Connect to netvm
+        END
+     END
+
+Save Journal Log After Tests
+    #Execute command  journalctl --since "${start_timestamp}" > /tmp/stamp.txt
+    Log to console  Test Start time: ${START_TIMESTAMP}
+    ${output}  Execute command  journalctl --since "30 minutes ago" > /tmp/jrnl.txt
+
+Restart NetVM
+    [Documentation]    Stop NetVM via systemctl, wait ${delay} and start NetVM
+    ...                Pre-condition: requires active ssh connection to ghaf host.
+    [Arguments]        ${delay}=5
+    Stop NetVM
+    Sleep  ${delay}
+    Start NetVM
+    Check if ssh is ready on netvm
+
+Stop NetVM
+    [Documentation]     Ensure that NetVM is started, stop it and check the status.
+    ...                 Pre-condition: requires active ssh connection to ghaf host.
+    Verify service status   service=${netvm_service}   expected_status=active   expected_state=running
+    Log To Console          Going to stop NetVM
+    Execute Command         systemctl stop ${netvm_service}  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
+    Sleep    3
+    ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=inactive  expected_state=dead
+    Verify service shutdown status   service=${netvm_service}
+    Set Global Variable     ${NETVM_STATE}   ${state}
+    Log To Console          NetVM is ${state}
+
+Start NetVM
+    [Documentation]     Try to start NetVM service
+    ...                 Pre-condition: requires active ssh connection to ghaf host.
+    Log To Console          Going to start NetVM
+    Execute Command         systemctl start ${netvm_service}  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
+    ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=active  expected_state=running
+    Set Global Variable     ${NETVM_STATE}   ${state}
+    Log To Console          NetVM is ${state}
+    Wait until NetVM service started
+
+Initialize Variables And Connect Two
+    [Documentation]  Initialize variables. Connect to device and start logging
+    Set Variables   ${DEVICE}
+    Run Keyword If  "${DEVICE_IP_ADDRESS}" == "NONE"    Get ethernet IP address
+    ${port_22_is_available}     Check if ssh is ready on device   timeout=60
+    IF  ${port_22_is_available} == False
+        FAIL    Failed because port 22 of device was not available, tests can not be run.
+    END
+    #${CONNECTION}        Connect to netvm
+    ${CONNECTION}        Connect To Ghaf Host
+    Open port 5201 from iptables
+    Set Global Variable  ${CONNECTION}
+
+    IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
+        ${port_22_is_available}     Check if ssh is ready on device   timeout=60
+        IF  ${port_22_is_available} == False
+            FAIL    Failed because port 22 of device was not available, tests can not be run.
+        END
+
+        ${CONNECTION}       Connect to netvm
+        Open port 5201 from iptables
+        Set Global Variable  ${CONNECTION}
+     END
