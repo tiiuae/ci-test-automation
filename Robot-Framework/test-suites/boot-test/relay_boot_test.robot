@@ -39,6 +39,8 @@ Verify booting after restart by power
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Verify init.scope status via serial
     END
+    ${recent_journal}  Execute command  journalctl --since "10 minutes ago"  # | grep -i Unrecoverable error detected.
+    Log  ${recent_journal}
     [Teardown]   Test Teardown
 
 Verify booting LenovoX1
