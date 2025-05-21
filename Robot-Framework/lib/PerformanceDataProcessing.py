@@ -81,7 +81,7 @@ class PerformanceDataProcessing:
             truncated_list.append(float(f'{item:.{significant_figures}g}'))
         return truncated_list
 
-    def detect_deviation(self, data_column, baseline_start, threshold, deviations=[]):
+    def detect_deviation(self, data_column, baseline_start, threshold, deviations_in_row, deviations=[]):
         # Calculate mean and population standard deviation of the results
         # Check if last value changes more than threshold from
         #   last "normal" measurement result
@@ -90,6 +90,9 @@ class PerformanceDataProcessing:
 
         flag = 0
         baseline_end = 0
+
+        if deviations_in_row < self.zero_result_flag + 1:
+            deviations_in_row = 0
 
         # Slice the list since baseline_start for mean and std calculations
         data_column_cut = data_column[baseline_start:-1]
@@ -102,16 +105,15 @@ class PerformanceDataProcessing:
             # Calculate mean, omitting the values which are labeled deviations
             mean = (sum(data_column_cut) - sum_deviations) / (len(data_column_cut) - len(deviations))
 
-            # Calculate (custom) standard deviation, omitting the values which are too low.
+            # Calculate (custom) standard deviation, omitting the values which are too low and potential current row of deviations (potential new baseline).
             # Cannot omit all deviations here. Otherwise there wouldn't be any real variation for std.
             # Find also the last non-deviated measurement result.
             data_sum = 0
             baseline_values = 0
-            for i in range(baseline_start, len(data_column) - 1):
+            for i in range(baseline_start, len(data_column) - 1 - abs(deviations_in_row)):
                 if not data_column[i] < self.low_limit:
                     baseline_values += 1
                     data_sum = (data_column[i] - mean) ** 2 + data_sum
-                if i not in deviations:
                     baseline_end = i
             if baseline_values > 0:
                 pstd = (data_sum / baseline_values) ** (1 / 2)
@@ -241,7 +243,7 @@ class PerformanceDataProcessing:
                             select_threshold = 0
                         else:
                             select_threshold = value
-                        statistics_block = self.detect_deviation(data[value], baseline_start[value], threshold[select_threshold], deviations[value])
+                        statistics_block = self.detect_deviation(data[value], baseline_start[value], threshold[select_threshold], deviation_counter[counter], deviations[value])
 
                         # Monitor deviations of monitored_value(s)
                         flag = statistics_block['flag']

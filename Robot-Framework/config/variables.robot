@@ -62,7 +62,7 @@ Set Variables
     Set Global Variable  ${ZATHURA_VM}         zathura-vm
     Set Global Variable  @{VMS}                ${ADMIN_VM}  ${AUDIO_VM}  ${BUSINESS_VM}  ${CHROME_VM}  ${COMMS_VM}  ${GALA_VM}  ${GUI_VM}  ${ZATHURA_VM}
     Set Global Variable  ${COMPOSITOR}         labwc
-    Set Global Variable  ${PERF_LOW_LIMIT}     0.1
+    Set Global Variable  ${PERF_LOW_LIMIT}     1
 
     Set Log Level       NONE
 
