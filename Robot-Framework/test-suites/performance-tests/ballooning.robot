@@ -5,7 +5,7 @@
 Documentation       Testing performance of memory ballooning
 Force Tags          performance     ballooning
 Resource            ../../resources/ssh_keywords.resource
-Library             ../../lib/ParseMemoryLogData.py    ${PERF_DATA_DIR}
+Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}  ${PERF_DATA_DIR}  ${CONFIG_PATH}   ${PLOT_DIR}
 Suite Setup         Connect to netvm
 Test Teardown       Ballooning Test Teardown
 Suite Teardown      Close All Connections
@@ -105,7 +105,7 @@ Test ballooning in VM
     Execute Command                   echo "stage2" > ${test_status_file}
     Sleep                             2
     Get memory logs                   ${test_dir}/ballooning_${vm}_${BUILD_ID}.csv
-    Generate ballooning plot          ${vm}_${BUILD_ID}
+    Plot ballooning                   ${vm}_${BUILD_ID}
 
     IF  $inflate_passed != 'True'
         FAIL    Total memory did not inflate to expected level
@@ -123,11 +123,12 @@ Read memory status
 
 Get memory logs
     [Arguments]             ${path}
-    SSHLibrary.Get File     ${path}  ${PERF_DATA_DIR}
+    ${data_dir}             Get Data Dir
+    SSHLibrary.Get File     ${path}  ${data_dir}
 
-Generate ballooning plot
+Plot ballooning
     [Arguments]             ${id}
-    Generate graph    ${PLOT_DIR}   ${id}
+    Generate Ballooning Graph    ${PLOT_DIR}   ${id}    ${TEST_NAME}
     Log   <img src="${REL_PLOT_DIR}mem_ballooning_${id}.png" alt="Power plot" width="1200">    HTML
 
 Ballooning Test Teardown
