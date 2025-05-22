@@ -46,6 +46,10 @@ class PerformanceDataProcessing:
             os.makedirs(self.plot_dir, exist_ok=True)
         return data_dir
 
+    @keyword
+    def get_data_dir(self):
+        return self.data_dir
+
     def _write_to_csv(self, test_name, data):
         file_path = os.path.join(self.data_dir, f"{self.device}_{test_name}.csv")
         logging.info(f"Writing data to {file_path}")
@@ -688,6 +692,30 @@ class PerformanceDataProcessing:
             plt.tight_layout()
             plt.savefig(self.plot_dir + f'{self.device}_{test_name}_{test}.png')
             plt.close()
+
+    @keyword
+    def generate_ballooning_graph(self, plot_dir, id, test_name):
+        data = pandas.read_csv(self.data_dir + "ballooning_" + id + ".csv")
+        start_time = 0
+        end_time = int(data['time'].values[data.index.max()])
+        step = int((end_time - start_time) / 20)
+        if step < 1:
+            step = 1
+        plt.figure(figsize=(20, 10))
+        plt.set_loglevel('WARNING')
+        plt.ticklabel_format(axis='y', style='plain')
+        plt.yticks(fontsize=14)
+        plt.plot(data['time'], data['total_mem'], marker='o', linestyle='-', color='b', label='total_mem')
+        plt.plot(data['time'], data['used_mem'], marker='o', linestyle='-', color='g', label='used_mem')
+        plt.plot(data['time'], data['available_mem'], marker='o', linestyle='-', color='r', label='avail_mem')
+        plt.title(self.device + " - " + test_name, loc='center', fontweight="bold", fontsize=16)
+        plt.ylabel('MegaBytes', fontsize=16)
+        plt.grid(True)
+        plt.xlabel('Time (s)', fontsize=16)
+        plt.legend(loc='upper left', fontsize=20)
+        plt.xticks(range(start_time, end_time, step), fontsize=14)
+        plt.savefig(plot_dir + f'mem_ballooning_{id}.png')
+        return
 
     @keyword
     def save_cpu_data(self, test_name, cpu_data):
