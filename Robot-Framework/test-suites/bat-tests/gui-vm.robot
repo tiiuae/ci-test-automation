@@ -81,7 +81,7 @@ Start Falcon AI on LenovoX1
     Get mako path
     Start XDG application  'Falcon AI'
     Wait Until Download Is 100 Percent
-    Check If Download Completed
+    Wait Until Download Complete
     Check that the application was started    alpaca    range=20
 
 *** Keywords ***
@@ -115,8 +115,6 @@ Check If Download Reached 100
         END
     END
 
-    [Teardown]    Execute Command         rm notifications.txt
-
 Get Percentage
     [Arguments]       ${text}
     ${match_status}   ${match_msg}    Run Keyword And Ignore Error    Should Match Regexp    ${text}    .*?(\\d+)%.*?
@@ -128,17 +126,25 @@ Get Percentage
     RETURN            ${percent}
 
 Wait Until Download Is 100 Percent
-    Wait Until Keyword Succeeds    300s    5s    Check If Download Reached 100
+    Wait Until Keyword Succeeds    420s    5s    Check If Download Reached 100
 
 Check If Download Completed
     ${notifications}  Execute Command  /nix/store/${MAKO_PATH}/bin/makoctl history
     ${notifications}  Parse notifications    ${notifications}
 
+    ${completed}      Set Variable  ${False}
     FOR    ${key}     ${value}    IN    &{notifications}
         ${status}     Run Keyword And Return Status    Should Contain    ${value}    Download complete
         IF    ${status}
             Log to console    Falcon download completed
+            ${completed}      Set Variable    ${True}
             BREAK
         END
     END
-    [Teardown]         Execute Command    rm notifications.txt
+
+    IF  not ${completed}
+        Fail    No notifications contained 'Download complete'
+    END
+
+Wait Until Download Complete
+    Wait Until Keyword Succeeds    30s    3s     Check If Download Completed

@@ -126,7 +126,6 @@ Check notification
     ELSE
         FAIL   The new ID (${last_matching_id}) is NOT greater than the previous one (${last_id}).
     END
-    [Teardown]    Execute Command         rm notifications.txt
 
 Get last notification id
     ${notifications}    Execute Command   /nix/store/${MAKO_PATH}/bin/makoctl history
