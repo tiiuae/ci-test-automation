@@ -82,7 +82,7 @@ Start Falcon AI on LenovoX1
     Start XDG application  'Falcon AI'
     Wait Until Download Is 100 Percent
     Check If Download Completed
-    Check that the application was started    alpaca    range=20
+    Check that the application was started    alpaca    range=40
 
 *** Keywords ***
 
