@@ -96,3 +96,13 @@ Get mako path
     ${output}            Execute Command     ls /nix/store | grep mako | grep -v .drv
     ${result}            Extract mako path   ${output}
     Set Global Variable  ${MAKO_PATH}    ${result}
+
+Get Falcon LLM Name
+    ${output}            Execute Command     cat '/run/current-system/sw/share/applications/Falcon AI.desktop'
+    ${line}              Get Lines Containing String  ${output}  Exec=
+    ${path}              Set Variable  ${line[5:]}
+    ${llm_name_raw}      Execute Command  cat ${path} | grep LLM_NAME | head -n 1
+    # LLM_NAME="falcon3:10b" -> falcon3:10b
+    ${tmp}               Fetch From Right  ${llm_name_raw}  =
+    ${LLM_NAME}          Set Variable  ${tmp[1:-1]}
+    Set Global Variable  ${LLM_NAME}

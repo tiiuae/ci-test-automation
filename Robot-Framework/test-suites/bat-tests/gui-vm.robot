@@ -77,11 +77,18 @@ Start COSMIC Text Editor on LenovoX1
 Start Falcon AI on LenovoX1
     [Documentation]   Start Falcon AI and verify process started
     [Tags]            falcon_ai  SP-T223-1
-    Get mako path
-    Start XDG application  'Falcon AI'
-    Wait Until Download Is 100 Percent
-    Wait Until Download Complete
-    Check that the application was started    alpaca    range=20
+    IF  $COMPOSITOR == 'cosmic'
+        Get Falcon LLM Name
+        Start XDG application  'Falcon AI'
+        Wait Until Falcon Download Complete (Cosmic)
+        Check that the application was started    alpaca    range=20
+    ELSE
+        Get mako path
+        Start XDG application  'Falcon AI'
+        Wait Until Download Is 100 Percent
+        Wait Until Download Complete
+        Check that the application was started    alpaca    range=20
+    END
 
 *** Keywords ***
 
@@ -147,3 +154,11 @@ Check If Download Completed
 
 Wait Until Download Complete
     Wait Until Keyword Succeeds    30s    3s     Check If Download Completed
+
+Wait Until Falcon Download Complete (Cosmic)
+    FOR  ${i}  IN RANGE   100
+        ${output}          Execute Command  ollama list
+        ${download_done}   Run Keyword And Return Status  Should contain   ${output}  ${LLM_NAME}
+        IF  ${download_done}  BREAK
+        Sleep  3
+    END
