@@ -97,14 +97,35 @@ Open PDF with Zathura
     ...                       Connect to VM      ${ZATHURA_VM}    AND
     ...                       Kill Process And Log journalctl
 
+Open image with Zathura
+    [Documentation]    Open image in the Chrome VM and check that Zathura app is started and opens the file
+    [Tags]             bat  SP-T197   lenovo-x1   dell-7330
+    Connect to netvm
+    Connect to VM           ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
+
+    IF  $COMPOSITOR == 'cosmic'
+        Execute Command    mkdir test-images
+        ${result}=         Run Keyword And Ignore Error  Execute Command  cosmic-screenshot --interactive=false --save-dir ./test-images  return_stdout=True   return_rc=True   timeout=5
+        Open Image         screenshot.png
+    ELSE
+        ${rc}=             Execute Command  grim screenshot.png  return_stdout=False  return_rc=${true}   timeout=5
+        Open Image         screenshot.png
+    END
+
+    Connect to VM      ${ZATHURA_VM}
+    Check that the application was started    oculante    10
+    [Teardown]  Run Keywords  Remove the file in VM    screenshot.png    ${GUI_VM}    AND
+    ...                       Connect to VM      ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}    AND
+    ...                       Kill Process And Log journalctl
+
 
 *** Keywords ***
 
 Kill Process And Log journalctl
-    [Documentation]  Kill all running process and log journalctl
-    ${output}     Execute Command    journalctl
-    Log  ${output}
-    Kill process  @{APP_PIDS}
+    [Documentation]    Kill all running process and log journalctl
+    ${output}          Execute Command    journalctl
+    Log                ${output}
+    Kill process       @{APP_PIDS}
     Close All Connections
 
 Remove the file in VM
