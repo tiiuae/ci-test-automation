@@ -641,4 +641,7 @@ Detect first boot
 
 Create test user
     Log To Console      Creating test user
-    Execute Command     systemctl start setup-test-user.service  sudo=True  sudo_password=${password}
+    ${output}   Execute Command     systemctl start setup-test-user.service  sudo=True  sudo_password=${password}
+    # Wait until creation done
+    Verify service status  service=setup-test-user.service  expected_status=inactive  expected_state=dead  range=15
+
