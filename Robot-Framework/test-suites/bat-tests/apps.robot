@@ -97,14 +97,42 @@ Open PDF with Zathura
     ...                       Connect to VM      ${ZATHURA_VM}    AND
     ...                       Kill Process And Log journalctl
 
+Open image with Oculante
+    [Documentation]    Open PNG image in the Gui VM and check that Oculante app is started and opens the image
+    [Tags]             bat  SP-T197   lenovo-x1   dell-7330
+    Connect to netvm
+    Connect to VM           ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
+
+    IF  $COMPOSITOR == 'cosmic'
+        Execute Command    mkdir test-images
+        ${result}          Run Keyword And Ignore Error  Execute Command  cosmic-screenshot --interactive=false --save-dir ./  return_stdout=True   return_rc=True   timeout=5
+        IF  "${result}[1][1]" == "0"
+            ${img_file}    Set Variable    ${result}[1][0]
+        ELSE
+            Fail           Couldn't take a screenshot
+        END
+    ELSE
+        ${rc}              Execute Command  grim screenshot.png  return_stdout=False  return_rc=${true}   timeout=5
+        ${img_file}        Set Variable    screenshot.png
+    END
+
+    Open Image         ${img_file}
+
+    Connect to VM      ${ZATHURA_VM}
+    Check that the application was started    oculante    10
+    [Teardown]  Run Keywords  Connect to VM      ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}    AND
+    ...                       Remove the file in VM    ${img_file}    ${GUI_VM}    AND
+    ...                       Connect to VM      ${ZATHURA_VM}    AND
+    ...                       Kill Process And Log journalctl
+
 
 *** Keywords ***
 
 Kill Process And Log journalctl
-    [Documentation]  Kill all running process and log journalctl
-    ${output}     Execute Command    journalctl
-    Log  ${output}
-    Kill process  @{APP_PIDS}
+    [Documentation]    Kill all running process and log journalctl
+    ${output}          Execute Command    journalctl
+    Log                ${output}
+    Kill process       @{APP_PIDS}
     Close All Connections
 
 Remove the file in VM

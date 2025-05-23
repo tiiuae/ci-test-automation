@@ -227,6 +227,15 @@ Open PDF
     Log to console   Trying to open ${pdf_file}
     Execute Command  echo ${PASSWORD} | sudo -S nohup sh -c '${xdgopen} ${pdf_file}' > /tmp/out.log 2>&1 &
 
+Open Image
+    [Arguments]      ${pic_file}
+    ${output}        Execute Command    cat /run/current-system/sw/share/applications/ghaf-image-xdg.desktop
+    Log              ${output}
+    ${path}          Get App Path From Desktop  ${output}
+    ${xdgopen}       Get Substring      ${path}    0    -3
+    Log to console   Trying to open ${pic_file}
+    Execute Command  nohup sh -c '${xdgopen} ${pic_file}' > /tmp/out.log 2>&1 &
+
 Start Firefox
     [Documentation]  It's needed to set display variable manually because there is no real monitor connected to DUT
     Log To Console  ${\n}Starting Firefox
