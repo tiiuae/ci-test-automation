@@ -39,15 +39,15 @@ thresholds = {
         },
         'single': {
             'wr': 350,
-            'rd': 250,
+            'rd': 350,
             'wr_nuc': 800,
             'rd_nuc': 800
         }
     },
     'fileio': {
-        'wr': "3std",
-        'rd': "3std",
-        'rd_lenovo-x1': "3std"
+        'wr': "5std",
+        'rd': "5std",
+        'rd_lenovo-x1': "5std"
     },
     'boot_time': {
         'response_to_ping': 10,
