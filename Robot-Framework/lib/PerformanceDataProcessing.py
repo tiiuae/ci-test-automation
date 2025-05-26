@@ -94,6 +94,7 @@ class PerformanceDataProcessing:
 
         flag = 0
         baseline_end = 0
+        last_measurement = data_column[-1]
 
         if deviations_in_row < self.zero_result_flag + 1:
             deviations_in_row = 0
@@ -144,20 +145,17 @@ class PerformanceDataProcessing:
                 # If there is not yet enough measurement history mean and std values might be forced to 0.
                 # In such case set threshold so that test passes
                 if threshold < 0.001:
-                   threshold = data_column[-1]
+                   threshold = last_measurement
 
-            d = [0] * 3
-
-            # Monitor deviation from the last "stable" measurement result.
-            d[0] = data_column[-1] - data_column[baseline_end]
+            d = [0, 0]
 
             # Monitor deviation from the mean of the last "stable" baseline period
-            d[1] = data_column[-1] - mean
+            d[0] = last_measurement - mean
 
             # Monitor deviation from the first measurement of the last stable period,
             # meaning there are no deviations detected within that period.
             # This will catch slow monotonic change over time.
-            d[2] = data_column[-1] - data_column[baseline_start]
+            d[1] = last_measurement - data_column[baseline_start]
 
             # Flag indicating significant change in performance value
             flag = 0
@@ -170,28 +168,37 @@ class PerformanceDataProcessing:
                 if d[i] > threshold:
                     flag = 1
 
-            stats = self.truncate([mean, pstd] + d + [data_column[-1], data_column[baseline_end], data_column[baseline_start]], 5)
+            upper_marginal = min(mean, data_column[baseline_start]) + threshold
+            lower_marginal = max(mean, data_column[baseline_start]) - threshold
+
+            stats = self.truncate([mean, pstd] + d + [data_column[baseline_end], data_column[baseline_start], upper_marginal, lower_marginal], 5)
 
         else:
             stats = [0] * 8
+            stats[0] = last_measurement
+            stats[4] = last_measurement
+            stats[5] = last_measurement
+            stats[6] = 2 * last_measurement
+            stats[7] = 0
 
-        if data_column[-1] < self.low_limit:
+        if last_measurement < self.low_limit:
             flag = self.zero_result_flag
 
-        statistics_directory = {
+        statistics_dict = {
             'flag': flag,
             'threshold': threshold,
-            'd_baseline_start': stats[4],
-            'd_mean': stats[3],
-            'd_baseline_end': stats[2],
-            'baseline_start': data_column[baseline_start],
+            'd_baseline_start': stats[3],
+            'd_mean': stats[2],
+            'baseline_start': stats[5],
             'baseline_mean': stats[0],
-            'baseline_end': data_column[baseline_end],
+            'baseline_end': stats[4],
             'baseline_std': stats[1],
-            'measurement': data_column[-1]
+            'upper_marginal': stats[6],
+            'lower_marginal': stats[7],
+            'measurement': last_measurement
         }
 
-        return statistics_directory
+        return statistics_dict
 
     def calculate_statistics(self, test_name, data, monitored_value, threshold):
         # monitored_value: list of labels
@@ -309,12 +316,19 @@ class PerformanceDataProcessing:
                     row_index = row_index + 1
 
         # Write all statistics into csv file
-        self._write_statistics_to_csv(test_name, statistics)
-        # In case raw data is also necessary for debugging:
+        self._write_statistics_to_csv(test_name,{'commit': data['commit']} | statistics)
+        # In case of debugging can have also raw data side by side with statistics:
         # self._write_statistics_to_csv(test_name, data | statistics)
 
         # Return the statistics of the last measurement
-        return new_statistics_row
+        return new_statistics_row, statistics
+
+    def plot_marginals(self, x_data, statistics, plot_limit, result_index=''):
+        for key in statistics.keys():
+            statistics[key] = statistics[key][-plot_limit:]
+        plt.plot(x_data, statistics['upper_marginal' + result_index], marker='', linestyle='dotted', color='r')
+        plt.plot(x_data, statistics['lower_marginal'+ result_index], marker='', linestyle='dotted', color='r')
+        return
 
     @keyword
     def read_cpu_csv_and_plot(self, test_name):
@@ -337,7 +351,7 @@ class PerformanceDataProcessing:
         else:
             threshold = thresholds['cpu']['multi']
 
-        return_statistics = self.calculate_statistics(test_name, data, ['cpu_events_per_second'], [threshold])
+        return_statistics, statistics = self.calculate_statistics(test_name, data, ['cpu_events_per_second'], [threshold])
 
         if "VMs" in test_name:
             return return_statistics
@@ -352,6 +366,7 @@ class PerformanceDataProcessing:
         plt.subplot(3, 1, 1)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(data['commit'], data['cpu_events_per_second'], marker='o', linestyle='-', color='b')
+        self.plot_marginals(data['commit'], statistics, 40)
         plt.yticks(fontsize=14)
         plt.title('CPU Events per Second', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('CPU Events per Second', fontsize=16)
@@ -437,7 +452,7 @@ class PerformanceDataProcessing:
                 dictionary_key_name = 'read_multi-thread'
                 threshold = thresholds['mem']['multi']['rd']
 
-        return_statistics = self.calculate_statistics(test_name, data, ['data_transfer_speed'], [threshold])
+        return_statistics, statistics = self.calculate_statistics(test_name, data, ['data_transfer_speed'], [threshold])
         return_statistics = self.change_dictionary_key(return_statistics, 'data_transfer_speed', dictionary_key_name)
 
         if "VMs" in test_name:
@@ -463,6 +478,7 @@ class PerformanceDataProcessing:
         plt.subplot(3, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(data['commit'], data['data_transfer_speed'], marker='o', linestyle='-', color='b')
+        self.plot_marginals(data['commit'], statistics, 40)
         plt.yticks(fontsize=14)
         plt.title('Data Transfer Speed', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('Data Transfer Speed (MiB/sec)', fontsize=16)
@@ -501,7 +517,7 @@ class PerformanceDataProcessing:
         }
         threshold = thresholds['iperf']
 
-        return_statistics = self.calculate_statistics(test_name, data, ['tx', 'rx'], [threshold])
+        return_statistics, statistics = self.calculate_statistics(test_name, data, ['tx', 'rx'], [threshold])
 
         for key in data.keys():
             data[key] = data[key][-40:]
@@ -513,6 +529,7 @@ class PerformanceDataProcessing:
         plt.subplot(2, 1, 1)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(data['commit'], data['tx'], marker='o', linestyle='-', color='b')
+        self.plot_marginals(data['commit'], statistics, 40, '0')
         plt.yticks(fontsize=14)
         plt.title('Transmitting Speed', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('TX Speed (MBytes/sec)', fontsize=16)
@@ -523,6 +540,7 @@ class PerformanceDataProcessing:
         plt.subplot(2, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(data['commit'], data['rx'], marker='o', linestyle='-', color='b')
+        self.plot_marginals(data['commit'], statistics, 40, '1')
         plt.yticks(fontsize=14)
         plt.title('Receiving Speed', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('RX Speed (MBytes/sec)', fontsize=16)
@@ -559,7 +577,7 @@ class PerformanceDataProcessing:
             else:
                 threshold = thresholds['fileio']['rd']
 
-        return_statistics = self.calculate_statistics(test_name, data, ['throughput'], [threshold])
+        return_statistics, statistics = self.calculate_statistics(test_name, data, ['throughput'], [threshold])
 
         for key in data.keys():
             data[key] = data[key][-40:]
@@ -579,6 +597,7 @@ class PerformanceDataProcessing:
         plt.subplot(3, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(data['commit'], data['throughput'], marker='o', linestyle='-', color='b')
+        self.plot_marginals(data['commit'], statistics, 40)
         plt.yticks(fontsize=14)
         plt.title('Throughput', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('Throughput, MiB/s', fontsize=16)
@@ -628,7 +647,7 @@ class PerformanceDataProcessing:
                 'response_to_ping': [],
             }
 
-        return_statistics = self.calculate_statistics(test_name, data, monitored_values, threshold)
+        return_statistics, statistics = self.calculate_statistics(test_name, data, monitored_values, threshold)
 
         for key in data.keys():
             data[key] = data[key][-40:]
@@ -639,6 +658,11 @@ class PerformanceDataProcessing:
         plt.subplot(2, 1, 1)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(data['commit'], data['response_to_ping'], marker='o', linestyle='-', color='b')
+        if 'Orin' in test_name:
+            index = ''
+        else:
+            index = '1'
+        self.plot_marginals(data['commit'], statistics, 40, index)
         plt.yticks(fontsize=14)
         plt.title('Response to ping', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('seconds', fontsize=12)
@@ -650,6 +674,7 @@ class PerformanceDataProcessing:
             plt.subplot(2, 1, 2)
             plt.ticklabel_format(axis='y', style='plain')
             plt.plot(data['commit'], data['time_to_desktop'], marker='o', linestyle='-', color='b')
+            self.plot_marginals(data['commit'], statistics, 40, '0')
             plt.yticks(fontsize=14)
             plt.title('Time from reboot to desktop available', loc='right', fontweight="bold", fontsize=16)
             plt.ylabel('seconds', fontsize=12)

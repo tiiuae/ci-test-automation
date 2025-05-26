@@ -118,7 +118,6 @@ Connect to netvm
 Connect to VM
     [Documentation]      Connect to any VM or ghaf-host over internal virtual network
     [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=60
-    ${connected}   Check ssh connection status   net-vm
     Log To Console       Connecting to ${vm_name} as ${user}...   no_newline=true
     Check if ssh is ready on vm        ${vm_name}
     ${failed_connection}  Set variable  True
