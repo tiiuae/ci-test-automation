@@ -421,31 +421,11 @@ Save log
     Log  ${output}
     Close All Connections
 
-Check if ssh is ready on netvm
-    [Arguments]    ${timeout}=60
-    ${start_time}  Get Time	epoch
-    FOR    ${i}    IN RANGE    ${timeout}
-        ${output}  ${rc}    Execute Command    nc -zvw3 ${NETVM_IP} 22    return_rc=True
-        ${status}    Run Keyword And Return Status
-        ...          Should Be Equal As Integers    ${rc}    0
-        IF  ${status}
-            BREAK
-        END
-        ${diff}=    Evaluate    int(time.time()) - int(${start_time})
-        IF   ${diff} < ${timeout}
-            Sleep    1
-            CONTINUE
-        ELSE
-            BREAK
-        END
-    END
-    IF   ${status} == False    FAIL    Port 22 of NetVM is not ready after ${timeout}
-
 Check if ssh is ready on vm
     [Arguments]    ${vm}  ${timeout}=30
     ${start_time}  Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
-        ${output}  ${rc}    Execute Command    nc -zvw3 ${vm} 22    return_rc=True
+        ${output}  ${rc}    Execute Command    nc -zvw3 ${vm} 22    return_rc=True   timeout=10
         ${status}    Run Keyword And Return Status
         ...          Should Be Equal As Integers    ${rc}    0
         IF  ${status}
@@ -584,7 +564,7 @@ Restart VM
     Stop VM  ${vm_name}
     Sleep  ${delay}
     Start VM  ${vm_name}
-    Check if ssh is ready on netvm
+    Check if ssh is ready on vm   ${vm_name}
 
 Check External SSD Size
     [Documentation]  Check the size of ssd used in setup
