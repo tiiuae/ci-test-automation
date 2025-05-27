@@ -13,6 +13,7 @@ Suite Teardown      Close All Connections
 *** Variables ***
 ${wrong_time}       01/11/23 11:00:00 UTC
 ${original_time}    ${EMPTY}
+${error_msg}        Unrecoverable error detected. Please collect any data possible and then kill the guest
 
 
 *** Test Cases ***
@@ -42,8 +43,7 @@ Time synchronization
 
     IF  "AGX" in "${DEVICE}"  Disable Wifi passthrough from NetVM
 
-    [Teardown]        Run Keywords
-    ...               Connect  AND  Set RTC from system clock  AND  Start timesync daemon
+    [Teardown]  Timesync Teardown
 
 
 *** Keywords ***
@@ -132,3 +132,17 @@ Disable Wifi passthrough from NetVM
     Check Network Availability    8.8.8.8   expected_result=False
     Sleep               1
     Remove Wifi configuration  ${TEST_WIFI_SSID}
+
+Timesync Teardown
+     Connect
+     Run Keyword If Test Failed  Check If Known Error
+     Set RTC from system clock
+     Start timesync daemon
+
+Check If Known Error
+    IF  "AGX" in "${DEVICE}"
+        ${journal_log}    Execute Command  journalctl --since "20 minutes ago"
+        Log  ${journal_log}
+        ${error_present}  Run Keyword And Return Status  Should Contain  ${journal_log}   ${error_msg}
+        IF  ${error_present}   Skip    Known issue: SSRCSP-6423 (AGX)
+    END
