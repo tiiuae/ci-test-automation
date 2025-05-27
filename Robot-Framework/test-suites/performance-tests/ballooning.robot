@@ -5,7 +5,8 @@
 Documentation       Testing performance of memory ballooning
 Force Tags          performance     ballooning
 Resource            ../../resources/ssh_keywords.resource
-Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}  ${PERF_DATA_DIR}  ${CONFIG_PATH}   ${PLOT_DIR}
+Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
+...                 ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}  ${PERF_LOW_LIMIT}
 Suite Setup         Connect to netvm
 Test Teardown       Ballooning Test Teardown
 Suite Teardown      Close All Connections
