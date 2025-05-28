@@ -13,7 +13,7 @@ Suite Teardown      Close All Connections
 
 Check all VMs have internet connection
     [Documentation]    Pings google from every vm.
-    [Tags]             bat  SP-T257  lenovo-x1  dell-7330
+    [Tags]             bat  regression  SP-T257  lenovo-x1  dell-7330
     ${failed_vms}=    Create List
     FOR  ${vm}  IN  @{VMS}
         Connect to VM    ${vm}

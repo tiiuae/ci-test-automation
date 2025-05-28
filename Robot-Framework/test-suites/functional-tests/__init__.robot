@@ -2,15 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Documentation       BAT tests
+Documentation       Functional tests
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/connection_keywords.resource
 Resource            ../../resources/gui_keywords.resource
 Library             OperatingSystem
 Test Timeout        10 minutes
-Suite Setup         BAT tests setup
-Suite Teardown      BAT tests teardown
+Suite Setup         Functional tests setup
+Suite Teardown      Functional tests teardown
 
 
 *** Variables ***
@@ -19,7 +19,7 @@ ${DISABLE_LOGOUT}     ${EMPTY}
 
 *** Keywords ***
 
-BAT tests setup
+Functional tests setup
     [timeout]    5 minutes
     Initialize Variables, Connect And Start Logging
     IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
@@ -31,7 +31,7 @@ BAT tests setup
     END
     Switch Connection    ${CONNECTION}
 
-BAT tests teardown
+Functional tests teardown
     [timeout]    5 minutes
     Connect to ghaf host
     Log journalctl

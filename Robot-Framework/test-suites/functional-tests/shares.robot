@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing files sharing among VMs
-Force Tags          shares  bat  SP-T198  lenovo-x1  dell-7330
+Force Tags          shares  SP-T198  lenovo-x1  dell-7330
 Resource            ../../resources/ssh_keywords.resource
 Test Template       File sharing test
 Suite Setup         Shares setup
@@ -12,21 +12,27 @@ Suite Teardown      Close All Connections
 *** Test Cases ***
 
 File sharing from Chrome-VM to Business-VM
+    [Tags]          regression
     ${CHROME_VM}    ${BUSINESS_VM}
 
 File sharing from Chrome-VM to Comms-VM
+    [Tags]          bat  regression
     ${CHROME_VM}    ${COMMS_VM}
 
 File sharing from Comms-VM to Business-VM
+    [Tags]          regression
     ${COMMS_VM}     ${BUSINESS_VM}
 
 File sharing from Comms-VM to Chrome-VM
+    [Tags]          regression
     ${COMMS_VM}     ${CHROME_VM}
 
 File sharing from Business-VM to Comms-VM
+    [Tags]          regression
     ${BUSINESS_VM}  ${COMMS_VM}
 
 File sharing from Business-VM to Chrome-VM
+    [Tags]          regression
     ${BUSINESS_VM}  ${CHROME_VM}
 
 *** Keywords ***

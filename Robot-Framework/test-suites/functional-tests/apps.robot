@@ -18,7 +18,7 @@ Resource            ../../resources/common_keywords.resource
 Start Firefox
     [Documentation]   Start Firefox and verify process started
     ...               Known Issues: Firefox is temporarily disabled from target SW (nuc, orin-agx)
-    [Tags]            bat  SP-T41
+    [Tags]            bat  regression  SP-T41
     [Setup]           Skip If   "${JOB}" == "nvidia-jetson-orin-agx-debug-nodemoapps-from-x86_64.x86_64-linux"
     ...               Skipped because this build doesn't contain applications
     Connect
@@ -28,7 +28,7 @@ Start Firefox
 
 Start Chrome on LenovoX1
     [Documentation]   Start Chrome in dedicated VM and verify process started
-    [Tags]            bat   pre-merge   SP-T92   lenovo-x1   dell-7330
+    [Tags]            bat  regression   pre-merge   SP-T92   lenovo-x1   dell-7330
     Verify service status  range=15  service=microvm@chrome-vm.service  expected_status=active  expected_state=running
     Connect to netvm
     Check if ssh is ready on vm    ${CHROME_VM}
@@ -40,7 +40,7 @@ Start Chrome on LenovoX1
 
 Start Zathura on LenovoX1
     [Documentation]   Start Zathura in dedicated VM and verify process started
-    [Tags]            bat  SP-T105   lenovo-x1   dell-7330
+    [Tags]            bat  regression  SP-T105   lenovo-x1   dell-7330
     Connect to netvm
     Check if ssh is ready on vm    ${ZATHURA_VM}
     Connect to VM       ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
@@ -51,7 +51,7 @@ Start Zathura on LenovoX1
 
 Start Gala on LenovoX1
     [Documentation]   Start Gala in dedicated VM and verify process started
-    [Tags]            bat  SP-T104   lenovo-x1   dell-7330
+    [Tags]            bat  regression  SP-T104   lenovo-x1   dell-7330
     Connect to netvm
     Check if ssh is ready on vm    ${GALA_VM}
     Connect to VM          ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
@@ -64,7 +64,7 @@ Start Gala on LenovoX1
 
 Start Element on LenovoX1
     [Documentation]   Start Element in dedicated VM and verify process started
-    [Tags]            bat  SP-T52   lenovo-x1   dell-7330
+    [Tags]            bat  regression  SP-T52   lenovo-x1   dell-7330
     Connect to netvm
     Check if ssh is ready on vm    ${COMMS_VM}
     Connect to VM          ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
@@ -75,7 +75,7 @@ Start Element on LenovoX1
 
 Start Slack on LenovoX1
     [Documentation]   Start Slack in dedicated VM and verify process started
-    [Tags]            bat  SP-T181   lenovo-x1   dell-7330
+    [Tags]            bat  regression  SP-T181   lenovo-x1   dell-7330
     Connect to netvm
     Check if ssh is ready on vm    ${COMMS_VM}
     Connect to VM          ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
@@ -86,7 +86,7 @@ Start Slack on LenovoX1
 
 Open PDF with Zathura
     [Documentation]    Open PDF file in the Chrome VM and check that Zathura app is started and opens the file
-    [Tags]             bat  SP-T131   lenovo-x1   dell-7330
+    [Tags]             bat  regression  SP-T131   lenovo-x1   dell-7330
     Connect to netvm
     Connect to VM      ${CHROME_VM}
     Put File           ../test-files/test_pdf.pdf         /tmp
@@ -99,7 +99,7 @@ Open PDF with Zathura
 
 Open image with Oculante
     [Documentation]    Open PNG image in the Gui VM and check that Oculante app is started and opens the image
-    [Tags]             bat  SP-T197   lenovo-x1   dell-7330
+    [Tags]             bat  regression  SP-T197   lenovo-x1   dell-7330
     Connect to netvm
     Connect to VM           ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
 
