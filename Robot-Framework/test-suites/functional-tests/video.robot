@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing camera application
-Force Tags          bat   video  lenovo-x1   dell-7330
+Force Tags          bat  regression   video  lenovo-x1   dell-7330
 Resource            ../../__framework__.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/common_keywords.resource

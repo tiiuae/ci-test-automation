@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Documentation       Common system tests
-Force Tags          others
+Documentation       Common system tests on host
+Force Tags          host
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Library             ../../lib/output_parser.py
@@ -15,23 +15,23 @@ Suite Teardown      Close All Connections
 Test ghaf version format
     [Documentation]    Test getting Ghaf version and verify its format:
     ...                Expected format: major.minor.yyyymmdd.commit_hash
-    [Tags]             bat   pre-merge   SP-T54  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330
+    [Tags]             bat  regression   pre-merge   SP-T54  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330
     Verify Ghaf Version Format
 
 Test nixos version format
     [Documentation]    Test getting Nixos version and verify its format:
     ...                Expected format: major.minor.yyyymmdd.commit_hash (name)
-    [Tags]             bat   pre-merge   SP-T55  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330
+    [Tags]             bat  regression   pre-merge   SP-T55  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330
     Verify Nixos Version Format
 
 Check QSPI version
     [Documentation]    QSPI version should be up-to-date
-    [Tags]             bat   pre-merge  SP-T95  orin-agx  orin-agx-64  orin-nx
+    [Tags]             bat  regression   pre-merge  SP-T95  orin-agx  orin-agx-64  orin-nx
     Check QSPI Version is up to date
 
 Check systemctl status
     [Documentation]    Verify systemctl status is running
-    [Tags]             bat   pre-merge  SP-T98  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330
+    [Tags]             bat  regression   pre-merge  SP-T98  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330
     ${status}   ${output}   Run Keyword And Ignore Error    Verify Systemctl status  close_conn=false
     IF  '${status}' == 'FAIL'
         IF  "NUC" in "${DEVICE}"
@@ -49,7 +49,7 @@ Check systemctl status
 
 Check all VMs are running
     [Documentation]    Check that all VMs are running.
-    [Tags]             bat  SP-T68  lenovo-x1   dell-7330
+    [Tags]             bat  regression  SP-T68  lenovo-x1   dell-7330
     ${output}   Execute Command    microvm -l
     @{vms}      Extract VM names   ${output}
     Should Not Be Empty   ${vms}  VM list is empty
@@ -59,7 +59,7 @@ Check all VMs are running
 
 Check serial connection
     [Documentation]    Check serial connection
-    [Tags]             bat  nuc  orin-agx  orin-agx-64  orin-nx  riscv  SP-T51  SP-T170
+    [Tags]             bat  regression  nuc  orin-agx  orin-agx-64  orin-nx  riscv  SP-T51  SP-T170
     [Setup]     Open Serial Port
     FOR    ${i}    IN RANGE    120
         Write Data    ${\n}
@@ -73,7 +73,7 @@ Check serial connection
 
 Check Memory status
     [Documentation]  Check that there is enough memory available
-    [Tags]  bat  lenovo-x1   dell-7330  SP-5321
+    [Tags]  bat  regression  lenovo-x1   dell-7330  SP-5321
     ${lsblk}  Execute Command  lsblk
     log       ${lsblk}
     ${SSD}    run keyword and return status  should contain   ${lsblk}   sda

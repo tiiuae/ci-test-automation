@@ -27,7 +27,7 @@ Time synchronization
     ...                      -Net-vm is not connected to net.
     ...                  - Ghaf-host is connected to net via Net-VM if adapter is used!.
     ...                  - In this test we expect adapter is not used -> Set Wi-Fi ON to enable net-vm to address net.
-    [Tags]            bat   SP-T97   nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330
+    [Tags]            bat  regression   SP-T97   nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330
 
     IF  "AGX" in "${DEVICE}"  Set Wifi passthrough into NetVM
 
