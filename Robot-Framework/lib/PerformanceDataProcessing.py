@@ -368,7 +368,7 @@ class PerformanceDataProcessing:
         plt.plot(data['commit'], data['cpu_events_per_second'], marker='o', linestyle='-', color='b')
         self.plot_marginals(data['commit'], statistics, 40)
         plt.yticks(fontsize=14)
-        plt.title('CPU Events per Second', loc='right', fontweight="bold", fontsize=16)
+        plt.title(f'CPU Events per Second / Threshold: {threshold}', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('CPU Events per Second', fontsize=16)
         plt.grid(True)
         plt.xticks(data['commit'], rotation=90, fontsize=14)
@@ -404,7 +404,7 @@ class PerformanceDataProcessing:
         plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
         plt.grid(True)
 
-        plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
+        plt.suptitle(f'{test_name}\nBuild type: {self.build_type}, Device: {self.device}', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
         plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
@@ -480,7 +480,7 @@ class PerformanceDataProcessing:
         plt.plot(data['commit'], data['data_transfer_speed'], marker='o', linestyle='-', color='b')
         self.plot_marginals(data['commit'], statistics, 40)
         plt.yticks(fontsize=14)
-        plt.title('Data Transfer Speed', loc='right', fontweight="bold", fontsize=16)
+        plt.title(f'Data Transfer Speed / Threshold: {threshold}', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('Data Transfer Speed (MiB/sec)', fontsize=16)
         plt.grid(True)
         plt.xticks(data['commit'], rotation=90, fontsize=14)
@@ -502,7 +502,7 @@ class PerformanceDataProcessing:
         plt.legend(loc='upper right')
         plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
 
-        plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
+        plt.suptitle(f'{test_name}\nBuild type: {self.build_type}, Device: {self.device}', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
         plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
@@ -549,7 +549,7 @@ class PerformanceDataProcessing:
 
         plt.xlabel('Build Number', fontsize=16)
 
-        plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
+        plt.suptitle(f'{test_name}\nBuild type: {self.build_type}, Device: {self.device}\nThreshold: {threshold}', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
         plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
@@ -599,7 +599,7 @@ class PerformanceDataProcessing:
         plt.plot(data['commit'], data['throughput'], marker='o', linestyle='-', color='b')
         self.plot_marginals(data['commit'], statistics, 40)
         plt.yticks(fontsize=14)
-        plt.title('Throughput', loc='right', fontweight="bold", fontsize=16)
+        plt.title(f'Throughput / Threshold: {threshold}', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('Throughput, MiB/s', fontsize=16)
         plt.grid(True)
         plt.xticks(data['commit'], rotation=90, fontsize=14)
@@ -620,7 +620,7 @@ class PerformanceDataProcessing:
         plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
         plt.grid(True)
 
-        plt.suptitle(f'{test_name}\n(build type: {self.build_type}, device: {self.device})', fontsize=18, fontweight='bold')
+        plt.suptitle(f'{test_name}\nBuild type: {self.build_type}, device: {self.device}', fontsize=18, fontweight='bold')
 
         plt.tight_layout()
         plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
@@ -681,6 +681,9 @@ class PerformanceDataProcessing:
             plt.grid(True)
             plt.xticks(data['commit'], rotation=90, fontsize=14)
 
+        plt.suptitle(f'{test_name}\nBuild type: {self.build_type}, Device: {self.device}\nThreshold {threshold}',
+                     fontsize=18, fontweight='bold')
+
         plt.tight_layout()
         plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
 
@@ -739,7 +742,7 @@ class PerformanceDataProcessing:
                     plt.bar([x + i * 0.1 for x in indices], vm_data['values'], width=0.1,
                             label=f"{vm_name} ({vm_data['threads']} threads)" if "1thread" not in test else vm_name)
 
-            plt.title(f'Comparison of {test} results for VMs\n(build type: {self.build_type}, device: {self.device})')
+            plt.title(f'Comparison of {test} results for VMs\nBuild type: {self.build_type}, Device: {self.device}')
             plt.xlabel('Builds')
             plt.ylabel('Data transfer speed, MB/s' if 'memory' in test else 'Events per second')
             plt.xticks(range(len(all_builds[test])), all_builds[test], rotation=90)
