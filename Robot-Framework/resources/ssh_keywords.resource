@@ -431,9 +431,13 @@ Save log
 
 Check if ssh is ready on vm
     [Arguments]    ${vm}  ${timeout}=30
-    ${start_time}  Get Time	epoch
+    ${already_connected}            Check ssh connection status     ${vm}
+    IF  ${already_connected}
+        RETURN
+    END
+    ${start_time}                   Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
-        ${output}  ${rc}    Execute Command    nc -zvw3 ${vm} 22    return_rc=True   timeout=10
+        ${output}  ${rc}    Execute Command    timeout 6 nc -zvw3 ${vm} 22    return_rc=True   timeout=10
         ${status}    Run Keyword And Return Status
         ...          Should Be Equal As Integers    ${rc}    0
         IF  ${status}
