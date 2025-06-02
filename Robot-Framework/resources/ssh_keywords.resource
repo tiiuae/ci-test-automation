@@ -160,7 +160,7 @@ Connect to VM
     RETURN  ${connection}
 
 Verify Systemctl status
-    [Arguments]    ${range}=60  ${close_conn}=true
+    [Arguments]    ${range}=60
     [Documentation]    Check is systemctl running with given loop ${range}
     ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
@@ -171,7 +171,7 @@ Verify Systemctl status
         ${data_failed_units}   Execute Command    systemctl list-units --state=failed
         Log  ${data_failed_units}
         ${failed_units}  Get failed units  ${data_failed_units}
-        Log To Console   Failed units: ${failed_units}
+        Log   ${failed_units}
 
         IF  '${status}' not in ['running', 'starting']
             Log To Console   Systemctl status is ${status}
@@ -179,14 +179,12 @@ Verify Systemctl status
         ELSE IF    '${status}' == 'running'
             ${diff}=    Evaluate    int(time.time()) - int(${start_time})
             Log To Console   Systemctl status is ${status} after ${diff} sec
-            Log To Console   --> Possible failed processes?: ${failed_units}
             RETURN
         END
         Sleep    1
     END
     ${diff}=    Evaluate    int(time.time()) - int(${start_time})
     FAIL    Systemctl is not running after ${diff} sec! Status is ${status}. Failed processes?: ${failed_units}
-    [Teardown]       Run Keyword If  $close_conn == 'true'  Close All Connections
 
 Start application
     [Arguments]      ${app_name}
