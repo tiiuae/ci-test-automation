@@ -94,7 +94,7 @@ Get Time To Ping
     Set To Dictionary             ${final_results}  response_to_ping  ${ping_response_seconds}
     &{statistics}                 Save Boot time Data   ${TEST NAME}  ${final_results}
     Log  <img src="${DEVICE}_${TEST NAME}.png" alt="${plot_name}" width="1200">    HTML
-    Determine Test Status         ${statistics}
+    Determine Test Status         ${statistics}  inverted=1
 
 Get Boot times
     [Documentation]  Collect boot times from device
