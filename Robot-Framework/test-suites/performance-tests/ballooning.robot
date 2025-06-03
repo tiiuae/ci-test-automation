@@ -5,12 +5,13 @@
 Documentation       Testing performance of memory ballooning
 Force Tags          performance     ballooning
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/device_control.resource
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
 ...                 ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}  ${PERF_LOW_LIMIT}
 Suite Setup         Connect to netvm
 Test Teardown       Ballooning Test Teardown
 Suite Teardown      Close All Connections
-
+Test Timeout        5 minutes
 
 *** Variables ***
 ${test_status_file}      /tmp/ballooning_test_status
@@ -133,5 +134,14 @@ Plot ballooning
     Log   <img src="${REL_PLOT_DIR}mem_ballooning_${id}.png" alt="Power plot" width="1200">    HTML
 
 Ballooning Test Teardown
+    [Documentation]    If test gets stucked, reboot device and connect to netvm (the next test can be executed).
+    ...                After reboot, the artifacts should be not existing, so no need to clean.
+    Run Keyword If Timeout Occurred  Run Keywords
+    ...        Reboot LenovoX1
+    ...  AND   Connect to netvm
+
+    Run keyword If Test Passed  Clean Test Artifacts
+
+Clean Test Artifacts
     Execute Command     rm -r /dev/shm/test         sudo=True  sudo_password=${PASSWORD}
     Execute Command     rm ${test_status_file}      sudo=True  sudo_password=${PASSWORD}
