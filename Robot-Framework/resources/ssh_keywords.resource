@@ -186,6 +186,38 @@ Verify Systemctl status
     ${diff}=    Evaluate    int(time.time()) - int(${start_time})
     FAIL    Systemctl is not running after ${diff} sec! Status is ${status}. Failed processes?: ${failed_units}
 
+Check systemctl status for known issues
+    [Arguments]    ${known_issues_list}   ${failing_services}
+    [Documentation]    Check if failing services contain issues that are not listed as known
+    ${old_issues}=    Create List
+    ${new_issues}=    Create List
+    FOR    ${failing_service}    IN    @{failing_services}
+        ${known}=    Set Variable    False
+        FOR    ${entry}    IN    @{known_issues_list}
+            ${parts}=    Split String    ${entry}    |
+            ${list_device}=    Set Variable    ${parts[0]}
+            ${service}=   Set Variable    ${parts[1]}
+            ${issue}=     Set Variable    ${parts[2]}
+
+            ${device_match}=     Run Keyword And Return Status    Should Contain    ${DEVICE}    ${list_device}
+            ${service_match}=    Run Keyword And Return Status    Should Contain    ${failing_service}    ${service}
+
+            IF   '${device_match}' == 'True' and ('${service}' == 'ANY' or '${service_match}') == 'True'
+                ${known}=     Set Variable    True
+            END
+        END
+        IF    ${known}   
+            Append To List    ${old_issues}    ${failing_service}
+        ELSE
+            Append To List    ${new_issues}    ${failing_service}
+        END
+    END
+    IF   ${new_issues} != []
+        Fail    Unexpected failed services: ${new_issues}, known failed services: ${old_issues}
+    ELSE
+        Skip    Known failed services: ${old_issues}
+    END
+
 Start application
     [Arguments]      ${app_name}
     Log To Console   ${\n}Starting ${app_name}

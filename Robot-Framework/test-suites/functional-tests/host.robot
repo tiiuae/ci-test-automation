@@ -31,31 +31,22 @@ Check QSPI version
     Check QSPI Version is up to date
 
 Check systemctl status
-    [Documentation]    Verify systemctl status is running
+    [Documentation]    Verify systemctl status is running on host
     [Tags]             bat  regression   pre-merge  SP-T98  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330
     ${status}   ${output}   Run Keyword And Ignore Error    Verify Systemctl status
+    Log   ${output}
 
     IF    '${status}' == 'FAIL'
+        ${failing_services}    Parse Services To List    ${output}
+
         ${known_issues}=    Create List
         ...    NUC|ANY|SSRCSP-4632
         ...    NX|nvfancontrol.service|SSRCSP-6303
         ...    AGX|nvfancontrol.service|SSRCSP-6303
         ...    AGX|systemd-rfkill.service|SSRCSP-6303
-        ...    Dell|autovt@ttyUSB0.service|SSRCSP-6450
+        ...    Dell|autovt@ttyUSB0.service|SSRCSP-6667
 
-        FOR    ${entry}    IN    @{known_issues}
-            ${parts}=    Split String    ${entry}    |
-            ${list_device}=    Set Variable    ${parts[0]}
-            ${service}=   Set Variable    ${parts[1]}
-            ${issue}=     Set Variable    ${parts[2]}
-
-            ${device_match}=    Run Keyword And Return Status    Should Contain    ${DEVICE}    ${list_device}
-            Run Keyword If    '${device_match}' == 'True' and '${service}' == 'ANY'    Skip    Known issue: ${issue}
-
-            ${service_match}=    Run Keyword And Return Status    Should Contain    ${output}    ${service}
-            Run Keyword If    '${device_match}' == 'True' and '${service_match}' == 'True'    Skip    Known issue: ${issue}
-        END
-        FAIL    ${output}
+        Check systemctl status for known issues    ${known_issues}   ${failing_services}
     END
 
 Check all VMs are running

@@ -287,3 +287,13 @@ def parse_notifications(text):
     matches = re.findall(pattern, text)
     notifications_dict = {int(num): msg for num, msg in matches}
     return notifications_dict
+
+
+def parse_services_to_list(output):
+    match = re.search(r"\[([^\]]+)\]", output)
+    if not match:
+        print("No list of failed services found in the output.")
+        return []
+    raw_items = match.group(1).split(',')
+    parsed_list = [item.strip(" '\"") for item in raw_items if item.strip()]
+    return parsed_list
