@@ -160,15 +160,24 @@ Connect to VM
     RETURN  ${connection}
 
 Verify Systemctl status
-    [Arguments]    ${range}=60
+    [Arguments]    ${range}=60    ${user}=false
     [Documentation]    Check is systemctl running with given loop ${range}
+
+    IF    $user
+        ${cmd}               Set Variable   systemctl status --user
+        ${failed_units_cmd}  Set Variable   systemctl list-units --state=failed --user
+    ELSE
+        ${cmd}               Set Variable   systemctl status
+        ${failed_units_cmd}  Set Variable   systemctl list-units --state=failed
+    END
+
     ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
-        ${output}=    Execute Command    systemctl status
+        ${output}=    Execute Command    ${cmd}
         ${status}=    Get Systemctl Status    ${output}
         Log  ${output}
 
-        ${data_failed_units}   Execute Command    systemctl list-units --state=failed
+        ${data_failed_units}   Execute Command    ${failed_units_cmd}
         Log  ${data_failed_units}
         ${failed_units}  Get failed units  ${data_failed_units}
         Log   ${failed_units}
@@ -329,7 +338,7 @@ Verify service status
     ${finished}       Set Variable  False
 
     ${welcome_check}  Set Variable If  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"    False    True
-    
+
     FOR    ${i}    IN RANGE    ${range}
         ${output}  ${stderr}  ${rc}=   Execute Command  systemctl status ${service}  return_stderr=True  return_rc=True
         Log           stdout: ${output}\nstderr: ${stderr}
