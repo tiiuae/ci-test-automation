@@ -160,10 +160,10 @@ Connect to VM
     RETURN  ${connection}
 
 Verify Systemctl status
-    [Arguments]    ${range}=60    ${user}=false
+    [Arguments]    ${range}=60    ${user}=False
     [Documentation]    Check is systemctl running with given loop ${range}
 
-    IF    $user
+    IF    ${user}
         ${cmd}               Set Variable   systemctl status --user
         ${failed_units_cmd}  Set Variable   systemctl list-units --state=failed --user
     ELSE

@@ -93,7 +93,7 @@ Start Falcon AI on LenovoX1
 Check user systemctl status
     [Documentation]   Verify systemctl status --user is running
     [Tags]            bat   SP-T260
-    Verify Systemctl status    range=3   user=true
+    Verify Systemctl status    range=3   user=True
 
 *** Keywords ***
 
