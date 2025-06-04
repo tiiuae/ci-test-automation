@@ -23,6 +23,13 @@ GUI Tests Setup
         Save most common icons and paths to icons
         Create test user
         Log in, unlock and verify   enable_dnd=True
+
+        # There's a bug that occasionally causes the app menu to freeze on Cosmic, especially on the first login. 
+        # Logging out once before running tests helps reduce the chances of it happening. (SSRCSP-6684)
+        IF  $COMPOSITOR == 'cosmic'
+            Log out and verify   disable_dnd=True
+            Log in, unlock and verify   enable_dnd=True
+        END
     END
 
 GUI Tests Teardown
