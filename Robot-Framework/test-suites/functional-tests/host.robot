@@ -41,8 +41,7 @@ Check systemctl status
 
         ${known_issues}=    Create List
         ...    NUC|ANY|SSRCSP-4632
-        ...    NX|nvfancontrol.service|SSRCSP-6303
-        ...    AGX|nvfancontrol.service|SSRCSP-6303
+        ...    Orin|nvfancontrol.service|SSRCSP-6303
         ...    AGX|systemd-rfkill.service|SSRCSP-6303
         ...    Dell|autovt@ttyUSB0.service|SSRCSP-6667
 
