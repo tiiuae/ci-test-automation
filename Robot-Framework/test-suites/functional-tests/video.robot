@@ -13,11 +13,12 @@ Resource            ../../config/variables.robot
 Test Setup          Connect to netvm
 Test Teardown       Close All Connections
 Test Timeout        2 minutes
-
+Library   DebugLibrary
 
 *** Variables ***
 
-${VIDEO_DIR}    ${OUTPUT_DIR}/outputs/video-temp
+${VIDEO_DIR}    ${OUTPUT_DIR}
+@{failed_videos} 
 
 
 *** Test Cases ***
@@ -55,6 +56,7 @@ Record Video With Camera
         Verify Video File  ${id}
     END
 
+    IF  ".avi" in "${failed_videos}"  FAIL   Captured video ${failed_videos} contains only one color. Maybe lid is closed?
 
 *** Keywords ***
 Verify Video File
@@ -72,9 +74,12 @@ Verify Video Has Different Colors
     [Arguments]  ${video}
     # Take screenshot every third second
     Execute Command      ffmpeg -i ${video} -r 1/3 /tmp/image%04d.png  sudo=True  sudo_password=${PASSWORD}
-    SSHLibrary.Get File  /tmp/image0001.png   ${VIDEO_DIR}/image0001.png
+    SSHLibrary.Get File  /tmp/image0001.png   ${VIDEO_DIR}/image_${video[5:]}_1.png
+    SSHLibrary.Get File  /tmp/image0002.png   ${VIDEO_DIR}/image_${video[5:]}_2.png
+    SSHLibrary.Get File  /tmp/image0003.png   ${VIDEO_DIR}/image_${video[5:]}_3.png
+    SSHLibrary.Get File  ${video}   ${VIDEO_DIR}/${video[5:]}
     Execute Command      rm /tmp/image*
-    Run                  magick ${VIDEO_DIR}/image0001.png -identify ${VIDEO_DIR}/colors.txt
+    Run                  magick ${VIDEO_DIR}/image_${video[5:]}_2.png -identify ${VIDEO_DIR}/colors.txt
     Should Not Be Empty  ${VIDEO_DIR}/colors.txt  Failed to identify colors
 
     # Check that all colors are not the same
@@ -85,4 +90,10 @@ Verify Video Has Different Colors
     ${line_count}       Get Line Count  ${matching_lines}
     ${lines}            Run  wc ${VIDEO_DIR}/colors.txt -l
     ${splitted_lines}   Split String  ${lines}
-    Should Be True      ${line_count} < (${splitted_lines}[0]-${1})  msg=Captured video contains only one color. Maybe lid is closed?
+    ${many_colors}      Run Keyword And Return Status  Should Be True  ${line_count} < (${splitted_lines}[0]-${1})
+    IF  not ${many_colors}
+        OperatingSystem.Copy File  ${VIDEO_DIR}/image_${video[5:]}_2.png  ${OUTPUT_DIR}/
+        Append to list  ${failed_videos}    ${video[5:]} 
+        Log        <img src="image_${video[5:]}.png">    html=true
+    END
+    

@@ -34,6 +34,7 @@ Determine Test Status
     FOR   ${i}  IN  @{keys}
         ${statistics}       Get From Dictionary      ${statistics_dict}    ${i}
         IF  ${statistics}[measurement] < ${PERF_LOW_LIMIT}
+            IF  "AGX" in "${DEVICE}"  Skip   Known issue: SSRCSP-6623 (AGX)
             FAIL            Measurement result is zero or too close to zero.\n\n${statistics}
         END
         IF  ${statistics}[flag] != 0
