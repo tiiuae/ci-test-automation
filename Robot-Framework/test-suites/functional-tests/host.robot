@@ -44,6 +44,7 @@ Check systemctl status
         ...    Orin|nvfancontrol.service|SSRCSP-6303
         ...    AGX|systemd-rfkill.service|SSRCSP-6303
         ...    Dell|autovt@ttyUSB0.service|SSRCSP-6667
+        ...    Orin|systemd-oomd.service|SSRCSP-6685
 
         Check systemctl status for known issues    ${known_issues}   ${failing_services}
     END
