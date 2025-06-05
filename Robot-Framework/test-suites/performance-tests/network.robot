@@ -150,6 +150,8 @@ Measure UDP Bidir Throughput Big Packets
     ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
     Determine Test Status   ${statistics}
 
+    [Teardown]   Run Keyword If   "AGX" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6623 (AGX)"
+
 *** Keywords ***
 Select network connection to use
     [Documentation]  Select the connection to be used. This cannot be done in Keyword 'Initialize Variables And Connect'
