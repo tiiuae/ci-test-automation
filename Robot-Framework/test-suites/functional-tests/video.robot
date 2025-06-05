@@ -72,9 +72,9 @@ Verify Video Has Different Colors
     [Arguments]  ${video}
     # Take screenshot every third second
     Execute Command      ffmpeg -i ${video} -r 1/3 /tmp/image%04d.png  sudo=True  sudo_password=${PASSWORD}
-    SSHLibrary.Get File  /tmp/image0001.png   ${VIDEO_DIR}/image0001.png
+    SSHLibrary.Get File  /tmp/image0002.png   ${VIDEO_DIR}/image0002.png
     Execute Command      rm /tmp/image*
-    Run                  magick ${VIDEO_DIR}/image0001.png -identify ${VIDEO_DIR}/colors.txt
+    Run                  magick ${VIDEO_DIR}/image0002.png -identify ${VIDEO_DIR}/colors.txt
     Should Not Be Empty  ${VIDEO_DIR}/colors.txt  Failed to identify colors
 
     # Check that all colors are not the same
