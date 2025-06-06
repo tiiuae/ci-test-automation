@@ -181,6 +181,7 @@ Verify Systemctl status
         Log  ${data_failed_units}
         ${failed_units}  Get failed units  ${data_failed_units}
         Log   ${failed_units}
+        Set Test Variable   ${failed_units}
 
         IF  '${status}' not in ['running', 'starting']
             Log To Console   Systemctl status is ${status}
