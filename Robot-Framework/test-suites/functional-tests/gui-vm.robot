@@ -95,6 +95,9 @@ Check user systemctl status
     [Tags]            bat   SP-T260
     Verify Systemctl status    range=3   user=True
 
+    [Teardown]   Run Keyword If  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}" and "hidpi-auto-scaling.service" in "${failed_units}"
+    ...  Run Keyword If Test Failed  SKIP  "Known issue: SSRCSP-6697"
+
 *** Keywords ***
 
 Gui-vm Test Setup

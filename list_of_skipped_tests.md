@@ -3,7 +3,8 @@
 ## Active SKIPS
 
 | DATE SET   | TEST CASE                                     | TICKET / Additional Data.                                                                       |
-| ---------- | --------------------------------------------- |-------------------------------------------------------------------------------------------------|
+|------------|-----------------------------------------------|-------------------------------------------------------------------------------------------------|
+| 06.06.2025 | Check user systemctl status (X1 and Dell)     | SSRCSP-6697                                                                                     |
 | 05.06.2025 | Measure UDP Bidir Throughput Big Packets(AGX) | SSRCSP-6623                                                                                     |
 | 02.06.2025 | Check systemctl status in every VM            | Added for information collecting. Skip should be removed in the future.                         |
 | 27.05.2025 | TimeSynch (AGX)                               | SSRCSP-6423. Unrecoverable error detected. #PR333                                               |
