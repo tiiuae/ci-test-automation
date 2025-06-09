@@ -89,6 +89,9 @@ Start Falcon AI on LenovoX1
         Wait Until Download Complete
         Check that the application was started    alpaca    range=20
     END
+    ${answer}  Ask the question     2+2=? Return just the number.
+    Should Be Equal As Integers     ${answer}   4
+
 
 Check user systemctl status
     [Documentation]   Verify systemctl status --user is running
@@ -172,3 +175,11 @@ Wait Until Falcon Download Complete (Cosmic)
         IF  ${download_done}  BREAK
         Sleep  3
     END
+
+Ask the question
+    [Arguments]      ${question}
+    Log to console   Asking AI: ${question}
+    Execute Command  script -q -c 'ollama run falcon3:10b "${question}" > result.txt'     return_stderr=True    timeout=60
+    ${answer}        Execute Command  cat result.txt
+    Log to console   The answer is: ${answer}
+    RETURN           ${answer}
