@@ -40,7 +40,7 @@ Start Chrome on LenovoX1
 
 Start Zathura on LenovoX1
     [Documentation]   Start Zathura in dedicated VM and verify process started
-    [Tags]            bat  regression  SP-T105   lenovo-x1   dell-7330
+    [Tags]            bat  regression  pre-merge   SP-T105   lenovo-x1   dell-7330
     Connect to netvm
     Check if ssh is ready on vm    ${ZATHURA_VM}
     Connect to VM       ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
