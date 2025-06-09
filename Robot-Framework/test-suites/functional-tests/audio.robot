@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing audio application
-Force Tags          audio   bat  regression
+Force Tags          audio   bat  regression  pre-merge
 Resource            ../../__framework__.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/common_keywords.resource
