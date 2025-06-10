@@ -5,6 +5,7 @@ import serial
 import sys
 import time
 
+
 def set_relay_state(port, relay_number=None, state=None):
     """
     Sets the state of one or more relays on the KMTronic 4 channel device.
@@ -21,13 +22,17 @@ def set_relay_state(port, relay_number=None, state=None):
             bytesize=serial.EIGHTBITS,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
-            timeout=1
+            timeout=1,
         )
 
         if relay_number is None:
             # Control all relays one by one
             for relay in range(1, 5):  # Relay numbers 1 to 4
-                command = bytearray.fromhex('FF') + bytearray([relay]) + (b'\x01' if state == "ON" else b'\x00')
+                command = (
+                    bytearray.fromhex("FF")
+                    + bytearray([relay])
+                    + (b"\x01" if state == "ON" else b"\x00")
+                )
                 ser.write(command)
                 time.sleep(0.1)  # Small delay between commands
             print(f"All relays set to {state}.")
@@ -35,7 +40,11 @@ def set_relay_state(port, relay_number=None, state=None):
             if relay_number < 1 or relay_number > 4:
                 raise ValueError("Relay number must be between 1 and 4.")
             # KMTronic protocol uses 0-indexed relay numbers
-            command = bytearray.fromhex('FF') + bytearray([relay_number]) + (b'\x01' if state == "ON" else b'\x00')
+            command = (
+                bytearray.fromhex("FF")
+                + bytearray([relay_number])
+                + (b"\x01" if state == "ON" else b"\x00")
+            )
             ser.write(command)
             print(f"Relay {relay_number} set to {state}.")
 
@@ -45,12 +54,17 @@ def set_relay_state(port, relay_number=None, state=None):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-if __name__ == "__main__":
+
+def main():
     # Check for sufficient arguments
     if len(sys.argv) < 3:
         print("Usage: python kmtronic_control.py <serial_port> <state> [relay_number]")
-        print("Example 1: python kmtronic_control.py /dev/ttyUSB0 ON 1  # Turn relay 1 ON")
-        print("Example 2: python kmtronic_control.py /dev/ttyUSB0 OFF    # Turn all relays OFF")
+        print(
+            "Example 1: python kmtronic_control.py /dev/ttyUSB0 ON 1  # Turn relay 1 ON"
+        )
+        print(
+            "Example 2: python kmtronic_control.py /dev/ttyUSB0 OFF    # Turn all relays OFF"
+        )
         sys.exit(1)
 
     # Parse arguments
@@ -68,3 +82,7 @@ if __name__ == "__main__":
     else:
         # Control all relays
         set_relay_state(port, state=state)
+
+
+if __name__ == "__main__":
+    main()
