@@ -36,6 +36,7 @@
           robotframework-advancedlogging = callPythonPackage ./pkgs/robotframework-advancedlogging { };
           robotframework-debuglibrary = callPythonPackage ./pkgs/robotframework-debuglibrary { };
 
+          KMTronic = pkgs.callPackage ./KMTronic { };
           ghaf-robot = pkgs.callPackage ./pkgs/ghaf-robot {
             inherit
               PyP100
@@ -58,6 +59,7 @@
             imagemagick
             ffmpeg
             iperf
+            KMTronic
 
             (python3.withPackages (
               ps:

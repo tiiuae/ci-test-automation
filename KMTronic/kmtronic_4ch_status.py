@@ -5,6 +5,7 @@ import serial
 import time
 import sys
 
+
 def read_relay_status(port):
     """
     Reads the status of KMTronic 4 channel relays via the specified serial port.
@@ -19,11 +20,11 @@ def read_relay_status(port):
             bytesize=serial.EIGHTBITS,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
-            timeout=1
+            timeout=1,
         )
 
         # Send the status command
-        ser.write(bytearray.fromhex('FF0900'))
+        ser.write(bytearray.fromhex("FF0900"))
         time.sleep(0.1)  # Wait for the response
 
         # Read the response
@@ -33,7 +34,7 @@ def read_relay_status(port):
         if len(response) == 4:
             # Parse and display the relay statuses
             relay_status = [
-                f"Relay {i+1}: {'ON' if byte == 1 else 'OFF'}"
+                f"Relay {i + 1}: {'ON' if byte == 1 else 'OFF'}"
                 for i, byte in enumerate(response)
             ]
             print("\n".join(relay_status))
@@ -44,7 +45,8 @@ def read_relay_status(port):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-if __name__ == "__main__":
+
+def main():
     # Check for the port argument
     if len(sys.argv) != 2:
         print("Usage: python kmtronic_status.py <serial_port>")
@@ -52,3 +54,7 @@ if __name__ == "__main__":
     else:
         port = sys.argv[1]
         read_relay_status(port)
+
+
+if __name__ == "__main__":
+    main()
