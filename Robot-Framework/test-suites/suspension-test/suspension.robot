@@ -41,19 +41,23 @@ Automatic suspension
 
     Wait     10
 
-    IF  $COMPOSITOR != 'cosmic'   Check notification   The system will suspend soon due to inactivity.    ${last_id}
-    Check the screen state   on
+    IF  $COMPOSITOR == 'cosmic'
+        Check the screen state   on
+        Wait    50
+        ${locked}         Check if locked
+        Should Be True    ${locked}
+        Wait     630
+    ELSE
+        Check notification   The system will suspend soon due to inactivity.    ${last_id}
+        Check the screen state   on
+        Wait     50
+        # to do: check that screen is locked
+        Wait     150
+        Check the screen state   off
+        Wait     450
+    END
 
-    Wait     50
-
-    # to do: check that screen is locked
-
-    Wait     150
-    Check the screen state   off
-
-    Wait     450
     Check if device was suspended
-
     Wait     300
     Wake up device
     Generate power plot           ${BUILD_ID}   ${TEST NAME}
