@@ -8,7 +8,7 @@ setup(
     license="Apache-2.0",
     python_requires=">=3.8",
     install_requires=[
-        "serialio",
+        "pyserial",
     ],
     py_modules=["kmtronic_4ch_status", "kmtronic_4ch_control"],
     entry_points={

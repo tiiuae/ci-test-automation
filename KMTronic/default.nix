@@ -4,5 +4,5 @@ pkgs.python3Packages.buildPythonPackage {
   format = "setuptools";
   version = "git";
   src = pkgs.lib.cleanSource ./.;
-  propagatedBuildInputs = with pkgs.python3Packages; [ serialio ];
+  propagatedBuildInputs = with pkgs.python3Packages; [ pyserial ];
 }
