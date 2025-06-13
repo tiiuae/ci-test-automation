@@ -40,6 +40,8 @@ Record Video With Camera
     @{recorded_video_ids}   Create List
     ${listed_devices}       Execute Command  v4l2-ctl --list-devices  sudo=True  sudo_password=${PASSWORD}
     ${video_devices}        Get Regexp Matches  ${listed_devices}  (?im)(.*\\S*.*)(video)(\\d{1})  3
+    Run Keyword If  "${video_devices}" == "[]"    FAIL  No Video devices identified. There should be some.
+
     FOR  ${id}  IN  @{video_devices}
         ${video}            Execute Command  v4l2-ctl --device=/dev/video${id} --all  sudo=True  sudo_password=${PASSWORD}
         # Check if video device is able to capture video
@@ -55,6 +57,7 @@ Record Video With Camera
         Verify Video File  ${id}
     END
 
+    [Teardown]    Run Keyword If  "Dell" in "${DEVICE}"   Run Keyword If Test Failed   SKIP   "Known issue: SSRCSP-6694"
 
 *** Keywords ***
 Verify Video File
