@@ -50,7 +50,7 @@ CPU One thread test
     Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
     Determine Test Status   ${statistics}
 
-CPU multimple threads test
+CPU multiple threads test
     [Documentation]         Run a CPU benchmark using Sysbench with a duration of 10 seconds and MULTIPLE threads.
     ...                     The benchmark records to csv CPU events per second, events per thread, and latency data.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
@@ -88,7 +88,7 @@ Memory Write One thread test
     Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
     Determine Test Status   ${statistics}
 
-Memory Read multimple threads test
+Memory Read multiple threads test
     [Documentation]         Run a memory benchmark using Sysbench for 60 seconds with MULTIPLE threads.
     ...                     The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
     ...                     and Latency for READ operations.
@@ -101,7 +101,7 @@ Memory Read multimple threads test
     Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
     Determine Test Status   ${statistics}
 
-Memory Write multimple threads test
+Memory Write multiple threads test
     [Documentation]         Run a memory benchmark using Sysbench for 60 seconds with MULTIPLE threads.
     ...                     The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
     ...                     and Latency for WRITE operations.
@@ -128,13 +128,13 @@ FileIO test
     # In case of Lenovo-X1 run the test in /persist which has more disk space
     # Results are saved to /tmp
     IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        Log to Console        Preparing for fileio test
+        Log To Console        Preparing for fileio test
         Execute Command       cp /tmp/fileio_test /persist  sudo=True  sudo_password=${PASSWORD}
         Write                 sudo su
         ${out}                SSHLibrary.Read Until   password for ghaf:
         ${out}                Write        ${PASSWORD}
         Write                 cd /persist
-        Log to Console        Starting fileio test
+        Log To Console        Starting fileio test
         Write                 /persist/fileio_test ${threads_number} /persist
         Set Client Configuration	  timeout=900
         ${out}                SSHLibrary.Read Until   Test finished.
@@ -149,7 +149,7 @@ FileIO test
         FAIL            Insufficient disk space for fileio test.
     END
 
-    Log to console       Parsing the test results
+    Log To Console       Parsing the test results
     ${fileio_rd_output}  Execute Command    cat /tmp/sysbench_results/fileio_rd_report
     Log                  ${fileio_rd_output}
     &{fileio_rd_data}    Parse FileIO Read Results   ${fileio_rd_output}
@@ -212,7 +212,7 @@ Sysbench test in VMs on LenovoX1
         ${threads_n}	Get From Dictionary	  ${threads}	 ${vm}
         ${vm_fail}      Transfer Sysbench Test Script To VM   ${vm}
         IF  '${vm_fail}' == 'FAIL'
-            Log to Console  Skipping tests for ${vm} because couldn't connect to it
+            Log To Console  Skipping tests for ${vm} because couldn't connect to it
         ELSE
             ${output}       Execute Command      /tmp/sysbench_test ${threads_n}  sudo=True  sudo_password=${PASSWORD}
             Run Keyword If    ${threads_n} > 1   Save sysbench results   ${vm}
@@ -258,7 +258,7 @@ Perf-Bench test
     ${default_file_format}  Set Variable  perf_results_YYYY-MM-DD_BUILDER-BuildID_SDorEMMC
     ${renamed_file}  Set Variable  perf_results_${BUILD_ID}
 
-    Log to console  Starting perf bench test
+    Log To Console  Starting perf bench test
     ${output}  Execute Command  perf-test-icicle-kit
     OperatingSystem.Create File  ${renamed_file}  ${output}
     Run Process  rm ${default_file_format}  shell=True
@@ -294,7 +294,7 @@ Transfer Sysbench Test Script To VM
         ${vm_fail}    ${result} =    Run Keyword And Ignore Error    Connect to VM    ${vm}
         Run Keyword If    '${vm_fail}' == 'FAIL'   Append To List	 ${FAILED_VMS}	  ${vm}
         Run Keyword If    '${vm_fail}' == 'FAIL'   Return From Keyword  ${vm_fail}
-        Log to console    Successfully connected to ${vm}
+        Log To Console    Successfully connected to ${vm}
     END
     Put File           performance-tests/sysbench_test    /tmp
     Execute Command    chmod 777 /tmp/sysbench_test
@@ -308,11 +308,11 @@ Save cpu results
     ${statistics}       Output Dictionary First Value   ${statistics_dict}
     IF  "${statistics}[flag]" == "-1"
         Append To List     ${FAILED_VM_TESTS}        ${host}_${test}
-        Log to console     Deviation detected in test: ${host}_${test}
+        Log To Console     Deviation detected in test: ${host}_${test}
     END
     IF  "${statistics}[flag]" == "1"
         Append To List     ${IMPROVED_VM_TESTS}      ${host}_${test}
-        Log to console     Improvement detected in test: ${host}_${test}
+        Log To Console     Improvement detected in test: ${host}_${test}
     END
 
 Save memory results
@@ -325,11 +325,11 @@ Save memory results
     ${statistics}       Output Dictionary First Value   ${statistics_dict}
     IF  "${statistics}[flag]" == "-1"
         Append To List     ${FAILED_VM_TESTS}        ${host}_${test}
-        Log to console     Deviation detected in test: ${host}_${test}
+        Log To Console     Deviation detected in test: ${host}_${test}
     END
     IF  "${statistics}[flag]" == "1"
         Append To List     ${IMPROVED_VM_TESTS}      ${host}_${test}
-        Log to console     Improvement detected in test: ${host}_${test}
+        Log To Console     Improvement detected in test: ${host}_${test}
     END
 
 Save sysbench results

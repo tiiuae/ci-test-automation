@@ -37,13 +37,13 @@ Measure Soft Boot Time
 Measure Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
     [Tags]  SP-T182  lenovo-x1  dell-7330
-    Log to console                Shutting down by pressing the power button
+    Log To Console                Shutting down by pressing the power button
     Press Button                  ${SWITCH_BOT}-OFF
     Wait Until Keyword Succeeds   15s  2s  Check If Ping Fails
-    Log to console                The device has shut down
-    Log to console                Waiting for the robot finger to return
+    Log To Console                The device has shut down
+    Log To Console                Waiting for the robot finger to return
     Sleep  20
-    Log to console                Booting the device by pressing the power button
+    Log To Console                Booting the device by pressing the power button
     Press Button                  ${SWITCH_BOT}-ON
     Get Boot times                plot_name=Hard Boot Times
 
@@ -58,11 +58,11 @@ Measure Orin Soft Boot Time
 Measure Orin Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
     [Tags]  SP-T182  orin-agx  orin-agx-64  orin-nx
-    Log to console                Shutting down by switching the power off
+    Log To Console                Shutting down by switching the power off
     Turn Relay Off                ${RELAY_NUMBER}
     Wait Until Keyword Succeeds   15s  2s  Check If Ping Fails
-    Log to console                The device has shut down
-    Log to console                Booting the device by switching the power on
+    Log To Console                The device has shut down
+    Log To Console                Booting the device by switching the power on
     Turn Relay On                 ${RELAY_NUMBER}
     Get Time To Ping              plot_name=Hard Boot Times
     IF  "NX" in "${DEVICE}"       Sleep    30
@@ -73,7 +73,7 @@ Measure Orin Hard Boot Time
 Measure Time To Ping
     [Arguments]               ${start_time}
     ${ping_response}          Set Variable  ${EMPTY}
-    Log to console            Start checking ping response
+    Log To Console            Start checking ping response
     ${ping_end_time}          Set Variable  False
     WHILE  not $ping_response   limit=${PING_TIMEOUT} seconds
         ${ping_response}      Ping Host  ${DEVICE_IP_ADDRESS}  1
@@ -88,8 +88,8 @@ Measure Time To Ping
 
 Get Time To Ping
     [Arguments]  ${plot_name}=Soft Boot Times
-    ${start_time_epoc}            DateTime.Get Current Date   result_format=epoch
-    ${ping_response_seconds}      Measure Time To Ping  ${start_time_epoc}
+    ${start_time_epoch}            DateTime.Get Current Date   result_format=epoch
+    ${ping_response_seconds}      Measure Time To Ping  ${start_time_epoch}
     &{final_results}              Create Dictionary
     Set To Dictionary             ${final_results}  response_to_ping  ${ping_response_seconds}
     &{statistics}                 Save Boot time Data   ${TEST NAME}  ${final_results}
@@ -107,16 +107,16 @@ Get Boot times
     ...  testuser_line=$(journalctl --output=short-iso | grep "testuser: changing state")
     ...  echo $testuser_line
 
-    ${start_time_epoc}    DateTime.Get Current Date   result_format=epoch
-    ${ping_response_seconds}    Measure Time To Ping    ${start_time_epoc}
+    ${start_time_epoch}    DateTime.Get Current Date   result_format=epoch
+    ${ping_response_seconds}    Measure Time To Ping    ${start_time_epoch}
     Sleep  30
     Connect to netvm
     Connect to VM  ${GUI_VM}
     ${time_to_desktop}  Run Keyword And Continue On Failure
-    ...  Wait Until Keyword Succeeds  ${SEARCH_TIMEOUT1}s  1s  Check Time To Notification  ${freedesktop_line}   ${start_time_epoc}
+    ...  Wait Until Keyword Succeeds  ${SEARCH_TIMEOUT1}s  1s  Check Time To Notification  ${freedesktop_line}   ${start_time_epoch}
     IF  $time_to_desktop == 'False'
         ${time_to_desktop}  Run Keyword And Continue On Failure
-        ...  Wait Until Keyword Succeeds  ${SEARCH_TIMEOUT2}s  1s  Check Time To Notification  ${testuser_line}   ${start_time_epoc}
+        ...  Wait Until Keyword Succeeds  ${SEARCH_TIMEOUT2}s  1s  Check Time To Notification  ${testuser_line}   ${start_time_epoch}
         Skip If   $time_to_desktop == 'False'  Skipping. The searched journalctl line is sometimes (randomly) not there. Didn't find it this time.
     END
     Log                     Boot time to login screen measured: ${time_to_desktop}   console=True
@@ -138,8 +138,8 @@ Check Time To Notification
     IF  $notification_line == '${EMPTY}'
         RETURN  False
     END
-    ${noticication_time}  Execute Command  ${get_timestamp}
-    ${time}  Subtract Time From Time  ${noticication_time}  ${start_time}   exclude_millis=True
+    ${notification_time}  Execute Command  ${get_timestamp}
+    ${time}  Subtract Time From Time  ${notification_time}  ${start_time}   exclude_millis=True
     Should Be True  0 < ${time} < 120
     RETURN  ${time}
 

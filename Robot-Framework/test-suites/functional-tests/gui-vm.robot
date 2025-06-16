@@ -128,7 +128,7 @@ Check If Download Reached 100
         ${status}     Run Keyword And Return Status    Should Contain    ${value}    Downloading Falcon 3
         IF    ${status}
             ${percentage}    Get Percentage    ${value}
-            Log to console   Current percentage: ${percentage}%
+            Log To Console   Current percentage: ${percentage}%
             Should Be Equal As Integers    ${percentage}    100
             BREAK
         END
@@ -155,7 +155,7 @@ Check If Download Completed
     FOR    ${key}     ${value}    IN    &{notifications}
         ${status}     Run Keyword And Return Status    Should Contain    ${value}    Download complete
         IF    ${status}
-            Log to console    Falcon download completed
+            Log To Console    Falcon download completed
             ${completed}      Set Variable    ${True}
             BREAK
         END
@@ -178,8 +178,8 @@ Wait Until Falcon Download Complete (Cosmic)
 
 Ask the question
     [Arguments]      ${question}
-    Log to console   Asking AI: ${question}
+    Log To Console   Asking AI: ${question}
     Execute Command  script -q -c 'ollama run falcon3:10b "${question}" > result.txt'     return_stderr=True    timeout=60
     ${answer}        Execute Command  cat result.txt
-    Log to console   The answer is: ${answer}
+    Log To Console   The answer is: ${answer}
     RETURN           ${answer}

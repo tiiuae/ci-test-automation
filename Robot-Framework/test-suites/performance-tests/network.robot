@@ -16,10 +16,10 @@ Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_I
 ...                 ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}  ${PERF_LOW_LIMIT}
 Library             Collections
 Library             JSONLibrary
-Suite Setup         Run keywords  Initialize Variables And Connect
+Suite Setup         Run Keywords  Initialize Variables And Connect
 ...                 AND  Select network connection to use
 ...                 AND  Run iperf server on DUT
-Suite Teardown      Run keywords  Stop iperf server
+Suite Teardown      Run Keywords  Stop iperf server
 ...                 AND  Close port 5201 from iptables
 ...                 AND  Close All Connections
 
@@ -199,7 +199,7 @@ Close port 5201 from iptables
 Stop iperf server
     @{pid}=  Find pid by name  iperf
     IF  @{pid} != @{EMPTY}
-        Log to Console  Close iperf server: @{pid}
+        Log To Console  Close iperf server: @{pid}
         Kill process    @{pid}
     END
 
