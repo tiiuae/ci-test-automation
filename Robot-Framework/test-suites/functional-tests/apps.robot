@@ -125,6 +125,17 @@ Open image with Oculante
     ...                       Connect to VM      ${ZATHURA_VM}    AND
     ...                       Kill Process And Log journalctl
 
+Open text file with Cosmic Text Editor
+    [Documentation]    Open text file and check that Cosmic Text Editor app is started
+    [Tags]             bat  regression  SP-T262   lenovo-x1   dell-7330
+    Connect to netvm
+    Connect to VM      ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
+    Create text file   test    /tmp/test_text.txt
+    Open text file     /tmp/test_text.txt
+    Check that the application was started    cosmic-edit    10
+    [Teardown]  Run Keywords  Remove the file in VM    /tmp/test_text.txt    ${GUI_VM}    AND
+    ...                       Kill Process And Log journalctl
+
 
 *** Keywords ***
 
