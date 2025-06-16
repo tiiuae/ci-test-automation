@@ -16,13 +16,8 @@ Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_I
 ...                 ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}  ${PERF_LOW_LIMIT}
 Library             Collections
 Library             JSONLibrary
-Suite Setup         Run Keywords  Initialize Variables And Connect
-...                 AND  Select network connection to use
-...                 AND  Run iperf server on DUT
-Suite Teardown      Run Keywords  Stop iperf server
-...                 AND  Close port 5201 from iptables
-...                 AND  Close All Connections
-
+Suite Setup         Setup A
+Suite Teardown      Teardown A
 
 *** Variables ***
 ${PERF_TEST_TIME}  10
@@ -31,13 +26,18 @@ ${PERF_TEST_TIME}  10
 *** Test Cases ***
 Measure TCP Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]   tcp  nuc  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T227
+    [Tags]   tcp  nuc  orin-nx  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T227
+    
     &{speed_data}           Create Dictionary
     # DUT sends
+    ${journal_output}       Execute Command   journalctl --since "3 minutes ago"
+    Log                     ${journal_output}
     ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
+    Log                     ${output1.stderr}
     Log                     ${output1.stdout}
     # DUT receives
     ${output2}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME}    shell=True  timeout=${${PERF_TEST_TIME}+10}
+    Log                     ${output2.stderr}
     Log                     ${output2.stdout}
     Check iperf3 got results     ${output1}  ${output2}
     ${bps_tx}               Get Throughput Values  ${output1.stdout}
@@ -158,8 +158,8 @@ Select network connection to use
      ...             since it then breaks the  other test suites.
      IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
          ${CONNECTION}       Connect to netvm
-     ELSE
-         ${CONNECTION}       Connect to ghaf host
+     #ELSE
+     #    ${CONNECTION}       Connect to ghaf host
      END
      Set Global Variable  ${CONNECTION}
 
@@ -171,9 +171,16 @@ Run iperf server on DUT
          Clear iptables rules
     END
 
+    ${result}  ${rc}  Execute Command  iptables -L  sudo=True  sudo_password=${PASSWORD}   return_rc=${true}  return_stdout=${true}
+    Log  ${result}
+
+    ${output}=     Execute Command    sh -c 'ps aux | grep "iperf" | grep -v grep'
     ${command}        Set Variable    iperf -s
-    Execute Command   nohup ${command} > /tmp/output.log 2>&1 &
+    ${result}  ${rc}  Execute Command   nohup ${command} > /tmp/output.log 2>&1 &  return_rc=${true}  return_stdout=${true}  output_during_execution=${true}
+    Log  ${result}
     Check iperf was started
+    Sleep   5
+    SSHLibrary.Get File  /tmp/output.log   ${OUTPUT_DIR}/output_log.txt
 
 Clear iptables rules
     [Documentation]  Clear IP tables rules to open ports
@@ -181,6 +188,9 @@ Clear iptables rules
 
 Open port 5201 from iptables
     [Documentation]  Firewall rule to open needed port for perf test.
+    ${result}  ${rc}  Execute Command  iptables -L  sudo=True  sudo_password=${PASSWORD}   return_rc=${true}  return_stdout=${true}
+    Log  ${result}
+    Execute Command  iptables --policy INPUT ACCEPT  sudo=True  sudo_password=${PASSWORD}  #originally DROP
     Execute Command  iptables -I INPUT -m tcp -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
     Execute Command  iptables -I INPUT -m udp -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
 
@@ -190,11 +200,15 @@ Open port 5201 from iptables
 
 Close port 5201 from iptables
     [Documentation]  Firewall rule to close the port that was used in per testing
-    Execute Command  iptables -I INPUT -m tcp -p tcp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
-    Execute Command  iptables -I INPUT -m udp -p udp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
+    Execute Command  iptables --policy INPUT DROP  sudo=True  sudo_password=${PASSWORD}
+    Execute Command  iptables -D INPUT -m tcp -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
+    Execute Command  iptables -D INPUT -m udp -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
 
     # Reject also incoming packages that do belong to some already opened connection
-    Execute Command  iptables -I INPUT -m state RELATED, ESTABLISHED -j DROP  sudo=True  sudo_password=${PASSWORD}
+    Execute Command  iptables -D INPUT -m state RELATED, ESTABLISHED -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
+
+    ${result}  ${rc}  Execute Command  iptables -L  sudo=True  sudo_password=${PASSWORD}   return_rc=${true}  return_stdout=${true}
+    Log  ${result}
 
 Stop iperf server
     @{pid}=  Find pid by name  iperf
@@ -242,3 +256,23 @@ Get Throughput Values
         Log      Failed to get the result from ${TEST NAME}   console=yes
     END
     RETURN  ${MBps}[0]
+
+Setup A
+    # allaolevilla hajottaa testing eli tulee nollat
+    ##Connect to ghaf host
+    #Close All Connections
+    #IF  "NX" in "${DEVICE}"   Sleep  45
+    Initialize Variables And Connect
+    #IF  "NX" in "${DEVICE}"   Switch Connection    ${CONNECTION}
+    Select network connection to use
+    Run iperf server on DUT
+    ${journal_output}       Execute Command   journalctl --since "15 minutes ago"
+    Log                     ${journal_output}
+
+Teardown A
+    Stop iperf server
+    Close port 5201 from iptables
+    SSHLibrary.Get File  /tmp/output.log   ${OUTPUT_DIR}/output_log_2.txt
+    ${journal_output}       Execute Command   journalctl --since "20 minutes ago"
+    Log                     ${journal_output}
+    Close All Connections
