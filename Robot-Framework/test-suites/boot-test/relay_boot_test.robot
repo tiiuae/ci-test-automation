@@ -39,6 +39,10 @@ Verify booting after restart by power
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Verify init.scope status via serial
     END
+
+    ${journal_output}       Execute Command   journalctl --since "5 minutes ago"
+    Log   ${journal_output}
+
     [Teardown]   Test Teardown
 
 Verify booting LenovoX1
@@ -119,8 +123,10 @@ Test Teardown
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Run Keyword If Test Failed    serial_keywords.Save log
     END
-
+    
 Teardown
+     ${journal_output}       Execute Command   journalctl --since "10 minutes ago"
+    Log   ${journal_output}
     Close All Connections
     Delete All Ports
     Close Relay Board Connection
