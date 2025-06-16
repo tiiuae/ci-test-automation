@@ -275,6 +275,11 @@ Open Image
     Log To Console   Trying to open ${pic_file}
     Execute Command  nohup sh -c '${xdgopen} ${pic_file}' > /tmp/out.log 2>&1 &
 
+Open text file
+    [Arguments]      ${text_file}
+    Log To Console   Trying to open ${text_file}
+    ${output}        Execute Command  WAYLAND_DISPLAY=wayland-1 nohup sh -c 'cosmic-edit -f ${text_file}' > /tmp/out.log 2>&1 &
+
 Start Firefox
     [Documentation]  It's needed to set display variable manually because there is no real monitor connected to DUT
     Log To Console  ${\n}Starting Firefox
@@ -399,6 +404,13 @@ Create file
     Log To Console     Creating file ${file_name}
     Execute Command    touch ${file_name}  sudo=True  sudo_password=${password}
     Check file exists  ${file_name}
+
+Create text file
+    [Documentation]    Create text file with given text and name, requires existing ssh connection
+    [Arguments]        ${text}    ${file_name}
+    Log To Console     Creating file ${file_name}
+    ${out}    ${rc}    Execute Command    echo '${text}' > ${file_name}    return_rc=True
+    Should Be True     ${rc} == 0
 
 Remove file
     [Documentation]    Remove file with given path & name, requires existing ssh connection
