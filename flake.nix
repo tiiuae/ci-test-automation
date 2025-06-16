@@ -59,7 +59,6 @@
             imagemagick
             ffmpeg
             iperf
-            KMTronic
 
             (python3.withPackages (
               ps:
@@ -82,6 +81,7 @@
                 robotframework-debuglibrary
                 PyP100
                 plugp100
+                KMTronic
               ])
             ))
           ];
