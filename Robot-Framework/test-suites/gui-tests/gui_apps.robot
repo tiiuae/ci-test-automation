@@ -204,7 +204,7 @@ Close app via GUI on LenovoX1
         FAIL  Failed to close the application
     END
     # In case closing the app via GUI failed
-    [Teardown]      Run keywords   Connect to VM   ${app-vm}   AND   Kill process   @{APP_PIDS}
+    [Teardown]      Run Keywords   Connect to VM   ${app-vm}   AND   Kill process   @{APP_PIDS}
 
 Start app via GUI on Orin AGX
     [Documentation]    Start Application via GUI test automation and verify related process started

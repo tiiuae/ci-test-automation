@@ -77,11 +77,11 @@ Check Memory status
     [Documentation]  Check that there is enough memory available
     [Tags]  bat  regression  lenovo-x1   dell-7330  SP-5321
     ${lsblk}  Execute Command  lsblk
-    log       ${lsblk}
-    ${SSD}    run keyword and return status  should contain   ${lsblk}   sda
-    ${eMMC}   run keyword and return status  should contain   ${lsblk}   nvme0n1p
+    Log       ${lsblk}
+    ${SSD}    Run Keyword And Return Status  should contain   ${lsblk}   sda
+    ${eMMC}   Run Keyword And Return Status  should contain   ${lsblk}   nvme0n1p
 
-    ${memory}  run keyword if  ${SSD}   Check External SSD Size
+    ${memory}  Run Keyword If  ${SSD}   Check External SSD Size
     ...    ELSE IF             ${eMMC}  Check Internal eMMC Size
     ...    ELSE                Fail     Failure. Something missing? No SSD or eMMC partitions captured!
 

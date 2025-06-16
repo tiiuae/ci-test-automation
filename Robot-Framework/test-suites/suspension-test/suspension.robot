@@ -76,17 +76,17 @@ Test setup
 Wait
     [Arguments]     ${sec}
     ${time}         Get Time
-    Log to console  ${time}: waiting for ${sec} sec
+    Log To Console  ${time}: waiting for ${sec} sec
     Sleep           ${sec}
 
 Get expected brightness values
     ${device}     Execute Command    ls /sys/class/backlight/
     ${max}        Execute Command    cat /sys/class/backlight/${device}/max_brightness
     Set Test Variable  ${max_brightness}     ${max}
-    Log to console     Max brightness value is ${max}
+    Log To Console     Max brightness value is ${max}
     ${int_max}         Convert To Integer    ${max}
     ${dimmed}          Evaluate   __import__('math').ceil(${int_max} / 4)
-    Log to console     Dimmed brightness is expected to be ~${dimmed}
+    Log To Console     Dimmed brightness is expected to be ~${dimmed}
     Set Test Variable  ${dimmed_brightness}  ${dimmed}
 
 Check screen brightness
@@ -96,7 +96,7 @@ Check screen brightness
     FOR  ${i}  IN RANGE  ${timeout}
         ${output}     Execute Command    ls /nix/store | grep brightnessctl | grep -v .drv
         ${output}     Execute Command    /nix/store/${output}/bin/brightnessctl get
-        Log to console    Check ${i}: Brightness is ${output}
+        Log To Console    Check ${i}: Brightness is ${output}
         ${status}     Run Keyword And Return Status  Should be Equal As Numbers   ${output}  ${brightness}
         IF  ${status}
             BREAK
@@ -126,7 +126,7 @@ Check notification
     Log    The last notification "Automatic suspend" has ID: ${last_matching_id}
 
     IF    ${last_matching_id} > ${last_id}
-        Log to console    The new ID (${last_matching_id}) is greater than the previous one (${last_id}).
+        Log To Console    The new ID (${last_matching_id}) is greater than the previous one (${last_id}).
     ELSE
         FAIL   The new ID (${last_matching_id}) is NOT greater than the previous one (${last_id}).
     END
@@ -138,7 +138,7 @@ Get last notification id
     ELSE
         ${last_id}      Get last mako notification id   ${notifications}
     END
-    Log to console      The last notification in the list has ID: ${last_id}
+    Log To Console      The last notification in the list has ID: ${last_id}
     RETURN              ${last_id}
 
 Check the screen state
@@ -149,7 +149,7 @@ Check the screen state
     ELSE
         ${output}  ${err}   Execute Command    WAYLAND_DISPLAY=wayland-0 /nix/store/${output}/bin/wlopm    return_stderr=True
     END
-    Log to console      Screen state: ${output}
+    Log To Console      Screen state: ${output}
     Should Contain      ${output}    ${state}
 
 Check if device was suspended

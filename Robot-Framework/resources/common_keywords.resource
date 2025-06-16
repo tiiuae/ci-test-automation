@@ -88,9 +88,9 @@ Check If Device Is Up
 
 Log versions
     ${ghaf_version}     Execute Command   ghaf-version
-    Log to console      Ghaf version: ${ghaf_version}
+    Log To Console      Ghaf version: ${ghaf_version}
     ${nixos_version}    Execute Command   nixos-version
-    Log to console      Nixos version: ${nixos_version}
+    Log To Console      Nixos version: ${nixos_version}
 
 Get mako path
     ${output}            Execute Command     ls /nix/store | grep mako | grep -v .drv

@@ -140,7 +140,7 @@ Ballooning Test Teardown
     ...        Reboot LenovoX1
     ...  AND   Connect to netvm
 
-    Run keyword If Test Passed  Clean Test Artifacts
+    Run Keyword If Test Passed  Clean Test Artifacts
 
 Clean Test Artifacts
     Execute Command     rm -r /dev/shm/test         sudo=True  sudo_password=${PASSWORD}

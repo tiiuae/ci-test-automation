@@ -120,7 +120,7 @@ Connect to VM
     [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=60
     Log To Console       Connecting to ${vm_name} as ${user}...   no_newline=true
     Check if ssh is ready on vm        ${vm_name}
-    ${failed_connection}  Set variable  True
+    ${failed_connection}  Set Variable  True
     ${start_time}  Get Time	epoch
     IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
         ${jumphost}   Set Variable  ${NETVM_SSH}
@@ -140,7 +140,7 @@ Connect to VM
                 BREAK
             END
         END
-        ${failed_connection}    Set variable  False
+        ${failed_connection}    Set Variable  False
         BREAK
     END
     IF  ${failed_connection}    FAIL  Couldn't connect ${vm_name}
@@ -263,7 +263,7 @@ Open PDF
     ${output}        Execute Command    cat /run/current-system/sw/share/applications/ghaf-pdf-xdg.desktop  sudo=True  sudo_password=${PASSWORD}    return_stderr=True
     ${path}          Get App Path From Desktop  ${output}[0]
     ${xdgopen}       Get Substring      ${path}    0    -3
-    Log to console   Trying to open ${pdf_file}
+    Log To Console   Trying to open ${pdf_file}
     Execute Command  echo ${PASSWORD} | sudo -S nohup sh -c '${xdgopen} ${pdf_file}' > /tmp/out.log 2>&1 &
 
 Open Image
@@ -272,7 +272,7 @@ Open Image
     Log              ${output}
     ${path}          Get App Path From Desktop  ${output}
     ${xdgopen}       Get Substring      ${path}    0    -3
-    Log to console   Trying to open ${pic_file}
+    Log To Console   Trying to open ${pic_file}
     Execute Command  nohup sh -c '${xdgopen} ${pic_file}' > /tmp/out.log 2>&1 &
 
 Start Firefox
@@ -564,7 +564,7 @@ Check if ssh is ready on device
         ${status}    Run Keyword And Return Status
         ...          Should Be Equal As Integers	${rc}	0
         IF  ${status}
-            Log to console   ${output}
+            Log To Console   ${output}
             ${is_ready} =  Set Variable    True
             BREAK
         END
@@ -576,7 +576,7 @@ Check if ssh is ready on device
         END
     END
     IF   ${is_ready} == False
-        Log to console  Port 22 (ssh) of ${DEVICE} is not ready after ${timeout}
+        Log To Console  Port 22 (ssh) of ${DEVICE} is not ready after ${timeout}
     END
 
     RETURN  ${is_ready}
@@ -620,14 +620,14 @@ Restart VM
 
 Check External SSD Size
     [Documentation]  Check the size of ssd used in setup
-    Log to console   Memory to be checked: SSD
+    Log To Console   Memory to be checked: SSD
     ${lsblk}  Execute Command  lsblk
     ${size}  Get Regexp Matches  ${lsblk}  (?im)(sda .*\\d*:\\d{1}.*\\d{1}\\s)(\\d{1,3})  2
     RETURN  ${size}[0]
 
 Check Internal eMMC Size
     [Documentation]  Check the size of eMMC used in setup
-    Log to console   Memory to be checked: eMMC
+    Log To Console   Memory to be checked: eMMC
     ${lsblk}  Execute Command  lsblk
     ${size}   Get Regexp Matches  ${lsblk}  (?im)(nvme0n1 .*\\d*:\\d{1}.*\\d{1}\\s)(\\d{1,3})  2
     RETURN    ${size}[0]
