@@ -32,7 +32,7 @@ Start and close Google Chrome via GUI on LenovoX1
         Start app via GUI on LenovoX1   ${CHROME_VM}  chrome
         Close app via GUI on LenovoX1   ${CHROME_VM}  google-chrome  ./window-close-neg.png   2
     END
-    [Teardown]        Run Keyword If Test Failed     Skip if   $COMPOSITOR == 'cosmic'   "Known issue: Chrome does not have top bar"
+    [Teardown]        Run Keyword If Test Failed     Skip if   $COMPOSITOR == 'cosmic'   "Known issue SSRCSP-6716: Chrome does not have top bar"
 
 Start and close PDF Viewer via GUI on LenovoX1
     [Documentation]   Start PDF Viewer via GUI test automation and verify related process started
