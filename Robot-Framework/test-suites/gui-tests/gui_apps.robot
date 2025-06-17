@@ -52,7 +52,8 @@ Start and close Sticky Notes via GUI on LenovoX1
     ...               Close Sticky Notes via GUI test automation and verify related process stopped
     [Tags]            SP-T201-2  lenovo-x1
     IF  $COMPOSITOR == 'cosmic'
-        Skip   App not available in Cosmic
+        Start app via GUI on LenovoX1   ${GUI_VM}  sticky-wrapped  display_name=Sticky
+        Close app via GUI on LenovoX1   ${GUI_VM}  sticky-wrapped  ./window-close-neg.png
     ELSE
         Get icon   /run/current-system/sw/share/icons/hicolor/scalable/apps  com.vixalien.sticky.svg   crop=15
         Start app via GUI on LenovoX1   ${GUI_VM}  sticky-wrapped
