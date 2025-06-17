@@ -378,3 +378,20 @@ Set compositor
     ELSE
         Log To Console   Compositor: labwc
     END
+
+Get screen brightness
+    [Documentation]   Get and return current brightness value
+    ${output}         Execute Command    ls /nix/store | grep brightnessctl | grep -v .drv
+    ${brightness}     Execute Command    /nix/store/${output}/bin/brightnessctl get
+    Log To Console    Brightness is ${brightness}
+    RETURN            ${brightness}
+
+Increase brightness
+    [Documentation]   The F6 key is physically implemented as KEY_BRIGHTNESSUP (code 225)
+    Log To Console    Pressing F6
+    Execute Command   ydotool key 225:1 225:0  sudo=True  sudo_password=${PASSWORD}
+
+Decrease brightness
+    [Documentation]   The F5 key is physically implemented as KEY_BRIGHTNESSDOWN (code 224)
+    Log To Console    Pressing F5
+    Execute Command   ydotool key 224:1 224:0  sudo=True  sudo_password=${PASSWORD}
