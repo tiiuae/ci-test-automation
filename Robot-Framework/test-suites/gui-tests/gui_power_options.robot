@@ -136,7 +136,7 @@ Select power menu option
     [Arguments]        ${icon_name}=""   ${index}=0   ${confirmation}=false
     IF  $COMPOSITOR == 'cosmic'
         Log To Console     Opening power menu
-        Locate and click   ./power.png  0.95  5
+        Locate and click   ./power.png  0.55  5
         Tab and enter      tabs=${index}
         # Some options have a separate confirmation window that needs to be clicked.
         IF  '${confirmation}' == 'true'   Tab and enter   tabs=2
