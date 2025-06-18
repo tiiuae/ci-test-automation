@@ -158,8 +158,10 @@ Locate and click
     [Arguments]   ${image_to_be_searched}  ${confidence}=0.99  ${iterations}=5
     ${mouse_x}  ${mouse_y}  Locate image on screen  ${image_to_be_searched}  ${confidence}  ${iterations}
     Connect to VM     ${GUI_VM}
-    Execute Command   ydotool mousemove --absolute -x ${mouse_x} -y ${mouse_y}  sudo=True  sudo_password=${PASSWORD}
-    Execute Command   ydotool click 0xC0  sudo=True  sudo_password=${PASSWORD}
+    ${output}  ${err}  ${rc}  Execute Command   ydotool mousemove --absolute -x ${mouse_x} -y ${mouse_y}  sudo=True  sudo_password=${PASSWORD}   return_stderr=True   return_rc=True
+    Log  ${err}
+    ${output}  ${err}  ${rc}  Execute Command   ydotool click 0xC0  sudo=True  sudo_password=${PASSWORD}   return_stderr=True  return_rc=True
+    Log  ${err}
 
 Start ydotoold
     [Documentation]    Start ydotool daemon if it is not already running.
@@ -171,7 +173,8 @@ Start ydotoold
     ${ydotoold_state}=    Execute Command    sh -c 'ps aux | grep ydotoold | grep -v grep'
     IF  $ydotoold_state == '${EMPTY}'
         Log To Console    Starting ydotool daemon
-        Run Keyword And Ignore Error  Execute Command   -b /run/current-system/sw/bin/ydotoold --socket-path /tmp/.ydotool_socket  sudo=True  sudo_password=${PASSWORD}  timeout=3
+        ${output}  ${err}  Run Keyword And Ignore Error  Execute Command   -b /run/current-system/sw/bin/ydotoold --socket-path /tmp/.ydotool_socket  sudo=True  sudo_password=${PASSWORD}  timeout=3   return_stderr=True
+        Log  ${err}
         ${ydotoold_state}=    Execute Command    sh -c 'ps aux | grep ydotoold | grep -v grep'
         Should Not Be Empty  ${ydotoold_state}  failed to start ydotool daemon
     ELSE
@@ -307,6 +310,7 @@ Save most common icons and paths to icons
         Set Global Variable     ${ICONS}
         Get icon                ${ICONS}/hicolor/scalable/apps  com.system76.CosmicAppLibrary.svg  crop=0  background=black  output_filename=launcher.png
         Get icon                ${ICONS}/Papirus/24x24/symbolic/actions  window-close-symbolic.svg  crop=0  background=white  output_filename=window-close.png
+        #Get icon                ${ICONS}/Papirus/symbolic/actions  window-close-symbolic.svg  crop=0  background=white  output_filename=window-close.png
         Negate app icon         ${GUI_TEMP_DIR}window-close.png  ${GUI_TEMP_DIR}window-close-neg.png
         Get icon                ${ICONS}/Cosmic/scalable/actions  system-search-symbolic.svg  crop=0  background=white  output_filename=search.png
         Negate app icon         ${GUI_TEMP_DIR}search.png  ${GUI_TEMP_DIR}search-neg.png
