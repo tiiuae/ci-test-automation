@@ -88,3 +88,10 @@ Check Memory status
     ${storage}  Check Persist Storage Size
     Should Be True  ${memory} > ${storage} > ${100}
     Should Be True  ${${memory}*${0.80}} <= ${storage}
+
+Check veritysetup status
+    [Documentation]  Check that VERITY status is verified
+    [Tags]           bat    hardening-installer
+    ${output}        Execute Command    veritysetup status root  sudo=True  sudo_password=${PASSWORD}
+    ${status}        Get Verity Status  ${output}
+    Should Be True   '${status}' == 'verified'
