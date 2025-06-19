@@ -297,3 +297,19 @@ def parse_services_to_list(output):
     raw_items = match.group(1).split(',')
     parsed_list = [item.strip(" '\"") for item in raw_items if item.strip()]
     return parsed_list
+
+def get_verity_status(output):
+    match = re.search(r'status:\s+(\w+)', output)
+
+    if match:
+        return match.group(1)
+    else:
+        raise Exception("Couldn't parse verity status")
+
+def extract_device_hint(text):
+    pattern = r'Device name \[e\.g\. ([^\]]+)\]:'
+    match = re.search(pattern, text)
+    if match:
+        return match.group(1)
+    else:
+        raise Exception("Could not extract device name from input text")
