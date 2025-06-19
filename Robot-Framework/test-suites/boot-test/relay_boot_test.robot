@@ -110,6 +110,32 @@ Turn ON Device
         Log To Console  The device started
     END
 
+Run installer
+    [Tags]           installer
+    Log To Console    ${\n}Turning device on...
+    Press Button      ${SWITCH_BOT}-ON
+    Check If Device Is Up
+    Run Keyword If    ${IS_AVAILABLE} == False   FAIL    The device did not start
+    Connect         target_output=@ghaf-installer
+    Write           sudo ghaf-installer
+    ${output} 	    SSHLibrary.Read Until 	]:
+    Should Contain 	${output}    Device name
+    Write           /dev/nvme0n1     # read exact name from the output line?
+    ${output}  	    SSHLibrary.Read Until    [y/N]
+    Should Contain 	${output}    Do you want to continue? [y/N]
+    Write       y
+    Log To Console  Start installation
+    FOR    ${i}    IN RANGE    20
+        ${output}    SSHLibrary.Read
+        ${found}     Run Keyword And Return Status    Should Contain    ${output}    Installation done. Please remove the installation media and reboot
+        Run Keyword If    ${found}    Exit For Loop
+        Sleep    5s
+    END
+    Should Contain    ${output}    ${EXPECTED_TEXT}
+    Log To Console    ${\n}Turning device off
+    Press Button      ${SWITCH_BOT}-OFF
+
+
 
 *** Keywords ***
 
