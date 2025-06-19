@@ -16,13 +16,13 @@ Suite Teardown      Close All Connections
 Test ghaf version format
     [Documentation]    Test getting Ghaf version and verify its format:
     ...                Expected format: major.minor.yyyymmdd.commit_hash
-    [Tags]             bat  regression   pre-merge   SP-T54  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330
+    [Tags]             bat  regression   pre-merge   SP-T54  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330   hardening-installer
     Verify Ghaf Version Format
 
 Test nixos version format
     [Documentation]    Test getting Nixos version and verify its format:
     ...                Expected format: major.minor.yyyymmdd.commit_hash (name)
-    [Tags]             bat  regression   pre-merge   SP-T55  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330
+    [Tags]             bat  regression   pre-merge   SP-T55  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330   hardening-installer
     Verify Nixos Version Format
 
 Check QSPI version
@@ -88,3 +88,10 @@ Check Memory status
     ${storage}  Check Persist Storage Size
     Should Be True  ${memory} > ${storage} > ${100}
     Should Be True  ${${memory}*${0.80}} <= ${storage}
+
+Check veritysetup status
+    [Documentation]  Check that VERITY status is verified
+    [Tags]           bat    hardening-installer
+    ${output}        Execute Command    veritysetup status root  sudo=True  sudo_password=${PASSWORD}
+    ${status}        Get Verity Status  ${output}
+    Should Be True   '${status}' == 'verified'
