@@ -6,7 +6,6 @@ Documentation       Tests for input-related GUI functionality
 Force Tags          gui
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/gui_keywords.resource
-Test Setup          GUI Input Test Setup
 
 *** Test Cases ***
 
@@ -21,11 +20,3 @@ Change brightness with keyboard shortcuts
     Increase brightness
     ${h_brightness}     Get screen brightness
     Should Be True      ${h_brightness} > ${l_brightness}
-
-
-*** Keywords ***
-
-GUI Input Test Setup
-    Connect to netvm
-    Connect to VM       ${GUI_VM}
-    Log in, unlock and verify

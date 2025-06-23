@@ -8,7 +8,7 @@ Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/connection_keywords.resource
 Library             ../../lib/GuiTesting.py   ${OUTPUT_DIR}/outputs/gui-temp/
-Test Timeout        10 minutes
+Test Timeout        5 minutes
 Suite Setup         GUI Tests Setup
 Suite Teardown      GUI Tests Teardown
 
@@ -16,26 +16,14 @@ Suite Teardown      GUI Tests Teardown
 *** Keywords ***
 
 GUI Tests Setup
-    Initialize Variables, Connect And Start Logging
-    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        Connect to VM       ${GUI_VM}
-        Set compositor
-        Save most common icons and paths to icons
-        Create test user
-        Log in, unlock and verify   enable_dnd=True
+    Prepare Test Environment   enable_dnd=True
 
-        # There's a bug that occasionally causes the app menu to freeze on Cosmic, especially on the first login. 
-        # Logging out once before running tests helps reduce the chances of it happening. (SSRCSP-6684)
-        IF  $COMPOSITOR == 'cosmic'
-            Log out and verify   disable_dnd=True
-            Log in, unlock and verify   enable_dnd=True
-        END
+    # There's a bug that occasionally causes the app menu to freeze on Cosmic, especially on the first login. 
+    # Logging out once before running tests helps reduce the chances of it happening. (SSRCSP-6684)
+    IF  $COMPOSITOR == 'cosmic'
+        Log out and verify   disable_dnd=True
+        Log in, unlock and verify   enable_dnd=True
     END
 
 GUI Tests Teardown
-    Connect to ghaf host
-    Log journalctl
-    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        Log out and verify   disable_dnd=True
-    END
-    Close All Connections
+    Clean Up Test Environment   disable_dnd=True

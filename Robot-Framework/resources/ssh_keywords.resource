@@ -10,6 +10,10 @@ Library             Process
 Library             String
 Library             ../lib/output_parser.py
 
+*** Variables ***
+
+${GUI_VM_GHAF_SSH}     ${EMPTY}
+${GUI_VM_USER_SSH}     ${EMPTY}
 
 *** Keywords ***
 
@@ -489,9 +493,9 @@ Check if ssh is ready on vm
     END
     ${start_time}                   Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
-        ${output}  ${rc}    Execute Command    timeout 6 nc -zvw3 ${vm} 22    return_rc=True   timeout=10
+        ${status}  ${output}    Run Keyword And Ignore Error   Execute Command    timeout 6 nc -zvw3 ${vm} 22    return_rc=True   timeout=10
         ${status}    Run Keyword And Return Status
-        ...          Should Be Equal As Integers    ${rc}    0
+        ...          Should Be Equal As Integers    ${output}[1]   0
         IF  ${status}
             BREAK
         END
@@ -670,19 +674,49 @@ Connect to VM if not already connected
         Connect to VM   ${vm_name}
     END
 
-Detect first boot
-    [Documentation]    Determine desktop state after boot by attempting login to gui-vm as testuser
-    Connect
-    Log To Console          Detecting if this is first boot by trying test user credentials
-    Verify service status   range=15  service=microvm@gui-vm.service  expected_status=active  expected_state=running
-    Connect to netvm
-    ${status}   ${output}   Run Keyword And Ignore Error   Connect to VM   ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
-    IF   $status=='PASS'
-        Log To Console          Test user exists
-        RETURN  ${False}
-    END
-    RETURN   ${True}
-
 Create test user
     Log To Console      Creating test user
     Execute Command     systemctl start setup-test-user.service  sudo=True  sudo_password=${password}
+
+Switch to gui-vm as ghaf     
+    [Documentation]   Switches the ssh connection to the gui-vm using the user account
+
+    ${status}   Try to switch to active gui-vm connection   ${GUI_VM_GHAF_SSH}   ghaf
+
+    IF   ${status}
+        Log To Console    Switched to gui-vm as ghaf
+    ELSE
+        ${GUI_VM_GHAF_SSH}   Connect to VM       ${GUI_VM}
+        Set Global Variable    ${GUI_VM_GHAF_SSH}
+    END
+
+Switch to gui-vm as user
+    [Documentation]   Switches the ssh connection to the gui-vm using the ghaf user
+
+    ${status}   Try to switch to active gui-vm connection   ${GUI_VM_USER_SSH}   ${USER_LOGIN}
+
+    IF   ${status}
+        Log To Console    Switched to gui-vm as user
+    ELSE
+        ${GUI_VM_USER_SSH}   Connect to VM       ${GUI_VM}  ${USER_LOGIN}  ${USER_PASSWORD}
+        Set Global Variable    ${GUI_VM_USER_SSH}
+    END
+
+Try to switch to active gui-vm connection
+    [Arguments]        ${ssh_connection}   ${user} 
+
+    ${connection_status}  ${new_connection}   Run Keyword And Ignore Error    Switch Connection   ${ssh_connection}
+
+    ${status}   ${output_user}    Run Keyword And Ignore Error   Execute Command    whoami
+    Log    ${output_user}
+    ${user_status}    Run Keyword And Return Status    Should Be Equal    ${output_user}    ${user}
+
+    ${status}   ${output_host}    Run Keyword And Ignore Error   Execute Command    hostname
+    Log    ${output_host}
+    ${host_status}    Run Keyword And Return Status    Should Be Equal    ${output_host}    gui-vm
+
+    IF   $connection_status=='FAIL' or not ${user_status} or not ${host_status}
+        RETURN   False
+    ELSE
+        RETURN   True
+    END

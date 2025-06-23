@@ -21,21 +21,9 @@ ${DISABLE_LOGOUT}     ${EMPTY}
 
 Functional tests setup
     [timeout]    5 minutes
-    Initialize Variables, Connect And Start Logging
-    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        Connect to VM         ${GUI_VM}
-        Set compositor
-        Save most common icons and paths to icons
-        Create test user
-        Log in, unlock and verify
-    END
+    Prepare Test Environment
     Switch Connection    ${CONNECTION}
 
 Functional tests teardown
     [timeout]    5 minutes
-    Connect to ghaf host
-    Log journalctl
-    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        Log out and verify
-    END
-    Close All Connections
+    Clean Up Test Environment

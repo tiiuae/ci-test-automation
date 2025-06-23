@@ -3,6 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
+Documentation       Keywords for gui tests. Note: These keywords assume the connection is to the gui-vm,
+...                 as the ghaf user. If a keyword requires the user account, it will handle switching to
+...                 the user and switch back to the ghaf user during teardown.
 Resource            ../config/variables.robot
 Library             ../lib/GuiTesting.py    ${OUTPUT_DIR}/outputs/gui-temp/
 Library             Collections
@@ -20,7 +23,6 @@ ${GUI_TEMP_DIR}        ${OUTPUT_DIR}/outputs/gui-temp/
 Log in, unlock and verify
     [Documentation]   Open desktop by logging in or unlocking. Verify that desktop is available.
     [Arguments]       ${stop_swayidle}=True  ${enable_dnd}=False
-    Start ydotoold
     ${logout_status}    Check if logged out   1
     IF  ${logout_status}
         Log in via GUI
@@ -30,7 +32,21 @@ Log in, unlock and verify
         IF  ${lock}   Unlock
     END
     Try to reset scaling
-    Verify desktop availability
+
+    # This is a workaround for a cosmic-greeter bug https://github.com/pop-os/cosmic-greeter/issues/135.
+    # If the laptop did not login on the first attempt tries to press Tab to select the password field
+    # and then attempts to log in again.
+    ${status}   ${output}   Run Keyword And Ignore Error   Verify desktop availability
+    IF   $status == 'FAIL'
+        Log To Console    There was maybe a bug with the cosmic-greeter, let's try logging in again
+        Log To Console    Pressing Tab to activate the password field
+        Execute Command    ydotool key 15:1 15:0  sudo=True  sudo_password=${PASSWORD}
+        Log in via GUI
+        Wait for Ghaf session activation
+        Try to reset scaling
+        Verify desktop availability
+    END
+
     IF  ${stop_swayidle}   Stop swayidle
     IF  ${enable_dnd}      Set do not disturb state   true
 
@@ -44,14 +60,12 @@ Log out and verify
         RETURN
     END
     IF  ${disable_dnd}   Set do not disturb state   false
-    Start ydotoold
     ${logout_status}      Check if logged out    1
     IF  not ${logout_status}
         Log out via GUI
         ${logout_status}  Check if logged out
         IF  not ${logout_status}    FAIL  Failed to log out.
     END
-    Stop ydotoold
 
 Log in via GUI
     [Documentation]   Log in by typing username (labwc) and password (labwc&cosmic).
@@ -89,7 +103,6 @@ Log out via GUI
 
 Type string and press enter
     [Arguments]    ${string}=${EMPTY}  ${confidential}=False
-    Connect to VM   ${GUI_VM}
     IF  ${confidential} 
         Log To Console    Typing password
     ELSE
@@ -103,14 +116,13 @@ Type string and press enter
 
 Tab and enter
     [Arguments]    ${tabs}=1
-    Connect to VM       ${GUI_VM}
     Log To Console      Pressing Tab ${tabs} times and then Enter to select
     ${command}=    Set Variable    ${EMPTY}
     FOR  ${i}  IN RANGE  ${tabs}
         ${command}=    Set Variable  ${command} 15:1 15:0
     END
-    ${command}=    Set Variable  ${command} 28:1 28:0
     Execute Command    ydotool key ${command}  sudo=True  sudo_password=${PASSWORD}
+    Execute Command    ydotool key 28:1 28:0  sudo=True  sudo_password=${PASSWORD}
 
 Locate image on screen
     [Documentation]    Take a screenshot. Locate given image on the screenshot.
@@ -118,7 +130,7 @@ Locate image on screen
     [Arguments]        ${image_to_be_searched}  ${confidence}=0.999   ${iterations}=5
     ${coordinates}=        Set Variable  ${EMPTY}
     ${pass_status}=        Set Variable  FAIL
-    Connect to VM           ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
+    Switch to gui-vm as user
     IF  $COMPOSITOR == 'cosmic'
         Execute Command        mkdir test-images
         FOR   ${i}   IN RANGE  ${iterations}
@@ -152,22 +164,16 @@ Locate image on screen
     ${mouse_x}  Get From Dictionary   ${coordinates}  x
     ${mouse_y}  Get From Dictionary   ${coordinates}  y
     RETURN  ${mouse_x}  ${mouse_y}
-    [Teardown]    Connect to VM   ${GUI_VM}
+    [Teardown]    Switch to gui-vm as ghaf
 
 Locate and click
     [Arguments]   ${image_to_be_searched}  ${confidence}=0.99  ${iterations}=5
     ${mouse_x}  ${mouse_y}  Locate image on screen  ${image_to_be_searched}  ${confidence}  ${iterations}
-    Connect to VM     ${GUI_VM}
     Execute Command   ydotool mousemove --absolute -x ${mouse_x} -y ${mouse_y}  sudo=True  sudo_password=${PASSWORD}
     Execute Command   ydotool click 0xC0  sudo=True  sudo_password=${PASSWORD}
 
 Start ydotoold
     [Documentation]    Start ydotool daemon if it is not already running.
-    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        Connect to VM    ${GUI_VM}
-    ELSE
-        Connect
-    END
     ${ydotoold_state}=    Execute Command    sh -c 'ps aux | grep ydotoold | grep -v grep'
     IF  $ydotoold_state == '${EMPTY}'
         Log To Console    Starting ydotool daemon
@@ -180,11 +186,6 @@ Start ydotoold
 
 Stop ydotoold
     [Documentation]    Kill ydotool daemon
-    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        Connect to VM    ${GUI_VM}
-    ELSE
-        Connect
-    END
     Log To Console    Stopping ydotool daemon
     Execute Command   pkill ydotoold  sudo=True  sudo_password=${PASSWORD}
 
@@ -207,7 +208,7 @@ Move cursor
 Check if logged out
     [Documentation]    Check if system is in logged out state
     [Arguments]        ${iterations}=10
-    Connect to VM      ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
+    Switch to gui-vm as user
     FOR   ${i}   IN RANGE  ${iterations}
         IF  $COMPOSITOR == 'cosmic'
             ${activity}=       Execute Command    systemctl --user is-active ghaf-session.target  return_stdout=True
@@ -231,11 +232,11 @@ Check if logged out
         Sleep  1
     END
     RETURN    ${False}
-    [Teardown]    Connect to VM   ${GUI_VM}
+    [Teardown]    Switch to gui-vm as ghaf
 
 Wait for Ghaf session activation
     [Documentation]    Wait until ghaf session is in active state
-    Connect to VM      ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
+    Switch to gui-vm as user
     Log To Console     Waiting for the Ghaf session to start...  no_newline=true 
     FOR   ${i}   IN RANGE  30
         ${activity}=       Execute Command    systemctl --user is-active ghaf-session.target  return_stdout=True
@@ -250,7 +251,7 @@ Wait for Ghaf session activation
     END
     Log To Console    Failed
     Log To Console    Ghaf session did not activate
-    [Teardown]    Connect to VM   ${GUI_VM}
+    [Teardown]    Switch to gui-vm as ghaf
 
 Get icon
     [Documentation]    Copy icon svg file to test agent machine. Crop and convert the svg file to png.
@@ -279,7 +280,7 @@ Check if locked
             Get icon           ${ICON_THEME}/symbolic/actions  view-reveal-symbolic.svg  background=black
             Type string and press enter
         END
-        ${status}   ${output}      Run Keyword And Ignore Error   Locate image on screen  icon.png  0.95  3
+        ${status}   ${output}      Run Keyword And Ignore Error   Locate image on screen  icon.png  0.95  1
         IF  '${status}' == 'PASS'
             Log To Console    Screen is locked
             RETURN    ${True}
@@ -290,7 +291,6 @@ Check if locked
 
 Unlock
     [Documentation]    Unlock the screen be typing password
-    Connect to VM      ${GUI_VM}
     IF  $COMPOSITOR == 'cosmic'
         # Make sure that password field is active by clicking it
         Locate and click   ${LOCK_ICON}   0.95  5
@@ -332,7 +332,7 @@ Try to reset scaling
     [Documentation]    Disable hidpi-auto-scaling (labwc only)
     IF  $COMPOSITOR != 'cosmic'
         Log To Console     Trying to reset scaling
-        Connect to VM      ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
+        Switch to gui-vm as user
         FOR   ${i}   IN RANGE  5
             Execute Command   systemctl --user start hidpi-auto-scaling-reset
             ${output}         Execute Command   journalctl --since "5 seconds ago" --user -u hidpi-auto-scaling-reset
@@ -348,24 +348,24 @@ Try to reset scaling
             Log To Console   Auto scaling reset failed
         END
     END
-    [Teardown]    Connect to VM   ${GUI_VM}
+    [Teardown]    Switch to gui-vm as ghaf
 
 Stop swayidle
     [Documentation]    Stop swayidle to prevent automatic suspension
     Log To Console    Disabling automated lock and suspend
-    Connect to VM     ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
+    Switch to gui-vm as user
     Execute Command   systemctl --user stop swayidle
-    [Teardown]    Connect to VM   ${GUI_VM}
+    [Teardown]    Switch to gui-vm as ghaf
 
 Set do not disturb state
     [Documentation]   Set do not disturb to true or false (cosmic only)
     [Arguments]       ${state}
     IF  $COMPOSITOR == 'cosmic'
         Log To Console    Setting Do Not Disturb to ${state}
-        Connect to VM     ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
+        Switch to gui-vm as user
         Execute Command   echo ${state} > ~/.config/cosmic/com.system76.CosmicNotifications/v1/do_not_disturb
     END
-    [Teardown]    Connect to VM   ${GUI_VM}
+    [Teardown]    Switch to gui-vm as ghaf
 
 Set compositor
     [Documentation]   Set compositor to cosmic if cosmic process is running. By default compositor is set labwc.

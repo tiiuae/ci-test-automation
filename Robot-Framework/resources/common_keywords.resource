@@ -4,10 +4,38 @@
 *** Settings ***
 Resource            ../config/variables.robot
 Resource            ../resources/gui_keywords.resource
+Resource            ../resources/connection_keywords.resource
 Library             ../lib/output_parser.py
 
 
 *** Keywords ***
+
+Prepare Test Environment
+    [Arguments]    ${stop_swayidle}=True   ${enable_dnd}=False
+    Initialize Variables And Connect
+    Log versions
+    Run journalctl recording
+
+    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
+        Switch to gui-vm as ghaf
+        Set compositor
+        Save most common icons and paths to icons
+        Create test user
+        Start ydotoold
+        Log in, unlock and verify   ${stop_swayidle}   ${enable_dnd}
+    END
+
+Clean Up Test Environment
+    [Arguments]   ${disable_dnd}=False
+    Connect to ghaf host
+    Log journalctl
+    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
+        Switch to gui-vm as ghaf
+        Start ydotoold
+        Log out and verify   ${disable_dnd}
+        Stop ydotoold
+    END
+    Close All Connections
 
 Check that the application was started
     [Arguments]          ${app_name}  ${range}=2  ${exact_match}=false

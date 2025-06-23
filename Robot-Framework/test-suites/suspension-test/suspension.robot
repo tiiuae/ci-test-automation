@@ -183,9 +183,4 @@ Suspension setup
     Sleep  30
     Connect   iterations=10
 
-    Initialize Variables, Connect And Start Logging
-    Connect to VM        ${GUI_VM}
-    Set compositor
-    Save most common icons and paths to icons
-    Create test user
-    Log in, unlock and verify   stop_swayidle=False
+    Prepare Test Environment   stop_swayidle=False
