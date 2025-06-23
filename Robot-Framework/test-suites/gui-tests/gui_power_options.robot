@@ -11,7 +11,6 @@ Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/power_meas_keywords.resource
 Library             ../../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
 Test Setup          GUI Power Test Setup
-Test Teardown       Close All Connections
 
 *** Test Cases ***
 
@@ -27,7 +26,7 @@ GUI Suspend and wake up
     Set start timestamp
     # Connect back to gui-vm after power measurement has been started
     Connect to netvm
-    Connect to VM                 ${GUI_VM}
+    Switch to gui-vm as ghaf
     IF  $COMPOSITOR == 'cosmic'
         Skip   The X1 in the lab gets stuck when a suspension is attempted. Needs further investigation.
         # Select power menu option   index=4
@@ -100,14 +99,10 @@ GUI Reboot
         Log To Console            Device started
     END
     Sleep  30
-    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        ${NETVM_SSH}              Connect   iterations=10
-        Connect to VM             ${GUI_VM}
-    ELSE
-        Connect to ghaf host
-    END
-    ${logout_status}     Check if logged out
-    IF   not ${logout_status}  FAIL  Desktop detected. Device failed to boot to login screen.
+    Connect   iterations=10
+    Switch to gui-vm as ghaf
+    Start ydotoold
+    Log in, unlock and verify   enable_dnd=True
 
 GUI Log out and log in
     [Documentation]   Logout via GUI power menu icon and verify logged out state.
@@ -120,14 +115,13 @@ GUI Log out and log in
     END
     ${logout_status}            Check if logged out
     IF  not ${logout_status}    FAIL  Logout failed.
-    Log in via GUI
-    Verify desktop availability
+    Log in, unlock and verify
 
 *** Keywords ***
 
 GUI Power Test Setup
     Connect to netvm
-    Connect to VM       ${GUI_VM}
+    Switch to gui-vm as ghaf
     Log in, unlock and verify
 
 Select power menu option

@@ -44,8 +44,3 @@ Initialize Variables And Connect
     END
     ${CONNECTION}        Connect to ghaf host
     Set Global Variable  ${CONNECTION}
-
-Initialize Variables, Connect And Start Logging
-    Initialize Variables And Connect
-    Log versions
-    Run journalctl recording
