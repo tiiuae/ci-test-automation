@@ -39,7 +39,7 @@ Check Logs Are available
     [Arguments]  ${date}  ${id}
     FOR  ${vm}  IN  @{VMS}
         Set Log Level  NONE
-        ${out}         Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" '{systemdJournalLogs="${id}", nodename="${vm}"}'
+        ${out}         Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" '{machine="${id}", host="${vm}"}'
         Set Log Level  INFO
         Log            ${out}
         Run Keyword And Continue On Failure  Should Contain  ${out}  ${date}
