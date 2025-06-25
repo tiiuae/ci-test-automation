@@ -19,6 +19,7 @@ Library             JSONLibrary
 Suite Setup         Run Keywords  Initialize Variables And Connect
 ...                 AND  Select network connection to use
 ...                 AND  Run iperf server on DUT
+...                 AND  Sleep   10
 Suite Teardown      Run Keywords  Stop iperf server
 ...                 AND  Close port 5201 from iptables
 ...                 AND  Close All Connections
@@ -113,6 +114,8 @@ Measure UDP Bidir Throughput Small Packets
     ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output.stdout}
     Check iperf3 got results     ${output}
+    #${journal_output}     Execute Command   journalctl --since "10 minutes ago"
+    #Log                   ${journal_output}
     ${bps_tx}               Get Throughput Values  ${output.stdout}  bidir=True
     ${bps_rx}               Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
     Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
@@ -183,20 +186,29 @@ Clear iptables rules
 
 Open port 5201 from iptables
     [Documentation]  Firewall rule to open needed port for perf test.
+    ${rules}  Read Iptables Rules
+
+
+    Execute Command  iptables --policy INPUT ACCEPT  sudo=True  sudo_password=${PASSWORD}  #originally DROP
+
     Execute Command  iptables -I INPUT -m tcp -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
     Execute Command  iptables -I INPUT -m udp -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
 
     # Accept incoming packages that do belong to some already opened connection
     Execute Command  iptables -I INPUT -m state RELATED, ESTABLISHED -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
-    Sleep        1
+    Log to console  Sleeping 15secs (debugging-just to check if it takes time to get new rules are written)
+    Sleep        15
 
 Close port 5201 from iptables
     [Documentation]  Firewall rule to close the port that was used in per testing
-    Execute Command  iptables -I INPUT -m tcp -p tcp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
-    Execute Command  iptables -I INPUT -m udp -p udp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
+    Execute Command  iptables --policy INPUT DROP  sudo=True  sudo_password=${PASSWORD}  #originally DROP
+    Execute Command  iptables -D INPUT -m tcp -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
+    Execute Command  iptables -D INPUT -m udp -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
 
     # Reject also incoming packages that do belong to some already opened connection
-    Execute Command  iptables -I INPUT -m state RELATED, ESTABLISHED -j DROP  sudo=True  sudo_password=${PASSWORD}
+    Execute Command  iptables -D INPUT -m state RELATED, ESTABLISHED -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
+
+    ${rules}  Read Iptables Rules
 
 Stop iperf server
     @{pid}=  Find pid by name  iperf
@@ -244,3 +256,9 @@ Get Throughput Values
         Log      Failed to get the result from ${TEST NAME}   console=yes
     END
     RETURN  ${MBps}[0]
+
+Read iptables rules
+    [Documentation]  Read iptables rules from target
+    ${result}  ${rc}  Execute Command  iptables -L  sudo=True  sudo_password=${PASSWORD}   return_rc=${true}  return_stdout=${true}
+    Should Be Equal   ${rc}  ${0}
+    RETURN            ${result}

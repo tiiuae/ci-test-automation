@@ -16,7 +16,7 @@ Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_I
 Library             DateTime
 Library             Collections
 Suite Setup         Boot Time Test Setup
-Suite Teardown      Close All Connections
+Suite Teardown      MikkoTearDown
 
 
 *** Variables ***
@@ -39,12 +39,16 @@ Measure Hard Boot Time
     [Tags]  SP-T182  lenovo-x1  dell-7330
     Log To Console                Shutting down by pressing the power button
     Press Button                  ${SWITCH_BOT}-OFF
+    #Log to console  SWITCH OFF
+    #sleep   10
     Wait Until Keyword Succeeds   15s  2s  Check If Ping Fails
     Log To Console                The device has shut down
     Log To Console                Waiting for the robot finger to return
     Sleep  20
     Log To Console                Booting the device by pressing the power button
     Press Button                  ${SWITCH_BOT}-ON
+    # Log to console  SWITCH ON
+    # Sleep  10
     Get Boot times                plot_name=Hard Boot Times
 
 Measure Orin Soft Boot Time
@@ -112,6 +116,8 @@ Get Boot times
     Sleep  30
     Connect to netvm
     Connect to VM  ${GUI_VM}
+    ${journal_output}     Execute Command   journalctl --since "10 minutes ago"
+    Log                   ${journal_output}
     ${time_to_desktop}  Run Keyword And Continue On Failure
     ...  Wait Until Keyword Succeeds  ${SEARCH_TIMEOUT1}s  1s  Check Time To Notification  ${freedesktop_line}   ${start_time_epoch}
     IF  $time_to_desktop == 'False'
@@ -125,7 +131,7 @@ Get Boot times
     Set To Dictionary       ${final_results}  response_to_ping  ${ping_response_seconds}
     &{statistics}           Save Boot time Data   ${TEST NAME}  ${final_results}
     Log  <img src="${DEVICE}_${TEST NAME}.png" alt="${plot_name}" width="1200">    HTML
-    # In boot time test decrease in result value is considered improvement -> using inverted argument
+    In boot time test decrease in result value is considered improvement -> using inverted argument
     Determine Test Status   ${statistics}   inverted=1
 
 Check Time To Notification
@@ -151,3 +157,9 @@ Boot Time Test Setup
         Connect to VM           ${GUI_VM}
         Create test user
     END
+
+MikkoTearDown
+    #testuser: changing state
+    ${journal_output}     Execute Command   journalctl --since "10 minutes ago"
+    Log                   ${journal_output}
+    Close All Connections
