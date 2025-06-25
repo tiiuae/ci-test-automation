@@ -19,6 +19,7 @@ Library             JSONLibrary
 Suite Setup         Run Keywords  Initialize Variables And Connect
 ...                 AND  Select network connection to use
 ...                 AND  Run iperf server on DUT
+...                 AND  Sleep   10
 Suite Teardown      Run Keywords  Stop iperf server
 ...                 AND  Close port 5201 from iptables
 ...                 AND  Close All Connections
@@ -113,6 +114,8 @@ Measure UDP Bidir Throughput Small Packets
     ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output.stdout}
     Check iperf3 got results     ${output}
+    ${journal_output}     Execute Command   journalctl --since "10 minutes ago"
+    Log                   ${journal_output}
     ${bps_tx}               Get Throughput Values  ${output.stdout}  bidir=True
     ${bps_rx}               Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
     Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}

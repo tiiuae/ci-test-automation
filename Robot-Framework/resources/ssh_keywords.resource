@@ -123,7 +123,7 @@ Connect to VM
     [Documentation]      Connect to any VM or ghaf-host over internal virtual network
     [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=60
     Log To Console       Connecting to ${vm_name} as ${user}...   no_newline=true
-    Check if ssh is ready on vm        ${vm_name}
+    Check if ssh is ready on vm        ${vm_name}   ${timeout}
     ${failed_connection}  Set Variable  True
     ${start_time}  Get Time	epoch
     IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"

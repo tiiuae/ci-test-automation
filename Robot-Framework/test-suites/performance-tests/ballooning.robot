@@ -43,7 +43,7 @@ Test ballooning in VM
     ${expected_mem_at_inflate}        Evaluate      int(${expected_mem_at_inflate})
     ${consume_iterations}             Evaluate      int(${max_mem_wr} / 2)
 
-    Connect to VM                     ${vm}
+    Connect to VM                     ${vm}     #timeout=60
     Put File                          performance-tests/consume_memory           ${test_dir}
     Put File                          performance-tests/log_memory               ${test_dir}
     Execute Command                   chmod 777 ${test_dir}/consume_memory      sudo=True  sudo_password=${PASSWORD}

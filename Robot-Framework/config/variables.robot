@@ -64,7 +64,7 @@ Set Variables
     Set Global Variable  ${COMPOSITOR}         labwc
     Set Global Variable  ${PERF_LOW_LIMIT}     1
 
-    Set Log Level       NONE
+    Set Log Level       TRACE
 
     ${result} 	Run Process    sh    -c    cat /run/secrets/pi-login  shell=true
     Set Global Variable        ${LOGIN_PI}   ${result.stdout}
@@ -99,7 +99,7 @@ Set Variables
         Set Global Variable        ${USER_PASSWORD}      testpw
     END
 
-    Set Log Level       INFO
+    Set Log Level       TRACE
 
     IF  $BUILD_ID != '${EMPTY}'
         ${config}=     Read Config  ${CONFIG_PATH}/${BUILD_ID}.json

@@ -38,6 +38,7 @@ Verify booting after restart by power
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Verify init.scope status via serial
     END
+    #Sleep   120
     [Teardown]   Teardown
 
 Verify booting LenovoX1
