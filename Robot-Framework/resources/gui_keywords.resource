@@ -102,7 +102,7 @@ Log out via GUI
     END
 
 Type string and press enter
-    [Arguments]    ${string}=${EMPTY}  ${confidential}=False
+    [Arguments]    ${string}=${EMPTY}  ${confidential}=False  ${enter}=True
     IF  ${confidential} 
         Log To Console    Typing password
     ELSE
@@ -111,8 +111,12 @@ Type string and press enter
     IF  $string != '${EMPTY}'
         Execute Command   ydotool type ${string}  sudo=True  sudo_password=${PASSWORD}
     END
-    Log To Console    Pressing Enter
-    Execute Command   ydotool key 28:1 28:0  sudo=True  sudo_password=${PASSWORD}
+    IF  ${enter}
+        Log To Console    Pressing Enter
+        Execute Command   ydotool key 28:1 28:0  sudo=True  sudo_password=${PASSWORD}
+    ELSE
+        Log To Console    Skipping Enter
+    END
 
 Tab and enter
     [Arguments]    ${tabs}=1
@@ -409,3 +413,8 @@ Get gui-vm user journalctl log
     [Setup]      Switch to gui-vm as user
     Get user journalctl log   gui-vm-user.log
     [Teardown]   Switch to gui-vm as ghaf
+
+Switch keyboard layout
+    [Documentation]   Toggle layout between English, Arabic and Finnish
+    Log To Console    Pressing Alt+Shift, shortcut for switching keyboard layout
+    Execute Command   ydotool key 56:1 42:1 42:0 56:0  sudo=True  sudo_password=${PASSWORD}

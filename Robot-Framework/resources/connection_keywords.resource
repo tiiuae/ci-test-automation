@@ -36,6 +36,7 @@ Turn ON WiFi
 
 Initialize Variables And Connect
     [Documentation]  Initialize variables. Connect to device and start logging
+    Close All Connections
     Set Variables   ${DEVICE}
     Run Keyword If  "${DEVICE_IP_ADDRESS}" == "NONE"    Get ethernet IP address
     ${port_22_is_available}     Check if ssh is ready on device   timeout=60

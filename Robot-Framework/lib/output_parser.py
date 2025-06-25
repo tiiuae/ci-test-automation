@@ -288,7 +288,6 @@ def parse_notifications(text):
     notifications_dict = {int(num): msg for num, msg in matches}
     return notifications_dict
 
-
 def parse_services_to_list(output):
     match = re.search(r"\[([^\]]+)\]", output)
     if not match:
@@ -298,9 +297,18 @@ def parse_services_to_list(output):
     parsed_list = [item.strip(" '\"") for item in raw_items if item.strip()]
     return parsed_list
 
-
 def parse_known_issue(output):
     parts = output.split('|')
     if len(parts) != 3:
         raise ValueError(f"Invalid known issue format: {output}")
     return parts[0].strip(), parts[1].strip(), parts[2].strip()
+
+def parse_keyboard_layout(layout_row):
+    if not "layout" in layout_row:
+        return False
+    current_layout = layout_row.split("\"")[1].split(",")
+    for i in range(len(current_layout)):
+        if current_layout[i] == "us":
+            # Return the current order of layouts and the placement of 'us' in the list
+            return [current_layout, i]
+    return False

@@ -140,3 +140,11 @@ Get Falcon LLM Name
     ${tmp}               Fetch From Right  ${llm_name_raw}  =
     ${LLM_NAME}          Set Variable  ${tmp[1:-1]}
     Set Global Variable  ${LLM_NAME}
+
+Launch Cosmic Term
+    IF  $COMPOSITOR == 'cosmic'
+        Start XDG application   com.system76.CosmicTerm  gui_vm_app=true
+        Check that the application was started    cosmic-term  exact_match=true
+    ELSE
+        Skip   App only available in Cosmic
+    END
