@@ -297,3 +297,13 @@ def parse_services_to_list(output):
     raw_items = match.group(1).split(',')
     parsed_list = [item.strip(" '\"") for item in raw_items if item.strip()]
     return parsed_list
+
+def parse_keyboard_layout(layout_row):
+    if not "layout" in layout_row:
+        return False
+    current_layout = layout_row.split("\"")[1].split(",")
+    for i in range(len(current_layout)):
+        if current_layout[i] == "us":
+            # Return the current order of layouts and the placement of 'us' in the list
+            return [current_layout, i]
+    return False
