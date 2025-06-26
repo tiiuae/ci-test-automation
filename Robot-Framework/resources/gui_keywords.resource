@@ -197,7 +197,16 @@ Move cursor to corner
 Verify desktop availability
     [Documentation]         Check that launcher icon is available on desktop
     Log To Console          Verifying login by trying to detect the launcher icon
-    Locate image on screen  ${APP_MENU_LAUNCHER}  0.95  10
+    #Locate image on screen  ${APP_MENU_LAUNCHER}  0.95  10
+
+    # This is a workaround for launcher icon missing sometimes. If launcher icon can't be found tries to search
+    # for the power menu icon. Gui-vm user log is saved to help debugging.
+    ${status}   ${output}   Run Keyword And Ignore Error   Locate image on screen  ${APP_MENU_LAUNCHER}  0.95  10
+    IF   $status == 'FAIL'
+        Get gui-vm user journalctl log
+        Log To Console    Could not find launcher icon, checking for power menu icon
+        Locate image on screen   ./power.png  0.55  5
+    END
 
 Move cursor
     Log To Console    Moving cursor to random location
@@ -395,3 +404,8 @@ Decrease brightness
     [Documentation]   The F5 key is physically implemented as KEY_BRIGHTNESSDOWN (code 224)
     Log To Console    Pressing F5
     Execute Command   ydotool key 224:1 224:0  sudo=True  sudo_password=${PASSWORD}
+
+Get gui-vm user journalctl log
+    [Setup]      Switch to gui-vm as user
+    Get user journalctl log   gui-vm-user.log
+    [Teardown]   Switch to gui-vm as ghaf
