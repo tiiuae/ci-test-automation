@@ -79,6 +79,12 @@ Log journalctl
     @{pid}        Find pid by name   journalctl
     Kill process  @{pid}
 
+Get user journalctl log
+    [Arguments]   ${filename}
+    Execute Command    journalctl --user > /tmp/${filename}
+    SSHLibrary.Get file   /tmp/${filename}   ${OUTPUT_DIR}/${filename}
+    OperatingSystem.File Should Exist     ${OUTPUT_DIR}/${filename}
+
 Check If Device Is Up
     [Arguments]    ${range}=20
     Set Global Variable    ${IS_AVAILABLE}       False
