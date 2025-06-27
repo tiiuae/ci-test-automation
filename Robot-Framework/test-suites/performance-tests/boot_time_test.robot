@@ -34,6 +34,8 @@ Measure Soft Boot Time
     Wait Until Keyword Succeeds  35s  2s  Check If Ping Fails
     Get Boot times
 
+    [Teardown]    Run Keyword If Test Failed  Log Journal To Debug
+
 Measure Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
     [Tags]  SP-T182  lenovo-x1  dell-7330
@@ -46,6 +48,8 @@ Measure Hard Boot Time
     Log To Console                Booting the device by pressing the power button
     Press Button                  ${SWITCH_BOT}-ON
     Get Boot times                plot_name=Hard Boot Times
+
+     [Teardown]    Run Keyword If Test Failed  Log Journal To Debug
 
 Measure Orin Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
@@ -99,12 +103,15 @@ Get Time To Ping
 Get Boot times
     [Documentation]  Collect boot times from device
     [Arguments]  ${plot_name}=Soft Boot Times
+    ${start_time}          DateTime.Get Current Date   UTC  result_format=%Y-%m-%d %H:%M:%S
+    Log to console  start_time: ${start_time}
+
     ${freedesktop_line}  Catenate  SEPARATOR=\n
-    ...  freedesktop_line=$(journalctl --output=short-iso | grep "Successfully activated service 'org.freedesktop.systemd1'" | grep session)
+    ...  freedesktop_line=$(journalctl --since "${start_time}" --output=short-iso | grep "Successfully activated service 'org.freedesktop.systemd1'" | grep session)
     ...  echo $freedesktop_line
     # For detecting timestamp of Login screen in cosmic desktop
     ${testuser_line}  Catenate  SEPARATOR=\n
-    ...  testuser_line=$(journalctl --output=short-iso | grep "testuser: changing state")
+    ...  testuser_line=$(journalctl --since "${start_time}" --output=short-iso | grep "testuser: changing state")
     ...  echo $testuser_line
 
     ${start_time_epoch}    DateTime.Get Current Date   result_format=epoch
@@ -131,13 +138,14 @@ Get Boot times
 Check Time To Notification
     [Documentation]  Check that correct notification is available in journalctl
     [Arguments]      ${command}   ${start_time}
-    ${get_timestamp}  Catenate  SEPARATOR=\n
-    ...  freedesktop_time=$(date -d "$(${command} | tail -1 | awk '{print $1}')" "+%s")
-    ...  echo $freedesktop_time
     ${notification_line}  Execute Command  ${command}
+    Log  ${notification_line}
     IF  $notification_line == '${EMPTY}'
         RETURN  False
     END
+    ${get_timestamp}  Catenate  SEPARATOR=\n
+    ...  freedesktop_time=$(date -d "$(${command} | tail -1 | awk '{print $1}')" "+%s")
+    ...  echo $freedesktop_time
     ${notification_time}  Execute Command  ${get_timestamp}
     ${time}  Subtract Time From Time  ${notification_time}  ${start_time}   exclude_millis=True
     Should Be True  0 < ${time} < 120
@@ -151,3 +159,7 @@ Boot Time Test Setup
         Connect to VM           ${GUI_VM}
         Create test user
     END
+
+Log Journal To Debug
+    ${journal_output}     Execute Command   journalctl --since "10 minutes ago"
+    Log                   ${journal_output}
