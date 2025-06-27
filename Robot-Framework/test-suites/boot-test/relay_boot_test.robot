@@ -9,6 +9,7 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/device_control.resource
 Resource            ../../config/variables.robot
 Resource            ../../resources/common_keywords.resource
+Library             ../../lib/output_parser.py
 Suite Teardown      Teardown
 
 
@@ -110,6 +111,31 @@ Turn ON Device
         Log To Console  The device started
     END
 
+Run installer
+    [Documentation]   Turn on device and run installer, will not turn off after test, boot test is required after this
+    [Tags]            installer  lenovo-x1
+    Log To Console    ${\n}Turning device on...
+    Press Button      ${SWITCH_BOT}-ON
+    Check If Device Is Up
+    Run Keyword If    ${IS_AVAILABLE} == False   FAIL    The device did not start
+    Connect           target_output=@ghaf-installer
+    Run ghaf-installer
+
+Wipe installed Ghaf from internal memory
+    [Documentation]   Turn on device and wipe internal memory using ghaf-installer or dd if installer fails
+    [Tags]            wiping  lenovo-x1
+    Log To Console    ${\n}Turning device on...
+    Press Button      ${SWITCH_BOT}-ON
+    Check If Device Is Up   range=60
+    Run Keyword If    ${IS_AVAILABLE} == False   FAIL    The device did not start
+    Connect           target_output=@ghaf-installer
+
+    ${status}         Wipe system with ghaf-installer    ${device}
+    IF  '${status}' != 'True'
+        Log To Console         Wiping with ghaf-installer wasn't successful, trying wipe the system with 'dd'
+        Wipe system with dd    ${device}
+    END
+
 
 *** Keywords ***
 
@@ -124,3 +150,59 @@ Teardown
     Close All Connections
     Delete All Ports
     Close Relay Board Connection
+
+Run ghaf-installer
+    Write             sudo ghaf-installer
+    ${output} 	      SSHLibrary.Read Until 	]:
+    Should Contain 	  ${output}    Device name
+    ${device}         Extract Device Hint    ${output}
+    Write             ${device}
+    ${output}  	      SSHLibrary.Read Until    [y/N]
+    Should Contain 	  ${output}    Do you want to continue? [y/N]
+    Write             y
+    Log To Console    Start installation
+    FOR    ${i}    IN RANGE    20
+        ${output}     SSHLibrary.Read
+        ${found}      Run Keyword And Return Status    Should Contain    ${output}    Installation done. Please remove the installation media and reboot
+        Run Keyword If    ${found}    Exit For Loop
+        Sleep    5s
+    END
+    Should Contain    ${output}    Installation done.
+    Log To Console    Installation done.
+
+Wipe system with ghaf-installer
+    [Arguments]       ${device}
+    Write             sudo ghaf-installer -w
+    ${output} 	      SSHLibrary.Read Until 	]:
+    Should Contain 	  ${output}    Device name
+    ${device}         Extract Device Hint    ${output}
+    Write             ${device}
+    ${output}  	      SSHLibrary.Read Until    [y/N]
+    Should Contain 	  ${output}    Do you want to continue? [y/N]
+    Write             y
+    Log To Console    Start wiping
+    FOR    ${i}    IN RANGE    20
+        ${output}     SSHLibrary.Read
+        ${found}      Run Keyword And Return Status    Should Contain    ${output}    Wipe done.
+        Run Keyword If    ${found}    Exit For Loop
+        Sleep    5s
+    END
+    Write             echo $?
+    ${raw}            Read Until Prompt
+    ${rc}             Evaluate    [s for s in """${raw}""".splitlines() if s.strip().isdigit()][-1]
+    ${status}         Run Keyword And Return Status    Should Be Equal As Integers    ${rc}   0    Wiping was not successful
+    RETURN    ${status}
+
+Wipe system with dd
+    [Arguments]           ${device}
+    ${sector}             Set Variable    512     # Set sector size to 512 bytes
+    ${mib_to_sectors}     Set Variable    20480   # 10 MiB in 512-byte sectors
+    ${sectors}  ${err}  ${rc}     Execute Command    sudo blockdev --getsz ${device}   return_stderr=True   return_rc=True    # Disk size in 512-byte sectors
+    Should Be Equal As Integers    ${rc}    0    ${err}
+    # Wipe first 10MiB of disk
+    ${out}  ${err}  ${rc}         Execute Command    sudo dd if=/dev/zero of=${device} bs=${sector} count=${mib_to_sectors} conv=fsync status=none   return_stderr=True   return_rc=True
+    Should Be Equal As Integers    ${rc}    0    ${err}
+    # Wipe last 10MiB of disk
+    ${last_offset}        Evaluate    int(${sectors}) - int(${mib_to_sectors})
+    ${out}  ${err}  ${rc}         Execute Command    sudo dd if=/dev/zero of=${device} bs=${sector} count=${mib_to_sectors} seek=${last_offset}   return_stderr=True conv=fsync status=none   return_rc=True
+    Should Be Equal As Integers    ${rc}    0    ${err}
