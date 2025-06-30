@@ -297,3 +297,10 @@ def parse_services_to_list(output):
     raw_items = match.group(1).split(',')
     parsed_list = [item.strip(" '\"") for item in raw_items if item.strip()]
     return parsed_list
+
+
+def parse_known_issue(output):
+    parts = output.split('|')
+    if len(parts) != 3:
+        raise ValueError(f"Invalid known issue format: {output}")
+    return parts[0].strip(), parts[1].strip(), parts[2].strip()

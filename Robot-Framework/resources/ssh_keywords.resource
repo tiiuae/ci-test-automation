@@ -208,10 +208,7 @@ Check systemctl status for known issues
     FOR    ${failing_service}    IN    @{failing_services}
         ${known}=    Set Variable    False
         FOR    ${entry}    IN    @{known_issues_list}
-            ${parts}=    Split String    ${entry}    |
-            ${list_device}=    Set Variable    ${parts[0]}
-            ${service}=   Set Variable    ${parts[1]}
-            ${issue}=     Set Variable    ${parts[2]}
+            ${list_device}  ${service}  ${issue}   Parse Known Issue   ${entry}
 
             ${device_match}=     Run Keyword And Return Status    Should Contain    ${DEVICE}    ${list_device}
             ${service_match}=    Run Keyword And Return Status    Should Contain    ${failing_service}    ${service}
@@ -231,6 +228,31 @@ Check systemctl status for known issues
     ELSE
         Skip    Known failed services: ${old_issues}
     END
+
+Check VM systemctl status for known issues
+    [Arguments]    ${vm}   ${known_issues_list}   ${failing_services}
+    [Documentation]    Check if failing services in VMs contain issues that are not listed as known
+    ${old_issues}=    Create List
+    ${new_issues}=    Create List
+    FOR    ${failing_service}    IN    @{failing_services}
+        ${known}=    Set Variable    False
+        FOR    ${entry}    IN    @{known_issues_list}
+            ${list_vm}  ${service}  ${issue}   Parse Known Issue   ${entry}
+
+            ${vm_match}=         Run Keyword And Return Status    Should Contain    ${vm}    ${list_vm}
+            ${service_match}=    Run Keyword And Return Status    Should Contain    ${failing_service}    ${service}
+
+            IF   ('${vm_match}' == 'True' or '${list_vm}' == 'ANY') and ('${service}' == 'ANY' or '${service_match}') == 'True'
+                ${known}=     Set Variable    True
+            END
+        END
+        IF    ${known}   
+            Append To List    ${old_issues}    ${failing_service}
+        ELSE
+            Append To List    ${new_issues}    ${failing_service}
+        END
+    END
+    RETURN    ${new_issues}   ${old_issues}
 
 Start application
     [Arguments]      ${app_name}
