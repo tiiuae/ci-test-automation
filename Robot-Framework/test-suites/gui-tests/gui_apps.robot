@@ -150,7 +150,7 @@ Open app menu
     [Documentation]    Check if app menu is open and if not open it (cosmic)
     # Searches for app menu magnifying glass to identify if app menu is open
     Log To Console     Checking that app menu is not already open
-    ${status}   ${output}      Run Keyword And Ignore Error   Locate image on screen  search-neg.png  0.90  1
+    ${status}   ${output}      Run Keyword And Ignore Error   Locate image on screen  search-neg.png  0.90  1  fail_expected=True
     IF  '${status}' == 'PASS'
         Log To Console    App menu is already open
     ELSE
