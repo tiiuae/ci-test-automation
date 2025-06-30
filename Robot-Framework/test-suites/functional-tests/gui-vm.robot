@@ -70,6 +70,11 @@ Start COSMIC Text Editor on LenovoX1
         Skip   App only available in Cosmic
     END
 
+Start COSMIC Terminal on LenovoX1
+    [Documentation]   Start Cosmic Terminal and verify process started
+    [Tags]            bat   cosmic_term  SP-T263
+    Launch Cosmic Term
+
 Start Falcon AI on LenovoX1
     [Documentation]   Start Falcon AI and verify process started
     [Tags]            falcon_ai  SP-T223-1
