@@ -9,6 +9,8 @@ Documentation       Keywords for gui tests. Note: These keywords assume the conn
 Resource            ../config/variables.robot
 Library             ../lib/GuiTesting.py    ${OUTPUT_DIR}/outputs/gui-temp/
 Library             Collections
+Library             DateTime
+Library             OperatingSystem
 
 
 *** Variables ***
@@ -131,7 +133,7 @@ Tab and enter
 Locate image on screen
     [Documentation]    Take a screenshot. Locate given image on the screenshot.
     ...                Return center coordinates of the image in mouse coordinate system.
-    [Arguments]        ${image_to_be_searched}  ${confidence}=0.999   ${iterations}=5
+    [Arguments]        ${image_to_be_searched}  ${confidence}=0.999   ${iterations}=5   ${fail_expected}=False  ${debug_screenshot}=True
     ${coordinates}=        Set Variable  ${EMPTY}
     ${pass_status}=        Set Variable  FAIL
     Switch to gui-vm as user
@@ -146,7 +148,13 @@ Locate image on screen
                 Log To Console    Locating image ${image_to_be_searched} on ${result[1][0]}
                 ${pass_status}  ${coordinates}  Run Keyword And Ignore Error  Locate image  ${GUI_TEMP_DIR}${image_to_be_searched}   ${confidence}
             END
-            IF    $pass_status=='PASS'    BREAK
+            IF    $pass_status=='PASS'
+                IF  ${fail_expected} and ${debug_screenshot}
+                    Timestamp screenshot
+                    Log     Image recognition succeeded but fail_expected=${fail_expected}    console=True
+                END
+                BREAK
+            END
             Sleep  1
         END
     ELSE
@@ -159,11 +167,20 @@ Locate image on screen
                 Log To Console    Locating image ${image_to_be_searched} on screenshot
                 ${pass_status}  ${coordinates}  Run Keyword And Ignore Error  Locate image  ${GUI_TEMP_DIR}${image_to_be_searched}   ${confidence}
             END
-            IF    $pass_status=='PASS'    BREAK
+            IF    $pass_status=='PASS'
+                IF  ${fail_expected} and ${debug_screenshot}
+                    Timestamp screenshot
+                    Log     Image recognition succeeded but fail_expected=${fail_expected}    console=True
+                END
+                BREAK
+            END
             Sleep  1
         END
     END
-    IF    $pass_status=='FAIL'    FAIL  Image recognition failure: ${image_to_be_searched}
+    IF  $pass_status=='FAIL' and ${debug_screenshot} and not ${fail_expected}
+        Timestamp screenshot
+        FAIL  Image recognition failure: ${image_to_be_searched}
+    END
     Log To Console    Coordinates: ${coordinates}
     ${mouse_x}  Get From Dictionary   ${coordinates}  x
     ${mouse_y}  Get From Dictionary   ${coordinates}  y
@@ -293,7 +310,7 @@ Check if locked
             Get icon           ${ICON_THEME}/symbolic/actions  view-reveal-symbolic.svg  background=black
             Type string and press enter
         END
-        ${status}   ${output}      Run Keyword And Ignore Error   Locate image on screen  icon.png  0.95  1
+        ${status}   ${output}      Run Keyword And Ignore Error   Locate image on screen  icon.png  0.95  1  debug_screenshot=False
         IF  '${status}' == 'PASS'
             Log To Console    Screen is locked
             RETURN    ${True}
@@ -418,3 +435,7 @@ Switch keyboard layout
     [Documentation]   Toggle layout between English, Arabic and Finnish
     Log To Console    Pressing Alt+Shift, shortcut for switching keyboard layout
     Execute Command   ydotool key 56:1 42:1 42:0 56:0  sudo=True  sudo_password=${PASSWORD}
+
+Timestamp screenshot
+    ${current_time}  DateTime.Get Current Date  result_format=%Y%m%d_%H%M%S
+    Run Process      sh  -c  cp ${GUI_TEMP_DIR}screenshot.png ${GUI_TEMP_DIR}screenshot_${current_time}.png  shell=true
