@@ -27,21 +27,28 @@ Check internet connection in every VM
     END
     IF  ${failed_vms} != []    FAIL    VMs with no internet connection: ${failed_vms}
 
-
 Check systemctl status in every VM
     [Documentation]    Check that systemctl status is running in every vm.
     [Tags]             bat  regression  SP-T98-2  lenovo-x1  dell-7330
-    ${failed_vms}=    Create List
+    ${failed_new_services}=    Create List
+    ${failed_old_services}=    Create List
+    ${known_issues}=    Create List
+    ...    ANY|systemd-oomd.service|SSRCSP-6682
+    ...    ANY|persist-storage-dirs.service|SSRCSP-6682
+    ...    gui-vm|setup-ghaf-user.service|SSRCSP-6682
+    ...    business-vm|apparmor.service|SSRCSP-6767
+    ...    chrome-vm|apparmor.service|SSRCSP-6767
+
     FOR  ${vm}  IN  @{VMS}
         Connect to VM    ${vm}
-        ${status}=       Run Keyword And Ignore Error   Verify Systemctl status
-        Log              ${status}
-        IF    $status[0]=='FAIL'
-            Log To Console    ${vm}: ${status}[1]
-            Append To List    ${failed_vms}    ${vm}
+        ${status}  ${output}   Run Keyword And Ignore Error   Verify Systemctl status
+        IF  $status=='FAIL'
+            Log To Console    ${vm}: ${output}
+            ${failing_services}    Parse Services To List    ${output}
+            ${new_issues}  ${old_issues}  Check VM systemctl status for known issues    ${vm}   ${known_issues}   ${failing_services}
+            IF  ${new_issues} != []   Append To List    ${failed_new_services}   ${vm}: ${new_issues}
+            IF  ${old_issues} != []   Append To List    ${failed_old_services}   ${vm}: ${old_issues}
         END
-        Sleep    1
     END
-    # This test case has been added to collect information about failed services.
-    # If no service is routinely failing it can be changed from Skip to Fail.
-    IF  ${failed_vms} != []    Skip    VMs with non-running systemctl status: ${failed_vms}
+    IF  ${failed_new_services} != []    FAIL    Unexpected failed services: ${failed_new_services}, known failed services: ${failed_old_services}
+    IF  ${failed_old_services} != []    SKIP    Known failed services: ${failed_old_services}
