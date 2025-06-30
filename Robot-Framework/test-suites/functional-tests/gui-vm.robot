@@ -7,6 +7,7 @@ Force Tags          gui-vm   regression   lenovo-x1   dell-7330
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
 Resource            ../../resources/common_keywords.resource
+Suite Setup         Connect to netvm
 Test Setup          Gui-vm Test Setup
 Test Teardown       Gui-vm Test Teardown
 
@@ -107,16 +108,14 @@ Check user systemctl status
 *** Keywords ***
 
 Gui-vm Test Setup
-    Connect to netvm
-    Connect to VM       ${GUI_VM}  ${USER_LOGIN}  ${USER_PASSWORD}
+    Switch to gui-vm as user
 
 Gui-vm Test Teardown
-    Connect to VM       ${GUI_VM}
+    Switch to gui-vm as ghaf
     Kill process        @{APP_PIDS}
-    Connect to VM       ${GUI_VM}  ${USER_LOGIN}  ${USER_PASSWORD}
+    Switch to gui-vm as user
     ${app_log}          Execute command    cat output.log
     Log                 ${app_log}
-    Close All Connections
 
 Check If Download Reached 100
     ${notifications}  Execute Command  /nix/store/${MAKO_PATH}/bin/makoctl list
