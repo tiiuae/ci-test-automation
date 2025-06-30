@@ -3,7 +3,8 @@
 ## Active SKIPS
 
 | DATE SET   | TEST CASE                                         | TICKET / Additional Data.                                                                       |
-| ---------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+|------------|---------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| 27.06.2025 | Measure UDP Bidir Throughput Small Packets (Dell) | SSRCSP-6774                                                                                     |
 | 17.06.2025 | Start and close Google Chrome via GUI on LenovoX1 | SSRCSP-6716                                                                                     |
 | 13.06.2025 | Record Video With Camera (Dell)                   | SSRCSP-6694                                                                                     |
 | 06.06.2025 | Check user systemctl status (X1 and Dell)         | SSRCSP-6697                                                                                     |
