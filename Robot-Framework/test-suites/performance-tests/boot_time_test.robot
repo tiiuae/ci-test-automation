@@ -21,8 +21,7 @@ Suite Teardown      Close All Connections
 
 *** Variables ***
 ${PING_TIMEOUT}     120
-${SEARCH_TIMEOUT1}  20
-${SEARCH_TIMEOUT2}  5
+${SEARCH_TIMEOUT}   40
 
 
 *** Test Cases ***
@@ -33,6 +32,7 @@ Measure Soft Boot Time
     Soft Reboot Device
     Wait Until Keyword Succeeds  35s  2s  Check If Ping Fails
     Get Boot times
+    [Teardown]    Run Keyword If Test Failed  Log Journal To Debug
 
 Measure Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
@@ -46,6 +46,7 @@ Measure Hard Boot Time
     Log To Console                Booting the device by pressing the power button
     Press Button                  ${SWITCH_BOT}-ON
     Get Boot times                plot_name=Hard Boot Times
+    [Teardown]    Run Keyword If Test Failed  Log Journal To Debug
 
 Measure Orin Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
@@ -92,6 +93,7 @@ Get Time To Ping
     ${ping_response_seconds}      Measure Time To Ping  ${start_time_epoch}
     &{final_results}              Create Dictionary
     Set To Dictionary             ${final_results}  response_to_ping  ${ping_response_seconds}
+    Check Result Validity         ${final_results}
     &{statistics}                 Save Boot time Data   ${TEST NAME}  ${final_results}
     Log  <img src="${DEVICE}_${TEST NAME}.png" alt="${plot_name}" width="1200">    HTML
     Determine Test Status         ${statistics}  inverted=1
@@ -99,30 +101,23 @@ Get Time To Ping
 Get Boot times
     [Documentation]  Collect boot times from device
     [Arguments]  ${plot_name}=Soft Boot Times
-    ${freedesktop_line}  Catenate  SEPARATOR=\n
-    ...  freedesktop_line=$(journalctl --output=short-iso | grep "Successfully activated service 'org.freedesktop.systemd1'" | grep session)
-    ...  echo $freedesktop_line
+    ${start_time_epoch}  DateTime.Get Current Date   result_format=epoch
     # For detecting timestamp of Login screen in cosmic desktop
     ${testuser_line}  Catenate  SEPARATOR=\n
-    ...  testuser_line=$(journalctl --output=short-iso | grep "testuser: changing state")
+    ...  testuser_line=$(journalctl -b --output=short-iso | grep "testuser: changing state activating-for-acquire")
     ...  echo $testuser_line
 
-    ${start_time_epoch}    DateTime.Get Current Date   result_format=epoch
     ${ping_response_seconds}    Measure Time To Ping    ${start_time_epoch}
     Sleep  30
     Connect to netvm
     Connect to VM  ${GUI_VM}
-    ${time_to_desktop}  Run Keyword And Continue On Failure
-    ...  Wait Until Keyword Succeeds  ${SEARCH_TIMEOUT1}s  1s  Check Time To Notification  ${freedesktop_line}   ${start_time_epoch}
-    IF  $time_to_desktop == 'False'
-        ${time_to_desktop}  Run Keyword And Continue On Failure
-        ...  Wait Until Keyword Succeeds  ${SEARCH_TIMEOUT2}s  1s  Check Time To Notification  ${testuser_line}   ${start_time_epoch}
-        Skip If   $time_to_desktop == 'False'  Skipping. The searched journalctl line is sometimes (randomly) not there. Didn't find it this time.
-    END
+    ${time_to_desktop}      Check Time To Notification  ${testuser_line}   ${start_time_epoch}
     Log                     Boot time to login screen measured: ${time_to_desktop}   console=True
     &{final_results}        Create Dictionary
     Set To Dictionary       ${final_results}  time_to_desktop  ${time_to_desktop}
     Set To Dictionary       ${final_results}  response_to_ping  ${ping_response_seconds}
+    # Before saving the data, check that the captured values are positive.
+    Check Result Validity   ${final_results}
     &{statistics}           Save Boot time Data   ${TEST NAME}  ${final_results}
     Log  <img src="${DEVICE}_${TEST NAME}.png" alt="${plot_name}" width="1200">    HTML
     # In boot time test decrease in result value is considered improvement -> using inverted argument
@@ -131,13 +126,18 @@ Get Boot times
 Check Time To Notification
     [Documentation]  Check that correct notification is available in journalctl
     [Arguments]      ${command}   ${start_time}
-    ${get_timestamp}  Catenate  SEPARATOR=\n
-    ...  freedesktop_time=$(date -d "$(${command} | tail -1 | awk '{print $1}')" "+%s")
-    ...  echo $freedesktop_time
-    ${notification_line}  Execute Command  ${command}
-    IF  $notification_line == '${EMPTY}'
-        RETURN  False
+    ${notification_line}  Set Variable  ${EMPTY}
+    WHILE  '${notification_line}' == '${EMPTY}'   limit=${SEARCH_TIMEOUT} seconds
+        ${notification_line}    Execute Command  ${command}
     END
+
+    IF  '${notification_line}' == '${EMPTY}'
+       Fail  The searched journalctl line that is needed for 'time_to_desktop' calculation was not captured.
+    END
+
+    ${get_timestamp}      Catenate  SEPARATOR=\n
+    ...  desktop_time=$(date -d "$(${command} | tail -1 | awk '{print $1}')" "+%s")
+    ...  echo $desktop_time
     ${notification_time}  Execute Command  ${get_timestamp}
     ${time}  Subtract Time From Time  ${notification_time}  ${start_time}   exclude_millis=True
     Should Be True  0 < ${time} < 120
@@ -151,3 +151,14 @@ Boot Time Test Setup
         Connect to VM           ${GUI_VM}
         Create test user
     END
+
+Check Result Validity
+    [Arguments]      ${captured_results}
+    FOR  ${key}  ${value}  IN  &{captured_results}
+         Should Be True  ${value} > 0
+    END
+
+Log Journal To Debug
+    ${journal_output}     Execute Command   journalctl -b
+    Log                   ${journal_output}
+
