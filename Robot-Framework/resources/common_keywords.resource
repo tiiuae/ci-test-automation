@@ -152,3 +152,16 @@ Check variable availability
     ELSE
         RETURN  ${False}
     END
+
+Log and remove app output
+    [Arguments]   ${file}    ${vm}    ${user}=ghaf
+    Switch to vm  ${vm}    ${user}
+    ${output}     Execute Command    cat ${file}
+    Log           ${output}
+    Remove file   ${file}    user=${user}
+
+Log app vm journalctl
+    [Arguments]   ${vm}
+    Switch to vm  ${vm}
+    ${output}     Execute Command    journalctl
+    Log           ${output}
