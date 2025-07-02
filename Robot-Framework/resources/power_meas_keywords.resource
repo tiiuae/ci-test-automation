@@ -4,6 +4,7 @@
 *** Settings ***
 Resource            ../config/variables.robot
 Library             ../lib/ParsePowerData.py    ${POWER_MEASUREMENT_DIR}    ${PLOT_DIR}
+Resource            ./common_keywords.resource
 Library             SSHLibrary
 Library             DateTime
 
@@ -15,19 +16,11 @@ ${RPI_IP_ADDRESS}         ${EMPTY}
 
 *** Keywords ***
 
-Check variable availability
-    ${value}=    Get Variable Value    ${RPI_IP_ADDRESS}
-    IF  $value!='${EMPTY}'
-        RETURN  ${True}
-    ELSE
-        RETURN  ${False}
-    END
-
 Start power measurement
     [Documentation]    Connect to the measurement agent and run script to start collecting measurement results
     [Arguments]        ${id}=power_data   ${timeout}=200
-    ${availability}            Check variable availability
-    Set Global Variable   ${SSH_MEASUREMENT}  ${EMPTY}
+    ${availability}            Check variable availability  RPI_IP_ADDRESS
+    Set Global Variable        ${SSH_MEASUREMENT}  ${EMPTY}
     IF  ${availability}==False
         Log To Console    Power measurement agent IP address not defined. Ignoring all power measurement related keywords.
         RETURN

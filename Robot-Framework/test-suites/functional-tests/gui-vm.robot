@@ -107,12 +107,12 @@ Start Display Settings on FMO
 *** Keywords ***
 
 Gui-vm Test Setup
-    Switch to gui-vm as user
+    Switch to vm    gui-vm  user=${USER_LOGIN}
 
 Gui-vm Test Teardown
-    Switch to gui-vm as ghaf
+    Switch to vm    gui-vm
     Kill process        @{APP_PIDS}
-    Switch to gui-vm as user
+    Switch to vm    gui-vm  user=${USER_LOGIN}
     ${app_log}          Execute command    cat output.log
     Log                 ${app_log}
 

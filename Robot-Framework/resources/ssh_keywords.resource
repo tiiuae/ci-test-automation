@@ -9,11 +9,8 @@ Library             String
 Library             Process
 Library             String
 Library             ../lib/output_parser.py
+Library             ../lib/helper_functions.py
 
-*** Variables ***
-
-${GUI_VM_GHAF_SSH}     ${EMPTY}
-${GUI_VM_USER_SSH}     ${EMPTY}
 
 *** Keywords ***
 
@@ -122,7 +119,7 @@ Connect to netvm
 Connect to VM
     [Documentation]      Connect to any VM or ghaf-host over internal virtual network
     [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=60
-    Log To Console       Connecting to ${vm_name} as ${user}...   no_newline=true
+    Log                  Connecting to ${vm_name} as ${user}...   console=True
     Check if ssh is ready on vm        ${vm_name}   ${timeout}
     ${failed_connection}  Set Variable  True
     ${start_time}  Get Time	epoch
@@ -148,7 +145,6 @@ Connect to VM
         BREAK
     END
     IF  ${failed_connection}    FAIL  Couldn't connect ${vm_name}
-
     # Logging in to vm
     ${logged_in}  Set Variable  False
     FOR    ${i}    IN RANGE     5
@@ -159,7 +155,6 @@ Connect to VM
     END
     IF  not ${logged_in}  FAIL  Could not login to ${vm_name} as ${user}.
     Log To Console  Connected and logged in.
-    
     # If connected and logged in successfully
     RETURN  ${connection}
 
@@ -678,34 +673,39 @@ Create test user
     Log To Console      Creating test user
     Execute Command     systemctl start setup-test-user.service  sudo=True  sudo_password=${password}
 
-Switch to gui-vm as ghaf
-    [Documentation]   Switches the ssh connection to the gui-vm using the user account
+Switch to vm
+    [Arguments]         ${hostname}   ${user}=ghaf
 
-    ${status}   Try to switch to active gui-vm connection   ${GUI_VM_GHAF_SSH}   ghaf
-
-    IF   ${status}
-        Log To Console    Switched to gui-vm as ghaf
+    IF  $user=='ghaf'
+        ${pw}   Set Variable    ${PASSWORD}
     ELSE
-        ${GUI_VM_GHAF_SSH}   Connect to VM       ${GUI_VM}
-        Set Global Variable    ${GUI_VM_GHAF_SSH}
+        ${pw}   Set Variable    ${USER_PASSWORD}
     END
 
-Switch to gui-vm as user
-    [Documentation]   Switches the ssh connection to the gui-vm using the ghaf user
+    ${c_hostname}       Convert To Uppercase    ${hostname}
+    ${c_user}           Convert To Uppercase    ${user}
+    ${ssh_connection}   Set Variable    ${c_hostname}_${c_user}_SSH
 
-    ${status}   Try to switch to active gui-vm connection   ${GUI_VM_USER_SSH}   ${USER_LOGIN}
+    ${variable_exists}    Check variable availability     ${ssh_connection}
 
-    IF   ${status}
-        Log To Console    Switched to gui-vm as user
-    ELSE
-        ${GUI_VM_USER_SSH}   Connect to VM       ${GUI_VM}  ${USER_LOGIN}  ${USER_PASSWORD}
-        Set Global Variable    ${GUI_VM_USER_SSH}
+    IF  ${variable_exists}
+
+        ${connection_index}     Set Variable    ${${ssh_connection}}
+        ${status}   Try to switch to active vm connection   ${connection_index}   ${hostname}   ${user}
+
+        IF   ${status}
+            Log    Switched to ${hostname} as ${user}   console=True
+            RETURN
+        END
     END
 
-Try to switch to active gui-vm connection
-    [Arguments]        ${ssh_connection}   ${user} 
+    ${connection_index}      Connect to VM          ${hostname}     ${user}     ${pw}
+    Set Variable By Name     ${ssh_connection}    ${connection_index}
 
-    ${connection_status}  ${new_connection}   Run Keyword And Ignore Error    Switch Connection   ${ssh_connection}
+Try to switch to active vm connection
+    [Arguments]        ${ssh_index}    ${hostname}   ${user}
+
+    ${connection_status}  ${previous_connection}   Run Keyword And Ignore Error    Switch Connection   ${ssh_index}
 
     ${status}   ${output_user}    Run Keyword And Ignore Error   Execute Command    whoami
     Log    ${output_user}
@@ -713,7 +713,7 @@ Try to switch to active gui-vm connection
 
     ${status}   ${output_host}    Run Keyword And Ignore Error   Execute Command    hostname
     Log    ${output_host}
-    ${host_status}    Run Keyword And Return Status    Should Be Equal    ${output_host}    gui-vm
+    ${host_status}    Run Keyword And Return Status    Should Be Equal    ${output_host}    ${hostname}
 
     IF   $connection_status=='FAIL' or not ${user_status} or not ${host_status}
         RETURN   False

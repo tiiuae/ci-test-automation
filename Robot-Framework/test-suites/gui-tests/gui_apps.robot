@@ -96,7 +96,7 @@ Start app via GUI on LenovoX1
     Connect to VM       ${app-vm}
     Check that the application was started    ${app}  10  ${exact_match}
 
-    [Teardown]    Run Keywords    Switch to gui-vm as ghaf
+    [Teardown]    Run Keywords    Switch to vm    gui-vm
     ...           AND             Move cursor to corner
 
 Open app menu
@@ -122,7 +122,7 @@ Close app via GUI on LenovoX1
     Connect to netvm
     Connect to VM                             ${app-vm}
     Check that the application was started    ${app}  exact_match=${exact_match}
-    Switch to gui-vm as ghaf
+    Switch to vm    gui-vm
     Log To Console                            Going to click the close button of the application window
     Locate and click                          ${close_button}  0.8  iterations=${iterations}
     Connect to VM                             ${app-vm}
@@ -132,7 +132,7 @@ Close app via GUI on LenovoX1
         # If this window is closed the actual browser window still opens.
         # So need to prepare to close another window in chrome test case.
         IF  '${status}' != 'True'
-            Switch to gui-vm as ghaf
+            Switch to vm    gui-vm
             Locate and click    ${close_button}  0.8  5
             Connect to VM       ${app-vm}
             ${status}           Run Keyword And Return Status  Check that the application is not running  ${app}  5  ${exact_match}
@@ -143,7 +143,7 @@ Close app via GUI on LenovoX1
     END
     # In case closing the app via GUI failed
     [Teardown]     Run Keywords   Connect to VM   ${app-vm}   AND   Kill process   @{APP_PIDS}
-    ...            AND   Switch to gui-vm as ghaf   AND   Move cursor to corner
+    ...            AND   Switch to vm    gui-vm   AND   Move cursor to corner
 
 Start app via GUI on Orin AGX
     [Documentation]    Start Application via GUI test automation and verify related process started
