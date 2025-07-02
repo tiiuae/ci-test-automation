@@ -18,7 +18,6 @@ Prepare Test Environment
 
     IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Switch to gui-vm as ghaf
-        Set compositor
         Save most common icons and paths to icons
         Create test user
         Start ydotoold
@@ -142,9 +141,5 @@ Get Falcon LLM Name
     Set Global Variable  ${LLM_NAME}
 
 Launch Cosmic Term
-    IF  $COMPOSITOR == 'cosmic'
-        Start XDG application   com.system76.CosmicTerm  gui_vm_app=true
-        Check that the application was started    cosmic-term  exact_match=true
-    ELSE
-        Skip   App only available in Cosmic
-    END
+    Start XDG application   com.system76.CosmicTerm  gui_vm_app=true
+    Check that the application was started    cosmic-term  exact_match=true

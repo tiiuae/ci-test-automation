@@ -44,32 +44,20 @@ Start Bluetooth Settings on LenovoX1
 Start COSMIC Files on LenovoX1
     [Documentation]   Start Cosmic Files and verify process started
     [Tags]            bat   pre-merge  cosmic_files  SP-T206
-    IF  $COMPOSITOR == 'cosmic'
-        Start XDG application  com.system76.CosmicFiles  gui_vm_app=true
-        Check that the application was started    cosmic-files %U  exact_match=true
-    ELSE
-        Skip   App only available in Cosmic
-    END
+    Start XDG application  com.system76.CosmicFiles  gui_vm_app=true
+    Check that the application was started    cosmic-files %U  exact_match=true
 
 Start COSMIC Settings on LenovoX1
     [Documentation]   Start Cosmic Settings and verify process started
     [Tags]            bat   pre-merge  cosmic_settings  SP-T254
-    IF  $COMPOSITOR == 'cosmic'
-        Start XDG application  com.system76.CosmicSettings  gui_vm_app=true
-        Check that the application was started    cosmic-settings  exact_match=true
-    ELSE
-        Skip   App only available in Cosmic
-    END
+    Start XDG application  com.system76.CosmicSettings  gui_vm_app=true
+    Check that the application was started    cosmic-settings  exact_match=true
 
 Start COSMIC Text Editor on LenovoX1
     [Documentation]   Start Cosmic Text Editor and verify process started
     [Tags]            bat   pre-merge  cosmic_editor  SP-T243
-    IF  $COMPOSITOR == 'cosmic'
-        Start XDG application   com.system76.CosmicEdit  gui_vm_app=true
-        Check that the application was started    cosmic-edit %F  exact_match=true
-    ELSE
-        Skip   App only available in Cosmic
-    END
+    Start XDG application   com.system76.CosmicEdit  gui_vm_app=true
+    Check that the application was started    cosmic-edit %F  exact_match=true
 
 Start COSMIC Terminal on LenovoX1
     [Documentation]   Start Cosmic Terminal and verify process started
@@ -79,18 +67,11 @@ Start COSMIC Terminal on LenovoX1
 Start Falcon AI on LenovoX1
     [Documentation]   Start Falcon AI and verify process started
     [Tags]            falcon_ai  SP-T223-1
-    IF  $COMPOSITOR == 'cosmic'
-        Get Falcon LLM Name
-        Start XDG application  'Falcon AI'
-        Wait Until Falcon Download Complete (Cosmic)
-        Check that the application was started    alpaca    range=20
-    ELSE
-        Get mako path
-        Start XDG application  'Falcon AI'
-        Wait Until Download Is 100 Percent
-        Wait Until Download Complete
-        Check that the application was started    alpaca    range=20
-    END
+    Get Falcon LLM Name
+    Start XDG application  'Falcon AI'
+    Wait Until Falcon Download Complete
+    Check that the application was started    alpaca    range=20
+
     ${answer}  Ask the question     2+2=? Return just the number.
     Should Be Equal As Integers     ${answer}   4
 
@@ -165,10 +146,7 @@ Check If Download Completed
         Fail    No notifications contained 'Download complete'
     END
 
-Wait Until Download Complete
-    Wait Until Keyword Succeeds    30s    3s     Check If Download Completed
-
-Wait Until Falcon Download Complete (Cosmic)
+Wait Until Falcon Download Complete
     FOR  ${i}  IN RANGE   100
         ${output}          Execute Command  ollama list
         ${download_done}   Run Keyword And Return Status  Should contain   ${output}  ${LLM_NAME}

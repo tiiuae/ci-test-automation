@@ -41,21 +41,11 @@ Automatic suspension
 
     Wait     10
 
-    IF  $COMPOSITOR == 'cosmic'
-        Check the screen state   on
-        Wait    50
-        ${locked}         Check if locked
-        Should Be True    ${locked}
-        Wait     630
-    ELSE
-        Check notification   The system will suspend soon due to inactivity.    ${last_id}
-        Check the screen state   on
-        Wait     50
-        # to do: check that screen is locked
-        Wait     150
-        Check the screen state   off
-        Wait     450
-    END
+    Check the screen state   on
+    Wait    50
+    ${locked}         Check if locked
+    Should Be True    ${locked}
+    Wait     630
 
     Check if device was suspended
     Wait     300
@@ -144,11 +134,7 @@ Get last notification id
 Check the screen state
     [Arguments]         ${state}
     ${output}           Execute Command    ls /nix/store | grep wlopm | grep -v .drv
-    IF  $COMPOSITOR == 'cosmic' 
-        ${output}  ${err}   Execute Command    WAYLAND_DISPLAY=wayland-1 /nix/store/${output}/bin/wlopm    return_stderr=True
-    ELSE
-        ${output}  ${err}   Execute Command    WAYLAND_DISPLAY=wayland-0 /nix/store/${output}/bin/wlopm    return_stderr=True
-    END
+    ${output}  ${err}   Execute Command    WAYLAND_DISPLAY=wayland-1 /nix/store/${output}/bin/wlopm    return_stderr=True
     Log To Console      Screen state: ${output}
     Should Contain      ${output}    ${state}
 

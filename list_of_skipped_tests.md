@@ -3,16 +3,14 @@
 ## Active SKIPS
 
 | DATE SET   | TEST CASE                                         | TICKET / Additional Data.                                                                       |
-|------------|---------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| ---------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | 27.06.2025 | Measure UDP Bidir Throughput Small Packets (Dell) | SSRCSP-6774                                                                                     |
 | 17.06.2025 | Start and close Google Chrome via GUI on LenovoX1 | SSRCSP-6716                                                                                     |
 | 13.06.2025 | Record Video With Camera (Dell)                   | SSRCSP-6694                                                                                     |
 | 06.06.2025 | Check user systemctl status (X1 and Dell)         | SSRCSP-6697                                                                                     |
 | 05.06.2025 | Measure UDP Bidir Throughput Big Packets(AGX)     | SSRCSP-6623                                                                                     |
-| 02.06.2025 | Check systemctl status in every VM                | Added for information collecting. Skip should be removed in the future.                         |
+| 02.06.2025 | Check systemctl status in every VM                | [Full list of skips in the test case](/Robot-Framework/test-suites/functional-tests/vm.robot)   |
 | 27.05.2025 | TimeSynch (AGX)                                   | SSRCSP-6423. Unrecoverable error detected. #PR333                                               |
-| 08.05.2025 | GUI Reboot (Cosmic)                               | The X1 in the lab gets stuck when a reboot is attempted. Needs further investigation.           |
-| 08.05.2025 | GUI Suspend and wake up (Cosmic)                  | The X1 in the lab gets stuck when a suspension is attempted. Needs further investigation.       |
 |            | Measure Hard Boot Time                            | The searched journalctl line is sometimes (randomly) not there. Didn't find it this time        |
 |            | Measure Soft Boot Time -Dell                      | The searched journalctl line is sometimes (randomly) not there. Didn't find it this time.       |
 |            | OP-TEE xtest 1033 -orin-agx & orin-nx             | Known issue encountered, skipping the test                                                      |
@@ -25,7 +23,9 @@
 
 ## TAGs removed
 
-| DATE SET  | TEST CASE                             | TICKET / Additional Data.                                               |
-| --------- | ------------------------------------- | ----------------------------------------------------------------------- |
-| 03/2025   | Performance Network.robot - ‘orin-nx’ | SSRCSP-6372 - Works locally but problems when Jenkins used, fails all.. |
-| 22.1.2025 | Start Firefox - ‘nuc, orin-agx        | Firefox is temporarily disabled from SW                                 |
+| DATE SET   | TEST CASE                             | TICKET / Additional Data.                                                                 |
+| ---------- | ------------------------------------- | ----------------------------------------------------------------------------------------- |
+| 08.05.2025 | GUI Reboot                            | The X1 in the lab gets stuck when a reboot is attempted. Needs further investigation.     |
+| 08.05.2025 | GUI Suspend and wake up               | The X1 in the lab gets stuck when a suspension is attempted. Needs further investigation. |
+| 03/2025    | Performance Network.robot - ‘orin-nx’ | SSRCSP-6372 - Works locally but problems when Jenkins used, fails all..                   |
+| 22.1.2025  | Start Firefox - ‘nuc, orin-agx        | Firefox is temporarily disabled from SW                                                   |

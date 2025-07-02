@@ -275,7 +275,7 @@ Start XDG application
     ${app_name}      Check application name  ${app_name}
     ${output}        Execute Command    cat /run/current-system/sw/share/applications/${app_name}.desktop
     ${path}          Get App Path From Desktop  ${output}
-    IF  $gui_vm_app and $COMPOSITOR == 'cosmic'
+    IF  $gui_vm_app
         Execute Command  nohup sh -c 'WAYLAND_DISPLAY=wayland-1 ${path}' > output.log 2>&1 &
     ELSE
         Execute Command  nohup sh -c '${path}' > output.log 2>&1 &

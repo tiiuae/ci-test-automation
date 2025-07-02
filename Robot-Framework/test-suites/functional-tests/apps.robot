@@ -103,17 +103,12 @@ Open image with Oculante
     Connect to netvm
     Connect to VM           ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
 
-    IF  $COMPOSITOR == 'cosmic'
-        Execute Command    mkdir test-images
-        ${result}          Run Keyword And Ignore Error  Execute Command  cosmic-screenshot --interactive=false --save-dir ./  return_stdout=True   return_rc=True   timeout=5
-        IF  "${result}[1][1]" == "0"
-            ${img_file}    Set Variable    ${result}[1][0]
-        ELSE
-            Fail           Couldn't take a screenshot
-        END
+    Execute Command    mkdir test-images
+    ${result}          Run Keyword And Ignore Error  Execute Command  cosmic-screenshot --interactive=false --save-dir ./  return_stdout=True   return_rc=True   timeout=5
+    IF  "${result}[1][1]" == "0"
+        ${img_file}    Set Variable    ${result}[1][0]
     ELSE
-        ${rc}              Execute Command  grim screenshot.png  return_stdout=False  return_rc=${true}   timeout=5
-        ${img_file}        Set Variable    screenshot.png
+        Fail           Couldn't take a screenshot
     END
 
     Open Image         ${img_file}
