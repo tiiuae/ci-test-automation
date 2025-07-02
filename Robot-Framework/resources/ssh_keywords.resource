@@ -275,9 +275,6 @@ Start XDG application
     ELSE
         Execute Command  nohup sh -c '${path}' > output.log 2>&1 &
     END
-    Sleep    8
-    ${output}        Execute Command  cat output.log
-    Log    ${output}
 
 Start Firefox
     [Documentation]  It's needed to set display variable manually because there is no real monitor connected to DUT
@@ -413,9 +410,13 @@ Create text file
 
 Remove file
     [Documentation]    Remove file with given path & name, requires existing ssh connection
-    [Arguments]        ${file_name}
+    [Arguments]        ${file_name}  ${user}=ghaf
+    IF  $user=='ghaf'
+        Execute Command    rm ${file_name}  sudo=True  sudo_password=${PASSWORD}
+    ELSE
+        Execute Command    rm ${file_name}
+    END
     Log To Console     Removing file ${file_name}
-    Execute Command    rm ${file_name}  sudo=True  sudo_password=${password}
     Check file doesn't exist  ${file_name}
 
 Copy file
@@ -428,14 +429,14 @@ Check file exists
     [Documentation]    Check file exists, requires existing ssh connection
     [Arguments]        ${file_name}
     Log To Console     Check if file ${file_name} exists
-    ${output}  ${rc}   Execute Command    ls ${file_name}   return_rc=True  sudo=True  sudo_password=${password}
+    ${output}  ${rc}   Execute Command    ls ${file_name}    return_rc=True
     Should Be Equal As Integers   ${rc}   0
 
 Check file doesn't exist
     [Documentation]    Check file doesn't exist, requires existing ssh connection
     [Arguments]        ${file_name}
     Log To Console     Check if file ${file_name} exists
-    ${output}  ${rc}   Execute Command    ls ${file_name}   return_rc=True  sudo=True  sudo_password=${password}
+    ${output}  ${rc}   Execute Command    ls ${file_name}    return_rc=True
     Should Be Equal As Integers   ${rc}   2
     Log To Console     File ${file_name} doesn't exist
 
