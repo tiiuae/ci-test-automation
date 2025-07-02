@@ -284,14 +284,6 @@ Start XDG application
     ${output}        Execute Command  cat output.log
     Log    ${output}
 
-Open PDF
-    [Arguments]      ${pdf_file}
-    ${output}        Execute Command    cat /run/current-system/sw/share/applications/ghaf-pdf-xdg.desktop  sudo=True  sudo_password=${PASSWORD}    return_stderr=True
-    ${path}          Get App Path From Desktop  ${output}[0]
-    ${xdgopen}       Get Substring      ${path}    0    -3
-    Log To Console   Trying to open ${pdf_file}
-    Execute Command  echo ${PASSWORD} | sudo -S nohup sh -c '${xdgopen} ${pdf_file}' > /tmp/out.log 2>&1 &
-
 Open Image
     [Arguments]      ${pic_file}
     ${output}        Execute Command    cat /run/current-system/sw/share/applications/ghaf-image-xdg.desktop
@@ -700,7 +692,7 @@ Create test user
     Log To Console      Creating test user
     Execute Command     systemctl start setup-test-user.service  sudo=True  sudo_password=${password}
 
-Switch to gui-vm as ghaf     
+Switch to gui-vm as ghaf
     [Documentation]   Switches the ssh connection to the gui-vm using the user account
 
     ${status}   Try to switch to active gui-vm connection   ${GUI_VM_GHAF_SSH}   ghaf
