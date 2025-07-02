@@ -7,6 +7,7 @@ Force Tags          apps
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
 Resource            ../../resources/common_keywords.resource
+Library             ../../lib/output_parser.py
 
 
 *** Variables ***
@@ -84,18 +85,25 @@ Start Slack on LenovoX1
     Check that the application was started    slack
     [Teardown]  Kill Process And Log journalctl
 
-Open PDF with Zathura
-    [Documentation]    Open PDF file in the Chrome VM and check that Zathura app is started and opens the file
-    [Tags]             bat  regression  SP-T131   lenovo-x1   dell-7330
-    Connect to netvm
-    Connect to VM      ${CHROME_VM}
-    Put File           ../test-files/test_pdf.pdf         /tmp
-    Open PDF           /tmp/test_pdf.pdf
-    Connect to VM      ${ZATHURA_VM}
-    Check that the application was started    zathura    10
-    [Teardown]  Run Keywords  Remove the file in VM    /tmp/test_pdf.pdf    ${CHROME_VM}    AND
-    ...                       Connect to VM      ${ZATHURA_VM}    AND
-    ...                       Kill Process And Log journalctl
+Open PDF from chrome-vm
+    [Documentation]    Open PDF file from Chrome VM and check that Zathura app is started
+    [Tags]             bat  regression  SP-T131-1   lenovo-x1   dell-7330
+    Open PDF from app-vm    ${CHROME_VM}
+
+Open PDF from comms-vm
+    [Documentation]    Open PDF file from Comms VM and check that Zathura app is started
+    [Tags]             regression  SP-T131-2   lenovo-x1   dell-7330
+    Open PDF from app-vm    ${COMMS_VM}
+
+Open PDF from business-vm
+    [Documentation]    Open PDF file from Business VM and check that Zathura app is started
+    [Tags]             regression  SP-T131-3   lenovo-x1   dell-7330
+    Open PDF from app-vm    ${BUSINESS_VM}
+
+Open PDF from gui-vm
+    [Documentation]    Open PDF file from Gui VM and check that Zathura app is started
+    [Tags]             regression  SP-T131-4   lenovo-x1   dell-7330
+    Open PDF from app-vm    ${GUI_VM}
 
 Open image with Oculante
     [Documentation]    Open PNG image in the Gui VM and check that Oculante app is started and opens the image
@@ -151,3 +159,23 @@ Remove the file in VM
     Connect to VM      ${vm}
     Remove file        ${file_name}
     Check file doesn't exist    ${file_name}
+
+Open PDF from app-vm
+    [Arguments]        ${vm}
+    Connect to netvm
+    Connect to VM      ${vm}
+    Put File           ../test-files/test_pdf.pdf         /tmp
+    Open PDF           /tmp/test_pdf.pdf
+    Connect to VM      ${ZATHURA_VM}
+    Check that the application was started    zathura    10
+    [Teardown]  Run Keywords  Remove the file in VM    /tmp/test_pdf.pdf    ${vm}    AND
+    ...                       Connect to VM      ${ZATHURA_VM}    AND
+    ...                       Kill Process And Log journalctl
+
+Open PDF
+    [Arguments]      ${pdf_file}
+    ${output}        Execute Command    cat /run/current-system/sw/share/applications/ghaf-pdf-xdg.desktop  sudo=True  sudo_password=${PASSWORD}    return_stderr=True
+    ${path}          Get App Path From Desktop  ${output}[0]
+    ${xdgopen}       Get Substring      ${path}    0    -3
+    Log To Console   Trying to open ${pdf_file}
+    Execute Command  echo ${PASSWORD} | sudo -S nohup sh -c '${xdgopen} ${pdf_file}' > /tmp/out.log 2>&1 &
