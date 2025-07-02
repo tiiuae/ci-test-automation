@@ -26,7 +26,7 @@ GUI Suspend and wake up
     Set start timestamp
     # Connect back to gui-vm after power measurement has been started
     Connect to netvm
-    Switch to gui-vm as ghaf
+    Switch to vm    gui-vm
 
     Select power menu option   index=4
 
@@ -89,7 +89,7 @@ GUI Reboot
     END
     Sleep  30
     Connect   iterations=10
-    Switch to gui-vm as ghaf
+    Switch to vm    gui-vm
     Start ydotoold
     Log in, unlock and verify   enable_dnd=True
 
@@ -106,7 +106,7 @@ GUI Log out and log in
 
 GUI Power Test Setup
     Connect to netvm
-    Switch to gui-vm as ghaf
+    Switch to vm    gui-vm
     Log in, unlock and verify
 
 Select power menu option

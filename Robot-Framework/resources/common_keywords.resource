@@ -17,7 +17,7 @@ Prepare Test Environment
     Run journalctl recording
 
     IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        Switch to gui-vm as ghaf
+        Switch to vm    gui-vm
         Save most common icons and paths to icons
         Create test user
         Start ydotoold
@@ -29,7 +29,7 @@ Clean Up Test Environment
     Connect to ghaf host
     Log journalctl
     IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        Switch to gui-vm as ghaf
+        Switch to vm    gui-vm
         Start ydotoold
         Log out and verify   ${disable_dnd}
         Stop ydotoold
@@ -143,3 +143,12 @@ Get Falcon LLM Name
 Launch Cosmic Term
     Start XDG application   com.system76.CosmicTerm  gui_vm_app=true
     Check that the application was started    cosmic-term  exact_match=true
+
+Check variable availability
+    [Arguments]    ${variable_name}
+    ${value}=    Get Variable Value    ${${variable_name}}
+    IF  $value!='${EMPTY}' and $value!=None
+        RETURN  ${True}
+    ELSE
+        RETURN  ${False}
+    END

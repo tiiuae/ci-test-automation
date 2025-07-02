@@ -119,7 +119,7 @@ Locate image on screen
     [Arguments]        ${image_to_be_searched}  ${confidence}=0.999   ${iterations}=5   ${fail_expected}=False  ${debug_screenshot}=True
     ${coordinates}=        Set Variable  ${EMPTY}
     ${pass_status}=        Set Variable  FAIL
-    Switch to gui-vm as user
+    Switch to vm    gui-vm  user=${USER_LOGIN}
     Execute Command        mkdir test-images
     FOR   ${i}   IN RANGE  ${iterations}
         Log To Console     Taking cosmic screenshot
@@ -147,7 +147,7 @@ Locate image on screen
     ${mouse_x}  Get From Dictionary   ${coordinates}  x
     ${mouse_y}  Get From Dictionary   ${coordinates}  y
     RETURN  ${mouse_x}  ${mouse_y}
-    [Teardown]    Switch to gui-vm as ghaf
+    [Teardown]    Switch to vm    gui-vm
 
 Locate and click
     [Arguments]   ${image_to_be_searched}  ${confidence}=0.99  ${iterations}=5
@@ -200,7 +200,7 @@ Move cursor
 Check if logged out
     [Documentation]    Check if system is in logged out state
     [Arguments]        ${iterations}=10
-    Switch to gui-vm as user
+    Switch to vm    gui-vm  user=${USER_LOGIN}
     FOR   ${i}   IN RANGE  ${iterations}
         ${activity}=       Execute Command    systemctl --user is-active ghaf-session.target  return_stdout=True
         IF  $activity == "active"
@@ -212,11 +212,11 @@ Check if logged out
         Sleep  1
     END
     RETURN    ${False}
-    [Teardown]    Switch to gui-vm as ghaf
+    [Teardown]    Switch to vm    gui-vm
 
 Wait for Ghaf session activation
     [Documentation]    Wait until ghaf session is in active state
-    Switch to gui-vm as user
+    Switch to vm    gui-vm  user=${USER_LOGIN}
     Log To Console     Waiting for the Ghaf session to start...  no_newline=true 
     FOR   ${i}   IN RANGE  30
         ${activity}=       Execute Command    systemctl --user is-active ghaf-session.target  return_stdout=True
@@ -231,7 +231,7 @@ Wait for Ghaf session activation
     END
     Log To Console    Failed
     Log To Console    Ghaf session did not activate
-    [Teardown]    Switch to gui-vm as ghaf
+    [Teardown]    Switch to vm    gui-vm
 
 Get icon
     [Documentation]    Copy icon svg file to test agent machine. Crop and convert the svg file to png.
@@ -276,17 +276,17 @@ Save most common icons and paths to icons
 Stop swayidle
     [Documentation]    Stop swayidle to prevent automatic suspension
     Log To Console    Disabling automated lock and suspend
-    Switch to gui-vm as user
+    Switch to vm    gui-vm  user=${USER_LOGIN}
     Execute Command   systemctl --user stop swayidle
-    [Teardown]    Switch to gui-vm as ghaf
+    [Teardown]    Switch to vm    gui-vm
 
 Set do not disturb state
     [Documentation]   Set do not disturb to true or false
     [Arguments]       ${state}
     Log To Console    Setting Do Not Disturb to ${state}
-    Switch to gui-vm as user
+    Switch to vm    gui-vm  user=${USER_LOGIN}
     Execute Command   echo ${state} > ~/.config/cosmic/com.system76.CosmicNotifications/v1/do_not_disturb
-    [Teardown]    Switch to gui-vm as ghaf
+    [Teardown]    Switch to vm    gui-vm
 
 Get screen brightness
     [Documentation]   Get and return current brightness value
@@ -296,9 +296,9 @@ Get screen brightness
     RETURN            ${brightness}
 
 Get gui-vm user journalctl log
-    [Setup]      Switch to gui-vm as user
+    [Setup]      Switch to vm    gui-vm  user=${USER_LOGIN}
     Get user journalctl log   gui-vm-user.log
-    [Teardown]   Switch to gui-vm as ghaf
+    [Teardown]   Switch to vm    gui-vm
 
 Switch keyboard layout
     [Documentation]   Toggle layout between English, Arabic and Finnish
