@@ -33,7 +33,6 @@ Log in, unlock and verify
         ${lock}       Check if locked
         IF  ${lock}   Unlock
     END
-    Try to reset scaling
 
     # This is a workaround for a cosmic-greeter bug https://github.com/pop-os/cosmic-greeter/issues/135.
     # If the laptop did not login on the first attempt tries to press Tab to select the password field
@@ -45,7 +44,6 @@ Log in, unlock and verify
         Execute Command    ydotool key 15:1 15:0  sudo=True  sudo_password=${PASSWORD}
         Log in via GUI
         Wait for Ghaf session activation
-        Try to reset scaling
         Verify desktop availability
     END
 
@@ -70,38 +68,26 @@ Log out and verify
     END
 
 Log in via GUI
-    [Documentation]   Log in by typing username (labwc) and password (labwc&cosmic).
+    [Documentation]   Log in by typing password
     Log To Console    Logging in
-    IF  $COMPOSITOR == 'cosmic'
-        # Make sure that password field is active by clicking on screen
-        Execute Command   ydotool mousemove --absolute -x 50 -y 50  sudo=True  sudo_password=${PASSWORD}
-        Execute Command   ydotool click 0xC0  sudo=True  sudo_password=${PASSWORD}
-    ELSE
-        IF  "Dell" in "${DEVICE}"    Sleep  15  # waiting for the login gui, slow with Dell.
-        Type string and press enter  ${USER_LOGIN}
-    END
+    # Make sure that password field is active by clicking on screen
+    Execute Command   ydotool mousemove --absolute -x 50 -y 50  sudo=True  sudo_password=${PASSWORD}
+    Execute Command   ydotool click 0xC0  sudo=True  sudo_password=${PASSWORD}
 
     IF  "Dell" in "${DEVICE}"    Sleep  5
     Type string and press enter  ${USER_PASSWORD}  confidential=True
 
 Log out via GUI
-    [Documentation]   Log out by using keyboard shortcut (cosmic) or by clicking the logout icon.
+    [Documentation]   Log out by using keyboard shortcut
     # Allow disabling logout in case of running test automation locally from ghaf-host.
     # This prevents terminal from being shutdown and allows test run to finish.
     IF  $DISABLE_LOGOUT == 'true'
         Log To Console    Log out disabled. Skipping log out procedure.
         RETURN
     END
-    IF  $COMPOSITOR == 'cosmic'
-        Log To Console    Logging out by pressing Super+Shift+Escape 
-        Execute Command   ydotool key 125:1 42:1 1:1 1:0 42:0 125:0  sudo=True  sudo_password=${PASSWORD}
-        Tab and enter     tabs=2
-    ELSE
-        Get icon           ghaf-artwork  power.svg  crop=0  background=black
-        Locate and click   icon.png  0.95  5
-        Get icon           ghaf-artwork  logout.svg  crop=0  background=black
-        Locate and click   icon.png  0.95  5
-    END
+    Log To Console    Logging out by pressing Super+Shift+Escape 
+    Execute Command   ydotool key 125:1 42:1 1:1 1:0 42:0 125:0  sudo=True  sudo_password=${PASSWORD}
+    Tab and enter     tabs=2
 
 Type string and press enter
     [Arguments]    ${string}=${EMPTY}  ${confidential}=False  ${enter}=True
@@ -137,45 +123,24 @@ Locate image on screen
     ${coordinates}=        Set Variable  ${EMPTY}
     ${pass_status}=        Set Variable  FAIL
     Switch to gui-vm as user
-    IF  $COMPOSITOR == 'cosmic'
-        Execute Command        mkdir test-images
-        FOR   ${i}   IN RANGE  ${iterations}
-            Log To Console     Taking cosmic screenshot
-            ${result}=         Run Keyword And Ignore Error  Execute Command  cosmic-screenshot --interactive=false --save-dir ./test-images  return_stdout=True   return_rc=True   timeout=5
-            Log                ${result}
-            IF  "${result}[1][1]" == "0"
-                SSHLibrary.Get File  ${result[1][0]}  ${GUI_TEMP_DIR}screenshot.png
-                Log To Console    Locating image ${image_to_be_searched} on ${result[1][0]}
-                ${pass_status}  ${coordinates}  Run Keyword And Ignore Error  Locate image  ${GUI_TEMP_DIR}${image_to_be_searched}   ${confidence}
-            END
-            IF    $pass_status=='PASS'
-                IF  ${fail_expected} and ${debug_screenshot}
-                    Timestamp screenshot
-                    Log     Image recognition succeeded but fail_expected=${fail_expected}    console=True
-                END
-                BREAK
-            END
-            Sleep  1
+    Execute Command        mkdir test-images
+    FOR   ${i}   IN RANGE  ${iterations}
+        Log To Console     Taking cosmic screenshot
+        ${result}=         Run Keyword And Ignore Error  Execute Command  cosmic-screenshot --interactive=false --save-dir ./test-images  return_stdout=True   return_rc=True   timeout=5
+        Log                ${result}
+        IF  "${result}[1][1]" == "0"
+            SSHLibrary.Get File  ${result[1][0]}  ${GUI_TEMP_DIR}screenshot.png
+            Log To Console    Locating image ${image_to_be_searched} on ${result[1][0]}
+            ${pass_status}  ${coordinates}  Run Keyword And Ignore Error  Locate image  ${GUI_TEMP_DIR}${image_to_be_searched}   ${confidence}
         END
-    ELSE
-        FOR   ${i}   IN RANGE  ${iterations}
-            Log To Console     Taking grim screenshot
-            Execute Command    rm screenshot.png
-            ${rc}=             Execute Command  grim screenshot.png  return_stdout=False  return_rc=${true}   timeout=5
-            IF  "${rc}" == "0"
-                SSHLibrary.Get File  screenshot.png   ${GUI_TEMP_DIR}screenshot.png
-                Log To Console    Locating image ${image_to_be_searched} on screenshot
-                ${pass_status}  ${coordinates}  Run Keyword And Ignore Error  Locate image  ${GUI_TEMP_DIR}${image_to_be_searched}   ${confidence}
+        IF    $pass_status=='PASS'
+            IF  ${fail_expected} and ${debug_screenshot}
+                Timestamp screenshot
+                Log     Image recognition succeeded but fail_expected=${fail_expected}    console=True
             END
-            IF    $pass_status=='PASS'
-                IF  ${fail_expected} and ${debug_screenshot}
-                    Timestamp screenshot
-                    Log     Image recognition succeeded but fail_expected=${fail_expected}    console=True
-                END
-                BREAK
-            END
-            Sleep  1
+            BREAK
         END
+        Sleep  1
     END
     IF  $pass_status=='FAIL' and ${debug_screenshot} and not ${fail_expected}
         Timestamp screenshot
@@ -240,24 +205,12 @@ Check if logged out
     [Arguments]        ${iterations}=10
     Switch to gui-vm as user
     FOR   ${i}   IN RANGE  ${iterations}
-        IF  $COMPOSITOR == 'cosmic'
-            ${activity}=       Execute Command    systemctl --user is-active ghaf-session.target  return_stdout=True
-            IF  $activity == "active"
-                Log To Console      Ghaf session is ${activity}, user is logged in
-            ELSE
-                Log To Console      Ghaf session is ${activity}, user is logged out
-                RETURN    ${True}
-            END
+        ${activity}=       Execute Command    systemctl --user is-active ghaf-session.target  return_stdout=True
+        IF  $activity == "active"
+            Log To Console      Ghaf session is ${activity}, user is logged in
         ELSE
-            # In theory checking ghaf-session should also work with labwc, but for some reason it
-            # does not always work. Grim returns 1 when desktop is not available.
-            ${rc}=    Execute Command  grim check.png  return_stdout=False  return_rc=${true}
-            IF  "${rc}" == "1"
-                Log To Console       User is logged out
-                RETURN    ${True}
-            ELSE
-                Log To Console       User is logged in
-            END
+            Log To Console      Ghaf session is ${activity}, user is logged out
+            RETURN    ${True}
         END
         Sleep  1
     END
@@ -286,31 +239,14 @@ Wait for Ghaf session activation
 Get icon
     [Documentation]    Copy icon svg file to test agent machine. Crop and convert the svg file to png.
     [Arguments]        ${path}   ${icon_name}   ${crop}=0   ${background}=none   ${output_filename}=icon.png
-    IF  $COMPOSITOR == 'cosmic'
-        SSHLibrary.Get File  ${path}/${icon_name}   ${GUI_TEMP_DIR}icon.svg
-        Convert app icon  ${crop}   ${background}   input_file=${GUI_TEMP_DIR}icon.svg  output_file=${GUI_TEMP_DIR}${output_filename}
-    ELSE
-        IF  $path == "app"
-            SSHLibrary.Get File  ${APP_ICON_PATH}/${icon_name}   ${GUI_TEMP_DIR}icon.svg
-        ELSE IF  $path == "ghaf-artwork"
-            SSHLibrary.Get File  ${ARTWORK_PATH}/${icon_name}   ${GUI_TEMP_DIR}icon.svg
-        ELSE
-            SSHLibrary.Get File  ${path}/${icon_name}   ${GUI_TEMP_DIR}icon.svg
-        END
-        Convert app icon  ${crop}   ${background}   input_file=${GUI_TEMP_DIR}icon.svg  output_file=${GUI_TEMP_DIR}${output_filename}
-    END
+    SSHLibrary.Get File  ${path}/${icon_name}   ${GUI_TEMP_DIR}icon.svg
+    Convert app icon  ${crop}   ${background}   input_file=${GUI_TEMP_DIR}icon.svg  output_file=${GUI_TEMP_DIR}${output_filename}
 
 Check if locked
     [Documentation]    Check if the screen lock is active
     ${logout_status}   Check if logged out   1
     IF  not ${logout_status}
-        IF  $COMPOSITOR == 'cosmic'
-            Get icon       ${ICONS}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black
-        ELSE
-            Get icon           ${ICON_THEME}/symbolic/actions  view-reveal-symbolic.svg  background=black
-            Type string and press enter
-        END
-        ${status}   ${output}      Run Keyword And Ignore Error   Locate image on screen  icon.png  0.95  1  debug_screenshot=False
+        ${status}   ${output}      Run Keyword And Ignore Error   Locate image on screen  ${LOCK_ICON}  0.95  1  debug_screenshot=False
         IF  '${status}' == 'PASS'
             Log To Console    Screen is locked
             RETURN    ${True}
@@ -321,64 +257,24 @@ Check if locked
 
 Unlock
     [Documentation]    Unlock the screen be typing password
-    IF  $COMPOSITOR == 'cosmic'
-        # Make sure that password field is active by clicking it
-        Locate and click   ${LOCK_ICON}   0.95  5
-    END
+    # Make sure that password field is active by clicking it
+    Locate and click   ${LOCK_ICON}   0.95  5
     Log To Console     Typing password to unlock
     Type string and press enter  ${USER_PASSWORD}  confidential=True
 
 Save most common icons and paths to icons
     [Documentation]         Save those icons by name which will be used in multiple test cases
     ...                     Save paths to icon packs in gui-vm nix store
-    IF  $COMPOSITOR == 'cosmic'
-        Log To Console          Saving commonly used icons
-        ${ICONS}                Execute Command   find $(echo $XDG_DATA_DIRS | tr ':' ' ') -type d -name "icons" 2>/dev/null
-        Set Global Variable     ${ICONS}
-        Get icon                ${ICONS}/hicolor/scalable/apps  com.system76.CosmicAppLibrary.svg  crop=0  background=black  output_filename=launcher.png
-        Get icon                ${ICONS}/Papirus/24x24/symbolic/actions  window-close-symbolic.svg  crop=0  background=white  output_filename=window-close.png
-        Negate app icon         ${GUI_TEMP_DIR}window-close.png  ${GUI_TEMP_DIR}window-close-neg.png
-        Get icon                ${ICONS}/Cosmic/scalable/actions  system-search-symbolic.svg  crop=0  background=white  output_filename=search.png
-        Negate app icon         ${GUI_TEMP_DIR}search.png  ${GUI_TEMP_DIR}search-neg.png
-        Get icon                ${ICONS}/hicolor/scalable/apps  com.system76.CosmicAppletPower-symbolic.svg  crop=0  background=black  output_filename=power.png
-        Get icon                ${ICONS}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
-    ELSE
-        ${icons}                Execute Command   find $(echo $XDG_DATA_DIRS | tr ':' ' ') -type d -name "icons" 2>/dev/null
-        Set Global Variable     ${ICON_THEME}        ${icons}/Papirus
-        Log To Console          Saving path to app icon-pack
-        Set Global Variable     ${APP_ICON_PATH}  ${ICON_THEME}/128x128/apps
-        Log                     ${APP_ICON_PATH}  console=True
-        Log To Console          Saving path to ghaf-artwork icons
-        ${ghaf_artwork_path}    Execute Command   echo /nix/store/$(ls /nix/store | grep ghaf-artwork- | grep -v .drv)/icons
-        Set Global Variable     ${ARTWORK_PATH}  ${ghaf_artwork_path}
-        Log                     ${ARTWORK_PATH}  console=True
-        Log To Console          Saving gui icons
-        Get icon                ghaf-artwork  launcher.svg  crop=0  background=black  output_filename=launcher.png
-        Get icon                ${ICON_THEME}/symbolic/actions  window-close-symbolic.svg  crop=0  output_filename=window-close.png  background=white
-        Negate app icon         ${GUI_TEMP_DIR}window-close.png  ${GUI_TEMP_DIR}window-close-neg.png
-    END
-
-Try to reset scaling
-    [Documentation]    Disable hidpi-auto-scaling (labwc only)
-    IF  $COMPOSITOR != 'cosmic'
-        Log To Console     Trying to reset scaling
-        Switch to gui-vm as user
-        FOR   ${i}   IN RANGE  5
-            Execute Command   systemctl --user start hidpi-auto-scaling-reset
-            ${output}         Execute Command   journalctl --since "5 seconds ago" --user -u hidpi-auto-scaling-reset
-            ${status}=        Run Keyword And Return Status    Should contain    ${output}    Finished
-            IF  ${status}
-                Execute Command   systemctl --user reload ewwbar
-                Log To Console    Auto scaling reset succeeded
-                BREAK
-            Sleep    1
-            END
-        END
-        IF  not ${status}
-            Log To Console   Auto scaling reset failed
-        END
-    END
-    [Teardown]    Switch to gui-vm as ghaf
+    Log To Console          Saving commonly used icons
+    ${ICONS}                Execute Command   find $(echo $XDG_DATA_DIRS | tr ':' ' ') -type d -name "icons" 2>/dev/null
+    Set Global Variable     ${ICONS}
+    Get icon                ${ICONS}/hicolor/scalable/apps  com.system76.CosmicAppLibrary.svg  crop=0  background=black  output_filename=launcher.png
+    Get icon                ${ICONS}/Papirus/24x24/symbolic/actions  window-close-symbolic.svg  crop=0  background=white  output_filename=window-close.png
+    Negate app icon         ${GUI_TEMP_DIR}window-close.png  ${GUI_TEMP_DIR}window-close-neg.png
+    Get icon                ${ICONS}/Cosmic/scalable/actions  system-search-symbolic.svg  crop=0  background=white  output_filename=search.png
+    Negate app icon         ${GUI_TEMP_DIR}search.png  ${GUI_TEMP_DIR}search-neg.png
+    Get icon                ${ICONS}/hicolor/scalable/apps  com.system76.CosmicAppletPower-symbolic.svg  crop=0  background=black  output_filename=power.png
+    Get icon                ${ICONS}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
 
 Stop swayidle
     [Documentation]    Stop swayidle to prevent automatic suspension
@@ -388,26 +284,12 @@ Stop swayidle
     [Teardown]    Switch to gui-vm as ghaf
 
 Set do not disturb state
-    [Documentation]   Set do not disturb to true or false (cosmic only)
+    [Documentation]   Set do not disturb to true or false
     [Arguments]       ${state}
-    IF  $COMPOSITOR == 'cosmic'
-        Log To Console    Setting Do Not Disturb to ${state}
-        Switch to gui-vm as user
-        Execute Command   echo ${state} > ~/.config/cosmic/com.system76.CosmicNotifications/v1/do_not_disturb
-    END
+    Log To Console    Setting Do Not Disturb to ${state}
+    Switch to gui-vm as user
+    Execute Command   echo ${state} > ~/.config/cosmic/com.system76.CosmicNotifications/v1/do_not_disturb
     [Teardown]    Switch to gui-vm as ghaf
-
-Set compositor
-    [Documentation]   Set compositor to cosmic if cosmic process is running. By default compositor is set labwc.
-    Log To Console    Checking compositor
-    ${cosmic_processes}=    Execute Command    sh -c 'ps aux | grep cosmic | grep -v grep'
-    Log    ${cosmic_processes}
-    IF  $cosmic_processes != '${EMPTY}'
-        Log To Console   Compositor: cosmic
-        Set Global Variable   ${COMPOSITOR}   cosmic
-    ELSE
-        Log To Console   Compositor: labwc
-    END
 
 Get screen brightness
     [Documentation]   Get and return current brightness value
