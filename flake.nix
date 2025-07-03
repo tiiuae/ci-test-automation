@@ -72,6 +72,7 @@
                 pyscreeze
                 opencv4
                 paramiko
+                evdev
               ])
               ++ (with self.packages.${system}; [
                 robotframework-jsonlibrary

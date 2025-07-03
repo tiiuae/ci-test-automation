@@ -29,6 +29,7 @@ writeShellApplication {
       ps.pandas
       ps.pyscreeze
       ps.opencv4
+      ps.evdev
 
       # These are taken from this flake
       robotframework-advancedlogging
