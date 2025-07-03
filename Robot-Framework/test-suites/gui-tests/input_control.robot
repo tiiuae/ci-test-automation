@@ -17,10 +17,10 @@ Change brightness with keyboard shortcuts
     [Documentation]     Change brightness with ydotool by clicking F5/F6 buttons
     [Tags]              lenovo-x1   SP-T140
     ${init_brightness}  Get screen brightness
-    Decrease brightness
+    Press Key(s)        BRIGHTNESSDOWN
     ${l_brightness}     Get screen brightness
     Should Be True      ${l_brightness} < ${init_brightness}
-    Increase brightness
+    Press Key(s)        BRIGHTNESSUP
     ${h_brightness}     Get screen brightness
     Should Be True      ${h_brightness} > ${l_brightness}
 
@@ -31,9 +31,9 @@ Change keyboard layout
     Launch Cosmic Term
     Switch to gui-vm as ghaf
     Type string and press enter                "echo "  enter=False
-    Type apostrophe
+    Press Key(s)    APOSTROPHE
     Press test key and switch keyboard layout  repeat=3
-    Type apostrophe
+    Press Key(s)    APOSTROPHE
     Type string and press enter                " > /tmp/key_check.txt"
     ${key_check}                               Execute Command  cat /tmp/key_check.txt
     Execute Command                            rm /tmp/key_check.txt  sudo=True  sudo_password=${PASSWORD}
@@ -50,13 +50,9 @@ Press test key and switch keyboard layout
     ...                       English ; / Arabic ك / Finnish ö
     [Arguments]               ${repeat}=1
     FOR   ${i}   IN RANGE  ${repeat}
-        Execute Command           ydotool key 39:1 39:0  sudo=True  sudo_password=${PASSWORD}
+        Press Key(s)   SEMICOLON	
         Switch keyboard layout
     END
-
-Type apostrophe
-    Log To Console            Typing apostrophe ' (English keyboard layout required)
-    Execute Command           ydotool key 40:1 40:0  sudo=True  sudo_password=${PASSWORD}
 
 Check cosmic config current layout value
     [Documentation]           Check the value of current layout in the xkb_config file.

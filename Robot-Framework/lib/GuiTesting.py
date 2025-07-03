@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from pyscreeze import locate, center
+from evdev import ecodes
 import logging
 import subprocess
 
@@ -45,3 +46,20 @@ class GuiTesting:
     
     def negate_app_icon(self, input_file, output_file):
         subprocess.run(['magick', input_file, '-negate', output_file])
+
+    def generate_ydotool_key_command(self, key_combination):
+        # Returns a `ydotool key ...` command string for the given key combination,
+        # e.g. generate_ydotool_key_command("LEFTMETA+LEFTSHIFT+ESC") -> 'ydotool key 125:1 42:1 1:1 1:0 42:0 125:0'
+        keys = key_combination.split("+")
+        key_codes = []
+        for key in keys:
+            key = key.strip().upper()
+            full_key = f"KEY_{key}"
+            if not hasattr(ecodes, full_key):
+                raise ValueError(f"Unknown key: {key} (tried {full_key})")
+            key_codes.append(getattr(ecodes, full_key))
+
+        press_events = [f"{code}:1" for code in key_codes]
+        release_events = [f"{code}:0" for code in reversed(key_codes)]
+
+        return "ydotool key " + " ".join(press_events + release_events)

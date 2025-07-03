@@ -41,7 +41,7 @@ Log in, unlock and verify
     IF   $status == 'FAIL'
         Log To Console    There was maybe a bug with the cosmic-greeter, let's try logging in again
         Log To Console    Pressing Tab to activate the password field
-        Execute Command    ydotool key 15:1 15:0  sudo=True  sudo_password=${PASSWORD}
+        Press Key(s)      TAB
         Log in via GUI
         Wait for Ghaf session activation
         Verify desktop availability
@@ -86,7 +86,7 @@ Log out via GUI
         RETURN
     END
     Log To Console    Logging out by pressing Super+Shift+Escape 
-    Execute Command   ydotool key 125:1 42:1 1:1 1:0 42:0 125:0  sudo=True  sudo_password=${PASSWORD}
+    Press Key(s)      LEFTMETA+LEFTSHIFT+ESC
     Tab and enter     tabs=2
 
 Type string and press enter
@@ -100,8 +100,7 @@ Type string and press enter
         Execute Command   ydotool type ${string}  sudo=True  sudo_password=${PASSWORD}
     END
     IF  ${enter}
-        Log To Console    Pressing Enter
-        Execute Command   ydotool key 28:1 28:0  sudo=True  sudo_password=${PASSWORD}
+        Press Key(s)      ENTER
     ELSE
         Log To Console    Skipping Enter
     END
@@ -109,12 +108,10 @@ Type string and press enter
 Tab and enter
     [Arguments]    ${tabs}=1
     Log To Console      Pressing Tab ${tabs} times and then Enter to select
-    ${command}=    Set Variable    ${EMPTY}
     FOR  ${i}  IN RANGE  ${tabs}
-        ${command}=    Set Variable  ${command} 15:1 15:0
+        Press Key(s)   TAB
     END
-    Execute Command    ydotool key ${command}  sudo=True  sudo_password=${PASSWORD}
-    Execute Command    ydotool key 28:1 28:0  sudo=True  sudo_password=${PASSWORD}
+    Press Key(s)       ENTER
 
 Locate image on screen
     [Documentation]    Take a screenshot. Locate given image on the screenshot.
@@ -298,16 +295,6 @@ Get screen brightness
     Log To Console    Brightness is ${brightness}
     RETURN            ${brightness}
 
-Increase brightness
-    [Documentation]   The F6 key is physically implemented as KEY_BRIGHTNESSUP (code 225)
-    Log To Console    Pressing F6
-    Execute Command   ydotool key 225:1 225:0  sudo=True  sudo_password=${PASSWORD}
-
-Decrease brightness
-    [Documentation]   The F5 key is physically implemented as KEY_BRIGHTNESSDOWN (code 224)
-    Log To Console    Pressing F5
-    Execute Command   ydotool key 224:1 224:0  sudo=True  sudo_password=${PASSWORD}
-
 Get gui-vm user journalctl log
     [Setup]      Switch to gui-vm as user
     Get user journalctl log   gui-vm-user.log
@@ -316,8 +303,18 @@ Get gui-vm user journalctl log
 Switch keyboard layout
     [Documentation]   Toggle layout between English, Arabic and Finnish
     Log To Console    Pressing Alt+Shift, shortcut for switching keyboard layout
-    Execute Command   ydotool key 56:1 42:1 42:0 56:0  sudo=True  sudo_password=${PASSWORD}
+    Press Key(s)      LEFTALT+LEFTSHIFT
 
 Timestamp screenshot
     ${current_time}  DateTime.Get Current Date  result_format=%Y%m%d_%H%M%S
     Run Process      sh  -c  cp ${GUI_TEMP_DIR}screenshot.png ${GUI_TEMP_DIR}screenshot_${current_time}.png  shell=true
+
+Press Key(s)
+    [Arguments]        ${key_combination}
+    [Documentation]    Simulates key press(es) using ydotool. If there are multiple keys they must be separated with '+'.
+    ...   Check the correct key name from https://github.com/torvalds/linux/blob/master/include/uapi/linux/input-event-codes.h
+    ${ydotool_command}    Generate Ydotool Key Command   ${key_combination}
+    Log               ${ydotool_command}
+    Log To Console    Pressing key(s): ${key_combination}
+    ${output}    ${rc}    Execute Command   ${ydotool_command}  sudo=True  sudo_password=${PASSWORD}    return_rc=True
+    Should Be Equal As Integers     ${rc}   0
