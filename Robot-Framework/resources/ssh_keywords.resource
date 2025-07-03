@@ -284,20 +284,6 @@ Start XDG application
     ${output}        Execute Command  cat output.log
     Log    ${output}
 
-Open Image
-    [Arguments]      ${pic_file}
-    ${output}        Execute Command    cat /run/current-system/sw/share/applications/ghaf-image-xdg.desktop
-    Log              ${output}
-    ${path}          Get App Path From Desktop  ${output}
-    ${xdgopen}       Get Substring      ${path}    0    -3
-    Log To Console   Trying to open ${pic_file}
-    Execute Command  nohup sh -c '${xdgopen} ${pic_file}' > /tmp/out.log 2>&1 &
-
-Open text file
-    [Arguments]      ${text_file}
-    Log To Console   Trying to open ${text_file}
-    ${output}        Execute Command  WAYLAND_DISPLAY=wayland-1 nohup sh -c 'cosmic-edit -f ${text_file}' > /tmp/out.log 2>&1 &
-
 Start Firefox
     [Documentation]  It's needed to set display variable manually because there is no real monitor connected to DUT
     Log To Console  ${\n}Starting Firefox

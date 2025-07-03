@@ -164,6 +164,7 @@ Open PDF from app-vm
     Connect to VM      ${ZATHURA_VM}
     Check that the application was started    zathura    10
     [Teardown]  Run Keywords  Remove the file in VM    /tmp/test_pdf.pdf    ${vm}    AND
+    ...                       Remove the file in VM    /tmp/out.log         ${vm}    AND
     ...                       Connect to VM      ${ZATHURA_VM}    AND
     ...                       Kill Process And Log journalctl
 
@@ -174,3 +175,17 @@ Open PDF
     ${xdgopen}       Get Substring      ${path}    0    -3
     Log To Console   Trying to open ${pdf_file}
     Execute Command  echo ${PASSWORD} | sudo -S nohup sh -c '${xdgopen} ${pdf_file}' > /tmp/out.log 2>&1 &
+
+Open Image
+    [Arguments]      ${pic_file}
+    ${output}        Execute Command    cat /run/current-system/sw/share/applications/ghaf-image-xdg.desktop
+    Log              ${output}
+    ${path}          Get App Path From Desktop  ${output}
+    ${xdgopen}       Get Substring      ${path}    0    -3
+    Log To Console   Trying to open ${pic_file}
+    Execute Command  nohup sh -c '${xdgopen} ${pic_file}' > /tmp/out.log 2>&1 &
+
+Open text file
+    [Arguments]      ${text_file}
+    Log To Console   Trying to open ${text_file}
+    ${output}        Execute Command  WAYLAND_DISPLAY=wayland-1 nohup sh -c 'cosmic-edit -f ${text_file}' > /tmp/out.log 2>&1 &
