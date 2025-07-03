@@ -3,19 +3,20 @@
 
 *** Settings ***
 Documentation       Tests that are run in every VM
-Force Tags          vms
+Force Tags          vms  bat  regression  lenovo-x1  dell-7330  fmo
 Resource            ../../__framework__.resource
 Resource            ../../resources/ssh_keywords.resource
-Suite Setup         Connect to netvm
+Suite Setup         VM Suite Setup
 Suite Teardown      Close All Connections
+
 
 *** Test Cases ***
 
 Check internet connection in every VM
     [Documentation]    Pings google from every vm.
-    [Tags]             bat  regression  SP-T257  lenovo-x1  dell-7330
+    [Tags]             SP-T257
     ${failed_vms}=    Create List
-    FOR  ${vm}  IN  @{VMS}
+    FOR  ${vm}  IN  @{VM_LIST}
         Connect to VM    ${vm}
         ${output}=       Execute Command    ping -c1 google.com
         Log              ${output}
@@ -29,7 +30,7 @@ Check internet connection in every VM
 
 Check systemctl status in every VM
     [Documentation]    Check that systemctl status is running in every vm.
-    [Tags]             bat  regression  SP-T98-2  lenovo-x1  dell-7330
+    [Tags]             SP-T98-2
     ${failed_new_services}=    Create List
     ${failed_old_services}=    Create List
     ${known_issues}=    Create List
@@ -37,7 +38,7 @@ Check systemctl status in every VM
     ...    ANY|persist-storage-dirs.service|SSRCSP-6682
     ...    gui-vm|setup-ghaf-user.service|SSRCSP-6682
 
-    FOR  ${vm}  IN  @{VMS}
+    FOR  ${vm}  IN  @{VM_LIST}
         Connect to VM    ${vm}
         ${status}  ${output}   Run Keyword And Ignore Error   Verify Systemctl status
         IF  $status=='FAIL'
@@ -50,3 +51,14 @@ Check systemctl status in every VM
     END
     IF  ${failed_new_services} != []    FAIL    Unexpected failed services: ${failed_new_services}, known failed services: ${failed_old_services}
     IF  ${failed_old_services} != []    SKIP    Known failed services: ${failed_old_services}
+
+
+*** Keywords ***
+
+VM Suite Setup
+    Connect to netvm
+    Connect to ghaf host
+    ${output}       Execute Command    microvm -l
+    @{VM_LIST}      Extract VM names   ${output}
+    Should Not Be Empty   ${VM_LIST}   VM list is empty
+    Set Suite Variable    ${VM_LIST}
