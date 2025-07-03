@@ -36,8 +36,6 @@ Check systemctl status in every VM
     ...    ANY|systemd-oomd.service|SSRCSP-6682
     ...    ANY|persist-storage-dirs.service|SSRCSP-6682
     ...    gui-vm|setup-ghaf-user.service|SSRCSP-6682
-    ...    business-vm|apparmor.service|SSRCSP-6767
-    ...    chrome-vm|apparmor.service|SSRCSP-6767
 
     FOR  ${vm}  IN  @{VMS}
         Connect to VM    ${vm}
