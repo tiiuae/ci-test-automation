@@ -57,6 +57,7 @@ Set Variables
     Set Global Variable  ${BUSINESS_VM}        business-vm
     Set Global Variable  ${CHROME_VM}          chrome-vm
     Set Global Variable  ${COMMS_VM}           comms-vm
+    Set Global Variable  ${DOCKER_VM}          docker-vm
     Set Global Variable  ${GALA_VM}            gala-vm
     Set Global Variable  ${GUI_VM}             gui-vm
     Set Global Variable  ${ZATHURA_VM}         zathura-vm

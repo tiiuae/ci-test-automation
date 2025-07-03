@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing Network VM
-Force Tags          netvm
+Force Tags          netvm  bat regression  
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/virtualization_keywords.resource
 Resource            ../../resources/connection_keywords.resource
@@ -21,7 +21,7 @@ ${NETVM_SSH}       ${EMPTY}
 
 Verify NetVM is started
     [Documentation]         Verify that NetVM is active and running
-    [Tags]                  bat  regression  SP-T45  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1   dell-7330
+    [Tags]                  SP-T45  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1   dell-7330  fmo
     [Setup]                 Connect to ghaf host
     Verify service status   service=${netvm_service}
     Check Network Availability      ${NETVM_IP}    expected_result=True    range=5
@@ -29,7 +29,7 @@ Verify NetVM is started
 
 Wifi passthrough into NetVM (Orin-AGX)
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              bat  regression  SP-T111  orin-agx  orin-agx-64
+    [Tags]              SP-T111  orin-agx  orin-agx-64
     [Setup]             Connect to netvm
     Configure wifi      ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
@@ -45,7 +45,7 @@ Wifi passthrough into NetVM (Orin-AGX)
 
 Wifi passthrough into NetVM (Lenovo-X1)
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              bat  regression  SP-T101   lenovo-x1   dell-7330
+    [Tags]              SP-T101   lenovo-x1   dell-7330
     [Setup]             Connect to netvm
     Configure wifi      ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
@@ -61,7 +61,7 @@ Wifi passthrough into NetVM (Lenovo-X1)
 
 Wifi passthrough into NetVM (NUC)
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              bat  regression   SP-T111  nuc
+    [Tags]              SP-T111  nuc
     [Setup]             Connect to netvm
     Configure wifi via wpa_supplicant      ${netvm_ssh}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Check Network Availability    8.8.8.8   expected_result=True
@@ -71,14 +71,14 @@ Wifi passthrough into NetVM (NUC)
 
 NetVM stops and starts successfully
     [Documentation]     Verify that NetVM stops properly and starts after that
-    [Tags]              bat  regression  SP-T47  SP-T90  nuc  orin-agx  orin-agx-64
+    [Tags]              SP-T47  SP-T90  nuc  orin-agx  orin-agx-64
     [Setup]             Connect to ghaf host
     Restart NetVM
     [Teardown]          Run Keywords  Start NetVM if dead   AND  Close All Connections
 
 NetVM is wiped after restarting
     [Documentation]     Verify that created file will be removed after restarting VM
-    [Tags]              bat  regression  SP-T48  nuc  orin-agx  orin-agx-64
+    [Tags]              SP-T48  nuc  orin-agx  orin-agx-64
     [Setup]             Connect to netvm
     Create file         /etc/test.txt
     Switch Connection   ${GHAF_HOST_SSH}
@@ -94,7 +94,7 @@ NetVM is wiped after restarting
 
 Verify NetVM PCI device passthrough
     [Documentation]     Verify that proper PCI devices have been passed through to the NetVM
-    [Tags]              bat  regression  SP-T96  nuc  orin-agx  orin-agx-64  orin-nx
+    [Tags]              SP-T96  nuc  orin-agx  orin-agx-64  orin-nx
     [Setup]             Connect to netvm
     Verify microvm PCI device passthrough    vmname=${NET_VM}
     [Teardown]          Run Keywords  Close All Connections   AND
