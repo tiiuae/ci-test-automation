@@ -28,7 +28,6 @@ Log in, unlock and verify
     ${logout_status}    Check if logged out   1
     IF  ${logout_status}
         Log in via GUI
-        Wait for Ghaf session activation
     ELSE
         ${lock}       Check if locked
         IF  ${lock}   Unlock
@@ -43,7 +42,6 @@ Log in, unlock and verify
         Log To Console    Pressing Tab to activate the password field
         Press Key(s)      TAB
         Log in via GUI
-        Wait for Ghaf session activation
         Verify desktop availability
     END
 
@@ -178,10 +176,19 @@ Move cursor to corner
     Execute Command   ydotool mousemove --absolute -x 50 -y 50  sudo=True  sudo_password=${PASSWORD}
 
 Verify desktop availability
-    [Documentation]         Check that launcher icon is available on desktop
-    Log To Console          Verifying login by trying to detect the launcher icon
-    #Locate image on screen  ${APP_MENU_LAUNCHER}  0.95  10
+    [Documentation]    Wait for the login and check that launcher icon is available on desktop
 
+    ${activity}        Wait for user session to be active
+
+    # Give extra time if the service is still activating
+    IF  $activity == "activating"
+        Log To Console     User-session is ${activity}, login in process
+        ${activity}        Wait for user session to be active   iterations=60
+    END
+
+    IF  $activity != "active"    FAIL    User-session did not activate, it is ${activity}
+
+    Log To Console         Verifying login by trying to detect the launcher icon
     # This is a workaround for launcher icon missing sometimes. If launcher icon can't be found tries to search
     # for the power menu icon. Gui-vm user log is saved to help debugging.
     ${status}   ${output}   Run Keyword And Ignore Error   Locate image on screen  ${APP_MENU_LAUNCHER}  0.95  10
@@ -202,11 +209,11 @@ Check if logged out
     [Arguments]        ${iterations}=10
     Switch to vm    gui-vm  user=${USER_LOGIN}
     FOR   ${i}   IN RANGE  ${iterations}
-        ${activity}=       Execute Command    systemctl --user is-active ghaf-session.target  return_stdout=True
+        ${activity}=       Execute Command    systemctl --user is-active xdg-desktop-portal.service  return_stdout=True
         IF  $activity == "active"
-            Log To Console      Ghaf session is ${activity}, user is logged in
+            Log To Console      User session is ${activity}, user is logged in
         ELSE
-            Log To Console      Ghaf session is ${activity}, user is logged out
+            Log To Console      User session is ${activity}, user is logged out
             RETURN    ${True}
         END
         Sleep  1
@@ -214,23 +221,22 @@ Check if logged out
     RETURN    ${False}
     [Teardown]    Switch to vm    gui-vm
 
-Wait for Ghaf session activation
-    [Documentation]    Wait until ghaf session is in active state
+Wait for user session to be active
+    [Documentation]    Wait until the user session is in active state
+    [Arguments]        ${iterations}=30
     Switch to vm    gui-vm  user=${USER_LOGIN}
-    Log To Console     Waiting for the Ghaf session to start...  no_newline=true 
-    FOR   ${i}   IN RANGE  30
-        ${activity}=       Execute Command    systemctl --user is-active ghaf-session.target  return_stdout=True
+    Log To Console     Waiting for the user session to be active...  no_newline=true 
+    FOR   ${i}   IN RANGE   ${iterations}
+        ${activity}=       Execute Command    systemctl --user is-active xdg-desktop-portal.service  return_stdout=True
         IF  $activity == "active"
-            Log To Console        Success
-            Log To Console        Ghaf session is ${activity}, user is logged in
-            RETURN
-        ELSE
-            Log To Console   ${i}.  no_newline=true
+            Log To Console    Success
+            Log To Console    User session is ${activity}, user is logged in
+            BREAK
         END
+        Log To Console   ${i}.  no_newline=true
         Sleep   0.5
     END
-    Log To Console    Failed
-    Log To Console    Ghaf session did not activate
+    RETURN   ${activity}
     [Teardown]    Switch to vm    gui-vm
 
 Get icon
