@@ -116,54 +116,6 @@ Gui-vm Test Teardown
     ${app_log}          Execute command    cat output.log
     Log                 ${app_log}
 
-Check If Download Reached 100
-    ${notifications}  Execute Command  /nix/store/${MAKO_PATH}/bin/makoctl list
-    ${notifications}  Parse notifications    ${notifications}
-
-    ${count}=    Get Length    ${notifications}
-    Should Be True    ${count} > 0    No notifications received at all
-
-    FOR    ${key}     ${value}    IN    &{notifications}
-        ${status}     Run Keyword And Return Status    Should Contain    ${value}    Downloading Falcon 3
-        IF    ${status}
-            ${percentage}    Get Percentage    ${value}
-            Log To Console   Current percentage: ${percentage}%
-            Should Be Equal As Integers    ${percentage}    100
-            BREAK
-        END
-    END
-
-Get Percentage
-    [Arguments]       ${text}
-    ${match_status}   ${match_msg}    Run Keyword And Ignore Error    Should Match Regexp    ${text}    .*?(\\d+)%.*?
-    IF  '${match_status}' == 'PASS'
-        ${percent}    Set Variable    ${match_msg}[1]
-        Log           Current percentage: ${percent}%
-    END
-    Should Not Be Empty  ${percent}   Could not find percent in text: ${text}
-    RETURN            ${percent}
-
-Wait Until Download Is 100 Percent
-    Wait Until Keyword Succeeds    420s    5s    Check If Download Reached 100
-
-Check If Download Completed
-    ${notifications}  Execute Command  /nix/store/${MAKO_PATH}/bin/makoctl history
-    ${notifications}  Parse notifications    ${notifications}
-
-    ${completed}      Set Variable  ${False}
-    FOR    ${key}     ${value}    IN    &{notifications}
-        ${status}     Run Keyword And Return Status    Should Contain    ${value}    Download complete
-        IF    ${status}
-            Log To Console    Falcon download completed
-            ${completed}      Set Variable    ${True}
-            BREAK
-        END
-    END
-
-    IF  not ${completed}
-        Fail    No notifications contained 'Download complete'
-    END
-
 Wait Until Falcon Download Complete
     FOR  ${i}  IN RANGE   100
         ${output}          Execute Command  ollama list

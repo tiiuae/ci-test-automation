@@ -125,11 +125,6 @@ Log versions
     ${nixos_version}    Execute Command   nixos-version
     Log To Console      Nixos version: ${nixos_version}
 
-Get mako path
-    ${output}            Execute Command     ls /nix/store | grep mako | grep -v .drv
-    ${result}            Extract mako path   ${output}
-    Set Global Variable  ${MAKO_PATH}    ${result}
-
 Get Falcon LLM Name
     ${output}            Execute Command     cat '/run/current-system/sw/share/applications/Falcon AI.desktop'
     ${line}              Get Lines Containing String  ${output}  Exec=

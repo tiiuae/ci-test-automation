@@ -60,6 +60,8 @@ Log out and verify
     IF  ${disable_dnd}   Set do not disturb state   false
     ${logout_status}      Check if logged out    1
     IF  not ${logout_status}
+        ${lock}       Check if locked
+        IF  ${lock}   Unlock
         Log out via GUI
         ${logout_status}  Check if logged out
         IF  not ${logout_status}    FAIL  Failed to log out.
@@ -286,6 +288,13 @@ Stop swayidle
     Execute Command   systemctl --user stop swayidle
     [Teardown]    Switch to vm    gui-vm
 
+Start swayidle
+    [Documentation]    Start swayidle to allow automatic suspension
+    Log To Console    Enabling automated lock and suspend
+    Switch to vm    gui-vm  user=${USER_LOGIN}
+    Execute Command   systemctl --user start swayidle
+    [Teardown]    Switch to vm    gui-vm
+
 Set do not disturb state
     [Documentation]   Set do not disturb to true or false
     [Arguments]       ${state}
@@ -296,9 +305,10 @@ Set do not disturb state
 
 Get screen brightness
     [Documentation]   Get and return current brightness value
+    [Arguments]       ${log_brightness}=True
     ${output}         Execute Command    ls /nix/store | grep brightnessctl | grep -v .drv
     ${brightness}     Execute Command    /nix/store/${output}/bin/brightnessctl get
-    Log To Console    Brightness is ${brightness}
+    IF  ${log_brightness}    Log To Console    Brightness is ${brightness}
     RETURN            ${brightness}
 
 Get gui-vm user journalctl log
