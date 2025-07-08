@@ -411,13 +411,14 @@ Create text file
 Remove file
     [Documentation]    Remove file with given path & name, requires existing ssh connection
     [Arguments]        ${file_name}  ${user}=ghaf
+    Log To Console     Removing file ${file_name}
     IF  $user=='ghaf'
         Execute Command    rm ${file_name}  sudo=True  sudo_password=${PASSWORD}
+        Check file doesn't exist  ${file_name}
     ELSE
         Execute Command    rm ${file_name}
+        Check file doesn't exist  ${file_name}  user=${USER_LOGIN}
     END
-    Log To Console     Removing file ${file_name}
-    Check file doesn't exist  ${file_name}
 
 Copy file
     [Documentation]    Copy file, requires existing ssh connection
@@ -427,16 +428,24 @@ Copy file
 
 Check file exists
     [Documentation]    Check file exists, requires existing ssh connection
-    [Arguments]        ${file_name}
+    [Arguments]        ${file_name}  ${user}=ghaf
     Log To Console     Check if file ${file_name} exists
-    ${output}  ${rc}   Execute Command    ls ${file_name}    return_rc=True
+    IF  $user=='ghaf'
+        ${output}  ${rc}   Execute Command    ls ${file_name}   return_rc=True  sudo=True  sudo_password=${password}
+    ELSE
+        ${output}  ${rc}   Execute Command    ls ${file_name}   return_rc=True
+    END
     Should Be Equal As Integers   ${rc}   0
 
 Check file doesn't exist
     [Documentation]    Check file doesn't exist, requires existing ssh connection
-    [Arguments]        ${file_name}
+    [Arguments]        ${file_name}  ${user}=ghaf
     Log To Console     Check if file ${file_name} exists
-    ${output}  ${rc}   Execute Command    ls ${file_name}    return_rc=True
+    IF  $user=='ghaf'
+        ${output}  ${rc}   Execute Command    ls ${file_name}   return_rc=True  sudo=True  sudo_password=${password}
+    ELSE
+        ${output}  ${rc}   Execute Command    ls ${file_name}   return_rc=True
+    END
     Should Be Equal As Integers   ${rc}   2
     Log To Console     File ${file_name} doesn't exist
 
