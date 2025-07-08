@@ -6,5 +6,5 @@ Documentation       Suspension test
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../config/variables.robot
-Suite Setup         Set Variables   ${DEVICE}
-Suite Teardown      Close All Connections
+Suite Setup         Prepare Test Environment
+Suite Teardown      Clean Up Test Environment

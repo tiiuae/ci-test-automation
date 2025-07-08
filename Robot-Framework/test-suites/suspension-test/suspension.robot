@@ -13,7 +13,6 @@ Resource            ../../resources/connection_keywords.resource
 Resource            ../../resources/power_meas_keywords.resource
 Library             ../../lib/output_parser.py
 Library             JSONLibrary
-Suite Setup         Suspension setup
 
 *** Test Cases ***
 
@@ -33,7 +32,7 @@ Automatic suspension
 
     Start power measurement       ${BUILD_ID}   timeout=1500
     Connect
-    Connect to VM    ${GUI_VM}  ${USER_LOGIN}  ${USER_PASSWORD}
+    Switch to vm    gui-vm
     Set start timestamp
 
     Wait     240
@@ -45,9 +44,13 @@ Automatic suspension
     Wait    50
     ${locked}         Check if locked
     Should Be True    ${locked}
-    Wait     630
+    
+    Wait     150
+    Check the screen state   off
 
-    Check if device was suspended
+    Wait     460
+
+    Check that device is suspended
     Wait     300
     Wake up device
     Generate power plot           ${BUILD_ID}   ${TEST NAME}
@@ -56,12 +59,10 @@ Automatic suspension
 *** Keywords ***
 
 Test setup
-    Get mako path
-    ${last_id}           Get last notification id
-    Set Suite Variable   ${last_id}    ${last_id}
-    Move cursor
-    Connect to VM    ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
+    Start swayidle
     Get expected brightness values
+    Set display to max brightness
+    Move cursor
 
 Wait
     [Arguments]     ${sec}
@@ -79,13 +80,22 @@ Get expected brightness values
     Log To Console     Dimmed brightness is expected to be ~${dimmed}
     Set Test Variable  ${dimmed_brightness}  ${dimmed}
 
+Set display to max brightness
+    ${current_brightness}    Get screen brightness   log_brightness=False
+    IF   ${current_brightness} != ${max_brightness}
+        Log To Console    Brightness is ${current_brightness}, setting it to the maximum
+        ${output}     Execute Command    ls /nix/store | grep brightnessctl | grep -v .drv
+        ${output}     Execute Command    /nix/store/${output}/bin/brightnessctl set 100%   sudo=True  sudo_password=${PASSWORD}
+        ${current_brightness}    Get screen brightness
+        Should be Equal As Numbers    ${current_brightness}   ${max_brightness}
+    END
+
 Check screen brightness
     [Arguments]       ${brightness}    ${timeout}=60
     # 10 second timeout should be enough, but for some reason sometimes dimming the screen takes longer.
     # To prevent unnecessary fails timeout has been increased.
     FOR  ${i}  IN RANGE  ${timeout}
-        ${output}     Execute Command    ls /nix/store | grep brightnessctl | grep -v .drv
-        ${output}     Execute Command    /nix/store/${output}/bin/brightnessctl get
+        ${output}     Get screen brightness  log_brightness=False
         Log To Console    Check ${i}: Brightness is ${output}
         ${status}     Run Keyword And Return Status  Should be Equal As Numbers   ${output}  ${brightness}
         IF  ${status}
@@ -96,49 +106,16 @@ Check screen brightness
     END
     IF  ${status} == False    FAIL    The screen brightness is ${output}, expected ${brightness}
 
-Check notification
-    [Arguments]       ${text}  ${last_id}
-    [Documentation]   First need to know the number of the last notification to check the new one
-    ${notifications}  Execute Command  /nix/store/${MAKO_PATH}/bin/makoctl history
-    Log               ${notifications}
-    ${notifications}  Parse notifications    ${notifications}
-
-    ${last_matching_id}    Set Variable    None
-    FOR    ${key}     ${value}    IN    &{notifications}
-        ${status}     Run Keyword And Return Status    Should Be Equal    ${value}    Automatic suspend
-        IF    ${status}
-            ${last_matching_id}    Set Variable    ${key}
-            BREAK
-        END
-    END
-
-    Run Keyword If    "$last_matching_id" == "None"    Fail    No matching notifications found!
-    Log    The last notification "Automatic suspend" has ID: ${last_matching_id}
-
-    IF    ${last_matching_id} > ${last_id}
-        Log To Console    The new ID (${last_matching_id}) is greater than the previous one (${last_id}).
-    ELSE
-        FAIL   The new ID (${last_matching_id}) is NOT greater than the previous one (${last_id}).
-    END
-
-Get last notification id
-    ${notifications}    Execute Command   /nix/store/${MAKO_PATH}/bin/makoctl history
-    IF  "${notifications}" == ""
-        ${last_id}      Set Variable    0
-    ELSE
-        ${last_id}      Get last mako notification id   ${notifications}
-    END
-    Log To Console      The last notification in the list has ID: ${last_id}
-    RETURN              ${last_id}
-
 Check the screen state
     [Arguments]         ${state}
+    [Setup]       Switch to vm    gui-vm  user=${USER_LOGIN}
     ${output}           Execute Command    ls /nix/store | grep wlopm | grep -v .drv
     ${output}  ${err}   Execute Command    WAYLAND_DISPLAY=wayland-1 /nix/store/${output}/bin/wlopm    return_stderr=True
     Log To Console      Screen state: ${output}
     Should Contain      ${output}    ${state}
+    [Teardown]    Switch to vm    gui-vm
 
-Check if device was suspended
+Check that device is suspended
     ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
     IF  ${device_not_available} == True
         Log To Console  Device is suspended
@@ -156,17 +133,3 @@ Wake up device
     ELSE
         Log To Console  The device started
     END
-
-Suspension setup
-
-    Reboot LenovoX1
-    Check If Device Is Up
-    IF    ${IS_AVAILABLE} == False
-        FAIL    The device did not start
-    ELSE
-        Log To Console  The device started
-    END
-    Sleep  30
-    Connect   iterations=10
-
-    Prepare Test Environment   stop_swayidle=False
