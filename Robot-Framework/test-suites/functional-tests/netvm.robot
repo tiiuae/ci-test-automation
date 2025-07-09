@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing Network VM
-Force Tags          netvm  bat regression  
+Force Tags          netvm  bat  regression
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/virtualization_keywords.resource
 Resource            ../../resources/connection_keywords.resource
