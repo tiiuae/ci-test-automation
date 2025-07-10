@@ -189,6 +189,7 @@ Verify desktop availability
     END
 
     IF  $activity != "active"    FAIL    User-session did not activate, it is ${activity}
+    IF  "Dell" in "${DEVICE}"    Sleep   5
 
     Log To Console         Verifying login by trying to detect the launcher icon
     # This is a workaround for launcher icon missing sometimes. If launcher icon can't be found tries to search
