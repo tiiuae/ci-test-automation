@@ -137,7 +137,7 @@ Ballooning Test Teardown
     [Documentation]    If test gets stucked, reboot device and connect to netvm (the next test can be executed).
     ...                After reboot, the artifacts should be not existing, so no need to clean.
     Run Keyword If Timeout Occurred  Run Keywords
-    ...        Reboot LenovoX1
+    ...        Reboot Laptop
     ...  AND   Connect to netvm
 
     Run Keyword If Test Passed  Clean Test Artifacts

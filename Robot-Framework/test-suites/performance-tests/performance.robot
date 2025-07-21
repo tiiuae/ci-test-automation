@@ -269,16 +269,6 @@ Perf-Bench test
 
 *** Keywords ***
 
-LenovoX1 Setup
-    [Documentation]    Reboot LenovoX1
-    Reboot LenovoX1
-    ${port_22_is_available}     Check if ssh is ready on device   timeout=180
-    IF  ${port_22_is_available} == False
-        FAIL    Failed because port 22 of device was not available, tests can not be run.
-    END
-    Connect
-    ${output}          Execute Command    ssh-keygen -R ${NETVM_IP}
-
 Transfer FileIO Test Script To DUT
     Put File           performance-tests/fileio_test    /tmp
     Execute Command    chmod 777 /tmp/fileio_test

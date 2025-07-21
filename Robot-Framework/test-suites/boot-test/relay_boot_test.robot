@@ -42,10 +42,10 @@ Verify booting after restart by power
     END
     [Teardown]   Test Teardown
 
-Verify booting LenovoX1
-    [Documentation]    Restart LenovoX1 by power and verify init service is running
+Verify booting laptop
+    [Documentation]    Restart the laptop by power and verify init service is running
     [Tags]             relayboot  plug  lenovo-x1   dell-7330
-    Reboot LenovoX1
+    Reboot Laptop
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False
         FAIL    The device did not start
