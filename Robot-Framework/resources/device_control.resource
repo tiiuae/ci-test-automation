@@ -28,7 +28,7 @@ Reboot Device Via Relay
     Log To Console    Turning device on...
     Turn Relay On     ${RELAY_NUMBER}
 
-Reboot LenovoX1
+Reboot Laptop
     [Arguments]       ${delay}=20
     [Documentation]   Turn off the laptop by pressing power button for 10 sec turn on by short pressing power button
     Log To Console    ${\n}Turning device off...
