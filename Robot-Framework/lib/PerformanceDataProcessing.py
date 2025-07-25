@@ -152,24 +152,26 @@ class PerformanceDataProcessing:
             # Monitor deviation from the mean of the last "stable" baseline period
             d[0] = last_measurement - mean
 
-            # Monitor deviation from the first measurement of the last stable period,
-            # meaning there are no deviations detected within that period.
-            # This will catch slow monotonic change over time.
+            # Deviation from the first measurement of the baseline period,
+            # For simplicity this deviation is not anymore used as another pass/fail criteria.
+            # So slow monotonic change will pass. However, the deviation will still be logged.
             d[1] = last_measurement - data_column[baseline_start]
 
             # Flag indicating significant change in performance value
             flag = 0
 
             # Check if performance has either decreased or increased significantly
-            for i in range(len(d)):
-                if d[i] < -threshold:
-                    flag = -1
-                    break
-                if d[i] > threshold:
-                    flag = 1
+            if d[0] < -threshold:
+                flag = -1
 
-            upper_marginal = min(mean, data_column[baseline_start]) + threshold
-            lower_marginal = max(mean, data_column[baseline_start]) - threshold
+            if d[0] > threshold:
+                flag = 1
+
+            upper_marginal = mean + threshold
+            lower_marginal = mean - threshold
+
+            if lower_marginal < self.low_limit:
+                lower_marginal = self.low_limit
 
             stats = self.truncate([mean, pstd] + d + [data_column[baseline_end], data_column[baseline_start], upper_marginal, lower_marginal], 5)
 
@@ -247,49 +249,51 @@ class PerformanceDataProcessing:
 
                     new_statistics_row = {}
                     indexed_statistics_row = {}
-                    counter = 0
+                    monitored_value_index = 0
                     for value in monitored_value:
                         # Select threshold by value name only if there are multiple thresholds
                         if len(threshold) < 2:
                             select_threshold = 0
                         else:
                             select_threshold = value
-                        statistics_block = self.detect_deviation(data[value], baseline_start[value], threshold[select_threshold], deviation_counter[counter], deviations[value])
+                        statistics_block = self.detect_deviation(data[value], baseline_start[value], threshold[select_threshold], deviation_counter[monitored_value_index], deviations[value])
 
                         # Monitor deviations of monitored_value(s)
                         flag = statistics_block['flag']
                         if flag != 0:
+
                             # Keep track on deviated results to be able to omit random odd result from baseline
                             deviations[value].append(row_index)
-                            if abs(deviation_counter[counter]) < 1:
+                            if abs(deviation_counter[monitored_value_index]) < 1:
                                 # Set potential start for new baseline
                                 new_baseline_start[value] = row_index
                             else:
                                 # Check if new deviation is to opposite direction than previously
-                                if flag * deviation_counter[counter] < 0:
-                                    deviation_counter[counter] = 0
+                                if flag * deviation_counter[monitored_value_index] < 0:
+                                    deviation_counter[monitored_value_index] = 0
                                     new_baseline_start[value] = row_index
+
                             # Track of number of successive deviations
-                            deviation_counter[counter] += flag
+                            deviation_counter[monitored_value_index] += flag
                             # Save direction (+/-) and number of successive deviations to statistics
-                            statistics_block['flag'] = flag * abs(deviation_counter[counter])
+                            statistics_block['flag'] = flag * abs(deviation_counter[monitored_value_index])
                             # Don't change baseline for invalid (zero) results
                             if flag != self.zero_result_flag:
-                                # If there is zero label in the deviation counter from the previous measurements reset counter to -1
-                                if deviation_counter[counter] < self.zero_result_flag:
-                                    deviation_counter[counter] = -1
+                                # If there is zero label in the deviation_counter from the previous measurements reset deviation_counter to -1
+                                if deviation_counter[monitored_value_index] < self.zero_result_flag:
+                                    deviation_counter[monitored_value_index] = -1
                                     new_baseline_start[value] = row_index
                                 # Trigger baseline change if number of successive deviations exceeds the defined limit
-                                if abs(deviation_counter[counter]) > thresholds['wait_until_reset'] - 1:
-                                    deviation_counter[counter] = 0
+                                if abs(deviation_counter[monitored_value_index]) > thresholds['wait_until_reset'] - 1:
+                                    deviation_counter[monitored_value_index] = 0
                                     deviations[value] = []
                                     baseline_start[value] = new_baseline_start[value]
                             else:
-                                # Keep the counter at -1 if the result is zero
-                                deviation_counter[counter] = -1
+                                # Keep the deviation_counter at -1 if the result is zero
+                                deviation_counter[monitored_value_index] = -1
                                 statistics_block['flag'] = self.zero_result_flag
                         else:
-                            deviation_counter[counter] = 0
+                            deviation_counter[monitored_value_index] = 0
 
                         new_statistics_row.update({value: statistics_block})
 
@@ -299,11 +303,17 @@ class PerformanceDataProcessing:
                             if value_count < 2:
                                 indexed_key = key
                             else:
-                                indexed_key = key + str(counter)
+                                indexed_key = key + str(monitored_value_index)
                             indexed_statistics_block.update({indexed_key: [statistics_block[key]]})
                         indexed_statistics_row.update(indexed_statistics_block)
 
-                        counter += 1
+                        # Switch baseline_start index to a non-zero measurement result as soon as one is available
+                        if data[value][baseline_start[value]] < self.low_limit and data[value][-1] > self.low_limit:
+                            deviation_counter[monitored_value_index] = 0
+                            deviations[value] = []
+                            baseline_start[value] = row_index
+
+                        monitored_value_index += 1
 
                     if row_index < 1:
                         # On the first loop add the dictionary keys
