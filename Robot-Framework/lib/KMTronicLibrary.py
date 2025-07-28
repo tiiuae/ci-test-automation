@@ -97,15 +97,21 @@ class KMTronicLibrary:
         if relay_number < 1 or relay_number > 4:
             raise ValueError("Relay number must be between 1 and 4.")
 
-        # Send status command
-        self.ser.write(bytearray.fromhex('FF0900'))
-        time.sleep(0.1)  # Wait for response
+        for i in range(3):
+            # Send status command
+            self.ser.write(bytearray.fromhex('FF0900'))
+            time.sleep(0.1)  # Wait for response
 
-        # Read response (4 bytes, one byte per relay)
-        response = self.ser.read(4)
+            # Read response (4 bytes, one byte per relay)
+            response = self.ser.read(4)
 
+            if len(response) != 4:
+                BuiltIn().log_to_console(f"Invalid response length received. Response: {response}")
+                time.sleep(1)
+            else:
+                break
         if len(response) != 4:
-            raise RuntimeError("Invalid response length received.")
+            raise RuntimeError(f"Invalid response length received. Response: {response}")
 
         # Decode the state of the specified relay
         relay_state = response[relay_number - 1]
