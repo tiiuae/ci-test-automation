@@ -314,7 +314,7 @@ Get screen brightness
 
 Get gui-vm user journalctl log
     [Setup]      Switch to vm    gui-vm  user=${USER_LOGIN}
-    Get user journalctl log   gui-vm-user.log
+    Get user journalctl log   gui-vm-user.txt
     [Teardown]   Switch to vm    gui-vm
 
 Switch keyboard layout
