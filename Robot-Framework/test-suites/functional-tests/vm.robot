@@ -34,9 +34,7 @@ Check systemctl status in every VM
     ${failed_new_services}=    Create List
     ${failed_old_services}=    Create List
     ${known_issues}=    Create List
-    ...    ANY|systemd-oomd.service|SSRCSP-6682
-    ...    ANY|persist-storage-dirs.service|SSRCSP-6682
-    ...    gui-vm|setup-ghaf-user.service|SSRCSP-6682
+    ...    gui-vm|setup-ghaf-user.service|SSRCSP-6858
 
     FOR  ${vm}  IN  @{VM_LIST}
         Connect to VM    ${vm}
