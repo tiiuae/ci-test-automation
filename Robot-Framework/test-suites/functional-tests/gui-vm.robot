@@ -79,9 +79,10 @@ Start Falcon AI on LenovoX1
 Check user systemctl status
     [Documentation]   Verify systemctl status --user is running
     [Tags]            bat   SP-T260  lenovo-x1   dell-7330  fmo
+
     ${known_issues}=    Create List
-    ...    Dell|hidpi-auto-scaling.service|SSRCSP-6697
-    ...    Lenovo|hidpi-auto-scaling.service|SSRCSP-6697
+    # Add any known failing services here with the target device and bug ticket number.
+    # ...    device|service-name|ticket-number
     Verify Systemctl status    range=3   user=True
 
     [Teardown]   Run Keyword If Test Failed   Check systemctl status for known issues  ${known_issues}  ${failed_units}
