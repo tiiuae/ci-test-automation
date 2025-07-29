@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Library             BuiltIn
 Library             Collections
 
 
@@ -55,3 +54,29 @@ Output Dictionary First Value
     ${keys}                 Get Dictionary Keys          ${statistics_dict}
     ${output}               Get From Dictionary          ${statistics_dict}    ${keys}[0]
     RETURN                  ${output}
+
+Install sysbench tool
+    ${command_output}=    Execute Command    nix-env --query --installed
+    ${not_installed} =	Run Keyword And Return Status	Should Not Contain    ${command_output}    sysbench
+    IF  ${not_installed}
+        Execute Command    nix-env -i sysbench
+        ${command_output}=    Execute Command    nix-env --query --installed
+        Log To Console    ${\n}Installed packages:${\n}${command_output}
+        Should Contain    ${command_output}    sysbench    sysbench tool was not installed
+        Log To Console    sysbench tool was successfully installed
+    ELSE
+        Log To Console    ${\n}sysbench tool was already installed
+    END
+
+Install iperf tool
+    ${command_output}=    Execute Command    nix-env --query --installed
+    ${not_installed} =	  Run Keyword And Return Status	Should Not Contain    ${command_output}    iperf
+    IF  ${not_installed}
+        Execute Command   nix-env -i iperf
+        ${command_output}=    Execute Command    nix-env --query --installed
+        Log To Console    ${\n}Installed packages:${\n}${command_output}
+        Should Contain    ${command_output}    iperf    iperf tool was not installed
+        Log To Console    iperf tool was successfully installed
+    ELSE
+        Log To Console    ${\n}iperf tool was already installed
+    END

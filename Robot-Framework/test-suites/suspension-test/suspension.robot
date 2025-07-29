@@ -4,15 +4,14 @@
 *** Settings ***
 Documentation       Testing automatic suspension of Lenovo-X1
 Force Tags          regression   suspension
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../config/variables.robot
-Resource            ../../resources/common_keywords.resource
-Resource            ../../resources/gui_keywords.resource
+
 Resource            ../../resources/device_control.resource
-Resource            ../../resources/connection_keywords.resource
+Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/power_meas_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 Library             ../../lib/output_parser.py
 Library             JSONLibrary
+
 
 *** Test Cases ***
 

@@ -3,8 +3,8 @@
 
 *** Settings ***
 Documentation       Suspension test
-Resource            ../../resources/common_keywords.resource
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../config/variables.robot
+
+Resource            ../../resources/setup_keywords.resource
+
 Suite Setup         Prepare Test Environment
 Suite Teardown      Clean Up Test Environment

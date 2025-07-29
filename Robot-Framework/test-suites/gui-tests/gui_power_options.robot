@@ -4,13 +4,14 @@
 *** Settings ***
 Documentation       Testing taskbar power widget options
 Force Tags          gui   gui-power-menu
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../config/variables.robot
-Resource            ../../resources/gui_keywords.resource
-Resource            ../../resources/common_keywords.resource
-Resource            ../../resources/power_meas_keywords.resource
+
 Library             ../../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
+Resource            ../../resources/gui_keywords.resource
+Resource            ../../resources/power_meas_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
+
 Test Setup          GUI Power Test Setup
+
 
 *** Test Cases ***
 

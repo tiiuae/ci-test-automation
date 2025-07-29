@@ -3,10 +3,12 @@
 
 *** Settings ***
 Documentation       Testing time synchronization
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../config/variables.robot
-Resource            ../../resources/connection_keywords.resource
+Force tags          timesync  bat  regression
+
 Library             ../../lib/TimeLibrary.py
+Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/wifi_keywords.resource
+
 Suite Teardown      Close All Connections
 
 
@@ -27,7 +29,7 @@ Time synchronization
     ...                      -Net-vm is not connected to net.
     ...                  - Ghaf-host is connected to net via Net-VM if adapter is used!.
     ...                  - In this test we expect adapter is not used -> Set Wi-Fi ON to enable net-vm to address net.
-    [Tags]            bat  regression   SP-T97   nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330  fmo
+    [Tags]            SP-T97   nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330  fmo
 
     IF  "AGX" in "${DEVICE}"  Set Wifi passthrough into NetVM
 

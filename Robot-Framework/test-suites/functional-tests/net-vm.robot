@@ -3,11 +3,13 @@
 
 *** Settings ***
 Documentation       Testing Network VM
-Force Tags          netvm  bat  regression
+Force Tags          net-vm  bat  regression
+
+Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/virtualization_keywords.resource
-Resource            ../../resources/connection_keywords.resource
-Resource            ../../config/variables.robot
+Resource            ../../resources/wifi_keywords.resource
+
 Suite Teardown      Close All Connections
 
 

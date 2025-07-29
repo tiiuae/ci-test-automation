@@ -4,10 +4,14 @@
 *** Settings ***
 Documentation       Testing files sharing among VMs
 Force Tags          shares  SP-T198  lenovo-x1  dell-7330
+
+Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
+
 Test Template       File sharing test
 Suite Setup         Shares setup
 Suite Teardown      Close All Connections
+
 
 *** Test Cases ***
 

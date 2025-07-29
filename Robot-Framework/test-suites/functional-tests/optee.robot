@@ -3,14 +3,14 @@
 
 *** Settings ***
 Documentation       Test OP-TEE PKCS#11 through pkcs11-tool wrappers
+
 Resource            ../../resources/ssh_keywords.resource
-Resource            ../../config/variables.robot
+
 Suite Setup         Connect to ghaf host
 Suite Teardown      Close All Connections
 
 
 *** Test Cases ***
-
 
 OP-TEE xtest
        [Documentation]  Runs OP-TEE's xtest

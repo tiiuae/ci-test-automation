@@ -3,7 +3,8 @@
 
 *** Settings ***
 Documentation       Security tests
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/connection_keywords.resource
+
+Resource            ../../resources/setup_keywords.resource
+
 Suite Setup         Initialize Variables And Connect
 Suite Teardown      Close All Connections

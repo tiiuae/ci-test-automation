@@ -1,4 +1,3 @@
-
 # SPDX-FileCopyrightText: 2022-2025 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
@@ -6,19 +5,19 @@
 Documentation       Keywords for gui tests. Note: These keywords assume the connection is to the gui-vm,
 ...                 as the ghaf user. If a keyword requires the user account, it will handle switching to
 ...                 the user and switch back to the ghaf user during teardown.
-Resource            ../config/variables.robot
+
 Library             ../lib/GuiTesting.py    ${OUTPUT_DIR}/outputs/gui-temp/
 Library             Collections
 Library             DateTime
-Library             OperatingSystem
+Resource            ../resources/ssh_keywords.resource
 
 
 *** Variables ***
-
 ${APP_MENU_LAUNCHER}   ./launcher.png
 ${LOCK_ICON}           ./lock.png
 ${DISABLE_LOGOUT}      ${EMPTY}
 ${GUI_TEMP_DIR}        ${OUTPUT_DIR}/outputs/gui-temp/
+
 
 *** Keywords ***
 
@@ -282,6 +281,10 @@ Save most common icons and paths to icons
     Get icon                ${ICONS}/Papirus/24x24/actions  system-shutdown.svg  crop=0  background=black  output_filename=power.png
     Get icon                ${ICONS}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
 
+Create test user
+    Log To Console      Creating test user
+    Execute Command     systemctl start setup-test-user.service  sudo=True  sudo_password=${password}
+
 Stop swayidle
     [Documentation]    Stop swayidle to prevent automatic suspension
     Log To Console    Disabling automated lock and suspend
@@ -313,9 +316,12 @@ Get screen brightness
     RETURN            ${brightness}
 
 Get gui-vm user journalctl log
-    [Setup]      Switch to vm    gui-vm  user=${USER_LOGIN}
-    Get user journalctl log   gui-vm-user.txt
-    [Teardown]   Switch to vm    gui-vm
+    [Arguments]       ${filename}=gui-vm-user.txt
+    [Setup]           Switch to vm    gui-vm  user=${USER_LOGIN}
+    Execute Command   journalctl --user > /tmp/${filename}
+    SSHLibrary.Get file   /tmp/${filename}   ${OUTPUT_DIR}/${filename}
+    OperatingSystem.File Should Exist   ${OUTPUT_DIR}/${filename}
+    [Teardown]        Switch to vm    gui-vm
 
 Switch keyboard layout
     [Documentation]   Toggle layout between English, Arabic and Finnish

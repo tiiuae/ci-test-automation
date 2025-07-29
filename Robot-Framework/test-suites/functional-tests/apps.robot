@@ -4,11 +4,13 @@
 *** Settings ***
 Documentation       Testing launching applications
 Force Tags          apps   lenovo-x1   dell-7330
+
+Library             String
+Resource            ../../resources/app_keywords.resource
+Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
-Resource            ../../config/variables.robot
-Resource            ../../resources/common_keywords.resource
+
 Suite Setup         Connect to netvm
-Library             ../../lib/output_parser.py
 
 
 *** Variables ***

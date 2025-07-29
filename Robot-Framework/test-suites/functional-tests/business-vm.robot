@@ -3,11 +3,11 @@
 
 *** Settings ***
 Documentation       Testing Business VM
-Force Tags          bat  regression  businessvm  lenovo-x1   dell-7330
+Force Tags          bat  regression  business-vm  lenovo-x1   dell-7330
+
+Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/virtualization_keywords.resource
-Resource            ../../config/variables.robot
-Resource            ../../resources/common_keywords.resource
+
 Suite Setup         Connect to netvm
 Test Setup          Business Apps Test Setup
 Test Teardown       Business Apps Test Teardown

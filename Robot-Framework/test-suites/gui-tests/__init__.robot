@@ -3,14 +3,14 @@
 
 *** Settings ***
 Documentation       GUI tests
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/gui_keywords.resource
-Resource            ../../resources/common_keywords.resource
-Resource            ../../resources/connection_keywords.resource
+
 Library             ../../lib/GuiTesting.py   ${OUTPUT_DIR}/outputs/gui-temp/
-Test Timeout        5 minutes
+Resource            ../../resources/setup_keywords.resource
+Resource            ../../resources/gui_keywords.resource
+
 Suite Setup         GUI Tests Setup
 Suite Teardown      GUI Tests Teardown
+Test Timeout        5 minutes
 
 
 *** Keywords ***

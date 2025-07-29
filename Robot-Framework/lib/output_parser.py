@@ -263,31 +263,6 @@ def extract_vm_names(output):
     vm_names = [line.split(':')[0] for line in lines if line]
     return vm_names
 
-def extract_mako_path(output):
-    pattern = "(?m)^[a-z0-9-]+-mako-[\d.]+$"
-    match = re.search(pattern, output)
-    if match:
-        return match.group(0)
-    else:
-        print(f"Couldn't find mako path with pattern {pattern}")
-        return None
-
-def get_last_mako_notification_id(output):
-    pattern = r"Notification\s+(\d+):"
-    matches = re.findall(pattern, output, re.MULTILINE)
-    if matches:
-        max_id = max(int(id_str) for id_str in matches)
-        return max_id
-    else:
-        print(f"Couldn't find last notification id with pattern {pattern}")
-        return None
-
-def parse_notifications(text):
-    pattern = r"Notification\s+(\d+):\s+([^\n]+)"
-    matches = re.findall(pattern, text)
-    notifications_dict = {int(num): msg for num, msg in matches}
-    return notifications_dict
-
 def parse_services_to_list(output):
     match = re.search(r"\[([^\]]+)\]", output)
     if not match:

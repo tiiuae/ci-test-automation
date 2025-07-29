@@ -1,11 +1,8 @@
 # SPDX-FileCopyrightText: 2022-2025 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
-*** Settings ***
-Resource            ../config/variables.robot
-
-
 *** Keywords ***
+
 Configure wifi
     [Arguments]         ${netvm_ssh}  ${SSID}  ${passw}
     Switch Connection   ${netvm_ssh}
@@ -34,14 +31,24 @@ Turn ON WiFi
     Log To Console      Turning on Wifi
     Execute Command     nmcli con up id ${SSID}    sudo=True    sudo_password=${PASSWORD}
 
-Initialize Variables And Connect
-    [Documentation]  Initialize variables. Connect to device and start logging
-    Close All Connections
-    Set Variables   ${DEVICE}
-    Run Keyword If  "${DEVICE_IP_ADDRESS}" == "NONE"    Get ethernet IP address
-    ${port_22_is_available}     Check if ssh is ready on device   timeout=60
-    IF  ${port_22_is_available} == False
-        FAIL    Failed because port 22 of device was not available, tests can not be run.
+Get Wifi Interface name
+    ${if_name}=    Execute Command    nmcli device status | grep wifi | head -n 1 | awk '{print $1}'
+    RETURN         ${if_name}
+
+Get wifi IP
+    [Documentation]     Parse ifconfig output and looks for wifi IP
+    ${if_name}=    Get Wifi Interface name
+    ${is_ready} =  Set Variable    False
+    FOR    ${i}    IN RANGE    20
+        ${output}     Execute Command      ifconfig
+        Log           ${output}
+        ${ip}         Get ip from ifconfig    ${output}   ${if_name}
+        ${status}     Run Keyword And Return Status    Should Not Be Equal As Strings    ${ip}    None
+        IF  ${status}
+            Log To Console     Ip is ${ip}
+            ${is_ready} =  Set Variable    True
+            BREAK
+        END
+        Sleep    1
     END
-    ${CONNECTION}        Connect to ghaf host
-    Set Global Variable  ${CONNECTION}
+    IF   ${status} == False    FAIL    NetVM hasn't gotten an IP

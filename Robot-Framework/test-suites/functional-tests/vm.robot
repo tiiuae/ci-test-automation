@@ -4,8 +4,12 @@
 *** Settings ***
 Documentation       Tests that are run in every VM
 Force Tags          vms  bat  regression  lenovo-x1  dell-7330  fmo
-Resource            ../../__framework__.resource
+
+Library             ../../lib/output_parser.py
+Library             Collections
+Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
+
 Suite Setup         VM Suite Setup
 Suite Teardown      Close All Connections
 
@@ -60,3 +64,28 @@ VM Suite Setup
     @{VM_LIST}      Extract VM names   ${output}
     Should Not Be Empty   ${VM_LIST}   VM list is empty
     Set Suite Variable    ${VM_LIST}
+
+Check VM systemctl status for known issues
+    [Arguments]    ${vm}   ${known_issues_list}   ${failing_services}
+    [Documentation]    Check if failing services in VMs contain issues that are not listed as known
+    ${old_issues}=    Create List
+    ${new_issues}=    Create List
+    FOR    ${failing_service}    IN    @{failing_services}
+        ${known}=    Set Variable    False
+        FOR    ${entry}    IN    @{known_issues_list}
+            ${list_vm}  ${service}  ${issue}   Parse Known Issue   ${entry}
+
+            ${vm_match}=         Run Keyword And Return Status    Should Contain    ${vm}    ${list_vm}
+            ${service_match}=    Run Keyword And Return Status    Should Contain    ${failing_service}    ${service}
+
+            IF   ('${vm_match}' == 'True' or '${list_vm}' == 'ANY') and ('${service}' == 'ANY' or '${service_match}') == 'True'
+                ${known}=     Set Variable    True
+            END
+        END
+        IF    ${known}   
+            Append To List    ${old_issues}    ${failing_service}
+        ELSE
+            Append To List    ${new_issues}    ${failing_service}
+        END
+    END
+    RETURN    ${new_issues}   ${old_issues}
