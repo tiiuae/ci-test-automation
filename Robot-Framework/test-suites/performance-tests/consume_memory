@@ -8,22 +8,25 @@
 # consumption causing the script to be killed before finishing.
 
 write_iterations=$1
-status_file="$2"
+robot_status_file="$2"
+script_status_file="$3"
+
+echo "stage0" > ${script_status_file}
 
 # Create a 2MB source file
 mkdir /dev/shm/test
-for i in $(seq 80000); do
+for i in $(seq 76923); do
     echo "fillthememorywiththisdata" >> /dev/shm/test/source
 done
 
 # Fill the memory by copying the source file
 for index in $(seq ${write_iterations}); do
-    cp /dev/shm/test/source /dev/shm/test/file${index}
-    if [[ $(cat ${status_file}) == "stage1" ]]
+    if [[ $(cat ${robot_status_file}) != "stage0" ]]
     then
         break
     fi
+    cp /dev/shm/test/source /dev/shm/test/file${index}
 done
 
 sleep 1
-echo stage1 > ${status_file}
+echo "stage1" > ${script_status_file}
