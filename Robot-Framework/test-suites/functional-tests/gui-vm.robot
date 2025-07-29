@@ -4,9 +4,11 @@
 *** Settings ***
 Documentation       Testing Gui-vm
 Force Tags          gui-vm   regression
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../config/variables.robot
+
+Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/common_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
+
 Suite Setup         Connect to netvm
 Test Setup          Gui-vm Test Setup
 Test Teardown       Gui-vm Test Teardown
@@ -17,6 +19,7 @@ Test Teardown       Gui-vm Test Teardown
 
 
 *** Test Cases ***
+
 Start Calculator on LenovoX1
     [Documentation]   Start Calculator and verify process started
     [Tags]            bat   pre-merge  calculator  SP-T202  lenovo-x1  dell-7330  fmo

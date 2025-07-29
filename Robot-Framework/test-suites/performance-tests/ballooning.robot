@@ -4,14 +4,18 @@
 *** Settings ***
 Documentation       Testing performance of memory ballooning
 Force Tags          performance     ballooning
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/device_control.resource
+
+Resource            ../../config/variables.robot
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
 ...                 ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}  ${PERF_LOW_LIMIT}
+Resource            ../../resources/device_control.resource
+Resource            ../../resources/ssh_keywords.resource
+
 Suite Setup         Connect to netvm
-Test Teardown       Ballooning Test Teardown
 Suite Teardown      Close All Connections
+Test Teardown       Ballooning Test Teardown
 Test Timeout        5 minutes
+
 
 *** Variables ***
 ${test_status_file}      /tmp/ballooning_test_status

@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Resource            ../../config/variables.robot
 Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/common_keywords.resource
+
 
 *** Variables ***
 ${connection}
 ${ip_server}
+
 
 *** Test Cases ***
 

@@ -4,17 +4,19 @@
 *** Settings ***
 Documentation       Gathering performance data
 Force Tags          performance
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/serial_keywords.resource
+
 Resource            ../../config/variables.robot
-Resource            ../../resources/performance_keywords.resource
-Resource            ../../resources/connection_keywords.resource
 Library             ../../lib/output_parser.py
 Library             ../../lib/parse_perfbench.py
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
 ...                 ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}  ${PERF_LOW_LIMIT}
 Library             Collections
 Library             DateTime
+Resource            ../../resources/performance_keywords.resource
+Resource            ../../resources/serial_keywords.resource
+Resource            ../../resources/setup_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
+
 Suite Setup         Initialize Variables And Connect
 Suite Teardown      Close All Connections
 

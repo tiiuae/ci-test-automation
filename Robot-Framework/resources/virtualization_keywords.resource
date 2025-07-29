@@ -3,8 +3,6 @@
 
 *** Settings ***
 Library             SSHLibrary
-Resource            ../config/variables.robot
-Library             BuiltIn
 Library             String
 
 

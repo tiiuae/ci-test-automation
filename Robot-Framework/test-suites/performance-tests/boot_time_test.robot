@@ -4,18 +4,20 @@
 *** Settings ***
 Documentation       Testing target device bootup time.
 Force Tags          boot_time_test   performance
-Resource            ../../resources/serial_keywords.resource
-Resource            ../../resources/common_keywords.resource
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/device_control.resource
-Resource            ../../resources/performance_keywords.resource
+
 Resource            ../../config/variables.robot
-Variables           ../../lib/performance_thresholds.py
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
 ...                 ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}  ${PERF_LOW_LIMIT}
 Library             DateTime
 Library             Collections
-Suite Setup         Boot Time Test Setup
+Resource            ../../resources/device_control.resource
+Resource            ../../resources/performance_keywords.resource
+Resource            ../../resources/serial_keywords.resource
+Resource            ../../resources/setup_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
+Variables           ../../lib/performance_thresholds.py
+
+Suite Setup         Prepare Test Environment  login=False
 Suite Teardown      Close All Connections
 
 
@@ -142,15 +144,6 @@ Check Time To Notification
     ${time}  Subtract Time From Time  ${notification_time}  ${start_time}   exclude_millis=True
     Should Be True  0 < ${time} < 120
     RETURN  ${time}
-
-Boot Time Test Setup
-    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        Connect to ghaf host
-        Verify service status   range=15  service=microvm@gui-vm.service  expected_status=active  expected_state=running
-        Connect to netvm
-        Connect to VM           ${GUI_VM}
-        Create test user
-    END
 
 Check Result Validity
     [Arguments]      ${captured_results}

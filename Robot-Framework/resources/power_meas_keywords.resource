@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Resource            ../config/variables.robot
 Library             ../lib/ParsePowerData.py    ${POWER_MEASUREMENT_DIR}    ${PLOT_DIR}
-Resource            ./common_keywords.resource
-Library             SSHLibrary
 Library             DateTime
+Library             SSHLibrary
+Resource            ../resources/common_keywords.resource
+
 
 *** Variables ***
 ${SSH_MEASUREMENT}        ${EMPTY}

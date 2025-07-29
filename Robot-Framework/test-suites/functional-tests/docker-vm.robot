@@ -4,9 +4,10 @@
 *** Settings ***
 Documentation       Testing Docker VM (FMO target)
 Force Tags          bat  regression  docker-vm  fmo
-Resource            ../../config/variables.robot
-Resource            ../../resources/common_keywords.resource
+
+Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
+
 Test Setup          Docker Apps Test Setup
 Test Teardown       Docker Apps Test Teardown
 

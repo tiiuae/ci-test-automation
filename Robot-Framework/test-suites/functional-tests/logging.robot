@@ -4,10 +4,11 @@
 *** Settings ***
 Documentation       Testing logging
 Force Tags          bat  regression   logging  lenovo-x1   dell-7330
-Resource            ../../config/variables.robot
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/connection_keywords.resource
+
 Library             DateTime
+Library             OperatingSystem
+Resource            ../../resources/ssh_keywords.resource
+
 Suite Setup         Connect to netvm
 Suite Teardown      Close All Connections
 
@@ -18,6 +19,7 @@ ${GRAFANA_LOGS}       https://loki.ghaflogs.vedenemo.dev
 
 
 *** Test Cases ***
+
 Check Grafana logs
     [Documentation]  Check that all virtual machines are sending logs to Grafana
     [Tags]           SP-T172

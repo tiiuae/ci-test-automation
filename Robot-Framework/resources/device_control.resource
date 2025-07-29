@@ -2,10 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Resource            ../config/variables.robot
-Library             BuiltIn
 Library             ../lib/PlugLibrary/PlugLibrary.py  ${PLUG_TYPE}
 Library             ../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
+
 
 *** Keywords ***
 
