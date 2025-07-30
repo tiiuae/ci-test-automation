@@ -279,7 +279,7 @@ Save most common icons and paths to icons
     Negate app icon         ${GUI_TEMP_DIR}window-close.png  ${GUI_TEMP_DIR}window-close-neg.png
     Get icon                ${ICONS}/Cosmic/scalable/actions  system-search-symbolic.svg  crop=0  background=white  output_filename=search.png
     Negate app icon         ${GUI_TEMP_DIR}search.png  ${GUI_TEMP_DIR}search-neg.png
-    Get icon                ${ICONS}/hicolor/scalable/apps  com.system76.CosmicAppletPower-symbolic.svg  crop=0  background=black  output_filename=power.png
+    Get icon                ${ICONS}/Papirus/24x24/actions  system-shutdown.svg  crop=0  background=black  output_filename=power.png
     Get icon                ${ICONS}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
 
 Stop swayidle
