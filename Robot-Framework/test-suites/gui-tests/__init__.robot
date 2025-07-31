@@ -16,6 +16,7 @@ Test Timeout        5 minutes
 *** Keywords ***
 
 GUI Tests Setup
+    [Timeout]    5 minutes
     Prepare Test Environment   enable_dnd=True
 
     # There's a bug that occasionally causes the app menu to freeze on Cosmic, especially on the first login. 
@@ -24,4 +25,5 @@ GUI Tests Setup
     Log in, unlock and verify   enable_dnd=True
 
 GUI Tests Teardown
+    [Timeout]    5 minutes
     Clean Up Test Environment   disable_dnd=True

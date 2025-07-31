@@ -43,7 +43,7 @@ Automatic suspension
     Wait    50
     ${locked}         Check if locked
     Should Be True    ${locked}
-    
+
     Wait     150
     Check the screen state   off
 

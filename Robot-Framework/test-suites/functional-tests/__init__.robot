@@ -18,10 +18,10 @@ ${DISABLE_LOGOUT}     ${EMPTY}
 *** Keywords ***
 
 Functional tests setup
-    [timeout]    5 minutes
+    [Timeout]    5 minutes
     Prepare Test Environment
     Switch Connection    ${CONNECTION}
 
 Functional tests teardown
-    [timeout]    5 minutes
+    [Timeout]    5 minutes
     Clean Up Test Environment
