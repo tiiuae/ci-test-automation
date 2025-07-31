@@ -6,5 +6,16 @@ Documentation       Suspension test
 
 Resource            ../../resources/setup_keywords.resource
 
-Suite Setup         Prepare Test Environment
-Suite Teardown      Clean Up Test Environment
+Suite Setup         Suspension test setup
+Suite Teardown      Suspension test teardown
+
+
+*** Keywords ***
+
+Suspension test setup
+    [Timeout]    5 minutes
+    Prepare Test Environment
+
+Suspension test teardown
+    [Timeout]    5 minutes
+    Clean Up Test Environment
