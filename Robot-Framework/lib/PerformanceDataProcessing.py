@@ -180,8 +180,8 @@ class PerformanceDataProcessing:
             stats[0] = last_measurement
             stats[4] = last_measurement
             stats[5] = last_measurement
-            stats[6] = 2 * last_measurement
-            stats[7] = 0
+            stats[6] = self.low_limit
+            stats[7] = self.low_limit
 
         if last_measurement < self.low_limit:
             flag = self.zero_result_flag

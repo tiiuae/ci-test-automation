@@ -119,7 +119,7 @@ Save log
     Connect via serial    timeout=60.0
     Write Data    sh -c 'journalctl | tee jrnl.txt | cat'${\n}
     ${output} =   SerialLibrary.Read Until    ghaf@ghaf-host:
-    Write Advanced Testlog    journalctl.log     ${output}
+    Write Advanced Testlog    journalctl.txt     ${output}
     Log  ${output}
     [Teardown]    Delete All Ports
 
