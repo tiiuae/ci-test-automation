@@ -130,8 +130,8 @@ Wait Until Falcon Download Complete
 
 Ask the question
     [Arguments]      ${question}
-    Log To Console   Asking AI: ${question}
+    Log              Asking AI: ${question}  console=True
     Execute Command  script -q -c 'ollama run falcon3:10b "${question}" > result.txt'     return_stderr=True    timeout=60
     ${answer}        Execute Command  cat result.txt
-    Log To Console   The answer is: ${answer}
+    Log              The answer is: ${answer}  console=True
     RETURN           ${answer}

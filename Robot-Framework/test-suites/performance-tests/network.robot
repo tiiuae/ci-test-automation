@@ -18,7 +18,7 @@ Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Suite Setup         Run Keywords  Initialize Variables And Connect
+Suite Setup         Run Keywords  Connect to device
 ...                 AND  Select network connection to use
 ...                 AND  Run iperf server on DUT
 Suite Teardown      Run Keywords  Stop iperf server
@@ -158,7 +158,7 @@ Measure UDP Bidir Throughput Big Packets
 
 *** Keywords ***
 Select network connection to use
-    [Documentation]  Select the connection to be used. This cannot be done in Keyword 'Initialize Variables And Connect'
+    [Documentation]  Select the connection to be used. This cannot be done in Keyword 'Connect to device'
      ...             since it then breaks the  other test suites.
      IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
          ${CONNECTION}       Connect to netvm
@@ -188,7 +188,7 @@ Close port 5201 from iptables
 Stop iperf server
     @{pid}=  Find pid by name  iperf
     IF  @{pid} != @{EMPTY}
-        Log To Console  Close iperf server: @{pid}
+        Log             Close iperf server: @{pid}  console=True
         Kill process    @{pid}
     END
 

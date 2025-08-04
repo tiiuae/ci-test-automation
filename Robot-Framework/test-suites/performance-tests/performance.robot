@@ -17,7 +17,7 @@ Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Suite Setup         Initialize Variables And Connect
+Suite Setup         Connect to device
 Suite Teardown      Close All Connections
 
 *** Variables ***
@@ -214,7 +214,7 @@ Sysbench test in VMs
         ${threads_n}	Get From Dictionary	  ${threads}	 ${vm}
         ${vm_fail}      Transfer Sysbench Test Script To VM   ${vm}
         IF  '${vm_fail}' == 'FAIL'
-            Log To Console  Skipping tests for ${vm} because couldn't connect to it
+            Log         Skipping tests for ${vm} because couldn't connect to it  console=True
         ELSE
             ${output}       Execute Command      /tmp/sysbench_test ${threads_n}  sudo=True  sudo_password=${PASSWORD}
             Run Keyword If    ${threads_n} > 1   Save sysbench results   ${vm}
@@ -286,7 +286,7 @@ Transfer Sysbench Test Script To VM
         ${vm_fail}    ${result} =    Run Keyword And Ignore Error    Connect to VM    ${vm}
         Run Keyword If    '${vm_fail}' == 'FAIL'   Append To List	 ${FAILED_VMS}	  ${vm}
         Run Keyword If    '${vm_fail}' == 'FAIL'   Return From Keyword  ${vm_fail}
-        Log To Console    Successfully connected to ${vm}
+        Log               Successfully connected to ${vm}  console=True
     END
     Put File           performance-tests/sysbench_test    /tmp
     Execute Command    chmod 777 /tmp/sysbench_test
@@ -300,11 +300,11 @@ Save cpu results
     ${statistics}       Output Dictionary First Value   ${statistics_dict}
     IF  "${statistics}[flag]" == "-1"
         Append To List     ${FAILED_VM_TESTS}        ${host}_${test}
-        Log To Console     Deviation detected in test: ${host}_${test}
+        Log                Deviation detected in test: ${host}_${test}  console=True
     END
     IF  "${statistics}[flag]" == "1"
         Append To List     ${IMPROVED_VM_TESTS}      ${host}_${test}
-        Log To Console     Improvement detected in test: ${host}_${test}
+        Log                Improvement detected in test: ${host}_${test}  console=True
     END
 
 Save memory results
@@ -317,11 +317,11 @@ Save memory results
     ${statistics}       Output Dictionary First Value   ${statistics_dict}
     IF  "${statistics}[flag]" == "-1"
         Append To List     ${FAILED_VM_TESTS}        ${host}_${test}
-        Log To Console     Deviation detected in test: ${host}_${test}
+        Log                Deviation detected in test: ${host}_${test}  console=True
     END
     IF  "${statistics}[flag]" == "1"
         Append To List     ${IMPROVED_VM_TESTS}      ${host}_${test}
-        Log To Console     Improvement detected in test: ${host}_${test}
+        Log                Improvement detected in test: ${host}_${test}  console=True
     END
 
 Save sysbench results

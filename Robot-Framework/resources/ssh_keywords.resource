@@ -28,20 +28,20 @@ Check If Ping Fails
 
 Check Network Availability
     [Arguments]            ${host}  ${expected_result}=True  ${range}=5
-    Log To Console         Checking network ${host} availability, expected: ${expected_result}
+    Log                    Checking network ${host} availability, expected: ${expected_result}  console=True
     Set Global Variable    ${IS_AVAILABLE}   False
     FOR   ${i}   IN RANGE  ${range}
         Write    ping ${host} -c 1
         TRY
             Read Until           1 received
             Set Global Variable  ${IS_AVAILABLE}  True
-            Log To Console  ${host} is available
+            Log   ${host} is available  console=True
             IF    ${expected_result} == True
                 BREAK
             END
         EXCEPT
             IF    ${expected_result} == False
-                Log To Console  ${host} is unavailable
+                Log    ${host} is unavailable  console=True
                 BREAK
             ELSE
                 CONTINUE

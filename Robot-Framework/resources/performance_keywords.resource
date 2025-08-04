@@ -61,7 +61,7 @@ Install sysbench tool
     IF  ${not_installed}
         Execute Command    nix-env -i sysbench
         ${command_output}=    Execute Command    nix-env --query --installed
-        Log To Console    ${\n}Installed packages:${\n}${command_output}
+        Log               ${\n}Installed packages:${\n}${command_output}  console=True
         Should Contain    ${command_output}    sysbench    sysbench tool was not installed
         Log To Console    sysbench tool was successfully installed
     ELSE
