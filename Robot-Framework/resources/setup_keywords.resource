@@ -15,12 +15,14 @@ Prepare Test Environment
     Log versions
     Start journalctl recording
 
-    IF  ${login} and ("Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}")
+    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Switch to vm    gui-vm
-        Save most common icons and paths to icons
         Create test user
-        Start ydotoold
-        Log in, unlock and verify   ${stop_swayidle}   ${enable_dnd}
+        IF  ${login}
+            Save most common icons and paths to icons
+            Start ydotoold
+            Log in, unlock and verify   ${stop_swayidle}   ${enable_dnd}
+        END
     END
 
 Clean Up Test Environment
