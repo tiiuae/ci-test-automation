@@ -19,7 +19,7 @@ Suite Setup         Connect to netvm
 
 *** Test Cases ***
 
-Start Chrome on LenovoX1
+Start Chrome
     [Documentation]   Start Chrome in dedicated VM and verify process started
     [Tags]            bat  regression   pre-merge   SP-T92
     [Setup]           Run Keywords    Switch Connection    ${CONNECTION}    AND
@@ -30,7 +30,7 @@ Start Chrome on LenovoX1
     Check that the application was started    chrome
     [Teardown]  Kill Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    /home/testuser/output.log    ${CHROME_VM}
 
-Start Zathura on LenovoX1
+Start Zathura
     [Documentation]   Start Zathura in dedicated VM and verify process started
     [Tags]            bat  regression  pre-merge   SP-T105
     [Setup]           Check if ssh is ready on vm    ${ZATHURA_VM}
@@ -40,7 +40,7 @@ Start Zathura on LenovoX1
     Check that the application was started    zathura
     [Teardown]  Kill Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    /home/testuser/output.log    ${ZATHURA_VM}
 
-Start Gala on LenovoX1
+Start Gala
     [Documentation]   Start Gala in dedicated VM and verify process started
     [Tags]            bat  regression  SP-T104
     [Setup]           Check if ssh is ready on vm    ${GALA_VM}
@@ -52,7 +52,7 @@ Start Gala on LenovoX1
     ...         Kill Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    /home/testuser/output.log    ${GALA_VM}    AND
     ...         Run Keyword If Test Failed     Skip    "Known issue: SSRCSP-6434"
 
-Start Element on LenovoX1
+Start Element
     [Documentation]   Start Element in dedicated VM and verify process started
     [Tags]            bat  regression  SP-T52
     [Setup]           Check if ssh is ready on vm    ${COMMS_VM}
@@ -62,7 +62,7 @@ Start Element on LenovoX1
     Check that the application was started    element
     [Teardown]  Kill Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    /home/testuser/output.log    ${COMMS_VM}
 
-Start Slack on LenovoX1
+Start Slack
     [Documentation]   Start Slack in dedicated VM and verify process started
     [Tags]            bat  regression  SP-T181
     [Setup]           Check if ssh is ready on vm    ${COMMS_VM}

@@ -191,7 +191,7 @@ Sysbench test in NetVM
     ${stats_dict}           Evaluate      dict(${statistics_cpu}, **${statistics_mem_rd}, **${statistics_mem_wr})
     Determine Test Status   ${stats_dict}
 
-Sysbench test in VMs on LenovoX1
+Sysbench test in VMs
     [Documentation]      Run CPU and Memory benchmark using Sysbench in Virtual Machines
     ...                  for 1 thread and MULTIPLE threads if there are more than 1 thread in VM.
     [Tags]               SP-T61-9   lenovo-x1   dell-7330
