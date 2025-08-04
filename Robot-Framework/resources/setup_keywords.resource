@@ -11,7 +11,7 @@ Resource            ../resources/ssh_keywords.resource
 
 Prepare Test Environment
     [Arguments]   ${login}=True   ${stop_swayidle}=True   ${enable_dnd}=False
-    Initialize Variables And Connect
+    Connect to device
     Log versions
     Start journalctl recording
 
@@ -26,6 +26,7 @@ Prepare Test Environment
     END
 
 Clean Up Test Environment
+    [Timeout]     5 minutes
     [Arguments]   ${disable_dnd}=False
     Connect to ghaf host
     Stop journalctl recording
@@ -37,10 +38,9 @@ Clean Up Test Environment
     END
     Close All Connections
 
-Initialize Variables And Connect
-    [Documentation]  Initialize variables. Connect to device and start logging
+Connect to device
+    [Documentation]  Connect to device
     Close All Connections
-    Set Variables   ${DEVICE}
     Run Keyword If  "${DEVICE_IP_ADDRESS}" == "NONE"    Get ethernet IP address
     ${port_22_is_available}     Check if ssh is ready on device   timeout=60
     IF  ${port_22_is_available} == False

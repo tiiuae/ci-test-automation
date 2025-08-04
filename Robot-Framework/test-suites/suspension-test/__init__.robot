@@ -4,6 +4,7 @@
 *** Settings ***
 Documentation       Suspension test
 
+Resource            ../../resources/device_control.resource
 Resource            ../../resources/setup_keywords.resource
 
 Suite Setup         Suspension test setup

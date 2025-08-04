@@ -6,5 +6,5 @@ Documentation       Security tests
 
 Resource            ../../resources/setup_keywords.resource
 
-Suite Setup         Initialize Variables And Connect
+Suite Setup         Connect to device
 Suite Teardown      Close All Connections

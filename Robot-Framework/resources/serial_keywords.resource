@@ -97,11 +97,11 @@ Verify init.scope status via serial
         Write Data    \x03${\n}        # write ctrl+c to stop reading status
         ${status}  ${state}   Get Service Status    ${output}
         IF  '${state}' not in ['running', 'starting']
-            Log To Console   init.scope status is ${status}
+            Log     init.scope status is ${status}  console=True
             FAIL    init.scope is not running! Status is ${state}
         ELSE IF    '${state}' == 'running'
             ${diff}=    Evaluate    int(time.time()) - int(${start_time})
-            Log To Console   init.scope status is ${status}
+            Log     init.scope status is ${status}  console=True
             RETURN
         END
         Sleep    1

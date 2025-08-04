@@ -42,11 +42,11 @@ Verify Systemctl status
         Set Test Variable   ${failed_units}
 
         IF  '${status}' not in ['running', 'starting']
-            Log To Console   Systemctl status is ${status}
+            Log     Systemctl status is ${status}  console=True
             FAIL    Systemctl is not running! Status is ${status}. Failed processes are: ${failed_units}
         ELSE IF    '${status}' == 'running'
             ${diff}=    Evaluate    int(time.time()) - int(${start_time})
-            Log To Console   Systemctl status is ${status} after ${diff} sec
+            Log     Systemctl status is ${status} after ${diff} sec  console=True
             RETURN
         END
         Sleep    1

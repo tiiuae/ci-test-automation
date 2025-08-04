@@ -149,7 +149,7 @@ Locate on screen
         Timestamp screenshot
         FAIL  Image recognition failure: ${searched_item}
     END
-    Log To Console    Coordinates: ${coordinates}
+    Log         Coordinates: ${coordinates}  console=True
     ${mouse_x}  Get From Dictionary   ${coordinates}  x
     ${mouse_y}  Get From Dictionary   ${coordinates}  y
     RETURN  ${mouse_x}  ${mouse_y}
@@ -220,9 +220,9 @@ Check if logged out
     FOR   ${i}   IN RANGE  ${iterations}
         ${activity}=       Execute Command    systemctl --user is-active xdg-desktop-portal.service  return_stdout=True
         IF  $activity == "active"
-            Log To Console      User session is ${activity}, user is logged in
+            Log      User session is ${activity}, user is logged in  console=True
         ELSE
-            Log To Console      User session is ${activity}, user is logged out
+            Log      User session is ${activity}, user is logged out  console=True
             RETURN    ${True}
         END
         Sleep  1
@@ -238,8 +238,8 @@ Wait for user session to be active
     FOR   ${i}   IN RANGE   ${iterations}
         ${activity}=       Execute Command    systemctl --user is-active xdg-desktop-portal.service  return_stdout=True
         IF  $activity == "active"
-            Log To Console    Success
-            Log To Console    User session is ${activity}, user is logged in
+            Log    Success  console=True
+            Log    User session is ${activity}, user is logged in  console=True
             BREAK
         END
         Log To Console   ${i}.  no_newline=true
