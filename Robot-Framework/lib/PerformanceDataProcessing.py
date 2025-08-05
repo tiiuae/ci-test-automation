@@ -333,11 +333,40 @@ class PerformanceDataProcessing:
         # Return the statistics of the last measurement
         return new_statistics_row, statistics
 
-    def plot_marginals(self, x_data, statistics, plot_limit, result_index=''):
+    def plot_marginals_and_deviations(self, x_data, statistics, plot_limit, result_index=''):
+
         for key in statistics.keys():
             statistics[key] = statistics[key][-plot_limit:]
         plt.plot(x_data, statistics['upper_marginal' + result_index], marker='', linestyle='dotted', color='r')
-        plt.plot(x_data, statistics['lower_marginal'+ result_index], marker='', linestyle='dotted', color='r')
+        plt.plot(x_data, statistics['lower_marginal' + result_index], marker='', linestyle='dotted', color='r')
+
+        # Plot marker 'x' over data under low limit.
+        # Plot marker '^' over increased results.
+        # Plot marker 'v' over decreased results.
+        row = 0
+        low_limit_labels = []
+        low_limit_data = []
+        increase_labels = []
+        increase_data = []
+        decrease_labels = []
+        decrease_data = []
+        for result in statistics['measurement' + result_index]:
+            flag = statistics['flag' + result_index][row]
+            if flag != 0:
+                if flag == self.zero_result_flag:
+                    low_limit_labels.append(x_data[row])
+                    low_limit_data.append(result)
+                elif flag > 0:
+                    increase_labels.append(x_data[row])
+                    increase_data.append(result)
+                else:
+                    decrease_labels.append(x_data[row])
+                    decrease_data.append(result)
+            row += 1
+        plt.plot(low_limit_labels, low_limit_data, marker='x', markersize=12, linestyle='None', mfc='r', mec='r')
+        plt.plot(increase_labels, increase_data, marker='^', markersize=12, linestyle='None', mfc='y', mec='r')
+        plt.plot(decrease_labels, decrease_data, marker='v', markersize=12, linestyle='None', mfc='y', mec='r')
+
         return
 
     @keyword
@@ -376,7 +405,7 @@ class PerformanceDataProcessing:
         plt.subplot(3, 1, 1)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(data['commit'], data['cpu_events_per_second'], marker='o', linestyle='-', color='b')
-        self.plot_marginals(data['commit'], statistics, 40)
+        self.plot_marginals_and_deviations(data['commit'], statistics, 40)
         plt.yticks(fontsize=14)
         plt.title(f'CPU Events per Second / Threshold: {threshold}', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('CPU Events per Second', fontsize=16)
@@ -488,7 +517,7 @@ class PerformanceDataProcessing:
         plt.subplot(3, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(data['commit'], data['data_transfer_speed'], marker='o', linestyle='-', color='b')
-        self.plot_marginals(data['commit'], statistics, 40)
+        self.plot_marginals_and_deviations(data['commit'], statistics, 40)
         plt.yticks(fontsize=14)
         plt.title(f'Data Transfer Speed / Threshold: {threshold}', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('Data Transfer Speed (MiB/sec)', fontsize=16)
@@ -539,7 +568,7 @@ class PerformanceDataProcessing:
         plt.subplot(2, 1, 1)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(data['commit'], data['tx'], marker='o', linestyle='-', color='b')
-        self.plot_marginals(data['commit'], statistics, 40, '0')
+        self.plot_marginals_and_deviations(data['commit'], statistics, 40, '0')
         plt.yticks(fontsize=14)
         plt.title('Transmitting Speed', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('TX Speed (MBytes/sec)', fontsize=16)
@@ -550,7 +579,7 @@ class PerformanceDataProcessing:
         plt.subplot(2, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(data['commit'], data['rx'], marker='o', linestyle='-', color='b')
-        self.plot_marginals(data['commit'], statistics, 40, '1')
+        self.plot_marginals_and_deviations(data['commit'], statistics, 40, '1')
         plt.yticks(fontsize=14)
         plt.title('Receiving Speed', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('RX Speed (MBytes/sec)', fontsize=16)
@@ -607,7 +636,7 @@ class PerformanceDataProcessing:
         plt.subplot(3, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(data['commit'], data['throughput'], marker='o', linestyle='-', color='b')
-        self.plot_marginals(data['commit'], statistics, 40)
+        self.plot_marginals_and_deviations(data['commit'], statistics, 40)
         plt.yticks(fontsize=14)
         plt.title(f'Throughput / Threshold: {threshold}', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('Throughput, MiB/s', fontsize=16)
@@ -672,7 +701,7 @@ class PerformanceDataProcessing:
             index = ''
         else:
             index = '1'
-        self.plot_marginals(data['commit'], statistics, 40, index)
+        self.plot_marginals_and_deviations(data['commit'], statistics, 40, index)
         plt.yticks(fontsize=14)
         plt.title('Response to ping', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('seconds', fontsize=12)
@@ -684,7 +713,7 @@ class PerformanceDataProcessing:
             plt.subplot(2, 1, 2)
             plt.ticklabel_format(axis='y', style='plain')
             plt.plot(data['commit'], data['time_to_desktop'], marker='o', linestyle='-', color='b')
-            self.plot_marginals(data['commit'], statistics, 40, '0')
+            self.plot_marginals_and_deviations(data['commit'], statistics, 40, '0')
             plt.yticks(fontsize=14)
             plt.title('Time from reboot to desktop available', loc='right', fontweight="bold", fontsize=16)
             plt.ylabel('seconds', fontsize=12)
