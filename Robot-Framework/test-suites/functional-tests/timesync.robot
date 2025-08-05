@@ -31,9 +31,11 @@ Time synchronization
     ...                  - In this test we expect adapter is not used -> Set Wi-Fi ON to enable net-vm to address net.
     [Tags]            SP-T97   nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330  fmo
 
-    IF  "AGX" in "${DEVICE}"  Set Wifi passthrough into NetVM
+
 
     ${host}  Connect
+    IF  "AGX" in "${DEVICE}"  Set Wifi passthrough into NetVM
+        
     Check that time is correct  timezone=UTC
 
     Stop timesync daemon
