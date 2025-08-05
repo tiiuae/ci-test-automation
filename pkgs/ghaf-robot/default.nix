@@ -28,6 +28,7 @@ writeShellApplication {
       ps.pytz
       ps.pandas
       ps.pyscreeze
+      ps.pytesseract
       ps.opencv4
       ps.evdev
 

@@ -112,10 +112,10 @@ Tab and enter
     END
     Press Key(s)       ENTER
 
-Locate image on screen
-    [Documentation]    Take a screenshot. Locate given image on the screenshot.
-    ...                Return center coordinates of the image in mouse coordinate system.
-    [Arguments]        ${image_to_be_searched}  ${confidence}=0.999   ${iterations}=5   ${fail_expected}=False  ${debug_screenshot}=True
+Locate on screen
+    [Documentation]    Take a screenshot. Locate given image or text on the screenshot.
+    ...                Return center coordinates of the item in mouse coordinate system.
+    [Arguments]        ${type}  ${searched_item}  ${confidence}=0.999   ${iterations}=5   ${fail_expected}=False  ${debug_screenshot}=True
     ${coordinates}=        Set Variable  ${EMPTY}
     ${pass_status}=        Set Variable  FAIL
     Switch to vm    gui-vm  user=${USER_LOGIN}
@@ -126,8 +126,15 @@ Locate image on screen
         Log                ${result}
         IF  "${result}[1][1]" == "0"
             SSHLibrary.Get File  ${result[1][0]}  ${GUI_TEMP_DIR}screenshot.png
-            Log To Console    Locating image ${image_to_be_searched} on ${result[1][0]}
-            ${pass_status}  ${coordinates}  Run Keyword And Ignore Error  Locate image  ${GUI_TEMP_DIR}${image_to_be_searched}   ${confidence}
+            IF  $type=="image"
+                Log To Console    Locating image ${searched_item} on ${result[1][0]}
+                ${pass_status}  ${coordinates}  Run Keyword And Ignore Error  Locate image  ${GUI_TEMP_DIR}${searched_item}   ${confidence}
+            ELSE IF  $type=="text"
+                Log To Console    Locating text ${searched_item} on ${result[1][0]}
+                ${pass_status}  ${coordinates}  Run Keyword And Ignore Error  Locate text  ${searched_item}
+            ELSE
+                FAIL    Wrong type given for image recognition
+            END
         END
         IF    $pass_status=='PASS'
             IF  ${fail_expected} and ${debug_screenshot}
@@ -140,7 +147,7 @@ Locate image on screen
     END
     IF  $pass_status=='FAIL' and ${debug_screenshot} and not ${fail_expected}
         Timestamp screenshot
-        FAIL  Image recognition failure: ${image_to_be_searched}
+        FAIL  Image recognition failure: ${searched_item}
     END
     Log To Console    Coordinates: ${coordinates}
     ${mouse_x}  Get From Dictionary   ${coordinates}  x
@@ -149,8 +156,8 @@ Locate image on screen
     [Teardown]    Switch to vm    gui-vm
 
 Locate and click
-    [Arguments]   ${image_to_be_searched}  ${confidence}=0.99  ${iterations}=5
-    ${mouse_x}  ${mouse_y}  Locate image on screen  ${image_to_be_searched}  ${confidence}  ${iterations}
+    [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=5
+    ${mouse_x}  ${mouse_y}  Locate on screen  ${type}  ${searched_item}  ${confidence}  ${iterations}
     Execute Command   ydotool mousemove --absolute -x ${mouse_x} -y ${mouse_y}  sudo=True  sudo_password=${PASSWORD}
     Execute Command   ydotool click 0xC0  sudo=True  sudo_password=${PASSWORD}
 
@@ -193,11 +200,11 @@ Verify desktop availability
     Log To Console         Verifying login by trying to detect the launcher icon
     # This is a workaround for launcher icon missing sometimes. If launcher icon can't be found tries to search
     # for the power menu icon. Gui-vm user log is saved to help debugging.
-    ${status}   ${output}   Run Keyword And Ignore Error   Locate image on screen  ${APP_MENU_LAUNCHER}  0.95  10
+    ${status}   ${output}   Run Keyword And Ignore Error   Locate on screen  image  ${APP_MENU_LAUNCHER}  0.95  10
     IF   $status == 'FAIL'
         Get gui-vm user journalctl log
         Log To Console    Could not find launcher icon, checking for power menu icon
-        Locate image on screen   ./power.png  0.55  5
+        Locate on screen  image  ./power.png  0.95  5
     END
 
 Move cursor
@@ -251,7 +258,7 @@ Check if locked
     [Documentation]    Check if the screen lock is active
     ${logout_status}   Check if logged out   1
     IF  not ${logout_status}
-        ${status}   ${output}      Run Keyword And Ignore Error   Locate image on screen  ${LOCK_ICON}  0.95  1  debug_screenshot=False
+        ${status}   ${output}      Run Keyword And Ignore Error   Locate on screen  image  ${LOCK_ICON}  0.95  1  debug_screenshot=False
         IF  '${status}' == 'PASS'
             Log To Console    Screen is locked
             RETURN    ${True}
@@ -263,7 +270,7 @@ Check if locked
 Unlock
     [Documentation]    Unlock the screen be typing password
     # Make sure that password field is active by clicking it
-    Locate and click   ${LOCK_ICON}   0.95  5
+    Locate and click   image  ${LOCK_ICON}   0.95  5
     Log To Console     Typing password to unlock
     Type string and press enter  ${USER_PASSWORD}  confidential=True
 
