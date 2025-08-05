@@ -64,7 +64,7 @@ GUI Lock and Unlock
     [Documentation]   Lock the screen via GUI power menu lock icon and check that the screen is locked.
     ...               Unlock lock screen by typing the password and check that desktop is available.
     [Tags]            lenovo-x1   SP-T208-3   SP-T208-4   lock
-    Select power menu option   index=2
+    Select power menu option   text=Lock
     ${lock}           Check if locked
     IF  not ${lock}   FAIL    Failed to lock the screen
     Unlock
@@ -98,7 +98,7 @@ GUI Log out and log in
     [Documentation]   Logout via GUI power menu icon and verify logged out state.
     ...               Login and verify that desktop is available.
     [Tags]            lenovo-x1   SP-T149   logoutlogin
-    Select power menu option   index=3   confirmation=true
+    Select power menu option   text=LogOut   confirmation=true
     ${logout_status}            Check if logged out
     IF  not ${logout_status}    FAIL  Logout failed.
     Log in, unlock and verify
@@ -112,10 +112,14 @@ GUI Power Test Setup
 
 Select power menu option
     [Documentation]    Open power menu by clicking the icon.
-    ...                Navigate to index and click
-    [Arguments]        ${icon_name}=""   ${index}=0   ${confirmation}=false
+    ...                Search the correct text or navigate to index and click.
+    [Arguments]        ${text}=""   ${index}=0   ${confirmation}=false
     Log To Console     Opening power menu
-    Locate and click   ./power.png  0.95  5
-    Tab and enter      tabs=${index}
+    Locate and click   image  ./power.png  0.95  5
+    IF  $text != ""
+        Locate and click   text   ${text}
+    ELSE
+        Tab and enter      tabs=${index}
+    END
     # Some options have a separate confirmation window that needs to be clicked.
     IF  '${confirmation}' == 'true'   Tab and enter   tabs=2

@@ -102,12 +102,12 @@ Open app menu
     [Documentation]    Check if app menu is open and if not open it
     # Searches for app menu magnifying glass to identify if app menu is open
     Log To Console     Checking that app menu is not already open
-    ${status}   ${output}      Run Keyword And Ignore Error   Locate image on screen  search-neg.png  0.90  1  fail_expected=True
+    ${status}   ${output}      Run Keyword And Ignore Error   Locate on screen  image  search-neg.png  0.90  1  fail_expected=True
     IF  '${status}' == 'PASS'
         Log To Console    App menu is already open
     ELSE
         Log To Console    Opening app menu
-        Locate and click  ${APP_MENU_LAUNCHER}  0.95  5
+        Locate and click  image  ${APP_MENU_LAUNCHER}  0.95  5
     END
 
 Close app via GUI on LenovoX1 
@@ -123,7 +123,7 @@ Close app via GUI on LenovoX1
     Check that the application was started    ${app}  exact_match=${exact_match}
     Switch to vm    gui-vm
     Log To Console                            Going to click the close button of the application window
-    Locate and click                          ${close_button}  0.8  iterations=${iterations}
+    Locate and click                          image  ${close_button}  0.8  iterations=${iterations}
     Connect to VM                             ${app-vm}
     ${status}           Run Keyword And Return Status  Check that the application is not running  ${app}  5  ${exact_match}
     IF  "${windows_to_close}" != "1"
@@ -132,7 +132,7 @@ Close app via GUI on LenovoX1
         # So need to prepare to close another window in chrome test case.
         IF  '${status}' != 'True'
             Switch to vm    gui-vm
-            Locate and click    ${close_button}  0.8  5
+            Locate and click    image  ${close_button}  0.8  5
             Connect to VM       ${app-vm}
             ${status}           Run Keyword And Return Status  Check that the application is not running  ${app}  5  ${exact_match}
         END
@@ -155,9 +155,9 @@ Start app via GUI on Orin AGX
     Start ydotoold
 
     Log To Console    Going to click the app menu icon
-    Locate and click  ${APP_MENU_LAUNCHER}  0.95  5
+    Locate and click  image  ${APP_MENU_LAUNCHER}  0.95  5
     Log To Console    Going to click the application launch icon
-    Locate and click  ${launch_icon}  0.95  5
+    Locate and click  image  ${launch_icon}  0.95  5
 
     Check that the application was started    ${app}  10
 
@@ -174,6 +174,6 @@ Close app via GUI on Orin AGX
     Start ydotoold
 
     Log To Console    Going to click the close button of the application window
-    Locate and click  ${close_button}  0.999  5
+    Locate and click  image  ${close_button}  0.999  5
 
     Check that the application is not running    ${app}   5

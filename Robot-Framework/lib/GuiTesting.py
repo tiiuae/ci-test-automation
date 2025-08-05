@@ -1,9 +1,11 @@
 # SPDX-FileCopyrightText: 2022-2025 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
-from pyscreeze import locate, center
 from evdev import ecodes
+from PIL import Image
+from pyscreeze import locate, center
 import logging
+import pytesseract
 import subprocess
 
 class GuiTesting:
@@ -21,6 +23,25 @@ class GuiTesting:
         image_center_in_mouse_coordinates = self.convert_resolution(image_center)
         logging.info(image_center_in_mouse_coordinates)
         return image_center_in_mouse_coordinates
+    
+    def locate_text(self, text):
+        logging.info("Searching " + text)
+        screenshot = self.gui_temp_dir + "screenshot.png"
+        image = Image.open(screenshot)
+        data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
+        logging.info(data)
+
+        # Loop through results to find matching text
+        for i, word in enumerate(data['text']):
+            if word.strip().lower() == text.lower():
+                x, y, w, h = (data[key][i] for key in ['left', 'top', 'width', 'height'])
+                center = (x + w // 2, y + h // 2)
+                logging.info(f"Found '{text}' at {center}")
+                image_center_in_mouse_coordinates = self.convert_resolution(center)
+                logging.info(image_center_in_mouse_coordinates)
+                return image_center_in_mouse_coordinates
+        
+        raise AssertionError(f"Text '{text}' not found on screen.")
     
     def convert_resolution(self, coordinates):
         # Currently default screenshot image resolution is 1920x1200

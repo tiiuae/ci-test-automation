@@ -70,6 +70,7 @@
                 pytz
                 pandas
                 pyscreeze
+                pytesseract
                 opencv4
                 paramiko
                 evdev
