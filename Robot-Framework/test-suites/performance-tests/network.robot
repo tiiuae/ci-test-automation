@@ -169,36 +169,21 @@ Select network connection to use
 
 Run iperf server on DUT
     [Documentation]   Run iperf on DUT in server mode
-    IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
-         Open port 5201 from iptables
-    ELSE
-         Clear iptables rules
-    END
-
-    ${command}        Set Variable    iperf -s
-    Execute Command   nohup ${command} > /tmp/output.log 2>&1 &
+    Open port 5201 from iptables
+    ${command}                      Set Variable    iperf -s
+    Execute Command                 nohup ${command} > /tmp/output.log 2>&1 &
     Check iperf was started
-
-Clear iptables rules
-    [Documentation]  Clear IP tables rules to open ports
-    Execute Command  iptables -F  sudo=True  sudo_password=${PASSWORD}
 
 Open port 5201 from iptables
     [Documentation]  Firewall rule to open needed port for perf test.
-    Execute Command  iptables -I INPUT -m tcp -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
-    Execute Command  iptables -I INPUT -m udp -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
-
-    # Accept incoming packages that do belong to some already opened connection
-    Execute Command  iptables -I INPUT -m state RELATED, ESTABLISHED -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
+    Execute Command  iptables -A ghaf-fw-in-filter -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
+    Execute Command  iptables -A ghaf-fw-in-filter -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
     Sleep        1
 
 Close port 5201 from iptables
     [Documentation]  Firewall rule to close the port that was used in per testing
-    Execute Command  iptables -I INPUT -m tcp -p tcp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
-    Execute Command  iptables -I INPUT -m udp -p udp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
-
-    # Reject also incoming packages that do belong to some already opened connection
-    Execute Command  iptables -I INPUT -m state RELATED, ESTABLISHED -j DROP  sudo=True  sudo_password=${PASSWORD}
+    Execute Command  iptables -A ghaf-fw-in-filter -p tcp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
+    Execute Command  iptables -A ghaf-fw-in-filter -p udp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
 
 Stop iperf server
     @{pid}=  Find pid by name  iperf
