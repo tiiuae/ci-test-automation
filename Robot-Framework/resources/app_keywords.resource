@@ -10,16 +10,12 @@ Resource            ../resources/ssh_keywords.resource
 *** Keywords ***
 
 Start XDG application
-    [Arguments]      ${app_name}  ${gui_vm_app}=false
+    [Arguments]      ${app_name}
     Log To Console   ${\n}Starting ${app_name}
     ${app_name}      Check application name  ${app_name}
     ${output}        Execute Command    cat /run/current-system/sw/share/applications/${app_name}.desktop
     ${path}          Get App Path From Desktop  ${output}
-    IF  $gui_vm_app
-        Execute Command  nohup sh -c 'WAYLAND_DISPLAY=wayland-1 ${path}' > output.log 2>&1 &
-    ELSE
-        Execute Command  nohup sh -c '${path}' > output.log 2>&1 &
-    END
+    Execute Command  nohup sh -c 'WAYLAND_DISPLAY=wayland-1 ${path}' > output.log 2>&1 &
 
 Check that the application was started
     [Arguments]          ${app_name}  ${range}=2  ${exact_match}=false
@@ -47,7 +43,7 @@ Check that the application is not running
     Log To Console    ${app_name} not running
 
 Launch Cosmic Term
-    Start XDG application   com.system76.CosmicTerm  gui_vm_app=true
+    Start XDG application   com.system76.CosmicTerm
     Check that the application was started    cosmic-term  exact_match=true
 
 Log and remove app output
@@ -56,7 +52,7 @@ Log and remove app output
     Switch to vm  ${vm}    ${user}
     ${output}     Execute Command    cat ${file}
     Log           ${output}
-    Remove file   ${file}    user=${user}
+    Remove file   ${file}
 
 Log app vm journalctl
     [Documentation]    Specify the VM where the App is actually running
