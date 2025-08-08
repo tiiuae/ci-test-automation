@@ -6,6 +6,6 @@ Documentation       Performance tests
 
 Library             SSHLibrary
 Resource            ../../config/variables.robot
+Test Timeout        10 minutes
 
-Suite Setup         Set Variables   ${DEVICE}
 Suite Teardown      Close All Connections

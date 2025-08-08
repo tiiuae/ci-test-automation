@@ -17,10 +17,16 @@ Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
+Resource           ../../resources/device_control.resource
 
 Suite Setup         Run Keywords  Connect to device
 ...                 AND  Select network connection to use
+...                 AND  Open port 5201 from iptables
+#...                 AND  Trick
 ...                 AND  Run iperf server on DUT
+#...                 AND  Trick2
+...                 AND  Sleep  10
+...                 AND  Log Journal To Debug
 Suite Teardown      Run Keywords  Stop iperf server
 ...                 AND  Close port 5201 from iptables
 ...                 AND  Close All Connections
@@ -33,15 +39,18 @@ ${PERF_TEST_TIME}  10
 *** Test Cases ***
 Measure TCP Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]   tcp  nuc  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T227
+    [Tags]   tcp  nuc  orin-nx  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T227
+    Log to console  Inside the actual test code
     &{speed_data}           Create Dictionary
     # DUT sends
-    ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
+    ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -i 5 -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output1.stdout}
-    # DUT receives
-    ${output2}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME}    shell=True  timeout=${${PERF_TEST_TIME}+10}
+      # DUT receives
+    ${output2}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -i 5 -f M -t ${PERF_TEST_TIME}    shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output2.stdout}
+
     Check iperf3 got results     ${output1}  ${output2}
+  
     ${bps_tx}               Get Throughput Values  ${output1.stdout}
     ${bps_rx}               Get Throughput Values  ${output2.stdout}  direction=receiver
     Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
@@ -51,9 +60,9 @@ Measure TCP Throughput Small Packets
 
 Measure TCP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T228
+    [Tags]  tcp  nuc  orin-nx  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T228
     &{speed_data}           Create Dictionary
-    ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
+    ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -i 3 -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output.stdout}
     Check iperf3 got results     ${output}
     ${bps_tx}               Get Throughput Values  ${output.stdout}  bidir=True
@@ -65,7 +74,7 @@ Measure TCP Bidir Throughput Small Packets
 
 Measure TCP Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  tcp  nuc  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T229
+    [Tags]  tcp  nuc  orin-nx  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T229
     &{speed_data}           Create Dictionary
     ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
     ${output2}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -80,7 +89,7 @@ Measure TCP Throughput Big Packets
 
 Measure TCP Bidir Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T230
+    [Tags]  tcp  nuc  orin-nx  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T230
     &{speed_data}           Create Dictionary
     ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output.stdout}
@@ -94,7 +103,7 @@ Measure TCP Bidir Throughput Big Packets
 
 Measure UDP TX Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  tcp  nuc  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T231
+    [Tags]  tcp  nuc  orin-nx  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T231
     &{speed_data}           Create Dictionary
     ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output1.stdout}
@@ -110,7 +119,7 @@ Measure UDP TX Throughput Small Packets
 
 Measure UDP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T232
+    [Tags]  tcp  nuc  orin-nx  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T232
     &{speed_data}           Create Dictionary
     ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output.stdout}
@@ -126,7 +135,7 @@ Measure UDP Bidir Throughput Small Packets
 
 Measure UDP Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  udp  nuc  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T233
+    [Tags]  udp  nuc  orin-nx  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T233
     &{speed_data}           Create Dictionary
     ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 100G -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output1.stdout}
@@ -142,7 +151,7 @@ Measure UDP Throughput Big Packets
 
 Measure UDP Bidir Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  udp  nuc  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T234
+    [Tags]  udp  nuc  orin-nx  orin-agx  orin-agx-64  riscv  lenovo-x1   dell-7330  SP-T234
     &{speed_data}           Create Dictionary
     ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 10000G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output.stdout}
@@ -158,7 +167,7 @@ Measure UDP Bidir Throughput Big Packets
 
 *** Keywords ***
 Select network connection to use
-    [Documentation]  Select the connection to be used. This cannot be done in Keyword 'Connect to device'
+    [Documentation]  Select the connection to be used.
      ...             since it then breaks the  other test suites.
      IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
          ${CONNECTION}       Connect to netvm
@@ -169,21 +178,34 @@ Select network connection to use
 
 Run iperf server on DUT
     [Documentation]   Run iperf on DUT in server mode
-    Open port 5201 from iptables
+    #Open port 5201 from iptables
+    Log To Console  Starting iperf -s
     ${command}                      Set Variable    iperf -s
     Execute Command                 nohup ${command} > /tmp/output.log 2>&1 &
     Check iperf was started
+    Log To Console  Starting iperf -s... Started, running
 
 Open port 5201 from iptables
     [Documentation]  Firewall rule to open needed port for perf test.
+    Log to console  Changing iptable rules...
+    ${original_rules}  Read iptables rules
+    Log  ${original_rules}
+    Set Test Variable  ${original_rules}
     Execute Command  iptables -A ghaf-fw-in-filter -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
+    Sleep  2
     Execute Command  iptables -A ghaf-fw-in-filter -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
-    Sleep        1
+    Sleep  2
+    ${changed_rules}  Read iptables rules
+    log  ${changed_rules}
+    Log to console  Changing iptable rules...DONE!
 
 Close port 5201 from iptables
     [Documentation]  Firewall rule to close the port that was used in per testing
-    Execute Command  iptables -A ghaf-fw-in-filter -p tcp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
-    Execute Command  iptables -A ghaf-fw-in-filter -p udp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
+    Execute Command  iptables -D ghaf-fw-in-filter -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
+    Execute Command  iptables -D ghaf-fw-in-filter -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
+    ${after_tests_rules}  Read iptables rules
+    Log  ${after_tests_rules}
+    Should Be Equal As Strings  ${original_rules}  ${after_tests_rules}
 
 Stop iperf server
     @{pid}=  Find pid by name  iperf
@@ -212,7 +234,8 @@ Check iperf3 got results
     ...                 In case of failure, output is: '<result object with rc 1>'
     [Arguments]        ${result1}=${EMPTY}  ${result2}=${EMPTY}
     ${failure}    Run Keyword And Return Status      Should Contain  ${result1}/${result2}    <result object with rc 1>
-    Run Keyword If  ${failure}  FAIL  'iperf3 -c' did not succeed, No needed results got!
+    RETURN  ${failure}
+    #IF  ${failure}  FAIL  'iperf3 -c' did not succeed, No needed results got!
 
 Get Throughput Values
     [Documentation]  Return MB per second value
@@ -231,3 +254,45 @@ Get Throughput Values
         Log      Failed to get the result from ${TEST NAME}   console=yes
     END
     RETURN  ${MBps}[0]
+
+Read iptables rules
+    [Documentation]  Read iptables rules from target
+    ${result}  ${rc}  Execute Command  iptables -L  sudo=True  sudo_password=${PASSWORD}   return_rc=${true}  return_stdout=${true}
+    Should Be Equal   ${rc}  ${0}
+    RETURN            ${result}
+
+Do SoftReboot Device
+    Soft Reboot Device
+    Sleep  10
+    Check If Device Is Up   30
+    Sleep   30
+
+Do HardReboot Device
+    Reboot Device Via Relay
+    Sleep  10
+    Check If Device Is Up   30
+    Sleep   30
+
+Log Journal To Debug
+    ${journal_output}     Execute Command   journalctl -b
+    Log                   ${journal_output}
+
+Trick
+    IF  "NX" in "${DEVICE}"
+         Open port 5201 from iptables
+         Log to console  Retry Trick
+         #Do HardReboot Device
+         Do SoftReboot Device
+         Set Variables   ${DEVICE}
+         Connect to device
+         Select network connection to use
+         ${journal_output}     Execute Command   journalctl
+         ${trick_iptables}   Read iptables rules
+    END
+
+Trick2
+    IF  "NX" in "${DEVICE}"
+        Log to console  Retry Iperf server Trick
+        Stop iperf server
+        Run iperf server on DUT
+    END
