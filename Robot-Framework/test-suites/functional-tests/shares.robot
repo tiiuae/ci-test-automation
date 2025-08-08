@@ -48,11 +48,11 @@ File sharing test
     Set Test Variable  ${vm1_in_guivm}    /Shares/'Unsafe ${vm1} share'
     Set Test Variable  ${vm2_in_guivm}    /Shares/'Unsafe ${vm2} share'
     Connect to VM      ${vm1}
-    Create file        ${path_in_vm}/${file_name}
-    Connect to VM      ${GUI_VM}
+    Create file        ${path_in_vm}/${file_name}   sudo=True
+    Connect to VM      ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
     Copy file          ${vm1_in_guivm}/${file_name}    ${vm2_in_guivm}/${file_name}
     Connect to VM      ${vm2}
-    Check file exists  ${path_in_vm}/${file_name}
+    Check file exists  ${path_in_vm}/${file_name}   sudo=True
     [Teardown]         Run Keywords
     ...                Remove the file in VM    ${path_in_vm}/${file_name}    ${vm1}    AND
     ...                Remove the file in VM    ${path_in_vm}/${file_name}    ${vm2}
@@ -65,5 +65,4 @@ Shares setup
 Remove the file in VM
     [Arguments]        ${file_name}    ${vm}
     Connect to VM      ${vm}
-    Remove file        ${file_name}
-    Check file doesn't exist    ${file_name}
+    Remove file        ${file_name}    sudo=True

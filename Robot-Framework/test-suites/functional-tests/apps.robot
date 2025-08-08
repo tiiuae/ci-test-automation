@@ -119,11 +119,11 @@ Open image with Oculante
 Open text file with Cosmic Text Editor
     [Documentation]    Open text file and check that Cosmic Text Editor app is started
     [Tags]             bat  regression  SP-T262
-    Connect to VM      ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
+    Switch to vm       gui-vm  user=${USER_LOGIN}
     Create text file   test    /tmp/test_text.txt
     Open text file     /tmp/test_text.txt
     Check that the application was started    cosmic-edit    10
-    [Teardown]  Run Keywords  Remove the file in VM    /tmp/test_text.txt    ${GUI_VM}    AND
+    [Teardown]  Run Keywords  Remove the file in VM    /tmp/test_text.txt    ${GUI_VM}    ${USER_LOGIN}    AND
     ...                       Kill Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    /tmp/out.log
 
 
@@ -142,10 +142,9 @@ Kill Process And Save Logs
     Run Keyword If Test Failed  Log app vm journalctl  ${app_running_vm}
 
 Remove the file in VM
-    [Arguments]        ${file_name}    ${vm}
-    Switch to vm       ${vm}
+    [Arguments]        ${file_name}    ${vm}   ${user}=ghaf
+    Switch to vm       ${vm}   user=${user}
     Remove file        ${file_name}
-    Check file doesn't exist    ${file_name}
 
 Open PDF from app-vm
     [Arguments]        ${vm}

@@ -58,5 +58,5 @@ Business Apps Test Setup
 
 Business Apps Test Teardown
     Kill process  @{APP_PIDS}
-    Log and remove app output     output.log             ${BUSINESS_VM}
+    Log and remove app output     output.log             ${GUI_VM}    ${USER_LOGIN}
     Run Keyword If Test Failed    Log app vm journalctl  ${BUSINESS_VM}
