@@ -20,7 +20,7 @@ File sharing from Chrome-VM to Business-VM
     ${CHROME_VM}    ${BUSINESS_VM}
 
 File sharing from Chrome-VM to Comms-VM
-    [Tags]          bat  regression
+    [Tags]          bat  regression  pre-merge
     ${CHROME_VM}    ${COMMS_VM}
 
 File sharing from Comms-VM to Business-VM
