@@ -64,7 +64,7 @@ Start COSMIC Text Editor
 
 Start COSMIC Terminal
     [Documentation]   Start Cosmic Terminal and verify process started
-    [Tags]            bat   cosmic_term  SP-T263  lenovo-x1   dell-7330  fmo
+    [Tags]            bat   pre-merge  cosmic_term  SP-T263  lenovo-x1   dell-7330  fmo
     Launch Cosmic Term
 
 Start Falcon AI
@@ -81,7 +81,7 @@ Start Falcon AI
 
 Check user systemctl status
     [Documentation]   Verify systemctl status --user is running
-    [Tags]            bat   SP-T260  lenovo-x1   dell-7330  fmo
+    [Tags]            bat   pre-merge  SP-T260  lenovo-x1   dell-7330  fmo
 
     ${known_issues}=    Create List
     # Add any known failing services here with the target device and bug ticket number.

@@ -64,7 +64,7 @@ Start Element
 
 Start Slack
     [Documentation]   Start Slack in dedicated VM and verify process started
-    [Tags]            bat  regression  SP-T181
+    [Tags]            bat  regression  pre-merge  SP-T181
     [Setup]           Check if ssh is ready on vm    ${COMMS_VM}
     Switch to vm           gui-vm  user=${USER_LOGIN}
     Start XDG application  Slack
@@ -74,7 +74,7 @@ Start Slack
 
 Open PDF from chrome-vm
     [Documentation]    Open PDF file from Chrome VM and check that Zathura app is started
-    [Tags]             bat  regression  SP-T131-1
+    [Tags]             bat  regression  pre-merge  SP-T131-1
     Open PDF from app-vm    ${CHROME_VM}
     [Teardown]         Kill Process And Save Logs    ${CHROME_VM}    ghaf    /tmp/out.log    ${ZATHURA_VM}
 
@@ -98,7 +98,7 @@ Open PDF from gui-vm
 
 Open image with Oculante
     [Documentation]    Open PNG image in the Gui VM and check that Oculante app is started and opens the image
-    [Tags]             bat  regression  SP-T197
+    [Tags]             bat  regression  pre-merge  SP-T197
     Switch to vm       gui-vm  user=${USER_LOGIN}
 
     Execute Command    mkdir test-images
@@ -118,7 +118,7 @@ Open image with Oculante
 
 Open text file with Cosmic Text Editor
     [Documentation]    Open text file and check that Cosmic Text Editor app is started
-    [Tags]             bat  regression  SP-T262
+    [Tags]             bat  regression  pre-merge  SP-T262
     Switch to vm       gui-vm  user=${USER_LOGIN}
     Create text file   test    /tmp/test_text.txt
     Open text file     /tmp/test_text.txt

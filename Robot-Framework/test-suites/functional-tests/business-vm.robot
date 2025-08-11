@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing Business VM
-Force Tags          bat  regression  business-vm  lenovo-x1   dell-7330
+Force Tags          bat  regression  pre-merge  business-vm  lenovo-x1   dell-7330
 
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/ssh_keywords.resource

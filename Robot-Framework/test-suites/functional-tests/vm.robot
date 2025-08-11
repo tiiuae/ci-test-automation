@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Tests that are run in every VM
-Force Tags          vms  bat  regression  lenovo-x1  dell-7330  fmo
+Force Tags          vms  bat  regression  pre-merge  lenovo-x1  dell-7330  fmo
 
 Library             ../../lib/output_parser.py
 Library             Collections
