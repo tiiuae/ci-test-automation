@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2025 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
-sudo iptables -F
+sudo iptables -A ghaf-fw-in-filter -p tcp --dport 5201 -j ACCEPT
 
 echo "" > /tmp/server_received.txt
 
