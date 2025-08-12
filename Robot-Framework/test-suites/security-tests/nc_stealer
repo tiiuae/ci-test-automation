@@ -5,7 +5,7 @@
 # ip_server=
 # ip_stealer=
 
-sudo iptables -F
+sudo iptables -A ghaf-fw-in-filter -p tcp --dport 5201 -j ACCEPT
 
 echo "" > /tmp/stolen.txt
 
