@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing time synchronization
-Force tags          timesync  bat  regression
+Force Tags          timesync  bat  regression
 
 Library             ../../lib/TimeLibrary.py
 Resource            ../../resources/ssh_keywords.resource
@@ -37,7 +37,7 @@ Time synchronization
     Check that time is correct  timezone=UTC
 
     Stop timesync daemon
-    Set time  ${wrong_time}
+    Set RTC time  ${wrong_time}
     Check time was changed
 
     Start timesync daemon
@@ -47,6 +47,19 @@ Time synchronization
 
     [Teardown]  Timesync Teardown
 
+Update system time in gui-vm from internet
+    [Documentation]   Disable internet, change time in GUI vm, restart timesyncd, check that time was changed to wrong
+    ...               Enable internet and check that time was synchronized
+    [Tags]            SP-T217  lenovo-x1  dell-7330
+    Switch to vm              gui-vm
+    Block internet traffic
+    Set system time           ${wrong_time}
+    Restart timesync daemon
+    Check time was changed    expected_time=None
+    Unblock internet traffic
+    Check that time is correct
+
+    [Teardown]  Run Keyword If Test Failed    Unblock internet traffic
 
 *** Keywords ***
 
@@ -59,12 +72,17 @@ Start timesync daemon
     Verify service status  service=systemd-timesyncd.service  expected_status=active  expected_state=running
     ${output}              Execute Command    timedatectl -a
 
+Restart timesync daemon
+    Execute Command        systemctl restart systemd-timesyncd.service  sudo=True  sudo_password=${PASSWORD}
+    Verify service status  service=systemd-timesyncd.service  expected_status=active  expected_state=running
+    ${output}              Execute Command    timedatectl -a
+
 Check that time is correct
     [Documentation]   Check that current system time is correct (time tolerance = 30 sec)
     [Arguments]       ${timezone}=UTC
 
     ${is_synchronized} =   Set Variable    False
-    FOR    ${i}    IN RANGE    20
+    FOR    ${i}    IN RANGE    30
         ${output}      Execute Command    timedatectl -a
         ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}  ${is_synchronized}   Parse time info  ${output}
         IF    ${is_synchronized}
@@ -81,7 +99,7 @@ Check that time is correct
     Should Be True    ${time_close}  ${universal_time} expected close to ${current_time}, Time was synchronized: ${is_synchronized}
     Compare local and universal time
 
-Set time
+Set RTC time
     [Arguments]       ${time}=${wrong_time}
     ${original_time}      Get Time	epoch
     Set Test Variable     ${original_time}  ${original_time}
@@ -92,15 +110,22 @@ Set time
 
 Check time was changed
     [Documentation]   Check that current system time is equal to given time tolerance.
-    [Arguments]       ${time}=${wrong_time}  ${timezone}=UTC
+    [Arguments]       ${expected_time}=${wrong_time}  ${timezone}=UTC
     ${output}         Execute Command    timedatectl -a
     ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}  ${is_synchronized}   Parse time info  ${output}
     ${now}            Get Time  epoch
     ${time_diff}      Evaluate  ${now} - ${original_time}
-    ${expected_time}  Convert To UTC  ${time}
-    Log To Console    Comparing device time: ${universal_time} and time which was set ${expected_time}
-    ${time_close}     Is time close  ${universal_time}  ${expected_time}  tolerance_seconds=${time_diff}
-    Should Be True    ${time_close}
+    IF  '${expected_time}' != 'None'
+        ${expected_time}  Convert To UTC  ${expected_time}
+        Log               Comparing device time: ${universal_time} and time which was set ${expected_time}    console=True
+        ${time_close}     Is time close  ${universal_time}  ${expected_time}  tolerance_seconds=${time_diff}
+        Should Be True    ${time_close}
+    ELSE
+        ${actual_time}    Get Current Time
+        Log               Comparing device time: ${universal_time} and actual time    console=True
+        ${time_close}     Is time close  ${universal_time}  ${actual_time}  tolerance_seconds=${time_diff}
+        Should Not Be True    ${time_close}
+    END
     Compare local and universal time
 
 Compare local and universal time
@@ -118,6 +143,13 @@ Set RTC from system clock
     ${output}         Execute Command    hwclock -w  sudo=True  sudo_password=${PASSWORD}
     ${output}         Execute Command    timedatectl -a
 
+Set system time
+    [Arguments]         ${time}=${wrong_time}
+    ${original_time}    Get Time	epoch
+    Set Test Variable   ${original_time}  ${original_time}
+    ${output}           Execute Command   sudo date -s '${time}'  sudo=True  sudo_password=${PASSWORD}
+    ${output}           Execute Command   timedatectl -a
+
 Set Wifi passthrough into NetVM
     [Documentation]     Verify that wifi works inside netvm.
     ...              ORIN-AGX: Ghaf-host is directly connected to net if No internet adapter used!
@@ -134,6 +166,16 @@ Disable Wifi passthrough from NetVM
     Check Network Availability    8.8.8.8   expected_result=False
     Sleep               1
     Remove Wifi configuration  ${TEST_WIFI_SSID}
+
+Block internet traffic
+    Execute Command    iptables -I OUTPUT -p udp --dport 123 -j DROP  sudo=True  sudo_password=${PASSWORD}
+    Execute Command    iptables -I OUTPUT -p tcp -m multiport --dports 80,443 -j DROP  sudo=True  sudo_password=${PASSWORD}
+    Execute Command    iptables -I OUTPUT -p udp -m multiport --dports 80,443 -j DROP  sudo=True  sudo_password=${PASSWORD}
+
+Unblock internet traffic
+    Execute Command    iptables -D OUTPUT -p udp --dport 123 -j DROP  sudo=True  sudo_password=${PASSWORD}
+    Execute Command    iptables -D OUTPUT -p tcp -m multiport --dports 80,443 -j DROP  sudo=True  sudo_password=${PASSWORD}
+    Execute Command    iptables -D OUTPUT -p udp -m multiport --dports 80,443 -j DROP  sudo=True  sudo_password=${PASSWORD}
 
 Timesync Teardown
      Connect
