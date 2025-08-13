@@ -8,7 +8,6 @@
 | 17.06.2025 | Start and close Google Chrome via GUI on LenovoX1 | SSRCSP-6716                                                                                     |
 | 13.06.2025 | Record Video With Camera (Dell)                   | SSRCSP-6694                                                                                     |
 | 05.06.2025 | Measure UDP Bidir Throughput Big Packets(AGX)     | SSRCSP-6623                                                                                     |
-| 02.06.2025 | Check systemctl status in every VM                | SSRCSP-6858                                                                                     |
 | 27.05.2025 | TimeSynch (AGX)                                   | SSRCSP-6423. Unrecoverable error detected. #PR333                                               |
 |            | Measure Hard Boot Time                            | The searched journalctl line is sometimes (randomly) not there. Didn't find it this time        |
 |            | Measure Soft Boot Time -Dell                      | The searched journalctl line is sometimes (randomly) not there. Didn't find it this time.       |
@@ -18,7 +17,7 @@
 |            | NetVM is wiped after restarting -Orin AGX         | SSRCSP-5662,SSRCSP-6423                                                                         |
 |            | Check systemctl status                            | [Full list of skips in the test case](/Robot-Framework/test-suites/functional-tests/host.robot) |
 |            | Check Camera Application -DELL                    | SSRCSP-6450                                                                                     |
-|            | Start Gala on LenovoX1 -DELL & LenovoX1           | SSRCSP-6434                                                                                     |
+|            | Start Gala -DELL & LenovoX1                       | SSRCSP-6434                                                                                     |
 
 ## TAGs removed
 
