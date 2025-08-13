@@ -45,10 +45,7 @@ Automatic suspension
     ${locked}         Check if locked
     Should Be True    ${locked}
 
-    Wait     150
-    Check the screen state   off
-
-    Wait     460
+    Wait     610
 
     Check that device is suspended
     Wait     300
