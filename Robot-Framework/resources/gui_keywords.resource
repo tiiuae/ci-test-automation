@@ -116,24 +116,26 @@ Locate on screen
     [Documentation]    Take a screenshot. Locate given image or text on the screenshot.
     ...                Return center coordinates of the item in mouse coordinate system.
     [Arguments]        ${type}  ${searched_item}  ${confidence}=0.999   ${iterations}=5   ${fail_expected}=False  ${debug_screenshot}=True
+    [Timeout]          2 minutes
     ${coordinates}=        Set Variable  ${EMPTY}
     ${pass_status}=        Set Variable  FAIL
-    Switch to vm    gui-vm  user=${USER_LOGIN}
+    Switch to vm           gui-vm  user=${USER_LOGIN}
     Execute Command        mkdir test-images
+    ${screenshot_cmd}=     Set Variable  cosmic-screenshot --interactive=false --save-dir ./test-images
     FOR   ${i}   IN RANGE  ${iterations}
         Log To Console     Taking cosmic screenshot
-        ${result}=         Run Keyword And Ignore Error  Execute Command  cosmic-screenshot --interactive=false --save-dir ./test-images  return_stdout=True   return_rc=True   timeout=5
+        ${result}=         Run Keyword And Ignore Error  Execute Command  ${screenshot_cmd}  return_stdout=True  return_rc=True  timeout=5
         Log                ${result}
         IF  "${result}[1][1]" == "0"
             SSHLibrary.Get File  ${result[1][0]}  ${GUI_TEMP_DIR}screenshot.png
             IF  $type=="image"
                 Log To Console    Locating image ${searched_item} on ${result[1][0]}
-                ${pass_status}  ${coordinates}  Run Keyword And Ignore Error  Locate image  ${GUI_TEMP_DIR}${searched_item}   ${confidence}
+                ${pass_status}    ${coordinates}  Run Keyword And Ignore Error  Locate image  ${GUI_TEMP_DIR}${searched_item}   ${confidence}
             ELSE IF  $type=="text"
                 Log To Console    Locating text ${searched_item} on ${result[1][0]}
-                ${pass_status}  ${coordinates}  Run Keyword And Ignore Error  Locate text  ${searched_item}
+                ${pass_status}    ${coordinates}  Run Keyword And Ignore Error  Locate text  ${searched_item}
             ELSE
-                FAIL    Wrong type given for image recognition
+                FAIL              Wrong type given for image recognition
             END
         END
         IF    $pass_status=='PASS'
