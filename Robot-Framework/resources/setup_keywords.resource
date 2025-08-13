@@ -10,7 +10,7 @@ Resource            ../resources/ssh_keywords.resource
 *** Keywords ***
 
 Prepare Test Environment
-    [Arguments]   ${login}=True   ${stop_swayidle}=True   ${enable_dnd}=False
+    [Arguments]   ${login}=True   ${enable_dnd}=False
     Connect to device
     Log versions
     Start journalctl recording
@@ -19,9 +19,9 @@ Prepare Test Environment
         Switch to vm    gui-vm
         Create test user
         IF  ${login}
-            Save most common icons and paths to icons
+            Change to gray wallpaper
             Start ydotoold
-            Log in, unlock and verify   ${stop_swayidle}   ${enable_dnd}
+            Log in, unlock and verify   ${enable_dnd}
         END
     END
 
@@ -32,6 +32,7 @@ Clean Up Test Environment
     Stop journalctl recording
     IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Switch to vm    gui-vm
+        Restore default wallpaper
         Start ydotoold
         Log out and verify   ${disable_dnd}
         Stop ydotoold
@@ -66,3 +67,5 @@ Log versions
     Log To Console      Ghaf version: ${ghaf_version}
     ${nixos_version}    Execute Command   nixos-version
     Log To Console      Nixos version: ${nixos_version}
+    ${device_id}        Execute Command   cat /persist/common/device-id
+    Log To Console      Device ID: ${device_id}
