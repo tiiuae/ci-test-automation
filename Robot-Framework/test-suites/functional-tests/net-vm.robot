@@ -82,7 +82,7 @@ NetVM is wiped after restarting
     [Documentation]     Verify that created file will be removed after restarting VM
     [Tags]              SP-T48  nuc  orin-agx  orin-agx-64
     [Setup]             Connect to netvm
-    Create file         /etc/test.txt
+    Create file         /etc/test.txt    sudo=True
     Switch Connection   ${GHAF_HOST_SSH}
     Restart NetVM
     Close All Connections
@@ -90,17 +90,17 @@ NetVM is wiped after restarting
     Check Network Availability      ${NETVM_IP}    expected_result=True    range=15
     Connect to netvm
     Log To Console      Check if created file still exists
-    Check file doesn't exist    /etc/test.txt
-    [Teardown]          Run Keywords  Close All Connections   AND
-    ...                 Run Keyword If  "AGX" in "${DEVICE}"  Run Keyword If Test Failed     Skip    "Known issue: SSRCSP-6423"
+    Check file doesn't exist    /etc/test.txt    sudo=True
+    [Teardown]  Run keywords  Run Keyword If Test Failed  Skip Test If Known Failure
+    ...         AND  Close All Connections
 
 Verify NetVM PCI device passthrough
     [Documentation]     Verify that proper PCI devices have been passed through to the NetVM
     [Tags]              SP-T96  nuc  orin-agx  orin-agx-64  orin-nx
     [Setup]             Connect to netvm
     Verify microvm PCI device passthrough    vmname=${NET_VM}
-    [Teardown]          Run Keywords  Close All Connections   AND
-    ...                 Run Keyword If  "AGX" in "${DEVICE}"  Run Keyword If Test Failed     Skip    "Known issue: SSRCSP-6423"
+    [Teardown]  Run keywords  Run Keyword If Test Failed  Skip Test If Known Failure
+    ...         AND  Close All Connections
 
 
 *** Keywords ***
@@ -155,3 +155,10 @@ Remove wpa_supplicant configuration
     Log To Console      Removing Wifi configuration
     Execute Command     rm /etc/wpa_supplicant.conf  sudo=True    sudo_password=${PASSWORD}
     Execute Command     systemctl restart wpa_supplicant.service  sudo=True    sudo_password=${PASSWORD}
+
+Skip test if known failure
+    [Documentation]    Elaborate it possible failure is due to some known reason.
+    IF  "AGX" in "${DEVICE}"
+        ${journal_log}  Execute command  journalctl -b | grep -i 'Unrecoverable error detected.'
+        Run Keyword If  $journal_log != '${EMPTY}'   SKIP  "Known issue: SSRCSP-6423"
+    END
