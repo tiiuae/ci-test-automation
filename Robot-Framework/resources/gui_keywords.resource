@@ -9,12 +9,12 @@ Documentation       Keywords for gui tests. Note: These keywords assume the conn
 Library             ../lib/GuiTesting.py    ${OUTPUT_DIR}/outputs/gui-temp/
 Library             Collections
 Library             DateTime
+Resource            ../resources/file_keywords.resource
 Resource            ../resources/ssh_keywords.resource
 
 
 *** Variables ***
 ${APP_MENU_LAUNCHER}   ./launcher.png
-${LOCK_ICON}           ./lock.png
 ${DISABLE_LOGOUT}      ${EMPTY}
 ${GUI_TEMP_DIR}        ${OUTPUT_DIR}/outputs/gui-temp/
 
@@ -23,7 +23,7 @@ ${GUI_TEMP_DIR}        ${OUTPUT_DIR}/outputs/gui-temp/
 
 Log in, unlock and verify
     [Documentation]   Open desktop by logging in or unlocking. Verify that desktop is available.
-    [Arguments]       ${stop_swayidle}=True  ${enable_dnd}=False
+    [Arguments]       ${enable_dnd}=False
     ${logout_status}    Check if logged out   1
     IF  ${logout_status}
         Log in via GUI
@@ -44,7 +44,7 @@ Log in, unlock and verify
         Verify desktop availability
     END
 
-    IF  ${stop_swayidle}   Stop swayidle
+    Stop swayidle
     IF  ${enable_dnd}      Set do not disturb state   true
 
 Log out and verify
@@ -151,7 +151,11 @@ Locate on screen
         Timestamp screenshot
         FAIL  Image recognition failure: ${searched_item}
     END
-    Log         Coordinates: ${coordinates}  console=True
+    IF  $pass_status=='PASS'
+        Log   Coordinates: ${coordinates}  console=True
+    ELSE
+        Log   Could not find ${type}: ${searched_item}  console=True
+    END
     ${mouse_x}  Get From Dictionary   ${coordinates}  x
     ${mouse_y}  Get From Dictionary   ${coordinates}  y
     RETURN  ${mouse_x}  ${mouse_y}
@@ -199,15 +203,12 @@ Verify desktop availability
     IF  $activity != "active"    FAIL    User-session did not activate, it is ${activity}
     IF  "Dell" in "${DEVICE}"    Sleep   5
 
-    Log To Console         Verifying login by trying to detect the launcher icon
-    # This is a workaround for launcher icon missing sometimes. If launcher icon can't be found tries to search
-    # for the power menu icon. Gui-vm user log is saved to help debugging.
-    ${status}   ${output}   Run Keyword And Ignore Error   Locate on screen  image  ${APP_MENU_LAUNCHER}  0.95  10
-    IF   $status == 'FAIL'
-        Get gui-vm user journalctl log
-        Log To Console    Could not find launcher icon, checking for power menu icon
-        Locate on screen  image  ./power.png  0.95  5
-    END
+    # For debugging, check gui-vm systemctl status before trying to take a cosmic-screenshot in case it gets stuck
+    Run Keyword And Ignore Error   Verify Systemctl status   range=1
+    Run Keyword And Ignore Error   Verify Systemctl status   range=1   user=True
+
+    Log To Console     Verifying login by trying to detect the "Applications" text
+    Locate on screen   text   Applications
 
 Move cursor
     Log To Console    Moving cursor to random location
@@ -259,8 +260,10 @@ Get icon
 Check if locked
     [Documentation]    Check if the screen lock is active
     ${logout_status}   Check if logged out   1
+    # Press tab once to deselect the password field in case it was active. This helps with image recognition.
+    Press Key(s)   TAB
     IF  not ${logout_status}
-        ${status}   ${output}      Run Keyword And Ignore Error   Locate on screen  image  ${LOCK_ICON}  0.95  1  debug_screenshot=False
+        ${status}   ${output}      Run Keyword And Ignore Error   Locate on screen  text  Password:  iterations=1  debug_screenshot=False
         IF  '${status}' == 'PASS'
             Log To Console    Screen is locked
             RETURN    ${True}
@@ -271,15 +274,16 @@ Check if locked
 
 Unlock
     [Documentation]    Unlock the screen be typing password
-    # Make sure that password field is active by clicking it
-    Locate and click   image  ${LOCK_ICON}   0.95  5
+    #Press tab once to deselect the password field in case it was active. This helps with the image recognition.
+    Press Key(s)   TAB
+    Locate and click   text  Password:  iterations=1
     Log To Console     Typing password to unlock
     Type string and press enter  ${USER_PASSWORD}  confidential=True
 
-Save most common icons and paths to icons
-    [Documentation]         Save those icons by name which will be used in multiple test cases
-    ...                     Save paths to icon packs in gui-vm nix store
-    Log To Console          Saving commonly used icons
+Save gui icons and icon path
+    [Documentation]         Save the icons that are used in multiple gui test cases
+    ...                     Save path to icons
+    Log To Console          Saving commonly used gui test icons
     ${ICONS}                Execute Command   find $(echo $XDG_DATA_DIRS | tr ':' ' ') -type d -name "icons" 2>/dev/null
     Set Global Variable     ${ICONS}
     Get icon                ${ICONS}/hicolor/scalable/apps  com.system76.CosmicAppLibrary.svg  crop=0  background=black  output_filename=launcher.png
@@ -288,7 +292,6 @@ Save most common icons and paths to icons
     Get icon                ${ICONS}/Cosmic/scalable/actions  system-search-symbolic.svg  crop=0  background=white  output_filename=search.png
     Negate app icon         ${GUI_TEMP_DIR}search.png  ${GUI_TEMP_DIR}search-neg.png
     Get icon                ${ICONS}/Papirus/24x24/actions  system-shutdown.svg  crop=0  background=black  output_filename=power.png
-    Get icon                ${ICONS}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
 
 Create test user
     Log To Console      Creating test user
@@ -350,3 +353,16 @@ Press Key(s)
     Log To Console    Pressing key(s): ${key_combination}
     ${output}    ${rc}    Execute Command   ${ydotool_command}  sudo=True  sudo_password=${PASSWORD}    return_rc=True
     Should Be Equal As Integers     ${rc}   0
+
+Change to gray wallpaper
+    [Setup]           Switch to vm    gui-vm  user=${USER_LOGIN}
+    Log To Console    Changing to gray wallpaper
+    Put File          ../test-files/background.config   .
+    Execute Command   mv background.config .config/cosmic/com.system76.CosmicBackground/v1/all
+    [Teardown]        Switch to vm    gui-vm
+
+Restore default wallpaper
+    [Setup]           Switch to vm    gui-vm  user=${USER_LOGIN}
+    Log To Console    Changing back to default wallpaper
+    Remove file       ~/.config/cosmic/com.system76.CosmicBackground/v1/all
+    [Teardown]        Switch to vm    gui-vm
