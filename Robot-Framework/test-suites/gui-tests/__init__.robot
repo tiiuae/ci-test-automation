@@ -18,7 +18,6 @@ Test Timeout        5 minutes
 GUI Tests Setup
     [Timeout]    5 minutes
     Prepare Test Environment   enable_dnd=True
-    Save gui icons and icon path
 
     # There's a bug that occasionally causes the app menu to freeze on Cosmic, especially on the first login. 
     # Logging out once before running tests helps reduce the chances of it happening. (SSRCSP-6684)

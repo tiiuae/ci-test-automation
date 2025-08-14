@@ -19,7 +19,7 @@ Prepare Test Environment
         Switch to vm    gui-vm
         Create test user
         IF  ${login}
-            Change to gray wallpaper
+            Save gui icons and icon path
             Start ydotoold
             Log in, unlock and verify   ${enable_dnd}
         END
@@ -32,7 +32,6 @@ Clean Up Test Environment
     Stop journalctl recording
     IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Switch to vm    gui-vm
-        Restore default wallpaper
         Start ydotoold
         Log out and verify   ${disable_dnd}
         Stop ydotoold
