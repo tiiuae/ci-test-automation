@@ -207,8 +207,15 @@ Verify desktop availability
     Run Keyword And Ignore Error   Verify Systemctl status   range=1
     Run Keyword And Ignore Error   Verify Systemctl status   range=1   user=True
 
-    Log To Console     Verifying login by trying to detect the "Applications" text
-    Locate on screen   text   Applications
+    Log To Console         Verifying login by trying to detect the launcher icon
+    # This is a workaround for launcher icon missing sometimes. If launcher icon can't be found tries to search
+    # for the power menu icon. Gui-vm user log is saved to help debugging.
+    ${status}   ${output}   Run Keyword And Ignore Error   Locate on screen  image  ${APP_MENU_LAUNCHER}  0.95  10
+    IF   $status == 'FAIL'
+        Get gui-vm user journalctl log
+        Log To Console    Could not find launcher icon, checking for power menu icon
+        Locate on screen  image  ./power.png  0.95  5
+    END
 
 Move cursor
     Log To Console    Moving cursor to random location
@@ -274,16 +281,16 @@ Check if locked
 
 Unlock
     [Documentation]    Unlock the screen be typing password
-    #Press tab once to deselect the password field in case it was active. This helps with the image recognition.
+    # Press tab once to deselect the password field in case it was active. This helps with the image recognition.
     Press Key(s)   TAB
     Locate and click   text  Password:  iterations=1
     Log To Console     Typing password to unlock
     Type string and press enter  ${USER_PASSWORD}  confidential=True
 
 Save gui icons and icon path
-    [Documentation]         Save the icons that are used in multiple gui test cases
+    [Documentation]         Save the icons that are used in multiple test cases
     ...                     Save path to icons
-    Log To Console          Saving commonly used gui test icons
+    Log To Console          Saving commonly used test icons
     ${ICONS}                Execute Command   find $(echo $XDG_DATA_DIRS | tr ':' ' ') -type d -name "icons" 2>/dev/null
     Set Global Variable     ${ICONS}
     Get icon                ${ICONS}/hicolor/scalable/apps  com.system76.CosmicAppLibrary.svg  crop=0  background=black  output_filename=launcher.png
