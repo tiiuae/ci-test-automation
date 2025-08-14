@@ -15,6 +15,7 @@ Resource            ../resources/ssh_keywords.resource
 
 *** Variables ***
 ${APP_MENU_LAUNCHER}   ./launcher.png
+${LOCK_ICON}           ./lock.png
 ${DISABLE_LOGOUT}      ${EMPTY}
 ${GUI_TEMP_DIR}        ${OUTPUT_DIR}/outputs/gui-temp/
 
@@ -270,7 +271,7 @@ Check if locked
     # Press tab once to deselect the password field in case it was active. This helps with image recognition.
     Press Key(s)   TAB
     IF  not ${logout_status}
-        ${status}   ${output}      Run Keyword And Ignore Error   Locate on screen  text  Password:  iterations=1  debug_screenshot=False
+        ${status}   ${output}      Run Keyword And Ignore Error   Locate on screen  image  ${LOCK_ICON}  0.95  1  debug_screenshot=False
         IF  '${status}' == 'PASS'
             Log To Console    Screen is locked
             RETURN    ${True}
@@ -281,9 +282,8 @@ Check if locked
 
 Unlock
     [Documentation]    Unlock the screen be typing password
-    # Press tab once to deselect the password field in case it was active. This helps with the image recognition.
-    Press Key(s)   TAB
-    Locate and click   text  Password:  iterations=1
+    # Make sure that password field is active by clicking it
+    Locate and click   image  ${LOCK_ICON}   0.95  5
     Log To Console     Typing password to unlock
     Type string and press enter  ${USER_PASSWORD}  confidential=True
 
@@ -299,6 +299,7 @@ Save gui icons and icon path
     Get icon                ${ICONS}/Cosmic/scalable/actions  system-search-symbolic.svg  crop=0  background=white  output_filename=search.png
     Negate app icon         ${GUI_TEMP_DIR}search.png  ${GUI_TEMP_DIR}search-neg.png
     Get icon                ${ICONS}/Papirus/24x24/actions  system-shutdown.svg  crop=0  background=black  output_filename=power.png
+    Get icon                ${ICONS}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
 
 Create test user
     Log To Console      Creating test user
