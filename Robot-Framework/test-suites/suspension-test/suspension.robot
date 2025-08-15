@@ -67,6 +67,7 @@ Test setup
 
 Test teardown
     Run Keyword If Test Failed    Reboot Laptop
+    IF  "Lenovo" in "${DEVICE}"   Run Keyword If Test Failed  Skip  "Known issue: SSRCSP-6986"
 
 Wait
     [Arguments]     ${sec}
