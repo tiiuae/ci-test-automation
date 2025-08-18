@@ -42,6 +42,39 @@ Change keyboard layout
     END
     [Teardown]  Kill gui-vm apps
 
+Control audio volume with keyboard shortcuts
+    [Documentation]      Check that volume level is increased by pressing F3,
+    ...                  decreased - by pressing F2,
+    ...                  mute status is changed by pressing F1,
+    ...                  mute status is changed back by pressing F1,
+    ...                  volume level after mute/unmute is the same
+    [Tags]               lenovo-x1   SP-T134
+
+    ${init_volume}       Get volume level
+    Press Key(s)         VOLUMEUP
+    ${volume_up}         Get volume level
+    Run Keyword And Continue On Failure 	Should Be True
+    ...                  ${volume_up} > ${init_volume}    Volume level was not increased
+
+    Press Key(s)         VOLUMEDOWN
+    ${volume_down}       Get volume level
+    Run Keyword And Continue On Failure 	Should Be True
+    ...                  ${volume_down} < ${volume_up}    Volume level was not decreased
+
+    ${mute_1}            Get mute status
+    Press Key(s)         MUTE
+    ${mute_2}            Get mute status
+    Run Keyword And Continue On Failure 	Should Not Be Equal
+    ...                  ${mute_1}  ${mute_2}    Mute status hasn't changed
+
+    Press Key(s)         MUTE
+    ${mute_3}            Get mute status
+    Run Keyword And Continue On Failure 	Should Not Be Equal
+    ...                  ${mute_2}  ${mute_3}    Mute status hasn't changed
+
+    ${vol_after_mute}    Get volume level
+    Should Be Equal      ${vol_after_mute}    ${volume_down}    Volume level after mute status changing is different
+
 
 *** Keywords ***
 
@@ -78,4 +111,4 @@ Check cosmic config current layout value
 
 Kill gui-vm apps
     Switch to vm    gui-vm
-    Kill process        @{APP_PIDS}
+    Kill process    @{APP_PIDS}
