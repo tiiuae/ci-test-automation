@@ -4,7 +4,6 @@
 
 | DATE SET   | TEST CASE                                         | TICKET / Additional Data.                                                                       |
 |------------|---------------------------------------------------| ----------------------------------------------------------------------------------------------- |
-| 15.08.2025 | Automatic suspension (Lenovo X1)                  | SSRCSP-6986                                                                                     |
 | 27.06.2025 | Measure UDP Bidir Throughput Small Packets (Dell) | SSRCSP-6774                                                                                     |
 | 17.06.2025 | Start and close Google Chrome via GUI on LenovoX1 | SSRCSP-6716                                                                                     |
 | 13.06.2025 | Record Video With Camera (Dell)                   | SSRCSP-6694                                                                                     |
