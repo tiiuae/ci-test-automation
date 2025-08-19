@@ -265,11 +265,21 @@ Get icon
     SSHLibrary.Get File  ${path}/${icon_name}   ${GUI_TEMP_DIR}icon.svg
     Convert app icon  ${crop}   ${background}   input_file=${GUI_TEMP_DIR}icon.svg  output_file=${GUI_TEMP_DIR}${output_filename}
 
+Check the screen state
+    [Arguments]         ${state}
+    ${output}           Execute Command    ls /nix/store | grep wlopm | grep -v .drv
+    IF  $COMPOSITOR == 'cosmic' 
+        ${output}  ${err}   Execute Command    WAYLAND_DISPLAY=wayland-1 /nix/store/${output}/bin/wlopm    return_stderr=True
+    ELSE
+        ${output}  ${err}   Execute Command    WAYLAND_DISPLAY=wayland-0 /nix/store/${output}/bin/wlopm    return_stderr=True
+    END
+    Log to console      Screen state: ${output}
+    Should Contain      ${output}    ${state}
+
 Check if locked
     [Documentation]    Check if the screen lock is active
     ${logout_status}   Check if logged out   1
-    # Press tab once to deselect the password field in case it was active. This helps with image recognition.
-    Press Key(s)   TAB
+
     IF  not ${logout_status}
         ${status}   ${output}      Run Keyword And Ignore Error   Locate on screen  image  ${LOCK_ICON}  0.95  1  debug_screenshot=False
         IF  '${status}' == 'PASS'
@@ -299,6 +309,7 @@ Save gui icons and icon path
     Get icon                ${ICONS}/Cosmic/scalable/actions  system-search-symbolic.svg  crop=0  background=white  output_filename=search.png
     Negate app icon         ${GUI_TEMP_DIR}search.png  ${GUI_TEMP_DIR}search-neg.png
     Get icon                ${ICONS}/Papirus/24x24/actions  system-shutdown.svg  crop=0  background=black  output_filename=power.png
+    Get icon                ${ICONS}/Papirus/24x24/actions  system-suspend.svg  crop=0  background=black  output_filename=suspend.png
     Get icon                ${ICONS}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
 
 Create test user

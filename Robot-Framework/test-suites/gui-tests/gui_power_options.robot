@@ -22,7 +22,7 @@ GUI Suspend and wake up
     ...               Check that the device is awake.
     ...               Logs device power consumption during the test
     ...               if power measurement tooling is set.
-    [Tags]            SP-T208-2   lenovo-x1    #The X1 in the lab gets stuck when a suspension is attempted. Needs further investigation.
+    [Tags]            SP-T208-2   lenovo-x1
     Start power measurement       ${BUILD_ID}   timeout=180
     Set start timestamp
     # Connect back to gui-vm after power measurement has been started
@@ -116,7 +116,7 @@ Select power menu option
     [Arguments]        ${text}=""   ${index}=0   ${confirmation}=false
     Log To Console     Opening power menu
     Locate and click   image  ./power.png  0.95  5
-    IF  $text != ""
+    IF  ${text} != ""
         Locate and click   text   ${text}
     ELSE
         Tab and enter      tabs=${index}
