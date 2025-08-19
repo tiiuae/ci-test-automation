@@ -439,7 +439,7 @@ class PerformanceDataProcessing:
         plt.twinx()
         plt.plot(data['commit'], data['max_latency'], marker='o', linestyle='-', color='r', label='Max')
         plt.plot(data['commit'], data['min_latency'], marker='o', linestyle='-', color='g', label='Min')
-        plt.legend(loc='upper right')
+        plt.legend(loc='upper left')
         plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
         plt.grid(True)
 
@@ -538,7 +538,7 @@ class PerformanceDataProcessing:
         plt.twinx()
         plt.plot(data['commit'], data['max_latency'], marker='o', linestyle='-', color='r', label='Max')
         plt.plot(data['commit'], data['min_latency'], marker='o', linestyle='-', color='g', label='Min')
-        plt.legend(loc='upper right')
+        plt.legend(loc='upper left')
         plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
 
         plt.suptitle(f'{test_name}\nBuild type: {self.build_type}, Device: {self.device}', fontsize=18, fontweight='bold')
@@ -655,7 +655,7 @@ class PerformanceDataProcessing:
         plt.plot(data['commit'], data['min_latency'], marker='o', linestyle='-', color='g', label='Min')
         plt.yticks(fontsize=14)
         plt.ylabel('Max/Min Latency (ms)', fontsize=16)
-        plt.legend(loc='upper right')
+        plt.legend(loc='upper left')
         plt.title('Latency', loc='right', fontweight="bold", fontsize=16)
         plt.grid(True)
 
@@ -785,7 +785,7 @@ class PerformanceDataProcessing:
             plt.xlabel('Builds')
             plt.ylabel('Data transfer speed, MB/s' if 'memory' in test else 'Events per second')
             plt.xticks(range(len(all_builds[test])), all_builds[test], rotation=90)
-            plt.legend()
+            plt.legend(loc='upper left')
             plt.tight_layout()
             plt.savefig(self.plot_dir + f'{self.device}_{test_name}_{test}.png')
             plt.close()
