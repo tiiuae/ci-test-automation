@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing time synchronization
-Force Tags          timesync  bat  regression
+Force Tags          timesync
 
 Library             ../../lib/TimeLibrary.py
 Resource            ../../resources/ssh_keywords.resource
@@ -29,7 +29,7 @@ Time synchronization
     ...                      -Net-vm is not connected to net.
     ...                  - Ghaf-host is connected to net via Net-VM if adapter is used!.
     ...                  - In this test we expect adapter is not used -> Set Wi-Fi ON to enable net-vm to address net.
-    [Tags]            SP-T97   nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330  fmo
+    [Tags]            bat  regression  SP-T97   nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330  fmo
 
     IF  "AGX" in "${DEVICE}"  Set Wifi passthrough into NetVM
 
@@ -47,21 +47,32 @@ Time synchronization
 
     [Teardown]  Timesync Teardown
 
-Update system time in gui-vm from internet
-    [Documentation]   Disable internet, change time in GUI vm, restart timesyncd, check that time was changed to wrong
+Update system time from internet in Gui-vm
+    [Tags]            bat  SP-T217  lenovo-x1  dell-7330
+    [Template]        Update system time from internet in ${vm}
+    ${GUI_VM}
+
+Update system time from internet in VMs
+    [Tags]            regression  SP-T217  lenovo-x1  dell-7330
+    [Template]        Update system time from internet in ${vm}
+    FOR    ${vm}    IN    @{VMS}
+        ${vm}
+    END
+
+*** Keywords ***
+
+Update system time from internet in ${vm}
+    [Documentation]   Disable internet, change time in vm, restart timesyncd, check that time was changed to wrong
     ...               Enable internet and check that time was synchronized
-    [Tags]            SP-T217  lenovo-x1  dell-7330
-    Switch to vm              gui-vm
+    Switch to vm              ${vm}
     Block internet traffic
     Set system time           ${wrong_time}
     Restart timesync daemon
     Check time was changed    expected_time=None
     Unblock internet traffic
     Check that time is correct
+    [Teardown]  Run Keyword If  "${KEYWORD STATUS}" == 'FAIL'   Unblock internet traffic
 
-    [Teardown]  Run Keyword If Test Failed    Unblock internet traffic
-
-*** Keywords ***
 
 Stop timesync daemon
     Execute Command        systemctl stop systemd-timesyncd.service  sudo=True  sudo_password=${PASSWORD}
