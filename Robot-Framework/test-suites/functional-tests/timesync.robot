@@ -184,9 +184,8 @@ Timesync Teardown
      Start timesync daemon
 
 Check If Known Error
+    [Documentation]    Elaborate it possible failure is due to some known reason.
     IF  "AGX" in "${DEVICE}"
-        ${journal_log}    Execute Command  journalctl --since "20 minutes ago"
-        Log  ${journal_log}
-        ${error_present}  Run Keyword And Return Status  Should Contain  ${journal_log}   ${error_msg}
-        IF  ${error_present}   Skip    Known issue: SSRCSP-6423 (AGX)
+        ${journal_log}  Execute command  journalctl -b | grep -i 'Unrecoverable error detected.'
+        Run Keyword If  $journal_log != '${EMPTY}'   SKIP  "Known issue: SSRCSP-6423 (AGX)"
     END
