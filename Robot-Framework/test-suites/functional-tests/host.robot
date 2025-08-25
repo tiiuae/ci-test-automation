@@ -11,7 +11,6 @@ Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Connect to ghaf host
-Suite Teardown      Close All Connections
 
 
 *** Test Cases ***

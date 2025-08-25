@@ -130,15 +130,18 @@ Connect
 
 Connect to ghaf host
     [Documentation]      Open SSH connection to Ghaf Host
-    IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        ${connection}        Connect
-        Set Global Variable  ${NETVM_SSH}    ${connection}
-        ${connection}        Connect to VM       ghaf-host
-    ELSE
-        Log To Console       Connecting to Ghaf Host
-        ${connection}        Connect
+    ${connected}   Check ssh connection status   ghaf-host
+    IF  not ${connected}
+        IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
+            ${connection}        Connect
+            Set Global Variable  ${NETVM_SSH}    ${connection}
+            ${connection}        Connect to VM       ghaf-host
+        ELSE
+            Log To Console       Connecting to Ghaf Host
+            ${connection}        Connect
+        END
+        Set Global Variable  ${GHAF_HOST_SSH}    ${connection}
     END
-    Set Global Variable  ${GHAF_HOST_SSH}    ${connection}
     RETURN               ${GHAF_HOST_SSH}
 
 Connect to netvm
@@ -300,6 +303,7 @@ Wait until NetVM service started
     ${is_started} =   Set Variable    False
     FOR    ${i}    IN RANGE    ${timeout}
         ${output}=     Execute Command    systemctl status ${netvm_service}
+        Log            ${output}
         ${status} =    Run Keyword And Return Status    Should Contain    ${output}    Welcome to NixOS
         IF    ${status}
             ${is_started} =  Set Variable    True

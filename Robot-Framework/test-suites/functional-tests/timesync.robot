@@ -9,8 +9,6 @@ Library             ../../lib/TimeLibrary.py
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
 
-Suite Teardown      Close All Connections
-
 
 *** Variables ***
 ${wrong_time}       01/11/23 11:00:00 UTC
