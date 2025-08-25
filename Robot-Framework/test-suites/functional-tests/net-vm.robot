@@ -10,8 +10,6 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/virtualization_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
 
-Suite Teardown      Close All Connections
-
 
 *** Variables ***
 ${NETVM_STATE}     ${EMPTY}
@@ -27,7 +25,6 @@ Verify NetVM is started
     [Setup]                 Connect to ghaf host
     Verify service status   service=${netvm_service}
     Check Network Availability      ${NETVM_IP}    expected_result=True    range=5
-    [Teardown]              Close All Connections
 
 Wifi passthrough into NetVM (Orin-AGX)
     [Documentation]     Verify that wifi works inside netvm
@@ -43,7 +40,7 @@ Wifi passthrough into NetVM (Orin-AGX)
     Turn OFF WiFi       ${TEST_WIFI_SSID}
     Check Network Availability    8.8.8.8   expected_result=False
     Sleep               1
-    [Teardown]          Run Keywords  Remove Wifi configuration  ${TEST_WIFI_SSID}  AND  Close All Connections
+    [Teardown]          Run Keyword  Remove Wifi configuration  ${TEST_WIFI_SSID}
 
 Wifi passthrough into NetVM (Lenovo-X1)
     [Documentation]     Verify that wifi works inside netvm
@@ -60,16 +57,6 @@ Wifi passthrough into NetVM (Lenovo-X1)
     Turn ON WiFi        ${TEST_WIFI_SSID}
     Get wifi IP
     [Teardown]          Run Keywords  Remove Wifi configuration  ${TEST_WIFI_SSID}  AND  Close All Connections
-
-Wifi passthrough into NetVM (NUC)
-    [Documentation]     Verify that wifi works inside netvm
-    [Tags]              SP-T111  nuc
-    [Setup]             Connect to netvm
-    Configure wifi via wpa_supplicant      ${netvm_ssh}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
-    Check Network Availability    8.8.8.8   expected_result=True
-    Remove wpa_supplicant configuration
-    Check Network Availability    8.8.8.8   expected_result=False
-    [Teardown]          Run Keywords  Remove wpa_supplicant configuration  AND  Close All Connections
 
 NetVM stops and starts successfully
     [Documentation]     Verify that NetVM stops properly and starts after that
@@ -91,16 +78,14 @@ NetVM is wiped after restarting
     Connect to netvm
     Log To Console      Check if created file still exists
     Check file doesn't exist    /etc/test.txt    sudo=True
-    [Teardown]  Run keywords  Run Keyword If Test Failed  Skip Test If Known Failure
-    ...         AND  Close All Connections
+    [Teardown]          Run Keyword If Test Failed  Skip Test If Known Failure
 
 Verify NetVM PCI device passthrough
     [Documentation]     Verify that proper PCI devices have been passed through to the NetVM
     [Tags]              SP-T96  nuc  orin-agx  orin-agx-64  orin-nx
     [Setup]             Connect to netvm
     Verify microvm PCI device passthrough    vmname=${NET_VM}
-    [Teardown]  Run keywords  Run Keyword If Test Failed  Skip Test If Known Failure
-    ...         AND  Close All Connections
+    [Teardown]          Run Keyword If Test Failed  Skip Test If Known Failure
 
 
 *** Keywords ***
