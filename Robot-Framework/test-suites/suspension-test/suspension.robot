@@ -53,6 +53,9 @@ Automatic suspension
     Connect
     Generate power plot           ${BUILD_ID}   ${TEST NAME}
     Stop recording power
+    Check the screen state   off
+    # Screen wakeup requires a mouse move
+    Move Cursor
     Check the screen state   on
     ${locked}         Check if locked
     Should Be True    ${locked}    Lock screen didn't appear
@@ -67,7 +70,6 @@ Test setup
 
 Test teardown
     Run Keyword If Test Failed    Reboot Laptop
-    IF  "Lenovo" in "${DEVICE}"   Run Keyword If Test Failed  Skip  "Known issue: SSRCSP-6986"
 
 Wait
     [Arguments]     ${sec}

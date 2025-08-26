@@ -268,8 +268,6 @@ Get icon
 Check if locked
     [Documentation]    Check if the screen lock is active
     ${logout_status}   Check if logged out   1
-    # Press tab once to deselect the password field in case it was active. This helps with image recognition.
-    Press Key(s)   TAB
     IF  not ${logout_status}
         ${status}   ${output}      Run Keyword And Ignore Error   Locate on screen  image  ${LOCK_ICON}  0.95  1  debug_screenshot=False
         IF  '${status}' == 'PASS'
