@@ -29,8 +29,6 @@ Time synchronization
     ...                  - In this test we expect adapter is not used -> Set Wi-Fi ON to enable net-vm to address net.
     [Tags]            bat  regression  SP-T97   nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1   dell-7330  fmo
 
-    IF  "AGX" in "${DEVICE}"  Set Wifi passthrough into NetVM
-
     ${host}  Connect
     Check that time is correct  timezone=UTC
 
@@ -40,8 +38,6 @@ Time synchronization
 
     Start timesync daemon
     Check that time is correct
-
-    IF  "AGX" in "${DEVICE}"  Disable Wifi passthrough from NetVM
 
     [Teardown]  Timesync Teardown
 
@@ -158,16 +154,6 @@ Set system time
     Set Test Variable   ${original_time}  ${original_time}
     ${output}           Execute Command   sudo date -s '${time}'  sudo=True  sudo_password=${PASSWORD}
     ${output}           Execute Command   timedatectl -a
-
-Set Wifi passthrough into NetVM
-    [Documentation]     Verify that wifi works inside netvm.
-    ...              ORIN-AGX: Ghaf-host is directly connected to net if No internet adapter used!
-    ...                        Ghaf-host is connected to net via net-vm if internet adapter is used!
-    ...              Normally: Ghaf-host is connected to net via Net-VM
-    Connect to netvm
-    Configure wifi      ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
-    Get wifi IP
-    Check Network Availability    8.8.8.8   expected_result=True
 
 Disable Wifi passthrough from NetVM
     Check Network Availability    8.8.8.8   expected_result=True

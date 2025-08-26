@@ -28,7 +28,7 @@ Verify booting after restart by power
     ELSE
         Log To Console  The device started
     END
-    IF  "NX" in "${DEVICE}"
+    IF  "NX" in "${DEVICE}" or "AGX" in "${DEVICE}"
         Sleep  30
     END
     IF  "${CONNECTION_TYPE}" == "ssh"

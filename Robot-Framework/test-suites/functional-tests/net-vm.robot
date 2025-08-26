@@ -28,7 +28,9 @@ Verify NetVM is started
 
 Wifi passthrough into NetVM (Orin-AGX)
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              SP-T111  orin-agx  orin-agx-64
+    ...                 Test case not in use in CI/CD Pipeline.
+    ...                 Obsoleted when AGX devices use a network adapter.
+    [Tags]              # SP-T111  orin-agx  orin-agx-64
     [Setup]             Connect to netvm
     Configure wifi      ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
@@ -42,9 +44,9 @@ Wifi passthrough into NetVM (Orin-AGX)
     Sleep               1
     [Teardown]          Run Keyword  Remove Wifi configuration  ${TEST_WIFI_SSID}
 
-Wifi passthrough into NetVM (Lenovo-X1)
+Wifi passthrough into NetVM
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              SP-T101   lenovo-x1   dell-7330
+    [Tags]              SP-T101  orin-agx  orin-agx-64  lenovo-x1   dell-7330
     [Setup]             Connect to netvm
     Configure wifi      ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
@@ -60,14 +62,18 @@ Wifi passthrough into NetVM (Lenovo-X1)
 
 NetVM stops and starts successfully
     [Documentation]     Verify that NetVM stops properly and starts after that
-    [Tags]              SP-T47  SP-T90  nuc  orin-agx  orin-agx-64
+    ...                 Test case not in use in CI/CD Pipeline.
+    ...                 Obsoleted when AGX devices use a network adapter.
+    [Tags]              # SP-T47  SP-T90   orin-agx  orin-agx-64
     [Setup]             Connect to ghaf host
     Restart NetVM
     [Teardown]          Run Keywords  Start NetVM if dead   AND  Close All Connections
 
 NetVM is wiped after restarting
     [Documentation]     Verify that created file will be removed after restarting VM
-    [Tags]              SP-T48  nuc  orin-agx  orin-agx-64
+    ...                 Test case not in use in CI/CD Pipeline.
+    ...                 Obsoleted when AGX devices use a network adapter.
+    [Tags]              # SP-T48  nuc  orin-agx  orin-agx-64
     [Setup]             Connect to netvm
     Create file         /etc/test.txt    sudo=True
     Switch Connection   ${GHAF_HOST_SSH}

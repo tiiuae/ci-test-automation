@@ -19,7 +19,7 @@ Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Run Keywords  Connect to device
-...                 AND  Select network connection to use
+...                 AND  Connect to netvm
 ...                 AND  Run iperf server on DUT
 Suite Teardown      Run Keywords  Stop iperf server
 ...                 AND  Close port 5201 from iptables
@@ -157,16 +157,6 @@ Measure UDP Bidir Throughput Big Packets
     [Teardown]   Run Keyword If   "AGX" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6623 (AGX)"
 
 *** Keywords ***
-Select network connection to use
-    [Documentation]  Select the connection to be used. This cannot be done in Keyword 'Connect to device'
-     ...             since it then breaks the  other test suites.
-     IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
-         ${CONNECTION}       Connect to netvm
-     ELSE
-         ${CONNECTION}       Connect to ghaf host
-     END
-     Set Global Variable  ${CONNECTION}
-
 Run iperf server on DUT
     [Documentation]   Run iperf on DUT in server mode
     Open port 5201 from iptables
