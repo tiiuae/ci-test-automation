@@ -17,12 +17,11 @@ Library             JSONLibrary
 
 Automatic suspension
     [Documentation]   Wait and check that
-    ...               in the beginning brightness is 96000
-    ...               in 4 min - the screen dims (brightness is 24000)
-    ...               in 5 min - the screen locks (brightness is 24000)
-    ...               in 7,5 min - screen turns off
+    ...               in the beginning brightness is 100 %
+    ...               in 4 min - the screen dims (brightness is 25 %)
+    ...               in 5 min - the screen locks (brightness is 25 %)
     ...               in 15 min - the laptop is suspended
-    ...               in 5 min press the button and check that laptop woke up
+    ...               in 20 min press the button and check that laptop woke up
     [Tags]            SP-T162    lenovo-x1
     [Setup]           Test setup
     [Teardown]        Test teardown
@@ -32,7 +31,7 @@ Automatic suspension
 
     Start power measurement       ${BUILD_ID}   timeout=1500
     Connect
-    Switch to vm    gui-vm
+    Switch to vm    gui-vm   user=${USER_LOGIN}
     Set start timestamp
 
     Wait     240
@@ -53,6 +52,7 @@ Automatic suspension
     Connect
     Generate power plot           ${BUILD_ID}   ${TEST NAME}
     Stop recording power
+    Switch to vm    gui-vm   user=${USER_LOGIN}
     Check the screen state   off
     # Screen wakeup requires a mouse move
     Move Cursor
@@ -88,6 +88,7 @@ Get expected brightness values
     Set Test Variable  ${dimmed_brightness}  ${dimmed}
 
 Set display to max brightness
+    [Setup]   Switch to vm    gui-vm
     ${current_brightness}    Get screen brightness   log_brightness=False
     IF   ${current_brightness} != ${max_brightness}
         Log           Brightness is ${current_brightness}, setting it to the maximum  console=True
@@ -96,6 +97,7 @@ Set display to max brightness
         ${current_brightness}    Get screen brightness
         Should be Equal As Numbers    ${current_brightness}   ${max_brightness}
     END
+    [Teardown]   Switch to vm    gui-vm  user=${USER_LOGIN}
 
 Check screen brightness
     [Arguments]       ${brightness}    ${timeout}=60
@@ -115,12 +117,10 @@ Check screen brightness
 
 Check the screen state
     [Arguments]         ${state}
-    [Setup]       Switch to vm    gui-vm  user=${USER_LOGIN}
     ${output}           Execute Command    ls /nix/store | grep wlopm | grep -v .drv
     ${output}  ${err}   Execute Command    WAYLAND_DISPLAY=wayland-1 /nix/store/${output}/bin/wlopm    return_stderr=True
     Log                 Screen state: ${output}  console=True
     Should Contain      ${output}    ${state}
-    [Teardown]    Switch to vm    gui-vm
 
 Check that device is suspended
     ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails

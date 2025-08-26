@@ -8,6 +8,7 @@ Force Tags          gui   gui-power-menu
 Library             ../../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/power_meas_keywords.resource
+Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
 Test Setup          GUI Power Test Setup
@@ -27,7 +28,7 @@ GUI Suspend and wake up
     Set start timestamp
     # Connect back to gui-vm after power measurement has been started
     Connect to netvm
-    Switch to vm    gui-vm
+    Switch to vm    gui-vm   user=${USER_LOGIN}
 
     Select power menu option   index=4
 
@@ -90,8 +91,8 @@ GUI Reboot
     END
     Sleep  30
     Connect   iterations=10
-    Switch to vm    gui-vm
     Start ydotoold
+    Switch to vm    gui-vm   user=${USER_LOGIN}
     Log in, unlock and verify   enable_dnd=True
 
 GUI Log out and log in
@@ -107,7 +108,7 @@ GUI Log out and log in
 
 GUI Power Test Setup
     Connect to netvm
-    Switch to vm    gui-vm
+    Switch to vm    gui-vm   user=${USER_LOGIN}
     Log in, unlock and verify
 
 Select power menu option
@@ -116,10 +117,11 @@ Select power menu option
     [Arguments]        ${text}=""   ${index}=0   ${confirmation}=false
     Log To Console     Opening power menu
     Locate and click   image  ./power.png  0.95  5
-    IF  $text != ""
+    IF  '$text != $EMPTY'
         Locate and click   text   ${text}
     ELSE
         Tab and enter      tabs=${index}
     END
     # Some options have a separate confirmation window that needs to be clicked.
     IF  '${confirmation}' == 'true'   Tab and enter   tabs=2
+    Sleep   1

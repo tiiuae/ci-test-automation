@@ -2,9 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Documentation       Keywords for gui tests. Note: These keywords assume the connection is to the gui-vm,
-...                 as the ghaf user. If a keyword requires the user account, it will handle switching to
-...                 the user and switch back to the ghaf user during teardown.
+Documentation       Keywords for gui tests. Note: These keywords assume the connection is to the gui-vm
+...                 as the non-privileged user.
 
 Library             ../lib/GuiTesting.py    ${OUTPUT_DIR}/outputs/gui-temp/
 Library             Collections
@@ -18,6 +17,7 @@ ${APP_MENU_LAUNCHER}   ./launcher.png
 ${LOCK_ICON}           ./lock.png
 ${DISABLE_LOGOUT}      ${EMPTY}
 ${GUI_TEMP_DIR}        ${OUTPUT_DIR}/outputs/gui-temp/
+${YDOTOOL_SOCKET}      /tmp/.ydotool_socket
 
 
 *** Keywords ***
@@ -71,11 +71,11 @@ Log in via GUI
     [Documentation]   Log in by typing password
     Log To Console    Logging in
     # Make sure that password field is active by clicking on screen
-    Execute Command   ydotool mousemove --absolute -x 50 -y 50  sudo=True  sudo_password=${PASSWORD}
-    Execute Command   ydotool click 0xC0  sudo=True  sudo_password=${PASSWORD}
+    Run ydotool command   mousemove --absolute -x 50 -y 50   sudo=True
+    Run ydotool command   click 0xC0  sudo=True
 
     IF  "Dell" in "${DEVICE}"    Sleep  5
-    Type string and press enter  ${USER_PASSWORD}  confidential=True
+    Type string and press enter  ${USER_PASSWORD}  confidential=True   sudo=True
 
 Log out via GUI
     [Documentation]   Log out by using keyboard shortcut
@@ -87,20 +87,21 @@ Log out via GUI
     END
     Log To Console    Logging out by pressing Super+Shift+Escape 
     Press Key(s)      LEFTMETA+LEFTSHIFT+ESC
+    IF  "Dell" in "${DEVICE}"    Sleep  3
     Tab and enter     tabs=2
 
 Type string and press enter
-    [Arguments]    ${string}=${EMPTY}  ${confidential}=False  ${enter}=True
+    [Arguments]    ${string}=${EMPTY}  ${confidential}=False  ${enter}=True   ${sudo}=False
     IF  ${confidential} 
         Log To Console    Typing password
     ELSE
         Log To Console    Typing "${string}"
     END
     IF  $string != '${EMPTY}'
-        Execute Command   ydotool type ${string}  sudo=True  sudo_password=${PASSWORD}
+        Run ydotool command   type ${string}  ${sudo}
     END
     IF  ${enter}
-        Press Key(s)      ENTER
+        Press Key(s)      ENTER   ${sudo}
     ELSE
         Log To Console    Skipping Enter
     END
@@ -120,7 +121,6 @@ Locate on screen
     [Timeout]          2 minutes
     ${coordinates}=        Set Variable  ${EMPTY}
     ${pass_status}=        Set Variable  FAIL
-    Switch to vm           gui-vm  user=${USER_LOGIN}
     Execute Command        mkdir test-images
     ${screenshot_cmd}=     Set Variable  cosmic-screenshot --interactive=false --save-dir ./test-images
     FOR   ${i}   IN RANGE  ${iterations}
@@ -160,35 +160,17 @@ Locate on screen
     ${mouse_x}  Get From Dictionary   ${coordinates}  x
     ${mouse_y}  Get From Dictionary   ${coordinates}  y
     RETURN  ${mouse_x}  ${mouse_y}
-    [Teardown]    Switch to vm    gui-vm
 
 Locate and click
     [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=5
     ${mouse_x}  ${mouse_y}  Locate on screen  ${type}  ${searched_item}  ${confidence}  ${iterations}
-    Execute Command   ydotool mousemove --absolute -x ${mouse_x} -y ${mouse_y}  sudo=True  sudo_password=${PASSWORD}
-    Execute Command   ydotool click 0xC0  sudo=True  sudo_password=${PASSWORD}
-
-Start ydotoold
-    [Documentation]    Start ydotool daemon if it is not already running.
-    ${ydotoold_state}=    Execute Command    sh -c 'ps aux | grep ydotoold | grep -v grep'
-    IF  $ydotoold_state == '${EMPTY}'
-        Log To Console    Starting ydotool daemon
-        Run Keyword And Ignore Error  Execute Command   -b /run/current-system/sw/bin/ydotoold --socket-path /tmp/.ydotool_socket  sudo=True  sudo_password=${PASSWORD}  timeout=3
-        ${ydotoold_state}=    Execute Command    sh -c 'ps aux | grep ydotoold | grep -v grep'
-        Should Not Be Empty  ${ydotoold_state}  failed to start ydotool daemon
-    ELSE
-        Log To Console    Check: ydotool daemon running
-    END
-
-Stop ydotoold
-    [Documentation]    Kill ydotool daemon
-    Log To Console    Stopping ydotool daemon
-    Execute Command   pkill ydotoold  sudo=True  sudo_password=${PASSWORD}
+    Run ydotool command   mousemove --absolute -x ${mouse_x} -y ${mouse_y}
+    Run ydotool command   click 0xC0
 
 Move cursor to corner
     [Documentation]    Move the cursor to the upper left corner so that it will not block searching further gui screenshots
     Log To Console    Moving cursor to corner from blocking further image detection
-    Execute Command   ydotool mousemove --absolute -x 50 -y 50  sudo=True  sudo_password=${PASSWORD}
+    Run ydotool command   mousemove --absolute -x 50 -y 50
 
 Verify desktop availability
     [Documentation]    Wait for the login and check that launcher icon is available on desktop
@@ -222,12 +204,11 @@ Move cursor
     Log To Console    Moving cursor to random location
     ${x}    Evaluate  random.randint(50, 500)  modules=random
     ${y}    Evaluate  random.randint(50, 500)  modules=random
-    Execute Command   ydotool mousemove --absolute -x ${x} -y ${y}  sudo=True  sudo_password=${PASSWORD}
+    Run ydotool command   mousemove --absolute -x ${x} -y ${y}
 
 Check if logged out
     [Documentation]    Check if system is in logged out state
     [Arguments]        ${iterations}=10
-    Switch to vm    gui-vm  user=${USER_LOGIN}
     FOR   ${i}   IN RANGE  ${iterations}
         ${activity}=       Execute Command    systemctl --user is-active xdg-desktop-portal.service  return_stdout=True
         IF  $activity == "active"
@@ -239,12 +220,10 @@ Check if logged out
         Sleep  1
     END
     RETURN    ${False}
-    [Teardown]    Switch to vm    gui-vm
 
 Wait for user session to be active
     [Documentation]    Wait until the user session is in active state
     [Arguments]        ${iterations}=30
-    Switch to vm    gui-vm  user=${USER_LOGIN}
     Log To Console     Waiting for the user session to be active...  no_newline=true 
     FOR   ${i}   IN RANGE   ${iterations}
         ${activity}=       Execute Command    systemctl --user is-active xdg-desktop-portal.service  return_stdout=True
@@ -257,7 +236,6 @@ Wait for user session to be active
         Sleep   0.5
     END
     RETURN   ${activity}
-    [Teardown]    Switch to vm    gui-vm
 
 Get icon
     [Documentation]    Copy icon svg file to test agent machine. Crop and convert the svg file to png.
@@ -284,46 +262,23 @@ Unlock
     Locate and click   image  ${LOCK_ICON}   0.95  5
     Log To Console     Typing password to unlock
     Type string and press enter  ${USER_PASSWORD}  confidential=True
-
-Save gui icons and icon path
-    [Documentation]         Save the icons that are used in multiple test cases
-    ...                     Save path to icons
-    Log To Console          Saving commonly used test icons
-    ${ICONS}                Execute Command   find $(echo $XDG_DATA_DIRS | tr ':' ' ') -type d -name "icons" 2>/dev/null
-    Set Global Variable     ${ICONS}
-    Get icon                ${ICONS}/hicolor/scalable/apps  com.system76.CosmicAppLibrary.svg  crop=0  background=black  output_filename=launcher.png
-    Get icon                ${ICONS}/Papirus/24x24/symbolic/actions  window-close-symbolic.svg  crop=0  background=white  output_filename=window-close.png
-    Negate app icon         ${GUI_TEMP_DIR}window-close.png  ${GUI_TEMP_DIR}window-close-neg.png
-    Get icon                ${ICONS}/Cosmic/scalable/actions  system-search-symbolic.svg  crop=0  background=white  output_filename=search.png
-    Negate app icon         ${GUI_TEMP_DIR}search.png  ${GUI_TEMP_DIR}search-neg.png
-    Get icon                ${ICONS}/Papirus/24x24/actions  system-shutdown.svg  crop=0  background=black  output_filename=power.png
-    Get icon                ${ICONS}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
-
-Create test user
-    Log To Console      Creating test user
-    Execute Command     systemctl start setup-test-user.service  sudo=True  sudo_password=${password}
+    Sleep   1
 
 Stop swayidle
     [Documentation]    Stop swayidle to prevent automatic suspension
     Log To Console    Disabling automated lock and suspend
-    Switch to vm    gui-vm  user=${USER_LOGIN}
     Execute Command   systemctl --user stop swayidle
-    [Teardown]    Switch to vm    gui-vm
 
 Start swayidle
     [Documentation]    Start swayidle to allow automatic suspension
     Log To Console    Enabling automated lock and suspend
-    Switch to vm    gui-vm  user=${USER_LOGIN}
     Execute Command   systemctl --user start swayidle
-    [Teardown]    Switch to vm    gui-vm
 
 Set do not disturb state
     [Documentation]   Set do not disturb to true or false
     [Arguments]       ${state}
     Log To Console    Setting Do Not Disturb to ${state}
-    Switch to vm    gui-vm  user=${USER_LOGIN}
     Execute Command   echo ${state} > ~/.config/cosmic/com.system76.CosmicNotifications/v1/do_not_disturb
-    [Teardown]    Switch to vm    gui-vm
 
 Get screen brightness
     [Documentation]   Get and return current brightness value
@@ -333,25 +288,11 @@ Get screen brightness
     IF  ${log_brightness}    Log To Console    Brightness is ${brightness}
     RETURN            ${brightness}
 
-Get volume level
-    [Documentation]   Get and return current volume value
-    ${pamixer}        Execute Command    ls /nix/store/ | grep pamixer | grep -v .drv
-    ${volume}         Execute Command    /nix/store/${pamixer}/bin/pamixer --get-volume  sudo=True  sudo_password=${PASSWORD}
-    RETURN            ${volume}
-
-Get mute status
-    [Documentation]   Get and return current mute status
-    ${pamixer}        Execute Command    ls /nix/store/ | grep pamixer | grep -v .drv
-    ${mute}           Execute Command    /nix/store/${pamixer}/bin/pamixer --get-mute  sudo=True  sudo_password=${PASSWORD}
-    RETURN            ${mute}
-
 Get gui-vm user journalctl log
     [Arguments]       ${filename}=gui-vm-user.txt
-    [Setup]           Switch to vm    gui-vm  user=${USER_LOGIN}
     Execute Command   journalctl --user > /tmp/${filename}
     SSHLibrary.Get file   /tmp/${filename}   ${OUTPUT_DIR}/${filename}
     OperatingSystem.File Should Exist   ${OUTPUT_DIR}/${filename}
-    [Teardown]        Switch to vm    gui-vm
 
 Switch keyboard layout
     [Documentation]   Toggle layout between English, Arabic and Finnish
@@ -363,24 +304,32 @@ Timestamp screenshot
     Run Process      sh  -c  cp ${GUI_TEMP_DIR}screenshot.png ${GUI_TEMP_DIR}screenshot_${current_time}.png  shell=true
 
 Press Key(s)
-    [Arguments]        ${key_combination}
+    [Arguments]        ${key_combination}   ${sudo}=False
     [Documentation]    Simulates key press(es) using ydotool. If there are multiple keys they must be separated with '+'.
     ...   Check the correct key name from https://github.com/torvalds/linux/blob/master/include/uapi/linux/input-event-codes.h
     ${ydotool_command}    Generate Ydotool Key Command   ${key_combination}
-    Log               ${ydotool_command}
-    Log To Console    Pressing key(s): ${key_combination}
-    ${output}    ${rc}    Execute Command   ${ydotool_command}  sudo=True  sudo_password=${PASSWORD}    return_rc=True
+    Log                   ${ydotool_command}
+    Log To Console        Pressing key(s): ${key_combination}
+    Run ydotool command   ${ydotool_command}   ${sudo}
+
+Run ydotool command
+    [Arguments]    ${command}   ${sudo}=False
+    IF   $sudo == "True"
+        Switch to vm    gui-vm
+        Log To Console   Running ydotool command with ghaf user
+        ${output}    ${rc}    Execute Command   ydotool ${command}  sudo=True  sudo_password=${PASSWORD}    return_rc=True
+        Switch to vm    gui-vm  user=${USER_LOGIN}
+    ELSE
+        ${output}    ${rc}    Execute Command    YDOTOOL_SOCKET=${YDOTOOL_SOCKET} ydotool ${command}    return_rc=True
+    END
     Should Be Equal As Integers     ${rc}   0
+    Sleep   0.2
 
 Change to gray wallpaper
-    [Setup]           Switch to vm    gui-vm  user=${USER_LOGIN}
     Log To Console    Changing to gray wallpaper
     Put File          ../test-files/background.config   .
     Execute Command   mv background.config .config/cosmic/com.system76.CosmicBackground/v1/all
-    [Teardown]        Switch to vm    gui-vm
 
 Restore default wallpaper
-    [Setup]           Switch to vm    gui-vm  user=${USER_LOGIN}
     Log To Console    Changing back to default wallpaper
     Remove file       ~/.config/cosmic/com.system76.CosmicBackground/v1/all
-    [Teardown]        Switch to vm    gui-vm

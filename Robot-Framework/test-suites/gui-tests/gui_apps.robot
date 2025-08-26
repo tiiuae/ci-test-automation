@@ -67,16 +67,6 @@ Start and close COSMIC Files via GUI on LenovoX1
     Start app via GUI on LenovoX1   ${GUI_VM}  cosmic-files  display_name=Files  exact_match=true
     Close app via GUI on LenovoX1   ${GUI_VM}  cosmic-files  ./window-close-neg.png  exact_match=true
 
-# GUI tests don't currently work on Orin (keywords expect that gui-vm is available)
-Start and close Firefox via GUI on Orin AGX
-    [Documentation]   Passing this test requires that display is connected to the target device
-    ...               Start Firefox via GUI test automation and verify related process started
-    ...               Close Firefox via GUI test automation and verify related process stopped
-    [Tags]            SP-T41-2   # orin-agx can be added after arranging display connection for Orin-AGX in the test setup
-    Get icon   ${ICONS}/Papirus/128x128/apps  firefox.svg  crop=30
-    Start app via GUI on Orin AGX   firefox
-    Close app via GUI on Orin AGX   firefox
-
 *** Keywords ***
 
 Start app via GUI on LenovoX1
@@ -92,10 +82,10 @@ Start app via GUI on LenovoX1
     Type string and press enter  ${display_name}
     Tab and enter   tabs=1
 
-    Connect to VM       ${app-vm}
+    Switch to vm    ${app-vm}
     Check that the application was started    ${app}  10  ${exact_match}
 
-    [Teardown]    Run Keywords    Switch to vm    gui-vm
+    [Teardown]    Run Keywords    Switch to vm    gui-vm  user=${USER_LOGIN}
     ...           AND             Move cursor to corner
 
 Open app menu
@@ -118,22 +108,21 @@ Close app via GUI on LenovoX1
     ...                ${windows_to_close}=1
     ...                ${iterations}=5
     ...                ${exact_match}=false
-    Connect to netvm
-    Connect to VM                             ${app-vm}
+    Switch to vm      ${app-vm}
     Check that the application was started    ${app}  exact_match=${exact_match}
-    Switch to vm    gui-vm
-    Log To Console                            Going to click the close button of the application window
-    Locate and click                          image  ${close_button}  0.8  iterations=${iterations}
-    Connect to VM                             ${app-vm}
-    ${status}           Run Keyword And Return Status  Check that the application is not running  ${app}  5  ${exact_match}
+    Switch to vm       gui-vm  user=${USER_LOGIN}
+    Log To Console     Going to click the close button of the application window
+    Locate and click   image  ${close_button}  0.8  iterations=${iterations}
+    Switch to vm       ${app-vm}
+    ${status}          Run Keyword And Return Status  Check that the application is not running  ${app}  5  ${exact_match}
     IF  "${windows_to_close}" != "1"
         # At first launch chrome opens window for selecting account.
         # If this window is closed the actual browser window still opens.
         # So need to prepare to close another window in chrome test case.
         IF  '${status}' != 'True'
-            Switch to vm    gui-vm
+            Switch to vm        gui-vm  user=${USER_LOGIN}
             Locate and click    image  ${close_button}  0.8  5
-            Connect to VM       ${app-vm}
+            Switch to vm        ${app-vm}
             ${status}           Run Keyword And Return Status  Check that the application is not running  ${app}  5  ${exact_match}
         END
     END
@@ -141,39 +130,5 @@ Close app via GUI on LenovoX1
         FAIL  Failed to close the application
     END
     # In case closing the app via GUI failed
-    [Teardown]     Run Keywords   Connect to VM   ${app-vm}   AND   Kill process   @{APP_PIDS}
-    ...            AND   Switch to vm    gui-vm   AND   Move cursor to corner
-
-Start app via GUI on Orin AGX
-    [Documentation]    Start Application via GUI test automation and verify related process started
-    ...                Only for ghaf builds where desktop is running on ghaf-host
-    [Arguments]        ${app}=firefox
-    ...                ${launch_icon}=../gui-ref-images/${app}/launch_icon.png
-
-    Connect
-
-    Start ydotoold
-
-    Log To Console    Going to click the app menu icon
-    Locate and click  image  ${APP_MENU_LAUNCHER}  0.95  5
-    Log To Console    Going to click the application launch icon
-    Locate and click  image  ${launch_icon}  0.95  5
-
-    Check that the application was started    ${app}  10
-
-    [Teardown]    Run Keywords    Move cursor to corner
-
-Close app via GUI on Orin AGX
-    [Documentation]    Close Application via GUI test automation and verify related process stopped
-    ...                Only for ghaf builds where desktop is running on ghaf-host
-    [Arguments]        ${app}=firefox
-    ...                ${close_button}=../gui-ref-images/${app}/close_button.png
-
-    Connect
-    Check that the application was started    ${app}
-    Start ydotoold
-
-    Log To Console    Going to click the close button of the application window
-    Locate and click  image  ${close_button}  0.999  5
-
-    Check that the application is not running    ${app}   5
+    [Teardown]     Run Keywords   Switch to vm   ${app-vm}   AND   Kill process   @{APP_PIDS}
+    ...            AND   Switch to vm   gui-vm  user=${USER_LOGIN}   AND   Move cursor to corner
