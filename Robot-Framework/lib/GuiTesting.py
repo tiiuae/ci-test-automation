@@ -69,8 +69,8 @@ class GuiTesting:
         subprocess.run(['magick', input_file, '-negate', output_file])
 
     def generate_ydotool_key_command(self, key_combination):
-        # Returns a `ydotool key ...` command string for the given key combination,
-        # e.g. generate_ydotool_key_command("LEFTMETA+LEFTSHIFT+ESC") -> 'ydotool key 125:1 42:1 1:1 1:0 42:0 125:0'
+        # Returns a `key ...` command string for the given key combination,
+        # e.g. generate_ydotool_key_command("LEFTMETA+LEFTSHIFT+ESC") -> 'key 125:1 42:1 1:1 1:0 42:0 125:0'
         keys = key_combination.split("+")
         key_codes = []
         for key in keys:
@@ -83,4 +83,4 @@ class GuiTesting:
         press_events = [f"{code}:1" for code in key_codes]
         release_events = [f"{code}:0" for code in reversed(key_codes)]
 
-        return "ydotool key " + " ".join(press_events + release_events)
+        return "key " + " ".join(press_events + release_events)
