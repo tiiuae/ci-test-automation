@@ -102,10 +102,8 @@ Connect
     [Arguments]       ${IP}=${DEVICE_IP_ADDRESS}    ${PORT}=22    ${target_output}=None   ${iterations}=3
     IF  '${target_output}' != 'None'
         Log To Console    Expecting ${target_output} target output
-    ELSE IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        ${target_output}  Set Variable  ghaf@net-vm
     ELSE
-        ${target_output}  Set Variable  ghaf@ghaf-host
+        ${target_output}  Set Variable  ghaf@net-vm
     END
     # Iterations are necessary at boot for those targets which should expose net-vm to ethernet interface.
     # Ghaf-host is accessible on these targets for a short period of time at boot.
@@ -116,9 +114,7 @@ Connect
         ${pass_status}  ${output}        Run Keyword And Ignore Error  Should Contain     ${login_output}   ${target_output}
         IF    $pass_status=='PASS'
             Log To Console    Connected successfully to ${target_output}
-            IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
-                Set Global Variable  ${NETVM_SSH}    ${connection}
-            END
+            Set Global Variable  ${NETVM_SSH}    ${connection}
             RETURN  ${connection}
         ELSE
             Close All Connections
@@ -132,14 +128,9 @@ Connect to ghaf host
     [Documentation]      Open SSH connection to Ghaf Host
     ${connected}   Check ssh connection status   ghaf-host
     IF  not ${connected}
-        IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
-            ${connection}        Connect
-            Set Global Variable  ${NETVM_SSH}    ${connection}
-            ${connection}        Connect to VM       ghaf-host
-        ELSE
-            Log To Console       Connecting to Ghaf Host
-            ${connection}        Connect
-        END
+        ${connection}        Connect
+        Set Global Variable  ${NETVM_SSH}        ${connection}
+        ${connection}        Connect to VM       ghaf-host
         Set Global Variable  ${GHAF_HOST_SSH}    ${connection}
     END
     RETURN               ${GHAF_HOST_SSH}
@@ -148,13 +139,7 @@ Connect to netvm
     [Documentation]      Open ssh connection to net-vm
     ${connected}   Check ssh connection status   net-vm
     IF  not ${connected}
-        IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
-            ${connection}   Connect
-        ELSE
-            Connect to ghaf host
-            Log To Console       Connecting to NetVM
-            ${connection}        Connect to VM        ${NET_VM}
-        END
+        ${connection}   Connect
         Set Global Variable  ${NETVM_SSH}    ${connection}
         RETURN               ${NETVM_SSH}
     END
@@ -166,11 +151,7 @@ Connect to VM
     Check if ssh is ready on vm        ${vm_name}   ${timeout}
     ${failed_connection}  Set Variable  True
     ${start_time}  Get Time	epoch
-    IF  "Lenovo" in "${DEVICE}" or "NX" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        ${jumphost}   Set Variable  ${NETVM_SSH}
-    ELSE
-        ${jumphost}   Set Variable  ${GHAF_HOST_SSH}
-    END
+    ${jumphost}    Set Variable  ${NETVM_SSH}
     # Opening connection
     FOR    ${i}    IN RANGE    10
         TRY
