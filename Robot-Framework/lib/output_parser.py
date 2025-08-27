@@ -214,7 +214,7 @@ def get_ip_from_ifconfig(output, if_name):
 
 def get_qspi_versions(output):
     fw_pattern = r"Current firmware version is: (\d*.\d*.\d*)"
-    sw_pattern = r"Current software version is: (\d*.\d*.\d*)"
+    sw_pattern = r"Expected firmware version is: (\d*.\d*.\d*)"
 
     match = re.search(fw_pattern, output)
     if match:
