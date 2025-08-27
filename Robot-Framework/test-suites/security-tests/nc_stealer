@@ -5,19 +5,25 @@
 # ip_server=
 # ip_stealer=
 
+FILE_PATH=$1
+
 sudo iptables -A ghaf-fw-in-filter -p tcp --dport 5201 -j ACCEPT
 
-echo "" > /tmp/stolen.txt
+echo "" > "${FILE_PATH}"/stolen.txt
 
 for i in {1..30}
 do
-  echo "" >> /tmp/stolen.txt
-  echo "iteration $i - $(date)" >> /tmp/stolen.txt
+  echo "" >> "${FILE_PATH}"/stolen.txt
+  echo "iteration $i - $(date)" >> "${FILE_PATH}"/stolen.txt
   sudo ifconfig ethint0 ${ip_server} netmask 255.255.255.0 up
-  sleep 0.3
+  sleep 0.8
   sudo ifconfig ethint0 ${ip_server} netmask 255.255.255.0 up
-  sleep 0.3
-  timeout 1 nc -l 5201 >> /tmp/stolen.txt 2>&1
+  sleep 0.8
+  ifconfig ethint0 | grep 'inet ' >> "${FILE_PATH}"/stolen.txt
+  timeout 2 nc -l 5201 >> "${FILE_PATH}"/stolen.txt 2>&1
   sudo ifconfig ethint0 ${ip_stealer} netmask 255.255.255.0 up
-  sleep 0.3
+  sleep 0.8
+  ifconfig ethint0 | grep 'inet ' >> "${FILE_PATH}"/stolen.txt
 done
+
+sudo iptables -A ghaf-fw-in-filter -p tcp --dport 5201 -j DROP
