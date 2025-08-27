@@ -1,14 +1,18 @@
 # SPDX-FileCopyrightText: 2022-2025 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+FILE_PATH=$1
+
 sudo iptables -A ghaf-fw-in-filter -p tcp --dport 5201 -j ACCEPT
 
-echo "" > /tmp/server_received.txt
+echo "" > "${FILE_PATH}"/server_received.txt
 
 for i in {1..30}
 do
-  echo "" >> /tmp/server_received.txt
-  echo "iteration $i - $(date)" >> /tmp/server_received.txt
-  timeout 1.7 nc -l 5201 >> /tmp/server_received.txt 2>&1
+  echo "" >> "${FILE_PATH}"/server_received.txt
+  echo "iteration $i - $(date)" >> "${FILE_PATH}"/server_received.txt
+  timeout 1.7 nc -l 5201 >> "${FILE_PATH}"/server_received.txt 2>&1
   sleep 0.5
 done
+
+sudo iptables -A ghaf-fw-in-filter -p tcp --dport 5201 -j DROP
