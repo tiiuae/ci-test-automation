@@ -202,12 +202,16 @@ Find pid by name
     RETURN        @{pids}
 
 Kill process
-    [Arguments]    @{pids}    ${sig}=9
+    [Arguments]    @{pids}    ${sig}=9    ${sudo}=True
     FOR   ${pid}  IN  @{pids}
         IF  '${pid}' == '${EMPTY}'
             BREAK
         END
-        Execute Command    kill -${sig} ${pid}  sudo=True  sudo_password=${password}  timeout=15
+        IF  $sudo == "True"
+            Execute Command    kill -${sig} ${pid}  sudo=True  sudo_password=${password}  timeout=15
+        ELSE
+            Execute Command    kill -${sig} ${pid}  timeout=15
+        END
         FOR    ${i}    IN RANGE   5
             ${ps_exists}=    Is Process Started    ${pid}
             IF  ${ps_exists}
