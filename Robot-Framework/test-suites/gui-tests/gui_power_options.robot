@@ -65,11 +65,13 @@ GUI Lock and Unlock
     [Documentation]   Lock the screen via GUI power menu lock icon and check that the screen is locked.
     ...               Unlock lock screen by typing the password and check that desktop is available.
     [Tags]            lenovo-x1   SP-T208-3   SP-T208-4   lock
+    [Setup]           Run Keywords   GUI Power Test Setup   AND   Start screen recording
     Select power menu option   text=Lock
     ${lock}           Check if locked
     IF  not ${lock}   FAIL    Failed to lock the screen
     Unlock
     Verify desktop availability
+    [Teardown]        Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 GUI Reboot
     [Documentation]   Reboot the device via GUI power menu reboot icon.

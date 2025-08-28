@@ -10,6 +10,9 @@ Library             Collections
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/gui_keywords.resource
 
+Test Setup          Start screen recording
+Test Teardown       Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+
 
 *** Test Cases ***
 
@@ -40,7 +43,7 @@ Change keyboard layout
     IF  $key_check != ';كö'
         FAIL    Failed to get the expected keyboard input ';كö'\nKeyboard input received: ${key_check}
     END
-    [Teardown]  Kill gui-vm apps
+    [Teardown]   Run Keywords   Kill gui-vm apps    AND   Stop screen recording    ${TEST_STATUS}   ${TEST_NAME}
 
 Control audio volume with keyboard shortcuts
     [Documentation]      Check that volume level is increased by pressing F3,
