@@ -53,5 +53,6 @@ thresholds = {
         'response_to_ping': 10,
         'time_to_desktop': 12
     },
-    'iperf': "40%"
+    'iperf': "40%",
+    'cpu_isolation': 7
 }

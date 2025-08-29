@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: 2022-2025 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
+THREADS="$1"
+TEST_TIME="$2"
+RESULT_DIR="$3"
+
+# Create a directory for the results with a timestamp
+echo -e "\nCreating directory for test results:"
+echo "${RESULT_DIR}"
+mkdir -p ${RESULT_DIR}
+
+# cpu tests
+echo -e "\nRunning CPU tests...\n"
+sysbench cpu --time=${TEST_TIME} --threads=${THREADS} --cpu-max-prime=20000 run | tee ${RESULT_DIR}/cpu_report
+
+echo -e "\nTest finished.\n"
