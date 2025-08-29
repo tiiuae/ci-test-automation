@@ -64,6 +64,15 @@ CPU multiple threads test
     Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
     Determine Test Status   ${statistics}
 
+CPU resource isolation test
+    [Documentation]         Measure the maximum impact of cpu resource exhaustion attack in single VM to other VMs.
+    ...                     Run a multi-thread CPU benchmark using sysbench first in a single VM, then in two VMs
+    ...                     simultaneously to simulate cpu exhaustion attack. Select the VMs with the highest vscpu
+    ...                     quota (4) allocated to get the maximum effect.
+    [Tags]                  cpu_isolation  SP-T298  lenovo-x1  dell-7330  system76
+    # Overshoot the sysbench cpu thread number in the attacking VM although qemu will/should limit it to 4.
+    Single vs Parallel CPU test       reference-vm=${BUSINESS_VM}   ref_threads=4   attack-vm=${CHROME_VM}   attack_threads=20
+
 Memory Read One thread test
     [Documentation]         Run a memory benchmark using Sysbench for 60 seconds with a SINGLE thread.
     ...                     The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
@@ -281,15 +290,15 @@ Transfer Sysbench Test Script To NetVM
     Execute Command    chmod 777 /tmp/sysbench_test
 
 Transfer Sysbench Test Script To VM
-    [Arguments]        ${vm}
+    [Arguments]        ${vm}    ${script_name}=sysbench_test
     IF  "${vm}" != "net-vm"
         ${vm_fail}    ${result} =    Run Keyword And Ignore Error    Connect to VM    ${vm}
         Run Keyword If    '${vm_fail}' == 'FAIL'   Append To List	 ${FAILED_VMS}	  ${vm}
         Run Keyword If    '${vm_fail}' == 'FAIL'   Return From Keyword  ${vm_fail}
         Log               Successfully connected to ${vm}  console=True
     END
-    Put File           performance-tests/sysbench_test    /tmp
-    Execute Command    chmod 777 /tmp/sysbench_test
+    Put File           performance-tests/${script_name}    /tmp
+    Execute Command    chmod 777 /tmp/${script_name}
 
 Save cpu results
     [Arguments]        ${test}=cpu  ${host}=ghaf_host
@@ -341,3 +350,37 @@ Read And Plot PerfBench Results
     Log  ${perf_bit_results_header}
     Read Perfbench Csv And Plot  ${TEST NAME}  ${src_results}  ${perf_results_header}
     Read Perfbench Csv And Plot  ${TEST NAME}  ${src_find_bit_results}  ${perf_bit_results_header}
+
+Single vs Parallel CPU test
+    [Arguments]             ${reference-vm}   ${ref_threads}   ${attack-vm}   ${attack_threads}
+    @{FAILED_VMS} 	        Create List
+    Set Global Variable     @{FAILED_VMS}
+    Transfer Sysbench Test Script To VM   ${reference-vm}   parallel_cpu_test
+    Transfer Sysbench Test Script To VM   ${attack-vm}   parallel_cpu_test
+    Should Be Empty         ${FAILED_VMS}
+
+    Log To Console          Running single vm cpu test
+    Switch to vm            ${reference-vm}
+    ${output}               Execute Command         /tmp/parallel_cpu_test ${ref_threads} 30 /tmp/cpu_single_report
+    &{single_vm_data}       Parse Cpu Results       ${output}
+    Log                     ${single_vm_data}     console=True
+
+    Log To Console          Running parallel cpu test
+    ${command}              Set Variable    /tmp/parallel_cpu_test ${ref_threads} 30 /tmp/cpu_parallel_report
+    Execute Command         nohup ${command} > /tmp/output.log 2>&1 &
+    Switch to vm            ${attack-vm}
+    Execute Command         /tmp/parallel_cpu_test ${attack_threads} 30 /tmp/cpu_parallel_report
+    Switch to vm            ${reference-vm}
+    ${output}               Execute Command         cat /tmp/cpu_parallel_report/cpu_report
+    &{parallel_vm_data}     Parse Cpu Results       ${output}
+    Log                     ${parallel_vm_data}     console=True
+
+    ${single_vm_result}     Get From Dictionary     ${single_vm_data}   cpu_events_per_second
+    ${parallel_vm_result}   Get From Dictionary     ${parallel_vm_data}   cpu_events_per_second
+    ${difference}           Evaluate    int(${single_vm_result}-${parallel_vm_result})/int(${single_vm_result})*100
+    Log                     ${difference} %           console=True
+
+    ${result_list}=         Create List     ${single_vm_result}  ${parallel_vm_result}  ${difference}
+    &{statistics_dict}      Save Cpu Isolation Data     ${TEST NAME}  ${result_list}
+    Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
+    Determine Test Status   ${statistics_dict}  inverted=1

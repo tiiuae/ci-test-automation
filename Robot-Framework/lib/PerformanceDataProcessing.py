@@ -73,9 +73,15 @@ class PerformanceDataProcessing:
         return perf_result_heading, perf_bit_result_heading
 
     def write_test_data_to_csv(self, test_name, test_data):
+        logging.info("Saving test data to csv")
         data = [self.commit]
-        for key in test_data:
-            data.append(test_data[key])
+        if type(test_data) == list:
+            for value in test_data:
+                data.append(value)
+        # Assume dictionary if the type is not list
+        else:
+            for key in test_data:
+                data.append(test_data[key])
         data.append(self.device)
         self._write_to_csv(test_name, data)
 
@@ -728,6 +734,45 @@ class PerformanceDataProcessing:
 
         return return_statistics
 
+    @keyword("Read CPU Isolation CSV and Plot")
+    def read_cpu_isolation_test_csv_and_plot(self, test_name):
+
+        threshold = thresholds['cpu_isolation']
+
+        data = {
+            'commit': [],
+            'single_vm_cpu_test': [],
+            'parallel_cpu_test': [],
+            'difference': [],
+        }
+
+        return_statistics, statistics = self.calculate_statistics(test_name, data, ['difference'], [threshold])
+
+        for key in data.keys():
+            data[key] = data[key][-40:]
+
+        plt.figure(figsize=(20, 10))
+        plt.set_loglevel('WARNING')
+
+        plt.subplot(2, 1, 1)
+        plt.ticklabel_format(axis='y', style='plain')
+        plt.plot(data['commit'], data['difference'], marker='o', linestyle='-', color='b')
+
+        self.plot_marginals_and_deviations(data['commit'], statistics, 40)
+        plt.yticks(fontsize=14)
+        plt.title('Effect of cpu exhaustion attack from another vm', loc='right', fontweight="bold", fontsize=15)
+        plt.ylabel('Decrease of cpu performance in ref vm (%)', fontsize=12)
+        plt.grid(True)
+        plt.xticks(data['commit'], rotation=90, fontsize=14)
+
+        plt.suptitle(f'{test_name}\nBuild type: {self.build_type}, Device: {self.device}\nThreshold {threshold}',
+                     fontsize=18, fontweight='bold')
+
+        plt.tight_layout()
+        plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
+
+        return return_statistics
+
     def extract_numeric_part(self, build_identifier):
         parts = build_identifier.split('-')
         base_number = int(''.join(filter(str.isdigit, parts[0])))
@@ -838,6 +883,11 @@ class PerformanceDataProcessing:
     def save_fileio_data(self, test_name, fileio_data):
         self.write_test_data_to_csv(test_name, fileio_data)
         return self.read_fileio_data_csv_and_plot(test_name)
+
+    @keyword
+    def save_cpu_isolation_data(self, test_name, cpu_isolation_data):
+        self.write_test_data_to_csv(test_name, cpu_isolation_data)
+        return self.read_cpu_isolation_test_csv_and_plot(test_name)
 
 
     # ---------------------------------------------------------------------
