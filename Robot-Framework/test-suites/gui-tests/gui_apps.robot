@@ -10,6 +10,8 @@ Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
+Test Setup          Start screen recording
+Test Teardown       Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 *** Variables ***
 @{APP_PIDS}             ${EMPTY}
@@ -23,7 +25,8 @@ Start and close Google Chrome via GUI on LenovoX1
     [Tags]            SP-T41-2  lenovo-x1
     Start app via GUI on LenovoX1   ${CHROME_VM}  chrome  display_name=Chrome
     Close app via GUI on LenovoX1   ${CHROME_VM}  google-chrome  ./window-close-neg.png   2
-    [Teardown]        Run Keyword If Test Failed     Skip   "Known issue SSRCSP-6716: Chrome does not have top bar"
+    [Teardown]        Run Keywords   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}   AND
+    ...               Run Keyword If Test Failed    Skip    "Known issue SSRCSP-6716: Chrome does not have top bar"
 
 Start and close PDF Viewer via GUI on LenovoX1
     [Documentation]   Start PDF Viewer via GUI test automation and verify related process started

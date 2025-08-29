@@ -8,6 +8,7 @@ Documentation       Keywords for gui tests. Note: These keywords assume the conn
 Library             ../lib/GuiTesting.py    ${OUTPUT_DIR}/outputs/gui-temp/
 Library             Collections
 Library             DateTime
+Resource            ../resources/app_keywords.resource
 Resource            ../resources/file_keywords.resource
 Resource            ../resources/ssh_keywords.resource
 
@@ -279,6 +280,12 @@ Set do not disturb state
     [Arguments]       ${state}
     Log To Console    Setting Do Not Disturb to ${state}
     Execute Command   echo ${state} > ~/.config/cosmic/com.system76.CosmicNotifications/v1/do_not_disturb
+    # Make sure that currently shown notifications get closed
+    IF   $state == "true"
+        Execute Command   echo 0 > ~/.config/cosmic/com.system76.CosmicNotifications/v1/max_notifications
+    ELSE
+        Execute Command   echo 3 > ~/.config/cosmic/com.system76.CosmicNotifications/v1/max_notifications
+    END
 
 Get screen brightness
     [Documentation]   Get and return current brightness value
@@ -333,3 +340,42 @@ Change to gray wallpaper
 Restore default wallpaper
     Log To Console    Changing back to default wallpaper
     Remove file       ~/.config/cosmic/com.system76.CosmicBackground/v1/all
+
+Start screen recording
+    [Setup]          Kill screen recording
+    Log To Console   Starting screen recording
+    Press key(s)     LEFTCTRL+LEFTSHIFT+LEFTALT+R
+    Locate on screen   text   Share   iterations=5
+    # Select the display to record
+    Tab and enter    tabs=2
+    Tab and enter    tabs=2
+
+Stop screen recording
+    [Arguments]      ${test_status}   ${test_name}=""
+    ${pass_status}   ${output}    Run Keyword And Ignore Error   Check that the application was started   gpu-screen-recorder
+    IF  $pass_status=='FAIL'
+        Log To Console  Screen recording was not running
+        RETURN
+    END
+    Log To Console   Stopping screen recording
+    Press key(s)     LEFTCTRL+LEFTSHIFT+LEFTALT+R
+    @{pid}           Find pid by name   gpu-screen-recorder
+    Kill process     @{pid}   sudo=False
+    # Get the name of the last recording
+    ${video_file}    Execute Command   ls /home/${USER_LOGIN}/Videos -Art | tail -n 1
+    # Save the video file if the test failed
+    IF  $test_status=='FAIL'
+        Log To Console        Saving video file
+        ${name}               Replace String   ${test_name}   ${SPACE}   _
+        SSHLibrary.Get File   /home/${USER_LOGIN}/Videos/${video_file}   ${GUI_TEMP_DIR}${name}.mp4
+    END
+    Execute Command   rm /home/${USER_LOGIN}/Videos/${video_file}
+    [Teardown]        Kill screen recording
+
+Kill screen recording
+    ${pass_status}   ${output}    Run Keyword And Ignore Error   Check that the application is not running   gpu-screen-recorder   1
+    IF  $pass_status=='FAIL'
+        Log To Console   Recording is running, killing the process
+        @{pid}           Find pid by name   gpu-screen-recorder
+        Kill process     @{pid}   sudo=False
+    END
