@@ -28,7 +28,7 @@ Reboot Device Via Relay
     Turn Relay On     ${RELAY_NUMBER}
 
 Reboot Laptop
-    [Arguments]       ${delay}=20
+    [Arguments]       ${delay}=15
     [Documentation]   Turn off the laptop by pressing power button for 10 sec turn on by short pressing power button
     Log To Console    ${\n}Turning device off...
     Press Button      ${SWITCH_BOT}-OFF
