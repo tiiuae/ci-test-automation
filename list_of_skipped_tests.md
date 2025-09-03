@@ -22,7 +22,8 @@
 ## TAGs removed
 
 | DATE SET   | TEST CASE                             | TICKET / Additional Data.                                                                 |
-| ---------- | ------------------------------------- | ----------------------------------------------------------------------------------------- |
+|------------|---------------------------------------|-------------------------------------------------------------------------------------------|
+| 03.09.2025 | Performance/network suite (AGX)       | SSRCSP-7160. Network-adapter usage had impact on results Needs further investigation.     |
 | 08.05.2025 | GUI Reboot                            | The X1 in the lab gets stuck when a reboot is attempted. Needs further investigation.     |
 | 08.05.2025 | GUI Suspend and wake up               | The X1 in the lab gets stuck when a suspension is attempted. Needs further investigation. |
 | 03/2025    | Performance Network.robot - ‘orin-nx’ | SSRCSP-6372 - Works locally but problems when Jenkins used, fails all..                   |
