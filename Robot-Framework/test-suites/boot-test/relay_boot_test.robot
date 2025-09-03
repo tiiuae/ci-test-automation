@@ -48,6 +48,11 @@ Verify booting laptop
     Reboot Laptop
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False
+        Log To Console    Turning device on again...
+        Press Button      ${SWITCH_BOT}-ON
+        Check If Device Is Up
+    END
+    IF    ${IS_AVAILABLE} == False
         FAIL    The device did not start
     ELSE
         Log To Console  The device started
