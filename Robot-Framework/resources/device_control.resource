@@ -30,6 +30,9 @@ Reboot Device Via Relay
 Reboot Laptop
     [Arguments]       ${delay}=15
     [Documentation]   Turn off the laptop by pressing power button for 10 sec turn on by short pressing power button
+    IF  "${DEVICE_TYPE}" == "lenovo-x1"
+        ${delay}      Set variable    20
+    END
     Log To Console    ${\n}Turning device off...
     Press Button      ${SWITCH_BOT}-OFF
     Sleep    ${delay}
