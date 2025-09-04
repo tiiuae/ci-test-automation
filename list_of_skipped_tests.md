@@ -17,7 +17,6 @@
 |            | NetVM is wiped after restarting -Orin AGX         | SSRCSP-5662,SSRCSP-6423                                                                         |
 |            | Check systemctl status                            | [Full list of skips in the test case](/Robot-Framework/test-suites/functional-tests/host.robot) |
 |            | Check Camera Application -DELL                    | SSRCSP-6450                                                                                     |
-|            | Start Gala -DELL & LenovoX1                       | SSRCSP-6434                                                                                     |
 
 ## TAGs removed
 

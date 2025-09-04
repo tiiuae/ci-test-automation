@@ -60,10 +60,9 @@ Set Variables
     Set Global Variable  ${CHROME_VM}          chrome-vm
     Set Global Variable  ${COMMS_VM}           comms-vm
     Set Global Variable  ${DOCKER_VM}          docker-vm
-    Set Global Variable  ${GALA_VM}            gala-vm
     Set Global Variable  ${GUI_VM}             gui-vm
     Set Global Variable  ${ZATHURA_VM}         zathura-vm
-    Set Global Variable  @{VMS}                ${ADMIN_VM}  ${AUDIO_VM}  ${BUSINESS_VM}  ${CHROME_VM}  ${COMMS_VM}  ${GALA_VM}  ${GUI_VM}  ${ZATHURA_VM}
+    Set Global Variable  @{VMS}                ${ADMIN_VM}  ${AUDIO_VM}  ${BUSINESS_VM}  ${CHROME_VM}  ${COMMS_VM}  ${GUI_VM}  ${ZATHURA_VM}
     Set Global Variable  ${PERF_LOW_LIMIT}     1
 
     Set Log Level       NONE

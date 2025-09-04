@@ -206,7 +206,6 @@ Sysbench test in VMs
     [Tags]               SP-T61-9   lenovo-x1   dell-7330
     &{threads}    	Create Dictionary    net-vm=1
     ...                                  gui-vm=2
-    ...                                  gala-vm=2
     ...                                  zathura-vm=1
     ...                                  chrome-vm=4
     ...                                  comms-vm=4
