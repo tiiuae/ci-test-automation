@@ -33,7 +33,7 @@ ${PERF_TEST_TIME}  10
 *** Test Cases ***
 Measure TCP Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]   tcp  nuc  riscv  lenovo-x1   dell-7330  SP-T227
+    [Tags]   tcp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T227
     &{speed_data}           Create Dictionary
     # DUT sends
     ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -51,7 +51,7 @@ Measure TCP Throughput Small Packets
 
 Measure TCP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  riscv  lenovo-x1   dell-7330  SP-T228
+    [Tags]  tcp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T228
     &{speed_data}           Create Dictionary
     ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output.stdout}
@@ -65,7 +65,7 @@ Measure TCP Bidir Throughput Small Packets
 
 Measure TCP Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  tcp  nuc  riscv  lenovo-x1   dell-7330  SP-T229
+    [Tags]  tcp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T229
     &{speed_data}           Create Dictionary
     ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
     ${output2}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -80,7 +80,7 @@ Measure TCP Throughput Big Packets
 
 Measure TCP Bidir Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  riscv  lenovo-x1   dell-7330  SP-T230
+    [Tags]  tcp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T230
     &{speed_data}           Create Dictionary
     ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output.stdout}
@@ -94,7 +94,7 @@ Measure TCP Bidir Throughput Big Packets
 
 Measure UDP TX Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  tcp  nuc  riscv  lenovo-x1   dell-7330  SP-T231
+    [Tags]  tcp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T231
     &{speed_data}           Create Dictionary
     ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output1.stdout}
@@ -110,7 +110,7 @@ Measure UDP TX Throughput Small Packets
 
 Measure UDP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  riscv  lenovo-x1   dell-7330  SP-T232
+    [Tags]  tcp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T232
     &{speed_data}           Create Dictionary
     ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output.stdout}
@@ -126,7 +126,7 @@ Measure UDP Bidir Throughput Small Packets
 
 Measure UDP Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  udp  nuc  riscv  lenovo-x1   dell-7330  SP-T233
+    [Tags]  udp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T233
     &{speed_data}           Create Dictionary
     ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 100G -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output1.stdout}
@@ -142,7 +142,7 @@ Measure UDP Throughput Big Packets
 
 Measure UDP Bidir Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  udp  nuc  riscv  lenovo-x1   dell-7330  SP-T234
+    [Tags]  udp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T234
     &{speed_data}           Create Dictionary
     ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 10000G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output.stdout}

@@ -15,7 +15,7 @@ Prepare Test Environment
     Log versions
     Start journalctl recording
 
-    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
+    IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Switch to vm    gui-vm
         Create test user
         IF  ${login}
@@ -31,7 +31,7 @@ Clean Up Test Environment
     [Arguments]   ${disable_dnd}=False
     Connect to ghaf host
     Stop journalctl recording
-    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
+    IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Start ydotoold
         Switch to vm    gui-vm  user=${USER_LOGIN}
         Log out and verify   ${disable_dnd}

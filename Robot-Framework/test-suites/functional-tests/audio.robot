@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing audio application
-Force Tags          audio   bat  regression  pre-merge   lenovo-x1   dell-7330
+Force Tags          audio   bat  regression  pre-merge   lenovo-x1   darter-pro   dell-7330
 
 Library             DateTime
 Resource            ../../resources/file_keywords.resource

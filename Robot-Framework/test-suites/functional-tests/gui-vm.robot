@@ -22,54 +22,54 @@ Test Teardown       Gui-vm Test Teardown
 
 Start Calculator
     [Documentation]   Start Calculator and verify process started
-    [Tags]            bat   pre-merge  calculator  SP-T202  lenovo-x1  dell-7330  fmo
+    [Tags]            bat   pre-merge  calculator  SP-T202  lenovo-x1  darter-pro  dell-7330  fmo
     Start XDG application  Calculator
     Check that the application was started    calculator
 
 Start Sticky Notes
     [Documentation]   Start Sticky Notes and verify process started
-    [Tags]            bat   pre-merge  sticky_notes  SP-T201-1  lenovo-x1  dell-7330  fmo
+    [Tags]            bat   pre-merge  sticky_notes  SP-T201-1  lenovo-x1  darter-pro  dell-7330  fmo
     Start XDG application  'Sticky Notes'
     Check that the application was started    sticky-wrapped
 
 Start Ghaf Control Panel
     [Documentation]   Start Ghaf Control Panel and verify process started
-    [Tags]            bat   pre-merge  control_panel  SP-T205  lenovo-x1  dell-7330  fmo
+    [Tags]            bat   pre-merge  control_panel  SP-T205  lenovo-x1  darter-pro  dell-7330  fmo
     Start XDG application  'Ghaf Control Panel'
     Check that the application was started    ctrl-panel
 
 Start Bluetooth Settings
     [Documentation]   Start Bluetooth Settings and verify process started
-    [Tags]            bat   pre-merge  bluetooth_settings  SP-T204  lenovo-x1  dell-7330  fmo
+    [Tags]            bat   pre-merge  bluetooth_settings  SP-T204  lenovo-x1  darter-pro  dell-7330  fmo
     Start XDG application  'Bluetooth Settings'
     Check that the application was started    blueman-manager-wrapped-wrapped
 
 Start COSMIC Files
     [Documentation]   Start Cosmic Files and verify process started
-    [Tags]            bat   pre-merge  cosmic_files  SP-T206  lenovo-x1  dell-7330  fmo
+    [Tags]            bat   pre-merge  cosmic_files  SP-T206  lenovo-x1  darter-pro  dell-7330  fmo
     Start XDG application  com.system76.CosmicFiles
     Check that the application was started    cosmic-files %U  exact_match=true
 
 Start COSMIC Settings
     [Documentation]   Start Cosmic Settings and verify process started
-    [Tags]            bat   pre-merge  cosmic_settings  SP-T254  lenovo-x1  dell-7330  fmo
+    [Tags]            bat   pre-merge  cosmic_settings  SP-T254  lenovo-x1  darter-pro  dell-7330  fmo
     Start XDG application  com.system76.CosmicSettings
     Check that the application was started    cosmic-settings  exact_match=true
 
 Start COSMIC Text Editor
     [Documentation]   Start Cosmic Text Editor and verify process started
-    [Tags]            bat   pre-merge  cosmic_editor  SP-T243  lenovo-x1  dell-7330  fmo
+    [Tags]            bat   pre-merge  cosmic_editor  SP-T243  lenovo-x1  darter-pro  dell-7330  fmo
     Start XDG application   com.system76.CosmicEdit
     Check that the application was started    cosmic-edit %F  exact_match=true
 
 Start COSMIC Terminal
     [Documentation]   Start Cosmic Terminal and verify process started
-    [Tags]            bat   pre-merge  cosmic_term  SP-T263  lenovo-x1   dell-7330  fmo
+    [Tags]            bat   pre-merge  cosmic_term  SP-T263  lenovo-x1  darter-pro  dell-7330  fmo
     Launch Cosmic Term
 
 Start Falcon AI
     [Documentation]   Start Falcon AI and verify process started
-    [Tags]            falcon_ai  SP-T223-1  lenovo-x1   dell-7330
+    [Tags]            falcon_ai  SP-T223-1  lenovo-x1  darter-pro  dell-7330
     Get Falcon LLM Name
     Start XDG application  'Falcon AI'
     Wait Until Falcon Download Complete
@@ -81,7 +81,7 @@ Start Falcon AI
 
 Check user systemctl status
     [Documentation]   Verify systemctl status --user is running
-    [Tags]            bat   pre-merge  SP-T260  lenovo-x1   dell-7330  fmo
+    [Tags]            bat   pre-merge  SP-T260  lenovo-x1  darter-pro  dell-7330  fmo
 
     ${known_issues}=    Create List
     # Add any known failing services here with the target device and bug ticket number.

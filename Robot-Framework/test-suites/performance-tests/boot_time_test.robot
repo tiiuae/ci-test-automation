@@ -30,7 +30,7 @@ ${SEARCH_TIMEOUT}   40
 
 Measure Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
-    [Tags]  SP-T187  lenovo-x1  dell-7330
+    [Tags]  SP-T187  lenovo-x1  darter-pro  dell-7330
     Soft Reboot Device
     Wait Until Keyword Succeeds  35s  2s  Check If Ping Fails
     Get Boot times
@@ -38,7 +38,7 @@ Measure Soft Boot Time
 
 Measure Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
-    [Tags]  SP-T182  lenovo-x1  dell-7330
+    [Tags]  SP-T182  lenovo-x1  darter-pro  dell-7330
     Log To Console                Shutting down by pressing the power button
     Press Button                  ${SWITCH_BOT}-OFF
     Wait Until Keyword Succeeds   15s  2s  Check If Ping Fails

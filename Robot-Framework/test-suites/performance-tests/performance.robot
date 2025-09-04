@@ -44,7 +44,7 @@ CPU One thread test
     [Documentation]         Run a CPU benchmark using Sysbench with a duration of 10 seconds and a SINGLE thread.
     ...                     The benchmark records to csv CPU events per second, events per thread, and latency data.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]                  cpu  SP-T61-1  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1   dell-7330
+    [Tags]                  cpu  SP-T61-1  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330
     ${output}               Execute Command    sysbench cpu --time=10 --threads=1 --cpu-max-prime=20000 run
     Log                     ${output}
     &{cpu_data}             Parse Cpu Results   ${output}
@@ -56,7 +56,7 @@ CPU multiple threads test
     [Documentation]         Run a CPU benchmark using Sysbench with a duration of 10 seconds and MULTIPLE threads.
     ...                     The benchmark records to csv CPU events per second, events per thread, and latency data.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]                  cpu  SP-T61-2  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1   dell-7330
+    [Tags]                  cpu  SP-T61-2  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330
     ${output}               Execute Command    sysbench cpu --time=10 --threads=${threads_number} --cpu-max-prime=20000 run
     Log                     ${output}
     &{cpu_data}             Parse Cpu Results   ${output}
@@ -69,7 +69,7 @@ CPU resource isolation test
     ...                     Run a multi-thread CPU benchmark using sysbench first in a single VM, then in two VMs
     ...                     simultaneously to simulate cpu exhaustion attack. Select the VMs with the highest vscpu
     ...                     quota (4) allocated to get the maximum effect.
-    [Tags]                  cpu_isolation  SP-T298  lenovo-x1  dell-7330  system76
+    [Tags]                  cpu_isolation  SP-T298  lenovo-x1  darter-pro  dell-7330
     # Overshoot the sysbench cpu thread number in the attacking VM although qemu will/should limit it to 4.
     Single vs Parallel CPU test       reference-vm=${BUSINESS_VM}   ref_threads=4   attack-vm=${CHROME_VM}   attack_threads=20
 
@@ -78,7 +78,7 @@ Memory Read One thread test
     ...                     The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
     ...                     and Latency for READ operations.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]                  memory  SP-T61-3  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1   dell-7330
+    [Tags]                  memory  SP-T61-3  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330
     ${output}               Execute Command    sysbench memory --time=60 --memory-oper=read --threads=1 run
     Log                     ${output}
     &{mem_data}             Parse Memory Results   ${output}
@@ -91,7 +91,7 @@ Memory Write One thread test
     ...                     The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
     ...                     and Latency for WRITE operations.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]                  memory  SP-T61-4  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1   dell-7330
+    [Tags]                  memory  SP-T61-4  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330
     ${output}               Execute Command    sysbench memory --time=60 --memory-oper=write --threads=1 run
     Log                     ${output}
     &{mem_data}             Parse Memory Results   ${output}
@@ -104,7 +104,7 @@ Memory Read multiple threads test
     ...                     The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
     ...                     and Latency for READ operations.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]                  memory  SP-T61-5  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1   dell-7330
+    [Tags]                  memory  SP-T61-5  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330
     ${output}               Execute Command    sysbench memory --time=60 --memory-oper=read --threads=${threads_number} run
     Log                     ${output}
     &{mem_data}             Parse Memory Results   ${output}
@@ -117,7 +117,7 @@ Memory Write multiple threads test
     ...                     The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
     ...                     and Latency for WRITE operations.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]                  memory  SP-T61-6  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1   dell-7330
+    [Tags]                  memory  SP-T61-6  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330
     ${output}               Execute Command    sysbench memory --time=60 --memory-oper=write --threads=${threads_number} run
     Log                     ${output}
     &{mem_data}             Parse Memory Results   ${output}
@@ -132,13 +132,13 @@ FileIO test
     ...                 Create visual plots to represent these metrics comparing to previous tests.
     ...                 KNOWN ISSUES:
     ...                 Tag removed 'nuc': SSRCSP-6126
-    [Tags]              fileio  SP-T61-7  orin-agx  orin-nx  lenovo-x1   dell-7330
+    [Tags]              fileio  SP-T61-7  orin-agx  orin-nx  lenovo-x1  darter-pro  dell-7330
 
     Transfer FileIO Test Script To DUT
 
     # In case of Lenovo-X1 run the test in /persist which has more disk space
     # Results are saved to /tmp
-    IF  "Lenovo" in "${DEVICE}" or "Dell" in "${DEVICE}"
+    IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Log To Console        Preparing for fileio test
         Execute Command       cp /tmp/fileio_test /persist  sudo=True  sudo_password=${PASSWORD}
         Write                 sudo su
@@ -203,7 +203,7 @@ Sysbench test in NetVM
 Sysbench test in VMs
     [Documentation]      Run CPU and Memory benchmark using Sysbench in Virtual Machines
     ...                  for 1 thread and MULTIPLE threads if there are more than 1 thread in VM.
-    [Tags]               SP-T61-9   lenovo-x1   dell-7330
+    [Tags]               SP-T61-9   lenovo-x1  darter-pro  dell-7330
     &{threads}    	Create Dictionary    net-vm=1
     ...                                  gui-vm=2
     ...                                  zathura-vm=1

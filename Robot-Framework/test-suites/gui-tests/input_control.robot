@@ -18,7 +18,7 @@ Test Teardown       Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 Change brightness with keyboard shortcuts
     [Documentation]     Change brightness with ydotool by clicking F5/F6 buttons
-    [Tags]              lenovo-x1   SP-T140
+    [Tags]              lenovo-x1  darter-pro   SP-T140
     ${init_brightness}  Get screen brightness
     Press Key(s)        BRIGHTNESSDOWN
     ${l_brightness}     Get screen brightness
@@ -29,7 +29,7 @@ Change brightness with keyboard shortcuts
 
 Change keyboard layout
     [Documentation]     Change keyboard layout with Alt+Shift shortcut
-    [Tags]              lenovo-x1   SP-T138
+    [Tags]              lenovo-x1  darter-pro   SP-T138
     Check cosmic config current layout value
     Launch Cosmic Term
     Sleep    1
@@ -51,7 +51,7 @@ Control audio volume with keyboard shortcuts
     ...                  mute status is changed by pressing F1,
     ...                  mute status is changed back by pressing F1,
     ...                  volume level after mute/unmute is the same
-    [Tags]               lenovo-x1   SP-T134
+    [Tags]               lenovo-x1  darter-pro   SP-T134
 
     ${init_volume}       Get volume level
     Press Key(s)         VOLUMEUP
