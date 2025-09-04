@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing launching applications
-Force Tags          apps   lenovo-x1   dell-7330
+Force Tags          apps   lenovo-x1   darter-pro   dell-7330
 
 Library             String
 Resource            ../../resources/app_keywords.resource

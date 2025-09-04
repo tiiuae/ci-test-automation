@@ -22,7 +22,7 @@ Test Teardown       Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 Start and close Google Chrome via GUI on LenovoX1
     [Documentation]   Start Google Chrome via GUI test automation and verify related process started
     ...               Close Google Chrome via GUI test automation and verify related process stopped
-    [Tags]            SP-T41-2  lenovo-x1
+    [Tags]            SP-T41-2  lenovo-x1  darter-pro
     Start app via GUI on LenovoX1   ${CHROME_VM}  chrome  display_name=Chrome
     Close app via GUI on LenovoX1   ${CHROME_VM}  google-chrome  ./window-close-neg.png   2
     [Teardown]        Run Keywords   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}   AND
@@ -31,42 +31,42 @@ Start and close Google Chrome via GUI on LenovoX1
 Start and close PDF Viewer via GUI on LenovoX1
     [Documentation]   Start PDF Viewer via GUI test automation and verify related process started
     ...               Close PDF Viewer via GUI test automation and verify related process stopped
-    [Tags]            SP-T70  lenovo-x1
+    [Tags]            SP-T70  lenovo-x1  darter-pro
     Start app via GUI on LenovoX1   ${ZATHURA_VM}  zathura   display_name=PDF
     Close app via GUI on LenovoX1   ${ZATHURA_VM}  zathura  ./window-close.png
 
 Start and close Sticky Notes via GUI on LenovoX1
     [Documentation]   Start Sticky Notes via GUI test automation and verify related process started
     ...               Close Sticky Notes via GUI test automation and verify related process stopped
-    [Tags]            SP-T201-2  lenovo-x1
+    [Tags]            SP-T201-2  lenovo-x1  darter-pro
     Start app via GUI on LenovoX1   ${GUI_VM}  sticky-wrapped  display_name=Sticky
     Close app via GUI on LenovoX1   ${GUI_VM}  sticky-wrapped  ./window-close-neg.png
 
 Start and close Calculator via GUI on LenovoX1
     [Documentation]   Start Calculator via GUI test automation and verify related process started
     ...               Close Calculator via GUI test automation and verify related process stopped
-    [Tags]            SP-T202-2  lenovo-x1
+    [Tags]            SP-T202-2  lenovo-x1  darter-pro
     Start app via GUI on LenovoX1   ${GUI_VM}  gnome-calculator  display_name=Calculator
     Close app via GUI on LenovoX1   ${GUI_VM}  gnome-calculator  ./window-close-neg.png
 
 Start and close Bluetooth Settings via GUI on LenovoX1
     [Documentation]   Start Bluetooth Settings via GUI test automation and verify related process started
     ...               Close Bluetooth Settings via GUI test automation and verify related process stopped
-    [Tags]            SP-T204-2  lenovo-x1
+    [Tags]            SP-T204-2  lenovo-x1  darter-pro
     Start app via GUI on LenovoX1   ${GUI_VM}  blueman-manager-wrapped-wrapped  display_name=Bluetooth
     Close app via GUI on LenovoX1   ${GUI_VM}  blueman-manager-wrapped-wrapped  ./window-close.png
 
 Start and close Ghaf Control Panel via GUI on LenovoX1
     [Documentation]   Start Ghaf Control Panel via GUI test automation and verify related process started
     ...               Close Ghaf Control Panel via GUI test automation and verify related process stopped
-    [Tags]            SP-T205-2  lenovo-x1
+    [Tags]            SP-T205-2  lenovo-x1  darter-pro
     Start app via GUI on LenovoX1   ${GUI_VM}  ctrl-panel  display_name=Control
     Close app via GUI on LenovoX1   ${GUI_VM}  ctrl-panel  ./window-close-neg.png
     
 Start and close COSMIC Files via GUI on LenovoX1
     [Documentation]   Start COSMIC Files via GUI test automation and verify related process started
     ...               Close COSMIC Files via GUI test automation and verify related process stopped
-    [Tags]            SP-T206-2  lenovo-x1
+    [Tags]            SP-T206-2  lenovo-x1  darter-pro
     Start app via GUI on LenovoX1   ${GUI_VM}  cosmic-files  display_name=Files  exact_match=true
     Close app via GUI on LenovoX1   ${GUI_VM}  cosmic-files  ./window-close-neg.png  exact_match=true
 

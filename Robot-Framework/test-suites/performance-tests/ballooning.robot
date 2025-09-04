@@ -27,11 +27,11 @@ ${rebooted}               False
 *** Test Cases ***
 
 Test ballooning in chrome-vm
-    [Tags]                  ballooning_chrome_vm    lenovo-x1   dell-7330   SP-T255
+    [Tags]                  ballooning_chrome_vm    lenovo-x1   darter-pro   dell-7330   SP-T255
     Test ballooning in VM   vm=chrome-vm   max_init_memory=6500
 
 Test ballooning in business-vm
-    [Tags]                  ballooning_business_vm   lenovo-x1   dell-7330   SP-T256
+    [Tags]                  ballooning_business_vm   lenovo-x1   darter-pro   dell-7330   SP-T256
     Test ballooning in VM   vm=business-vm   max_init_memory=6500
 
 

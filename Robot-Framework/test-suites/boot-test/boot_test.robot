@@ -41,7 +41,7 @@ Verify booting after restart by power
 
 Verify booting laptop
     [Documentation]    Restart laptop by power and verify init service is running
-    [Tags]             boot  plug  lenovo-x1   dell-7330
+    [Tags]             boot  plug  lenovo-x1  darter-pro  dell-7330
     Reboot Laptop
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False

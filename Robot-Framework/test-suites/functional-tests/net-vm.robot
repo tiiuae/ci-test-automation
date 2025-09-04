@@ -21,7 +21,7 @@ ${NETVM_SSH}       ${EMPTY}
 
 Verify NetVM is started
     [Documentation]         Verify that NetVM is active and running
-    [Tags]                  pre-merge  SP-T45  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1   dell-7330  fmo
+    [Tags]                  pre-merge  SP-T45  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330  fmo
     [Setup]                 Connect to ghaf host
     Verify service status   service=${netvm_service}
     Check Network Availability      ${NETVM_IP}    expected_result=True    range=5
@@ -46,7 +46,7 @@ Wifi passthrough into NetVM (Orin-AGX)
 
 Wifi passthrough into NetVM
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              SP-T101  orin-agx  orin-agx-64  lenovo-x1   dell-7330
+    [Tags]              SP-T101  orin-agx  orin-agx-64  lenovo-x1  darter-pro  dell-7330
     [Setup]             Connect to netvm
     Configure wifi      ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
