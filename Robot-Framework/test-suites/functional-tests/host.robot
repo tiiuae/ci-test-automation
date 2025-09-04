@@ -50,7 +50,6 @@ Check systemctl status
         ...    Dell|ghaf-mem-manager-business-vm.service|SSRCSP-6853
         ...    Dell|ghaf-mem-manager-chrome-vm.service|SSRCSP-6853
         ...    Dell|ghaf-mem-manager-comms-vm.service|SSRCSP-6853
-        ...    Dell|ghaf-mem-manager-gala-vm.service|SSRCSP-6853
         ...    Dell|ghaf-mem-manager-zathura-vm.service|SSRCSP-6853
 
         Check systemctl status for known issues    ${known_issues}   ${failing_services}

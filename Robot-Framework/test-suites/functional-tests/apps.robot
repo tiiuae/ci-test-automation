@@ -40,18 +40,6 @@ Start Zathura
     Check that the application was started    zathura
     [Teardown]  Kill Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    /home/testuser/output.log    ${ZATHURA_VM}
 
-Start Gala
-    [Documentation]   Start Gala in dedicated VM and verify process started
-    [Tags]            bat  regression  SP-T104
-    [Setup]           Check if ssh is ready on vm    ${GALA_VM}
-    Switch to vm           gui-vm  user=${USER_LOGIN}
-    Start XDG application  GALA
-    Connect to VM          ${GALA_VM}
-    Check that the application was started    gala
-    [Teardown]  Run Keywords
-    ...         Kill Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    /home/testuser/output.log    ${GALA_VM}    AND
-    ...         Run Keyword If Test Failed     Skip    "Known issue: SSRCSP-6434"
-
 Start Element
     [Documentation]   Start Element in dedicated VM and verify process started
     [Tags]            bat  regression  SP-T52

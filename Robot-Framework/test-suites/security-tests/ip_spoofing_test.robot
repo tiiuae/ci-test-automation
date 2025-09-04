@@ -15,7 +15,7 @@ ${ip_server}
 Test IP spoofing
     [Documentation]   Test if it's possible to steal packets via ip spoofing
     [Tags]            SP-T128  ipspoofing  #lenovo-x1   dell-7330  tags commented out so that these are not included when running all tests
-    Set Suite Variable                ${server_vm}   ${GALA_VM}
+    Set Suite Variable                ${server_vm}   ${BUSINESS_VM}
     Set Suite Variable                ${client_vm}   ${COMMS_VM}
     Set Suite Variable                ${stealer_vm}  ${CHROME_VM}
     Prepare netcat server script
