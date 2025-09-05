@@ -50,6 +50,12 @@ Start Video Editor
     Switch to vm    business-vm
     Check that the application was started    lossless
 
+Start Gala
+    [Documentation]   Start Gala in Business-vm and verify process started
+    [Tags]  gala  SP-T104
+    Start XDG application   gala
+    Switch to vm    business-vm
+    Check that the application was started    gala
 
 *** Keywords ***
 
