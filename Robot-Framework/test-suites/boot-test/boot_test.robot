@@ -73,7 +73,7 @@ Turn OFF Device
     [Tags]            turnoff
     [Setup]     Run Keyword If  "${DEVICE_IP_ADDRESS}" == "NONE"    Get ethernet IP address
     Log To Console    ${\n}Turning device off...
-    IF  "${DEVICE_TYPE}" == "lenovo-x1" or "${DEVICE_TYPE}" == "dell-7330"
+    IF  "${DEVICE_TYPE}" == "lenovo-x1" or "${DEVICE_TYPE}" == "dell-7330" or "${DEVICE_TYPE}" == "darter-pro"
         Press Button      ${SWITCH_BOT}-OFF
     ELSE
         Turn Plug Off
@@ -90,7 +90,7 @@ Turn ON Device
     [Documentation]   Turn on device
     [Tags]            turnon
     Log To Console    ${\n}Turning device on...
-    IF  "${DEVICE_TYPE}" == "lenovo-x1" or "${DEVICE_TYPE}" == "dell-7330"
+    IF  "${DEVICE_TYPE}" == "lenovo-x1" or "${DEVICE_TYPE}" == "dell-7330" or "${DEVICE_TYPE}" == "darter-pro"
         Press Button      ${SWITCH_BOT}-ON
     ELSE
         Turn Plug On
