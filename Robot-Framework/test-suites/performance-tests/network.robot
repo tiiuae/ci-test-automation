@@ -33,7 +33,9 @@ ${PERF_TEST_TIME}  10
 *** Test Cases ***
 Measure TCP Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]   tcp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T227
+    ...              Note. Using Default buffer length 128 KB
+    ...              (-l The length of buffers to read or write. Default is 128 KB for TCP, 8 KB for UDP)
+    [Tags]   tcp  nuc  riscv  orin-nx  orin-agx  orin-agx-64  lenovo-x1   darter-pro   dell-7330  SP-T227
     &{speed_data}           Create Dictionary
     # DUT sends
     ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -44,6 +46,7 @@ Measure TCP Throughput Small Packets
     Check iperf3 got results     ${output1}  ${output2}
     ${bps_tx}               Get Throughput Values  ${output1.stdout}
     ${bps_rx}               Get Throughput Values  ${output2.stdout}  direction=receiver
+    Log  tx ${bps_tx}, rx:${bps_rx}  console=True
     Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
     Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Small Packets" width="1200">    HTML
     ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
@@ -51,13 +54,16 @@ Measure TCP Throughput Small Packets
 
 Measure TCP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T228
+    ...              Note. Using Default buffer length 128 KB
+    ...              (-l The length of buffers to read or write. Default is 128 KB for TCP, 8 KB for UDP)
+    [Tags]  tcp  nuc  riscv  orin-nx  orin-agx  orin-agx-64  lenovo-x1   darter-pro   dell-7330  SP-T228
     &{speed_data}           Create Dictionary
     ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output.stdout}
     Check iperf3 got results     ${output}
     ${bps_tx}               Get Throughput Values  ${output.stdout}  bidir=True
     ${bps_rx}               Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
+    Log  tx ${bps_tx}, rx:${bps_rx}  console=True
     Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
     Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Bidir Transfer Small Packets" width="1200">    HTML
     ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
@@ -65,14 +71,18 @@ Measure TCP Bidir Throughput Small Packets
 
 Measure TCP Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  tcp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T229
+    ...              Note. Using Default buffer length 128 KB
+    ...              (-l The length of buffers to read or write. Default is 128 KB for TCP, 8 KB for UDP)
+    [Tags]  tcp  nuc  riscv  orin-nx  orin-agx  orin-agx-64  lenovo-x1   darter-pro   dell-7330  SP-T229
     &{speed_data}           Create Dictionary
     ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
     ${output2}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output1.stdout}
+    Log                     ${output2.stdout}
     Check iperf3 got results     ${output1}  ${output2}
     ${bps_tx}               Get Throughput Values  ${output1.stdout}
     ${bps_rx}               Get Throughput Values  ${output2.stdout}  direction=receiver
+    Log  tx ${bps_tx}, rx:${bps_rx}  console=True
     Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
     Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Big Packets" width="1200">    HTML
     ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
@@ -80,13 +90,14 @@ Measure TCP Throughput Big Packets
 
 Measure TCP Bidir Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T230
+    [Tags]  tcp  nuc  riscv  orin-nx  orin-agx  orin-agx-64  lenovo-x1   darter-pro   dell-7330  SP-T230
     &{speed_data}           Create Dictionary
     ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output.stdout}
     Check iperf3 got results     ${output}
     ${bps_tx}               Get Throughput Values  ${output.stdout}  bidir=True
     ${bps_rx}               Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
+    Log  tx ${bps_tx}, rx:${bps_rx}  console=True
     Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
     Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Bidir Transfer Big Packets" width="1200">    HTML
     ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
@@ -94,11 +105,14 @@ Measure TCP Bidir Throughput Big Packets
 
 Measure UDP TX Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  tcp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T231
+    ...              Note. Using Default buffer length 8 KB
+    ...              (-l The length of buffers to read or write.  Default is 128 KB for TCP, 8 KB for UDP)
+    [Tags]  tcp  nuc  riscv    orin-nx  orin-agx  orin-agx-64  novo-x1  darter-pro   dell-7330  SP-T231
     &{speed_data}           Create Dictionary
-    ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
+    ${bandwidth}            Set Variable If  "Orin" in "${DEVICE}"  50M  100G
+    ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b ${bandwidth} -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output1.stdout}
-    ${output2}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
+    ${output2}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b ${bandwidth} -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output2.stdout}
     Check iperf3 got results     ${output1}  ${output2}
     ${bps_tx}               Get Throughput Values  ${output1.stdout}
@@ -107,31 +121,43 @@ Measure UDP TX Throughput Small Packets
     Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="UDP Transfer Small Packets" width="1200">    HTML
     ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
     Determine Test Status   ${statistics}
+    
+    [Teardown]    Run Keyword If  '${TEST STATUS}' == 'FAIL' and not ${iperf3_failure}   Run keywords
+    ...           Log  Debug: Tx: ${bps_tx}, Rx:${bps_rx}  console=True  AND
+    ...           Check That Received Loss Is Under 5%     ${output1.stdout}  ${output2.stdout}
 
 Measure UDP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T232
+    ...              Note. Using Default buffer length 8 KB
+    ...              (-l The length of buffers to read or write.  Default is 128 KB for TCP, 8 KB for UDP)
+    [Tags]  tcp  nuc  riscv  orin-nx  orin-agx  orin-agx-64  lenovo-x1   darter-pro   dell-7330  SP-T232
     &{speed_data}           Create Dictionary
-    ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
+    ${bandwidth}            Set Variable If  "Orin" in "${DEVICE}"  50M  100G
+    ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b ${bandwidth} -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output.stdout}
     Check iperf3 got results     ${output}
     ${bps_tx}               Get Throughput Values  ${output.stdout}  bidir=True
     ${bps_rx}               Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
     Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
+    Log  tx ${bps_tx}, rx:${bps_tx}
     Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="UDP" Bidir Transfer Small Packets" width="1200">    HTML
     ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
     Determine Test Status   ${statistics}
 
-    [Teardown]  Run Keyword If   "Dell" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6774"
+    [Teardown]    Run Keyword If  '${TEST STATUS}' == 'FAIL' and not ${iperf3_failure}   Run keywords
+    ...           Log  Debug: Tx: ${bps_tx}, Rx:${bps_rx}  console=True
+    ...           AND   Check That Received Loss Is Under 5%     ${output.stdout}
+    ...           ELSE   Run Keyword If   "Dell" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6774"
 
 Measure UDP Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  udp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T233
+    [Tags]  udp  nuc  riscv  orin-nx  orin-agx  orin-agx-64  lenovo-x1   darter-pro   dell-7330  SP-T233
     &{speed_data}           Create Dictionary
-    ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 100G -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
-    Log                     ${output1.stdout}
-    ${output2}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 100G -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
-    Log                     ${output2.stdout}
+    ${bandwidth}            Set Variable If  "Orin" in "${DEVICE}"  50M  100G
+    ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b ${bandwidth} -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
+    Log                     ${output1.stdout}  #console=True
+    ${output2}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b ${bandwidth} -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
+    Log                     ${output2.stdout}  #console=True
     Check iperf3 got results     ${output1}  ${output2}
     ${bps_tx}               Get Throughput Values  ${output1.stdout}
     ${bps_rx}               Get Throughput Values  ${output2.stdout}  direction=receiver
@@ -139,12 +165,17 @@ Measure UDP Throughput Big Packets
     Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="UDP Transfer Big Packets" width="1200">    HTML
     ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
     Determine Test Status   ${statistics}
+    
+    [Teardown]    Run Keyword If  '${TEST STATUS}' == 'FAIL' and not ${iperf3_failure}   Run keywords
+    ...           Log  Debug: Tx: ${bps_tx}, Rx:${bps_rx}  console=True  AND
+    ...           Check That Received Loss Is Under 5%     ${output1.stdout}  ${output2.stdout}
 
 Measure UDP Bidir Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  udp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T234
+    [Tags]  udp  nuc  riscv  orin-nx  orin-agx  orin-agx-64  lenovo-x1   darter-pro   dell-7330  SP-T234
     &{speed_data}           Create Dictionary
-    ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 10000G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
+    ${bandwidth}            Set Variable If  "Orin" in "${DEVICE}"  100M  10000G
+    ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b ${bandwidth} -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output.stdout}
     Check iperf3 got results     ${output}
     ${bps_tx}               Get Throughput Values  ${output.stdout}  bidir=True
@@ -154,7 +185,10 @@ Measure UDP Bidir Throughput Big Packets
     ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
     Determine Test Status   ${statistics}
 
-    [Teardown]   Run Keyword If   "AGX" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6623 (AGX)"
+    [Teardown]    Run Keyword If  '${TEST STATUS}' == 'FAIL' and not ${iperf3_failure}   Run keywords
+    ...           Log  Debug: Tx: ${bps_tx}, Rx:${bps_rx}  console=True
+    ...           AND   Check That Received Loss Is Under 5%     ${output.stdout}
+    ...           ELSE  Run Keyword If   "AGX" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6623 (AGX)"
 
 *** Keywords ***
 Run iperf server on DUT
@@ -201,8 +235,9 @@ Check iperf3 got results
     ...                 When starting as expected, output is '<result object with rc 0>'
     ...                 In case of failure, output is: '<result object with rc 1>'
     [Arguments]        ${result1}=${EMPTY}  ${result2}=${EMPTY}
-    ${failure}    Run Keyword And Return Status      Should Contain  ${result1}/${result2}    <result object with rc 1>
-    Run Keyword If  ${failure}  FAIL  'iperf3 -c' did not succeed, No needed results got!
+    ${iperf3_failure}    Run Keyword And Return Status      Should Contain  ${result1}/${result2}    <result object with rc 1>
+    Run Keyword If  ${iperf3_failure}  FAIL  'iperf3 -c' did not succeed, No needed results got!
+    Set Test Variable  ${iperf3_failure}
 
 Get Throughput Values
     [Documentation]  Return MB per second value
@@ -221,3 +256,29 @@ Get Throughput Values
         Log      Failed to get the result from ${TEST NAME}   console=yes
     END
     RETURN  ${MBps}[0]
+
+Check That Received Loss Is Under 5%
+    [Arguments]    ${data1}=${EMPTY}   ${data2}=${EMPTY}
+    ${datas}      Create list
+    ${rx_losses}  Create List
+
+     Run keyword if  $data1 == '${EMPTY}"'  FAIL  No input data given!   console=True
+     Run keyword if  $data1 != '${EMPTY}"'  Append To List  ${datas}  ${data1}
+     Run keyword if  $data2 != '${EMPTY}'   Append To List  ${datas}  ${data2}
+
+    # reqexp would be nice
+    FOR  ${item}  IN  @{datas}
+        ${lines}    Get Lines Matching pattern  ${item}  *receiver*
+        ${temp}     Fetch From Right  ${lines}  (
+        ${loss}     Fetch From Left  ${temp}  %
+        ${loss_nb}  Convert To Number  ${loss}
+        Append To List  ${rx_losses}  ${loss_nb}
+    END
+    Log  Debug: Rx losses(should be below 5%: ${rx_losses}   console=True
+
+    #FOR  ${value}  IN  @{rx_losses}
+    #    ${value_ok}  Run Keyword And Return Status  Should be True  ${value} <= ${5}
+    #    IF  not ${value_ok}
+    #        FAIL  rx loss is more than 5%! ${rx_losses}
+    #    END
+    #END
