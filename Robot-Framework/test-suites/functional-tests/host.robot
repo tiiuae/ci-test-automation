@@ -34,7 +34,7 @@ Check QSPI version
 
 Check systemctl status
     [Documentation]    Verify systemctl status is running on host
-    [Tags]             SP-T98  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1  darter-pro  dell-7330  fmo
+    [Tags]             SP-T98  systemctl  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1  darter-pro  dell-7330  fmo
     ${status}   ${output}   Run Keyword And Ignore Error    Verify Systemctl status
     Log   ${output}
 
