@@ -3,10 +3,9 @@
 ## Active SKIPS
 
 | DATE SET   | TEST CASE                                         | TICKET / Additional Data.                                                                       |
-|------------|---------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| ---------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | 09.09.2025 | Start Falcon AI (Lenovo-x1, Darter-PRO)           | SSRCSP-6769                                                                                     |
 | 27.06.2025 | Measure UDP Bidir Throughput Small Packets (Dell) | SSRCSP-6774                                                                                     |
-| 17.06.2025 | Start and close Google Chrome via GUI on LenovoX1 | SSRCSP-6716                                                                                     |
 | 13.06.2025 | Record Video With Camera (Dell)                   | SSRCSP-6694                                                                                     |
 | 05.06.2025 | Measure UDP Bidir Throughput Big Packets(AGX)     | SSRCSP-6623                                                                                     |
 | 27.05.2025 | TimeSynch (AGX)                                   | SSRCSP-6423. Unrecoverable error detected. #PR333                                               |
@@ -22,7 +21,7 @@
 ## TAGs removed
 
 | DATE SET   | TEST CASE                             | TICKET / Additional Data.                                                                 |
-|------------|---------------------------------------|-------------------------------------------------------------------------------------------|
+| ---------- | ------------------------------------- | ----------------------------------------------------------------------------------------- |
 | 03.09.2025 | Performance/network suite (AGX)       | SSRCSP-7160. Network-adapter usage had impact on results Needs further investigation.     |
 | 08.05.2025 | GUI Reboot                            | The X1 in the lab gets stuck when a reboot is attempted. Needs further investigation.     |
 | 08.05.2025 | GUI Suspend and wake up               | The X1 in the lab gets stuck when a suspension is attempted. Needs further investigation. |
