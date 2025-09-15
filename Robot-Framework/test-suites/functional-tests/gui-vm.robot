@@ -83,14 +83,14 @@ Start Falcon AI
 
 Check user systemctl status
     [Documentation]   Verify systemctl status --user is running
-    [Tags]            bat   pre-merge  SP-T260  lenovo-x1  darter-pro  dell-7330  fmo
+    [Tags]            bat   pre-merge  SP-T260  systemctl  lenovo-x1  darter-pro  dell-7330  fmo
 
     ${known_issues}=    Create List
     # Add any known failing services here with the target device and bug ticket number.
     # ...    device|service-name|ticket-number
     Verify Systemctl status    range=3   user=True
 
-    [Teardown]   Run Keyword If Test Failed   Check systemctl status for known issues  ${known_issues}  ${failed_units}
+    [Teardown]   Run Keyword If Test Failed   Check systemctl status for known issues  ${known_issues}  ${failed_units}   user=True
 
 Start Firefox GPU on FMO
     [Documentation]   Start Firefox GPU and verify process started

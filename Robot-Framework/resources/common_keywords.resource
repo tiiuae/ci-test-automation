@@ -55,12 +55,20 @@ Verify Systemctl status
     FAIL    Systemctl is not running after ${diff} sec! Status is ${status}. Failed processes?: ${failed_units}
 
 Check systemctl status for known issues
-    [Arguments]    ${known_issues_list}   ${failing_services}
+    [Arguments]    ${known_issues_list}   ${failing_services}   ${user}=False
     [Documentation]    Check if failing services contain issues that are not listed as known
+    IF    ${user}
+        ${unit_logs_cmd}     Set Variable   journalctl --user -u
+    ELSE
+        ${unit_logs_cmd}     Set Variable   journalctl -u
+    END
+
     ${old_issues}=    Create List
     ${new_issues}=    Create List
     FOR    ${failing_service}    IN    @{failing_services}
         ${known}=    Set Variable    False
+        ${unit_logs}   Execute command    ${unit_logs_cmd} ${failing_service}
+        Log            ${unit_logs}
         FOR    ${entry}    IN    @{known_issues_list}
             ${list_device}  ${service}  ${issue}   Parse Known Issue   ${entry}
 

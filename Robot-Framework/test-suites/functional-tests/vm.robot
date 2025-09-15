@@ -34,7 +34,7 @@ Check internet connection in every VM
 
 Check systemctl status in every VM
     [Documentation]    Check that systemctl status is running in every vm.
-    [Tags]             SP-T98-2
+    [Tags]             SP-T98-2   systemctl
     ${failed_new_services}=    Create List
     ${failed_old_services}=    Create List
     ${known_issues}=    Create List
@@ -72,7 +72,9 @@ Check VM systemctl status for known issues
     ${old_issues}=    Create List
     ${new_issues}=    Create List
     FOR    ${failing_service}    IN    @{failing_services}
-        ${known}=    Set Variable    False
+        ${known}=     Set Variable    False
+        ${unit_logs}  Execute command   journalctl -u ${failing_service}
+        Log            ${unit_logs}
         FOR    ${entry}    IN    @{known_issues_list}
             ${list_vm}  ${service}  ${issue}   Parse Known Issue   ${entry}
 
