@@ -13,6 +13,10 @@ Prepare Test Environment
     [Arguments]   ${login}=True   ${enable_dnd}=False
     Connect to device
     Log versions
+    ${journal_output_1}     Execute Command   journalctl -b 0
+    ${journal_output2_}     Execute Command   journalctl -b -1
+    Log                   ${journal_output_1}
+    Log                   ${journal_output_2}
     Start journalctl recording
 
     IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
