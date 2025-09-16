@@ -3,30 +3,36 @@
 
 # Script for consuming memory of a virtual machine fast but not too fast,
 # giving ballooning monitor time to react and increase the available memory.
-# Speed of consuming the memory depends on the size of the copied source file.
-# Setting source file size to greater than 2,5MB can enable too fast memory
-# consumption causing the script to be killed before finishing.
 
-write_iterations=$1
-robot_status_file="$2"
-script_status_file="$3"
+target_dir="$1"
+test_dir="$2"
 
-echo "stage0" > ${script_status_file}
+write_iterations=50000
 
-# Create a 2MB source file
-mkdir /dev/shm/test
-for i in $(seq 76923); do
-    echo "fillthememorywiththisdata" >> /dev/shm/test/source
+# Create a 4MB source file
+mkdir ${target_dir}/test
+for i in $(seq 153846); do
+    echo "fillthememorywiththisdata" >> ${target_dir}/test/source
 done
 
 # Fill the memory by copying the source file
 for index in $(seq ${write_iterations}); do
-    if [[ $(cat ${robot_status_file}) != "stage0" ]]
-    then
+    last_index=${index}
+    cp ${target_dir}/test/source ${target_dir}/test/file${index}
+
+    # Make writing slower if available memory is low -> mem-manager has more time to increase memory
+    free_mem=$(free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $6}')
+    if [ $free_mem -lt 500 ]; then
+        sleep 0.2
+    fi
+
+    # Exit from the loop when copying file does not succeed
+    file_size=$(wc -c ${target_dir}/test/file${index} | awk '{print $1}')
+    if [ "$file_size" -lt "1" ]; then
         break
     fi
-    cp /dev/shm/test/source /dev/shm/test/file${index}
 done
 
 sleep 1
-echo "stage1" > ${script_status_file}
+status_file_name=$(echo ${target_dir} | tr --delete /)
+echo "finished" > ${test_dir}/script_status/${status_file_name}${last_index}
