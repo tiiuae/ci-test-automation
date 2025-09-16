@@ -40,6 +40,7 @@ Check systemctl status in every VM
     ${known_issues}=    Create List
     # Add any known failing services here with the vm name and bug ticket number.
     # ...    vm|service-name|ticket-number
+    ...    gui-vm|setup-ghaf-user.service|SSRCSP-7234
 
     FOR  ${vm}  IN  @{VM_LIST}
         Connect to VM    ${vm}
