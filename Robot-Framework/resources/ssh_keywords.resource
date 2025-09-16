@@ -110,17 +110,31 @@ Connect
     Log    Trying to connect to ${target_output}  console=True
     FOR    ${i}    IN RANGE    ${iterations}
         ${pass_status}  ${connection}    Run Keyword And Ignore Error  Open Connection    ${IP}       port=${PORT}    prompt=\$    timeout=30
-        ${pass_status}  ${login_output}  Run Keyword And Ignore Error  Login with timeout    username=${LOGIN}    password=${PASSWORD}
+        ${login_status}  ${login_output}  Run Keyword And Ignore Error  Login with timeout    username=${LOGIN}    password=${PASSWORD}
         ${pass_status}  ${output}        Run Keyword And Ignore Error  Should Contain     ${login_output}   ${target_output}
         IF    $pass_status=='PASS'
             Log To Console    Connected successfully to ${target_output}
             Set Global Variable  ${NETVM_SSH}    ${connection}
             RETURN  ${connection}
         ELSE
+            # If connection was opened to a wrong VM collect logs to find out why
+            IF   $login_status=='PASS'
+                ${vm_logs}          Execute Command    journalctl
+                Log                 ${vm_logs}
+                IF  'ghaf@ghaf-host' in $login_output
+                    ${net-vm_status}    Execute Command    systemctl status ${NETVM_SERVICE}
+                    Log                 ${net-vm_status}
+                END
+                Log To Console      Failed to connect to ${target_output}, connected to ${login_output} instead.
+            ELSE
+                Log To Console    Failed to connect.
+            END
             Close All Connections
-            Log To Console    Failed to connect.
         END
         Sleep  5
+    END
+    IF   $login_status=='PASS'
+        FAIL   Failed to connect to ${target_output}, connected to ${login_output} instead
     END
     FAIL   Failed to connect
 
