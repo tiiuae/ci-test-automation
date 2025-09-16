@@ -18,144 +18,150 @@ Test Timeout        10 minutes
 
 
 *** Variables ***
-${robot_status_file}      /tmp/ballooning_robot_status
-${script_status_file}     /tmp/ballooning_script_status
-${test_dir}               /tmp
+${test_dir}               /tmp/ballooning
+${script_status_file}     /tmp/ballooning/ballooning_script_status
 ${rebooted}               False
 
 
 *** Test Cases ***
 
 Test ballooning in chrome-vm
-    [Tags]                  ballooning_chrome_vm    lenovo-x1   darter-pro   dell-7330   SP-T255
-    Test ballooning in VM   vm=chrome-vm   max_init_memory=6500
+    [Tags]                  ballooning_chrome_vm    lenovo-x1   darter-pro   SP-T255
+    Test ballooning in VM   vm=chrome-vm   mem_quota=6144   max_inflate_ratio=3
 
 Test ballooning in business-vm
-    [Tags]                  ballooning_business_vm   lenovo-x1   darter-pro   dell-7330   SP-T256
-    Test ballooning in VM   vm=business-vm   max_init_memory=6500
+    [Tags]                  ballooning_business_vm   lenovo-x1   darter-pro   SP-T256
+    Test ballooning in VM   vm=business-vm   mem_quota=6144   max_inflate_ratio=3
 
 
 *** Keywords ***
 
 Test ballooning in VM
     [Documentation]    Check if dynamic allocation of memory works when consuming a lot of memory.
-    [Arguments]        ${vm}   ${max_init_memory}
-
-    # Dell is slow. Apply slowness factor for timeouts if running on Dell.
-    ${slowness_factor}=           Set Variable  1
-    IF  "Dell" in "${DEVICE}"
-        ${slowness_factor}=       Set Variable  2
-    END
+    ...                Check that memory cannot inflate over the limit (mem_quota x max_inflate_ratio).
+    ...                Check that memory deflates after boot and after the consumed memory has been released.
+    ...                Initial memory quotas for VMs are defined as vm.ramMb in MiB units in ghaf repository.
+    ...                Give mem_quota argument in the same units: mebibytes (MiB)
+    [Arguments]        ${vm}   ${mem_quota}   ${max_inflate_ratio}
 
     ${inflate_passed}=                Set Variable  False
     ${deflate_passed}=                Set Variable  False
-    ${init_mem_check_ok}=             Set Variable  False
-    ${mem_check_iterations}=          Set Variable  7
-    ${timeout1}=                      Evaluate      int(${slowness_factor} * 140)
-    ${timeout2}=                      Evaluate      int(${slowness_factor} * 60)
-    ${timeout3}=                      Evaluate      int(${timeout1} + ${timeout2} + 20)
-    ${expected_inflate_ratio}=        Set Variable  1.7
+    ${mem_limit_exceeded}=            Set Variable  False
+    ${timeout_flag}=                  Set Variable  False
+
+    ${expected_inflate_ratio}=        Set Variable  2
+    ${expected_mem_at_inflate}        Evaluate      int(${mem_quota} * ${expected_inflate_ratio})
+    ${max_mem_at_inflate}             Evaluate      int(${mem_quota} * ${max_inflate_ratio})
+    ${max_init_memory}=               Evaluate      int(1.2 * ${mem_quota})
+
+    ${timeout_inflate}=               Evaluate      int(${expected_mem_at_inflate} * 0.02)
+    ${timeout_deflate}=               Evaluate      int(${expected_mem_at_inflate} * 0.005)
+    ${timeout_logging}=               Evaluate      int(${timeout_inflate} + ${timeout_deflate} + 20)
 
     Connect to VM                     ${vm}     timeout=120
 
-    FOR    ${i}    IN RANGE    ${mem_check_iterations}
-        ${init_total_mem}=                Execute Command  free --mega | awk -F: 'NR==2 {print $2}' | awk '{print $1}'
-        Log                               Total memory at start ${init_total_mem}  console=True
-        IF  ${init_total_mem} > ${max_init_memory}
-            Log To Console                Initial total memory too high. Waiting for the mem-manager to adjust it.
-            Sleep  10
-        ELSE
-            ${init_mem_check_ok}=             Set Variable  True
-            BREAK
-        END
-    END
-    IF  $init_mem_check_ok != 'True'
-        FAIL    Unexpectedly high initial total memory.\nghaf-mem-manager service of ${vm} has probably failed.
-    END
+    Log                               Minimum expected total memory at inflate: ${expected_mem_at_inflate} MiB  console=True
+    Log                               Maximum allowed total memory at inflate: ${max_mem_at_inflate} MiB  console=True
+    Log                               Target total memory at deflate: ${max_init_memory} MiB  console=True
 
-    ${expected_mem_at_inflate}        Evaluate      int(${init_total_mem} * ${expected_inflate_ratio})
-    Log                               Expected total memory at inflate ${expected_mem_at_inflate}  console=True
-    ${consume_iterations}             Evaluate      int(${expected_mem_at_inflate} / 2)
-    ${expected_deflate_mem}           Evaluate      int(${init_total_mem} + 500)
-    Log                               Expected total memory at deflate ${expected_deflate_mem}  console=True
-
-    Put File                          performance-tests/consume_memory           ${test_dir}
-    Put File                          performance-tests/log_memory               ${test_dir}
+    Execute Command                   mkdir ${test_dir}
+    Put File                          performance-tests/consume_memory          ${test_dir}
+    Put File                          performance-tests/log_memory              ${test_dir}
     Execute Command                   chmod 777 ${test_dir}/consume_memory      sudo=True  sudo_password=${PASSWORD}
     Execute Command                   chmod 777 ${test_dir}/log_memory          sudo=True  sudo_password=${PASSWORD}
+    Execute Command                   echo "started" > ${test_dir}/status_for_logging
+    Execute Command                   mkdir ${test_dir}/script_status
+    Execute Command                   rm -r ${test_dir}/script_status/*      sudo=True  sudo_password=${PASSWORD}
 
-    Execute Command                   echo "stage0" > ${robot_status_file}
-    Execute Command                   chmod 666 ${robot_status_file}   sudo=True  sudo_password=${PASSWORD}
+    Initial Memory Check              ${max_init_memory}  iterations=7
 
     Log To Console                    Starting memory logging script
-    Run Keyword And Ignore Error      Execute Command  -b timeout ${timeout3} ${test_dir}/log_memory ${test_dir} ${vm}_${BUILD_ID}  sudo=True  sudo_password=${PASSWORD}  timeout=1
+    Run Keyword And Ignore Error      Execute Command  -b timeout ${timeout_logging} ${test_dir}/log_memory ${test_dir} ${vm}_${BUILD_ID} ${test_dir}/status_for_logging  sudo=True  sudo_password=${PASSWORD}  timeout=1
 
-    Log To Console                    Starting memory consuming script
-    Run Keyword And Ignore Error      Execute Command  -b timeout ${timeout1} ${test_dir}/consume_memory ${consume_iterations} ${robot_status_file} ${script_status_file}  sudo=True  sudo_password=${PASSWORD}  timeout=1
+    Log To Console                    Starting memory consuming scripts
+    Run Keyword And Ignore Error      Execute Command  -b timeout ${timeout_inflate} ${test_dir}/consume_memory /dev/shm ${test_dir}  sudo=True  sudo_password=${PASSWORD}  timeout=1
+    Run Keyword And Ignore Error      Execute Command  -b timeout ${timeout_inflate} ${test_dir}/consume_memory /dev ${test_dir}  sudo=True  sudo_password=${PASSWORD}  timeout=1
+    Run Keyword And Ignore Error      Execute Command  -b timeout ${timeout_inflate} ${test_dir}/consume_memory /run ${test_dir}  sudo=True  sudo_password=${PASSWORD}  timeout=1
 
+    # Monitor memory during inflate
     ${start_time}=                    Get Time	epoch
-    FOR    ${i}    IN RANGE    ${timeout1}
-        ${total_int}                  Read memory status
-        IF  $total_int > $expected_mem_at_inflate
-            Log To Console            Expected total memory increase detected
-            ${inflate_passed}=        Set Variable   True
-            Sleep   2
-            Execute Command           echo "stage1" > ${robot_status_file}
+    FOR    ${i}    IN RANGE    ${timeout_inflate}
+        ${total_int}   ${used_mem}        Read memory status
+        IF  $inflate_passed != 'True'
+            IF  $total_int > $expected_mem_at_inflate
+                Log To Console            2x memory ballooning reached
+                ${inflate_passed}=        Set Variable   True
+            END
+        END
+        IF  $total_int > $max_mem_at_inflate
+            ${mem_limit_exceeded}=        Set Variable   True
+        END
+
+        ${scripts_finished}=          Execute Command   ls ${test_dir}/script_status | wc -l
+        ${scripts_finished_int}=      Evaluate  int(${scripts_finished})
+        IF  ${scripts_finished_int} > 2
+            Log To Console            All memory consuming scripts finished
             BREAK
         END
-        ${inflate_process_status}=    Execute Command   cat ${script_status_file}
-        IF  $inflate_process_status == 'stage1'
-            Log To Console            Inflate script finished but expected total memory increase not detected
-            BREAK
-        END
+
         ${diff}=                      Evaluate    int(time.time()) - int(${start_time})
-        IF   ${diff} < ${timeout1}
-            Sleep    1
+        IF   ${diff} < ${timeout_inflate}
+            Sleep    4
         ELSE
-            Log To Console            Timeout for inflate exceeded. Expected total memory increase not detected.
+            Log To Console            Timeout for inflate
+            ${timeout_flag}=          Set Variable   True
             BREAK
         END
     END
+
+    Log                               Total memory peak during inflate: ${total_int} MiB   console=True
+    Log                               Used memory peak during inflate: ${used_mem} MiB   console=True
 
     Log To Console                    Releasing memory
-    Execute Command                   rm /dev/shm/test/*    sudo=True  sudo_password=${PASSWORD}
-    Execute Command                   rm -r /dev/shm/test   sudo=True  sudo_password=${PASSWORD}
+    Clean Test Files
 
+    # Monitor memory during deflate
     ${start_time}=                    Get Time	epoch
-    FOR    ${i}    IN RANGE    ${timeout2}
-        ${total_int}                  Read memory status
-        IF  $total_int < $expected_deflate_mem
+    FOR    ${i}    IN RANGE    ${timeout_deflate}
+        ${total_int}   ${used_mem}    Read memory status
+        IF  $total_int < $max_init_memory
             Log To Console            Expected total memory decrease detected
             ${deflate_passed}=        Set Variable   True
-            Sleep   2
             BREAK
         END
         ${diff}=                      Evaluate    int(time.time()) - int(${start_time})
-        IF   ${diff} < ${timeout2}
-            Sleep    1
+        IF   ${diff} < ${timeout_deflate}
+            Sleep    2
         ELSE
             BREAK
         END
     END
 
-    Execute Command                   echo "stage2" > ${robot_status_file}
-    Sleep                             2
+    Execute Command                   echo "finish" > ${test_dir}/status_for_logging
+
+    Sleep                             1
     Get memory logs                   ${test_dir}/ballooning_${vm}_${BUILD_ID}.csv
     Plot ballooning                   ${vm}_${BUILD_ID}
 
     IF  $inflate_passed != 'True'
         FAIL    Total memory did not inflate to expected level
     END
+    IF  $mem_limit_exceeded == 'True'
+        FAIL    VM memory limit exceeded.
+    END
     IF  $deflate_passed != 'True'
         FAIL    Total memory did not deflate to expected level
     END
+    IF  $timeout_flag == 'True'
+        FAIL    Memory consuming scripts failed to finish. Need to investigate if something is wrong or timeout value just too small.
+    END
 
 Read memory status
-    ${total_mem}=                 Execute Command  free --mega | awk -F: 'NR==2 {print $2}' | awk '{print $1}'
-    ${available_mem}=             Execute Command  free --mega | awk -F: 'NR==2 {print $2}' | awk '{print $6}'
-    Log                           Total memory: ${total_mem} / Available memory: ${available_mem}  console=True
+    ${total_mem}=                 Execute Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $1}'
+    ${used_mem}=                  Execute Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $2}'
+    Log                           Used memory: ${used_mem} / Total memory: ${total_mem}  console=True
     ${total_int}                  Evaluate    int(${total_mem})
-    RETURN                        ${total_int}
+    RETURN                        ${total_int}   ${used_mem}
 
 Get memory logs
     [Arguments]             ${path}
@@ -167,19 +173,44 @@ Plot ballooning
     Generate Ballooning Graph    ${PLOT_DIR}   ${id}    ${TEST_NAME}
     Log   <img src="${REL_PLOT_DIR}mem_ballooning_${id}.png" alt="Power plot" width="1200">    HTML
 
-Ballooning Test Teardown
-    [Documentation]    If test gets stuck, reboot device and connect to netvm (the next test can be executed).
-    ...                After reboot, the artifacts should be not existing, so no need to clean.
-    Run Keyword If Timeout Occurred     Procedure After Timeout
-    IF  $rebooted != 'True'
-        Clean Test Artifacts
+Initial Memory Check
+    [Arguments]             ${max_init_memory}  ${iterations}
+    ${init_mem_check_ok}=             Set Variable  False
+    ${sleep_between}                  Evaluate      10
+    FOR    ${i}    IN RANGE    ${iterations}
+        ${init_total_mem}=                Execute Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $1}'
+        Log                               Total memory at start ${init_total_mem} MiB  console=True
+        IF  ${init_total_mem} > ${max_init_memory}
+            Log To Console                Initial total memory too high. Waiting for the mem-manager to adjust it.
+            Sleep  ${sleep_between}
+        ELSE
+            ${init_mem_check_ok}=             Set Variable  True
+            BREAK
+        END
+    END
+    IF  $init_mem_check_ok != 'True'
+        ${duration}       Evaluate    int(${iterations} * ${sleep_between})
+        FAIL    High initial total memory not deflating within ${duration} sec.\nghaf-mem-manager service of the vm has probably failed.
     END
 
 Procedure After Timeout
     Reboot Laptop
-    Connect to netvm
-    ${rebooted}=        Set Variable  True
+    Check If Device Is Up
+    Sleep  30
+    Connect                  iterations=10
+    ${rebooted}=             Set Variable  True
 
-Clean Test Artifacts
-    Execute Command     rm -r /dev/shm/test         sudo=True  sudo_password=${PASSWORD}
-    Execute Command     rm ${test_dir}/ballooning*   sudo=True   sudo_password=${PASSWORD}
+Clean Test Files
+    Run Keyword And Ignore Error  Execute Command   -b rm /dev/shm/test/*;rm -r /dev/shm/test  sudo=True  sudo_password=${PASSWORD}  timeout=1
+    Run Keyword And Ignore Error  Execute Command   -b rm /dev/test/*;rm -r /dev/test    sudo=True  sudo_password=${PASSWORD}  timeout=1
+    Run Keyword And Ignore Error  Execute Command   -b rm /run/test/*;rm -r /run/test    sudo=True  sudo_password=${PASSWORD}  timeout=1
+
+Ballooning Test Teardown
+    [Documentation]    If test gets stuck, reboot device and connect to netvm (the next test can be executed).
+    ...                After reboot, the artifacts should be not existing, so no need to clean.
+    Run Keyword If Timeout Occurred     Procedure After Timeout
+    Run Keyword If   '${TEST STATUS}' == 'FAIL' and 'SSHException' in '${TEST MESSAGE}'   Procedure After Timeout
+    IF  $rebooted != 'True'
+        Clean Test Files
+        Execute Command   rm -r ${test_dir}   sudo=True  sudo_password=${PASSWORD}
+    END

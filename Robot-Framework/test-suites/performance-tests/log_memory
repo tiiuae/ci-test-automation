@@ -14,7 +14,7 @@ for i in $(seq 1000); do
     used=$(free --mega | awk -F: 'NR==2 {print $2}' | awk '{print $2}')
     avail=$(free --mega | awk -F: 'NR==2 {print $2}' | awk '{print $6}')
     echo "${elapsed_time},${total},${used},${avail}" >> ${test_dir}/ballooning_${id}.csv
-    if [[ $(cat ${status_file}) == "stage2" ]]
+    if [[ $(cat ${status_file}) == "finished" ]]
     then
         break
     fi
