@@ -4,6 +4,7 @@
 *** Settings ***
 Resource            ../../resources/ssh_keywords.resource
 Force Tags          security    regression
+Test Timeout        3 minutes
 
 
 *** Variables ***
@@ -36,9 +37,13 @@ Test IP spoofing
     # When nc_stealer script starts to flip IP address ssh connection can get stuck. Drop all connections.
     Close All Connections
 
-    Log To Console                  Waiting 40 sec for the test to finish
+    Log To Console                  Waiting 50 sec for the test to finish   no_newline=true
+    FOR    ${i}    IN RANGE    10
+        Log To Console   .  no_newline=true
+        Sleep       5
+    END
+
     Connect
-    Sleep                           40
     Check the result files
     [Teardown]                      Spoofing Test Teardown
 
@@ -70,7 +75,7 @@ Prepare netcat stealer script
 Launch netcat test script
     [Arguments]                       ${vm}  ${script_name}
     Switch to vm                      ${vm}
-    Run Keyword And Ignore Error      Execute Command  -b ${file_path}/${script_name} ${file_path}  sudo=True  sudo_password=${PASSWORD}  timeout=3
+    Run Keyword And Ignore Error      Execute Command  -b ${file_path}/${script_name} ${file_path}  sudo=True  sudo_password=${PASSWORD}  timeout=2
 
 Check the result files
     Switch to vm                      ${GUI_VM}
