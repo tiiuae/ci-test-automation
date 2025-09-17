@@ -4,6 +4,8 @@
 # This will be automatically written to the file when running the test
 # ip_server=
 
+sleep 6
+
 for i in {1..40}
 do
   echo " ---- packet $i " | nc -w 1 ${ip_server} 5201

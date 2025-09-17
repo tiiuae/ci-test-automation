@@ -3,11 +3,13 @@
 
 FILE_PATH=$1
 
+sleep 8
+
 sudo iptables -A ghaf-fw-in-filter -p tcp --dport 5201 -j ACCEPT
 
 echo "" > "${FILE_PATH}"/server_received.txt
 
-for i in {1..30}
+for i in {1..40}
 do
   echo "" >> "${FILE_PATH}"/server_received.txt
   echo "iteration $i - $(date)" >> "${FILE_PATH}"/server_received.txt
