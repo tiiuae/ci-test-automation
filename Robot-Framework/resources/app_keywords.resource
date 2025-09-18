@@ -9,6 +9,21 @@ Resource            ../resources/ssh_keywords.resource
 
 *** Keywords ***
 
+Start application in VM
+    [Arguments]    ${app_name}   ${vm_name}   ${process_name}   ${exact_match}=false
+    Check that appVM is running   ${vm_name}
+    Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
+    Start XDG application   ${app_name}
+    IF   '${vm_name}' != '${GUI_VM}'   Switch to vm   ${vm_name}
+    Check that the application was started    ${process_name}   exact_match=${exact_match}
+
+Check that appVM is running
+    [Arguments]    ${vm_name}
+    Check if ssh is ready on vm   ${vm_name}   timeout=60
+    Switch to vm      ${vm_name}
+    # Wait until systemctl status is running (ignore error in case the status is degraded)
+    ${status}   Run Keyword and Ignore Error    Verify Systemctl status
+
 Start XDG application
     [Arguments]      ${app_name}
     Log To Console   ${\n}Starting ${app_name}
@@ -43,8 +58,7 @@ Check that the application is not running
     Log To Console    ${app_name} not running
 
 Launch Cosmic Term
-    Start XDG application   com.system76.CosmicTerm
-    Check that the application was started    cosmic-term  exact_match=true
+    Start application in VM   com.system76.CosmicTerm   ${GUI_VM}   cosmic-term   exact_match=true
 
 Log and remove app output
     [Documentation]    Specify the VM from which the app was started and the user (the owner of the file)

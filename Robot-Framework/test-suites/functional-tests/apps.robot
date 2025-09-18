@@ -22,42 +22,25 @@ Suite Setup         Connect to netvm
 Start Chrome
     [Documentation]   Start Chrome in dedicated VM and verify process started
     [Tags]            bat  regression   pre-merge   SP-T92
-    [Setup]           Run Keywords    Switch Connection    ${CONNECTION}    AND
-    ...               Verify service status  range=15  service=microvm@chrome-vm.service
-    Switch to vm           gui-vm  user=${USER_LOGIN}
-    Start XDG application  'Google Chrome'
-    Connect to VM          ${CHROME_VM}
-    Check that the application was started    chrome
+    Start application in VM   'Google Chrome'   ${CHROME_VM}   chrome
     [Teardown]  Kill Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    /home/testuser/output.log    ${CHROME_VM}
 
 Start Zathura
     [Documentation]   Start Zathura in dedicated VM and verify process started
     [Tags]            bat  regression  pre-merge   SP-T105
-    [Setup]           Check if ssh is ready on vm    ${ZATHURA_VM}
-    Switch to vm           gui-vm  user=${USER_LOGIN}
-    Start XDG application  'PDF Viewer'
-    Connect to VM          ${ZATHURA_VM}
-    Check that the application was started    zathura
+    Start application in VM   'PDF Viewer'   ${ZATHURA_VM}   zathura
     [Teardown]  Kill Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    /home/testuser/output.log    ${ZATHURA_VM}
 
 Start Element
     [Documentation]   Start Element in dedicated VM and verify process started
     [Tags]            bat  regression  SP-T52
-    [Setup]           Check if ssh is ready on vm    ${COMMS_VM}
-    Switch to vm           gui-vm  user=${USER_LOGIN}
-    Start XDG application  Element
-    Connect to VM          ${COMMS_VM}
-    Check that the application was started    element
+    Start application in VM   Element   ${COMMS_VM}   element
     [Teardown]  Kill Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    /home/testuser/output.log    ${COMMS_VM}
 
 Start Slack
     [Documentation]   Start Slack in dedicated VM and verify process started
     [Tags]            bat  regression  pre-merge  SP-T181
-    [Setup]           Check if ssh is ready on vm    ${COMMS_VM}
-    Switch to vm           gui-vm  user=${USER_LOGIN}
-    Start XDG application  Slack
-    Connect to VM          ${COMMS_VM}
-    Check that the application was started    slack
+    Start application in VM   Slack   ${COMMS_VM}   slack
     [Teardown]  Kill Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    /home/testuser/output.log    ${COMMS_VM}
 
 Open PDF from chrome-vm

@@ -23,44 +23,42 @@ Test Teardown       Gui-vm Test Teardown
 Start Calculator
     [Documentation]   Start Calculator and verify process started
     [Tags]            bat   pre-merge  calculator  SP-T202  lenovo-x1  darter-pro  dell-7330  fmo
-    Start XDG application  Calculator
-    Check that the application was started    calculator
+    Start application in VM   Calculator   ${GUI_VM}   calculator
 
 Start Sticky Notes
     [Documentation]   Start Sticky Notes and verify process started
     [Tags]            bat   pre-merge  sticky_notes  SP-T201-1  lenovo-x1  darter-pro  dell-7330  fmo
-    Start XDG application  'Sticky Notes'
-    Check that the application was started    sticky-wrapped
+    Start application in VM   'Sticky Notes'   ${GUI_VM}   sticky-wrapped
 
 Start Ghaf Control Panel
     [Documentation]   Start Ghaf Control Panel and verify process started
     [Tags]            bat   pre-merge  control_panel  SP-T205  lenovo-x1  darter-pro  dell-7330  fmo
-    Start XDG application  'Ghaf Control Panel'
-    Check that the application was started    ctrl-panel
+    Start application in VM   'Ghaf Control Panel'   ${GUI_VM}   ctrl-panel
 
 Start Bluetooth Settings
     [Documentation]   Start Bluetooth Settings and verify process started
     [Tags]            bat   pre-merge  bluetooth_settings  SP-T204  lenovo-x1  darter-pro  dell-7330  fmo
-    Start XDG application  'Bluetooth Settings'
-    Check that the application was started    blueman-manager-wrapped-wrapped
+    Start application in VM   'Bluetooth Settings'   ${GUI_VM}   blueman-manager-wrapped-wrapped
 
 Start COSMIC Files
     [Documentation]   Start Cosmic Files and verify process started
     [Tags]            bat   pre-merge  cosmic_files  SP-T206  lenovo-x1  darter-pro  dell-7330  fmo
-    Start XDG application  com.system76.CosmicFiles
-    Check that the application was started    cosmic-files %U  exact_match=true
+    Start application in VM   com.system76.CosmicFiles   ${GUI_VM}   cosmic-files %U   exact_match=true
+
+Start COSMIC Media Player
+    [Documentation]   Start Cosmic Media Player and verify process started
+    [Tags]            bat   cosmic_player  SP-T294  lenovo-x1  darter-pro  dell-7330
+    Start application in VM   com.system76.CosmicPlayer   ${GUI_VM}   cosmic-player %U   exact_match=true
 
 Start COSMIC Settings
     [Documentation]   Start Cosmic Settings and verify process started
     [Tags]            bat   pre-merge  cosmic_settings  SP-T254  lenovo-x1  darter-pro  dell-7330  fmo
-    Start XDG application  com.system76.CosmicSettings
-    Check that the application was started    cosmic-settings  exact_match=true
+    Start application in VM   com.system76.CosmicSettings   ${GUI_VM}   cosmic-settings   exact_match=true
 
 Start COSMIC Text Editor
     [Documentation]   Start Cosmic Text Editor and verify process started
     [Tags]            bat   pre-merge  cosmic_editor  SP-T243  lenovo-x1  darter-pro  dell-7330  fmo
-    Start XDG application   com.system76.CosmicEdit
-    Check that the application was started    cosmic-edit %F  exact_match=true
+    Start application in VM   com.system76.CosmicEdit   ${GUI_VM}   cosmic-edit %F   exact_match=true
 
 Start COSMIC Terminal
     [Documentation]   Start Cosmic Terminal and verify process started
@@ -80,6 +78,10 @@ Start Falcon AI
     [Teardown]  Run Keyword If   "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
     ...         Run Keyword If Test Failed   Skip   "Known issue SSRCSP-6769: [Lenovo-X1] Falcon AI finds no models even though the model was installed"
 
+Start GPU Screen Recorder
+    [Documentation]   Start GPU Screen Recorder and verify process started
+    [Tags]            bat   screen_recorder  SP-T293  lenovo-x1  dell-7330
+    Start application in VM   com.dec05eba.gpu_screen_recorder   ${GUI_VM}   gpu-screen-recorder
 
 Check user systemctl status
     [Documentation]   Verify systemctl status --user is running
@@ -95,20 +97,17 @@ Check user systemctl status
 Start Firefox GPU on FMO
     [Documentation]   Start Firefox GPU and verify process started
     [Tags]            bat   firefox_gpu  fmo
-    Start XDG application  'Firefox GPU'
-    Check that the application was started    firefox
+    Start application in VM   'Firefox GPU'   ${GUI_VM}   firefox
 
 Start Google Chrome GPU on FMO
     [Documentation]   Start Google Chrome GPU and verify process started
     [Tags]            bat   chrome_gpu  fmo
-    Start XDG application  'Google Chrome GPU'
-    Check that the application was started    chrome
+    Start application in VM   'Google Chrome GPU'   ${GUI_VM}   chrome
 
 Start Display Settings on FMO
     [Documentation]   Start Display Settings and verify process started
     [Tags]            bat   display_settings  fmo
-    Start XDG application  'Display Settings'
-    Check that the application was started    wdisplays
+    Start application in VM   'Display Settings'   ${GUI_VM}   wdisplays
 
 *** Keywords ***
 
