@@ -32,7 +32,8 @@ Change keyboard layout
     [Tags]              lenovo-x1  darter-pro   SP-T138
     Check cosmic config current layout value
     Launch Cosmic Term
-    Sleep    1
+    # Wait until application window has been opened (max ~5s).
+    Locate on screen    text  testuser@gui-vm:  iterations=5
     Type string and press enter                "echo "  enter=False
     Press Key(s)    APOSTROPHE
     Press test key and switch keyboard layout  repeat=3
