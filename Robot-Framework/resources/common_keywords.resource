@@ -75,7 +75,7 @@ Check systemctl status for known issues
             ${device_match}=     Run Keyword And Return Status    Should Contain    ${DEVICE}    ${list_device}
             ${service_match}=    Run Keyword And Return Status    Should Contain    ${failing_service}    ${service}
 
-            IF   '${device_match}' == 'True' and ('${service}' == 'ANY' or '${service_match}') == 'True'
+            IF   ('${list_device}'=='ANY' or ${device_match}) and ('${service}'=='ANY' or ${service_match})
                 ${known}=     Set Variable    True
             END
         END

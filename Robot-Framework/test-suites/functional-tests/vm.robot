@@ -116,7 +116,7 @@ Check VM systemctl status for known issues
             ${vm_match}=         Run Keyword And Return Status    Should Contain    ${vm}    ${list_vm}
             ${service_match}=    Run Keyword And Return Status    Should Contain    ${failing_service}    ${service}
 
-            IF   ('${vm_match}' == 'True' or '${list_vm}' == 'ANY') and ('${service}' == 'ANY' or '${service_match}') == 'True'
+            IF   (${vm_match} or '${list_vm}' == 'ANY') and (${service_match} or '${service}' == 'ANY')
                 ${known}=     Set Variable    True
             END
         END
