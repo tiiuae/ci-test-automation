@@ -263,7 +263,7 @@ Unlock
     Locate and click   image  ${LOCK_ICON}   0.95  5
     Log To Console     Typing password to unlock
     Type string and press enter  ${USER_PASSWORD}  confidential=True
-    Sleep   1
+    Sleep   2
 
 Stop swayidle
     [Documentation]    Stop swayidle to prevent automatic suspension
