@@ -60,6 +60,30 @@ Automatic suspension
     ${locked}         Check if locked
     Should Be True    ${locked}    Lock screen didn't appear
 
+Automatic lock (Darter Pro)
+    [Documentation]   Suspension is disabled on Darter Pro but automatic lock works
+    ...               Wait and check that
+    ...               in the beginning brightness is 100 %
+    ...               in 4 min - the screen dims (brightness is 25 %)
+    ...               in 5 min - the screen locks (brightness is 25 %)
+    [Tags]            SP-T269    darter-pro
+    [Setup]           Test setup
+
+    Check the screen state   on
+    Check screen brightness  ${max_brightness}
+
+    Set start timestamp
+
+    Wait     240
+    Check screen brightness  ${dimmed_brightness}
+
+    Wait     10
+
+    Check the screen state   on
+    Wait    50
+    ${locked}         Check if locked
+    Should Be True    ${locked}
+
 *** Keywords ***
 
 Test setup
