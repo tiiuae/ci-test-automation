@@ -20,8 +20,8 @@ Check internet connection in every VM
     [Documentation]    Pings google from every vm.
     [Tags]             SP-T257
     ${failed_vms}=    Create List
-    FOR  ${vm}  IN  @{VM_LIST}
-        Connect to VM    ${vm}
+    FOR  ${vm}  IN  @{VM_LIST_WITH_HOST}
+        Switch to vm     ${vm}
         ${output}=       Execute Command    ping -c1 google.com
         Log              ${output}
         ${result}=       Run Keyword And Return Status    Should Contain    ${output}    1 received
@@ -43,7 +43,7 @@ Check systemctl status in every VM
     ...    gui-vm|setup-ghaf-user.service|SSRCSP-7234
 
     FOR  ${vm}  IN  @{VM_LIST}
-        Connect to VM    ${vm}
+        Switch to vm     ${vm}
         ${status}  ${output}   Run Keyword And Ignore Error   Verify Systemctl status
         IF  $status=='FAIL'
             Log To Console    ${vm}: ${output}
@@ -56,6 +56,22 @@ Check systemctl status in every VM
     IF  ${failed_new_services} != []    FAIL    Unexpected failed services: ${failed_new_services}, known failed services: ${failed_old_services}
     IF  ${failed_old_services} != []    SKIP    Known failed services: ${failed_old_services}
 
+Verify EPT is enabled in every VM
+    [Documentation]    Check that ETP is enabled in every vm.
+    [Tags]             SP-T274
+    ${failed_vms}      Create List
+    FOR  ${vm}  IN  @{VM_LIST_WITH_HOST}
+        Switch to vm     ${vm}
+        ${output}        Execute Command    cat /sys/module/kvm_intel/parameters/ept
+        Log              ${output}
+        ${result}        Run Keyword And Return Status    Should Contain    ${output}    Y
+        IF    not ${result}
+            Log To Console    FAIL: ${vm} does not have ETP enabled
+            Append To List    ${failed_vms}    ${vm}
+        END
+    END
+    IF  ${failed_vms} != []    FAIL    VMs with ETP not enabled: ${failed_vms}
+
 
 *** Keywords ***
 
@@ -64,8 +80,10 @@ VM Suite Setup
     Connect to ghaf host
     ${output}       Execute Command    microvm -l
     @{VM_LIST}      Extract VM names   ${output}
-    Should Not Be Empty   ${VM_LIST}   VM list is empty
-    Set Suite Variable    ${VM_LIST}
+    Should Not Be Empty     ${VM_LIST}   VM list is empty
+    Set Suite Variable      @{VM_LIST}
+    @{VM_LIST_WITH_HOST}    Create List   @{VM_LIST}   ghaf-host
+    Set Suite Variable      @{VM_LIST_WITH_HOST}
 
 Check VM systemctl status for known issues
     [Arguments]    ${vm}   ${known_issues_list}   ${failing_services}
