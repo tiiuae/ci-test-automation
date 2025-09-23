@@ -23,7 +23,10 @@ class PerformanceDataProcessing:
         self.config_path = config_path
         self.plot_dir = plot_dir
         self.data_dir = self._create_result_dirs()
-        self.build_type = job.split(".")[0]
+        if len(job.split(".")) > 1:
+            self.build_type = job.split(".")[1]
+        else:
+            self.build_type = "unknown"
         self.zero_result_flag = -100
         self.low_limit = float(low_limit)
 
