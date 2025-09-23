@@ -50,6 +50,9 @@ Set Variables
         Run Keyword And Ignore Error    Set Global Variable  ${RELAY_NUMBER}      ${config['addresses']['${DEVICE}']['relay_number']}
         Run Keyword And Ignore Error    Set Global Variable  ${RPI_IP_ADDRESS}    ${config['addresses']['measurement_agent']['device_ip_address']}
     END
+    IF  "${DEVICE_TYPE}" == "lenovo-x1" or "${DEVICE_TYPE}" == "dell-7330" or "${DEVICE_TYPE}" == "darter-pro"
+        Set Global Variable  ${RELAY_SERIAL_PORT}   NONE
+    END
     Set Global Variable  ${NET_VM}             net-vm
     Set Global Variable  ${NETVM_SERVICE}      microvm@${NET_VM}.service
     Set Global Variable  ${NETVM_IP}           192.168.100.1

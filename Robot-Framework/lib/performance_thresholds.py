@@ -54,5 +54,6 @@ thresholds = {
         'time_to_desktop': 12
     },
     'iperf': "40%",
-    'cpu_isolation': 7
+    'cpu_isolation': 7,
+    'fileio_isolation': 10
 }

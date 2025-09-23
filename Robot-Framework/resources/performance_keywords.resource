@@ -80,3 +80,23 @@ Install iperf tool
     ELSE
         Log To Console    ${\n}iperf tool was already installed
     END
+
+Initial Memory Check
+    [Arguments]             ${max_init_memory}  ${iterations}
+    ${init_mem_check_ok}=             Set Variable  False
+    ${sleep_between}                  Evaluate      10
+    FOR    ${i}    IN RANGE    ${iterations}
+        ${init_total_mem}=                Execute Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $1}'
+        Log                               Total memory at start ${init_total_mem} MiB  console=True
+        IF  ${init_total_mem} > ${max_init_memory}
+            Log To Console                Initial total memory too high. Waiting for the mem-manager to adjust it.
+            Sleep  ${sleep_between}
+        ELSE
+            ${init_mem_check_ok}=             Set Variable  True
+            BREAK
+        END
+    END
+    IF  $init_mem_check_ok != 'True'
+        ${duration}       Evaluate    int(${iterations} * ${sleep_between})
+        FAIL    High initial total memory not deflating within ${duration} sec.\nghaf-mem-manager service of the vm has probably failed.
+    END

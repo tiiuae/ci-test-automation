@@ -143,9 +143,7 @@ FileIO test
     IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Log To Console        Preparing for fileio test
         Execute Command       cp /tmp/fileio_test /persist  sudo=True  sudo_password=${PASSWORD}
-        Write                 sudo su
-        ${out}                SSHLibrary.Read Until   password for ghaf:
-        ${out}                Write        ${PASSWORD}
+        Elevate to superuser
         Write                 cd /persist
         Log To Console        Starting fileio test
         Write                 /persist/fileio_test ${threads_number} /persist
@@ -180,6 +178,99 @@ FileIO test
     ${stats_wr}             Output Dictionary First Value   ${statistics_wr}
     &{stats_dict}    	    Create Dictionary    read=${stats_rd}  write=${stats_wr}
     Determine Test Status   ${stats_dict}
+
+FileIO write isolation test
+    [Documentation]     Run a sysbench fileio write benchmark first in a single VM then parallel in two VMs.
+    ...                 Report the impact of another fileio benchmark in separate VM to the reference VM.
+    [Tags]              fileio_write_isolation  SP-T303-1  lenovo-x1  darter-pro  dell-7330
+
+    ${reference-vm}=       Set Variable     ${COMMS_VM}
+    ${attacker-vm}=        Set Variable     ${CHROME_VM}
+    ${test_dir}=           Set Variable     /guestStorage/fileio
+
+    Switch to vm           ${reference-vm}
+    # Inflated memory (after boot) can affect the results
+    Initial Memory Check   max_init_memory=5000  iterations=7
+    Elevate to superuser
+    Write                  mkdir ${test_dir}
+    Write                  cd ${test_dir}
+    Log To Console         Running fileio write test in single VM
+    Write                  sysbench fileio --file-total-size=7G --threads=1 --file-test-mode=seqwr --time=30 run
+    Sleep                  5
+    ${out}                 SSHLibrary.Read Until   execution time
+    Write                  sysbench fileio cleanup
+    Log To Console         Parsing the test results
+    &{single_data}         Parse FileIO Write Results   ${out}
+
+    Switch to vm           ${attacker-vm}
+    Elevate to superuser
+    Write                  mkdir ${test_dir}
+    Write                  cd ${test_dir}
+    Log To Console         Running fileio test parallel in two VMs
+    Write                  sysbench fileio --file-total-size=7G --threads=1 --file-test-mode=seqwr --time=30 run
+    Switch to vm           ${reference-vm}
+    Write                  sysbench fileio --file-total-size=7G --threads=1 --file-test-mode=seqwr --time=30 run
+    Sleep                  5
+    ${out}                 SSHLibrary.Read Until   execution time
+    Log To Console         Parsing the test results
+    &{parallel_data}       Parse FileIO Write Results   ${out}
+
+    ${single_result} 	   Get From Dictionary 	${single_data}    throughput
+    ${parallel_result} 	   Get From Dictionary 	${parallel_data}  throughput
+    ${difference}          Evaluate    int(${single_result}-${parallel_result})/int(${single_result})*100
+    Log                    Fileio throughput single VM: ${single_data}     console=True
+    Log                    Fileio throughput parallel: ${parallel_data}   console=True
+    Log                    Impact of fileio test run in another VM: ${difference} %           console=True
+
+    ${result_list}=        Create List     ${single_result}  ${parallel_result}  ${difference}
+    &{statistics_dict}     Save Isolation Test Data     ${TEST NAME}  ${result_list}
+    Log                    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
+    Determine Test Status  ${statistics_dict}  inverted=1
+
+    [Teardown]             Teardown of Fileio Isolation Test
+
+FileIO read isolation test
+    [Documentation]     Run a sysbench fileio read benchmark first in a single VM then parallel in two VMs.
+    ...                 Report the impact of another fileio benchmark in separate VM to the reference VM.
+    [Tags]              fileio_read_isolation  SP-T303-2  lenovo-x1  darter-pro  dell-7330
+
+    ${reference-vm}=       Set Variable     ${COMMS_VM}
+    ${attacker-vm}=        Set Variable     ${CHROME_VM}
+    ${test_dir}=           Set Variable     /guestStorage/fileio
+
+    Switch to vm           ${reference-vm}
+    Prepare files for fileio test in VM     7   ${test_dir}
+    Log To Console         Running fileio read test in single VM
+    Write                  sysbench fileio --file-total-size=7G --threads=1 --file-test-mode=seqrd --time=30 run
+    Sleep                  5
+    ${out}                 SSHLibrary.Read Until   execution time
+    Log To Console         Parsing the test results
+    &{single_data}         Parse FileIO Read Results   ${out}
+
+    Switch to vm           ${attacker-vm}
+    Prepare files for fileio test in VM     7   ${test_dir}
+    Log To Console         Running fileio read test parallel in two VMs
+    Write                  sysbench fileio --file-total-size=7G --threads=1 --file-test-mode=seqrd --time=30 run
+    Switch to vm           ${reference-vm}
+    Write                  sysbench fileio --file-total-size=7G --threads=1 --file-test-mode=seqrd --time=30 run
+    Sleep                  5
+    ${out}                 SSHLibrary.Read Until   execution time
+    Log To Console         Parsing the test results
+    &{parallel_data}       Parse FileIO Read Results   ${out}
+
+    ${single_result} 	   Get From Dictionary 	${single_data}    throughput
+    ${parallel_result} 	   Get From Dictionary 	${parallel_data}  throughput
+    ${difference}          Evaluate    int(${single_result}-${parallel_result})/int(${single_result})*100
+    Log                    Fileio throughput single VM: ${single_data}     console=True
+    Log                    Fileio throughput parallel: ${parallel_data}   console=True
+    Log                    Impact of fileio test run in another VM: ${difference} %           console=True
+
+    ${result_list}=        Create List     ${single_result}  ${parallel_result}  ${difference}
+    &{statistics_dict}     Save Isolation Test Data     ${TEST NAME}  ${result_list}
+    Log                    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
+    Determine Test Status  ${statistics_dict}  inverted=1
+
+    [Teardown]             Teardown of Fileio Read Isolation Test   ${reference-vm}   ${attacker-vm}   ${test_dir}
 
 Sysbench test in NetVM
     [Documentation]      Run CPU and Memory benchmark using Sysbench in NetVM.
@@ -382,6 +473,42 @@ Single vs Parallel CPU test
     Log                     ${difference} %           console=True
 
     ${result_list}=         Create List     ${single_vm_result}  ${parallel_vm_result}  ${difference}
-    &{statistics_dict}      Save Cpu Isolation Data     ${TEST NAME}  ${result_list}
+    &{statistics_dict}      Save Isolation Test Data     ${TEST NAME}  ${result_list}
     Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
     Determine Test Status   ${statistics_dict}  inverted=1
+
+Elevate to superuser
+    Write                 sudo su
+    ${out}                SSHLibrary.Read Until   password for ghaf:
+    ${out}                Write        ${PASSWORD}
+
+Prepare files for fileio test in VM
+    [Arguments]         ${total_size}   ${test_dir}
+    Log To Console      Preparing files for fileio test
+    Elevate to superuser
+    Write                 mkdir ${test_dir}
+    Write                 cd ${test_dir}
+    Write                 sysbench fileio --file-total-size=${total_size}G --file-num=128 --threads=1 --file-test-mode=seqrd prepare
+    ${iterations}         Evaluate              int(${total_size} * 20)
+    FOR    ${i}    IN RANGE    ${iterations}
+        Write            ls ${test_dir}
+        Sleep            1
+        ${file_list}     Read
+        IF  "test_file.127" in $file_list
+            Log To Console    Files ready for fileio read test
+            RETURN
+        END
+    END
+    FAIL    Failed to prepare files for fileio test
+
+Teardown of Fileio Read Isolation Test
+    [Arguments]                 ${reference-vm}  ${attacker-vm}  ${test_dir}
+    Switch to vm                ${reference-vm}
+    Execute Command             rm -r ${test_dir}   sudo=True  sudo_password=${PASSWORD}
+    Switch to vm                ${attacker-vm}
+    Execute Command             rm -r ${test_dir}   sudo=True  sudo_password=${PASSWORD}
+    Teardown of Fileio Isolation Test
+
+Teardown of Fileio Isolation Test
+    Close All Connections
+    Connect to ghaf host
