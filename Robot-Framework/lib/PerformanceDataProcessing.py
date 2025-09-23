@@ -737,15 +737,18 @@ class PerformanceDataProcessing:
 
         return return_statistics
 
-    @keyword("Read CPU Isolation CSV and Plot")
-    def read_cpu_isolation_test_csv_and_plot(self, test_name):
+    @keyword("Read Isolation Test CSV and Plot")
+    def read_isolation_test_csv_and_plot(self, test_name):
 
-        threshold = thresholds['cpu_isolation']
+        if "CPU" in test_name:
+            threshold = thresholds['cpu_isolation']
+        if "FileIO" in test_name:
+            threshold = thresholds['fileio_isolation']
 
         data = {
             'commit': [],
-            'single_vm_cpu_test': [],
-            'parallel_cpu_test': [],
+            'single_vm_test': [],
+            'parallel_test': [],
             'difference': [],
         }
 
@@ -763,8 +766,8 @@ class PerformanceDataProcessing:
 
         self.plot_marginals_and_deviations(data['commit'], statistics, 40)
         plt.yticks(fontsize=14)
-        plt.title('Effect of cpu exhaustion attack from another vm', loc='right', fontweight="bold", fontsize=15)
-        plt.ylabel('Decrease of cpu performance in ref vm (%)', fontsize=12)
+        plt.title('Effect of resource exhaustion attack from another vm', loc='right', fontweight="bold", fontsize=15)
+        plt.ylabel('Decrease of performance in ref vm (%)', fontsize=12)
         plt.grid(True)
         plt.xticks(data['commit'], rotation=90, fontsize=14)
 
@@ -888,9 +891,9 @@ class PerformanceDataProcessing:
         return self.read_fileio_data_csv_and_plot(test_name)
 
     @keyword
-    def save_cpu_isolation_data(self, test_name, cpu_isolation_data):
+    def save_isolation_test_data(self, test_name, cpu_isolation_data):
         self.write_test_data_to_csv(test_name, cpu_isolation_data)
-        return self.read_cpu_isolation_test_csv_and_plot(test_name)
+        return self.read_isolation_test_csv_and_plot(test_name)
 
 
     # ---------------------------------------------------------------------

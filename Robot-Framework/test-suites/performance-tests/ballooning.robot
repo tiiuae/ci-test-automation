@@ -10,6 +10,7 @@ Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_I
 ...                 ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}  ${PERF_LOW_LIMIT}
 Resource            ../../resources/device_control.resource
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/performance_keywords.resource
 
 Suite Setup         Connect to netvm
 Suite Teardown      Close All Connections
@@ -172,26 +173,6 @@ Plot ballooning
     [Arguments]             ${id}
     Generate Ballooning Graph    ${PLOT_DIR}   ${id}    ${TEST_NAME}
     Log   <img src="${REL_PLOT_DIR}mem_ballooning_${id}.png" alt="Power plot" width="1200">    HTML
-
-Initial Memory Check
-    [Arguments]             ${max_init_memory}  ${iterations}
-    ${init_mem_check_ok}=             Set Variable  False
-    ${sleep_between}                  Evaluate      10
-    FOR    ${i}    IN RANGE    ${iterations}
-        ${init_total_mem}=                Execute Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $1}'
-        Log                               Total memory at start ${init_total_mem} MiB  console=True
-        IF  ${init_total_mem} > ${max_init_memory}
-            Log To Console                Initial total memory too high. Waiting for the mem-manager to adjust it.
-            Sleep  ${sleep_between}
-        ELSE
-            ${init_mem_check_ok}=             Set Variable  True
-            BREAK
-        END
-    END
-    IF  $init_mem_check_ok != 'True'
-        ${duration}       Evaluate    int(${iterations} * ${sleep_between})
-        FAIL    High initial total memory not deflating within ${duration} sec.\nghaf-mem-manager service of the vm has probably failed.
-    END
 
 Procedure After Timeout
     Reboot Laptop
