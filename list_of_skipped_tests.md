@@ -3,7 +3,8 @@
 ## Active SKIPS
 
 | DATE SET   | TEST CASE                                         | TICKET / Additional Data.                                                                       |
-| ---------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+|------------| ------------------------------------------------- |-------------------------------------------------------------------------------------------------|
+| 24.09.2025 | Control audio volume with keyboard shortcuts      | SSRCSP-7294 (Lenovo installer}                                                                  |
 | 16.09.2025 | Check systemctl status in every VM                | SSRCSP-7234                                                                                     |
 | 09.09.2025 | Start Falcon AI (Lenovo-x1, Darter-PRO)           | SSRCSP-6769                                                                                     |
 | 27.06.2025 | Measure UDP Bidir Throughput Small Packets (Dell) | SSRCSP-6774                                                                                     |
