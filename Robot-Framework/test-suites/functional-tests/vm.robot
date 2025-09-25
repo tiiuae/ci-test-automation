@@ -72,6 +72,22 @@ Verify EPT is enabled in every VM
     END
     IF  ${failed_vms} != []    FAIL    VMs with ETP not enabled: ${failed_vms}
 
+Check user account is only in gui-vm
+    [Documentation]    Check that user account is only available in gui-vm
+    [Tags]             SP-T291
+    ${failed_vms}      Create List
+    FOR  ${vm}  IN  @{VM_LIST_WITH_HOST}
+        IF   '${vm}' != '${GUI_VM}'
+            Switch to vm   ${vm}
+            ${output}      Execute Command    users
+            ${result}      Run Keyword And Return Status   Should Not Contain    ${output}    ${USER_LOGIN}
+            IF    not ${result}
+                Log To Console    FAIL: User account available in ${vm}
+                Append To List    ${failed_vms}    ${vm}
+            END
+        END
+    END
+    IF  ${failed_vms} != []    FAIL    VMs with user account available: ${failed_vms}
 
 *** Keywords ***
 
