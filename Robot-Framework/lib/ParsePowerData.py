@@ -21,16 +21,20 @@ class ParsePowerData:
             os.makedirs(self.plot_dir, exist_ok=True)
         return
 
-    def extract_time_interval(self, csv_file, start_time, end_time):
+    def extract_time_interval(self, csv_file, start_time, end_time, output_filename, check_freq):
         columns = ['time', 'meas_counter', 'power']
         data = pd.read_csv(self.power_meas_dir + csv_file, names=columns)
         interval = data.query("{} < time < {}".format(start_time, end_time))
-        interval.to_csv(self.power_meas_dir + 'power_interval.csv', index=False)
+        interval.to_csv(self.power_meas_dir + output_filename, index=False)
+        if check_freq:
+            self.check_measurement_frequency(data)
 
+    def check_measurement_frequency(self, data):
         # Check if measurement frequency was within normal limits
         # Reset the flag file
         with open(self.power_meas_dir + "low_frequency_flag", 'w'):
             pass
+
         normal_meas_frequency = 312
         tolerance = 50
         low_frequency = data[data['meas_counter'] < normal_meas_frequency - tolerance]
@@ -76,6 +80,14 @@ class ParsePowerData:
 
         plt.savefig(self.plot_dir + f'power_{test_name}.png')
         return
+
+    def measured_max(self, csv_file):
+        data = pd.read_csv(self.power_meas_dir + csv_file)
+        max_value = 0
+        for value in data['power']:
+            if value > max_value:
+                max_value = value
+        return max_value
 
     def mean_power(self, csv_file):
         columns = ['time', 'meas_counter', 'power']
