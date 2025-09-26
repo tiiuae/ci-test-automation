@@ -29,36 +29,40 @@ Automatic suspension
     Check the screen state   on
     Check screen brightness  ${max_brightness}
 
-    Start power measurement       ${BUILD_ID}   timeout=1500
+    Start power measurement  ${BUILD_ID}   timeout=1500
     Connect
     Switch to vm    gui-vm   user=${USER_LOGIN}
-    Set start timestamp
 
-    Wait     240
+    Wait                     240
     Check screen brightness  ${dimmed_brightness}
 
-    Wait     10
+    Wait                     10
 
     Check the screen state   on
-    Wait    50
-    ${locked}         Check if locked
-    Should Be True    ${locked}
+    Wait                     50
+    ${locked}                Check if locked
+    Should Be True           ${locked}
 
-    Wait     610
+    Wait                     610
 
     Check that device is suspended
-    Wait     300
+    Wait                     60
+    Set timestamp            suspend_start
+    Wait                     240
+    Set timestamp            suspend_end
     Wake up device
+    Wait                     180
     Connect
-    Generate power plot           ${BUILD_ID}   ${TEST NAME}
+    Generate power plot      ${BUILD_ID}   ${TEST NAME}
     Stop recording power
-    Switch to vm    gui-vm   user=${USER_LOGIN}
+    Check power during suspension          ${BUILD_ID}
+    Switch to vm             gui-vm   user=${USER_LOGIN}
     Check the screen state   off
     # Screen wakeup requires a mouse move
     Move Cursor
     Check the screen state   on
-    ${locked}         Check if locked
-    Should Be True    ${locked}    Lock screen didn't appear
+    ${locked}                Check if locked
+    Should Be True           ${locked}    Lock screen didn't appear
 
 Automatic lock (Darter Pro)
     [Documentation]   Suspension is disabled on Darter Pro but automatic lock works
@@ -71,8 +75,6 @@ Automatic lock (Darter Pro)
 
     Check the screen state   on
     Check screen brightness  ${max_brightness}
-
-    Set start timestamp
 
     Wait     240
     Check screen brightness  ${dimmed_brightness}

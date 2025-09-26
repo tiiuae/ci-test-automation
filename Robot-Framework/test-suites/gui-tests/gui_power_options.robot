@@ -25,7 +25,6 @@ GUI Suspend and wake up
     ...               if power measurement tooling is set.
     [Tags]            SP-T208-2   #lenovo-x1  The X1 in the lab gets stuck when a suspension is attempted. Needs further investigation.
     Start power measurement       ${BUILD_ID}   timeout=180
-    Set start timestamp
     # Connect back to gui-vm after power measurement has been started
     Switch to vm   ${NET_VM}
     Switch to vm    gui-vm   user=${USER_LOGIN}

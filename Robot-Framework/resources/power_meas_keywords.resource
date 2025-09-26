@@ -10,7 +10,6 @@ Resource            ../resources/common_keywords.resource
 
 *** Variables ***
 ${SSH_MEASUREMENT}        ${EMPTY}
-${start_timestamp}        ${EMPTY}
 ${RPI_IP_ADDRESS}         ${EMPTY}
 
 
@@ -34,6 +33,7 @@ Start power measurement
     # Multiple logging processes not allowed (for now)
     Stop recording power
     Start recording power      ${id}  ${timeout}
+    Set timestamp              power_meas_start
 
 Connect to measurement agent
     [Documentation]         Set up SSH connection to the measurement agent
@@ -69,7 +69,7 @@ Get power record
 
 Save power measurement interval
     [Documentation]   Extract measurement data within given time interval
-    [Arguments]       ${file_name}   ${start_time}   ${end_time}
+    [Arguments]       ${file_name}   ${start_time}   ${end_time}   ${output_filename}=power_interval.csv  ${check_freq}=${True}
     IF  $SSH_MEASUREMENT=='${EMPTY}'
         Log To Console    No connection to power measurement device. Ignoring all power measurement related keywords.
         RETURN
@@ -80,10 +80,10 @@ Save power measurement interval
         Log To Console    Invalid timestamp critera for extracting power data
         RETURN
     END
-    Run Keyword And Ignore Error    Extract time interval   ${file_name}  ${start_time}   ${end_time}
+    Run Keyword And Ignore Error  Extract time interval  ${file_name}  ${start_time}  ${end_time}  ${output_filename}  ${check_freq}
 
 Generate power plot
-    [Documentation]   Extract power data from start_timestamp to current time.
+    [Documentation]   Extract power data from start timestamp to current time.
     ...               Plot power vs time and save to png file.
     [Arguments]       ${id}   ${test_name}
     IF  $SSH_MEASUREMENT=='${EMPTY}'
@@ -92,18 +92,31 @@ Generate power plot
     END
     ${end_timestamp}                  Get current timestamp
     Get power record                  ${id}.csv
-    Save power measurement interval   ${id}.csv  '${start_timestamp}'  '${end_timestamp}'
+    Save power measurement interval   ${id}.csv  '${power_meas_start}'  '${end_timestamp}'
     Generate graph                    power_interval.csv  ${test_name}
     Log                               <img src="${REL_PLOT_DIR}power_${test_name}.png" alt="Power plot" width="1200">    HTML
 
-Set start timestamp
-    ${current_time}   DateTime.Get Current Date   UTC  exclude_millis=yes
-    Set Global Variable  ${start_timestamp}    ${current_time}
-    Log To Console       ${start_timestamp}
+Set timestamp
+    [Arguments]          ${timestamp_variable_name}
+    ${current_time}      DateTime.Get Current Date   UTC  exclude_millis=yes
+    Set Global Variable  ${${timestamp_variable_name}}    ${current_time}
+    Log                  ${${timestamp_variable_name}}    console=True
 
 Get current timestamp
     ${current_time}   DateTime.Get Current Date  UTC  exclude_millis=yes
     RETURN            ${current_time}
+
+Check power during suspension
+    [Arguments]       ${id}
+    IF  $SSH_MEASUREMENT=='${EMPTY}'
+        Log To Console    No connection to power measurement device. Ignoring all power measurement related keywords.
+        RETURN
+    END
+    Save power measurement interval   ${id}.csv  '${suspend_start}'  '${suspend_end}'  suspend_interval.csv  ${False}
+    ${max_power_during_suspension}  Measured max    suspend_interval.csv
+    IF   ${max_power_during_suspension} > 2500
+        FAIL    Power consumption exceptionally high during suspension
+    END
 
 Log average power
     [Arguments]       ${file_name}
