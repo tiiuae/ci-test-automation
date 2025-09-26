@@ -10,7 +10,7 @@ Library             OperatingSystem
 Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Connect to netvm
-Suite Teardown      Close All Connections
+Suite Teardown      Switch Connection   ${NETVM_SSH}
 
 
 *** Variables ***
