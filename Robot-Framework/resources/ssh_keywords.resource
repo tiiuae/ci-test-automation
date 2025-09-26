@@ -144,10 +144,8 @@ Connect to ghaf host
     IF  not ${connected}
         ${connection}        Connect
         Set Global Variable  ${NETVM_SSH}        ${connection}
-        ${connection}        Connect to VM       ghaf-host
-        Set Global Variable  ${GHAF_HOST_SSH}    ${connection}
+        Switch to vm         ghaf-host
     END
-    RETURN               ${GHAF_HOST_SSH}
 
 Connect to netvm
     [Documentation]      Open ssh connection to net-vm

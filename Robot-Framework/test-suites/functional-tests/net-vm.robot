@@ -13,7 +13,6 @@ Resource            ../../resources/wifi_keywords.resource
 
 *** Variables ***
 ${NETVM_STATE}     ${EMPTY}
-${GHAF_HOST_SSH}   ${EMPTY}
 ${NETVM_SSH}       ${EMPTY}
 
 
@@ -76,7 +75,7 @@ NetVM is wiped after restarting
     [Tags]              # SP-T48  nuc  orin-agx  orin-agx-64
     [Setup]             Connect to netvm
     Create file         /etc/test.txt    sudo=True
-    Switch Connection   ${GHAF_HOST_SSH}
+    Connect to ghaf host
     Restart NetVM
     Close All Connections
     Connect to ghaf host
