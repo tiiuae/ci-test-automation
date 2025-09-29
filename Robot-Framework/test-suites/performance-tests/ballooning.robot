@@ -183,12 +183,16 @@ Procedure After Timeout
 
 Clean Test Files
     Run Keyword And Ignore Error  Execute Command   -b rm /dev/shm/test/*;rm -r /dev/shm/test  sudo=True  sudo_password=${PASSWORD}  timeout=1
+    Log to console   DEBUG: Clean Test File command 1 done
     Run Keyword And Ignore Error  Execute Command   -b rm /dev/test/*;rm -r /dev/test    sudo=True  sudo_password=${PASSWORD}  timeout=1
+    Log to console   DEBUG: Clean Test File command 2 done
     Run Keyword And Ignore Error  Execute Command   -b rm /run/test/*;rm -r /run/test    sudo=True  sudo_password=${PASSWORD}  timeout=1
+    Log to console   DEBUG: Clean Test File command 3 done
 
 Ballooning Test Teardown
     [Documentation]    If test gets stuck, reboot device and connect to netvm (the next test can be executed).
     ...                After reboot, the artifacts should be not existing, so no need to clean.
+    Log to console   In ballooning Teardown
     Run Keyword If Timeout Occurred     Procedure After Timeout
     Run Keyword If   '${TEST STATUS}' == 'FAIL' and 'SSHException' in '${TEST MESSAGE}'   Procedure After Timeout
     IF  $rebooted != 'True'
