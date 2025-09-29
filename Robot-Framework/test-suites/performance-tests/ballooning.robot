@@ -182,9 +182,12 @@ Procedure After Timeout
     ${rebooted}=             Set Variable  True
 
 Clean Test Files
-    Run Keyword And Ignore Error  Execute Command   -b rm /dev/shm/test/*;rm -r /dev/shm/test  sudo=True  sudo_password=${PASSWORD}  timeout=1
-    Run Keyword And Ignore Error  Execute Command   -b rm /dev/test/*;rm -r /dev/test    sudo=True  sudo_password=${PASSWORD}  timeout=1
-    Run Keyword And Ignore Error  Execute Command   -b rm /run/test/*;rm -r /run/test    sudo=True  sudo_password=${PASSWORD}  timeout=1
+    Execute Command   rm /dev/shm/test/*      sudo=True  sudo_password=${PASSWORD}
+    Execute Command   rm /dev/test/*          sudo=True  sudo_password=${PASSWORD}
+    Execute Command   rm /run/test/*          sudo=True  sudo_password=${PASSWORD}
+    Execute Command   rm -r /dev/shm/test     sudo=True  sudo_password=${PASSWORD}
+    Execute Command   rm -r /dev/test         sudo=True  sudo_password=${PASSWORD}
+    Execute Command   rm -r /run/test         sudo=True  sudo_password=${PASSWORD}
 
 Ballooning Test Teardown
     [Documentation]    If test gets stuck, reboot device and connect to netvm (the next test can be executed).
