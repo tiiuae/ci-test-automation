@@ -184,6 +184,9 @@ FileIO write isolation test
     ...                 Report the impact of another fileio benchmark in separate VM to the reference VM.
     [Tags]              fileio_write_isolation  SP-T303-1  lenovo-x1  darter-pro  dell-7330
 
+    Set custom low limit   -100
+    Set Global Variable    ${PERF_LOW_LIMIT}   -100
+
     ${reference-vm}=       Set Variable     ${COMMS_VM}
     ${attacker-vm}=        Set Variable     ${CHROME_VM}
     ${test_dir}=           Set Variable     /guestStorage/fileio
@@ -233,6 +236,9 @@ FileIO read isolation test
     [Documentation]     Run a sysbench fileio read benchmark first in a single VM then parallel in two VMs.
     ...                 Report the impact of another fileio benchmark in separate VM to the reference VM.
     [Tags]              fileio_read_isolation  SP-T303-2  lenovo-x1  darter-pro  dell-7330
+
+    Set custom low limit   -100
+    Set Global Variable    ${PERF_LOW_LIMIT}   -100
 
     ${reference-vm}=       Set Variable     ${COMMS_VM}
     ${attacker-vm}=        Set Variable     ${CHROME_VM}
@@ -510,5 +516,7 @@ Teardown of Fileio Read Isolation Test
     Teardown of Fileio Isolation Test
 
 Teardown of Fileio Isolation Test
+    Set default low limit
+    Set Global Variable  ${PERF_LOW_LIMIT}   1
     Close All Connections
     Connect to ghaf host

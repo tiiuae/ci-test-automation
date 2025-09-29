@@ -29,6 +29,15 @@ class PerformanceDataProcessing:
             self.build_type = "unknown"
         self.zero_result_flag = -100
         self.low_limit = float(low_limit)
+        self.default_low_limit = float(low_limit)
+
+    @keyword
+    def set_custom_low_limit(self, new_value):
+        self.low_limit = float(new_value)
+
+    @keyword
+    def set_default_low_limit(self):
+        self.low_limit = self.default_low_limit
 
     def _get_job_name(self):
         if self.config_path != "None":
