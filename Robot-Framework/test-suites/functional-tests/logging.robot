@@ -9,12 +9,10 @@ Library             DateTime
 Library             OperatingSystem
 Resource            ../../resources/ssh_keywords.resource
 
-Suite Setup         Connect to netvm
-Suite Teardown      Switch Connection   ${NETVM_SSH}
+Suite Setup         Switch to vm   ${NET_VM}
 
 
 *** Variables ***
-${NETVM_SSH}          ${EMPTY}
 ${GRAFANA_LOGS}       https://loki.ghaflogs.vedenemo.dev
 
 
@@ -24,7 +22,7 @@ Check Grafana logs
     [Documentation]  Check that all virtual machines are sending logs to Grafana
     [Tags]           SP-T172
     Check Internet Connection
-    Connect to VM    ${ADMIN_VM}
+    Switch to vm    ${ADMIN_VM}
     ${id}           Execute Command  cat /etc/common/device-id  sudo=True  sudo_password=${PASSWORD}
     ${date}          DateTime.Get Current Date  result_format=%Y-%m-%d
     Wait Until Keyword Succeeds  60s  2s  Check Logs Are available  ${date}  ${id}

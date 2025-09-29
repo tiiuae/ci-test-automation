@@ -100,6 +100,6 @@ Check the result files
 Spoofing Test Teardown
     [Documentation]   Switching of IP address can make stealer VM inaccessible for further tests.
     ...               Restart the stealer vm.
-    Connect to ghaf host
+    Switch to vm   ghaf-host
     Execute Command         systemctl restart microvm@${stealer_vm}.service  sudo=True  sudo_password=${PASSWORD}
     Close All Connections

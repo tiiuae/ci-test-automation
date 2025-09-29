@@ -114,7 +114,7 @@ Connect
         ${pass_status}  ${output}        Run Keyword And Ignore Error  Should Contain     ${login_output}   ${target_output}
         IF    $pass_status=='PASS'
             Log To Console    Connected successfully to ${target_output}
-            Set Global Variable  ${NETVM_SSH}    ${connection}
+            Set Global Variable  ${NET-VM_GHAF_SSH}    ${connection}
             RETURN  ${connection}
         ELSE
             # If connection was opened to a wrong VM collect logs to find out why
@@ -138,32 +138,31 @@ Connect
     END
     FAIL   Failed to connect
 
+# Only used in performance tests
 Connect to ghaf host
     [Documentation]      Open SSH connection to Ghaf Host
     ${connected}   Check ssh connection status   ghaf-host
     IF  not ${connected}
-        ${connection}        Connect
-        Set Global Variable  ${NETVM_SSH}        ${connection}
+        Connect
         Switch to vm         ghaf-host
     END
 
+# Only used in performance tests
 Connect to netvm
     [Documentation]      Open ssh connection to net-vm
     ${connected}   Check ssh connection status   net-vm
-    IF  not ${connected}
-        ${connection}   Connect
-        Set Global Variable  ${NETVM_SSH}    ${connection}
-        RETURN               ${NETVM_SSH}
-    END
+    IF   not ${connected}   Connect
+
 
 Connect to VM
     [Documentation]      Connect to any VM or ghaf-host over internal virtual network
     [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=60
+    Switch to vm   ${NET_VM}
     Log                  Connecting to ${vm_name} as ${user}...   console=True
     Check if ssh is ready on vm        ${vm_name}   ${timeout}
     ${failed_connection}  Set Variable  True
     ${start_time}  Get Time	epoch
-    ${jumphost}    Set Variable  ${NETVM_SSH}
+    ${jumphost}    Set Variable  ${NET-VM_GHAF_SSH}
     # Opening connection
     FOR    ${i}    IN RANGE    10
         TRY
@@ -391,15 +390,6 @@ Check ssh connection status
         RETURN  ${False}
     END
 
-Connect to VM if not already connected
-    [Documentation]    Connect only if there is not already an active connection
-    [Arguments]        ${vm_name}
-    ${connected}   Check ssh connection status   ${vm_name}
-    IF  not ${connected}
-        Connect to netvm
-        Connect to VM   ${vm_name}
-    END
-
 Switch to vm
     [Arguments]         ${hostname}   ${user}=ghaf
 
@@ -425,8 +415,11 @@ Switch to vm
             RETURN
         END
     END
-
-    ${connection_index}      Connect to VM          ${hostname}     ${user}     ${pw}
+    IF  '${hostname}' == '${NET_VM}'
+        ${connection_index}      Connect
+    ELSE
+        ${connection_index}      Connect to VM          ${hostname}     ${user}     ${pw}
+    END
     Set Variable By Name     ${ssh_connection}    ${connection_index}
 
 Try to switch to active vm connection

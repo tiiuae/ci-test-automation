@@ -27,7 +27,7 @@ GUI Suspend and wake up
     Start power measurement       ${BUILD_ID}   timeout=180
     Set start timestamp
     # Connect back to gui-vm after power measurement has been started
-    Connect to netvm
+    Switch to vm   ${NET_VM}
     Switch to vm    gui-vm   user=${USER_LOGIN}
 
     Select power menu option   index=4
@@ -109,7 +109,7 @@ GUI Log out and log in
 *** Keywords ***
 
 GUI Power Test Setup
-    Connect to netvm
+    Switch to vm   ${NET_VM}
     Switch to vm    gui-vm   user=${USER_LOGIN}
     Log in, unlock and verify
 

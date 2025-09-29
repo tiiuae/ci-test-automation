@@ -10,7 +10,7 @@ Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Suite Setup         Connect to ghaf host
+Suite Setup         Switch to vm   ghaf-host
 
 
 *** Test Cases ***

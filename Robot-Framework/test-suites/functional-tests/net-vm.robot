@@ -11,17 +11,12 @@ Resource            ../../resources/virtualization_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
 
 
-*** Variables ***
-${NETVM_STATE}     ${EMPTY}
-${NETVM_SSH}       ${EMPTY}
-
-
 *** Test Cases ***
 
 Verify NetVM is started
     [Documentation]         Verify that NetVM is active and running
     [Tags]                  pre-merge  SP-T45  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330  fmo
-    [Setup]                 Connect to ghaf host
+    [Setup]                 Switch to vm   ghaf-host
     Verify service status   service=${netvm_service}
     Check Network Availability      ${NETVM_IP}    expected_result=True    range=5
 
@@ -30,8 +25,8 @@ Wifi passthrough into NetVM (Orin-AGX)
     ...                 Test case not in use in CI/CD Pipeline.
     ...                 Obsoleted when AGX devices use a network adapter.
     [Tags]              # SP-T111  orin-agx  orin-agx-64
-    [Setup]             Connect to netvm
-    Configure wifi      ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
+    [Setup]             Switch to vm   ${NET_VM}
+    Configure wifi      ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
     Check Network Availability    8.8.8.8   expected_result=True
     Turn OFF WiFi       ${TEST_WIFI_SSID}
@@ -46,8 +41,8 @@ Wifi passthrough into NetVM (Orin-AGX)
 Wifi passthrough into NetVM
     [Documentation]     Verify that wifi works inside netvm
     [Tags]              SP-T101  orin-agx  orin-agx-64  lenovo-x1  darter-pro  dell-7330
-    [Setup]             Connect to netvm
-    Configure wifi      ${NETVM_SSH}  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
+    [Setup]             Switch to vm   ${NET_VM}
+    Configure wifi      ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
     Turn OFF WiFi       ${TEST_WIFI_SSID}
     Sleep               1
@@ -64,23 +59,23 @@ NetVM stops and starts successfully
     ...                 Test case not in use in CI/CD Pipeline.
     ...                 Obsoleted when AGX devices use a network adapter.
     [Tags]              # SP-T47  SP-T90   orin-agx  orin-agx-64
-    [Setup]             Connect to ghaf host
+    [Setup]             Switch to vm   ghaf-host
     Restart NetVM
-    [Teardown]          Run Keywords  Start NetVM if dead   AND  Close All Connections
+    [Teardown]          Run Keywords  Start NetVM   AND  Close All Connections
 
 NetVM is wiped after restarting
     [Documentation]     Verify that created file will be removed after restarting VM
     ...                 Test case not in use in CI/CD Pipeline.
     ...                 Obsoleted when AGX devices use a network adapter.
     [Tags]              # SP-T48  nuc  orin-agx  orin-agx-64
-    [Setup]             Connect to netvm
+    [Setup]             Switch to vm   ${NET_VM}
     Create file         /etc/test.txt    sudo=True
-    Connect to ghaf host
+    Switch to vm   ghaf-host
     Restart NetVM
     Close All Connections
-    Connect to ghaf host
+    Switch to vm   ghaf-host
     Check Network Availability      ${NETVM_IP}    expected_result=True    range=15
-    Connect to netvm
+    Switch to vm   ${NET_VM}
     Log To Console      Check if created file still exists
     Check file doesn't exist    /etc/test.txt    sudo=True
     [Teardown]          Run Keyword If Test Failed  Skip Test If Known Failure
@@ -88,7 +83,7 @@ NetVM is wiped after restarting
 Verify NetVM PCI device passthrough
     [Documentation]     Verify that proper PCI devices have been passed through to the NetVM
     [Tags]              SP-T96  nuc  orin-agx  orin-agx-64  orin-nx
-    [Setup]             Connect to netvm
+    [Setup]             Switch to vm   ${NET_VM}
     Verify microvm PCI device passthrough    vmname=${NET_VM}
     [Teardown]          Run Keyword If Test Failed  Skip Test If Known Failure
 
@@ -113,7 +108,6 @@ Stop NetVM
     Sleep    3
     ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=inactive  expected_state=dead
     Verify service shutdown status   service=${netvm_service}
-    Set Global Variable     ${NETVM_STATE}   ${state}
     Log To Console          NetVM is ${state}
 
 Start NetVM
@@ -122,18 +116,12 @@ Start NetVM
     Log To Console          Going to start NetVM
     Execute Command         systemctl start ${netvm_service}  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
     ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=active  expected_state=running
-    Set Global Variable     ${NETVM_STATE}   ${state}
     Log To Console          NetVM is ${state}
     Wait until NetVM service started
 
-Start NetVM if dead
-    [Documentation]     Teardown keyword. Check global variable ${NETVM_STATE} and start NetVM if it's stopped.
-    ...                 Pre-condition: requires active ssh connection to ghaf host.
-    Start NetVM
-
 Configure wifi via wpa_supplicant
-    [Arguments]         ${netvm_ssh}  ${SSID}  ${passw}  ${lenovo}=False
-    Switch Connection   ${netvm_ssh}
+    [Arguments]         ${SSID}  ${passw}  ${lenovo}=False
+    Switch to vm        ${NET_VM}
     Log To Console      Configuring Wifi
     Set Log Level       NONE
     Execute Command     sh -c "wpa_passphrase ${SSID} ${passw} > /etc/wpa_supplicant.conf"   sudo=True    sudo_password=${PASSWORD}
@@ -141,7 +129,7 @@ Configure wifi via wpa_supplicant
     Set Log Level       INFO
 
 Remove wpa_supplicant configuration
-    Switch Connection   ${netvm_ssh}
+    Switch to vm        ${NET_VM}
     Log To Console      Removing Wifi configuration
     Execute Command     rm /etc/wpa_supplicant.conf  sudo=True    sudo_password=${PASSWORD}
     Execute Command     systemctl restart wpa_supplicant.service  sudo=True    sudo_password=${PASSWORD}

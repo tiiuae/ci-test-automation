@@ -4,8 +4,8 @@
 *** Keywords ***
 
 Configure wifi
-    [Arguments]         ${netvm_ssh}  ${SSID}  ${passw}
-    Switch Connection   ${netvm_ssh}
+    [Arguments]         ${SSID}  ${passw}
+    Switch to vm        ${NET_VM}
     Log To Console      Configuring Wifi
     Set Log Level       NONE
     Execute Command     nmcli dev wifi connect ${SSID} password ${passw}   sudo=True    sudo_password=${PASSWORD}
@@ -13,7 +13,7 @@ Configure wifi
 
 Remove Wifi configuration
     [Arguments]         ${SSID}
-    Switch Connection   ${netvm_ssh}
+    Switch to vm        ${NET_VM}
     Log To Console      Removing Wifi configuration
     ${stdout}  ${stderr}  ${rc}=  Execute Command  nmcli connection delete id ${SSID}
     ...   sudo=True   sudo_password=${PASSWORD}   return_stdout=True   return_stderr=True   return_rc=True
@@ -21,13 +21,13 @@ Remove Wifi configuration
 
 Turn OFF WiFi
     [Arguments]         ${SSID}
-    Switch Connection   ${netvm_ssh}
+    Switch to vm        ${NET_VM}
     Log To Console      Turning off Wifi
     Execute Command     nmcli con down id ${SSID}   sudo=True    sudo_password=${PASSWORD}
 
 Turn ON WiFi
     [Arguments]         ${SSID}
-    Switch Connection   ${netvm_ssh}
+    Switch to vm        ${NET_VM}
     Log To Console      Turning on Wifi
     Execute Command     nmcli con up id ${SSID}    sudo=True    sudo_password=${PASSWORD}
 

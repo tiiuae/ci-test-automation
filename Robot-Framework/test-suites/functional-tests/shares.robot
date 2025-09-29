@@ -10,7 +10,6 @@ Resource            ../../resources/ssh_keywords.resource
 
 Test Template       File sharing test
 Suite Setup         Shares setup
-Suite Teardown      Close All Connections
 
 
 *** Test Cases ***
@@ -47,11 +46,11 @@ File sharing test
     [Arguments]        ${vm1}    ${vm2}
     Set Test Variable  ${vm1_in_guivm}    /Shares/'Unsafe ${vm1} share'
     Set Test Variable  ${vm2_in_guivm}    /Shares/'Unsafe ${vm2} share'
-    Connect to VM      ${vm1}
+    Switch to vm       ${vm1}
     Create file        ${path_in_vm}/${file_name}   sudo=True
-    Connect to VM      ${GUI_VM}   ${USER_LOGIN}   ${USER_PASSWORD}
+    Switch to vm       ${GUI_VM}   ${USER_LOGIN}
     Copy file          ${vm1_in_guivm}/${file_name}    ${vm2_in_guivm}/${file_name}
-    Connect to VM      ${vm2}
+    Switch to vm       ${vm2}
     Check file exists  ${path_in_vm}/${file_name}   sudo=True
     [Teardown]         Run Keywords
     ...                Remove the file in VM    ${path_in_vm}/${file_name}    ${vm1}    AND
@@ -60,9 +59,9 @@ File sharing test
 Shares setup
     Set Suite Variable     ${path_in_vm}         /home/appuser/'Unsafe share'
     Set Suite Variable     ${file_name}          test.txt
-    Connect
+    Switch to vm           ${NET_VM}
 
 Remove the file in VM
     [Arguments]        ${file_name}    ${vm}
-    Connect to VM      ${vm}
+    Switch to vm       ${vm}
     Remove file        ${file_name}    sudo=True

@@ -20,7 +20,6 @@ ${DISABLE_LOGOUT}     ${EMPTY}
 Functional tests setup
     [Timeout]    5 minutes
     Prepare Test Environment
-    Switch to vm         ghaf-host
 
 Functional tests teardown
     [Timeout]    5 minutes

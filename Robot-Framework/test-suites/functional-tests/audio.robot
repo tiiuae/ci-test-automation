@@ -9,8 +9,7 @@ Library             DateTime
 Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Suite Setup         Connect to netvm
-Suite Teardown      Switch Connection   ${NETVM_SSH}
+Suite Setup         Switch to vm   ${NET_VM}
 Test Timeout        3 minutes
 
 

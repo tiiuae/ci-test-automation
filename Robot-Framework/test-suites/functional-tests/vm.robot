@@ -11,7 +11,6 @@ Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         VM Suite Setup
-Suite Teardown      Close All Connections
 
 
 *** Test Cases ***
@@ -94,8 +93,7 @@ Check user account is only in gui-vm
 *** Keywords ***
 
 VM Suite Setup
-    Connect to netvm
-    Connect to ghaf host
+    Switch to vm    ghaf-host
     ${output}       Execute Command    microvm -l
     @{VM_LIST}      Extract VM names   ${output}
     Should Not Be Empty     ${VM_LIST}   VM list is empty

@@ -9,7 +9,7 @@ Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Suite Setup         Connect to netvm
+Suite Setup         Switch to vm   ${NET_VM}
 Test Setup          Gui-vm Test Setup
 Test Teardown       Gui-vm Test Teardown
 
