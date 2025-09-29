@@ -8,7 +8,7 @@ Force Tags          bat  regression  pre-merge  business-vm  lenovo-x1  darter-p
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Suite Setup         Connect to netvm
+Suite Setup         Switch to vm   ${NET_VM}
 Test Teardown       Business Apps Test Teardown
 
 

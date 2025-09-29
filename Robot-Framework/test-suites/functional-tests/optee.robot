@@ -6,7 +6,7 @@ Documentation       Test OP-TEE PKCS#11 through pkcs11-tool wrappers
 
 Resource            ../../resources/ssh_keywords.resource
 
-Suite Setup         Connect to ghaf host
+Suite Setup         Switch to vm   ghaf-host
 
 
 *** Test Cases ***

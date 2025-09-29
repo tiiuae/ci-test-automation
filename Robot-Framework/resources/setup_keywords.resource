@@ -29,7 +29,7 @@ Prepare Test Environment
 Clean Up Test Environment
     [Timeout]     5 minutes
     [Arguments]   ${disable_dnd}=False
-    Connect to ghaf host
+    Switch to vm   ghaf-host
     Stop journalctl recording
     IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Start ydotoold
@@ -47,7 +47,7 @@ Connect to device
     IF  ${port_22_is_available} == False
         FAIL    Failed because port 22 of device was not available, tests can not be run.
     END
-    Connect to ghaf host
+    Switch to vm   ghaf-host
 
 Start journalctl recording
     ${output}     Execute Command    nohup journalctl -f >> /tmp/jrnl.txt 2>&1 &

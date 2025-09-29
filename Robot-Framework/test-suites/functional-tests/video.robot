@@ -9,8 +9,7 @@ Library             Collections
 Library             OperatingSystem
 Resource            ../../resources/ssh_keywords.resource
 
-Test Setup          Connect to netvm
-Test Teardown       Close All Connections
+Test Setup          Switch to vm   ${NET_VM}
 Test Timeout        2 minutes
 
 
@@ -24,7 +23,7 @@ Check Camera Application
     [Documentation]  Check that camera application is available in business-vm and not in other vm
     [Tags]  SP-T235
     FOR  ${vm}  IN  @{VMS}
-        Connect to VM       ${vm}
+        Switch to vm        ${vm}
         ${out}  Execute Command  v4l2-ctl --list-devices  sudo=True  sudo_password=${PASSWORD}
         Log  ${out}
         IF  '${vm}' == '${BUSINESS_VM}'  Should Contain  ${out}  /dev/video  ELSE  Should Not Contain  ${out}  /dev/video
@@ -34,7 +33,7 @@ Check Camera Application
 Record Video With Camera
     [Documentation]  Start Camera application and record short video
     [Tags]  SP-T236
-    Connect to VM           ${BUSINESS_VM}
+    Switch to vm            ${BUSINESS_VM}
     Execute Command         rm /tmp/video*  sudo=True  sudo_password=${PASSWORD}
     @{recorded_video_ids}   Create List
     ${listed_devices}       Execute Command  v4l2-ctl --list-devices  sudo=True  sudo_password=${PASSWORD}

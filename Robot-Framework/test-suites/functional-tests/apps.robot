@@ -10,7 +10,7 @@ Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Suite Setup         Connect to netvm
+Suite Setup         Switch to vm   ${NET_VM}
 
 
 *** Variables ***
@@ -82,7 +82,7 @@ Open image with Oculante
 
     Open Image         ${img_file}
 
-    Connect to VM      ${ZATHURA_VM}
+    Switch to vm       ${ZATHURA_VM}
     Check that the application was started    oculante    10
     [Teardown]  Run Keywords  Remove the file in VM       ${img_file}  ${GUI_VM}    AND
     ...                       Kill Process And Save Logs  ${GUI_VM}    ${USER_LOGIN}    /tmp/out.log    ${ZATHURA_VM}
