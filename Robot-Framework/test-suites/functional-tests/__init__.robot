@@ -11,10 +11,6 @@ Suite Teardown      Functional tests teardown
 Test Timeout        10 minutes
 
 
-*** Variables ***
-${DISABLE_LOGOUT}     ${EMPTY}
-
-
 *** Keywords ***
 
 Functional tests setup

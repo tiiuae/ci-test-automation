@@ -43,7 +43,7 @@ Soft Reboot Device
     [Documentation]  Reboot device from ghaf-host
     ${device_is_available}   Ping Host   ${DEVICE_IP_ADDRESS}
     IF  ${device_is_available}
-        Switch to vm   ghaf-host
+        Switch to vm   ${HOST}
         ${output}  Execute Command  reboot  sudo=True  sudo_password=${password}
         Log  ${output}
         Log To Console  Rebooting device from command line

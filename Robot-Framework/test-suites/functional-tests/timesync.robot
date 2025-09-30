@@ -29,7 +29,7 @@ Time synchronization
     ...                  - In this test we expect adapter is not used -> Set Wi-Fi ON to enable net-vm to address net.
     [Tags]            bat  regression  SP-T97   nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1  darter-pro  dell-7330  fmo
 
-    Switch to vm   ghaf-host
+    Switch to vm   ${HOST}
     Check that time is correct  timezone=UTC
 
     Stop timesync daemon
@@ -174,7 +174,7 @@ Unblock internet traffic
 
 Timesync Teardown
      [Timeout]      2 minutes
-     Switch to vm   ghaf-host
+     Switch to vm   ${HOST}
      Run Keyword If Test Failed  Check If Known Error
      Set RTC from system clock
      Start timesync daemon
