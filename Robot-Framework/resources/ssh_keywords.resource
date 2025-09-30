@@ -11,7 +11,6 @@ Library             String
 Resource            ../config/variables.robot
 Resource            ../resources/common_keywords.resource
 
-
 *** Keywords ***
 
 Ping Host
@@ -95,6 +94,8 @@ Login with timeout
     ELSE
         ${login_output}   Login   username=${username}    password=${password}
     END
+    Set Test Variable  ${login_output}
+
     RETURN            ${login_output}
 
 Connect
@@ -183,7 +184,10 @@ Connect to VM
     # Logging in to vm
     ${logged_in}  Set Variable  False
     FOR    ${i}    IN RANGE     5
-        ${status}  ${login_output}   Run Keyword And Ignore Error  Login with timeout  username=${user}  password=${pw}  jumphost=${jumphost}
+        #${status}  ${login_output}   Run Keyword And Ignore Error  Login with timeout  username=${user}  password=${pw}  jumphost=${jumphost}
+        ${status}    Run Keyword And Return Status  Login with timeout  username=${user}  password=${pw}  jumphost=${jumphost}
+        #${login_output} set as test variable in prvious line
+        Log  ${login_output}
         ${logged_in}            Run Keyword And Return Status  Should Contain  ${login_output}  ${vm_name}
         Exit For Loop If        ${logged_in}
         Sleep                   2
