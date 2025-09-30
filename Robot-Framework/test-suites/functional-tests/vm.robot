@@ -100,7 +100,7 @@ VM Suite Setup
     @{VM_LIST}      Extract VM names   ${output}
     Should Not Be Empty     ${VM_LIST}   VM list is empty
     Set Suite Variable      @{VM_LIST}
-    @{VM_LIST_WITH_HOST}    Create List   @{VM_LIST}   ghaf-host
+    @{VM_LIST_WITH_HOST}    Create List   @{VM_LIST}   ${HOST}
     Set Suite Variable      @{VM_LIST_WITH_HOST}
 
 Check VM systemctl status for known issues

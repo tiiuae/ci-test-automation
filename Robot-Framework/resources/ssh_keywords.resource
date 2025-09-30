@@ -140,11 +140,11 @@ Connect
 
 Connect to ghaf host
     [Documentation]      Open SSH connection to Ghaf Host
-    ${connected}   Check ssh connection status   ghaf-host
+    ${connected}   Check ssh connection status   ${HOST}
     IF  not ${connected}
         ${connection}        Connect
         Set Global Variable  ${NETVM_SSH}        ${connection}
-        Switch to vm         ghaf-host
+        Switch to vm         ${HOST}
     END
 
 Connect to netvm
