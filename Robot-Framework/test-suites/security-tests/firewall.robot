@@ -49,7 +49,7 @@ Network traffic passes through ${vm} firewall
     ...                Remove rules
 
 Suite Setup
-    Switch to vm    ghaf-host
+    Switch to vm    ${HOST}
     ${output}       Execute Command    microvm -l
     @{VM_LIST}      Extract VM names   ${output}
     Should Not Be Empty     ${VM_LIST}   VM list is empty

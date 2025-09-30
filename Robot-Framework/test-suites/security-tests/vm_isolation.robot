@@ -45,7 +45,7 @@ Stopping one VM does not affect another
 Stop VM
     [Documentation]         Try to stop VM and verify it stopped
     [Arguments]             ${vm}
-    Switch to vm            ghaf-host
+    Switch to vm            ${HOST}
     Log                     Going to stop ${vm}    console=True
     Execute Command         systemctl stop microvm@${vm}.service  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
     Sleep    3
@@ -55,7 +55,7 @@ Stop VM
 Start VM
     [Documentation]         Try to start VM and verify it started
     [Arguments]             ${vm}
-    Switch to vm            ghaf-host
+    Switch to vm            ${HOST}
     Log                     Going to start ${vm}    console=True
     Execute Command         systemctl start microvm@${vm}.service  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
     ${state}  ${substate}   Verify service status  service=microvm@${vm}.service  expected_state=active  expected_substate=running

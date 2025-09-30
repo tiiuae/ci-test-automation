@@ -113,7 +113,7 @@ Set timezone
 Set cam state
     [Documentation]   Change camera state to ${cam_state_to_set}
     [Arguments]       ${cam_state_to_set}
-    [Setup]           Switch to vm    ghaf-host
+    [Setup]           Switch to vm    ${HOST}
     Should Be True  '${cam_state_to_set}' in ['block', 'unblock']   Wrong state
      ${cam_state}   Get cam state   
     ${status}       Run Keyword And Return Status   Should Be Equal   ${cam_state}   ${cam_state_to_set}
@@ -136,7 +136,7 @@ Get timezone
     RETURN        ${timezone}
 
 Get cam state
-    [Setup]         Switch to vm    ghaf-host
+    [Setup]         Switch to vm    ${HOST}
     ${output}       Execute Command   lsusb
     ${camera_id}    Get Camera Id     ${output}
     ${output}       Execute Command   cat /var/lib/vhotplug/vhotplug.state   sudo=True  sudo_password=${PASSWORD}

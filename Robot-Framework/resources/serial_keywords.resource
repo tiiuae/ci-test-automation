@@ -71,14 +71,14 @@ Log In To Ghaf OS
     Log To Console     Trying to log in via serial...
     FOR    ${i}    IN RANGE    10
         Write Data    ${\n}
-        ${output} =    SerialLibrary.Read Until    terminator=ghaf-host login
-        ${status} =    Run Keyword And Return Status    Should contain    ${output}    ghaf-host login
+        ${output} =    SerialLibrary.Read Until    terminator=${HOST} login
+        ${status} =    Run Keyword And Return Status    Should contain    ${output}    ${HOST} login
         IF    ${status}
             Write Data    ${LOGIN}${\n}
             ${output} =    SerialLibrary.Read Until    terminator=Password
             Write Data    ${PASSWORD}${\n}
         END
-        ${status} =    Run Keyword And Return Status    Should contain    ${output}    @ghaf-host
+        ${status} =    Run Keyword And Return Status    Should contain    ${output}    @${HOST}
         IF    ${status}
             Log To Console     Successfully logged in
             BREAK
@@ -118,7 +118,7 @@ Connect via serial
 Save log
     Connect via serial    timeout=60.0
     Write Data    sh -c 'journalctl | tee jrnl.txt | cat'${\n}
-    ${output} =   SerialLibrary.Read Until    ghaf@ghaf-host:
+    ${output} =   SerialLibrary.Read Until    ghaf@${HOST}:
     Write Advanced Testlog    journalctl.txt     ${output}
     Log  ${output}
     [Teardown]    Delete All Ports
@@ -126,7 +126,7 @@ Save log
 Get ethernet IP address
     Connect via serial
     Write Data    ifconfig${\n}
-    ${output}     SerialLibrary.Read Until    ghaf@ghaf-host:
+    ${output}     SerialLibrary.Read Until    ghaf@${HOST}:
     ${ip}         Get ip from ifconfig    ${output}   eth0
     Set Global Variable  ${DEVICE_IP_ADDRESS}  ${ip}
     [Teardown]    Delete All Ports

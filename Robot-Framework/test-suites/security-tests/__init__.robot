@@ -10,9 +10,6 @@ Suite Setup         Security tests setup
 Suite Teardown      Security tests teardown
 
 
-*** Variables ***
-${DISABLE_LOGOUT}     ${EMPTY}
-
 *** Keywords ***
 
 Security tests setup

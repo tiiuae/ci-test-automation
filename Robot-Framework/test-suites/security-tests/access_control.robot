@@ -38,7 +38,7 @@ Setup
 Check access to host devices in ${vm}
     Switch to vm    ${vm}
     ${nvme0n1_access}   Check access   /dev/nvme0n1
-    IF    '${vm}' == 'ghaf-host'
+    IF    '${vm}' == '${HOST}'
         Run Keyword And Continue On Failure 	Should Be True  ${nvme0n1_access}
     ELSE
         Run Keyword And Continue On Failure 	Should Not Be True  ${nvme0n1_access}

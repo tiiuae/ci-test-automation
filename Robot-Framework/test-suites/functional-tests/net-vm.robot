@@ -16,7 +16,7 @@ Resource            ../../resources/wifi_keywords.resource
 Verify NetVM is started
     [Documentation]         Verify that NetVM is active and running
     [Tags]                  pre-merge  SP-T45  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330  fmo
-    [Setup]                 Switch to vm   ghaf-host
+    [Setup]                 Switch to vm   ${HOST}
     Verify service status   service=${netvm_service}
     Check Network Availability      ${NETVM_IP}    expected_result=True    range=5
 
@@ -61,7 +61,7 @@ NetVM stops and starts successfully
     ...                 Test case not in use in CI/CD Pipeline.
     ...                 Obsoleted when AGX devices use a network adapter.
     [Tags]              # SP-T47  SP-T90   orin-agx  orin-agx-64
-    [Setup]             Switch to vm   ghaf-host
+    [Setup]             Switch to vm   ${HOST}
     Restart NetVM
     [Teardown]          Run Keywords  Start NetVM   AND  Close All Connections
 

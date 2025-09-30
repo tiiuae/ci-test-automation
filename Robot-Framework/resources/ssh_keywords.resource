@@ -129,7 +129,7 @@ Connect
             IF   $login_status=='PASS'
                 ${vm_logs}          Execute Command    journalctl
                 Log                 ${vm_logs}
-                IF  'ghaf@ghaf-host' in $login_output
+                IF  'ghaf@${HOST}' in $login_output
                     ${net-vm_status}    Execute Command    systemctl status ${NETVM_SERVICE}
                     Log                 ${net-vm_status}
                 END
@@ -149,10 +149,10 @@ Connect
 # Only used in performance tests
 Connect to ghaf host
     [Documentation]      Open SSH connection to Ghaf Host
-    ${connected}   Check ssh connection status   ghaf-host
+    ${connected}   Check ssh connection status   ${HOST}
     IF  not ${connected}
         Connect
-        Switch to vm         ghaf-host
+        Switch to vm         ${HOST}
     END
 
 # Only used in performance tests

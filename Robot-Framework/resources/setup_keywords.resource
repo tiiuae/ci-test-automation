@@ -28,7 +28,7 @@ Clean Up Test Environment
     [Arguments]   ${disable_dnd}=False
     # Temporarily taking journal log taking our from Orin-NX [SSRCSP-7453]
     IF  "NX" not in "${DEVICE}"
-        Switch to vm   ghaf-host
+        Switch to vm   ${HOST}
         Save host journalctl
     END
     IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
@@ -47,7 +47,7 @@ Connect to device
     IF  ${port_22_is_available} == False
         FAIL    Failed because port 22 of device was not available, tests can not be run.
     END
-    Switch to vm   ghaf-host
+    Switch to vm   ${HOST}
 
 Save host journalctl
     Execute Command      journalctl -b 0 > /tmp/jrnl.txt
@@ -108,7 +108,7 @@ Save gui icons and icon path
 Login to laptop
     [Documentation]   Start ydotool and login
     [Arguments]       ${enable_dnd}=False
-    Check if ssh is ready on vm   gui-vm    timeout=60
+    Check if ssh is ready on vm   ${GUI_VM}    timeout=60
     Start ydotoold
     Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
     Log in, unlock and verify   ${enable_dnd}
