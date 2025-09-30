@@ -141,10 +141,10 @@ Connect
 # Only used in performance tests
 Connect to ghaf host
     [Documentation]      Open SSH connection to Ghaf Host
-    ${connected}   Check ssh connection status   ghaf-host
+    ${connected}   Check ssh connection status   ${HOST}
     IF  not ${connected}
         Connect
-        Switch to vm         ghaf-host
+        Switch to vm         ${HOST}
     END
 
 # Only used in performance tests
