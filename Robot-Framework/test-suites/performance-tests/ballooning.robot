@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing performance of memory ballooning
-Force Tags          performance     ballooning
+Force Tags          performance2     ballooning
 
 Resource            ../../config/variables.robot
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
