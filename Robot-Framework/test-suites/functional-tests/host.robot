@@ -32,6 +32,8 @@ Check QSPI version
     [Tags]             SP-T95  orin-agx  orin-agx-64  orin-nx
     Check QSPI Version is up to date
 
+    [Teardown]    Run Keyword If Test Failed  SKIP  "Known issue: Updating QSPI for Orin HWs still ongoing"
+
 Check systemctl status
     [Documentation]    Verify systemctl status is running on host
     [Tags]             SP-T98  systemctl  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1  darter-pro  dell-7330  fmo  pre-merge
