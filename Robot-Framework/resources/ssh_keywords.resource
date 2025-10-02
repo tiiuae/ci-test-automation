@@ -249,28 +249,28 @@ Kill process
 
 Verify service status
     [Documentation]   Check if service is running with given loop ${range}
-    [Arguments]       ${range}=45  ${service}=${EMPTY}   ${expected_status}=active   ${expected_state}=running  ${expected_rc}=0
+    [Arguments]       ${range}=45  ${service}=${EMPTY}   ${expected_state}=active   ${expected_substate}=running  ${expected_rc}=0
     ${vmservice}      Run Keyword And Return Status  Should Contain  ${service}  microvm@
     ${finished}       Set Variable  False
 
     ${welcome_check}  Set Variable If  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"    False    True
 
     FOR    ${i}    IN RANGE    ${range}
-        ${output}  ${stderr}  ${rc}=   Execute Command  systemctl status ${service}  return_stderr=True  return_rc=True
+        ${output}  ${stderr}  ${rc}=   Execute Command  systemctl show ${service}  return_stderr=True  return_rc=True
         Log           stdout: ${output}\nstderr: ${stderr}
         Should Not Be Equal As Integers	    ${rc}	4   Stderr: "${stderr}", Return code
-        ${result}     Get Service Status    ${output}
-        ${status}     ${state}    Get Service Status    ${output}
-        ${status}     Run Keyword And Return Status    Should Be True	'${status}' == '${expected_status}'  Expected ${expected_status} but in fact ${status}
-        ${state}      Run Keyword And Return Status    Should Be True	'${state}' == '${expected_state}'    Expected ${expected_state} but in fact ${state}
+        ${state}             Get Service State     ${output}
+        ${substate}          Get Service Substate  ${output}
+        ${state_status}      Run Keyword And Return Status    Should Be True	'${state}' == '${expected_state}'  Expected ${expected_state} but in fact ${state}
+        ${substate_status}   Run Keyword And Return Status    Should Be True	'${substate}' == '${expected_substate}'    Expected ${expected_substate} but in fact ${substate}
 
         # 'Welcome to NixOS' is not got if 'non-vm service' or if service is expected to be inactive/dead.
-        IF  ${vmservice} and '${expected_state}' == 'running' and ${status} and ${state} and ${welcome_check}
+        IF  ${vmservice} and '${expected_substate}' == 'running' and ${state_status} and ${substate_status} and ${welcome_check}
             ${finished}    Run Keyword And Return Status    Should Contain    ${output}    Welcome to NixOS
             IF  ${finished}
                 BREAK
             END
-        ELSE IF  ${status} and ${state}
+        ELSE IF  ${state_status} and ${substate_status}
             ${finished}     Set Variable  True
             BREAK
         END
@@ -278,12 +278,13 @@ Verify service status
     END
 
     IF  ${finished}
-        Log To Console  ${\n}systemctl status ${service} ${result}
+        Log To Console  ${\n}systemctl status ${service}: ${state} (${substate})
     ELSE
-        Log To Console  Verify service status failed. Last lines of systemctl status -log: ${output[-300:]}
-        Fail  systemctl status ${service} ${result}, expected: ${expected_status} and ${expected_state}
+        ${output}       Execute Command  journalctl -b -u ${service}
+        Log             ${output}
+        Fail            systemctl status ${service}: ${state} (${substate}), expected: ${expected_state} (${expected_substate})
     END
-    RETURN    ${status}  ${state}
+    RETURN    ${state}  ${substate}
 
 Verify service shutdown status
     [Documentation]   Check if service was stopped properly

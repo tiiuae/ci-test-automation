@@ -82,7 +82,7 @@ Check caml-crush service is running
     # but caml-crush is not included in basic ghaf builds
     [Tags]  caml-crush
 
-    ${status}  ${state}=    Verify service status  service="caml-crush.service"  expected_status=active  expected_state=running
+    ${state}  ${substate}=    Verify service status  service="caml-crush.service"  expected_state=active  expected_substate=running
 
 
 Basic pkcs11-tool-caml-crush RSA and ECDSA key test

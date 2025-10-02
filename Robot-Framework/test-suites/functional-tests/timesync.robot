@@ -70,16 +70,16 @@ Update system time from internet in ${vm}
 
 Stop timesync daemon
     Execute Command        systemctl stop systemd-timesyncd.service  sudo=True  sudo_password=${PASSWORD}
-    Verify service status  service=systemd-timesyncd.service  expected_status=inactive  expected_state=dead
+    Verify service status  service=systemd-timesyncd.service  expected_state=inactive  expected_substate=dead
 
 Start timesync daemon
     Execute Command        systemctl start systemd-timesyncd.service  sudo=True  sudo_password=${PASSWORD}
-    Verify service status  service=systemd-timesyncd.service  expected_status=active  expected_state=running
+    Verify service status  service=systemd-timesyncd.service  expected_state=active  expected_substate=running
     ${output}              Execute Command    timedatectl -a
 
 Restart timesync daemon
     Execute Command        systemctl restart systemd-timesyncd.service  sudo=True  sudo_password=${PASSWORD}
-    Verify service status  service=systemd-timesyncd.service  expected_status=active  expected_state=running
+    Verify service status  service=systemd-timesyncd.service  expected_state=active  expected_substate=running
     ${output}              Execute Command    timedatectl -a
 
 Check that time is correct

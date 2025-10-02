@@ -102,21 +102,21 @@ Restart NetVM
 Stop NetVM
     [Documentation]     Ensure that NetVM is started, stop it and check the status.
     ...                 Pre-condition: requires active ssh connection to ghaf host.
-    Verify service status   service=${netvm_service}   expected_status=active   expected_state=running
+    Verify service status   service=${netvm_service}   expected_state=active   expected_substate=running
     Log To Console          Going to stop NetVM
     Execute Command         systemctl stop ${netvm_service}  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
     Sleep    3
-    ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=inactive  expected_state=dead
+    ${state}  ${substate}=    Verify service status  service=${netvm_service}  expected_state=inactive  expected_substate=dead
     Verify service shutdown status   service=${netvm_service}
-    Log To Console          NetVM is ${state}
+    Log To Console          NetVM is ${substate}
 
 Start NetVM
     [Documentation]     Try to start NetVM service
     ...                 Pre-condition: requires active ssh connection to ghaf host.
     Log To Console          Going to start NetVM
     Execute Command         systemctl start ${netvm_service}  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
-    ${status}  ${state}=    Verify service status  service=${netvm_service}  expected_status=active  expected_state=running
-    Log To Console          NetVM is ${state}
+    ${state}  ${substate}=    Verify service status  service=${netvm_service}  expected_state=active  expected_substate=running
+    Log To Console          NetVM is ${substate}
     Wait until NetVM service started
 
 Configure wifi via wpa_supplicant
