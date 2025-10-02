@@ -22,7 +22,18 @@ def get_service_status(output):
         return match.group(1), match.group(2)
     else:
         raise Exception("Couldn't parse systemctl status")
+    
+def get_service_state(output):
+    match = re.search(r'^ActiveState=(\w+)', output, re.MULTILINE)
+    if match:
+        return match.group(1)
+    raise Exception(f"Couldn't parse ActiveState from systemctl show output")
 
+def get_service_substate(output):
+    match = re.search(r'^SubState=(\w+)', output, re.MULTILINE)
+    if match:
+        return match.group(1)
+    raise Exception(f"Couldn't parse SubState from systemctl show output")
 
 def find_pid(output, proc_name):
     output = output.split('\n')
