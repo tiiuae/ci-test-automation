@@ -38,7 +38,7 @@ Measure Soft Boot Time
 
 Measure Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
-    [Tags]  SP-T182  lenovo-x1  darter-pro  dell-7330
+    [Tags]  SP-T182  lenovo-x1  darter-pro  dell-7330  lab-only
     Log To Console                Shutting down by pressing the power button
     Press Button                  ${SWITCH_BOT}-OFF
     Wait Until Keyword Succeeds   15s  2s  Check If Ping Fails
@@ -60,7 +60,7 @@ Measure Orin Soft Boot Time
 
 Measure Orin Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
-    [Tags]  SP-T182  orin-agx  orin-agx-64  orin-nx
+    [Tags]  SP-T182  orin-agx  orin-agx-64  orin-nx  lab-only
     Log To Console                Shutting down by switching the power off
     Turn Relay Off                ${RELAY_NUMBER}
     Wait Until Keyword Succeeds   15s  2s  Check If Ping Fails
