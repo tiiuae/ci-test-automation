@@ -266,7 +266,9 @@ Verify service status
 
         # 'Welcome to NixOS' is not got if 'non-vm service' or if service is expected to be inactive/dead.
         IF  ${vmservice} and '${expected_substate}' == 'running' and ${state_status} and ${substate_status} and ${welcome_check}
-            ${finished}    Run Keyword And Return Status    Should Contain    ${output}    Welcome to NixOS
+            ${logs}        Execute Command   journalctl -b -u ${service}
+            Log            ${logs}
+            ${finished}    Run Keyword And Return Status    Should Contain    ${logs}    Welcome to NixOS
             IF  ${finished}
                 BREAK
             END
