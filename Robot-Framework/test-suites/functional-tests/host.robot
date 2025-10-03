@@ -29,10 +29,8 @@ Test nixos version format
 
 Check QSPI version
     [Documentation]    QSPI version should be up-to-date
-    [Tags]             SP-T95  orin-agx  orin-agx-64  orin-nx
+    [Tags]             SP-T95  orin-agx  orin-agx-64  orin-nx  pre-merge
     Check QSPI Version is up to date
-
-    [Teardown]    Run Keyword If Test Failed  SKIP  "Known issue: Updating QSPI for Orin HWs still ongoing"
 
 Check systemctl status
     [Documentation]    Verify systemctl status is running on host
