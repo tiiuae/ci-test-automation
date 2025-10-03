@@ -23,13 +23,12 @@ GUI Suspend and wake up
     ...               Check that the device is awake.
     ...               Logs device power consumption during the test
     ...               if power measurement tooling is set.
-    [Tags]            SP-T208-2   #lenovo-x1  The X1 in the lab gets stuck when a suspension is attempted. Needs further investigation.
+    [Tags]            SP-T208-2   lenovo-x1   lab-only
     Start power measurement       ${BUILD_ID}   timeout=180
     # Connect back to gui-vm after power measurement has been started
-    Switch to vm   ${NET_VM}
     Switch to vm    gui-vm   user=${USER_LOGIN}
 
-    Select power menu option   index=4
+    Select power menu option   x=815   y=120
 
     ${device_not_available}       Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
     IF  ${device_not_available} == True
@@ -47,6 +46,8 @@ GUI Suspend and wake up
     ELSE
         Log To Console            Device successfully woke up after suspend
     END
+    # Screen wakeup requires a mouse move
+    Move Cursor
     Log To Console                Checking if the screen is in locked state after wake up
     ${lock}                       Check if locked
     IF  ${lock}
@@ -75,8 +76,9 @@ GUI Lock and Unlock
 GUI Reboot
     [Documentation]   Reboot the device via GUI power menu reboot icon.
     ...               Check that it shuts down. Check that it turns on and boots to login screen.
-    [Tags]            SP-T208-1  #lenovo-x1   The X1 in the lab gets stuck when a reboot is attempted. Needs further investigation.
-    Select power menu option   index=5   confirmation=true
+    [Tags]            SP-T208-1  lenovo-x1  darter-pro
+
+    Select power menu option   x=870   y=120   confirmation=true
 
     ${device_not_available}       Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
     IF  ${device_not_available} == True
@@ -84,6 +86,7 @@ GUI Reboot
     ELSE
         FAIL                      Device didn't shut down at reboot.
     END
+    Sleep  20
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False
         FAIL                      The device did shutdown but didn't start in reboot.
@@ -114,15 +117,20 @@ GUI Power Test Setup
 
 Select power menu option
     [Documentation]    Open power menu by clicking the icon.
-    ...                Search the correct text or navigate to index and click.
-    [Arguments]        ${text}=""   ${index}=0   ${confirmation}=false
+    ...                Search the correct text or click given coordinates.
+    [Arguments]        ${text}=${EMPTY}   ${x}=0   ${y}=0   ${confirmation}=false
     Log To Console     Opening power menu
     Locate and click   image  ./power.png  0.95  5
-    IF  '$text != $EMPTY'
+    IF  '${text}'
         Locate and click   text   ${text}
+    ELSE IF  ${x} != 0 and ${y} != 0
+        Log To Console        Clicking the coordinates of the icon {'x': ${x}, 'y': ${y}}
+        Run ydotool command   mousemove --absolute -x ${x} -y ${y}
+        Run ydotool command   click 0xC0
     ELSE
-        Tab and enter      tabs=${index}
+        FAIL   No type provided
     END
+    Sleep   1
     # Some options have a separate confirmation window that needs to be clicked.
     IF  '${confirmation}' == 'true'   Tab and enter   tabs=2
     Sleep   1

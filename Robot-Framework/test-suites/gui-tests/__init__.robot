@@ -31,6 +31,8 @@ GUI Tests Setup
 
 GUI Tests Teardown
     [Timeout]    5 minutes
+    # In case the screen recording was not stopped
+    Kill screen recording
     Clean Up Test Environment   disable_dnd=True
 
 Is first graphical login
