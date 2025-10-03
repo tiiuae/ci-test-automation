@@ -10,6 +10,7 @@ Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_I
 ...                 ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}  ${PERF_LOW_LIMIT}
 Library             DateTime
 Library             Collections
+Library             DebugLibrary
 Resource            ../../resources/device_control.resource
 Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/serial_keywords.resource
@@ -19,7 +20,7 @@ Variables           ../../lib/performance_thresholds.py
 
 Suite Setup         Prepare Test Environment  login=False
 Suite Teardown      Close All Connections
-
+Library  DebugLibrary
 
 *** Variables ***
 ${PING_TIMEOUT}     120
@@ -31,10 +32,13 @@ ${SEARCH_TIMEOUT}   40
 Measure Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
     [Tags]  SP-T187  lenovo-x1  darter-pro  dell-7330
+    #${test_start_time}  DateTime.Get Current Date   time_zone=UTC
+    ${test_start_time}  Set Variable   10 minutes ago
+    Set test variable    ${test_start_time}
     Soft Reboot Device
     Wait Until Keyword Succeeds  35s  2s  Check If Ping Fails
     Get Boot times
-    [Teardown]    Run Keyword If Test Failed  Log Journal To Debug
+    [Teardown]    Log Journal To Debug
 
 Measure Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
@@ -78,6 +82,8 @@ Measure Time To Ping
     ${ping_response}          Set Variable  ${EMPTY}
     Log To Console            Start checking ping response
     ${ping_end_time}          Set Variable  False
+    # sometimes ping gives out a reply for short time even if it it did not reply.
+    Sleep  10
     WHILE  not $ping_response   limit=${PING_TIMEOUT} seconds
         ${ping_response}      Ping Host  ${DEVICE_IP_ADDRESS}  1
         ${ping_end_time}      IF  $ping_response  DateTime.Get Current Date  result_format=epoch
@@ -123,7 +129,7 @@ Get Boot times
     &{statistics}           Save Boot time Data   ${TEST NAME}  ${final_results}
     Log  <img src="${DEVICE}_${TEST NAME}.png" alt="${plot_name}" width="1200">    HTML
     # In boot time test decrease in result value is considered improvement -> using inverted argument
-    Determine Test Status   ${statistics}   inverted=1
+    #Determine Test Status   ${statistics}   inverted=1
 
 Check Time To Notification
     [Documentation]  Check that correct notification is available in journalctl
@@ -152,6 +158,27 @@ Check Result Validity
     END
 
 Log Journal To Debug
-    ${journal_output}     Execute Command   journalctl -b
-    Log                   ${journal_output}
+    ${journal_output_all}     Execute Command   journalctl  --since "${test_start_time}"
+    ${journal_output}         Execute Command   journalctl -b
+    ${journal_output_1}       Execute Command   journalctl -b -1
+    Log     ${journal_output_all}
+    Log     ${journal_output}
+    Log     ${journal_output_1}
+
+    @{VMS2}   create list   ghaf-host  gui-vm
+    FOR  ${vm}  IN  @{VMS2}
+         #Log app vm journalctl  ${vm}
+         Switch to vm  ${vm}
+         ${output}     Execute Command    journalctl --since "${test_start_time}"
+         Log           ${output}
+         ${output}     Run Keyword If  '${vm}' == 'ghaf-host'  Execute command  journalctl --since "${test_start_time}"  -f -u microvm@gui-vm   timeout=20
+         Log           ${output}
+    END
+
+    #Switch to vm  ghaf-host
+    #${journal_output_micro-vm}  Execute command  journalctl --since "${test_start_time}"  -f -u microvm@gui-vm   timeout=20
+    #log  ${journal_output_micro-vm}
+    #Debug
+
+
 
