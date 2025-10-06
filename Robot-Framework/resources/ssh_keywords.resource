@@ -247,6 +247,15 @@ Kill process
     END
     Log To Console    Killed processes: @{pids}
 
+Kill process by name
+    [Arguments]     ${proc_name}   ${exact_match}=false   ${sudo}=False
+    ${pass_status}   ${output}    Run Keyword And Ignore Error   Check that the application was started   ${proc_name}   1
+    IF  $pass_status=='PASS'
+        Log To Console   ${proc_name} is running, killing the process
+        @{pid}           Find pid by name   ${proc_name}
+        Kill process     @{pid}   sudo=${sudo}
+    END
+
 Verify service status
     [Documentation]   Check if service is running with given loop ${range}
     [Arguments]       ${range}=45  ${service}=${EMPTY}   ${expected_state}=active   ${expected_substate}=running  ${expected_rc}=0

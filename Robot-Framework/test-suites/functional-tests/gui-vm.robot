@@ -90,6 +90,8 @@ Check user systemctl status
     ${known_issues}=    Create List
     # Add any known failing services here with the target device and bug ticket number.
     # ...    device|service-name|ticket-number
+    ...    ANY|app-com.system76.CosmicInitialSetup@autostart.service|Initial setup is killed in tests
+
     Verify Systemctl status    range=3   user=True
 
     [Teardown]   Run Keyword If Test Failed   Check systemctl status for known issues  ${known_issues}  ${failed_units}   user=True

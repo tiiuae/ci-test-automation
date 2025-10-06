@@ -19,6 +19,8 @@ ${LOCK_ICON}           ./lock.png
 ${DISABLE_LOGOUT}      ${EMPTY}
 ${GUI_TEMP_DIR}        ${OUTPUT_DIR}/outputs/gui-temp/
 ${YDOTOOL_SOCKET}      /tmp/.ydotool_socket
+${SCREEN_SELECTED}     ${False}
+${FIRST_SCREENSHOT}    ${True}
 
 
 *** Keywords ***
@@ -45,6 +47,8 @@ Log in, unlock and verify
         Log in via GUI
         Verify desktop availability
     END
+
+    Kill process by name   cosmic-initial-setup
 
     Stop swayidle
     IF  ${enable_dnd}      Set do not disturb state   true
@@ -124,6 +128,21 @@ Locate on screen
     ${pass_status}=        Set Variable  FAIL
     Execute Command        mkdir test-images
     ${screenshot_cmd}=     Set Variable  cosmic-screenshot --interactive=false --save-dir ./test-images
+
+    IF   ${FIRST_SCREENSHOT}==${True}
+        # Screenshot tool requires permission to take screenshots on first use.
+        # Launch a background process that tries to take a screenshot.
+        Execute Command    nohup sh -c 'cosmic-screenshot --interactive=false --save-dir ./test-images' > screenshot.log 2>&1 &
+        Sleep   2
+        ${output}    Execute Command   cat screenshot.log
+        ${screenshot_passed}     Run Keyword And Return Status    Should Contain    ${output}   Screenshot
+        # If taking a screenshot did not work select "Allow" in the permission window.
+        IF    not ${screenshot_passed}
+            Tab and enter   tabs=2
+        END
+        Set Global Variable  ${FIRST_SCREENSHOT}  ${False}
+    END
+
     FOR   ${i}   IN RANGE  ${iterations}
         Log To Console     Taking cosmic screenshot
         ${result}=         Run Keyword And Ignore Error  Execute Command  ${screenshot_cmd}  return_stdout=True  return_rc=True  timeout=5
@@ -185,7 +204,7 @@ Verify desktop availability
     END
 
     IF  $activity != "active"    FAIL    User-session did not activate, it is ${activity}
-    IF  "Dell" in "${DEVICE}"    Sleep   5
+    IF  "Dell" in "${DEVICE}"    Sleep   10
 
     # For debugging, check gui-vm systemctl status before trying to take a cosmic-screenshot in case it gets stuck
     Run Keyword And Ignore Error   Verify Systemctl status   range=1
@@ -260,6 +279,8 @@ Check if locked
 Unlock
     [Documentation]    Unlock the screen be typing password
     # Make sure that password field is active by clicking it
+    Locate and click   image  ${LOCK_ICON}   0.95  5
+    # Can't explain the second click but does not work without
     Locate and click   image  ${LOCK_ICON}   0.95  5
     Log To Console     Typing password to unlock
     Type string and press enter  ${USER_PASSWORD}  confidential=True
@@ -342,13 +363,22 @@ Restore default wallpaper
     Remove file       ~/.config/cosmic/com.system76.CosmicBackground/v1/all
 
 Start screen recording
-    [Setup]          Kill screen recording
+    [Setup]          Kill process by name   gpu-screen-recorder
     Log To Console   Starting screen recording
     Press key(s)     LEFTCTRL+LEFTSHIFT+LEFTALT+R
-    Locate on screen   text   Share   iterations=5
-    # Select the display to record
-    Tab and enter    tabs=2
-    Tab and enter    tabs=2
+    IF   ${SCREEN_SELECTED}==${False}
+        # The window to record needs to be selected when recording first time
+        # Check if selection window opened
+        ${pass_status}  ${output}  Run Keyword And Ignore Error   Locate on screen   text   Share   iterations=3
+        IF  $pass_status=='PASS'
+            # Select the display to record
+            Tab and enter    tabs=3
+            Tab and enter    tabs=2
+        END
+        Set Global Variable  ${SCREEN_SELECTED}  ${True}
+    END
+    Check that the application was started   gpu-screen-recorder
+        
 
 Stop screen recording
     [Arguments]      ${test_status}   ${test_name}=""
@@ -370,12 +400,4 @@ Stop screen recording
         SSHLibrary.Get File   /home/${USER_LOGIN}/Videos/${video_file}   ${GUI_TEMP_DIR}${name}.mp4
     END
     Execute Command   rm /home/${USER_LOGIN}/Videos/${video_file}
-    [Teardown]        Kill screen recording
-
-Kill screen recording
-    ${pass_status}   ${output}    Run Keyword And Ignore Error   Check that the application is not running   gpu-screen-recorder   1
-    IF  $pass_status=='FAIL'
-        Log To Console   Recording is running, killing the process
-        @{pid}           Find pid by name   gpu-screen-recorder
-        Kill process     @{pid}   sudo=False
-    END
+    [Teardown]        Kill process by name   gpu-screen-recorder
