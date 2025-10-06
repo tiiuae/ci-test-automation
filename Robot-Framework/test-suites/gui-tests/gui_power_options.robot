@@ -144,5 +144,11 @@ Select power menu option
     END
     Sleep   1
     # Some options have a separate confirmation window that needs to be clicked.
-    IF  '${confirmation}' == 'true'   Tab and enter   tabs=2
+    IF  '${confirmation}' == 'true'
+        # Confirmation window needs to be clicked twice to focus it
+        # Word "automatically" is used to locate the window since it is used in all confirmations
+        Locate and click   text   automatically
+        Locate and click   text   automatically
+        Tab and enter   tabs=2
+    END
     Sleep   1
