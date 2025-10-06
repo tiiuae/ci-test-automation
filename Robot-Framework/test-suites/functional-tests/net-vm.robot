@@ -63,23 +63,6 @@ NetVM stops and starts successfully
     Restart NetVM
     [Teardown]          Run Keywords  Start NetVM   AND  Close All Connections
 
-NetVM is wiped after restarting
-    [Documentation]     Verify that created file will be removed after restarting VM
-    ...                 Test case not in use in CI/CD Pipeline.
-    ...                 Obsoleted when AGX devices use a network adapter.
-    [Tags]              # SP-T48  nuc  orin-agx  orin-agx-64
-    [Setup]             Switch to vm   ${NET_VM}
-    Create file         /etc/test.txt    sudo=True
-    Switch to vm   ghaf-host
-    Restart NetVM
-    Close All Connections
-    Switch to vm   ghaf-host
-    Check Network Availability      ${NETVM_IP}    expected_result=True    range=15
-    Switch to vm   ${NET_VM}
-    Log To Console      Check if created file still exists
-    Check file doesn't exist    /etc/test.txt    sudo=True
-    [Teardown]          Run Keyword If Test Failed  Skip Test If Known Failure
-
 Verify NetVM PCI device passthrough
     [Documentation]     Verify that proper PCI devices have been passed through to the NetVM
     [Tags]              SP-T96  nuc  orin-agx  orin-agx-64  orin-nx
@@ -89,35 +72,6 @@ Verify NetVM PCI device passthrough
 
 
 *** Keywords ***
-
-Restart NetVM
-    [Documentation]    Stop NetVM via systemctl, wait ${delay} and start NetVM
-    ...                Pre-condition: requires active ssh connection to ghaf host.
-    [Arguments]        ${delay}=5
-    Stop NetVM
-    Sleep  ${delay}
-    Start NetVM
-    Check if ssh is ready on vm   ${NET_VM}
-
-Stop NetVM
-    [Documentation]     Ensure that NetVM is started, stop it and check the status.
-    ...                 Pre-condition: requires active ssh connection to ghaf host.
-    Verify service status   service=${netvm_service}   expected_state=active   expected_substate=running
-    Log To Console          Going to stop NetVM
-    Execute Command         systemctl stop ${netvm_service}  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
-    Sleep    3
-    ${state}  ${substate}=    Verify service status  service=${netvm_service}  expected_state=inactive  expected_substate=dead
-    Verify service shutdown status   service=${netvm_service}
-    Log To Console          NetVM is ${substate}
-
-Start NetVM
-    [Documentation]     Try to start NetVM service
-    ...                 Pre-condition: requires active ssh connection to ghaf host.
-    Log To Console          Going to start NetVM
-    Execute Command         systemctl start ${netvm_service}  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
-    ${state}  ${substate}=    Verify service status  service=${netvm_service}  expected_state=active  expected_substate=running
-    Log To Console          NetVM is ${substate}
-    Wait until NetVM service started
 
 Configure wifi via wpa_supplicant
     [Arguments]         ${SSID}  ${passw}  ${lenovo}=False
