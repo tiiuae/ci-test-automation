@@ -109,7 +109,7 @@ Measure UDP TX Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
     ...              Note. Using Default buffer length 8 KB
     ...              (-l The length of buffers to read or write.  Default is 128 KB for TCP, 8 KB for UDP)
-    [Tags]  tcp  nuc  riscv    orin-nx  orin-agx  orin-agx-64  novo-x1  darter-pro   dell-7330  SP-T231
+    [Tags]  tcp  nuc  riscv    orin-nx  orin-agx  orin-agx-64  lenovo-x1  darter-pro   dell-7330  SP-T231
     &{speed_data}           Create Dictionary
     ${bandwidth}            Set Variable If  "Orin" in "${DEVICE}"  50M  100G
     ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b ${bandwidth} -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -131,14 +131,14 @@ Measure UDP Bidir Throughput Small Packets
     ...              (-l The length of buffers to read or write.  Default is 128 KB for TCP, 8 KB for UDP)
     [Tags]  tcp  nuc  riscv  orin-nx  orin-agx  orin-agx-64  lenovo-x1   darter-pro   dell-7330  SP-T232
     &{speed_data}           Create Dictionary
-    #    IF  "Orin" in "${DEVICE}"
-    #        ${bandwidth}   Set Variable  75M
-    #    ELSE IF  "Darter" in "${DEVICE}"
-    #        ${bandwidth}  Set Variable  900M
-    #    ELSE
-    #        ${bandwidth}  Set Variable  100G
-    #    END
-    ${bandwidth}    Set Variable  100G
+        IF  "Orin" in "${DEVICE}"
+            ${bandwidth}   Set Variable  75M
+        ELSE IF  "Darter" in "${DEVICE}"
+            ${bandwidth}  Set Variable  900M
+        ELSE
+            ${bandwidth}  Set Variable  100G
+        END
+    #${bandwidth}    Set Variable  100G
     Log to console  Chosen bandwidth: ${bandwidth}
 
     FOR  ${i}  IN RANGE  0  5
@@ -163,14 +163,14 @@ Measure UDP Throughput Big Packets
     [Tags]  udp  nuc  riscv  orin-nx  orin-agx  orin-agx-64  lenovo-x1   darter-pro   dell-7330  SP-T233
     &{speed_data}           Create Dictionary
 
-    #IF  "Orin" in "${DEVICE}"
-    #    ${bandwidth}   Set Variable  75M
-    #ELSE IF  "Darter" in "${DEVICE}"
-    #    ${bandwidth}  Set Variable  900M
-    #ELSE
-    #    ${bandwidth}  Set Variable  100G
-    #END
-    ${bandwidth}    Set Variable  100G
+    IF  "Orin" in "${DEVICE}"
+        ${bandwidth}   Set Variable  75M
+    ELSE IF  "Darter" in "${DEVICE}"
+        ${bandwidth}  Set Variable  900M
+    ELSE
+        ${bandwidth}  Set Variable  100G
+    END
+    #${bandwidth}    Set Variable  100G
     Log to console  Chosen bandwidth: ${bandwidth}
 
     FOR  ${i}  IN RANGE  0  5
@@ -197,14 +197,14 @@ Measure UDP Bidir Throughput Big Packets
     [Tags]  udp  nuc  riscv  orin-nx  orin-agx  orin-agx-64  lenovo-x1   darter-pro   dell-7330  SP-T234
     &{speed_data}           Create Dictionary
     
-     #IF  "Orin" in "${DEVICE}"
-     #       ${bandwidth}   Set Variable  75M
-     #   ELSE IF  "Darter" in "${DEVICE}"
-     #       ${bandwidth}  Set Variable  900M
-     #   ELSE
-     #       ${bandwidth}  Set Variable  10000G
-     #   END
-    ${bandwidth}    Set Variable  10000G
+    IF  "Orin" in "${DEVICE}"
+           ${bandwidth}   Set Variable  75M
+       ELSE IF  "Darter" in "${DEVICE}"
+           ${bandwidth}  Set Variable  900M
+       ELSE
+           ${bandwidth}  Set Variable  10000G
+    END
+    #${bandwidth}    Set Variable  10000G
     Log to console  Chosen bandwidth: ${bandwidth}
 
     FOR  ${i}  IN RANGE  0  5
@@ -308,9 +308,9 @@ Get Received Loss Percentage
     END
 
     RETURN  ${loss_percentage}[0]
-    
+
 Result Check
-    [Documentation]    
+    [Documentation]
     [Arguments]    ${result_data}=""  ${bps_tx}=  ${bps_rx}=  ${rx_loss}=  ${set_failure_percent}=15
     Log  ==== tx ${bps_tx}, rx: ${bps_rx}, rx failure %: ${rx_loss} (accepted: < ${set_failure_percent}%) ====  console=True
     ${verdict}  Run Keyword And Return Status  Should Be True  (2 < ${bps_tx}) and (2 < ${bps_rx}) and (${rx_loss} < ${set_failure_percent})
@@ -327,4 +327,4 @@ Extra Debug
         log  ${receiver_buffer_2}
         log  ${ifconfig}
         log  ${load_avg}
-        log  ${load_interrupts}        
+        log  ${load_interrupts}
