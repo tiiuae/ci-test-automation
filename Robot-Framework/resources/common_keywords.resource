@@ -22,18 +22,16 @@ Verify Systemctl status
     [Documentation]    Check is systemctl running with given loop ${range}
 
     IF    ${user}
-        ${cmd}               Set Variable   systemctl status --user
+        ${cmd}               Set Variable   systemctl is-system-running --user
         ${failed_units_cmd}  Set Variable   systemctl list-units --state=failed --user
     ELSE
-        ${cmd}               Set Variable   systemctl status
+        ${cmd}               Set Variable   systemctl is-system-running
         ${failed_units_cmd}  Set Variable   systemctl list-units --state=failed
     END
 
     ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
-        ${output}=    Execute Command    ${cmd}
-        ${status}=    Get Systemctl Status    ${output}
-        Log  ${output}
+        ${status}=    Execute Command    ${cmd}
 
         ${data_failed_units}   Execute Command    ${failed_units_cmd}
         Log  ${data_failed_units}
@@ -57,6 +55,9 @@ Verify Systemctl status
 Check systemctl status for known issues
     [Arguments]    ${known_issues_list}   ${failing_services}   ${user}=False
     [Documentation]    Check if failing services contain issues that are not listed as known
+
+    Should Not Be Empty    ${failing_services}     Failing services list is empty.
+
     IF    ${user}
         ${unit_logs_cmd}     Set Variable   journalctl --user -u
     ELSE

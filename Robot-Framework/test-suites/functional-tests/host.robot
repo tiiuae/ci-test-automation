@@ -32,7 +32,7 @@ Check QSPI version
     [Tags]             SP-T95  orin-agx  orin-agx-64  orin-nx  pre-merge
     Check QSPI Version is up to date
 
-Check systemctl status
+Check host systemctl status
     [Documentation]    Verify systemctl status is running on host
     [Tags]             SP-T98  systemctl  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1  darter-pro  dell-7330  fmo  pre-merge
     ${status}   ${output}   Run Keyword And Ignore Error    Verify Systemctl status
