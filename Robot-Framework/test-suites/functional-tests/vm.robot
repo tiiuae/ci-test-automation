@@ -39,11 +39,16 @@ Check systemctl status in every VM
     ${known_issues}=    Create List
     # Add any known failing services here with the vm name and bug ticket number.
     # ...    vm|service-name|ticket-number
-    ...    gui-vm|setup-ghaf-user.service|SSRCSP-7234
-    ...    gui-vm|plymouth-quit.service|SSRCSP-7306
     ...    audio-vm|systemd-rfkill.service|SSRCSP-7321
+    ...    ghaf-host|autovt@ttyUSB0.service|SSRCSP-6667
+    ...    ghaf-host|ghaf-mem-manager-business-vm.service|SSRCSP-6853
+    ...    ghaf-host|ghaf-mem-manager-chrome-vm.service|SSRCSP-6853
+    ...    ghaf-host|ghaf-mem-manager-comms-vm.service|SSRCSP-6853
+    ...    ghaf-host|ghaf-mem-manager-zathura-vm.service|SSRCSP-6853
+    ...    gui-vm|plymouth-quit.service|SSRCSP-7306
+    ...    gui-vm|setup-ghaf-user.service|SSRCSP-7234
 
-    FOR  ${vm}  IN  @{VM_LIST}
+    FOR  ${vm}  IN  @{VM_LIST_WITH_HOST}
         Switch to vm     ${vm}
         ${status}  ${output}   Run Keyword And Ignore Error   Verify Systemctl status
         IF  $status=='FAIL'

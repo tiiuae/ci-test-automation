@@ -34,7 +34,7 @@ Check QSPI version
 
 Check host systemctl status
     [Documentation]    Verify systemctl status is running on host
-    [Tags]             SP-T98  systemctl  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1  darter-pro  dell-7330  fmo  pre-merge
+    [Tags]             SP-T98  systemctl  nuc  orin-agx  orin-agx-64  orin-nx  riscv  fmo  pre-merge
     ${status}   ${output}   Run Keyword And Ignore Error    Verify Systemctl status
     Log   ${output}
 
@@ -45,12 +45,7 @@ Check host systemctl status
         ...    NUC|ANY|SSRCSP-4632
         ...    Orin|nvfancontrol.service|SSRCSP-6303
         ...    AGX|systemd-rfkill.service|SSRCSP-6303
-        ...    Dell|autovt@ttyUSB0.service|SSRCSP-6667
         ...    Orin|systemd-oomd.service|SSRCSP-6685
-        ...    ANY|ghaf-mem-manager-business-vm.service|SSRCSP-6853
-        ...    ANY|ghaf-mem-manager-chrome-vm.service|SSRCSP-6853
-        ...    ANY|ghaf-mem-manager-comms-vm.service|SSRCSP-6853
-        ...    ANY|ghaf-mem-manager-zathura-vm.service|SSRCSP-6853
 
         Check systemctl status for known issues    ${known_issues}   ${failing_services}
     END
