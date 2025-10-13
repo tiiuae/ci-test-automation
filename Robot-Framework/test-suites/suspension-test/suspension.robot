@@ -31,7 +31,7 @@ Automatic suspension
 
     Start power measurement  ${BUILD_ID}   timeout=1500
     Connect
-    Switch to vm    gui-vm   user=${USER_LOGIN}
+    Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
 
     Wait                     240
     Check screen brightness  ${dimmed_brightness}
@@ -56,7 +56,7 @@ Automatic suspension
     Generate power plot      ${BUILD_ID}   ${TEST NAME}
     Stop recording power
     Check power during suspension          ${BUILD_ID}
-    Switch to vm             gui-vm   user=${USER_LOGIN}
+    Switch to vm             ${GUI_VM}   user=${USER_LOGIN}
     Check the screen state   off
     # Screen wakeup requires a mouse move
     Move Cursor
@@ -114,7 +114,7 @@ Get expected brightness values
     Set Test Variable  ${dimmed_brightness}  ${dimmed}
 
 Set display to max brightness
-    [Setup]   Switch to vm    gui-vm
+    [Setup]   Switch to vm    ${GUI_VM}
     ${current_brightness}    Get screen brightness   log_brightness=False
     IF   ${current_brightness} != ${max_brightness}
         Log           Brightness is ${current_brightness}, setting it to the maximum  console=True
@@ -123,7 +123,7 @@ Set display to max brightness
         ${current_brightness}    Get screen brightness
         Should be Equal As Numbers    ${current_brightness}   ${max_brightness}
     END
-    [Teardown]   Switch to vm    gui-vm  user=${USER_LOGIN}
+    [Teardown]   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
 
 Check screen brightness
     [Arguments]       ${brightness}    ${timeout}=60

@@ -16,12 +16,12 @@ Prepare Test Environment
     Start journalctl recording
 
     IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        Switch to vm    gui-vm
+        Switch to vm    ${GUI_VM}
         Create test user
         IF  ${login}
             Save gui icons and icon path
             Start ydotoold
-            Switch to vm   gui-vm  user=${USER_LOGIN}
+            Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
             Log in, unlock and verify   ${enable_dnd}
         END
     END
@@ -33,7 +33,7 @@ Clean Up Test Environment
     Stop journalctl recording
     IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Start ydotoold
-        Switch to vm    gui-vm  user=${USER_LOGIN}
+        Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
         Log out and verify   ${disable_dnd}
         Stop ydotoold
     END
@@ -75,7 +75,7 @@ Create test user
 
 Start ydotoold
     [Documentation]    Start ydotool daemon if it is not already running.
-    [Setup]            Switch to vm    gui-vm
+    [Setup]            Switch to vm    ${GUI_VM}
     ${ydotoold_state}=    Execute Command    sh -c 'ps aux | grep ydotoold | grep -v grep'
     IF  $ydotoold_state == '${EMPTY}'
         Log To Console    Starting ydotool daemon
@@ -91,7 +91,7 @@ Start ydotoold
 
 Stop ydotoold
     [Documentation]   Kill ydotool daemon
-    [Setup]           Switch to vm    gui-vm
+    [Setup]           Switch to vm    ${GUI_VM}
     Log To Console    Stopping ydotool daemon
     Execute Command   pkill ydotoold  sudo=True  sudo_password=${PASSWORD}
 
@@ -103,9 +103,9 @@ Save gui icons and icon path
     Set Global Variable     ${ICONS}
     Get icon                ${ICONS}/hicolor/scalable/apps  com.system76.CosmicAppLibrary.svg  crop=0  background=black  output_filename=launcher.png
     Get icon                ${ICONS}/Papirus/24x24/symbolic/actions  window-close-symbolic.svg  crop=0  background=white  output_filename=window-close.png
-    Negate app icon         ${GUI_TEMP_DIR}window-close.png  ${GUI_TEMP_DIR}window-close-neg.png
+    Negate app icon         ${GUI_TEMP_DIR}/window-close.png  ${GUI_TEMP_DIR}/window-close-neg.png
     Get icon                ${ICONS}/Cosmic/scalable/actions  system-search-symbolic.svg  crop=0  background=white  output_filename=search.png
-    Negate app icon         ${GUI_TEMP_DIR}search.png  ${GUI_TEMP_DIR}search-neg.png
+    Negate app icon         ${GUI_TEMP_DIR}/search.png  ${GUI_TEMP_DIR}/search-neg.png
     Get icon                ${ICONS}/Papirus/24x24/actions  system-shutdown.svg  crop=0  background=black  output_filename=power.png
     Get icon                ${ICONS}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
 

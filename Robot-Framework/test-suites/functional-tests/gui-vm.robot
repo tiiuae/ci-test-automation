@@ -114,12 +114,12 @@ Start Display Settings on FMO
 *** Keywords ***
 
 Gui-vm Test Setup
-    Switch to vm    gui-vm  user=${USER_LOGIN}
+    Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
 
 Gui-vm Test Teardown
-    Switch to vm    gui-vm
+    Switch to vm    ${GUI_VM}
     Kill process        @{APP_PIDS}
-    Log and remove app output     output.log             gui-vm    ${USER_LOGIN}
+    Log and remove app output     output.log             ${GUI_VM}    ${USER_LOGIN}
     Run Keyword If Test Failed    Log app vm journalctl  gui-vm
 
 Wait Until Falcon Download Complete

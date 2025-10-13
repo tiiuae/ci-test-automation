@@ -70,7 +70,7 @@ Open PDF from gui-vm
 Open image with Oculante
     [Documentation]    Open PNG image in the Gui VM and check that Oculante app is started and opens the image
     [Tags]             bat  regression  pre-merge  SP-T197
-    Switch to vm       gui-vm  user=${USER_LOGIN}
+    Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
 
     Execute Command    mkdir test-images
     ${result}          Run Keyword And Ignore Error  Execute Command  cosmic-screenshot --interactive=false --save-dir ./  return_stdout=True   return_rc=True   timeout=5
@@ -90,7 +90,7 @@ Open image with Oculante
 Open text file with Cosmic Text Editor
     [Documentation]    Open text file and check that Cosmic Text Editor app is started
     [Tags]             bat  regression  pre-merge  SP-T262
-    Switch to vm       gui-vm  user=${USER_LOGIN}
+    Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
     Create text file   test    /tmp/test_text.txt
     Open text file     /tmp/test_text.txt
     Check that the application was started    cosmic-edit    10
