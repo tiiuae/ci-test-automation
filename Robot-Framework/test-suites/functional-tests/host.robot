@@ -53,7 +53,6 @@ Check host systemctl status
 Check all VMs are running
     [Documentation]    Check that all VMs are running.
     [Tags]             SP-T68  lenovo-x1  darter-pro  dell-7330  fmo  pre-merge
-    [Setup]            Run Keywords   Close All Connections   AND   Switch to vm   ghaf-host
     ${output}   Execute Command    microvm -l
     @{vms}      Extract VM names   ${output}
     Should Not Be Empty   ${vms}  VM list is empty
