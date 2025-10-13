@@ -79,8 +79,6 @@ Control audio volume with keyboard shortcuts
     ${vol_after_mute}    Get volume level
     Should Be Equal      ${vol_after_mute}    ${volume_down}    Volume level after mute status changing is different
 
-    [Teardown]  Run Keywords   Stop screen recording    ${TEST_STATUS}   ${TEST_NAME}   AND
-    ...    Run Keyword If   "Lenovo" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-7294"
 
 *** Keywords ***
 
