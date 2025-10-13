@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Tests for input-related GUI functionality
-Force Tags          gui  gui-input
+Force Tags          gui  gui-input  lenovo-x1  darter-pro
 
 Library             ../../lib/output_parser.py
 Library             Collections
@@ -17,8 +17,9 @@ Test Teardown       Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 *** Test Cases ***
 
 Change brightness with keyboard shortcuts
-    [Documentation]     Change brightness with ydotool by clicking F5/F6 buttons
-    [Tags]              lenovo-x1  darter-pro   SP-T140
+    [Documentation]     Change brightness with ydotool by clicking brightness buttons
+    ...                 (Lenovo-X1: F5/F6, Darter-Pro: Fn+F8/Fn+F9)
+    [Tags]              SP-T140
     ${init_brightness}  Get screen brightness
     Press Key(s)        BRIGHTNESSDOWN
     ${l_brightness}     Get screen brightness
@@ -29,7 +30,7 @@ Change brightness with keyboard shortcuts
 
 Change keyboard layout
     [Documentation]     Change keyboard layout with Alt+Shift shortcut
-    [Tags]              lenovo-x1  darter-pro   SP-T138
+    [Tags]              SP-T138
     Check cosmic config current layout value
     Launch Cosmic Term
     # Wait until application window has been opened (max ~5s).
@@ -47,12 +48,12 @@ Change keyboard layout
     [Teardown]   Run Keywords   Kill gui-vm apps    AND   Stop screen recording    ${TEST_STATUS}   ${TEST_NAME}
 
 Control audio volume with keyboard shortcuts
-    [Documentation]      Check that volume level is increased by pressing F3,
-    ...                  decreased - by pressing F2,
-    ...                  mute status is changed by pressing F1,
-    ...                  mute status is changed back by pressing F1,
+    [Documentation]      Check that volume level is increased by pressing F3 (Lenovo-X1) or Fn+F6 (Darter-Pro),
+    ...                  decreased - by pressing F2 (Lenovo-X1) or Fn+F5 (Darter-Pro),
+    ...                  mute status is changed by pressing F1 (Lenovo-X1) or Fn+F3 (Darter-Pro),
+    ...                  mute status is changed back by pressing F1 (Lenovo-X1) or Fn+F3 (Darter-Pro),
     ...                  volume level after mute/unmute is the same
-    [Tags]               lenovo-x1  darter-pro   SP-T134
+    [Tags]               SP-T134
 
     ${init_volume}       Get volume level
     Press Key(s)         VOLUMEUP
@@ -111,9 +112,9 @@ Check cosmic config current layout value
     END
 
 Kill gui-vm apps
-    Switch to vm    gui-vm
+    Switch to vm    ${GUI_VM}
     Kill process    @{APP_PIDS}
-    Switch to vm    gui-vm  user=${USER_LOGIN}
+    Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
 
 Get volume level
     [Documentation]   Get and return current volume value

@@ -17,7 +17,7 @@ Resource            ../resources/ssh_keywords.resource
 ${APP_MENU_LAUNCHER}   ./launcher.png
 ${LOCK_ICON}           ./lock.png
 ${DISABLE_LOGOUT}      ${EMPTY}
-${GUI_TEMP_DIR}        ${OUTPUT_DIR}/outputs/gui-temp/
+${GUI_TEMP_DIR}        ${OUTPUT_DIR}/outputs/gui-temp
 ${YDOTOOL_SOCKET}      /tmp/.ydotool_socket
 ${SCREEN_SELECTED}     ${False}
 ${FIRST_SCREENSHOT}    ${True}
@@ -148,10 +148,10 @@ Locate on screen
         ${result}=         Run Keyword And Ignore Error  Execute Command  ${screenshot_cmd}  return_stdout=True  return_rc=True  timeout=5
         Log                ${result}
         IF  "${result}[1][1]" == "0"
-            SSHLibrary.Get File  ${result[1][0]}  ${GUI_TEMP_DIR}screenshot.png
+            SSHLibrary.Get File  ${result[1][0]}  ${GUI_TEMP_DIR}/screenshot.png
             IF  $type=="image"
                 Log To Console    Locating image ${searched_item} on ${result[1][0]}
-                ${pass_status}    ${coordinates}  Run Keyword And Ignore Error  Locate image  ${GUI_TEMP_DIR}${searched_item}   ${confidence}
+                ${pass_status}    ${coordinates}  Run Keyword And Ignore Error  Locate image  ${GUI_TEMP_DIR}/${searched_item}   ${confidence}
             ELSE IF  $type=="text"
                 Log To Console    Locating text ${searched_item} on ${result[1][0]}
                 ${pass_status}    ${coordinates}  Run Keyword And Ignore Error  Locate text  ${searched_item}
@@ -260,8 +260,8 @@ Wait for user session to be active
 Get icon
     [Documentation]    Copy icon svg file to test agent machine. Crop and convert the svg file to png.
     [Arguments]        ${path}   ${icon_name}   ${crop}=0   ${background}=none   ${output_filename}=icon.png
-    SSHLibrary.Get File  ${path}/${icon_name}   ${GUI_TEMP_DIR}icon.svg
-    Convert app icon  ${crop}   ${background}   input_file=${GUI_TEMP_DIR}icon.svg  output_file=${GUI_TEMP_DIR}${output_filename}
+    SSHLibrary.Get File  ${path}/${icon_name}   ${GUI_TEMP_DIR}/icon.svg
+    Convert app icon  ${crop}   ${background}   input_file=${GUI_TEMP_DIR}/icon.svg  output_file=${GUI_TEMP_DIR}/${output_filename}
 
 Check if locked
     [Documentation]    Check if the screen lock is active
@@ -329,7 +329,7 @@ Switch keyboard layout
 
 Timestamp screenshot
     ${current_time}  DateTime.Get Current Date  result_format=%Y%m%d_%H%M%S
-    Run Process      sh  -c  cp ${GUI_TEMP_DIR}screenshot.png ${GUI_TEMP_DIR}screenshot_${current_time}.png  shell=true
+    Run Process      sh  -c  cp ${GUI_TEMP_DIR}/screenshot.png ${GUI_TEMP_DIR}/screenshot_${current_time}.png  shell=true
 
 Press Key(s)
     [Arguments]        ${key_combination}   ${sudo}=False
@@ -343,10 +343,10 @@ Press Key(s)
 Run ydotool command
     [Arguments]    ${command}   ${sudo}=False
     IF   $sudo == "True"
-        Switch to vm    gui-vm
+        Switch to vm    ${GUI_VM}
         Log To Console   Running ydotool command with ghaf user
         ${output}    ${rc}    Execute Command   ydotool ${command}  sudo=True  sudo_password=${PASSWORD}    return_rc=True
-        Switch to vm    gui-vm  user=${USER_LOGIN}
+        Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
     ELSE
         ${output}    ${rc}    Execute Command    YDOTOOL_SOCKET=${YDOTOOL_SOCKET} ydotool ${command}    return_rc=True
     END
@@ -397,7 +397,7 @@ Stop screen recording
     IF  $test_status=='FAIL'
         Log To Console        Saving video file
         ${name}               Replace String   ${test_name}   ${SPACE}   _
-        SSHLibrary.Get File   /home/${USER_LOGIN}/Videos/${video_file}   ${GUI_TEMP_DIR}${name}.mp4
+        SSHLibrary.Get File   /home/${USER_LOGIN}/Videos/${video_file}   ${GUI_TEMP_DIR}/${name}.mp4
     END
     Execute Command   rm /home/${USER_LOGIN}/Videos/${video_file}
     [Teardown]        Kill process by name   gpu-screen-recorder

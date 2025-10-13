@@ -28,7 +28,7 @@ GUI Suspend and wake up
     [Tags]            SP-T208-2   lenovo-x1   lab-only
     Start power measurement       ${BUILD_ID}   timeout=180
     # Connect back to gui-vm after power measurement has been started
-    Switch to vm    gui-vm   user=${USER_LOGIN}
+    Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
 
     Select power menu option   x=815   y=120
 
@@ -39,7 +39,7 @@ GUI Suspend and wake up
         FAIL                      Device failed to suspend.
     END
     Log To Console                Letting the device stay suspended for 30 sec
-    BuiltIn.Sleep                 30
+    Sleep                         30
     Log To Console                Waking the device up by pressing the power button for 1 sec
     Press Button                  ${SWITCH_BOT}-ON
     Check If Device Is Up
@@ -66,7 +66,7 @@ GUI Suspend and wake up
 GUI Lock and Unlock
     [Documentation]   Lock the screen via GUI power menu lock icon and check that the screen is locked.
     ...               Unlock lock screen by typing the password and check that desktop is available.
-    [Tags]            lenovo-x1  darter-pro   SP-T208-3   SP-T208-4   lock
+    [Tags]            SP-T208-3   lock  lenovo-x1  darter-pro
     [Setup]           Run Keywords   GUI Power Test Setup   AND   Start screen recording
     Select power menu option   text=Lock
     ${lock}           Check if locked
@@ -100,13 +100,13 @@ GUI Reboot
     Connect   iterations=10
     Check if ssh is ready on vm   gui-vm   timeout=60
     Start ydotoold
-    Switch to vm    gui-vm   user=${USER_LOGIN}
+    Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
     Log in, unlock and verify   enable_dnd=True
 
 GUI Log out and log in
     [Documentation]   Logout via GUI power menu icon and verify logged out state.
     ...               Login and verify that desktop is available.
-    [Tags]            lenovo-x1  darter-pro   SP-T149   logoutlogin
+    [Tags]            SP-T149   logoutlogin   lenovo-x1  darter-pro
     Select power menu option   text=LogOut   confirmation=true
     ${logout_status}            Check if logged out
     IF  not ${logout_status}    FAIL  Logout failed.
@@ -115,8 +115,7 @@ GUI Log out and log in
 *** Keywords ***
 
 GUI Power Test Setup
-    Switch to vm   ${NET_VM}
-    Switch to vm    gui-vm   user=${USER_LOGIN}
+    Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
     Log in, unlock and verify
 
 GUI Power Test Teardown
