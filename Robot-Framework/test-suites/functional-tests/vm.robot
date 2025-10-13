@@ -21,10 +21,8 @@ Check internet connection in every VM
     ${failed_vms}=    Create List
     FOR  ${vm}  IN  @{VM_LIST_WITH_HOST}
         Switch to vm     ${vm}
-        ${output}=       Execute Command    ping -c1 google.com
-        Log              ${output}
-        ${result}=       Run Keyword And Return Status    Should Contain    ${output}    1 received
-        IF    not ${result}
+        ${status}     Run Keyword And Return Status   Check Network Availability   8.8.8.8
+        IF    not ${status}
             Log To Console    FAIL: ${vm} does not have internet connection
             Append To List    ${failed_vms}    ${vm}
         END

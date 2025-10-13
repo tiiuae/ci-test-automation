@@ -6,12 +6,14 @@ Documentation       Testing taskbar power widget options
 Force Tags          gui   gui-power-menu
 
 Library             ../../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
+Resource            ../../resources/device_control.resource
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/power_meas_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
 Test Setup          GUI Power Test Setup
+Test Teardown       Run Keyword If Test Failed    GUI Power Test Teardown
 
 
 *** Test Cases ***
@@ -30,7 +32,7 @@ GUI Suspend and wake up
 
     Select power menu option   x=815   y=120
 
-    ${device_not_available}       Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
+    ${device_not_available}       Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  5s  Check If Ping Fails
     IF  ${device_not_available} == True
         Log To Console            Device suspended.
     ELSE
@@ -71,7 +73,8 @@ GUI Lock and Unlock
     IF  not ${lock}   FAIL    Failed to lock the screen
     Unlock
     Verify desktop availability
-    [Teardown]        Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+    [Teardown]        Run Keywords   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}   AND
+    ...               Run Keyword If Test Failed    GUI Power Test Teardown
 
 GUI Reboot
     [Documentation]   Reboot the device via GUI power menu reboot icon.
@@ -80,7 +83,7 @@ GUI Reboot
 
     Select power menu option   x=870   y=120   confirmation=true
 
-    ${device_not_available}       Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
+    ${device_not_available}       Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  5s  Check If Ping Fails
     IF  ${device_not_available} == True
         Log To Console            Device is down
     ELSE
@@ -95,6 +98,7 @@ GUI Reboot
     END
     Sleep  30
     Connect   iterations=10
+    Check if ssh is ready on vm   gui-vm   timeout=60
     Start ydotoold
     Switch to vm    gui-vm   user=${USER_LOGIN}
     Log in, unlock and verify   enable_dnd=True
@@ -114,6 +118,14 @@ GUI Power Test Setup
     Switch to vm   ${NET_VM}
     Switch to vm    gui-vm   user=${USER_LOGIN}
     Log in, unlock and verify
+
+GUI Power Test Teardown
+    Reboot Laptop
+    Check If Device Is Up
+    Sleep  30
+    Connect    iterations=10
+    Check if ssh is ready on vm   gui-vm    timeout=60
+    Start ydotoold
 
 Select power menu option
     [Documentation]    Open power menu by clicking the icon.
