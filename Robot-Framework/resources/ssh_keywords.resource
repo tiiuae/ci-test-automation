@@ -284,7 +284,8 @@ Verify service status
     ELSE
         ${output}       Execute Command  journalctl -b -u ${service}
         Log             ${output}
-        Fail            systemctl status ${service}: ${state} (${substate}), expected: ${expected_state} (${expected_substate})
+        IF   ${welcome_check}   FAIL    systemctl status ${service}: ${state} (${substate}), expected: ${expected_state} (${expected_substate}), welcome check passed: ${finished}
+        FAIL            systemctl status ${service}: ${state} (${substate}), expected: ${expected_state} (${expected_substate})
     END
     RETURN    ${state}  ${substate}
 
