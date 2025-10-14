@@ -33,7 +33,11 @@ Automatic suspension
     Connect
     Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
 
-    Wait                     240
+    Wait                     60
+    Set timestamp            before_suspend_start
+    Wait                     60
+    Set timestamp            before_suspend_end
+    Wait                     120
     Check screen brightness  ${dimmed_brightness}
 
     Wait                     10
@@ -46,12 +50,14 @@ Automatic suspension
     Wait                     610
 
     Check that device is suspended
+
     Wait                     60
     Set timestamp            suspend_start
     Wait                     240
     Set timestamp            suspend_end
+
     Wake up device
-    Wait                     180
+
     Connect
     Generate power plot      ${BUILD_ID}   ${TEST NAME}
     Stop recording power
@@ -63,6 +69,26 @@ Automatic suspension
     Check the screen state   on
     ${locked}                Check if locked
     Should Be True           ${locked}    Lock screen didn't appear
+
+    # Power level comparison in the same login gui state as in the beginning
+    # Applied only if power measurement agent is available in the setup
+    IF  $SSH_MEASUREMENT!='${EMPTY}'
+        Unlock
+        Verify desktop availability
+        Wait                     120
+        Set timestamp            after_suspend_start
+        Wait                     60
+        Set timestamp            after_suspend_end
+
+        Generate power plot      ${BUILD_ID}   ${TEST NAME}
+        Stop recording power
+
+        ${suspended_power}       Check power during suspension   ${BUILD_ID}   2500
+        ${power_changed}         Measure power level change  ${BUILD_ID}  25  ${before_suspend_start}  ${before_suspend_end}  ${after_suspend_start}  ${after_suspend_end}
+        IF  ${suspended_power}!=${False} or ${power_changed}!=${False}
+            FAIL  Average suspended power ${suspended_power}mW (test limit 2500mW)\nPower consumption level increased ${power_changed}% over suspension and wake up (test limit 25%)
+        END
+    END
 
 Automatic lock (Darter Pro)
     [Documentation]   Suspension is disabled on Darter Pro but automatic lock works

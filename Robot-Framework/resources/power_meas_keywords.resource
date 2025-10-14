@@ -107,22 +107,42 @@ Get current timestamp
     RETURN            ${current_time}
 
 Check power during suspension
-    [Arguments]       ${id}
+    [Arguments]       ${id}  ${max_power}
     IF  $SSH_MEASUREMENT=='${EMPTY}'
         Log To Console    No connection to power measurement device. Ignoring all power measurement related keywords.
-        RETURN
+        RETURN  ${False}
     END
     Save power measurement interval   ${id}.csv  '${suspend_start}'  '${suspend_end}'  suspend_interval.csv  ${False}
     ${max_power_during_suspension}  Measured max    suspend_interval.csv
-    IF   ${max_power_during_suspension} > 2500
+    IF   ${max_power_during_suspension} > ${max_power}
+        RETURN  ${max_power_during_suspension}
         FAIL    Power consumption exceptionally high during suspension
     END
+    RETURN  ${False}
 
-Log average power
-    [Arguments]       ${file_name}
+
+Calculate average power over interval
+    [Arguments]      ${id}  ${start_time}  ${end_time}
     IF  $SSH_MEASUREMENT=='${EMPTY}'
         Log To Console    No connection to power measurement device. Ignoring all power measurement related keywords.
         RETURN
     END
-    ${keyword_status}   ${mean_P}     Run Keyword And Ignore Error  Mean power  ${POWER_MEASUREMENT_DIR}${file_name}
-    # TODO: With the statistics tools of performance testing also average power values could be plotted and monitored
+    Save power measurement interval   ${id}.csv  '${start_time}'  '${end_time}'  temp_interval.csv  ${False}
+    ${keyword_status}   ${mean_P}     Run Keyword And Ignore Error  Mean power   temp_interval.csv
+    RETURN              ${mean_P}
+
+Measure power level change
+    [Documentation]   Check that power consumption has not increased between ref and check intervals
+    ...               more than max_relative_change given in %
+    [Arguments]      ${id}  ${max_relative_change}  ${ref_power_start}  ${ref_power_end}  ${check_power_start}  ${check_power_end}
+    IF  $SSH_MEASUREMENT=='${EMPTY}'
+        Log To Console    No connection to power measurement device. Ignoring all power measurement related keywords.
+        RETURN  ${False}
+    END
+    ${power_before_suspension}  Calculate average power over interval   ${id}  ${ref_power_start}    ${ref_power_end}
+    ${power_after_suspension}   Calculate average power over interval   ${id}  ${check_power_start}  ${check_power_end}
+    ${relative_change}          Evaluate    int((${power_after_suspension} - ${power_before_suspension}) / ${power_before_suspension} * 100)
+    IF   ${relative_change} > ${max_relative_change}
+        RETURN  ${relative_change}
+    END
+    RETURN  ${False}

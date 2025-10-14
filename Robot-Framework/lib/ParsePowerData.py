@@ -90,7 +90,6 @@ class ParsePowerData:
         return max_value
 
     def mean_power(self, csv_file):
-        columns = ['time', 'meas_counter', 'power']
-        data = pd.read_csv(self.power_meas_dir + csv_file, names=columns)
+        data = pd.read_csv(self.power_meas_dir + csv_file)
         mean_value = data['power'].mean()
         return mean_value
