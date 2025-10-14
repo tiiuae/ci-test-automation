@@ -92,3 +92,13 @@ Check systemctl status for known issues
         Skip    Known failed services: ${old_issues}
     END
 
+Get VM list
+    [Arguments]    ${with_host}=False
+    Switch to vm    ghaf-host
+    ${output}       Execute Command    microvm -l
+    @{VM_LIST}      Extract VM names   ${output}
+    Should Not Be Empty     ${VM_LIST}   VM list is empty
+    IF    ${with_host}
+        @{VM_LIST}    Create List   @{VM_LIST}   ghaf-host
+    END
+    RETURN    @{VM_LIST}
