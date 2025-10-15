@@ -31,8 +31,10 @@ ${SEARCH_TIMEOUT}   40
 Measure Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
     [Tags]  SP-T187  lenovo-x1  darter-pro  dell-7330
+    # Sleep in the beginning to avoid triggering firewall rule by later pinging
+    Sleep                        20
     Soft Reboot Device
-    Wait Until Keyword Succeeds  35s  2s  Check If Ping Fails
+    Wait Until Keyword Succeeds  5x  2s  Check If Ping Fails
     Get Boot times
     [Teardown]    Run Keyword If Test Failed  Log Journal To Debug
 
@@ -41,7 +43,7 @@ Measure Hard Boot Time
     [Tags]  SP-T182  lenovo-x1  darter-pro  dell-7330  lab-only
     Log To Console                Shutting down by pressing the power button
     Press Button                  ${SWITCH_BOT}-OFF
-    Wait Until Keyword Succeeds   15s  2s  Check If Ping Fails
+    Wait Until Keyword Succeeds   3x  ${PING_SPACING}s  Check If Ping Fails
     Log To Console                The device has shut down
     Log To Console                Waiting for the robot finger to return
     Sleep  20
@@ -53,8 +55,10 @@ Measure Hard Boot Time
 Measure Orin Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
     [Tags]  SP-T187  orin-agx  orin-agx-64  orin-nx
+    # Sleep in the beginning to avoid triggering firewall rule by later pinging
+    Sleep                        20
     Soft Reboot Device
-    Wait Until Keyword Succeeds  35s  2s  Check If Ping Fails
+    Wait Until Keyword Succeeds  5x  2s  Check If Ping Fails
     Get Time To Ping
     IF  "NX" in "${DEVICE}" or "AGX" in "${DEVICE}"      Sleep    30
 
@@ -63,7 +67,7 @@ Measure Orin Hard Boot Time
     [Tags]  SP-T182  orin-agx  orin-agx-64  orin-nx  lab-only
     Log To Console                Shutting down by switching the power off
     Turn Relay Off                ${RELAY_NUMBER}
-    Wait Until Keyword Succeeds   15s  2s  Check If Ping Fails
+    Wait Until Keyword Succeeds   3x  ${PING_SPACING}s  Check If Ping Fails
     Log To Console                The device has shut down
     Log To Console                Booting the device by switching the power on
     Turn Relay On                 ${RELAY_NUMBER}
@@ -79,8 +83,13 @@ Measure Time To Ping
     Log To Console            Start checking ping response
     ${ping_end_time}          Set Variable  False
     WHILE  not $ping_response   limit=${PING_TIMEOUT} seconds
-        ${ping_response}      Ping Host  ${DEVICE_IP_ADDRESS}  1
-        ${ping_end_time}      IF  $ping_response  DateTime.Get Current Date  result_format=epoch
+        # Pinging every 3 sec will limit resolution of the measurement to 3s but faster pinging might trigger ghaf firewall rule.
+        # Better option could be using arping if that is not limited.
+        ${ping_response}      Ping Host  ${DEVICE_IP_ADDRESS}  3
+        IF  $ping_response
+            ${ping_end_time}  DateTime.Get Current Date  result_format=epoch
+            Sleep             ${PING_SPACING}
+        END
     END
     IF  not $ping_end_time
         FAIL                  No response to ping within ${PING_TIMEOUT}
@@ -91,7 +100,7 @@ Measure Time To Ping
 
 Get Time To Ping
     [Arguments]  ${plot_name}=Soft Boot Times
-    ${start_time_epoch}            DateTime.Get Current Date   result_format=epoch
+    ${start_time_epoch}           DateTime.Get Current Date   result_format=epoch
     ${ping_response_seconds}      Measure Time To Ping  ${start_time_epoch}
     &{final_results}              Create Dictionary
     Set To Dictionary             ${final_results}  response_to_ping  ${ping_response_seconds}

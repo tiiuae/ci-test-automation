@@ -28,13 +28,13 @@ Wifi passthrough into NetVM (Orin-AGX)
     [Setup]             Switch to vm   ${NET_VM}
     Configure wifi      ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
-    Check Network Availability    8.8.8.8   expected_result=True
+    Check Network Availability    8.8.8.8   expected_result=True    limit_freq=${False}
     Turn OFF WiFi       ${TEST_WIFI_SSID}
-    Check Network Availability    8.8.8.8   expected_result=False
+    Check Network Availability    8.8.8.8   expected_result=False   limit_freq=${False}
     Turn ON WiFi        ${TEST_WIFI_SSID}
-    Check Network Availability    8.8.8.8   expected_result=True
+    Check Network Availability    8.8.8.8   expected_result=True    limit_freq=${False}
     Turn OFF WiFi       ${TEST_WIFI_SSID}
-    Check Network Availability    8.8.8.8   expected_result=False
+    Check Network Availability    8.8.8.8   expected_result=False   limit_freq=${False}
     Sleep               1
     [Teardown]          Run Keyword  Remove Wifi configuration  ${TEST_WIFI_SSID}
 
