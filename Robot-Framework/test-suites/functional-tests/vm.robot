@@ -21,7 +21,7 @@ Check internet connection in every VM
     ${failed_vms}=    Create List
     FOR  ${vm}  IN  @{VM_LIST_WITH_HOST}
         Switch to vm     ${vm}
-        ${status}     Run Keyword And Return Status   Check Network Availability   8.8.8.8
+        ${status}     Run Keyword And Return Status   Check Network Availability   8.8.8.8   limit_freq=${False}
         IF    not ${status}
             Log To Console    FAIL: ${vm} does not have internet connection
             Append To List    ${failed_vms}    ${vm}

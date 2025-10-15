@@ -149,7 +149,7 @@ Check the screen state
     Should Contain      ${output}    ${state}
 
 Check that device is suspended
-    ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
+    ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  2x  ${PING_SPACING}s  Check If Ping Fails
     IF  ${device_not_available} == True
         Log To Console  Device is suspended
     ELSE

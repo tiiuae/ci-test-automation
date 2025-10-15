@@ -76,11 +76,11 @@ Send connection request to closed port
     ${timestamp_tcp}   Execute Command    date +%s
     Set Test Variable  ${time_tcp}  ${timestamp_tcp}
     ${output}          Execute Command    nc -v -w1 ${ip} ${port}       return_rc=True
-    Sleep    1
+    Sleep              1
     ${timestamp_udp}   Execute Command    date +%s
     Set Test Variable  ${time_udp}  ${timestamp_udp}
     ${output}          Execute Command    printf 'ping' | nc -u -w1 -N ${ip} ${port}    return_rc=True
-    Sleep    1
+    Sleep              1
     ${timestamp_end}   Execute Command    date +%s
     Set Test Variable  ${time_end}  ${timestamp_end}
 

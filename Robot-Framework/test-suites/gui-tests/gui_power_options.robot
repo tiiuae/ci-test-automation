@@ -32,7 +32,7 @@ GUI Suspend and wake up
 
     Select power menu option   x=815   y=120
 
-    ${device_not_available}       Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  5s  Check If Ping Fails
+    ${device_not_available}       Run Keyword And Return Status  Wait Until Keyword Succeeds  2x  ${PING_SPACING}s  Check If Ping Fails
     IF  ${device_not_available} == True
         Log To Console            Device suspended.
     ELSE
@@ -83,7 +83,7 @@ GUI Reboot
 
     Select power menu option   x=870   y=120   confirmation=true
 
-    ${device_not_available}       Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  5s  Check If Ping Fails
+    ${device_not_available}       Run Keyword And Return Status  Wait Until Keyword Succeeds  2x  ${PING_SPACING}s  Check If Ping Fails
     IF  ${device_not_available} == True
         Log To Console            Device is down
     ELSE

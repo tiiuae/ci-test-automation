@@ -15,7 +15,7 @@ Resource            ../resources/common_keywords.resource
 *** Keywords ***
 
 Ping Host
-    [Arguments]        ${hostname}  ${timeout}=10
+    [Arguments]        ${hostname}  ${timeout}=${PING_SPACING}
     [Documentation]    Ping the given hostname once and return boolean result
     ${ping_output}=    Run Process   ping ${hostname} -c 1 -W ${timeout}   shell=True
     ${ping_success}    Run Keyword And Return Status    Should Contain    ${ping_output.stdout}    1 received
@@ -27,7 +27,7 @@ Check If Ping Fails
     Should Not Be Equal   ${result.rc}  ${0}
 
 Check Network Availability
-    [Arguments]            ${host}  ${expected_result}=True  ${range}=5
+    [Arguments]            ${host}  ${expected_result}=True  ${range}=5  ${limit_freq}=${True}
     Log                    Checking network ${host} availability, expected: ${expected_result}  console=True
     Set Global Variable    ${IS_AVAILABLE}   False
     FOR   ${i}   IN RANGE  ${range}
@@ -44,9 +44,16 @@ Check Network Availability
                 Log    ${host} is unavailable  console=True
                 BREAK
             ELSE
+                IF  ${limit_freq}
+                    Sleep       ${PING_SPACING}
+                END
                 CONTINUE
             END
         END
+    END
+    # Ensure that ping is not executed too fast after this keyword
+    IF  ${limit_freq}
+        Sleep       ${PING_SPACING}
     END
     IF    ${IS_AVAILABLE} != ${expected_result}
         FAIL    Expected availability of ${host}: ${expected_result}, in fact: ${IS_AVAILABLE}
@@ -58,11 +65,11 @@ Check If Device Is Up
     ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
         ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
+        Sleep       ${PING_SPACING}
         IF    ${ping}
             Log To Console    Ping ${DEVICE_IP_ADDRESS} successful
             BREAK
         END
-        Sleep  1
     END
 
     IF    ${ping}
@@ -330,23 +337,22 @@ Save log
     Close All Connections
 
 Check if ssh is ready on vm
-    [Arguments]    ${vm}  ${timeout}=30
+    [Arguments]    ${vm}  ${timeout}=40
     ${already_connected}            Check ssh connection status     ${vm}
     IF  ${already_connected}
         RETURN
     END
     ${start_time}                   Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
-        ${status}  ${output}    Run Keyword And Ignore Error   Execute Command    timeout 6 nc -zvw3 ${vm} 22    return_rc=True   timeout=10
+        ${status}  ${output}    Run Keyword And Ignore Error   Execute Command    timeout 4 nc -zvw3 ${vm} 22    return_rc=True   timeout=5
         ${status}    Run Keyword And Return Status
         ...          Should Be Equal As Integers    ${output}[1]   0
+        Sleep        ${PING_SPACING}
         IF  ${status}
             BREAK
         END
         ${diff}=    Evaluate    int(time.time()) - int(${start_time})
-        IF   ${diff} < ${timeout}
-            Sleep    1
-        ELSE
+        IF   ${diff} > ${timeout}
             BREAK
         END
     END
@@ -368,22 +374,21 @@ Get Virtual Network Interface IP
     FAIL    IP address not found.
 
 Check if ssh is ready on device
-    [Arguments]    ${timeout}=30
+    [Arguments]    ${timeout}=40
     ${is_ready}    Set Variable    False
     ${start_time}  Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
         ${rc}  	${output}	 Run And Return Rc And Output   nc -zvw3 ${DEVICE_IP_ADDRESS} 22
         ${status}    Run Keyword And Return Status
         ...          Should Be Equal As Integers	${rc}	0
+        Sleep        ${PING_SPACING}
         IF  ${status}
             Log To Console   ${output}
             ${is_ready} =  Set Variable    True
             BREAK
         END
         ${diff}=    Evaluate    int(time.time()) - int(${start_time})
-        IF   ${diff} < ${timeout}
-            Sleep    1
-        ELSE
+        IF   ${diff} > ${timeout}
             BREAK
         END
     END

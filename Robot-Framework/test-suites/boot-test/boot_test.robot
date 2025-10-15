@@ -78,7 +78,7 @@ Turn OFF Device
     ELSE
         Turn Plug Off
     END
-    ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
+    ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  2x  ${PING_SPACING}s  Check If Ping Fails
     IF  ${device_not_available} == True
         Log To Console    Device is down
     ELSE

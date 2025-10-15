@@ -47,4 +47,6 @@ Soft Reboot Device
         ${output}  Execute Command  reboot  sudo=True  sudo_password=${password}
         Log  ${output}
         Log To Console  Rebooting device from command line
+    ELSE
+        FAIL    Device expected to be available but not responding.
     END
