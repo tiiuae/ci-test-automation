@@ -28,7 +28,7 @@ ${vm} is wiped after restarting
     Switch to vm        ${vm}
     Create file         /etc/test.txt    sudo=True
     Close Connection
-    Switch to vm        ghaf-host
+    Switch to vm        ${HOST}
     Restart VM          ${vm}
     Check Network Availability      ${vm}    expected_result=True    range=15
     Switch to vm        ${vm}
@@ -49,7 +49,7 @@ Restart VM
 Start VM
     [Documentation]         Try to start VM and verify it started
     [Arguments]             ${vm}
-    Switch to vm            ghaf-host
+    Switch to vm            ${HOST}
     Log                     Going to start ${vm}    console=True
     Execute Command         systemctl start microvm@${vm}.service  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
     ${state}  ${substate}   Verify service status  service=microvm@${vm}.service  expected_state=active  expected_substate=running

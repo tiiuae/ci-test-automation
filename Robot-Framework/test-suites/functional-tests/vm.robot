@@ -96,12 +96,12 @@ Check user account is only in gui-vm
 *** Keywords ***
 
 VM Suite Setup
-    Switch to vm    ghaf-host
+    Switch to vm    ${HOST}
     ${output}       Execute Command    microvm -l
     @{VM_LIST}      Extract VM names   ${output}
     Should Not Be Empty     ${VM_LIST}   VM list is empty
     Set Suite Variable      @{VM_LIST}
-    @{VM_LIST_WITH_HOST}    Create List   @{VM_LIST}   ghaf-host
+    @{VM_LIST_WITH_HOST}    Create List   @{VM_LIST}   ${HOST}
     Set Suite Variable      @{VM_LIST_WITH_HOST}
 
 Check VM systemctl status for known issues
