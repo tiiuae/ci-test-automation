@@ -13,7 +13,6 @@ Prepare Test Environment
     [Arguments]   ${login}=True   ${enable_dnd}=False
     Connect to device
     Log versions
-    Start journalctl recording
 
     IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Switch to vm    ${GUI_VM}
@@ -30,7 +29,7 @@ Clean Up Test Environment
     [Timeout]     5 minutes
     [Arguments]   ${disable_dnd}=False
     Switch to vm   ghaf-host
-    Stop journalctl recording
+    Save host journalctl
     IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Start ydotoold
         Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
@@ -49,17 +48,13 @@ Connect to device
     END
     Switch to vm   ghaf-host
 
-Start journalctl recording
-    ${output}     Execute Command    nohup journalctl -f >> /tmp/jrnl.txt 2>&1 &
-
-Stop journalctl recording
-    ${jrnl_size}  Execute Command    ls -lh /tmp/jrnl.txt
-    Log           ${jrnl_size}
+Save host journalctl
+    Execute Command      journalctl -b 0 > /tmp/jrnl.txt
+    ${jrnl_size}         Execute Command    ls -lh /tmp/jrnl.txt
+    Log                  ${jrnl_size}
     # Copy journal log file to Robot outputs
-    SSHLibrary.Get file   /tmp/jrnl.txt   ${OUTPUT_DIR}/jrnl.txt
-    OperatingSystem.File Should Exist     ${OUTPUT_DIR}/jrnl.txt
-    @{pid}        Find pid by name   journalctl
-    Kill process  @{pid}
+    SSHLibrary.Get file  /tmp/jrnl.txt   ${OUTPUT_DIR}/jrnl.txt
+    OperatingSystem.File Should Exist    ${OUTPUT_DIR}/jrnl.txt
 
 Log versions
     ${ghaf_version}     Execute Command   ghaf-version
