@@ -312,7 +312,7 @@ Get Received Loss Percentage
 Result Check
     [Documentation]
     [Arguments]    ${result_data}=""  ${bps_tx}=  ${bps_rx}=  ${rx_loss}=  ${set_failure_percent}=15
-    Log  ==== tx ${bps_tx}, rx: ${bps_rx}, rx failure %: ${rx_loss} (accepted: < ${set_failure_percent}%) ====  console=True
+    Log  ==== tx ${bps_tx}, rx: ${bps_rx}, rx failure %: ${rx_loss} (accepted if: 2 < rx and failure-% < ${set_failure_percent}%) ====  console=True
     ${verdict}  Run Keyword And Return Status  Should Be True  (2 < ${bps_tx}) and (2 < ${bps_rx}) and (${rx_loss} < ${set_failure_percent})
 
     RETURN  ${verdict}
