@@ -86,7 +86,7 @@ Turn OFF Device
     ELSE
         Turn Relay Off    ${RELAY_NUMBER}
     END
-    ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  2x  ${PING_SPACING}s  Check If Ping Fails
+    ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  3x  ${PING_SPACING}s  Check If Ping Fails
     IF  ${device_not_available} == True
         Log To Console    Device is down
     ELSE
