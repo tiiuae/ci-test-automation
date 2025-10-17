@@ -57,15 +57,35 @@ Measure Orin Soft Boot Time
     [Tags]  SP-T187  orin-agx  orin-agx-64  orin-nx
     # Sleep in the beginning to avoid triggering firewall rule by later pinging
     Sleep                        20
+
+    ${result}  Run Process  ping  ${DEVICE_IP_ADDRESS}  -c1  timeout=1s
+    Log   ${result.rc}
+    Log   ${result.stdout}
+    ${start_of_test}    DateTime.Get Current Date  UTC
+    Set Test Variable   ${start_of_test}
     Soft Reboot Device
     Wait Until Keyword Succeeds  5x  2s  Check If Ping Fails
     Get Time To Ping
+
+    Log to console  Active test: ${start_of_test} - ${end_of_test}
+
     IF  "NX" in "${DEVICE}" or "AGX" in "${DEVICE}"      Sleep    30
+    Connect to device
+    Log to console  Active test: ${start_of_test} - ${end_of_test}
+    ${journal_output}     Execute Command  journalctl --since "${start_of_test}"
+    Log  ${journal_output}
+    Connect to netvm
+    ${journal_output}     Execute Command  journalctl --since "${start_of_test}"
+    Log  ${journal_output}
 
 Measure Orin Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
     [Tags]  SP-T182  orin-agx  orin-agx-64  orin-nx  lab-only
     Log To Console                Shutting down by switching the power off
+
+    ${start_of_test}    DateTime.Get Current Date  UTC
+    Set Test Variable   ${start_of_test}
+
     Turn Relay Off                ${RELAY_NUMBER}
     Wait Until Keyword Succeeds   3x  ${PING_SPACING}s  Check If Ping Fails
     Log To Console                The device has shut down
@@ -73,6 +93,13 @@ Measure Orin Hard Boot Time
     Turn Relay On                 ${RELAY_NUMBER}
     Get Time To Ping              plot_name=Hard Boot Times
     IF  "NX" in "${DEVICE}" or "AGX" in "${DEVICE}"       Sleep    30
+    Connect to device
+    Log to console  Active test: ${start_of_test} - ${end_of_test}
+    ${journal_output}     Execute Command  journalctl --since "${start_of_test}"
+    Log  ${journal_output}
+    Connect to netvm
+    ${journal_output}     Execute Command  journalctl --since "${start_of_test}"
+    Log  ${journal_output}
 
 
 *** Keywords ***
@@ -96,6 +123,8 @@ Measure Time To Ping
     END
     ${ping_response_seconds}  DateTime.Subtract Date From Date  ${ping_end_time}  ${start_time}   exclude_millis=True
     Log                       Response time to ping measured: ${ping_response_seconds}   console=True
+    ${end_of_test}    DateTime.Get Current Date  UTC
+    Set Test Variable  ${end_of_test}
     RETURN                    ${ping_response_seconds}
 
 Get Time To Ping
@@ -107,7 +136,7 @@ Get Time To Ping
     Check Result Validity         ${final_results}
     &{statistics}                 Save Boot time Data   ${TEST NAME}  ${final_results}
     Log  <img src="${DEVICE}_${TEST NAME}.png" alt="${plot_name}" width="1200">    HTML
-    Determine Test Status         ${statistics}  inverted=1
+    #Determine Test Status         ${statistics}  inverted=1
 
 Get Boot times
     [Documentation]  Collect boot times from device

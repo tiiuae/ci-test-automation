@@ -13,15 +13,13 @@ Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_I
 ...                 ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}  ${PERF_LOW_LIMIT}
 Library             Collections
 Library             JSONLibrary
+Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Library  DebugLibrary
-
-Suite Setup         Run Keywords  Connect to device
-...                 AND  Connect to netvm
+Suite Setup         Run Keywords  Connect
 ...                 AND  Run iperf server on DUT
 Suite Teardown      Run Keywords  Stop iperf server
 ...                 AND  Close port 5201 from iptables
@@ -243,13 +241,6 @@ Close port 5201 from iptables
     Execute Command  iptables -A ghaf-fw-in-filter -p tcp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
     Execute Command  iptables -A ghaf-fw-in-filter -p udp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
 
-Stop iperf server
-    @{pid}=  Find pid by name  iperf
-    IF  @{pid} != @{EMPTY}
-        Log             Close iperf server: @{pid}  console=True
-        Kill process    @{pid}
-    END
-
 Check iperf was started
     [Arguments]       ${timeout}=5
     ${is_started} =   Set Variable    False
@@ -312,7 +303,7 @@ Get Received Loss Percentage
 Result Check
     [Documentation]
     [Arguments]    ${result_data}=""  ${bps_tx}=  ${bps_rx}=  ${rx_loss}=  ${set_failure_percent}=15
-    Log  ==== tx ${bps_tx}, rx: ${bps_rx}, rx failure %: ${rx_loss} (accepted: < ${set_failure_percent}%) ====  console=True
+    Log  ==== tx ${bps_tx}, rx: ${bps_rx}, rx failure %: ${rx_loss} (accepted if: 2 < rx and failure-% < ${set_failure_percent}%) ====  console=True
     ${verdict}  Run Keyword And Return Status  Should Be True  (2 < ${bps_tx}) and (2 < ${bps_rx}) and (${rx_loss} < ${set_failure_percent})
 
     RETURN  ${verdict}
