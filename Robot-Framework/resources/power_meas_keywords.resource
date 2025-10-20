@@ -69,8 +69,8 @@ Get power record
 
 Save power measurement interval
     [Documentation]   Extract measurement data within given time interval
-    [Arguments]       ${file_name}   ${start_time}   ${end_time}   ${output_filename}=power_interval.csv  ${check_freq}=${True}
-    IF  $SSH_MEASUREMENT=='${EMPTY}'
+    [Arguments]       ${file_name}   ${start_time}   ${end_time}   ${output_filename}=power_interval.csv  ${check_freq}=${True}  ${hw_measurement}=${True}
+    IF  $SSH_MEASUREMENT=='${EMPTY}' and ${hw_measurement}=='${True}'
         Log To Console    No connection to power measurement device. Ignoring all power measurement related keywords.
         RETURN
     END
@@ -80,19 +80,25 @@ Save power measurement interval
         Log To Console    Invalid timestamp critera for extracting power data
         RETURN
     END
-    Run Keyword And Ignore Error  Extract time interval  ${file_name}  ${start_time}  ${end_time}  ${output_filename}  ${check_freq}
+    ${divider}      Set Variable  1
+    IF  not ${hw_measurement}
+        ${divider}      Set Variable  1000
+    END
+    Run Keyword And Ignore Error  Extract time interval  ${file_name}  ${start_time}  ${end_time}  ${output_filename}  ${check_freq}  ${divider}
 
 Generate power plot
     [Documentation]   Extract power data from start timestamp to current time.
     ...               Plot power vs time and save to png file.
-    [Arguments]       ${id}   ${test_name}
-    IF  $SSH_MEASUREMENT=='${EMPTY}'
+    [Arguments]       ${id}   ${test_name}  ${hw_measurement}=${True}
+    IF  $SSH_MEASUREMENT=='${EMPTY}' and ${hw_measurement}
         Log To Console    No connection to power measurement device. Ignoring all power measurement related keywords.
         RETURN
     END
     ${end_timestamp}                  Get current timestamp
-    Get power record                  ${id}.csv
-    Save power measurement interval   ${id}.csv  '${power_meas_start}'  '${end_timestamp}'
+    IF  ${hw_measurement}
+        Get power record              ${id}.csv
+    END
+    Save power measurement interval   ${id}.csv  '${power_meas_start}'  '${end_timestamp}'  check_freq=${hw_measurement}  hw_measurement=${hw_measurement}
     Generate graph                    power_interval.csv  ${test_name}
     Log                               <img src="${REL_PLOT_DIR}power_${test_name}.png" alt="Power plot" width="1200">    HTML
 
@@ -146,3 +152,19 @@ Measure power level change
         RETURN  ${relative_change}
     END
     RETURN  ${False}
+
+Start BAT0 power logging
+    Log To Console  Launching battery power_now logging
+    Put File          ../test-files/bat0_power_logger   /tmp
+    Execute Command   chmod 777 /tmp/bat0_power_logger  sudo=True  sudo_password=${PASSWORD}
+    Run Keyword And Ignore Error   Execute Command  -b /tmp/bat0_power_logger  sudo=True  sudo_password=${PASSWORD}  timeout=2
+    Set timestamp   power_meas_start
+
+Plot BAT0 power log
+    Log To Console        Stopping battery power_now logging
+    @{pid}                Find pid by name   bat0_power_logger
+    Kill process          @{pid}
+    SSHLibrary.Get file   /tmp/bat0_power.csv   ${POWER_MEASUREMENT_DIR}/bat0_power.csv
+    Generate power plot   bat0_power   ${TEST_NAME}   ${False}
+
+
