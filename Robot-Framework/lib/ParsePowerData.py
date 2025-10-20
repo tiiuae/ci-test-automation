@@ -21,10 +21,13 @@ class ParsePowerData:
             os.makedirs(self.plot_dir, exist_ok=True)
         return
 
-    def extract_time_interval(self, csv_file, start_time, end_time, output_filename, check_freq):
+    def extract_time_interval(self, csv_file, start_time, end_time, output_filename, check_freq, divider=1):
         columns = ['time', 'meas_counter', 'power']
         data = pd.read_csv(self.power_meas_dir + csv_file, names=columns)
         interval = data.query("{} < time < {}".format(start_time, end_time))
+        if divider != 1:
+            for i in range(len(interval['power'])):
+                interval.loc[i, "power"] = interval['power'][i] / divider
         interval.to_csv(self.power_meas_dir + output_filename, index=False)
         if check_freq:
             self.check_measurement_frequency(data)

@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2022-2025 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
+while true
+do
+    echo $(date +'%Y-%m-%d %H:%M:%S'), 0, $(cat /sys/class/power_supply/BAT0/power_now) >> /tmp/bat0_power.csv
+    sleep 5
+done
