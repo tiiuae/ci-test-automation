@@ -283,8 +283,12 @@ Verify service status
 
         # 'Welcome to NixOS' is not got if 'non-vm service' or if service is expected to be inactive/dead.
         IF  ${vmservice} and '${expected_substate}' == 'running' and ${state_status} and ${substate_status} and ${welcome_check}
-            ${logs}        Execute Command   journalctl -b -u ${service}
-            Log            ${logs}
+            ${logs}    ${stderr}    ${rc}  Execute Command   journalctl -b -u ${service}  timeout=10   return_stdout=True    return_stderr=True    return_rc=True
+            IF  '${rc}' != '0'
+                Sleep  5
+                ${logs}  ${stderr}  ${rc}  Execute Command   journalctl -b -u ${service}  timeout=10   return_stdout=True    return_stderr=True    return_rc=True
+            END
+            Log    ${logs}
             ${finished}    Run Keyword And Return Status    Should Contain    ${logs}    Welcome to NixOS
             IF  ${finished}
                 BREAK
@@ -299,8 +303,8 @@ Verify service status
     IF  ${finished}
         Log To Console  ${\n}systemctl status ${service}: ${state} (${substate})
     ELSE
-        ${output}       Execute Command  journalctl -b -u ${service}
-        Log             ${output}
+        ${logs}  ${stderr}  ${rc}  Execute Command  journalctl -b -u ${service}  timeout=10   return_stdout=True    return_stderr=True    return_rc=True
+        Log   ${logs}
         IF   ${welcome_check}   FAIL    systemctl status ${service}: ${state} (${substate}), expected: ${expected_state} (${expected_substate}), welcome check passed: ${finished}
         FAIL            systemctl status ${service}: ${state} (${substate}), expected: ${expected_state} (${expected_substate})
     END

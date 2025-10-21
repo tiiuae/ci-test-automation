@@ -5,7 +5,7 @@
 Resource            ../config/variables.robot
 Resource            ../resources/gui_keywords.resource
 Resource            ../resources/ssh_keywords.resource
-
+Library   DebugLibrary
 
 *** Keywords ***
 
@@ -29,7 +29,15 @@ Clean Up Test Environment
     [Timeout]     5 minutes
     [Arguments]   ${disable_dnd}=False
     Switch to vm   ghaf-host
-    Save host journalctl
+    ${journal_taken}  Run Keyword And Return Status  Save host journalctl
+    #try again
+    IF  not ${journal_taken}
+         Close all connections
+         Connect to device
+         Log to console   Saving now the journal try2
+         Save host journalctl
+    END
+
     IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Start ydotoold
         Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
@@ -49,13 +57,30 @@ Connect to device
     Switch to vm   ghaf-host
 
 Save host journalctl
+    [Timeout]    1 minutes
+    Log to console   Saving now the journal
     Execute Command      journalctl -b 0 > /tmp/jrnl.txt
     ${jrnl_size}         Execute Command    ls -lh /tmp/jrnl.txt
     Log                  ${jrnl_size}
+    #${copied}          Set Variable  ${False}
     # Copy journal log file to Robot outputs
-    SSHLibrary.Get file  /tmp/jrnl.txt   ${OUTPUT_DIR}/jrnl.txt
+    # ${copied}    Run Keyword And Return Status  SSHLibrary.Get file  /tmp/jrnl.txt   ${OUTPUT_DIR}/jrnl.txt   timeout=20
+    # Try  5x
+    #SSHLibrary.Set Client Configuration    timeout=10 seconds
+    #FOR  ${trial}  IN RANGE  0  5
+     #   Log to console  In Trial loop: ${trial} 
+        #${copied}    Run Keyword And Return Status  SSHLibrary.Get file  /tmp/jrnl.txt   ${OUTPUT_DIR}/jrnl.txt
+        SSHLibrary.Get file  /tmp/jrnl.txt   ${OUTPUT_DIR}/jrnl.txt
+        #Exit For Loop If     ${copied}
+        #Log To Console       Copying the 'tmp/jrnl.txt' FAILED
+        #Sleep        3
+    #END
+    
+    #IF  not ${copied}
+    #    FAIL  Failed to fetch journal log!
+    #END    
     OperatingSystem.File Should Exist    ${OUTPUT_DIR}/jrnl.txt
-
+    
 Log versions
     ${ghaf_version}     Execute Command   ghaf-version
     Log To Console      Ghaf version: ${ghaf_version}
