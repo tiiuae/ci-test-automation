@@ -17,6 +17,8 @@ Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
+Library  DebugLibrary
+
 Suite Setup         Connect to device
 Suite Teardown      Close All Connections
 
@@ -495,13 +497,26 @@ Prepare files for fileio test in VM
     Write                 mkdir ${test_dir}
     Write                 cd ${test_dir}
     Write                 sysbench fileio --file-total-size=${total_size}G --file-num=128 --threads=1 --file-test-mode=seqrd prepare
-    ${iterations}         Evaluate              int(${total_size} * 20)
+    ${iterations}         Evaluate              int(${total_size} * 30)
     FOR    ${i}    IN RANGE    ${iterations}
         Write            ls ${test_dir}
         Sleep            1
         ${file_list}     Read
         IF  "test_file.127" in $file_list
-            Log To Console    Files ready for fileio read test
+            # Check if last file has been read totally, if not, read one more second
+            ${test_file_1_size}     Execute Command   ls -sh ${test_dir}/test_file.1  sudo=True  sudo_password=${PASSWORD}
+            ${test_file_1_size}     Set Variable      ${test_file_1_size[:-1]}  # 56M /guestStorage/fileio/test_file.
+            ${test_file_127_size}   Execute Command   ls -sh ${test_dir}/test_file.127  sudo=True  sudo_password=${PASSWORD}
+            ${test_file_127_size}   Set Variable      ${test_file_127_size[:-3]}
+
+            IF  $test_file_1_size != $test_file_127_size
+                Write            ls ${test_dir}
+                Sleep            1
+                ${file_list}     Read
+                ${test_file_127_size}   Execute Command   ls -sh ${test_dir}/test_file.127  sudo=True  sudo_password=${PASSWORD}
+                ${test_file_127_size}   Set Variable      ${test_file_127_size[:-3]}
+                Should Be Equal         ${test_file_1_size}  ${test_file_127_size}
+            END
             RETURN
         END
     END
