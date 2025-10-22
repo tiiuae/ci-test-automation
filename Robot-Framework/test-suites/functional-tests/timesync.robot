@@ -173,6 +173,7 @@ Unblock internet traffic
     Execute Command    iptables -D OUTPUT -p udp -m multiport --dports 80,443 -j DROP  sudo=True  sudo_password=${PASSWORD}
 
 Timesync Teardown
+     [Timeout]      2 minutes
      Switch to vm   ghaf-host
      Run Keyword If Test Failed  Check If Known Error
      Set RTC from system clock
