@@ -60,10 +60,11 @@ Check Network Availability
     END
 
 Check If Device Is Up
-    [Arguments]    ${range}=20
+    [Arguments]    ${range}=7
     Set Global Variable    ${IS_AVAILABLE}       False
     ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
+        Log         Ping ${DEVICE_IP_ADDRESS}...    console=True
         ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
         Sleep       ${PING_SPACING}
         IF    ${ping}
