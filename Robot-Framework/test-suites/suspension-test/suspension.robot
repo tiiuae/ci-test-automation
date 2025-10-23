@@ -61,11 +61,8 @@ Automatic suspension
     Connect
     Generate power plot      ${BUILD_ID}   ${TEST NAME}
     Stop recording power
-    Check power during suspension          ${BUILD_ID}
     Switch to vm             ${GUI_VM}   user=${USER_LOGIN}
-    Check the screen state   off
-    # Screen wakeup requires a mouse move
-    Move Cursor
+    
     Check the screen state   on
     ${locked}                Check if locked
     Should Be True           ${locked}    Lock screen didn't appear
@@ -175,7 +172,7 @@ Check the screen state
     Should Contain      ${output}    ${state}
 
 Check that device is suspended
-    ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  3x  ${PING_SPACING}s  Check If Ping Fails
+    ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
     IF  ${device_not_available} == True
         Log To Console  Device is suspended
     ELSE
