@@ -30,7 +30,7 @@ Clean Up Test Environment
     [Arguments]   ${disable_dnd}=False
     Switch to vm   ghaf-host
     # Temporarily taking journal log taking our from Orin-NX [SSRCSP-7453]
-    IF  "NX" not in "${DEVICE}"  Save host journalctl
+    Save host journalctl
     IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Start ydotoold
         Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
@@ -54,7 +54,7 @@ Save host journalctl
     ${jrnl_size}         Execute Command    ls -lh /tmp/jrnl.txt
     Log                  ${jrnl_size}
     # Copy journal log file to Robot outputs
-    SSHLibrary.Get file  /tmp/jrnl.txt   ${OUTPUT_DIR}/jrnl.txt
+    SSHLibrary.Get file  /tmp/jrnl.txt   ${OUTPUT_DIR}/jrnl.txt  scp=TRANSFER
     OperatingSystem.File Should Exist    ${OUTPUT_DIR}/jrnl.txt
 
 Log versions
