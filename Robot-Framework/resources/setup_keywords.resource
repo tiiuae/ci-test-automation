@@ -28,9 +28,11 @@ Prepare Test Environment
 Clean Up Test Environment
     [Timeout]     5 minutes
     [Arguments]   ${disable_dnd}=False
-    Switch to vm   ghaf-host
     # Temporarily taking journal log taking our from Orin-NX [SSRCSP-7453]
-    IF  "NX" not in "${DEVICE}"  Save host journalctl
+    IF  "NX" not in "${DEVICE}"
+        Switch to vm   ghaf-host
+        Save host journalctl
+    END
     IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Start ydotoold
         Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
