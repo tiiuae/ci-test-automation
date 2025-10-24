@@ -68,8 +68,8 @@ Set Variables
     Set Global Variable  @{VMS}                ${ADMIN_VM}  ${AUDIO_VM}  ${BUSINESS_VM}  ${CHROME_VM}  ${COMMS_VM}  ${GUI_VM}  ${ZATHURA_VM}
     Set Global Variable  ${PERF_LOW_LIMIT}     1
 
-    # Ghaf firewall rules allow max 5 pings per minute
-    Set Global Variable  ${PING_SPACING}   13
+    # Ghaf firewall rules allow max 60 pings per minute
+    Set Global Variable  ${PING_SPACING}   1
 
     Set Log Level       NONE
 
