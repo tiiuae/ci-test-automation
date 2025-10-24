@@ -196,6 +196,7 @@ Connect to VM
         Exit For Loop If        ${logged_in}
         Sleep                   2
     END
+    IF  not ${logged_in}  Log to console   FAILED to login to ${vm_name} as ${user}.
     IF  not ${logged_in}  FAIL  Could not login to ${vm_name} as ${user}.
     Log To Console  Connected and logged in.
     # If connected and logged in successfully
