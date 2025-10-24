@@ -63,9 +63,7 @@ Automatic suspension
     Stop recording power
     Check power during suspension          ${BUILD_ID}
     Switch to vm             ${GUI_VM}   user=${USER_LOGIN}
-    Check the screen state   off
-    # Screen wakeup requires a mouse move
-    Move Cursor
+
     Check the screen state   on
     ${locked}                Check if locked
     Should Be True           ${locked}    Lock screen didn't appear
