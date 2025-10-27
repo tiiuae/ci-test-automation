@@ -48,6 +48,8 @@ GUI Suspend and wake up
     ELSE
         Log To Console            Device successfully woke up after suspend
     END
+    Sleep                         10
+    Log To Console                Sleeping 10s
     # Screen wakeup requires a mouse move
     Move Cursor
     Log To Console                Checking if the screen is in locked state after wake up
