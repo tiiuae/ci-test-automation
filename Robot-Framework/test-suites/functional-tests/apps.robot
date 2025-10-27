@@ -124,12 +124,11 @@ Start Trusted Browser
     Start application in VM   "Trusted Browser"  ${BUSINESS_VM}   google-chrome
     [Teardown]        Kill App in VM   ${BUSINESS_VM}
 
-# Does not work, there is also another match for VPN
-# Start VPN
-#     [Documentation]   Start VPN app and verify process started
-#     [Tags]            SP-T200
-#     Start application in VM   VPN  ${BUSINESS_VM}   gpclient
-#     [Teardown]        Kill App in VM   ${BUSINESS_VM}
+Start VPN
+    [Documentation]   Start VPN app and verify process started
+    [Tags]            SP-T200
+    Start application in VM   VPN  ${BUSINESS_VM}   gpclient
+    [Teardown]        Kill App in VM   ${BUSINESS_VM}
 
 Start Video Editor
     [Documentation]   Start Video Editor and verify process started
@@ -142,3 +141,4 @@ Start Zoom
     [Tags]            SP-T237
     Start application in VM   Zoom  ${COMMS_VM}   zoom
     [Teardown]        Kill App in VM   ${COMMS_VM}
+

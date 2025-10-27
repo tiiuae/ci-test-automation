@@ -45,7 +45,7 @@ Change keyboard layout
     IF  $key_check != ';كö'
         FAIL    Failed to get the expected keyboard input ';كö'\nKeyboard input received: ${key_check}
     END
-    [Teardown]   Run Keywords   Kill gui-vm apps    AND   Stop screen recording    ${TEST_STATUS}   ${TEST_NAME}
+    [Teardown]   Run Keywords   Kill App in VM    ${GUI_VM}   AND   Stop screen recording    ${TEST_STATUS}   ${TEST_NAME}
 
 Control audio volume with keyboard shortcuts
     [Documentation]      Check that volume level is increased by pressing F3 (Lenovo-X1) or Fn+F6 (Darter-Pro),
@@ -110,8 +110,3 @@ Check cosmic config current layout value
             Switch keyboard layout
         END
     END
-
-Kill gui-vm apps
-    Switch to vm    ${GUI_VM}
-    Kill process    @{APP_PIDS}
-    Switch to vm    ${GUI_VM}  user=${USER_LOGIN}

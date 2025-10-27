@@ -5,8 +5,9 @@
 Documentation       Verify that VMs boot into immutable, signed filesystem snapshots
 Force Tags          security  regression  lenovo-x1  darter-pro  dell-7330
 
-Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/file_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 
 
 *** Test Cases ***

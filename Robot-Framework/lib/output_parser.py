@@ -241,27 +241,6 @@ def get_qspi_versions(output):
 
     return fw_version, sw_version
 
-def get_app_path(output, app):
-    pattern = rf"path=(.*{app}.*)\n"
-    match = re.search(pattern, output)
-    if match:
-        result = match.group(1)
-    else:
-        raise Exception(f"Couldn't parse {app} path from /etc/xdg/weston/weston.ini, pattern: {pattern}")
-    path = result.replace('"', '\\"')
-    return path
-
-def get_app_path_from_desktop(output):
-    # Parse Exec-path from XDG .desktop application launcher file.
-    pattern = r"Exec=(.*)\n"
-    match = re.search(pattern, output)
-    if match:
-        result = match.group(1)
-    else:
-        raise Exception(f"Couldn't parse app path, pattern: {pattern}")
-    path = result.replace('"', '\\"')
-    return path
-
 def get_failed_units(output):
     pattern = re.compile(r"^\s*●?\s*([\w@.-]+\.service)\b", re.MULTILINE)
     services = pattern.findall(output)

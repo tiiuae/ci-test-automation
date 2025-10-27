@@ -212,7 +212,7 @@ Verify desktop availability
 
     # Wait for the initial setup to start and kill the process. Initial setup window can mess with screenshot permission window.
     Run Keyword and Ignore Error     Check that the application was started   cosmic-initial-setup   range=30
-    Kill process by name   cosmic-initial-setup
+    Kill App By Name   cosmic-initial-setup
 
     Log To Console         Verifying login by trying to detect the launcher icon
     # This is a workaround for launcher icon missing sometimes. If launcher icon can't be found tries to search
@@ -379,7 +379,7 @@ Restore default wallpaper
     Remove file       ~/.config/cosmic/com.system76.CosmicBackground/v1/all
 
 Start screen recording
-    [Setup]          Kill process by name   gpu-screen-recorder
+    [Setup]          Kill App By Name   gpu-screen-recorder
     Log To Console   Starting screen recording
     Press key(s)     LEFTCTRL+LEFTSHIFT+LEFTALT+R
     IF   ${SCREEN_SELECTED}==${False}
@@ -405,8 +405,7 @@ Stop screen recording
     END
     Log To Console   Stopping screen recording
     Press key(s)     LEFTCTRL+LEFTSHIFT+LEFTALT+R
-    @{pid}           Find pid by name   gpu-screen-recorder
-    Kill process     @{pid}   sudo=False
+    Kill App By Name   gpu-screen-recorder
     # Get the name of the last recording
     ${video_file}    Execute Command   ls /home/${USER_LOGIN}/Videos -Art | tail -n 1
     # Save the video file if the test failed
@@ -416,4 +415,4 @@ Stop screen recording
         SSHLibrary.Get File   /home/${USER_LOGIN}/Videos/${video_file}   ${GUI_TEMP_DIR}/${name}.mp4
     END
     Execute Command   rm /home/${USER_LOGIN}/Videos/${video_file}
-    [Teardown]        Kill process by name   gpu-screen-recorder
+    [Teardown]        Kill App By Name   gpu-screen-recorder

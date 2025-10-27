@@ -97,6 +97,22 @@ Check the result files
         FAIL    No packets received by server or stealer VM. Test might be broken.
     END
 
+Get Virtual Network Interface IP
+    [Documentation]     Parse ifconfig output and look for ethint0 IP
+    ${if_name}=    Set Variable   ethint0
+    FOR    ${i}    IN RANGE    20
+        ${output}     Execute Command      ifconfig
+        Log           ${output}
+        ${ip}         Get ip from ifconfig    ${output}   ${if_name}
+        IF  $ip != '${EMPTY}'
+            Log       ${ip}
+            RETURN    ${ip}
+        END
+        Sleep    1
+    END
+    FAIL    IP address not found.
+
+
 Spoofing Test Teardown
     [Documentation]   Switching of IP address can make stealer VM inaccessible for further tests.
     ...               Restart the stealer vm.

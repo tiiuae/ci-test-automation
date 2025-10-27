@@ -5,6 +5,7 @@
 Documentation       Testing Network VM
 Force Tags          net-vm  bat  regression
 
+Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/virtualization_keywords.resource

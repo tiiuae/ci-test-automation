@@ -4,6 +4,7 @@
 *** Settings ***
 Documentation       Test OP-TEE PKCS#11 through pkcs11-tool wrappers
 
+Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Switch to vm   ${HOST}

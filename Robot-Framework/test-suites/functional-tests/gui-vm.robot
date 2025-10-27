@@ -18,7 +18,7 @@ Start Falcon AI
     [Documentation]   Start Falcon AI and verify process started
     [Tags]            falcon_ai  SP-T223-1  lenovo-x1  darter-pro  dell-7330
     Get Falcon LLM Name
-    Start XDG application  'Falcon AI'
+    Start application  "Falcon AI"
     Wait Until Falcon Download Complete
     Check that the application was started    alpaca    range=20
 
@@ -49,6 +49,16 @@ Check user systemctl status
 
 
 *** Keywords ***
+
+Get Falcon LLM Name
+    ${output}            Execute Command     cat '/run/current-system/sw/share/applications/Falcon AI.desktop'
+    ${line}              Get Lines Containing String  ${output}  Exec=
+    ${path}              Set Variable  ${line[5:]}
+    ${llm_name_raw}      Execute Command  cat ${path} | grep LLM_NAME | head -n 1
+    # LLM_NAME="falcon3:10b" -> falcon3:10b
+    ${tmp}               Fetch From Right  ${llm_name_raw}  =
+    ${LLM_NAME}          Set Variable  ${tmp[1:-1]}
+    Set Global Variable  ${LLM_NAME}
 
 Wait Until Falcon Download Complete
     FOR  ${i}  IN RANGE   100
