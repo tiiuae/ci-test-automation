@@ -99,9 +99,9 @@ Login with timeout
     [Arguments]       ${username}=${LOGIN}    ${password}=${PASSWORD}   ${timeout}=30   ${jumphost}=None
     [Timeout]         ${timeout}
     IF  $jumphost != 'None'
-        ${login_output}   Login   username=${username}    password=${password}    jumphost_index_or_alias=${jumphost}
+        ${login_output}  Login   username=${username}    password=${password}    jumphost_index_or_alias=${jumphost}
     ELSE
-        ${login_output}   Login   username=${username}    password=${password}
+        ${login_output}    Login   username=${username}    password=${password}
     END
     RETURN            ${login_output}
 

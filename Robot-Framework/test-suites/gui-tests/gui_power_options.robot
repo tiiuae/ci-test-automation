@@ -49,7 +49,7 @@ GUI Suspend and wake up
         Log To Console            Device successfully woke up after suspend
     END
     # Screen wakeup requires a mouse move
-    Move Cursor
+    # Move Cursor
     Log To Console                Checking if the screen is in locked state after wake up
     ${lock}                       Check if locked
     IF  ${lock}
