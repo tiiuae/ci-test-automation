@@ -95,6 +95,7 @@ class PerformanceDataProcessing:
             for key in test_data:
                 data.append(test_data[key])
         data.append(self.device)
+        print(test_name, ": ", data)
         self._write_to_csv(test_name, data)
 
     def truncate(self, list, significant_figures):
@@ -746,6 +747,54 @@ class PerformanceDataProcessing:
 
         return return_statistics
 
+    @keyword("Read AppLaunch CSV and Plot")
+    def read_applaunch_csv_and_plot(self, test_name):
+        threshold = thresholds['app_launch_time']
+
+
+        with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
+            lines = csv.reader(csvfile)
+            print(f"lines:", lines)
+            logging.info("Reading data from csv file..." )
+
+            build_counter = {}  # To keep track of duplicate builds
+            data = {"commit": [], "launch_time": []}
+
+            for row in lines:
+                build = str(row[0])
+                if build in build_counter:
+                    build_counter[build] += 1
+                    modified_build = f"{build}-{build_counter[build]}"
+                else:
+                    build_counter[build] = 0
+                    modified_build = build
+                data['commit'].append(modified_build)
+                try:
+                    val = float(row[1])
+                except (IndexError, ValueError, TypeError):
+                    val = float('nan')
+                data['launch_time'].append(val)
+
+        plt.figure(figsize=(20, 15))
+        plt.set_loglevel('WARNING')
+        plt.subplot(1, 1, 1)
+        plt.ticklabel_format(axis='y', style='plain')
+
+        for key, value in data.items():
+            if key != 'commit':
+                plt.plot(range(len(data['commit'])), value, marker='o', linestyle='-', label=key)
+
+        x = range(len(data['commit']))
+        plt.plot(x, [threshold] * len(x), color='red', linestyle='dotted', linewidth=2)
+        plt.legend(title="App launching time", loc="lower left", ncol=3)
+        plt.yticks(fontsize=14)
+        plt.title(f'{test_name}', loc='right', fontweight="bold", fontsize=16)
+        plt.grid(True)
+        plt.xticks(range(len(data['commit'])), data['commit'], rotation=90, fontsize=14)
+        plt.tight_layout()
+        plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
+
+
     @keyword("Read Isolation Test CSV and Plot")
     def read_isolation_test_csv_and_plot(self, test_name):
 
@@ -903,6 +952,11 @@ class PerformanceDataProcessing:
     def save_isolation_test_data(self, test_name, cpu_isolation_data):
         self.write_test_data_to_csv(test_name, cpu_isolation_data)
         return self.read_isolation_test_csv_and_plot(test_name)
+
+    @keyword
+    def save_app_launch_time_data(self, test_name, data):
+        self.write_test_data_to_csv(test_name, data)
+        return self.read_applaunch_csv_and_plot(test_name)
 
 
     # ---------------------------------------------------------------------

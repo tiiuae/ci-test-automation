@@ -55,5 +55,6 @@ thresholds = {
     },
     'iperf': "40%",
     'cpu_isolation': 7,
-    'fileio_isolation': 10
+    'fileio_isolation': 10,
+    'app_launch_time': 5
 }

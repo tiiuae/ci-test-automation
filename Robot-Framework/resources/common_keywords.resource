@@ -102,3 +102,8 @@ Get VM list
         @{VM_LIST}    Create List   @{VM_LIST}   ${HOST}
     END
     RETURN    @{VM_LIST}
+
+Save Time
+    [Arguments]    ${label}
+    ${now}    Evaluate    time.time()
+    Set Suite Variable    ${TIME_${label}}    ${now}
