@@ -19,14 +19,10 @@ In case of relative threshold the absolute threshold will be calculated as a per
 
 Threshold can be defined as multiple of standard deviation when the test case has accumulated some measurement result history.
 Threshold is limited to 1/3 of mean at maximum when using this std method.
-
-Parameter 'wait_until_reset':
-Baselines of a test will be automatically re-tuned if this number of
-deviations are detected in a row (to the same direction)
 '''
 
 thresholds = {
-    'wait_until_reset': 5,
+
     'cpu': {
         'multi': 700,
         'single': 40,
@@ -55,5 +51,17 @@ thresholds = {
     },
     'iperf': "40%",
     'cpu_isolation': 7,
-    'fileio_isolation': 10
+    'fileio_isolation': 10,
+
+}
+
+'''
+Parameter 'wait_until_reset':
+Baselines of a test will be automatically re-tuned if this number of
+deviations are detected in a row (to the same direction)
+'''
+
+static_thresholds = {
+    'app_launch_time': 6,
+    'wait_until_reset': 5
 }

@@ -198,3 +198,8 @@ Kill process
         END
     END
     Log To Console    Killed processes: @{pids}
+
+Save Time
+    [Arguments]    ${label}
+    ${now}    Evaluate    time.time()
+    Set Suite Variable    ${TIME_${label}}    ${now}

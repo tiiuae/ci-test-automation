@@ -409,7 +409,7 @@ Stop screen recording
     # Get the name of the last recording
     ${video_file}    Execute Command   ls /home/${USER_LOGIN}/Videos -Art | tail -n 1
     # Save the video file if the test failed
-    IF  $test_status=='FAIL'
+    IF  $test_status=='FAIL' or $test_status=='SKIP'
         Log To Console        Saving video file
         ${name}               Replace String   ${test_name}   ${SPACE}   _
         SSHLibrary.Get File   /home/${USER_LOGIN}/Videos/${video_file}   ${GUI_TEMP_DIR}/${name}.mp4
