@@ -112,3 +112,11 @@ Login to laptop
     Start ydotoold
     Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
     Log in, unlock and verify   ${enable_dnd}
+
+Is first graphical login
+    [Documentation]   Returns True if there has only been one graphical login and False if there has been more than one
+    ${result}   Execute Command    journalctl --user -u graphical-session.target | grep "Reached target Current graphical user session"
+    Log         ${result}
+    ${lines}    Count lines    ${result}
+    IF  ${lines} <= 1   RETURN   True
+    RETURN      False

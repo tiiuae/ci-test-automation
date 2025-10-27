@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                         | TICKET / Additional Data.                                                                       |
 | ---------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| 07.11.2025 | Measure time to launch COSMIC Settings            | SSRCSP-7518                                                                                     |
 | 06.11.2025 | Check Grafana logs (net-vm)                       | SSRCSP-7542                                                                                     |
 | 31.10.2025 | GUI Suspend and wake up [Lenovo-X1]               | SSRCSP-7473                                                                                     |
 | 31.10.2025 | Automatic suspension [Lenovo-X1]                  | SSRCSP-7473                                                                                     |
