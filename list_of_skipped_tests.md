@@ -3,7 +3,7 @@
 ## Active SKIPS
 
 | DATE SET   | TEST CASE                                         | TICKET / Additional Data.                                                                       |
-|------------|---------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| ---------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | 23.10.2025 | Save host journalctl/Verify NetVM is started      | SSRCSP-7453                                                                                     |
 | 16.09.2025 | Check systemctl status in every VM                | [Full list of skips in the test case](/Robot-Framework/test-suites/functional-tests/vm.robot)   |
 | 09.09.2025 | Start Falcon AI (Lenovo-x1, Darter-PRO)           | SSRCSP-6769                                                                                     |
@@ -21,7 +21,8 @@
 
 ## TAGs removed
 
-| DATE SET   | TEST CASE                             | TICKET / Additional Data.                                                             |
-| ---------- | ------------------------------------- | ------------------------------------------------------------------------------------- |
-| 03.09.2025 | Performance/network suite (AGX)       | SSRCSP-7160. Network-adapter usage had impact on results Needs further investigation. |
-| 03/2025    | Performance Network.robot - ‘orin-nx’ | SSRCSP-6372 - Works locally but problems when Jenkins used, fails all..               |
+| DATE SET   | TEST CASE                                | TICKET / Additional Data.                                                              |
+| ---------- | ---------------------------------------- | -------------------------------------------------------------------------------------- |
+| 28.10.2025 | Verify brightness persisted (Darter Pro) | Works locally but not in the lab. Needs further investigation.                         |
+| 03.09.2025 | Performance/network suite (AGX)          | SSRCSP-7160. Network-adapter usage had impact on results. Needs further investigation. |
+| 03/2025    | Performance Network.robot - ‘orin-nx’    | SSRCSP-6372 - Works locally but problems when Jenkins used, fails all..                |

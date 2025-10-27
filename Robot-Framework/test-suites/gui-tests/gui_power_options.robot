@@ -12,7 +12,6 @@ Resource            ../../resources/power_meas_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Test Setup          GUI Power Test Setup
 Test Teardown       Run Keyword If Test Failed    GUI Power Test Teardown
 
 
@@ -67,7 +66,7 @@ GUI Lock and Unlock
     [Documentation]   Lock the screen via GUI power menu lock icon and check that the screen is locked.
     ...               Unlock lock screen by typing the password and check that desktop is available.
     [Tags]            SP-T208-3   lock  lenovo-x1  darter-pro
-    [Setup]           Run Keywords   GUI Power Test Setup   AND   Start screen recording
+    [Setup]           Start screen recording
     Select power menu option   text=Lock
     ${lock}           Check if locked
     IF  not ${lock}   FAIL    Failed to lock the screen
@@ -82,26 +81,8 @@ GUI Reboot
     [Tags]            SP-T208-1  lenovo-x1  darter-pro
 
     Select power menu option   x=870   y=120   confirmation=true
-
-    ${device_not_available}       Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  5s  Check If Ping Fails
-    IF  ${device_not_available} == True
-        Log To Console            Device is down
-    ELSE
-        FAIL                      Device didn't shut down at reboot.
-    END
-    Sleep  20
-    Check If Device Is Up
-    IF    ${IS_AVAILABLE} == False
-        FAIL                      The device did shutdown but didn't start in reboot.
-    ELSE
-        Log To Console            Device started
-    END
-    Sleep  30
-    Connect   iterations=10
-    Check if ssh is ready on vm   gui-vm   timeout=60
-    Start ydotoold
-    Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
-    Log in, unlock and verify   enable_dnd=True
+    Verify Reboot and Connect
+    Login to laptop   enable_dnd=True
 
 GUI Log out and log in
     [Documentation]   Logout via GUI power menu icon and verify logged out state.
@@ -114,17 +95,10 @@ GUI Log out and log in
 
 *** Keywords ***
 
-GUI Power Test Setup
-    Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
-    Log in, unlock and verify
-
 GUI Power Test Teardown
     Reboot Laptop
-    Check If Device Is Up
-    Sleep  30
-    Connect    iterations=10
-    Check if ssh is ready on vm   gui-vm    timeout=60
-    Start ydotoold
+    Verify Reboot and Connect
+    Login to laptop
 
 Select power menu option
     [Documentation]    Open power menu by clicking the icon.

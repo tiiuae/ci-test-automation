@@ -19,9 +19,7 @@ Prepare Test Environment
         Create test user
         IF  ${login}
             Save gui icons and icon path
-            Start ydotoold
-            Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
-            Log in, unlock and verify   ${enable_dnd}
+            Login to laptop   ${enable_dnd}
         END
     END
 
@@ -107,3 +105,10 @@ Save gui icons and icon path
     Get icon                ${ICONS}/Papirus/24x24/actions  system-shutdown.svg  crop=0  background=black  output_filename=power.png
     Get icon                ${ICONS}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
 
+Login to laptop
+    [Documentation]   Start ydotool and login
+    [Arguments]       ${enable_dnd}=False
+    Check if ssh is ready on vm   gui-vm    timeout=60
+    Start ydotoold
+    Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
+    Log in, unlock and verify   ${enable_dnd}
