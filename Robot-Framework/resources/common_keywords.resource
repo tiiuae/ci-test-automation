@@ -17,6 +17,48 @@ Check variable availability
         RETURN  ${False}
     END
 
+Verify service status
+    [Documentation]   Check if service is running with given loop ${range}
+    [Arguments]       ${range}=45  ${service}=${EMPTY}   ${expected_state}=active   ${expected_substate}=running  ${expected_rc}=0
+    ${vmservice}      Run Keyword And Return Status  Should Contain  ${service}  microvm@
+    ${finished}       Set Variable  False
+
+    ${welcome_check}  Set Variable If  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"    False    True
+
+    FOR    ${i}    IN RANGE    ${range}
+        ${output}  ${stderr}  ${rc}=   Execute Command  systemctl show ${service}  return_stderr=True  return_rc=True
+        Log           stdout: ${output}\nstderr: ${stderr}
+        Should Not Be Equal As Integers	    ${rc}	4   Stderr: "${stderr}", Return code
+        ${state}             Get Service State     ${output}
+        ${substate}          Get Service Substate  ${output}
+        ${state_status}      Run Keyword And Return Status    Should Be True	'${state}' == '${expected_state}'  Expected ${expected_state} but in fact ${state}
+        ${substate_status}   Run Keyword And Return Status    Should Be True	'${substate}' == '${expected_substate}'    Expected ${expected_substate} but in fact ${substate}
+
+        # 'Welcome to NixOS' is not got if 'non-vm service' or if service is expected to be inactive/dead.
+        IF  ${vmservice} and '${expected_substate}' == 'running' and ${state_status} and ${substate_status} and ${welcome_check}
+            ${logs}        Execute Command   journalctl -b -u ${service}
+            Log            ${logs}
+            ${finished}    Run Keyword And Return Status    Should Contain    ${logs}    Welcome to NixOS
+            IF  ${finished}
+                BREAK
+            END
+        ELSE IF  ${state_status} and ${substate_status}
+            ${finished}     Set Variable  True
+            BREAK
+        END
+        Sleep    1
+    END
+
+    IF  ${finished}
+        Log To Console  ${\n}systemctl status ${service}: ${state} (${substate})
+    ELSE
+        ${output}       Execute Command  journalctl -b -u ${service}
+        Log             ${output}
+        IF   ${welcome_check}   FAIL    systemctl status ${service}: ${state} (${substate}), expected: ${expected_state} (${expected_substate}), welcome check passed: ${finished}
+        FAIL            systemctl status ${service}: ${state} (${substate}), expected: ${expected_state} (${expected_substate})
+    END
+    RETURN    ${state}  ${substate}
+
 Verify Systemctl status
     [Arguments]    ${range}=60    ${user}=False
     [Documentation]    Check is systemctl running with given loop ${range}
@@ -102,3 +144,57 @@ Get VM list
         @{VM_LIST}    Create List   @{VM_LIST}   ${HOST}
     END
     RETURN    @{VM_LIST}
+
+Is process started
+    [Arguments]    ${pid}
+    ${rc}=      Execute Command    ps -p ${pid}   return_rc=True
+    ${status}=  Run Keyword And Return Status   Should Be Equal As Integers	 ${rc[1]}	0
+    RETURN      ${status}
+
+Find pid by name
+    [Arguments]   ${proc_name}  ${exact_match}=false
+    Log To Console    Looking for pids of the process ${proc_name}
+    IF  $exact_match=='true'
+        ${output}=    Execute Command    sh -c 'ps aux | grep -E " ${proc_name}$" | grep -v grep'
+    ELSE
+        ${output}=    Execute Command    sh -c 'ps aux | grep "${proc_name}" | grep -v grep'
+    END
+    Log           ${output}
+    @{pids}=      Find Pid    ${output}  ${proc_name}
+    Log To Console    Found PIDs for process '${proc_name}':\n${pids}
+    RETURN        @{pids}
+
+Kill process
+    [Arguments]    @{pids}    ${sig}=9    ${sudo}=True
+    FOR   ${pid}  IN  @{pids}
+        IF  '${pid}' == '${EMPTY}'
+            BREAK
+        END
+        IF  $sudo == "True"
+            Execute Command    kill -${sig} ${pid}  sudo=True  sudo_password=${password}  timeout=15
+        ELSE
+            Execute Command    kill -${sig} ${pid}  timeout=15
+        END
+        FOR    ${i}    IN RANGE   5
+            ${ps_exists}=    Is Process Started    ${pid}
+            IF  ${ps_exists}
+                Sleep    0.5
+            ELSE
+                BREAK
+            END
+        END
+        IF  ${ps_exists}  FAIL  Process ${pid} haven't stopped
+        # Check if any of the original pids are still running
+        ${any_running} =    Set Variable    False
+        FOR    ${check_pid}  IN  @{pids}
+            ${ps_exists} =    Is Process Started    ${check_pid}
+            IF  ${ps_exists}
+                ${any_running} =    Set Variable    True
+                BREAK
+            END
+        END
+        IF  not ${any_running}
+            BREAK
+        END
+    END
+    Log To Console    Killed processes: @{pids}

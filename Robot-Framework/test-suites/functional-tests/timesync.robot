@@ -6,6 +6,7 @@ Documentation       Testing time synchronization
 Force Tags          timesync
 
 Library             ../../lib/TimeLibrary.py
+Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
 

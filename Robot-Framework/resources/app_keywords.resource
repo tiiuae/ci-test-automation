@@ -3,12 +3,14 @@
 
 *** Settings ***
 Library             ../lib/output_parser.py
+Resource            ../resources/common_keywords.resource
 Resource            ../resources/file_keywords.resource
 Resource            ../resources/ssh_keywords.resource
 
 
 *** Variables ***
 ${APP_OUTPUT_FILE}   /home/${USER_LOGIN}/output.log
+@{APP_PIDS}          ${EMPTY}
 
 
 *** Keywords ***
@@ -17,7 +19,7 @@ Start application in VM
     [Arguments]    ${app_name}   ${vm_name}   ${process_name}   ${exact_match}=false
     Check that appVM is running   ${vm_name}
     Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
-    Start XDG application   ${app_name}
+    Start application   ${app_name}
     IF   '${vm_name}' != '${GUI_VM}'   Switch to vm   ${vm_name}
     Check that the application was started    ${process_name}   exact_match=${exact_match}
 
@@ -28,13 +30,9 @@ Check that appVM is running
     # Wait until systemctl status is running (ignore error in case the status is degraded)
     ${status}   Run Keyword and Ignore Error    Verify Systemctl status
 
-Start XDG application
+Start application
     [Arguments]      ${app_name}
-    Log To Console   ${\n}Starting ${app_name}
-    ${app_name}      Check application name  ${app_name}
-    ${output}        Execute Command    cat /run/current-system/sw/share/applications/${app_name}.desktop
-    ${path}          Get App Path From Desktop  ${output}
-    Execute Command  nohup sh -c 'WAYLAND_DISPLAY=wayland-1 ${path}' > output.log 2>&1 &
+    Execute Command  nohup sh -c 'WAYLAND_DISPLAY=wayland-1 ghaf-open ${app_name}' > ${APP_OUTPUT_FILE} 2>&1 &
 
 Check that the application was started
     [Arguments]          ${app_name}  ${range}=2  ${exact_match}=false
@@ -76,10 +74,10 @@ Log app vm journalctl
     [Documentation]    Specify the VM where the App is actually running
     [Arguments]   ${vm}
     Switch to vm  ${vm}
-    ${output}     Execute Command    journalctl
+    ${output}     Execute Command    journalctl -b
     Log           ${output}
 
-Kill Process And Save Logs
+Kill App Process And Save Logs
     [Documentation]    Kill all running process and log apps output and journalctl
     ...                app_start_vm - the VM from which the app was started
     ...                user - by what user the app was started
@@ -93,22 +91,13 @@ Kill Process And Save Logs
 
 Kill App in VM
     [Arguments]   ${vm}
-    Kill Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    ${APP_OUTPUT_FILE}    ${vm}
+    Kill App Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    ${APP_OUTPUT_FILE}    ${vm}
 
-Get Falcon LLM Name
-    ${output}            Execute Command     cat '/run/current-system/sw/share/applications/Falcon AI.desktop'
-    ${line}              Get Lines Containing String  ${output}  Exec=
-    ${path}              Set Variable  ${line[5:]}
-    ${llm_name_raw}      Execute Command  cat ${path} | grep LLM_NAME | head -n 1
-    # LLM_NAME="falcon3:10b" -> falcon3:10b
-    ${tmp}               Fetch From Right  ${llm_name_raw}  =
-    ${LLM_NAME}          Set Variable  ${tmp[1:-1]}
-    Set Global Variable  ${LLM_NAME}
-
-Check application name
-    [Documentation]  Check written format of application
-    [Arguments]  ${app_name}
-    ${app_name}  Strip String  ${app_name}  characters="'
-    ${output}    Execute Command    ls /run/current-system/sw/share/applications/
-    ${app}       Get Regexp Matches  ${output}  (?im)${app_name}
-    RETURN  '${app}[0]'
+Kill App By Name
+    [Arguments]     ${proc_name}   ${exact_match}=false   ${sudo}=False
+    ${pass_status}   ${output}    Run Keyword And Ignore Error   Check that the application was started   ${proc_name}   1
+    IF  $pass_status=='PASS'
+        Log To Console   ${proc_name} is running, killing the process
+        @{pid}           Find pid by name   ${proc_name}
+        Kill process     @{pid}   sudo=${sudo}
+    END
