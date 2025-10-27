@@ -61,3 +61,10 @@ def convert_to_utc(time_string):
     utc_time = parsed_time.astimezone(pytz.utc)
     utc_time_string = utc_time.strftime("%a %Y-%m-%d %H:%M:%S UTC")
     return utc_time_string
+
+
+def extract_timezone(output):
+    time_zone_pattern = r"Time zone:\s+([^\s]+)"
+    time_zone_match = re.search(time_zone_pattern, output)
+    time_zone = time_zone_match.group(1) if time_zone_match else None
+    return time_zone

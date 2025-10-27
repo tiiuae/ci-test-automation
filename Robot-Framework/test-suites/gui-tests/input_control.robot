@@ -115,15 +115,3 @@ Kill gui-vm apps
     Switch to vm    ${GUI_VM}
     Kill process    @{APP_PIDS}
     Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
-
-Get volume level
-    [Documentation]   Get and return current volume value
-    ${pamixer}        Execute Command    ls /nix/store/ | grep pamixer | grep -v .drv
-    ${volume}         Execute Command    /nix/store/${pamixer}/bin/pamixer --get-volume
-    RETURN            ${volume}
-
-Get mute status
-    [Documentation]   Get and return current mute status
-    ${pamixer}        Execute Command    ls /nix/store/ | grep pamixer | grep -v .drv
-    ${mute}           Execute Command    /nix/store/${pamixer}/bin/pamixer --get-mute
-    RETURN            ${mute}
