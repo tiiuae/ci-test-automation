@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Common system tests on host
-Force Tags          host  bat  regression
+Force Tags          host  regression
 
 Library             ../../lib/output_parser.py
 Resource            ../../resources/common_keywords.resource
@@ -18,23 +18,23 @@ Suite Setup         Switch to vm   ghaf-host
 Test ghaf version format
     [Documentation]    Test getting Ghaf version and verify its format:
     ...                Expected format: major.minor.yyyymmdd.commit_hash
-    [Tags]             SP-T54  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1  darter-pro  dell-7330  fmo  pre-merge
+    [Tags]             SP-T54  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1  darter-pro  dell-7330  fmo  pre-merge  bat
     Verify Ghaf Version Format
 
 Test nixos version format
     [Documentation]    Test getting Nixos version and verify its format:
     ...                Expected format: major.minor.yyyymmdd.commit_hash (name)
-    [Tags]             SP-T55  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1  darter-pro  dell-7330  fmo  pre-merge
+    [Tags]             SP-T55  nuc  orin-agx  orin-agx-64  orin-nx  riscv  lenovo-x1  darter-pro  dell-7330  fmo  pre-merge  bat
     Verify Nixos Version Format
 
 Check QSPI version
     [Documentation]    QSPI version should be up-to-date
-    [Tags]             SP-T95  orin-agx  orin-agx-64  orin-nx  pre-merge
+    [Tags]             SP-T95  orin-agx  orin-agx-64  orin-nx  pre-merge  bat
     Check QSPI Version is up to date
 
 Check host systemctl status
     [Documentation]    Verify systemctl status is running on host
-    [Tags]             SP-T98  systemctl  nuc  orin-agx  orin-agx-64  orin-nx  riscv  fmo  pre-merge
+    [Tags]             SP-T98  systemctl  nuc  orin-agx  orin-agx-64  orin-nx  riscv  fmo  pre-merge  bat
     ${status}   ${output}   Run Keyword And Ignore Error    Verify Systemctl status
     Log   ${output}
 
@@ -52,7 +52,7 @@ Check host systemctl status
 
 Check all VMs are running
     [Documentation]    Check that all VMs are running.
-    [Tags]             SP-T68  lenovo-x1  darter-pro  dell-7330  fmo  pre-merge
+    [Tags]             SP-T68  lenovo-x1  darter-pro  dell-7330  fmo  pre-merge  bat
     ${output}   Execute Command    microvm -l
     @{vms}      Extract VM names   ${output}
     Should Not Be Empty   ${vms}  VM list is empty
@@ -62,7 +62,7 @@ Check all VMs are running
 
 Check serial connection
     [Documentation]    Check serial connection
-    [Tags]             nuc  orin-agx  orin-agx-64  orin-nx  riscv  SP-T51  SP-T170  pre-merge
+    [Tags]             nuc  orin-agx  orin-agx-64  orin-nx  riscv  SP-T51  SP-T170  pre-merge  bat
     [Setup]     Open Serial Port
     FOR    ${i}    IN RANGE    120
         Write Data    ${\n}
@@ -76,7 +76,7 @@ Check serial connection
 
 Check Memory status
     [Documentation]  Check that there is enough memory available
-    [Tags]           lenovo-x1  darter-pro  dell-7330  SP-5321  pre-merge
+    [Tags]           lenovo-x1  darter-pro  dell-7330  SP-5321  pre-merge  bat
     ${lsblk}  Execute Command  lsblk
     Log       ${lsblk}
     ${SSD}    Run Keyword And Return Status  should contain   ${lsblk}   sda
@@ -96,6 +96,24 @@ Check veritysetup status
     ${output}        Execute Command    veritysetup status root  sudo=True  sudo_password=${PASSWORD}
     ${status}        Get Verity Status  ${output}
     Should Be True   '${status}' == 'verified'
+
+Test ota update
+    [Documentation]  Check that ota-update tooling works and new revision shows up in the bootloader list.
+    ...              Do not try boot to the new revision. After test unlink the new revision.
+    [Tags]           ota-update  SP-T147  lenovo-x1
+    ${new_generation}     Set Variable  ${False}
+    ${output}             Execute Command  bootctl list  sudo=True  sudo_password=${PASSWORD}
+    ${gen_count_before}   Extract generation count  ${output}
+    ${output}             Execute Command  ota-update cachix --cache ghaf-release lenovo-x1-carbon-gen11-debug  sudo=True  sudo_password=${PASSWORD}
+    Should Not Contain    ${output}  Error
+    ${output}             Execute Command  bootctl list  sudo=True  sudo_password=${PASSWORD}
+    ${gen_count_after}    Extract generation count  ${output}
+    IF  ${gen_count_before}==${gen_count_after}
+        FAIL    ota-update failed OR it tried to update to the same revision as already installed
+    ELSE
+        ${new_generation}  Set Variable  ${True}
+    END
+    [Teardown]  Run Keyword If  ${new_generation}  Execute Command  bootctl unlink nixos-generation-${gen_count_after}.conf  sudo=True  sudo_password=${PASSWORD}
 
 
 *** Keywords ***
@@ -159,3 +177,11 @@ Check Persist Storage Size
     Log  ${storage}
     ${size}  Get Regexp Matches  ${storage}  (?im)(\\d{1,3}G)\(\\s*.*\\s)(\\d{1,3})(G)(\\s*.*\\s)/persist  3
     RETURN  ${size}[0]
+
+Extract generation count
+    [Documentation]  Parse 'bootctl list' output to get the number of generations
+    [Arguments]      ${generations}
+    ${ids} 	               Get Lines Containing String  ${generations}  id: nixos-generation
+    Should Not Be Empty    ${ids}
+    ${generation_count}    Get Line Count   ${ids}
+    RETURN                 ${generation_count}
