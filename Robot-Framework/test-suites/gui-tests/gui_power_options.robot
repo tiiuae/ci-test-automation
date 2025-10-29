@@ -47,8 +47,15 @@ GUI Suspend and wake up
     ELSE
         Log To Console            Device successfully woke up after suspend
     END
+    Sleep  5
+
+    Connect
+    Check if ssh is ready on vm   gui-vm    timeout=60
+    Start ydotoold
+
     # Screen wakeup requires a mouse move
-    Move Cursor
+    #Move Cursor
+    Press Key(s)       ENTER
     Log To Console                Checking if the screen is in locked state after wake up
     ${lock}                       Check if locked
     IF  ${lock}
