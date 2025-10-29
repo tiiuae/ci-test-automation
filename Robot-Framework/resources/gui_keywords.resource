@@ -15,7 +15,7 @@ Resource            ../resources/ssh_keywords.resource
 
 *** Variables ***
 ${APP_MENU_LAUNCHER}   ./launcher.png
-${LOCK_ICON}           ./lock.png
+${LOCK_ICON}           ./lock2-neg.png   #./lock.png
 ${DISABLE_LOGOUT}      ${EMPTY}
 ${GUI_TEMP_DIR}        ${OUTPUT_DIR}/outputs/gui-temp
 ${YDOTOOL_SOCKET}      /tmp/.ydotool_socket

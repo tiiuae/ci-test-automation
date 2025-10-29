@@ -6,7 +6,6 @@ Resource            ../config/variables.robot
 Resource            ../resources/gui_keywords.resource
 Resource            ../resources/ssh_keywords.resource
 
-
 *** Keywords ***
 
 Prepare Test Environment
@@ -104,6 +103,9 @@ Save gui icons and icon path
     Negate app icon         ${GUI_TEMP_DIR}/search.png  ${GUI_TEMP_DIR}/search-neg.png
     Get icon                ${ICONS}/Papirus/24x24/actions  system-shutdown.svg  crop=0  background=black  output_filename=power.png
     Get icon                ${ICONS}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
+    # the command above yields 2 icons 'lock.png' and 'icon.svg'
+    Change_icon_colors      ${GUI_TEMP_DIR}/icon.svg  ${GUI_TEMP_DIR}/lock2.png  -fuzz  40%  -fill  black  +opaque  white
+    Negate app icon         ${GUI_TEMP_DIR}/lock2.png  ${GUI_TEMP_DIR}/lock2-neg.png
 
 Login to laptop
     [Documentation]   Start ydotool and login

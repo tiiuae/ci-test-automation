@@ -14,7 +14,6 @@ Resource            ../../resources/ssh_keywords.resource
 
 Test Teardown       Run Keyword If Test Failed    GUI Power Test Teardown
 
-
 *** Test Cases ***
 
 GUI Suspend and wake up
@@ -47,22 +46,43 @@ GUI Suspend and wake up
     ELSE
         Log To Console            Device successfully woke up after suspend
     END
+
+    # Need to connect and start yodotoold again.
+    Connect
+    Check if ssh is ready on vm   gui-vm    timeout=60
+    Start ydotoold
+
     # Screen wakeup requires a mouse move
     Move Cursor
-    Log To Console                Checking if the screen is in locked state after wake up
-    ${lock}                       Check if locked
-    IF  ${lock}
-        Log To Console            Screen lock detected
-    ELSE
-        Log To Console            Screen lock not active.
-        FAIL                      Screen lock not active after wake up
+
+    Connect To VM                ${GUI_VM}
+    ${logged_out}                Check if logged out   1
+
+    IF  $logged_out
+        Log To Console           User is logged out. Check if the Lock screen is available after wakeup
+        ${status}   ${output}      Run Keyword And Ignore Error   Locate on screen  image  ${LOCK_ICON}  0.95  1  debug_screenshot=False
+        IF  '${status}' == 'PASS'
+            Log To Console       Screen is locked
+            RETURN    ${True}
+        ELSE
+             FAIL                Screen lock not active after wake up
+        END
+    ELSE   # Case User is locked out
+        ${lock}                  Check if locked
+        IF  ${lock}
+            Log To Console       Screen lock detected
+        ELSE
+            Log To Console       Screen lock not active.
+            FAIL                 Screen lock not active after wake up
+        END
     END
+
     Unlock
     Verify desktop availability
     Generate power plot           ${BUILD_ID}   ${TEST NAME}
     Stop recording power
 
-    [Teardown]  Run Keyword If Test Failed   Run Keywords  GUI Power Test Teardown   AND   Skip   "Known Issue: SSRCSP-7473"
+    [Teardown]  Run Keyword If Test Failed   Run Keywords  Save special journalctl  AND  GUI Power Test Teardown   AND   Skip   "Known Issue: SSRCSP-7473"
 
 GUI Lock and Unlock
     [Documentation]   Lock the screen via GUI power menu lock icon and check that the screen is locked.
@@ -127,3 +147,11 @@ Select power menu option
         Tab and enter   tabs=2
     END
     Sleep   1
+
+Save special journalctl
+    Execute Command      journalctl  > /tmp/jrnl.txt
+    ${jrnl_size}         Execute Command    ls -lh /tmp/jrnl.txt
+    Log                  ${jrnl_size}
+    # Copy journal log file to Robot outputs
+    SSHLibrary.Get file  /tmp/jrnl.txt   ${OUTPUT_DIR}/jrnl.txt
+    OperatingSystem.File Should Exist    ${OUTPUT_DIR}/jrnl.txt

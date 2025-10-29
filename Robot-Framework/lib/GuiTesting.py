@@ -68,6 +68,10 @@ class GuiTesting:
     def negate_app_icon(self, input_file, output_file):
         subprocess.run(['magick', input_file, '-negate', output_file])
 
+    def change_icon_colors(self, input_file, output_file, command_1, var_1, command_2, var_2, command_3, var_3):
+        # Usage: Change Icon Colors   ${GUI_TEMP_DIR}suspend_bg_black.png  ${GUI_TEMP_DIR}suspend_bw.png  -fuzz  40%  -fill  black  +opaque  white
+        subprocess.run(['magick', input_file, command_1, var_1, command_2, var_2, command_3, var_3, output_file])
+
     def generate_ydotool_key_command(self, key_combination):
         # Returns a `key ...` command string for the given key combination,
         # e.g. generate_ydotool_key_command("LEFTMETA+LEFTSHIFT+ESC") -> 'key 125:1 42:1 1:1 1:0 42:0 125:0'
