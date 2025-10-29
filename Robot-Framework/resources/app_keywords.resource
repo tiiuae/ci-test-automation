@@ -7,6 +7,10 @@ Resource            ../resources/file_keywords.resource
 Resource            ../resources/ssh_keywords.resource
 
 
+*** Variables ***
+${APP_OUTPUT_FILE}   /home/${USER_LOGIN}/output.log
+
+
 *** Keywords ***
 
 Start application in VM
@@ -74,6 +78,22 @@ Log app vm journalctl
     Switch to vm  ${vm}
     ${output}     Execute Command    journalctl
     Log           ${output}
+
+Kill Process And Save Logs
+    [Documentation]    Kill all running process and log apps output and journalctl
+    ...                app_start_vm - the VM from which the app was started
+    ...                user - by what user the app was started
+    ...                log_file - the name of the file which was defined in the app's starting command
+    ...                app_running_vm - the VM where the App is actually running
+    [Arguments]        ${app_start_vm}   ${user}   ${log_file}   ${app_running_vm}=${app_start_vm}
+    Switch to vm       ${app_running_vm}
+    Kill process       @{APP_PIDS}
+    Log and remove app output   ${log_file}  ${app_start_vm}   user=${user}
+    IF  '${TEST_STATUS}'=='FAIL'   Log app vm journalctl  ${app_running_vm}
+
+Kill App in VM
+    [Arguments]   ${vm}
+    Kill Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    ${APP_OUTPUT_FILE}    ${vm}
 
 Get Falcon LLM Name
     ${output}            Execute Command     cat '/run/current-system/sw/share/applications/Falcon AI.desktop'
