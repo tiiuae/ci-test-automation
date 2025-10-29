@@ -90,11 +90,18 @@ Check user systemctl status
     ${known_issues}=    Create List
     # Add any known failing services here with the target device and bug ticket number.
     # ...    device|service-name|ticket-number
-    ...    ANY|app-com.system76.CosmicInitialSetup@autostart.service|Initial setup is killed in tests
 
-    Verify Systemctl status    range=3   user=True
+    Run Keyword And Ignore Error   Verify Systemctl status    range=3   user=True
+    Log    ${failed_units}
 
-    [Teardown]   Run Keyword If Test Failed   Check systemctl status for known issues  ${known_issues}  ${failed_units}   user=True
+    # Filter out Cosmic Initial Setup (we kill it at the beginning of the tests)
+    ${filtered_failed_units}    Evaluate   [u for u in ${failed_units} if "app-com.system76.CosmicInitialSetup@autostart.service" not in u]
+    Log   ${filtered_failed_units}
+
+    IF    ${filtered_failed_units}
+        Check systemctl status for known issues  ${known_issues}  ${filtered_failed_units}   user=True
+    END
+    [Teardown]   NONE
 
 Start Firefox GPU on FMO
     [Documentation]   Start Firefox GPU and verify process started
