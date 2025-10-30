@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                         | TICKET / Additional Data.                                                                       |
 | ---------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| 30.10.2025 | Stopping one VM does not affect others            | Test has never passed in nightly pipeline.                                                      |
 | 23.10.2025 | Save host journalctl/Verify NetVM is started      | SSRCSP-7453                                                                                     |
 | 16.09.2025 | Check systemctl status in every VM                | [Full list of skips in the test case](/Robot-Framework/test-suites/functional-tests/vm.robot)   |
 | 09.09.2025 | Start Falcon AI (Lenovo-x1, Darter-PRO)           | SSRCSP-6769                                                                                     |
