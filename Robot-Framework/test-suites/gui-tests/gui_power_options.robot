@@ -62,6 +62,8 @@ GUI Suspend and wake up
     Generate power plot           ${BUILD_ID}   ${TEST NAME}
     Stop recording power
 
+    [Teardown]  Run Keyword If Test Failed   Run Keywords  GUI Power Test Teardown   AND   Skip   "Known Issue: SSRCSP-7473"
+
 GUI Lock and Unlock
     [Documentation]   Lock the screen via GUI power menu lock icon and check that the screen is locked.
     ...               Unlock lock screen by typing the password and check that desktop is available.
