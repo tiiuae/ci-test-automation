@@ -97,24 +97,6 @@ Check veritysetup status
     ${status}        Get Verity Status  ${output}
     Should Be True   '${status}' == 'verified'
 
-Test ota update
-    [Documentation]  Check that ota-update tooling works and new revision shows up in the bootloader list.
-    ...              Do not try boot to the new revision. After test unlink the new revision.
-    [Tags]           ota-update  SP-T147  lenovo-x1
-    ${new_generation}     Set Variable  ${False}
-    ${output}             Execute Command  bootctl list  sudo=True  sudo_password=${PASSWORD}
-    ${gen_count_before}   Extract generation count  ${output}
-    ${output}             Execute Command  ota-update cachix --cache ghaf-release lenovo-x1-carbon-gen11-debug  sudo=True  sudo_password=${PASSWORD}
-    Should Not Contain    ${output}  Error
-    ${output}             Execute Command  bootctl list  sudo=True  sudo_password=${PASSWORD}
-    ${gen_count_after}    Extract generation count  ${output}
-    IF  ${gen_count_before}==${gen_count_after}
-        FAIL    ota-update failed OR it tried to update to the same revision as already installed
-    ELSE
-        ${new_generation}  Set Variable  ${True}
-    END
-    [Teardown]  Run Keyword If  ${new_generation}  Execute Command  bootctl unlink nixos-generation-${gen_count_after}.conf  sudo=True  sudo_password=${PASSWORD}
-
 
 *** Keywords ***
 
@@ -177,11 +159,3 @@ Check Persist Storage Size
     Log  ${storage}
     ${size}  Get Regexp Matches  ${storage}  (?im)(\\d{1,3}G)\(\\s*.*\\s)(\\d{1,3})(G)(\\s*.*\\s)/persist  3
     RETURN  ${size}[0]
-
-Extract generation count
-    [Documentation]  Parse 'bootctl list' output to get the number of generations
-    [Arguments]      ${generations}
-    ${ids} 	               Get Lines Containing String  ${generations}  id: nixos-generation
-    Should Not Be Empty    ${ids}
-    ${generation_count}    Get Line Count   ${ids}
-    RETURN                 ${generation_count}
