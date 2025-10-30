@@ -138,7 +138,7 @@ Locate on screen
         ${screenshot_passed}     Run Keyword And Return Status    Should Contain    ${output}   Screenshot
         # If taking a screenshot did not work select "Allow" in the permission window.
         IF    not ${screenshot_passed}
-            IF  "Dell" in "${DEVICE}"    Sleep  5
+            IF  "Dell" in "${DEVICE}"    Sleep  15
             Tab and enter   tabs=2
         END
         Set Global Variable  ${FIRST_SCREENSHOT}  ${False}

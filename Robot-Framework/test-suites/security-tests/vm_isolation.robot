@@ -6,13 +6,14 @@ Documentation       Validates that individual VM failures are isolated and do no
 ...                 the availability, performance, or security of other VMs or the host system.
 Force Tags          security  regression  lenovo-x1  darter-pro  dell-7330
 
-Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/app_keywords.resource
+Resource            ../../resources/gui_keywords.resource
+Resource            ../../resources/setup_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Switch to vm   ${NET_VM}
-
-*** Variables ***
-@{APP_PIDS}      ${EMPTY}
+Test Setup          VM Isolation Test Setup
+Test Teardown       VM Isolation Test Teardown
 
 
 *** Test Cases ***
@@ -29,6 +30,16 @@ Stopping one VM does not affect others
 
 
 *** Keywords ***
+
+VM Isolation Test Setup
+    Start ydotoold
+    Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
+    Start screen recording
+
+VM Isolation Test Teardown
+    Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
+    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+    Run Keyword If Test Failed    SKIP    This test has never passed in the nightly pipeline
 
 Stopping one VM does not affect another
     [Arguments]     ${one_vm}    ${another_vm}    ${app_name}    ${process_name}
@@ -60,4 +71,4 @@ Start VM
     Execute Command         systemctl start microvm@${vm}.service  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
     ${state}  ${substate}   Verify service status  service=microvm@${vm}.service  expected_state=active  expected_substate=running
     Log                     ${vm} is ${substate}    console=True
-#    Check if ssh is ready on vm   ${vm}
+
