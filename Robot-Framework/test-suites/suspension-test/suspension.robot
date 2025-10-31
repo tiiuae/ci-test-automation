@@ -9,6 +9,7 @@ Resource            ../../resources/device_control.resource
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/power_meas_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/setup_keywords.resource
 Library             ../../lib/output_parser.py
 Library             JSONLibrary
 
@@ -70,6 +71,9 @@ Automatic suspension
     # Power level comparison in the same login gui state as in the beginning
     # Applied only if power measurement agent is available in the setup
     IF  $SSH_MEASUREMENT!='${EMPTY}'
+        # ydotoold need to be started always connection is lost
+        Check if ssh is ready on vm   gui-vm    timeout=60
+        Start ydotoold
         Unlock
         Verify desktop availability
         Wait                     120
