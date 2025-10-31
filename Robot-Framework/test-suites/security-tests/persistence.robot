@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Check persistence
-Force Tags          security   persistence
+Force Tags          security   persistence   regression
 Library             ../../lib/output_parser.py
 Library             ../../lib/TimeLibrary.py
 Resource            ../../resources/device_control.resource
