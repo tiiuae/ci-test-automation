@@ -16,7 +16,9 @@ VM is wiped after restarting
     [Tags]              SP-T48
     [Template]          ${vm} is wiped after restarting
     FOR    ${vm}    IN    @{VMS}
-        ${vm}
+        IF    '${vm}' != '${GUI_VM}'
+            ${vm}
+        END
     END
 
 
@@ -41,7 +43,7 @@ Restart VM
     ...                     Pre-condition: requires active ssh connection to ghaf host.
     [Arguments]             ${vm}
     Log                     Going to start ${vm}    console=True
-    Execute Command         systemctl restart microvm@${vm}.service  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
+    Execute Command         systemctl restart microvm@${vm}.service  sudo=True  sudo_password=${PASSWORD}  timeout=120
     ${state}  ${substate}   Verify service status  service=microvm@${vm}.service  expected_state=active  expected_substate=running
     Log                     ${vm} is ${substate}    console=True
     Check if ssh is ready on vm   ${vm}
@@ -51,7 +53,7 @@ Start VM
     [Arguments]             ${vm}
     Switch to vm            ${HOST}
     Log                     Going to start ${vm}    console=True
-    Execute Command         systemctl start microvm@${vm}.service  sudo=True  sudo_password=${PASSWORD}  timeout=120  output_during_execution=True
+    Execute Command         systemctl start microvm@${vm}.service  sudo=True  sudo_password=${PASSWORD}  timeout=120
     ${state}  ${substate}   Verify service status  service=microvm@${vm}.service  expected_state=active  expected_substate=running
     Log                     ${vm} is ${substate}    console=True
     Check if ssh is ready on vm   ${vm}
