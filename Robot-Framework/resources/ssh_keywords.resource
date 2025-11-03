@@ -111,7 +111,7 @@ Connect
     IF  '${target_output}' != 'None'
         Log To Console    Expecting ${target_output} target output
     ELSE
-        ${target_output}  Set Variable  ghaf@net-vm
+        ${target_output}  Set Variable  ghaf@ghaf-\\d{10}
     END
     # Iterations are necessary at boot for those targets which should expose net-vm to ethernet interface.
     # Ghaf-host is accessible on these targets for a short period of time at boot.
@@ -119,9 +119,11 @@ Connect
     FOR    ${i}    IN RANGE    ${iterations}
         ${pass_status}  ${connection}    Run Keyword And Ignore Error  Open Connection    ${IP}       port=${PORT}    prompt=\$    timeout=30
         ${login_status}  ${login_output}  Run Keyword And Ignore Error  Login with timeout    username=${LOGIN}    password=${PASSWORD}
-        ${pass_status}  ${output}        Run Keyword And Ignore Error  Should Contain     ${login_output}   ${target_output}
-        IF    $pass_status=='PASS'
-            Log To Console    Connected successfully to ${target_output}
+        ${pass_status}    Run Keyword And Return Status    Should Match Regexp    ${login_output}    ${target_output}
+
+        IF    ${pass_status}
+            ${login_output}   Get Regexp Matches   ${login_output}    ${target_output}
+            Log To Console    Connected successfully to ${login_output}[0]
             Set Global Variable  ${NET-VM_GHAF_SSH}    ${connection}
             RETURN  ${connection}
         ELSE
@@ -133,6 +135,7 @@ Connect
                     ${net-vm_status}    Execute Command    systemctl status ${NETVM_SERVICE}
                     Log                 ${net-vm_status}
                 END
+                ${login_output}     Clean Login Output   ${login_output}
                 Log To Console      Failed to connect to ${target_output}, connected to ${login_output} instead.
             ELSE
                 Log To Console    Failed to connect.
