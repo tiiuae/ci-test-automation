@@ -27,10 +27,10 @@ Clean Up Test Environment
     [Timeout]     5 minutes
     [Arguments]   ${disable_dnd}=False
     # Temporarily taking journal log taking our from Orin-NX [SSRCSP-7453]
-    IF  "NX" not in "${DEVICE}"
+    #IF  "NX" not in "${DEVICE}"
         Switch to vm   ${HOST}
         Save host journalctl
-    END
+    #END
     IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Start ydotoold
         Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
@@ -50,12 +50,24 @@ Connect to device
     Switch to vm   ${HOST}
 
 Save host journalctl
-    Execute Command      journalctl -b 0 > /tmp/jrnl.txt
-    ${jrnl_size}         Execute Command    ls -lh /tmp/jrnl.txt
-    Log                  ${jrnl_size}
-    # Copy journal log file to Robot outputs
-    SSHLibrary.Get file  /tmp/jrnl.txt   ${OUTPUT_DIR}/jrnl.txt
+    Execute Command   journalctl -b 0 > /tmp/jrnl.txt
+    ${jrnl_size}      Execute Command    ls -lh /tmp/jrnl.txt
+    Log               ${jrnl_size}
+    ${jrnl_tail_5}    Execute Command    tail -5 /tmp/jrnl.txt
+    ${who}    Execute Command    who
+    Log               ${jrnl_tail_5}
+
+    # NX having problems to copy, try max 3 times
+    #${iptables}   Execute Command  iptables -L  sudo=True  sudo_password=${PASSWORD}
+    #Log  ${iptables}
+    Log to console  SSH.Get
+    SSHLibrary.Get file  /tmp/jrnl.txt   ${OUTPUT_DIR}/jrnl.txt  scp=TRANSFER
+    Log to console  SSH.Get DONE!
+
     OperatingSystem.File Should Exist    ${OUTPUT_DIR}/jrnl.txt
+    Execute Command   rm /tmp/jrnl.txt
+    SSHLibrary.File Should Not Exist  /tmp/jrnl.txt
+
 
 Log versions
     ${ghaf_version}     Execute Command   ghaf-version
