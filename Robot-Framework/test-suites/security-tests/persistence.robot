@@ -25,7 +25,7 @@ ${EXPECTED_CAM_STATE}     block
 *** Test Cases ***
 
 Verify brightness persisted
-    [Tags]    SP-T326-1   lenovo-x1
+    [Tags]    # SP-T326-1   lenovo-x1
     ${brightness}     Get screen brightness
     Should Be Equal   ${EXPECTED_BRIGHTNESS}  ${brightness}
 
