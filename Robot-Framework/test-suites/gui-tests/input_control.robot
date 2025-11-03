@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Tests for input-related GUI functionality
-Force Tags          gui  gui-input  lenovo-x1  darter-pro
+Force Tags          gui  gui-input
 
 Library             ../../lib/output_parser.py
 Library             Collections
@@ -19,7 +19,7 @@ Test Teardown       Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 Change brightness with keyboard shortcuts
     [Documentation]     Change brightness with ydotool by clicking brightness buttons
     ...                 (Lenovo-X1: F5/F6, Darter-Pro: Fn+F8/Fn+F9)
-    [Tags]              SP-T140
+    [Tags]              SP-T140  lenovo-x1  darter-pro
     ${init_brightness}  Get screen brightness
     Press Key(s)        BRIGHTNESSDOWN
     ${l_brightness}     Get screen brightness
@@ -53,7 +53,7 @@ Control audio volume with keyboard shortcuts
     ...                  mute status is changed by pressing F1 (Lenovo-X1) or Fn+F3 (Darter-Pro),
     ...                  mute status is changed back by pressing F1 (Lenovo-X1) or Fn+F3 (Darter-Pro),
     ...                  volume level after mute/unmute is the same
-    [Tags]               SP-T134
+    [Tags]               SP-T134  lenovo-x1  darter-pro
 
     ${init_volume}       Get volume level
     Press Key(s)         VOLUMEUP
