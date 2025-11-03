@@ -301,3 +301,10 @@ def get_camera_id(output):
         return match.group(1)
     else:
         raise ValueError("No camera device found in lsusb output")
+    
+def clean_login_output(output):
+    if not output:
+        return ""
+    clean_output = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', output)
+    clean_output = clean_output.strip().splitlines()[-1]
+    return clean_output
