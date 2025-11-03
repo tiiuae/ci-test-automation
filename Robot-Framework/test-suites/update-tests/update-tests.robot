@@ -14,13 +14,13 @@ Resource            ../../resources/ssh_keywords.resource
 Test ota update
     [Documentation]  Check that ota-update tooling works and new revision shows up in the bootloader list.
     ...              Do not try boot to the new revision. After test unlink the new revision.
-    [Tags]           ota-update  SP-T147  lenovo-x1
+    [Tags]           ota-update  SP-T147
     Update with      ota-update
 
-Update via givc-cli
+Test ota update
     [Documentation]  Check that update succeeds via givc-cli and new revision shows up in the bootloader list.
     ...              Do not try boot to the new revision. After test unlink the new revision.
-    [Tags]           givc-cli-update  SP-T148  lenovo-x1
+    [Tags]           givc-cli-update  SP-T148
     Update with      givc-cli
 
 
