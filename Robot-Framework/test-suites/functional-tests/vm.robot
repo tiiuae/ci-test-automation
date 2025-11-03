@@ -39,10 +39,6 @@ Check systemctl status in every VM
     # ...    vm|service-name|ticket-number
     ...    audio-vm|systemd-rfkill.service|SSRCSP-7321
     ...    ghaf-host|autovt@ttyUSB0.service|SSRCSP-6667
-    ...    ghaf-host|ghaf-mem-manager-business-vm.service|SSRCSP-6853
-    ...    ghaf-host|ghaf-mem-manager-chrome-vm.service|SSRCSP-6853
-    ...    ghaf-host|ghaf-mem-manager-comms-vm.service|SSRCSP-6853
-    ...    ghaf-host|ghaf-mem-manager-zathura-vm.service|SSRCSP-6853
     ...    gui-vm|plymouth-quit.service|SSRCSP-7306
     ...    gui-vm|setup-ghaf-user.service|SSRCSP-7234
 
