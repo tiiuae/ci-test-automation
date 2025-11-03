@@ -3,10 +3,13 @@
 
 *** Settings ***
 Documentation       Tests for update tooling
-Force Tags          regression  update
-Test Timeout        10 minutes
+Force Tags          regression  update  lenovo-x1
 
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/device_control.resource
+
+Test Teardown       Update teardown
+Test Timeout        10 minutes
 
 
 *** Test Cases ***
@@ -17,7 +20,7 @@ Test ota update
     [Tags]           ota-update  SP-T147
     Update with      ota-update
 
-Test ota update
+Update via givc-cli
     [Documentation]  Check that update succeeds via givc-cli and new revision shows up in the bootloader list.
     ...              Do not try boot to the new revision. After test unlink the new revision.
     [Tags]           givc-cli-update  SP-T148
@@ -26,18 +29,21 @@ Test ota update
 
 *** Keywords ***
 
-Get generation count
-    [Documentation]  Parse 'bootctl list' output to get the number of generations
-    ${output}              Execute Command  bootctl list  sudo=True  sudo_password=${PASSWORD}
-    ${ids} 	               Get Lines Containing String  ${output}  id: nixos-generation
-    Should Not Be Empty    ${ids}
-    ${generation_count}    Get Line Count   ${ids}
-    RETURN                 ${generation_count}
+Get current generation
+    [Documentation]        Extract the number of current generation
+    ${output}              Execute Command  nix-env -p /nix/var/nix/profiles/system --list-generations  sudo=True  sudo_password=${PASSWORD}
+    ${current_line}        Get Lines Containing String  ${output}  (current)
+    ${current_generation}  ${rest}  Split String   ${current_line}  max_split=1
+    RETURN                 ${current_generation}
 
 Update with
-    [Arguments]      ${update_method}
+    [Arguments]           ${update_method}
     Switch to vm          ${HOST}
-    ${gen_count_before}   Get generation count
+    # Get bootloader generations
+    ${gen_before}         Get current generation
+    Log                   Generation before update: ${gen_before}    console=True
+    Set Suite Variable    ${gen_before}    ${gen_before}
+    Log To Console        Updating...
     IF  "${update_method}"=="ota-update"
         ${output}             Execute Command  ota-update cachix --cache ghaf-release lenovo-x1-carbon-gen11-debug  sudo=True  sudo_password=${PASSWORD}
         Should Not Contain    ${output}  Error
@@ -49,9 +55,23 @@ Update with
     ELSE
         FAIL   Incorrect update method
     END
-    ${gen_count_after}   Get generation count
-    IF  ${gen_count_before}==${gen_count_after}
+    ${gen_after}          Get current generation
+    Log                   Generation after update: ${gen_after}    console=True
+    Set Suite Variable    ${gen_after}    ${gen_after}
+    IF  ${gen_before}==${gen_after}
         FAIL    Update via ${update_method} failed OR attempted updating to already existing revision
-    ELSE
-        Execute Command  bootctl unlink nixos-generation-${gen_count_after}.conf  sudo=True  sudo_password=${PASSWORD}
     END
+
+Update teardown
+    ${gen_at_teardown}    Get current generation
+    IF  ${gen_at_teardown}!=${gen_before}
+        Log To Console    Rolling back to original generation and removing the new generation
+        Execute Command   bootctl unlink nixos-generation-${gen_at_teardown}.conf  sudo=True  sudo_password=${PASSWORD}
+        Execute Command   sudo nix-env -p /nix/var/nix/profiles/system --switch-generation ${gen_before}  sudo=True  sudo_password=${PASSWORD}
+        Execute Command   nix-env -p /nix/var/nix/profiles/system --delete-generations ${gen_at_teardown}  sudo=True  sudo_password=${PASSWORD}
+    ELSE
+        Log To Console    New generation not found. Skipping roll back.
+    END
+    Log To Console        Running garbage collect
+    Execute Command       nix-collect-garbage  sudo=True  sudo_password=${PASSWORD}
+    Close All Connections
