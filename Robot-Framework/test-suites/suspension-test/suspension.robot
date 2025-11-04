@@ -141,8 +141,8 @@ Set display to max brightness
     ${current_brightness}    Get screen brightness   log_brightness=False
     IF   ${current_brightness} != ${max_brightness}
         Log           Brightness is ${current_brightness}, setting it to the maximum  console=True
-        ${output}     Execute Command    ls /nix/store | grep brightnessctl | grep -v .drv
-        ${output}     Execute Command    /nix/store/${output}/bin/brightnessctl set 100%   sudo=True  sudo_password=${PASSWORD}
+        ${output}     Search nix store   brightnessctl
+        ${output}     Execute Command    ${output}/bin/brightnessctl set 100%   sudo=True  sudo_password=${PASSWORD}
         ${current_brightness}    Get screen brightness
         Should be Equal As Numbers    ${current_brightness}   ${max_brightness}
     END
@@ -166,8 +166,8 @@ Check screen brightness
 
 Check the screen state
     [Arguments]         ${state}
-    ${output}           Execute Command    ls /nix/store | grep wlopm | grep -v .drv
-    ${output}  ${err}   Execute Command    WAYLAND_DISPLAY=wayland-1 /nix/store/${output}/bin/wlopm    return_stderr=True
+    ${output}           Search nix store   wlopm
+    ${output}  ${err}   Execute Command    WAYLAND_DISPLAY=wayland-1 ${output}/bin/wlopm    return_stderr=True
     Log                 Screen state: ${output}  console=True
     Should Contain      ${output}    ${state}
 
