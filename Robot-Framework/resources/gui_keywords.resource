@@ -315,21 +315,21 @@ Set do not disturb state
 Get screen brightness
     [Documentation]   Get and return current brightness value
     [Arguments]       ${log_brightness}=True
-    ${output}         Execute Command    ls /nix/store | grep brightnessctl | grep -v .drv
-    ${brightness}     Execute Command    /nix/store/${output}/bin/brightnessctl get
+    ${output}         Search nix store   brightnessctl
+    ${brightness}     Execute Command    ${output}/bin/brightnessctl get
     IF  ${log_brightness}    Log To Console    Brightness is ${brightness}
     RETURN            ${brightness}
 
 Get volume level
     [Documentation]   Get and return current volume value
-    ${pamixer}        Execute Command    ls /nix/store/ | grep pamixer | grep -v .drv
-    ${volume}         Execute Command    /nix/store/${pamixer}/bin/pamixer --get-volume
+    ${pamixer}        Search nix store   pamixer
+    ${volume}         Execute Command    ${pamixer}/bin/pamixer --get-volume
     RETURN            ${volume}
 
 Get mute status
     [Documentation]   Get and return current mute status
-    ${pamixer}        Execute Command    ls /nix/store/ | grep pamixer | grep -v .drv
-    ${mute}           Execute Command    /nix/store/${pamixer}/bin/pamixer --get-mute
+    ${pamixer}        Search nix store   pamixer
+    ${mute}           Execute Command    ${pamixer}/bin/pamixer --get-mute
     RETURN            ${mute}
 
 Get gui-vm user journalctl log

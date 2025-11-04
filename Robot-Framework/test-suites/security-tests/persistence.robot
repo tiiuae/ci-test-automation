@@ -85,9 +85,9 @@ Set brightness
     [Documentation]   Set brightness to ${brightness_to_set}
     [Arguments]       ${brightness_to_set}
     [Setup]           Switch to vm    ${GUI_VM}
-    ${path}           Execute Command    ls /nix/store | grep brightnessctl | grep -v .drv
-    ${output}         Execute Command    /nix/store/${path}/bin/brightnessctl s ${brightness_to_set}  sudo=True  sudo_password=${PASSWORD}
-    ${brightness}     Execute Command    /nix/store/${path}/bin/brightnessctl get
+    ${path}           Search nix store   brightnessctl
+    ${output}         Execute Command    ${path}/bin/brightnessctl s ${brightness_to_set}  sudo=True  sudo_password=${PASSWORD}
+    ${brightness}     Execute Command    ${path}/bin/brightnessctl get
     Log To Console    Brightness is ${brightness}
     Should Be Equal   ${brightness_to_set}    ${brightness}
 
@@ -95,9 +95,9 @@ Set volume
     [Documentation]   Set volume to ${volume_to_set}
     [Arguments]       ${volume_to_set}
     [Setup]           Switch to vm    ${GUI_VM}
-    ${path}           Execute Command    ls /nix/store/ | grep pamixer | grep -v .drv
-    ${output}         Execute Command    /nix/store/${path}/bin/pamixer --set-volume ${volume_to_set}  sudo=True  sudo_password=${PASSWORD}
-    ${volume}         Execute Command    /nix/store/${path}/bin/pamixer --get-volume
+    ${path}           Search nix store   pamixer
+    ${output}         Execute Command    ${path}/bin/pamixer --set-volume ${volume_to_set}  sudo=True  sudo_password=${PASSWORD}
+    ${volume}         Execute Command    ${path}/bin/pamixer --get-volume
     Log To Console    Volume is ${volume}
     Should Be Equal   ${volume_to_set}    ${volume}
 

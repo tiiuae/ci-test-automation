@@ -60,3 +60,11 @@ Check file doesn't exist
     END
     Should Be Equal As Integers   ${rc}   2
     Log To Console     File ${file_name} doesn't exist
+
+Search nix store
+    [Documentation]      Search a file containing string argument in the target nix store.
+    ...                  Return only the file path which is linked to the current generation.
+    [Arguments]          ${string}
+    ${file_path}         Execute Command   nix-store --query --requisites /run/current-system | grep ${string}
+    Should Not Be Empty  ${file_path}      File not found from the target /nix/store
+    RETURN               ${file_path}
