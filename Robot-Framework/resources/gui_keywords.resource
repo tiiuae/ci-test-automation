@@ -48,8 +48,6 @@ Log in, unlock and verify
         Verify desktop availability
     END
 
-    Kill process by name   cosmic-initial-setup
-
     Stop swayidle
     IF  ${enable_dnd}      Set do not disturb state   true
 
@@ -211,6 +209,10 @@ Verify desktop availability
     # For debugging, check gui-vm systemctl status before trying to take a cosmic-screenshot in case it gets stuck
     Run Keyword And Ignore Error   Verify Systemctl status   range=1
     Run Keyword And Ignore Error   Verify Systemctl status   range=1   user=True
+
+    # Wait for the initial setup to start and kill the process. Initial setup window can mess with screenshot permission window.
+    Run Keyword and Ignore Error     Check that the application was started   cosmic-initial-setup   range=30
+    Kill process by name   cosmic-initial-setup
 
     Log To Console         Verifying login by trying to detect the launcher icon
     # This is a workaround for launcher icon missing sometimes. If launcher icon can't be found tries to search
