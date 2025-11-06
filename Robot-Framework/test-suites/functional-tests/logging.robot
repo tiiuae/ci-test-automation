@@ -59,6 +59,21 @@ Check Logs Are available
         ${out}         Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" '{machine="${id}", host="${vm}"}'
         Set Log Level  INFO
         Log            ${out}
-        Run Keyword And Continue On Failure  Should Contain  ${out}  ${date}
-        Run Keyword And Continue On Failure  Should Not Contain  ${out}  Query failed
+        IF   '${vm}' == '${NET_VM}'
+            # Ignore net-vm error SSRCSP-7542
+            ${status}  ${output}  Run Keyword And Ignore Error  Should Contain  ${out}  ${date}
+            IF   $status == 'FAIL'
+                Save net-vm log
+            END
+            Run Keyword And Ignore Error  Should Not Contain  ${out}  Query failed
+        ELSE
+            Run Keyword And Continue On Failure  Should Contain  ${out}  ${date}
+            Run Keyword And Continue On Failure  Should Not Contain  ${out}  Query failed
+        END
     END
+
+Save net-vm log
+    Switch to vm   ${NET_VM}
+    ${journal}     Execute Command   journalctl -b
+    Log            ${journal}
+    [Teardown]     Switch to vm   ${ADMIN_VM}

@@ -211,7 +211,7 @@ Verify desktop availability
     Run Keyword And Ignore Error   Verify Systemctl status   range=1   user=True
 
     # Wait for the initial setup to start and kill the process. Initial setup window can mess with screenshot permission window.
-    Run Keyword and Ignore Error     Check that the application was started   cosmic-initial-setup   range=30
+    Run Keyword and Ignore Error     Check that the application was started   cosmic-initial-setup   range=15
     Kill App By Name   cosmic-initial-setup
 
     Log To Console         Verifying login by trying to detect the launcher icon
