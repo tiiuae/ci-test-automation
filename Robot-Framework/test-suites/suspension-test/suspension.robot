@@ -62,6 +62,12 @@ Automatic suspension
     Generate power plot      ${BUILD_ID}   ${TEST NAME}
     Stop recording power
     Switch to vm             ${GUI_VM}   user=${USER_LOGIN}
+    # Start udotoold
+    Check if ssh is ready on vm   gui-vm    timeout=60
+    Start ydotoold
+
+    # Screen wakeup requires a mouse move
+    Move Cursor
     
     Check the screen state   on
     ${locked}                Check if locked
