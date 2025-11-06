@@ -60,7 +60,7 @@ Check Network Availability
     END
 
 Check If Device Is Up
-    [Arguments]    ${range}=40
+    [Arguments]    ${range}=50
     Set Global Variable    ${IS_AVAILABLE}       False
     ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
