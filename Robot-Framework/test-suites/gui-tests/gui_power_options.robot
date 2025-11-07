@@ -30,33 +30,27 @@ GUI Suspend and wake up
     Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
 
     Select power menu option   x=815   y=120
+    Check that device is suspended
 
-    ${device_not_available}       Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  5s  Check If Ping Fails
-    IF  ${device_not_available} == True
-        Log To Console            Device suspended.
-    ELSE
-        FAIL                      Device failed to suspend.
-    END
     Log To Console                Letting the device stay suspended for 30 sec
     Sleep                         30
     Log To Console                Waking the device up by pressing the power button for 1 sec
-    Press Button                  ${SWITCH_BOT}-ON
-    Check If Device Is Up
-    IF    ${IS_AVAILABLE} == False
-        FAIL                      The device did suspend but failed to wake up
-    ELSE
-        Log To Console            Device successfully woke up after suspend
-    END
-    # Screen wakeup requires a mouse move
+
+    Wake up device
+    Close All Connections
+    Connect
+    Start ydotoold
+    Switch to vm             ${GUI_VM}   user=${USER_LOGIN}
+
+    # Sometimes screen wakeup has required a mouse move
     Move Cursor
-    Log To Console                Checking if the screen is in locked state after wake up
-    ${lock}                       Check if locked
-    IF  ${lock}
-        Log To Console            Screen lock detected
-    ELSE
-        Log To Console            Screen lock not active.
-        FAIL                      Screen lock not active after wake up
-    END
+
+    Wait Until Keyword Succeeds   30s   2s    Check the screen state   on
+
+    Log To Console           Checking if the screen is in locked state after wake up
+    ${locked}                Check if locked
+    Should Be True           ${locked}    Screen lock not active after wake up
+
     Unlock
     Verify desktop availability
     Generate power plot           ${BUILD_ID}   ${TEST NAME}
