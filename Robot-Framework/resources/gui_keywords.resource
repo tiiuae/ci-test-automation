@@ -126,23 +126,7 @@ Locate on screen
     ${pass_status}=        Set Variable  FAIL
     Execute Command        mkdir test-images
     ${screenshot_cmd}=     Set Variable  cosmic-screenshot --interactive=false --save-dir ./test-images
-
-    IF   ${FIRST_SCREENSHOT}==${True}
-        # Screenshot tool requires permission to take screenshots on first use.
-        # Launch a background process that tries to take a screenshot.
-        Execute Command    nohup sh -c 'cosmic-screenshot --interactive=false --save-dir ./test-images' > screenshot.log 2>&1 &
-        Sleep   2
-        ${output}    Execute Command   cat screenshot.log
-        ${screenshot_passed}     Run Keyword And Return Status    Should Contain    ${output}   Screenshot
-        # If taking a screenshot did not work select "Allow" in the permission window.
-        IF    not ${screenshot_passed}
-            Sleep  5
-            IF  "Dell" in "${DEVICE}"    Sleep  10
-            Tab and enter   tabs=2
-        END
-        Set Global Variable  ${FIRST_SCREENSHOT}  ${False}
-    END
-
+    IF   ${FIRST_SCREENSHOT}==${True}   Allow first screenshot
     FOR   ${i}   IN RANGE  ${iterations}
         Log To Console     Taking cosmic screenshot
         ${result}=         Run Keyword And Ignore Error  Execute Command  ${screenshot_cmd}  return_stdout=True  return_rc=True  timeout=5
@@ -181,6 +165,25 @@ Locate on screen
     ${mouse_y}  Get From Dictionary   ${coordinates}  y
     RETURN  ${mouse_x}  ${mouse_y}
 
+Allow first screenshot
+    [Documentation]   Allow screenshot tool take screenshots. Permission must be given on first use.
+    # Launch a background process that tries to take a screenshot.
+    Execute Command    nohup sh -c 'cosmic-screenshot --interactive=false --save-dir ./test-images' > screenshot.log 2>&1 &
+    Sleep   2
+    ${output}    Execute Command   cat screenshot.log
+    ${screenshot_passed}     Run Keyword And Return Status    Should Contain    ${output}   Screenshot
+    # If taking a screenshot did not work select "Allow" in the permission window.
+    IF    not ${screenshot_passed}
+        Sleep  5
+        IF  "Dell" in "${DEVICE}"    Sleep  10
+        # Click the permission window to make sure it is active
+        Run ydotool command   mousemove --absolute -x 500 -y 200
+        Run ydotool command   click 0xC0
+        Move cursor to corner
+        Tab and enter   tabs=2
+    END
+    Set Global Variable  ${FIRST_SCREENSHOT}  ${False}
+
 Locate and click
     [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=5
     ${mouse_x}  ${mouse_y}  Locate on screen  ${type}  ${searched_item}  ${confidence}  ${iterations}
@@ -210,9 +213,7 @@ Verify desktop availability
     Run Keyword And Ignore Error   Verify Systemctl status   range=1
     Run Keyword And Ignore Error   Verify Systemctl status   range=1   user=True
 
-    # Wait for the initial setup to start and kill the process. Initial setup window can mess with screenshot permission window.
-    Run Keyword and Ignore Error     Check that the application was started   cosmic-initial-setup   range=15
-    Kill App By Name   cosmic-initial-setup
+    Kill Initial Setup
 
     Log To Console         Verifying login by trying to detect the launcher icon
     # This is a workaround for launcher icon missing sometimes. If launcher icon can't be found tries to search
@@ -423,3 +424,11 @@ Check the screen state
     ${output}  ${err}   Execute Command    WAYLAND_DISPLAY=wayland-1 ${output}/bin/wlopm    return_stderr=True
     Log                 Screen state: ${output}  console=True
     Should Contain      ${output}    ${state}
+
+Kill Initial Setup
+    ${status}   ${output}   Run Keyword And Ignore Error   Check file exists   .config/cosmic-initial-setup-done
+    IF   $status == 'FAIL'
+        # Wait for the initial setup to start and kill the process. Initial setup window can mess with screenshot permission window.
+        Run Keyword and Ignore Error     Check that the application was started   cosmic-initial-setup   range=15
+        Kill App By Name   cosmic-initial-setup
+    END
