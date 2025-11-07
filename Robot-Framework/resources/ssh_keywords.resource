@@ -87,7 +87,7 @@ Check If Device Is Up
     IF  ${IS_AVAILABLE}    Log To Console    Device woke up after ${diff} sec.
 
     IF  ${IS_AVAILABLE} == False
-        Log To Console    Device is not available after reboot via SSH, waited for ${diff} sec!
+        Log To Console    Device is not available, waited for ${diff} sec!
         IF  "${SERIAL_PORT}" == "NONE"
             Log To Console    There is no address for serial connection
         ELSE
@@ -315,4 +315,13 @@ Try to switch to active vm connection
         RETURN   False
     ELSE
         RETURN   True
+    END
+
+Check that device is suspended
+    ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
+    IF  ${device_not_available} == True
+        Log To Console  Device is suspended
+    ELSE
+        Log To Console  Device is available
+        FAIL    Device failed to suspend.
     END

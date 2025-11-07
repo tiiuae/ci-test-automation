@@ -68,3 +68,13 @@ Verify Reboot and Connect
     END
     Sleep   30
     Connect    iterations=10
+
+Wake up device
+    Log To Console    Pressing the power button...
+    Press Button      ${SWITCH_BOT}-ON
+    Check If Device Is Up    range=30
+    IF    ${IS_AVAILABLE} == False
+        FAIL             The device did suspend but failed to wake up
+    ELSE
+        Log To Console   Device successfully woke up after suspend
+    END

@@ -416,3 +416,10 @@ Stop screen recording
     END
     Execute Command   rm /home/${USER_LOGIN}/Videos/${video_file}
     [Teardown]        Kill App By Name   gpu-screen-recorder
+
+Check the screen state
+    [Arguments]         ${state}
+    ${output}           Search nix store   wlopm
+    ${output}  ${err}   Execute Command    WAYLAND_DISPLAY=wayland-1 ${output}/bin/wlopm    return_stderr=True
+    Log                 Screen state: ${output}  console=True
+    Should Contain      ${output}    ${state}
