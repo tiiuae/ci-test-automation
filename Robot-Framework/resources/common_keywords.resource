@@ -200,6 +200,8 @@ Kill process
     Log To Console    Killed processes: @{pids}
 
 Save Time
-    [Arguments]    ${label}
-    ${now}    Evaluate    time.time()
-    Set Suite Variable    ${TIME_${label}}    ${now}
+    [Arguments]    ${label}    ${time}=None
+    IF  "${time}" == "None"
+        ${time}    Evaluate    time.time()
+    END
+    Set Suite Variable    ${TIME_${label}}    ${time}

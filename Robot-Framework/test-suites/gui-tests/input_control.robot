@@ -34,7 +34,7 @@ Change keyboard layout
     Check cosmic config current layout value
     Launch Cosmic Term
     # Wait until application window has been opened (max ~5s).
-    Locate on screen    text  ${USER_LOGIN}@gui-vm:  iterations=5
+    Locate on screen    text  ${USER_LOGIN}@gui-vm:  iterations=10
     Type string and press enter                "echo "  enter=False
     Press Key(s)    APOSTROPHE
     Press test key and switch keyboard layout  repeat=3

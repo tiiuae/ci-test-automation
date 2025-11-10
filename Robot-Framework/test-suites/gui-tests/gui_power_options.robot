@@ -101,7 +101,7 @@ Select power menu option
     ...                Search the correct text or click given coordinates.
     [Arguments]        ${text}=${EMPTY}   ${x}=0   ${y}=0   ${confirmation}=false
     Log To Console     Opening power menu
-    Locate and click   image  ./power.png  0.95  5
+    Locate and click   image  ./power.png  0.95  10
     IF  '${text}'
         Locate and click   text   ${text}
     ELSE IF  ${x} != 0 and ${y} != 0

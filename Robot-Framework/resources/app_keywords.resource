@@ -132,7 +132,7 @@ Open app menu
         Log To Console    App menu is already open
     ELSE
         Log To Console    Opening app menu
-        Locate and click  image  ${APP_MENU_LAUNCHER}  0.95  5
+        Locate and click  image  ${APP_MENU_LAUNCHER}  0.95  10
     END
 
 Close app via GUI
@@ -147,8 +147,8 @@ Close app via GUI
     Check that the application was started    ${app}  exact_match=${exact_match}
     Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
     Log To Console     Clicking the close button of the application window
-    Locate and click   image  ${close_button}  0.8  iterations=8
-    Save Time          ${app}_launched
+    Locate and click   image  ${close_button}  0.8  iterations=15
+    Save Time          ${app}_launched    ${LAST_SCREENSHOT_TIME}
     IF  $verify_is_killed=='true'
         Switch to vm       ${app-vm}
         ${status}          Run Keyword And Return Status  Check that the application is not running  ${app}  5  ${exact_match}
@@ -158,7 +158,7 @@ Close app via GUI
             # So need to prepare to close another window in chrome test case.
             IF  '${status}' != 'True'
                 Switch to vm        ${GUI_VM}  user=${USER_LOGIN}
-                Locate and click    image  ${close_button}  0.8  iterations=5
+                Locate and click    image  ${close_button}  0.8  iterations=10
                 Switch to vm        ${app-vm}
                 ${status}           Run Keyword And Return Status  Check that the application is not running  ${app}  5  ${exact_match}
             END
