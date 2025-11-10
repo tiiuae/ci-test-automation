@@ -24,9 +24,7 @@ Start Falcon AI
 
     ${answer}  Ask the question     2+2=? Return just the number.
     Should Be Equal As Integers     ${answer}   4
-    [Teardown]  Run Keywords   Kill App in VM   ${GUI_VM}   AND
-    ...         Run Keyword If   "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
-    ...         Run Keyword If Test Failed   Skip   "Known issue SSRCSP-6769: [Lenovo-X1] Falcon AI finds no models even though the model was installed"
+    [Teardown]  Kill App in VM   ${GUI_VM}
 
 Check user systemctl status
     [Documentation]   Verify systemctl status --user is running
