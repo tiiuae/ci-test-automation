@@ -110,9 +110,13 @@ Set RTC time
     ${original_time}      Get Time	epoch
     Set Test Variable     ${original_time}  ${original_time}
     Log To Console        Setting time ${time}
-    Execute Command       hwclock --set --date="${time}"  sudo=True  sudo_password=${PASSWORD}
-    Execute Command       hwclock -s  sudo=True  sudo_password=${PASSWORD}
-    ${output}             Execute Command  timedatectl -a
+    ${output}  ${stderr}  ${rc}      Execute Command  hwclock --set --date="${time}"  sudo=True  sudo_password=${PASSWORD}  return_stderr=True  return_rc=True
+    Should Be Equal As Integers      ${rc}   0   ${stderr}
+    Sleep    3
+    ${output}  ${stderr}  ${rc}      Execute Command  hwclock -s  sudo=True  sudo_password=${PASSWORD}  return_stderr=True  return_rc=True
+    Should Be Equal As Integers      ${rc}   0   ${stderr}
+    ${output}   Execute Command  timedatectl -a
+    Log         ${output}
 
 Check time was changed
     [Documentation]   Check that current system time is equal to given time tolerance.
