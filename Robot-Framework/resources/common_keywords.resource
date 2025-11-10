@@ -24,7 +24,7 @@ Verify service status
     ${finished}       Set Variable  False
 
     ${welcome_check}  Set Variable If  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"    False    True
-
+    #${welcome_check}  Set Variable  True
     FOR    ${i}    IN RANGE    ${range}
         ${output}  ${stderr}  ${rc}=   Execute Command  systemctl show ${service}  return_stderr=True  return_rc=True
         Log           stdout: ${output}\nstderr: ${stderr}
@@ -36,9 +36,17 @@ Verify service status
 
         # 'Welcome to NixOS' is not got if 'non-vm service' or if service is expected to be inactive/dead.
         IF  ${vmservice} and '${expected_substate}' == 'running' and ${state_status} and ${substate_status} and ${welcome_check}
-            ${logs}        Execute Command   journalctl -b -u ${service}
-            Log            ${logs}
-            ${finished}    Run Keyword And Return Status    Should Contain    ${logs}    Welcome to NixOS
+            ${logs}  ${stderr}  ${rc}      Execute Command   journalctl -b -u ${service}  return_stderr=True  return_rc=True
+            #Log to console  laita rc 4
+            #IF  '${i}' == '0'
+            #    ${rc}   Set Variable  4
+            #END
+            IF  '${rc}' == '0'
+                Log            ${logs}
+                ${finished}    Run Keyword And Return Status    Should Contain    ${logs}    Welcome to NixOS
+            ELSE
+                Continue for loop
+            END
             IF  ${finished}
                 BREAK
             END

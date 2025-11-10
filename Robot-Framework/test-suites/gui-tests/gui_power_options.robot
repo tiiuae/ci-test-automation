@@ -116,7 +116,14 @@ Select power menu option
     IF  '${confirmation}' == 'true'
         # Confirmation window needs to be clicked twice to focus it
         # Word "automatically" is used to locate the window since it is used in all confirmations
-        Locate and click   text   automatically
+        ${clicked}  Run Keyword and Return Status  Locate and click   text   automatically
+        #Debug add extra if 1st trial fails
+        IF  not ${clicked}
+            Log to console  --------------------------
+            Log to console  ---!!Debug:Extra click!!--
+            Log to console  --------------------------
+            Locate and click   text   automatically
+        END
         Locate and click   text   automatically
         Tab and enter   tabs=2
     END

@@ -21,9 +21,9 @@ Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Run Keywords  Connect to device
 ...                 AND  Connect to netvm
-...                 AND  Run iperf server on DUT
+#...                 AND  Run iperf server on DUT
 Suite Teardown      Run Keywords  Stop iperf server
-...                 AND  Close port 5201 from iptables
+#...                 AND  Close port 5201 from iptables
 ...                 AND  Close All Connections
 
 
@@ -34,7 +34,9 @@ ${PERF_TEST_TIME}  10
 *** Test Cases ***
 Measure TCP Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]   tcp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T227
+    [Setup]                 Network Test Setup
+    [Teardown]              Network Test Teardown
+    [Tags]   tcp  nuc  riscv  orin-nx  orin-agx  lenovo-x1   darter-pro   dell-7330  SP-T227  orin-nx  orin-agx
     &{speed_data}           Create Dictionary
     # DUT sends
     ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -52,7 +54,9 @@ Measure TCP Throughput Small Packets
 
 Measure TCP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T228
+    [Setup]                 Network Test Setup
+    [Teardown]              Network Test Teardown
+    [Tags]  tcp  nuc  riscv  orin-nx  orin-agx  lenovo-x1   darter-pro   dell-7330  SP-T228
     &{speed_data}           Create Dictionary
     ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output.stdout}
@@ -66,7 +70,9 @@ Measure TCP Bidir Throughput Small Packets
 
 Measure TCP Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  tcp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T229
+    [Setup]                 Network Test Setup
+    [Teardown]              Network Test Teardown
+    [Tags]  tcp  nuc  riscv  orin-nx  orin-agx  lenovo-x1   darter-pro   dell-7330  SP-T229
     &{speed_data}           Create Dictionary
     ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
     ${output2}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME}   shell=True  timeout=${${PERF_TEST_TIME}+10}
@@ -81,7 +87,9 @@ Measure TCP Throughput Big Packets
 
 Measure TCP Bidir Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T230
+    [Setup]                 Network Test Setup
+    [Teardown]              Network Test Teardown
+    [Tags]  tcp  nuc  riscv  orin-nx  orin-agx  lenovo-x1   darter-pro   dell-7330  SP-T230
     &{speed_data}           Create Dictionary
     ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -M 9000 -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output.stdout}
@@ -95,7 +103,9 @@ Measure TCP Bidir Throughput Big Packets
 
 Measure UDP TX Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  tcp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T231
+    [Setup]                 Network Test Setup
+    [Teardown]              Network Test Teardown
+    [Tags]  tcp  nuc  riscv  orin-nx  orin-agx  lenovo-x1   darter-pro   dell-7330  SP-T231
     &{speed_data}           Create Dictionary
     ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} -R    shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output1.stdout}
@@ -111,7 +121,9 @@ Measure UDP TX Throughput Small Packets
 
 Measure UDP Bidir Throughput Small Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  tcp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T232
+    [Setup]                 Network Test Setup
+    [Teardown]              Network Test Teardown
+    [Tags]  tcp  nuc  riscv  orin-nx  orin-agx  lenovo-x1   darter-pro   dell-7330  SP-T232
     &{speed_data}           Create Dictionary
     ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -u -b 100G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output.stdout}
@@ -122,12 +134,14 @@ Measure UDP Bidir Throughput Small Packets
     Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="UDP" Bidir Transfer Small Packets" width="1200">    HTML
     ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
     Determine Test Status   ${statistics}
-
-    [Teardown]  Run Keyword If   "Dell" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6774"
+    #
+    Run Keyword If   "Dell" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6774"
 
 Measure UDP Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed
-    [Tags]  udp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T233
+    [Setup]                 Network Test Setup
+    [Teardown]              Network Test Teardown
+    [Tags]  udp  nuc  riscv  orin-nx  orin-agx  lenovo-x1   darter-pro   dell-7330  SP-T233
     &{speed_data}           Create Dictionary
     ${output1}              Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 100G -f M -t ${PERF_TEST_TIME} -R   shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output1.stdout}
@@ -143,7 +157,9 @@ Measure UDP Throughput Big Packets
 
 Measure UDP Bidir Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in bidir mode to get bi-directional speed
-    [Tags]  udp  nuc  riscv  lenovo-x1   darter-pro   dell-7330  SP-T234
+    [Setup]                 Network Test Setup
+    [Teardown]              Network Test Teardown
+    [Tags]  udp  nuc  riscv  orin-nx  orin-agx  lenovo-x1   darter-pro   dell-7330  SP-T234
     &{speed_data}           Create Dictionary
     ${output}               Run Process  iperf3 -c ${DEVICE_IP_ADDRESS} -l 9000 -u -b 10000G -f M -t ${PERF_TEST_TIME} --bidir  shell=True  timeout=${${PERF_TEST_TIME}+10}
     Log                     ${output.stdout}
@@ -154,8 +170,8 @@ Measure UDP Bidir Throughput Big Packets
     Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="UDP Bidir Transfer Big Packets" width="1200">    HTML
     ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
     Determine Test Status   ${statistics}
-
-    [Teardown]   Run Keyword If   "AGX" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6623 (AGX)"
+    #
+    Run Keyword If   "AGX" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6623 (AGX)"
 
 *** Keywords ***
 Run iperf server on DUT
@@ -222,3 +238,10 @@ Get Throughput Values
         Log      Failed to get the result from ${TEST NAME}   console=yes
     END
     RETURN  ${MBps}[0]
+
+Network Test Setup
+    Run iperf server on DUT
+
+Network Test Teardown
+    Stop iperf server
+    Close port 5201 from iptables
