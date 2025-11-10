@@ -71,7 +71,6 @@ Verify NetVM PCI device passthrough
     [Tags]              SP-T96  nuc  orin-agx  orin-agx-64  orin-nx
     [Setup]             Switch to vm   ${NET_VM}
     Verify microvm PCI device passthrough    vmname=${NET_VM}
-    [Teardown]          Run Keyword If Test Failed  Skip Test If Known Failure
 
 
 *** Keywords ***
@@ -91,9 +90,3 @@ Remove wpa_supplicant configuration
     Execute Command     rm /etc/wpa_supplicant.conf  sudo=True    sudo_password=${PASSWORD}
     Execute Command     systemctl restart wpa_supplicant.service  sudo=True    sudo_password=${PASSWORD}
 
-Skip test if known failure
-    [Documentation]    Elaborate it possible failure is due to some known reason.
-    IF  "AGX" in "${DEVICE}"
-        ${journal_log}  Execute command  journalctl -b | grep -i 'Unrecoverable error detected.'
-        Run Keyword If  $journal_log != '${EMPTY}'   SKIP  "Known issue: SSRCSP-6423"
-    END

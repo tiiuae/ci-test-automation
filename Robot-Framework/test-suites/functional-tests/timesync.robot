@@ -180,14 +180,5 @@ Unblock internet traffic
 Timesync Teardown
      [Timeout]      2 minutes
      Switch to vm   ${HOST}
-     Run Keyword If Test Failed  Check If Known Error
      Set RTC from system clock
      Start timesync daemon
-
-Check If Known Error
-    IF  "AGX" in "${DEVICE}"
-        ${journal_log}    Execute Command  journalctl --since "20 minutes ago"
-        Log  ${journal_log}
-        ${error_present}  Run Keyword And Return Status  Should Contain  ${journal_log}   ${error_msg}
-        IF  ${error_present}   Skip    Known issue: SSRCSP-6423 (AGX)
-    END
