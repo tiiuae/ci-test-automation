@@ -120,7 +120,7 @@ Tab and enter
 Locate on screen
     [Documentation]    Take a screenshot. Locate given image or text on the screenshot.
     ...                Return center coordinates of the item in mouse coordinate system.
-    [Arguments]        ${type}  ${searched_item}  ${confidence}=0.999   ${iterations}=5   ${fail_expected}=False  ${debug_screenshot}=True
+    [Arguments]        ${type}  ${searched_item}  ${confidence}=0.999   ${iterations}=10   ${fail_expected}=False  ${debug_screenshot}=True
     [Timeout]          2 minutes
     ${coordinates}=        Set Variable  ${EMPTY}
     ${pass_status}=        Set Variable  FAIL
@@ -130,6 +130,8 @@ Locate on screen
     FOR   ${i}   IN RANGE  ${iterations}
         Log To Console     Taking cosmic screenshot
         ${result}=         Run Keyword And Ignore Error  Execute Command  ${screenshot_cmd}  return_stdout=True  return_rc=True  timeout=5
+        ${LAST_SCREENSHOT_TIME}  Evaluate    time.time()
+        Set Global Variable      ${LAST_SCREENSHOT_TIME}
         Log                ${result}
         IF  "${result}[1][1]" == "0"
             SSHLibrary.Get File  ${result[1][0]}  ${GUI_TEMP_DIR}/screenshot.png
@@ -150,7 +152,7 @@ Locate on screen
             END
             BREAK
         END
-        Sleep  1
+        Sleep  0.5
     END
     IF  $pass_status=='FAIL' and ${debug_screenshot} and not ${fail_expected}
         Timestamp screenshot
@@ -185,7 +187,7 @@ Allow first screenshot
     Set Global Variable  ${FIRST_SCREENSHOT}  ${False}
 
 Locate and click
-    [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=5
+    [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=10
     ${mouse_x}  ${mouse_y}  Locate on screen  ${type}  ${searched_item}  ${confidence}  ${iterations}
     Run ydotool command   mousemove --absolute -x ${mouse_x} -y ${mouse_y}
     Run ydotool command   click 0xC0
@@ -218,11 +220,11 @@ Verify desktop availability
     Log To Console         Verifying login by trying to detect the launcher icon
     # This is a workaround for launcher icon missing sometimes. If launcher icon can't be found tries to search
     # for the power menu icon. Gui-vm user log is saved to help debugging.
-    ${status}   ${output}   Run Keyword And Ignore Error   Locate on screen  image  ${APP_MENU_LAUNCHER}  0.95  10
+    ${status}   ${output}   Run Keyword And Ignore Error   Locate on screen  image  ${APP_MENU_LAUNCHER}  0.95  20
     IF   $status == 'FAIL'
         Get gui-vm user journalctl log
         Log To Console    Could not find launcher icon, checking for power menu icon
-        Locate on screen  image  ./power.png  0.95  5
+        Locate on screen  image  ./power.png  0.95  10
     END
 
 Move cursor
@@ -284,9 +286,9 @@ Check if locked
 Unlock
     [Documentation]    Unlock the screen be typing password
     # Make sure that password field is active by clicking it
-    Locate and click   image  ${LOCK_ICON}   0.95  5
+    Locate and click   image  ${LOCK_ICON}   0.95  10
     # Can't explain the second click but does not work without
-    Locate and click   image  ${LOCK_ICON}   0.95  5
+    Locate and click   image  ${LOCK_ICON}   0.95  10
     Log To Console     Typing password to unlock
     Type string and press enter  ${USER_PASSWORD}  confidential=True
     Sleep   2
@@ -386,7 +388,7 @@ Start screen recording
     IF   ${SCREEN_SELECTED}==${False}
         # The window to record needs to be selected when recording first time
         # Check if selection window opened
-        ${pass_status}  ${output}  Run Keyword And Ignore Error   Locate on screen   text   Share   iterations=3
+        ${pass_status}  ${output}  Run Keyword And Ignore Error   Locate on screen   text   Share   iterations=5
         IF  $pass_status=='PASS'
             # Select the display to record
             Tab and enter    tabs=3
