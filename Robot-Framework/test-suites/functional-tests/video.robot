@@ -7,6 +7,7 @@ Force Tags          bat  regression   video  lenovo-x1  darter-pro  dell-7330
 
 Library             Collections
 Library             OperatingSystem
+Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
 Test Setup          Switch to vm   ${NET_VM}
@@ -22,7 +23,8 @@ ${VIDEO_DIR}    ${OUTPUT_DIR}/outputs/video-temp
 Check Camera Application
     [Documentation]  Check that camera application is available in business-vm and not in other vm
     [Tags]  SP-T235
-    FOR  ${vm}  IN  @{VMS}
+    @{vms}      Get VM list
+    FOR  ${vm}  IN  @{vms}
         Switch to vm        ${vm}
         ${out}  Execute Command  v4l2-ctl --list-devices  sudo=True  sudo_password=${PASSWORD}
         Log  ${out}

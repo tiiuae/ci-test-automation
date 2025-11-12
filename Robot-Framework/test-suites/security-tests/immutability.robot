@@ -9,6 +9,8 @@ Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
+Suite Setup         Suite Setup
+
 
 *** Test Cases ***
 
@@ -16,14 +18,18 @@ VM is wiped after restarting
     [Documentation]     Verify that created file will be removed after restarting VM
     [Tags]              SP-T48
     [Template]          ${vm} is wiped after restarting
-    FOR    ${vm}    IN    @{VMS}
-        IF    '${vm}' != '${GUI_VM}'
+    FOR    ${vm}    IN    @{VM_LIST}
+        IF    '${vm}' != '${GUI_VM}' and '${vm}' != '${NET_VM}'
             ${vm}
         END
     END
 
 
 *** Keywords ***
+
+Suite Setup
+    @{VM_LIST}      Get VM list
+    Set Suite Variable      @{VM_LIST}
 
 ${vm} is wiped after restarting
     [Documentation]     Verify that created file will be removed after restarting VM

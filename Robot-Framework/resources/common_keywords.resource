@@ -138,12 +138,12 @@ Get VM list
     [Arguments]    ${with_host}=False
     Switch to vm    ${HOST}
     ${output}       Execute Command    microvm -l
-    @{VM_LIST}      Extract VM names   ${output}
-    Should Not Be Empty     ${VM_LIST}   VM list is empty
+    @{vm_list}      Extract VM names   ${output}
+    Should Not Be Empty     ${vm_list}   VM list is empty
     IF    ${with_host}
-        @{VM_LIST}    Create List   @{VM_LIST}   ${HOST}
+        @{vm_list}    Create List   @{vm_list}   ${HOST}
     END
-    RETURN    @{VM_LIST}
+    RETURN    @{vm_list}
 
 Is process started
     [Arguments]    ${pid}

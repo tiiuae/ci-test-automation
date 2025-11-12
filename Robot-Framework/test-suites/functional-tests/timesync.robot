@@ -50,11 +50,16 @@ Update system time from internet in Gui-vm
 Update system time from internet in VMs
     [Tags]            regression  SP-T217  lenovo-x1  darter-pro  dell-7330
     [Template]        Update system time from internet in ${vm}
-    FOR    ${vm}    IN    @{VMS}
+    [Setup]           VM Time Update Setup
+    FOR    ${vm}    IN    @{VM_LIST}
         ${vm}
     END
 
 *** Keywords ***
+
+VM Time Update Setup
+    @{VM_LIST}      Get VM list
+    Set Suite Variable      @{VM_LIST}
 
 Update system time from internet in ${vm}
     [Documentation]   Disable internet, change time in vm, restart timesyncd, check that time was changed to wrong
