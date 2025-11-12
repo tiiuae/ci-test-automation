@@ -25,8 +25,17 @@ Check that unauthorised user has no access to host devices
     [Documentation]     Check that test user does not have access to host devices in Gui-vm
     [Tags]              SP-T265
     Switch to vm        ${GUI_VM}  user=${USER_LOGIN}
-    ${nvme0n1_access}   Check access   /dev/nvme0n1
-    Run Keyword And Continue On Failure 	Should Not Be True  ${nvme0n1_access}
+    Check access   /dev/nvme0n1    expected=False
+
+Check that unauthorised user has limited access to file system
+    [Documentation]     Check that test user does not have access to /root
+    ...                 and have access to normal directories like: Pictures, Videos, Shares
+    [Tags]              SP-T291-1
+    Switch to vm        ${GUI_VM}  user=${USER_LOGIN}
+    Check access     /root    expected=False
+    Check access     /home/testuser/Pictures    expected=True
+    Check access     /Shares    expected=True
+    Check available directories    /Shares
 
 
 *** Keywords ***
@@ -37,15 +46,26 @@ Setup
 
 Check access to host devices in ${vm}
     Switch to vm    ${vm}
-    ${nvme0n1_access}   Check access   /dev/nvme0n1
     IF    '${vm}' == '${HOST}'
-        Run Keyword And Continue On Failure 	Should Be True  ${nvme0n1_access}
+        Check access   /dev/nvme0n1    expected=True
     ELSE
-        Run Keyword And Continue On Failure 	Should Not Be True  ${nvme0n1_access}
+        Check access   /dev/nvme0n1    expected=False
     END
 
 Check access
-    [Arguments]   ${path}
-    ${out}  ${err}  ${rc}    Execute Command    ls -ld ${path}    return_stderr=True    return_rc=True
+    [Arguments]   ${path}    ${expected}=True
+    ${out}  ${err}  ${rc}    Execute Command    ls ${path}    return_stderr=True    return_rc=True
     ${status}    Evaluate    ${rc} == 0
-    RETURN       ${status}
+    IF    ${status} != ${expected}
+        Run Keyword And Continue On Failure      FAIL    User has access: ${status}, but expected: ${expected}
+    END
+
+Check available directories
+    [Arguments]   ${path}
+    ${out}  ${rc}    Execute Command    ls ${path}     return_rc=True
+    Run Keyword And Continue On Failure   Should Contain   ${out}    Unsafe business-vm share
+    Run Keyword And Continue On Failure   Should Contain   ${out}    Unsafe chrome-vm share
+    Run Keyword And Continue On Failure   Should Contain   ${out}    Unsafe comms-vm share
+    @{dirs}          Split To Lines    ${out}
+    ${length}        Get Length      ${dirs}
+    Run Keyword And Continue On Failure   Should Be Equal As Integers   ${length}   3
