@@ -4,6 +4,7 @@
 *** Settings ***
 Documentation       Checking VM's firewall
 Force Tags          security  firewall
+Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Suite Setup
@@ -49,10 +50,7 @@ Network traffic passes through ${vm} firewall
     ...                Remove rules
 
 Suite Setup
-    Switch to vm    ${HOST}
-    ${output}       Execute Command    microvm -l
-    @{VM_LIST}      Extract VM names   ${output}
-    Should Not Be Empty     ${VM_LIST}   VM list is empty
+    @{VM_LIST}      Get VM list
     Set Suite Variable      @{VM_LIST}
 
 Create firewall logging rules

@@ -10,6 +10,12 @@ Resource            ../../resources/app_keywords.resource
 
 *** Test Cases ***
 
+Start App Store
+    [Documentation]   Start App Store and verify process started
+    [Tags]            SP-T334
+    Start application in VM   "App Store"   ${FLATPAK_VM}   cosmic-store
+    [Teardown]        Kill App in VM   ${FLATPAK_VM}
+
 Start Bluetooth Settings
     [Documentation]   Start Bluetooth Settings and verify process started
     [Tags]            SP-T204  fmo

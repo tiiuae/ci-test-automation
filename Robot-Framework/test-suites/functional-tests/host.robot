@@ -53,9 +53,7 @@ Check host systemctl status
 Check all VMs are running
     [Documentation]    Check that all VMs are running.
     [Tags]             SP-T68  lenovo-x1  darter-pro  dell-7330  fmo  pre-merge  bat
-    ${output}   Execute Command    microvm -l
-    @{vms}      Extract VM names   ${output}
-    Should Not Be Empty   ${vms}  VM list is empty
+    @{vms}      Get VM list
     FOR   ${vm}  IN  @{vms}
         ${status}=    Run Keyword And Continue On Failure    Verify service status  service=microvm@${vm}
     END

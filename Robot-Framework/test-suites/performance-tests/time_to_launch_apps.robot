@@ -176,9 +176,17 @@ Measure time to launch VPN
     [Documentation]   Start VPN app via GUI and measure time of launching
     [Tags]            SP-T285-22
     Start app via GUI   ${BUSINESS_VM}  gpclient  display_name=VPN
+    # Closing is ignored because the process stays running
     Close app via GUI   ${BUSINESS_VM}  gpclient  verify_is_killed=false
     Save launch time    gpclient
 
+Measure time to launch App Store
+    [Documentation]   Start App Store via GUI and measure time of launching
+    [Tags]            SP-T285-23
+    Start app via GUI   ${FLATPAK_VM}  cosmic-store  display_name="App Store"
+    # Closing is ignored because it takes a while before the window can be closed via GUI
+    Close app via GUI   ${FLATPAK_VM}  cosmic-store  ./window-close-neg.png  verify_is_killed=false
+    Save launch time    cosmic-store
 
 *** Keywords ***
 
