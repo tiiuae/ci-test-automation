@@ -329,3 +329,8 @@ Check that device is suspended
         Log To Console  Device is available
         FAIL    Device failed to suspend.
     END
+
+Get VM IP
+    ${output}     Execute Command    ifconfig
+    ${ip}         Get ip from ifconfig    ${output}   eth
+    RETURN        ${ip}
