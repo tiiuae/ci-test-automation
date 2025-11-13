@@ -23,7 +23,7 @@ Start application in VM
     Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
     Start application   ${app_name}
     IF   '${vm_name}' != '${GUI_VM}'   Switch to vm   ${vm_name}
-    Check that the application was started    ${process_name}   exact_match=${exact_match}
+    Check that the application was started    ${process_name}  5  exact_match=${exact_match}
 
 Check that appVM is running
     [Arguments]    ${vm_name}
