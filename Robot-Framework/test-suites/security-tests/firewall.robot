@@ -63,11 +63,6 @@ Remove rules
     Execute Command  iptables -t filter -D INPUT -p tcp --dport ${port} -j LOG --log-prefix "Packet arrived: "  sudo=True  sudo_password=${PASSWORD}
     Execute Command  iptables -t filter -D INPUT -p udp --dport ${port} -j LOG --log-prefix "Packet arrived: "  sudo=True  sudo_password=${PASSWORD}
 
-Get VM IP
-    ${output}     Execute Command    ifconfig
-    ${ip}         Get ip from ifconfig    ${output}   eth
-    RETURN        ${ip}
-
 Send connection request to closed port
     [Arguments]        ${ip}    ${port}
     Log                Sending tcp and udp traffic to ip ${ip}, port ${port}     console=True
