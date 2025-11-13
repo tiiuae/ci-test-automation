@@ -66,6 +66,7 @@ Check available directories
     Run Keyword And Continue On Failure   Should Contain   ${out}    Unsafe business-vm share
     Run Keyword And Continue On Failure   Should Contain   ${out}    Unsafe chrome-vm share
     Run Keyword And Continue On Failure   Should Contain   ${out}    Unsafe comms-vm share
+    Run Keyword And Continue On Failure   Should Contain   ${out}    Unsafe flatpak-vm share
     @{dirs}          Split To Lines    ${out}
     ${length}        Get Length      ${dirs}
-    Run Keyword And Continue On Failure   Should Be Equal As Integers   ${length}   3
+    Run Keyword And Continue On Failure   Should Be Equal As Integers   ${length}   4
