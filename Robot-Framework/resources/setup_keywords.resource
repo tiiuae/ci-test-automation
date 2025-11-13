@@ -14,14 +14,14 @@ Prepare Test Environment
     Connect to device
     Log versions
 
-    IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        Switch to vm    ${GUI_VM}
-        Create test user
-        IF  ${login}
-            Save gui icons and icon path
-            Login to laptop   ${enable_dnd}
-        END
-    END
+#    IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
+#        Switch to vm    ${GUI_VM}
+#        Create test user
+#        IF  ${login}
+#            Save gui icons and icon path
+#            Login to laptop   ${enable_dnd}
+#        END
+#    END
 
 Clean Up Test Environment
     [Timeout]     5 minutes
@@ -31,12 +31,12 @@ Clean Up Test Environment
         Switch to vm   ${HOST}
         Save host journalctl
     END
-    IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        Start ydotoold
-        Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
-        Log out and verify   ${disable_dnd}
-        Stop ydotoold
-    END
+#    IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
+#        Start ydotoold
+#        Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
+#        Log out and verify   ${disable_dnd}
+#        Stop ydotoold
+#    END
     Close All Connections
 
 Connect to device

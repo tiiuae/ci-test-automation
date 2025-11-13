@@ -167,13 +167,15 @@ Connect to netvm
 
 Connect to VM
     [Documentation]      Connect to any VM or ghaf-host over internal virtual network
-    [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=60
+    [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=60    ${jumphost}=None
     Switch to vm   ${NET_VM}
     Log                  Connecting to ${vm_name} as ${user}...   console=True
     Check if ssh is ready on vm        ${vm_name}   ${timeout}
     ${failed_connection}  Set Variable  True
     ${start_time}  Get Time	epoch
-    ${jumphost}    Set Variable  ${NET-VM_GHAF_SSH}
+    IF    $jumphost == 'None'
+        ${jumphost}    Set Variable  ${NET-VM_GHAF_SSH}
+    END
     # Opening connection
     FOR    ${i}    IN RANGE    10
         TRY
