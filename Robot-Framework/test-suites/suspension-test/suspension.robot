@@ -15,6 +15,65 @@ Library             JSONLibrary
 
 
 *** Test Cases ***
+Quick suspension
+    [Documentation]   x
+    ...               y
+    ...               iz
+    ...               in 5 min - the screen locks (brightness is 25 %)
+    ...               in 15 min - the laptop is suspended
+    ...               in 20 min press the button and check that laptop woke up
+    [Tags]            SP-T162i    lenovo-x1   lab-only
+    [Setup]           Test setup
+    [Teardown]        Test teardown
+
+    Check the screen state   on
+    Check screen brightness  ${max_brightness}
+
+    Start power measurement  ${BUILD_ID}   timeout=1500
+    Connect
+    Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
+    Set timestamp            before_suspend_start
+    Wait                     60
+    Set timestamp            before_suspend_end
+
+    #Suspend from menu
+    Select power menu option2   x=815   y=120
+    Check that device is suspended
+
+    Wake up device
+    Close All Connections
+    Connect
+    Start ydotoold
+    Switch to vm             ${GUI_VM}   user=${USER_LOGIN}
+    # Sometimes screen wakeup has required a mouse move
+    Move Cursor
+
+    Wait Until Keyword Succeeds   30s   2s    Check the screen state   on
+
+    Log To Console           Checking if the screen is in locked state after wake up
+    ${locked}                Check if locked
+    Should Be True           ${locked}    Screen lock not active after wake up
+
+    # Power level comparison in the same login gui state as in the beginning
+    # Applied only if power measurement agent is available in the setup
+    IF  $SSH_MEASUREMENT!='${EMPTY}'
+        Unlock
+        Verify desktop availability
+        Wait                     120
+        Set timestamp            after_suspend_start
+        Wait                     60
+        Set timestamp            after_suspend_end
+
+        Generate power plot      ${BUILD_ID}   ${TEST NAME}
+        Stop recording power
+
+        ${suspended_power}       Check power during suspension   ${BUILD_ID}   2500
+        ${power_changed}         Measure power level change  ${BUILD_ID}  25  ${before_suspend_start}  ${before_suspend_end}  ${after_suspend_start}  ${after_suspend_end}
+        IF  ${suspended_power}!=${False} or ${power_changed}!=${False}
+            FAIL  Average suspended power ${suspended_power}mW (test limit 2500mW)\nPower consumption level increased ${power_changed}% over suspension and wake up (test limit 25%)
+        END
+    END
+
 
 Automatic suspension
     [Documentation]   Wait and check that
@@ -169,3 +228,30 @@ Check screen brightness
         END
     END
     IF  ${status} == False    FAIL    The screen brightness is ${output}, expected ${brightness}
+
+Select power menu option2
+    [Documentation]    Open power menu by clicking the icon.
+    ...                Search the correct text or click given coordinates.
+    [Arguments]        ${text}=${EMPTY}   ${x}=0   ${y}=0   ${confirmation}=false
+    Log To Console     Opening power menu
+    Locate and click   image  ./power.png  0.95  10
+    IF  '${text}'
+        Locate and click   text   ${text}
+    ELSE IF  ${x} != 0 and ${y} != 0
+        Log To Console        Clicking the coordinates of the icon {'x': ${x}, 'y': ${y}}
+        Run ydotool command   mousemove --absolute -x ${x} -y ${y}
+        Run ydotool command   click 0xC0
+    ELSE
+        FAIL   No type provided
+    END
+    Sleep   1
+    # Some options have a separate confirmation window that needs to be clicked.
+    IF  '${confirmation}' == 'true'
+        # Confirmation window needs to be clicked twice to focus it
+        # Word "automatically" is used to locate the window since it is used in all confirmations
+        Locate and click   text   automatically
+        Locate and click   text   automatically
+        Tab and enter   tabs=2
+    END
+    Sleep   1
+

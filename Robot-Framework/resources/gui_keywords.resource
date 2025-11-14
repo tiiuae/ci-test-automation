@@ -61,7 +61,7 @@ Log out and verify
         RETURN
     END
     IF  ${disable_dnd}   Set do not disturb state   false
-    ${logout_status}      Check if logged out    1
+    ${logout_status}      Check if logged out    10
     IF  not ${logout_status}
         ${lock}       Check if locked
         IF  ${lock}   Unlock
