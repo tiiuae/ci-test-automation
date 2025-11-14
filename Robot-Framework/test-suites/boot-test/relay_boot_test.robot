@@ -119,7 +119,7 @@ Turn ON Device
 
 Run installer
     [Documentation]   Turn on device and run installer, will not turn off after test, boot test is required after this
-    [Tags]            installer  lenovo-x1
+    [Tags]            installer  lenovo-x1  darter-pro
     Log To Console    ${\n}Turning device on...
     Press Button      ${SWITCH_BOT}-ON
     Check If Device Is Up
@@ -129,7 +129,7 @@ Run installer
 
 Wipe installed Ghaf from internal memory
     [Documentation]   Turn on device and wipe internal memory using ghaf-installer or dd if installer fails
-    [Tags]            wiping  lenovo-x1
+    [Tags]            wiping  lenovo-x1  darter-pro
     Log To Console    ${\n}Turning device on...
     Press Button      ${SWITCH_BOT}-ON
     Check If Device Is Up   range=60
