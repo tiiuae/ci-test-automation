@@ -849,6 +849,8 @@ class PerformanceDataProcessing:
         all_builds = {test: [] for test in tests}
 
         for vm_name, threads in vms_dict.items():
+            # Debugging
+            logging.info("vm_name: " + vm_name)
             for test in tests:
                 if "1thread" not in test and int(threads) == 1:
                     continue
@@ -868,6 +870,9 @@ class PerformanceDataProcessing:
                         build_counter[build] = build_counter.get(build, -1) + 1
                         modified_build = f"{build}-{build_counter[build]}" if build_counter[build] > 0 else build
                         build_data.append((modified_build, float(row[1 if 'cpu' in test else 2])))
+                    # Debugging
+                    logging.info("build_data:")
+                    logging.info(build_data)
 
                     if build_data:
                         build_data = build_data[-10:]  # Keep only the last 10 builds
@@ -879,6 +884,8 @@ class PerformanceDataProcessing:
                         for build in [build[0] for build in build_data]:
                             if build not in all_builds[test]:
                                 all_builds[test].append(build)
+                                # Debugging
+                                logging.info(all_builds[test])
 
         for test in tests:
             plt.figure(figsize=(10, 6))
@@ -886,6 +893,10 @@ class PerformanceDataProcessing:
             for i, (vm_name, vm_data) in enumerate(data[test].items()):
                 if vm_data:
                     indices = [all_builds[test].index(build) for build in vm_data['commit']]
+                    # Debugging
+                    logging.info("indices and vm_data values:")
+                    logging.info(indices)
+                    logging.info(vm_data['values'])
                     plt.bar([x + i * 0.1 for x in indices], vm_data['values'], width=0.1,
                             label=f"{vm_name} ({vm_data['threads']} threads)" if "1thread" not in test else vm_name)
 
