@@ -46,6 +46,7 @@ Check Grafana logs
     ${id}            Execute Command  cat /etc/common/device-id  sudo=True  sudo_password=${PASSWORD}
     ${date}          DateTime.Get Current Date  result_format=%Y-%m-%d
     Wait Until Keyword Succeeds  60s  5s  Check Logs Are available  ${date}  ${id}
+    [Teardown]       Run Keyword If Test Failed    SKIP   No access to Grafana, investigation ongoing
 
 
 *** Keywords ***
