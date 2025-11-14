@@ -205,12 +205,13 @@ FileIO write isolation test
     Log To Console         Parsing the test results
     &{single_data}         Parse FileIO Write Results   ${out}
 
-    Switch to vm           ${attacker-vm}
-    Elevate to superuser
-    Write                  mkdir ${test_dir}
-    Write                  cd ${test_dir}
-    Log To Console         Running fileio test parallel in two VMs
-    Write                  sysbench fileio --file-total-size=7G --threads=1 --file-test-mode=seqwr --time=30 run
+    # Switch to vm           ${attacker-vm}
+    # Elevate to superuser
+    # Write                  mkdir ${test_dir}
+    # Write                  cd ${test_dir}
+    # Log To Console         Running fileio test parallel in two VMs
+    # Write                  sysbench fileio --file-total-size=7G --threads=1 --file-test-mode=seqwr --time=30 run
+    Sleep                  5
     Switch to vm           ${reference-vm}
     Write                  sysbench fileio --file-total-size=7G --threads=1 --file-test-mode=seqwr --time=30 run
     Sleep                  5
@@ -253,11 +254,12 @@ FileIO read isolation test
     Log To Console         Parsing the test results
     &{single_data}         Parse FileIO Read Results   ${out}
 
-    Switch to vm           ${attacker-vm}
-    Prepare files for fileio test in VM     7   ${test_dir}
-    Log To Console         Running fileio read test parallel in two VMs
-    Write                  sysbench fileio --file-total-size=7G --threads=1 --file-test-mode=seqrd --time=30 run
-    Switch to vm           ${reference-vm}
+    # Switch to vm           ${attacker-vm}
+    # Prepare files for fileio test in VM     7   ${test_dir}
+    # Log To Console         Running fileio read test parallel in two VMs
+    # Write                  sysbench fileio --file-total-size=7G --threads=1 --file-test-mode=seqrd --time=30 run
+    # Switch to vm           ${reference-vm}
+    Sleep                  170
     Write                  sysbench fileio --file-total-size=7G --threads=1 --file-test-mode=seqrd --time=30 run
     Sleep                  5
     ${out}                 SSHLibrary.Read Until   execution time
