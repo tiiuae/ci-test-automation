@@ -194,20 +194,8 @@ Tests Setup
     [Timeout]    5 minutes
     Prepare Test Environment   enable_dnd=True
 
-    # There's a bug that occasionally causes the app menu to freeze on Cosmic, especially on the first login.
-    # Logging out once before running tests helps reduce the chances of it happening. (SSRCSP-6684)
-    ${first_login}   Is first graphical login
-    IF  ${first_login}
-        Log To Console   First login detected. Logging out and back in to go around a Cosmic bug.
-        Log out and verify   disable_dnd=True
-        Log in, unlock and verify   enable_dnd=True
-    END
-
 Tests Teardown
-    Start ydotoold
-    Switch to vm        ${GUI_VM}  user=${USER_LOGIN}
-    Log out and verify  disable_dnd=True
-    Stop ydotoold
+    Log out from laptop
     
 Save launch time
     [Documentation]    Evaluate the time between starting the app from the GUI app menu

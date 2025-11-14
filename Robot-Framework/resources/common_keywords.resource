@@ -205,3 +205,17 @@ Save Time
         ${time}    Evaluate    time.time()
     END
     Set Suite Variable    ${TIME_${label}}    ${time}
+
+Wait
+    [Arguments]     ${sec}
+    ${time}         Get Time
+    Log             ${time}: waiting for ${sec} sec  console=True
+    Sleep           ${sec}
+
+Search nix store
+    [Documentation]      Search a file containing string argument in the target nix store.
+    ...                  Return only the file path which is linked to the current generation.
+    [Arguments]          ${string}
+    ${file_path}         Execute Command   nix-store --query --requisites /run/current-system | grep ${string}
+    Should Not Be Empty  ${file_path}      File not found from the target /nix/store
+    RETURN               ${file_path}

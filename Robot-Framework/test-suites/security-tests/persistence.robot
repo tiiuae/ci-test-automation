@@ -8,6 +8,7 @@ Library             ../../lib/output_parser.py
 Library             ../../lib/TimeLibrary.py
 Resource            ../../resources/device_control.resource
 Resource            ../../resources/gui_keywords.resource
+Resource            ../../resources/gui-vm_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
@@ -77,38 +78,9 @@ Set values
     [Arguments]    ${type}
     Should Be True  '${type}' in ['ORIGINAL', 'EXPECTED']   Wrong type
     Run Keyword And Continue On Failure   Set brightness    ${${type}_BRIGHTNESS}
-    Run Keyword And Continue On Failure   Set volume        ${${type}_VOLUME_}
-    Run Keyword And Continue On Failure   Set timezone      ${${type}_TIMEZONE_}
-    Run Keyword And Continue On Failure   Set cam state     ${${type}_CAM_STATE_}
-
-Set brightness
-    [Documentation]   Set brightness to ${brightness_to_set}
-    [Arguments]       ${brightness_to_set}
-    [Setup]           Switch to vm    ${GUI_VM}
-    ${path}           Search nix store   brightnessctl
-    ${output}         Execute Command    ${path}/bin/brightnessctl s ${brightness_to_set}  sudo=True  sudo_password=${PASSWORD}
-    ${brightness}     Execute Command    ${path}/bin/brightnessctl get
-    Log To Console    Brightness is ${brightness}
-    Should Be Equal   ${brightness_to_set}    ${brightness}
-
-Set volume
-    [Documentation]   Set volume to ${volume_to_set}
-    [Arguments]       ${volume_to_set}
-    [Setup]           Switch to vm    ${GUI_VM}
-    ${path}           Search nix store   pamixer
-    ${output}         Execute Command    ${path}/bin/pamixer --set-volume ${volume_to_set}  sudo=True  sudo_password=${PASSWORD}
-    ${volume}         Execute Command    ${path}/bin/pamixer --get-volume
-    Log To Console    Volume is ${volume}
-    Should Be Equal   ${volume_to_set}    ${volume}
-
-Set timezone
-    [Documentation]   Set volume to ${timezone_to_set}
-    [Arguments]       ${timezone_to_set}
-    [Setup]           Switch to vm    ${GUI_VM}
-    Execute Command   timedatectl set-timezone ${timezone_to_set}  sudo=True  sudo_password=${PASSWORD}
-    ${timezone}       Get timezone
-    Log To Console    Timezone is ${timezone_to_set}
-    Should Be Equal   ${timezone_to_set}    ${timezone}
+    Run Keyword And Continue On Failure   Set volume        ${${type}_VOLUME}
+    Run Keyword And Continue On Failure   Set timezone      ${${type}_TIMEZONE}
+    Run Keyword And Continue On Failure   Set cam state     ${${type}_CAM_STATE}
 
 Set cam state
     [Documentation]   Change camera state to ${cam_state_to_set}
@@ -127,13 +99,6 @@ Set cam state
     END
     ${cam_state}   Get cam state
     ${status}      Should Be Equal   ${cam_state}   ${cam_state_to_set}
-
-Get timezone
-    [Setup]       Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
-    ${output}     Execute Command    timedatectl -a
-    Log           ${output}
-    ${timezone}   Extract timezone   ${output}
-    RETURN        ${timezone}
 
 Get cam state
     [Setup]         Switch to vm    ${HOST}

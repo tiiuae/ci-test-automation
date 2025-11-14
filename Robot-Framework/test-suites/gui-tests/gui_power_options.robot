@@ -8,6 +8,7 @@ Force Tags          gui   gui-power-menu
 Library             ../../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
 Resource            ../../resources/device_control.resource
 Resource            ../../resources/gui_keywords.resource
+Resource            ../../resources/gui-vm_keywords.resource
 Resource            ../../resources/power_meas_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource

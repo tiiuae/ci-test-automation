@@ -6,6 +6,7 @@ Library             ../lib/ParsePowerData.py    ${POWER_MEASUREMENT_DIR}    ${PL
 Library             DateTime
 Library             SSHLibrary
 Resource            ../resources/common_keywords.resource
+Resource            ../resources/file_keywords.resource
 
 
 *** Variables ***
@@ -77,7 +78,7 @@ Save power measurement interval
     Log To Console    Extract power data from given time interval
     ${time_interval}  DateTime.Subtract Date From Date  ${end_time}  ${start_time}    exclude_millis=True
     IF  ${time_interval} < 0
-        Log To Console    Invalid timestamp critera for extracting power data
+        Log To Console    Invalid timestamp criteria for extracting power data
         RETURN
     END
     ${divider}      Set Variable  1
@@ -106,7 +107,7 @@ Set timestamp
     [Arguments]          ${timestamp_variable_name}
     ${current_time}      DateTime.Get Current Date   UTC  exclude_millis=yes
     Set Global Variable  ${${timestamp_variable_name}}    ${current_time}
-    Log                  ${${timestamp_variable_name}}    console=True
+    Log                  Setting timestamp ${timestamp_variable_name}: ${${timestamp_variable_name}}    console=True
 
 Get current timestamp
     ${current_time}   DateTime.Get Current Date  UTC  exclude_millis=yes
@@ -155,6 +156,7 @@ Measure power level change
 
 Start BAT0 power logging
     Log To Console  Launching battery power_now logging
+    Remove file    /tmp/bat0_power.csv   sudo=True
     Put File          ../test-files/bat0_power_logger   /tmp
     Execute Command   chmod 777 /tmp/bat0_power_logger  sudo=True  sudo_password=${PASSWORD}
     Run Keyword And Ignore Error   Execute Command  -b /tmp/bat0_power_logger  sudo=True  sudo_password=${PASSWORD}  timeout=2

@@ -71,9 +71,17 @@ class ParsePowerData:
         plt.suptitle(f'Device power consumption {start_time} - {end_time}', fontsize=18, fontweight='bold')
 
         # Add note to plot in case of issues in measurement frequency
-        with open(self.power_meas_dir + "low_frequency_flag", 'r') as flag:
-            low_frequency_note = flag.readline()
-        plt.title(f'During "{test_name}"\n{low_frequency_note}', loc='center', fontweight="bold", fontsize=16)
+        try:
+            with open(self.power_meas_dir + "low_frequency_flag", 'r') as flag:
+                low_frequency_note = flag.readline().strip()
+        except FileNotFoundError:
+            low_frequency_note = ""
+
+        title_text = f'During "{test_name}"'
+        if low_frequency_note:
+            title_text += f'\n{low_frequency_note}'
+
+        plt.title(title_text, loc='center', fontweight="bold", fontsize=16)
         plt.ylabel('Power (mW)', fontsize=16)
         plt.grid(True)
         plt.xticks(data['time'], rotation=45, fontsize=14)

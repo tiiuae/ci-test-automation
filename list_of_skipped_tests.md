@@ -23,7 +23,6 @@
 
 | DATE SET   | TEST CASE                             | TICKET / Additional Data.                                                              |
 | ---------- | ------------------------------------- | -------------------------------------------------------------------------------------- |
-| 03.11.2025 | Change keyboard layout                | Default English-Arabic-Finnish shortcut was removed. Testcase needs refactoring.       |
 | 28.10.2025 | Verify brightness persisted           | Works locally but not in the lab. Needs further investigation.                         |
 | 03.09.2025 | Performance/network suite (AGX)       | SSRCSP-7160. Network-adapter usage had impact on results. Needs further investigation. |
 | 03/2025    | Performance Network.robot - ‘orin-nx’ | SSRCSP-6372 - Works locally but problems when Jenkins used, fails all..                |
