@@ -46,6 +46,7 @@ Check host systemctl status
         ...    Orin|nvfancontrol.service|SSRCSP-6303
         ...    AGX|systemd-rfkill.service|SSRCSP-6303
         ...    Orin|systemd-oomd.service|SSRCSP-6685
+        ...    NX|ghaf-dynamic-hostname.service|SP-7596
 
         Check systemctl status for known issues    ${known_issues}   ${failing_services}
     END
