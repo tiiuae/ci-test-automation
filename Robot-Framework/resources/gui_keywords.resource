@@ -315,36 +315,11 @@ Set do not disturb state
         Execute Command   echo 3 > ~/.config/cosmic/com.system76.CosmicNotifications/v1/max_notifications
     END
 
-Get screen brightness
-    [Documentation]   Get and return current brightness value
-    [Arguments]       ${log_brightness}=True
-    ${output}         Search nix store   brightnessctl
-    ${brightness}     Execute Command    ${output}/bin/brightnessctl get
-    IF  ${log_brightness}    Log To Console    Brightness is ${brightness}
-    RETURN            ${brightness}
-
-Get volume level
-    [Documentation]   Get and return current volume value
-    ${pamixer}        Search nix store   pamixer
-    ${volume}         Execute Command    ${pamixer}/bin/pamixer --get-volume
-    RETURN            ${volume}
-
-Get mute status
-    [Documentation]   Get and return current mute status
-    ${pamixer}        Search nix store   pamixer
-    ${mute}           Execute Command    ${pamixer}/bin/pamixer --get-mute
-    RETURN            ${mute}
-
 Get gui-vm user journalctl log
     [Arguments]       ${filename}=gui-vm-user.txt
     Execute Command   journalctl --user > /tmp/${filename}
     SSHLibrary.Get file   /tmp/${filename}   ${OUTPUT_DIR}/${filename}
     OperatingSystem.File Should Exist   ${OUTPUT_DIR}/${filename}
-
-Switch keyboard layout
-    [Documentation]   Toggle layout between English, Arabic and Finnish
-    Log To Console    Pressing Alt+Shift, shortcut for switching keyboard layout
-    Press Key(s)      LEFTALT+LEFTSHIFT
 
 Timestamp screenshot
     ${current_time}  DateTime.Get Current Date  result_format=%Y%m%d_%H%M%S
@@ -419,13 +394,6 @@ Stop screen recording
     END
     Execute Command   rm /home/${USER_LOGIN}/Videos/${video_file}
     [Teardown]        Kill App By Name   gpu-screen-recorder
-
-Check the screen state
-    [Arguments]         ${state}
-    ${output}           Search nix store   wlopm
-    ${output}  ${err}   Execute Command    WAYLAND_DISPLAY=wayland-1 ${output}/bin/wlopm    return_stderr=True
-    Log                 Screen state: ${output}  console=True
-    Should Contain      ${output}    ${state}
 
 Kill Initial Setup
     ${status}   ${output}   Run Keyword And Ignore Error   Check file exists   .config/cosmic-initial-setup-done

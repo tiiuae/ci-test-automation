@@ -32,10 +32,7 @@ Clean Up Test Environment
         Save host journalctl
     END
     IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
-        Start ydotoold
-        Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
-        Log out and verify   ${disable_dnd}
-        Stop ydotoold
+        Log out from laptop
     END
     Close All Connections
 
@@ -106,12 +103,20 @@ Save gui icons and icon path
     Get icon                ${ICONS}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
 
 Login to laptop
-    [Documentation]   Start ydotool and login
+    [Documentation]   Log in to the laptop
     [Arguments]       ${enable_dnd}=False
     Check if ssh is ready on vm   ${GUI_VM}    timeout=60
     Start ydotoold
     Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
     Log in, unlock and verify   ${enable_dnd}
+
+Log out from laptop
+    [Documentation]   Log out from the laptop
+    [Arguments]       ${disable_dnd}=False
+    Start ydotoold
+    Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
+    Log out and verify   ${disable_dnd}
+    Stop ydotoold
 
 Is first graphical login
     [Documentation]   Returns True if there has only been one graphical login and False if there has been more than one

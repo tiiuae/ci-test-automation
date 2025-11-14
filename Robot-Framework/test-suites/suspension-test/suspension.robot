@@ -5,11 +5,13 @@
 Documentation       Testing automatic suspension of Lenovo-X1
 Force Tags          regression   suspension
 
+Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/device_control.resource
 Resource            ../../resources/gui_keywords.resource
+Resource            ../../resources/gui-vm_keywords.resource
 Resource            ../../resources/power_meas_keywords.resource
-Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/setup_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 Library             ../../lib/output_parser.py
 Library             JSONLibrary
 
@@ -127,12 +129,6 @@ Test teardown
     Run Keyword If Test Failed    Reboot Laptop
 
 
-Wait
-    [Arguments]     ${sec}
-    ${time}         Get Time
-    Log             ${time}: waiting for ${sec} sec  console=True
-    Sleep           ${sec}
-
 Get expected brightness values
     ${device}     Execute Command    ls /sys/class/backlight/
     ${max}        Execute Command    cat /sys/class/backlight/${device}/max_brightness
@@ -147,10 +143,8 @@ Set display to max brightness
     [Setup]   Switch to vm    ${GUI_VM}
     ${current_brightness}    Get screen brightness   log_brightness=False
     IF   ${current_brightness} != ${max_brightness}
-        Log           Brightness is ${current_brightness}, setting it to the maximum  console=True
-        ${output}     Search nix store   brightnessctl
-        ${output}     Execute Command    ${output}/bin/brightnessctl set 100%   sudo=True  sudo_password=${PASSWORD}
-        ${current_brightness}    Get screen brightness
+        Set brightness   100%
+        ${current_brightness}   Get screen brightness
         Should be Equal As Numbers    ${current_brightness}   ${max_brightness}
     END
     [Teardown]   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
