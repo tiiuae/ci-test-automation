@@ -109,13 +109,14 @@ Connect
     [Documentation]   Set up the SSH connection to the device
     [Arguments]       ${IP}=${DEVICE_IP_ADDRESS}    ${PORT}=22    ${target_output}=None   ${iterations}=3
     IF  '${target_output}' != 'None'
-        Log To Console    Expecting ${target_output} target output
+        Log    Expecting ${target_output} target output  console=True
+        Log    Trying to connect to ${target_output}  console=True
     ELSE
         ${target_output}  Set Variable  ghaf@ghaf-\\d{10}
+        Log To Console    Trying to connect to net-vm
     END
     # Iterations are necessary at boot for those targets which should expose net-vm to ethernet interface.
     # Ghaf-host is accessible on these targets for a short period of time at boot.
-    Log    Trying to connect to ${target_output}  console=True
     FOR    ${i}    IN RANGE    ${iterations}
         ${pass_status}  ${connection}    Run Keyword And Ignore Error  Open Connection    ${IP}       port=${PORT}    prompt=\$    timeout=30
         ${login_status}  ${login_output}  Run Keyword And Ignore Error  Login with timeout    username=${LOGIN}    password=${PASSWORD}
