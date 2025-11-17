@@ -48,7 +48,7 @@ Verify camera block persisted
 *** Keywords ***
 
 Persistence Suite Setup
-    Connect to vm     ${NET_VM}
+    Switch to vm      ${NET_VM}
     Login to laptop   enable_dnd=True
     Save original values
     Set values        EXPECTED
