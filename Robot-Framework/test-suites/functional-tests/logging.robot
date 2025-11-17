@@ -9,11 +9,12 @@ Library             DateTime
 Library             OperatingSystem
 Resource            ../../resources/ssh_keywords.resource
 
-Suite Setup         Switch to vm   ${NET_VM}
+Suite Setup         Logging Suite Setup
 
 
 *** Variables ***
 ${GRAFANA_LOGS}       https://loki.ghaflogs.vedenemo.dev
+${TEST_LOG}           Started Session
 
 
 *** Test Cases ***
@@ -22,8 +23,7 @@ Logging service is running in all VMs
     [Documentation]    Check that logging service is running in every VM
     [Tags]             SP-T333
     ${failed_vms}      Create List
-    @{vm_list}         Get VM list    with_host=True
-    FOR  ${vm}  IN  @{vm_list}
+    FOR  ${vm}  IN  @{VM_LIST}
         Switch to vm   ${vm}
         IF   '${vm}' == '${ADMIN_VM}'
             ${status}  ${output}   Run Keyword And Ignore Error   Verify service status  range=15   service=stunnel.service  expected_state=active  expected_substate=running
@@ -44,33 +44,43 @@ Check Grafana logs
     Check Network Availability    8.8.8.8   limit_freq=${False}
     Switch to vm     ${ADMIN_VM}
     ${id}            Execute Command  cat /etc/common/device-id  sudo=True  sudo_password=${PASSWORD}
-    ${date}          DateTime.Get Current Date  result_format=%Y-%m-%d
-    Wait Until Keyword Succeeds  60s  5s  Check Logs Are available  ${date}  ${id}
-    [Teardown]       Run Keyword If Test Failed    SKIP   No access to Grafana, investigation ongoing
+    Run Keyword And Continue On Failure   Create logs in all VMs
+    Wait Until Keyword Succeeds  60s  5s  Check Logs Are available  ${id}
 
 
 *** Keywords ***
 
+Logging Suite Setup
+    @{VM_LIST}    Get VM list    with_host=True
+    Set Suite Variable      @{VM_LIST}
+
 Check Logs Are available
     [Documentation]  Check that virtual machine's logs are available in Grafana
-    [Arguments]  ${date}  ${id}
-    @{vm_list}         Get VM list    with_host=True
-    FOR  ${vm}  IN  @{vm_list}
+    [Arguments]      ${id}
+    FOR  ${vm}  IN  @{VM_LIST}
         Set Log Level  NONE
-        ${out}         Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" '{machine="${id}", host="${vm}"}'
+        ${out}         Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --since="3m" '{machine="${id}", host="${vm}"} |= `${TEST_LOG}`'
         Set Log Level  INFO
         Log            ${out}
         IF   '${vm}' == '${NET_VM}'
             # Ignore net-vm error SSRCSP-7542
-            ${status}  ${output}  Run Keyword And Ignore Error  Should Contain  ${out}  ${date}
+            ${status}  ${output}  Run Keyword And Ignore Error  Should Contain  ${out}  ${TEST_LOG}    ${vm} query does not contain ${TEST_LOG}
             IF   $status == 'FAIL'
                 Save net-vm log
             END
-            Run Keyword And Ignore Error  Should Not Contain  ${out}  Query failed
         ELSE
-            Run Keyword And Continue On Failure  Should Contain  ${out}  ${date}
-            Run Keyword And Continue On Failure  Should Not Contain  ${out}  Query failed
+            Run Keyword And Continue On Failure  Should Contain  ${out}   ${TEST_LOG}    ${vm} query does not contain ${TEST_LOG}
         END
+    END
+
+Create logs in all VMs
+    [Documentation]    Create new SSH connection to all VMs to make sure there are recent logs
+    Close All Connections
+    FOR  ${vm}  IN  @{VM_LIST}
+        Switch to vm   ${vm}
+        ${out}   Execute Command    journalctl --since "1 minute ago" | grep "${TEST_LOG}"
+        Log      ${out}
+        Run Keyword And Continue On Failure   Should Contain  ${out}   ${TEST_LOG}   Log was not created in ${vm}
     END
 
 Save net-vm log
