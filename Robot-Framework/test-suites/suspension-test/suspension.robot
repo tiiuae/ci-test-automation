@@ -126,8 +126,7 @@ Test setup
 
 Test teardown
     Run Keyword If Test Passed    Log out and verify
-    Run Keyword If Test Failed    Reboot Laptop
-
+    Run Keyword If Test Failed    Run Keywords  Reboot Laptop   AND   Skip  "Known Issue: SSRCSP-7473"
 
 Wait
     [Arguments]     ${sec}

@@ -274,7 +274,7 @@ Check if locked
     [Documentation]    Check if the screen lock is active
     ${logout_status}   Check if logged out   1
     IF  not ${logout_status}
-        ${status}   ${output}      Run Keyword And Ignore Error   Locate on screen  image  ${LOCK_ICON}  0.95  1  debug_screenshot=False
+        ${status}   ${output}      Run Keyword And Ignore Error   Locate on screen  image  ${LOCK_ICON}  0.95  1  debug_screenshot=True
         IF  '${status}' == 'PASS'
             Log To Console    Screen is locked
             RETURN    ${True}
