@@ -84,6 +84,8 @@ Automatic suspension
 
         Generate power plot      ${BUILD_ID}   ${TEST NAME}
         Stop recording power
+        # Connect back to ${GUI_VM}
+        Switch to vm             ${GUI_VM}   user=${USER_LOGIN}
 
         ${suspended_power}       Check power during suspension   ${BUILD_ID}   2500
         ${power_changed}         Measure power level change  ${BUILD_ID}  25  ${before_suspend_start}  ${before_suspend_end}  ${after_suspend_start}  ${after_suspend_end}
@@ -124,7 +126,8 @@ Test setup
 
 Test teardown
     Run Keyword If Test Passed    Log out and verify
-    Run Keyword If Test Failed    Run Keywords  Reboot Laptop   AND   Skip  "Known Issue: SSRCSP-7473"
+    Run Keyword If Test Failed    Reboot Laptop
+
 
 Wait
     [Arguments]     ${sec}
