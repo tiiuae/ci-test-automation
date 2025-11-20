@@ -84,8 +84,6 @@ Automatic suspension
 
         Generate power plot      ${BUILD_ID}   ${TEST NAME}
         Stop recording power
-        # Connect back to ${GUI_VM}
-        Switch to vm             ${GUI_VM}   user=${USER_LOGIN}
 
         ${suspended_power}       Check power during suspension   ${BUILD_ID}   2500
         ${power_changed}         Measure power level change  ${BUILD_ID}  25  ${before_suspend_start}  ${before_suspend_end}  ${after_suspend_start}  ${after_suspend_end}
@@ -125,7 +123,7 @@ Test setup
     Move cursor
 
 Test teardown
-    Run Keyword If Test Passed    Log out and verify
+    Run Keyword If Test Passed    Run Keywords   Switch to vm   ${GUI_VM}   user=${USER_LOGIN}   AND   Log out and verify
     Run Keyword If Test Failed    Reboot Laptop
 
 

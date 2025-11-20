@@ -12,7 +12,8 @@ Resource            ../../resources/power_meas_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Test Teardown       Run Keyword If Test Failed    GUI Power Test Teardown
+Test Teardown       Run Keywords  Run Keyword If Test Passed    Switch to vm    ${GUI_VM}   user=${USER_LOGIN}  AND
+...                               Run Keyword If Test Failed    GUI Power Test Teardown
 
 
 *** Test Cases ***
@@ -55,8 +56,6 @@ GUI Suspend and wake up
     Verify desktop availability
     Generate power plot           ${BUILD_ID}   ${TEST NAME}
     Stop recording power
-
-    [Teardown]  Run Keyword If Test Failed        GUI Power Test Teardown
 
 GUI Lock and Unlock
     [Documentation]   Lock the screen via GUI power menu lock icon and check that the screen is locked.
