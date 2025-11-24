@@ -17,7 +17,7 @@ Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Suite Setup         Connect to device
+Suite Setup         Switch to vm   ${HOST}
 Suite Teardown      Close All Connections
 
 *** Variables ***
@@ -73,7 +73,8 @@ CPU resource isolation test
     # Overshoot the sysbench cpu thread number in the attacking VM although qemu will/should limit it to 4.
     Single vs Parallel CPU test       reference-vm=${BUSINESS_VM}   ref_threads=4   attack-vm=${CHROME_VM}   attack_threads=20
     [Teardown]              Run Keywords    Close All Connections
-    ...                     AND             Connect to ghaf host
+    ...                     AND             Connect
+    ...                     AND             Switch to vm   ${HOST}
 
 Memory Read One thread test
     [Documentation]         Run a memory benchmark using Sysbench for 60 seconds with a SINGLE thread.
@@ -282,7 +283,9 @@ Sysbench test in NetVM
     [Documentation]      Run CPU and Memory benchmark using Sysbench in NetVM.
     [Tags]               SP-T61-8  nuc  orin-agx  orin-agx-64  orin-nx
 
-    Transfer Sysbench Test Script To NetVM
+    Switch to vm                            ${NET_VM}
+    Transfer Sysbench Test Script To VM     ${NET_VM}
+
     ${output}               Execute Command    /tmp/sysbench_test 1   sudo=True  sudo_password=${PASSWORD}
 
     &{threads}    	        Create Dictionary	 net-vm=1
@@ -315,8 +318,7 @@ Sysbench test in VMs
     @{FAILED_VMS} 	Create List
     Set Global Variable  @{FAILED_VMS}
 
-    Connect to netvm
-
+    Switch to vm    ${NET_VM}
     FOR	 ${vm}	IN	@{vms}
         ${threads_n}	Get From Dictionary	  ${threads}	 ${vm}
         ${vm_fail}      Transfer Sysbench Test Script To VM   ${vm}
@@ -326,8 +328,8 @@ Sysbench test in VMs
             ${output}       Execute Command      /tmp/sysbench_test ${threads_n}  sudo=True  sudo_password=${PASSWORD}
             Run Keyword If    ${threads_n} > 1   Save sysbench results   ${vm}
             Save sysbench results   ${vm}   _1thread
-            Switch Connection    ${NET-VM_GHAF_SSH}
         END
+        Switch to vm    ${NET_VM}
     END
 
     Read VMs data CSV and plot  test_name=${TEST NAME}  vms_dict=${threads}
@@ -381,11 +383,6 @@ Perf-Bench test
 Transfer FileIO Test Script To DUT
     Put File           performance-tests/fileio_test    /tmp
     Execute Command    chmod 777 /tmp/fileio_test
-
-Transfer Sysbench Test Script To NetVM
-    Connect to netvm
-    Put File           performance-tests/sysbench_test    /tmp
-    Execute Command    chmod 777 /tmp/sysbench_test
 
 Transfer Sysbench Test Script To VM
     [Arguments]        ${vm}    ${script_name}=sysbench_test
@@ -519,4 +516,5 @@ Teardown of Fileio Isolation Test
     Set default low limit
     Set Global Variable  ${PERF_LOW_LIMIT}   1
     Close All Connections
-    Connect to ghaf host
+    Connect
+    Switch to vm   ${HOST}

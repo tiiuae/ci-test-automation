@@ -150,22 +150,6 @@ Connect
     END
     FAIL   Failed to connect
 
-# Only used in performance tests
-Connect to ghaf host
-    [Documentation]      Open SSH connection to Ghaf Host
-    ${connected}   Check ssh connection status   ${HOST}
-    IF  not ${connected}
-        Connect
-        Switch to vm         ${HOST}
-    END
-
-# Only used in performance tests
-Connect to netvm
-    [Documentation]      Open ssh connection to net-vm
-    ${connected}   Check ssh connection status   net-vm
-    IF   not ${connected}   Connect
-
-
 Connect to VM
     [Documentation]      Connect to any VM or ghaf-host over internal virtual network
     [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=60
@@ -215,10 +199,6 @@ Save log
 
 Check if ssh is ready on vm
     [Arguments]    ${vm}  ${timeout}=40
-    ${already_connected}            Check ssh connection status     ${vm}
-    IF  ${already_connected}
-        RETURN
-    END
     ${start_time}                   Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
         ${status}  ${output}    Run Keyword And Ignore Error   Execute Command    timeout 4 nc -zvw3 ${vm} 22    return_rc=True   timeout=5
@@ -259,16 +239,6 @@ Check if ssh is ready on device
     END
 
     RETURN  ${is_ready}
-
-Check ssh connection status
-    [Documentation]    Check if there is already an active ssh connection to vm_name
-    [Arguments]        ${vm_name}
-    ${status}   ${hostname}      Run Keyword And Ignore Error  Execute Command  hostname
-    IF  $vm_name in $hostname
-        RETURN  ${True}
-    ELSE
-        RETURN  ${False}
-    END
 
 Switch to vm
     [Arguments]         ${hostname}   ${user}=ghaf

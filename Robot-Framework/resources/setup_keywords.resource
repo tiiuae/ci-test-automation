@@ -11,7 +11,8 @@ Resource            ../resources/ssh_keywords.resource
 
 Prepare Test Environment
     [Arguments]   ${login}=True   ${enable_dnd}=False
-    Connect to device
+    Close All Connections
+    Switch to vm    ${HOST}
     Log versions
 
     IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
@@ -38,16 +39,6 @@ Clean Up Test Environment
         Stop ydotoold
     END
     Close All Connections
-
-Connect to device
-    [Documentation]  Connect to device
-    Close All Connections
-    Run Keyword If  "${DEVICE_IP_ADDRESS}" == "NONE"    Get ethernet IP address
-    ${port_22_is_available}     Check if ssh is ready on device   timeout=60
-    IF  ${port_22_is_available} == False
-        FAIL    Failed because port 22 of device was not available, tests can not be run.
-    END
-    Switch to vm   ${HOST}
 
 Save host journalctl
     Execute Command      journalctl -b 0 > /tmp/jrnl.txt

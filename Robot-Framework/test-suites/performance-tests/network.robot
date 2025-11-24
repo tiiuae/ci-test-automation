@@ -19,8 +19,7 @@ Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Suite Setup         Run Keywords  Connect to device
-...                 AND  Connect to netvm
+Suite Setup         Run Keywords  Connect
 ...                 AND  Run iperf server on DUT
 Suite Teardown      Run Keywords  Stop iperf server
 ...                 AND  Close port 5201 from iptables

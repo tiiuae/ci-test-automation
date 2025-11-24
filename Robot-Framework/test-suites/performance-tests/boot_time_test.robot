@@ -33,6 +33,7 @@ Measure Soft Boot Time
     [Tags]  SP-T187  lenovo-x1  darter-pro  dell-7330
     Soft Reboot Device
     Wait Until Keyword Succeeds  35s  2s  Check If Ping Fails
+    Close All Connections
     Get Boot times
     [Teardown]    Run Keyword If Test Failed  Log Journal To Debug
 
@@ -42,6 +43,7 @@ Measure Hard Boot Time
     Log To Console                Shutting down by pressing the power button
     Press Button                  ${SWITCH_BOT}-OFF
     Wait Until Keyword Succeeds   15s  2s  Check If Ping Fails
+    Close All Connections
     Log To Console                The device has shut down
     Log To Console                Waiting for the robot finger to return
     Sleep  20
@@ -55,8 +57,9 @@ Measure Orin Soft Boot Time
     [Tags]  SP-T187  orin-agx  orin-agx-64  orin-nx
     Soft Reboot Device
     Wait Until Keyword Succeeds  35s  2s  Check If Ping Fails
+    Close All Connections
     Get Time To Ping
-    IF  "NX" in "${DEVICE}" or "AGX" in "${DEVICE}"      Sleep    30
+    [Teardown]                   Sleep    30
 
 Measure Orin Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
@@ -64,11 +67,12 @@ Measure Orin Hard Boot Time
     Log To Console                Shutting down by switching the power off
     Turn Relay Off                ${RELAY_NUMBER}
     Wait Until Keyword Succeeds   15s  2s  Check If Ping Fails
+    Close All Connections
     Log To Console                The device has shut down
     Log To Console                Booting the device by switching the power on
     Turn Relay On                 ${RELAY_NUMBER}
     Get Time To Ping              plot_name=Hard Boot Times
-    IF  "NX" in "${DEVICE}" or "AGX" in "${DEVICE}"       Sleep    30
+    [Teardown]                    Sleep    30
 
 
 *** Keywords ***
@@ -116,7 +120,7 @@ Get Boot times
 
     ${ping_response_seconds}    Measure Time To Ping    ${start_time_epoch}
     Sleep  30
-    Connect to netvm
+    Connect
     Connect to VM  ${GUI_VM}
     ${time_to_desktop}      Check Time To Notification  ${testuser_line}   ${start_time_epoch}
     Log                     Boot time to login screen measured: ${time_to_desktop}   console=True
