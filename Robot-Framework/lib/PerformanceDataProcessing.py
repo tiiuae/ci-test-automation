@@ -86,7 +86,7 @@ class PerformanceDataProcessing:
 
     def write_test_data_to_csv(self, test_name, test_data):
         logging.info("Saving test data to csv")
-        data = [self.commit]
+        data = [self.build_number + "-" + self.commit]
         if type(test_data) == list:
             for value in test_data:
                 data.append(value)
@@ -428,7 +428,7 @@ class PerformanceDataProcessing:
         plt.title(f'CPU Events per Second / Threshold: {threshold}', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('CPU Events per Second', fontsize=16)
         plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=10)
 
         # Plot 2: CPU Events per Thread
         plt.subplot(3, 1, 2)
@@ -438,7 +438,7 @@ class PerformanceDataProcessing:
         plt.title('CPU Events per Thread', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('CPU Events per Thread', fontsize=16)
         plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=10)
         # Create line chart with error bars on the same subplot
         plt.errorbar(data['commit'], data['cpu_events_per_thread'],
                      yerr=data['cpu_events_per_thread_stddev'],
@@ -451,7 +451,7 @@ class PerformanceDataProcessing:
         plt.ylabel('Avg Latency (ms)', fontsize=16)
         plt.legend(loc='upper left')
         plt.xlabel('Build Number', fontsize=16)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=10)
         plt.ylabel('Max/Min Latency (ms)', fontsize=16)
         plt.yticks(fontsize=14)
         plt.twinx()
@@ -529,7 +529,7 @@ class PerformanceDataProcessing:
         plt.title('Operations per Second', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('Operations per Second', fontsize=16)
         plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=10)
 
         # Plot 2: Data Transfer Speed
         plt.subplot(3, 1, 2)
@@ -540,7 +540,7 @@ class PerformanceDataProcessing:
         plt.title(f'Data Transfer Speed / Threshold: {threshold}', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('Data Transfer Speed (MiB/sec)', fontsize=16)
         plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=10)
 
         # Plot 3: Latency
         plt.subplot(3, 1, 3)
@@ -550,7 +550,7 @@ class PerformanceDataProcessing:
         plt.legend(loc='upper left')
         plt.grid(True)
         plt.xlabel('Build Number', fontsize=16)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=10)
         plt.ylabel('Max/Min Latency (ms)', fontsize=16)
         plt.yticks(fontsize=14)
         plt.twinx()
@@ -591,7 +591,7 @@ class PerformanceDataProcessing:
         plt.title('Transmitting Speed', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('TX Speed (MBytes/sec)', fontsize=16)
         plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=10)
 
         # Plot 2: RX
         plt.subplot(2, 1, 2)
@@ -602,7 +602,7 @@ class PerformanceDataProcessing:
         plt.title('Receiving Speed', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('RX Speed (MBytes/sec)', fontsize=16)
         plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=10)
 
         plt.xlabel('Build Number', fontsize=16)
 
@@ -649,7 +649,7 @@ class PerformanceDataProcessing:
         plt.title('File operation', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('File operation per second', fontsize=16)
         plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=10)
 
         plt.subplot(3, 1, 2)
         plt.ticklabel_format(axis='y', style='plain')
@@ -659,7 +659,7 @@ class PerformanceDataProcessing:
         plt.title(f'Throughput / Threshold: {threshold}', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('Throughput, MiB/s', fontsize=16)
         plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=10)
 
         plt.subplot(3, 1, 3)
         plt.ticklabel_format(axis='y', style='plain')
@@ -667,7 +667,7 @@ class PerformanceDataProcessing:
         plt.ylabel('Avg Latency (ms)', fontsize=16)
         plt.legend(loc='upper left')
         plt.xlabel('Build Number', fontsize=16)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=10)
         plt.twinx()
         plt.plot(data['commit'], data['max_latency'], marker='o', linestyle='-', color='r', label='Max')
         plt.plot(data['commit'], data['min_latency'], marker='o', linestyle='-', color='g', label='Min')
@@ -724,7 +724,7 @@ class PerformanceDataProcessing:
         plt.title('Response to ping', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('seconds', fontsize=12)
         plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=10)
 
         # Omit time_to_desktop for Orin boot tests
         if not 'Orin' in test_name:
@@ -736,7 +736,7 @@ class PerformanceDataProcessing:
             plt.title('Time from reboot to desktop available', loc='right', fontweight="bold", fontsize=16)
             plt.ylabel('seconds', fontsize=12)
             plt.grid(True)
-            plt.xticks(data['commit'], rotation=90, fontsize=14)
+            plt.xticks(data['commit'], rotation=90, fontsize=10)
 
         plt.suptitle(f'{test_name}\nBuild type: {self.build_type}, Device: {self.device}\nThreshold {threshold}',
                      fontsize=18, fontweight='bold')
@@ -787,7 +787,7 @@ class PerformanceDataProcessing:
         plt.yticks(fontsize=14)
         plt.title(f'{test_name}', loc='right', fontweight="bold", fontsize=16)
         plt.grid(True)
-        plt.xticks(range(len(data['commit'])), data['commit'], rotation=90, fontsize=14)
+        plt.xticks(range(len(data['commit'])), data['commit'], rotation=90, fontsize=10)
         plt.tight_layout()
         plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
 
@@ -826,7 +826,7 @@ class PerformanceDataProcessing:
         plt.title('Effect of resource exhaustion attack from another vm', loc='right', fontweight="bold", fontsize=15)
         plt.ylabel('Decrease of performance in ref vm (%)', fontsize=12)
         plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=10)
 
         plt.suptitle(f'{test_name}\nBuild type: {self.build_type}, Device: {self.device}\nThreshold {threshold}',
                      fontsize=18, fontweight='bold')
@@ -845,8 +845,7 @@ class PerformanceDataProcessing:
     def read_vms_data_csv_and_plot(self, test_name, vms_dict):
         tests = ['cpu_1thread', 'memory_read_1thread', 'memory_write_1thread', 'cpu', 'memory_read', 'memory_write']
         data = {test: {} for test in tests}
-
-        all_builds = {test: [] for test in tests}
+        plot_builds = []
 
         for vm_name, threads in vms_dict.items():
             for test in tests:
@@ -876,23 +875,27 @@ class PerformanceDataProcessing:
                             'values': [build[1] for build in build_data],
                             'threads': threads
                         }
-                        for build in [build[0] for build in build_data]:
-                            if build not in all_builds[test]:
-                                all_builds[test].append(build)
+                        # Let's use only net-vm cpu_1thread data for defining which build identifiers are taken into the plot.
+                        if vm_name == "net-vm" and test == 'cpu_1thread':
+                            for build in [build[0] for build in build_data]:
+                                plot_builds.append(build)
 
         for test in tests:
             plt.figure(figsize=(10, 6))
-
             for i, (vm_name, vm_data) in enumerate(data[test].items()):
                 if vm_data:
-                    indices = [all_builds[test].index(build) for build in vm_data['commit']]
-                    plt.bar([x + i * 0.1 for x in indices], vm_data['values'], width=0.1,
+                    indices = []
+                    plot_values = []
+                    for id in plot_builds:
+                        if id in vm_data['commit']:
+                            indices.append(plot_builds.index(id))
+                            plot_values.append(vm_data['values'][vm_data['commit'].index(id)])
+                    plt.bar([x + i * 0.1 for x in indices], plot_values, width=0.1,
                             label=f"{vm_name} ({vm_data['threads']} threads)" if "1thread" not in test else vm_name)
-
             plt.title(f'Comparison of {test} results for VMs\nBuild type: {self.build_type}, Device: {self.device}')
             plt.xlabel('Builds')
             plt.ylabel('Data transfer speed, MB/s' if 'memory' in test else 'Events per second')
-            plt.xticks(range(len(all_builds[test])), all_builds[test], rotation=90)
+            plt.xticks(range(len(plot_builds)), plot_builds, rotation=90, fontsize=10)
             plt.legend(loc='upper left')
             plt.tight_layout()
             plt.savefig(self.plot_dir + f'{self.device}_{test_name}_{test}.png')
@@ -918,7 +921,7 @@ class PerformanceDataProcessing:
         plt.grid(True)
         plt.xlabel('Time (s)', fontsize=16)
         plt.legend(loc='upper left', fontsize=20)
-        plt.xticks(range(start_time, end_time, step), fontsize=14)
+        plt.xticks(range(start_time, end_time, step), fontsize=10)
         plt.savefig(plot_dir + f'mem_ballooning_{id}.png')
         return
 
@@ -1010,7 +1013,7 @@ class PerformanceDataProcessing:
         plt.yticks(fontsize=14)
         plt.title(f'Perfbench results: {file_name}', loc='right', fontweight="bold", fontsize=16)
         plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=14)
+        plt.xticks(data['commit'], rotation=90, fontsize=10)
         plt.tight_layout()
         plt.savefig(self.plot_dir + f'{self.device}_{test_name}_{file_name}.png')
 
