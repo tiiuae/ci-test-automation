@@ -32,13 +32,17 @@ Turn ON WiFi
     Execute Command     nmcli con up id ${SSID}    sudo=True    sudo_password=${PASSWORD}
 
 Get Wifi Interface name
-    ${if_name}=    Execute Command    nmcli device status | grep wifi | head -n 1 | awk '{print $1}'
+    ${if_name}     Execute Command    nmcli device status | grep wifi | head -n 1 | awk '{print $1}'
+    RETURN         ${if_name}
+
+Get Ethernet Interface name
+    ${if_name}     Execute Command    nmcli device status | grep eth | head -n 1 | awk '{print $1}'
     RETURN         ${if_name}
 
 Get wifi IP
     [Documentation]     Parse ifconfig output and looks for wifi IP
-    ${if_name}=    Get Wifi Interface name
-    ${is_ready} =  Set Variable    False
+    ${if_name}     Get Wifi Interface name
+    ${is_ready}    Set Variable    False
     FOR    ${i}    IN RANGE    20
         ${output}     Execute Command      ifconfig
         Log           ${output}
@@ -52,3 +56,39 @@ Get wifi IP
         Sleep    1
     END
     IF   ${status} == False    FAIL    NetVM hasn't gotten an IP
+
+Block WLAN
+    Switch to vm  ${HOST}
+    ${output}     Execute Command      ghaf-killswitch block net    sudo=True    sudo_password=${PASSWORD}
+    Switch to vm  ${NET_VM}
+
+Unblock WLAN
+    Switch to vm  ${HOST}
+    ${output}     Execute Command      ghaf-killswitch unblock net    sudo=True    sudo_password=${PASSWORD}
+    Switch to vm  ${NET_VM}
+
+Verify nmcli device status
+    [Documentation]    Check state of the interface in the output of `nmcli device status`
+    ...                and compare with expected: connected | disconnected | absent
+    [Arguments]        ${if_name}    ${expected}
+    FOR    ${i}    IN RANGE    20
+        ${output}          Execute Command      nmcli device status
+        Log     ${output}
+
+        # Format nmcli: DEVICE  TYPE  STATE  CONNECTION
+        ${pattern}         Set Variable    (?m)^${if_name}\\s+\\S+\\s+(\\S+)
+
+        @{matches}         Get Regexp Matches    ${output}    ${pattern}    1
+        ${count}           Get Length    ${matches}
+
+        IF    ${count} == 0
+            ${actual}      Set Variable    absent
+        ELSE
+            ${actual}       Get From List    ${matches}    0
+        END
+
+        ${status}     Run Keyword And Return Status    Should Be Equal    ${actual}    ${expected}
+        IF   ${status} == True    BREAK
+        Sleep    0.5
+    END
+    IF   ${status} == False    FAIL    Expected nmcli device status: ${expected}, actual: ${actual}

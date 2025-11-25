@@ -27,11 +27,16 @@ Check If Ping Fails
     Should Not Be Equal   ${result.rc}  ${0}
 
 Check Network Availability
-    [Arguments]            ${host}  ${expected_result}=True  ${range}=5  ${limit_freq}=${True}
+    [Arguments]            ${host}  ${expected_result}=True  ${range}=5  ${limit_freq}=${True}  ${interface}=None
     Log                    Checking network ${host} availability, expected: ${expected_result}  console=True
+    IF  $interface != 'None'
+        ${cmd}    Set Variable    ping -I ${interface} ${host} -c 1
+    ELSE
+        ${cmd}    Set Variable    ping ${host} -c 1
+    END
     Set Global Variable    ${IS_AVAILABLE}   False
     FOR   ${i}   IN RANGE  ${range}
-        Write    ping ${host} -c 1
+        Write    ${cmd}
         TRY
             Read Until           1 received
             Set Global Variable  ${IS_AVAILABLE}  True
