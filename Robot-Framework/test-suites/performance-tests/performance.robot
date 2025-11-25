@@ -17,8 +17,11 @@ Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Suite Setup         Switch to vm   ${HOST}
-Suite Teardown      Close All Connections
+Suite Setup         Run Keywords    Prepare Test Environment
+...                 AND             Switch to vm   ${HOST}
+Suite Teardown      Run Keywords    Log out from laptop
+...                 AND             Close All Connections
+
 
 *** Variables ***
 @{FAILED_VM_TESTS}
@@ -313,13 +316,14 @@ Sysbench test in VMs
     Switch to vm    ${NET_VM}
 
     FOR    ${vm}    IN    @{vms}
-        Log To Console    Fetching thread count for ${vm}
-        Switch to vm      ${vm}
-        ${output}         Execute Command    lscpu
-        ${threads_n}      Get Cpu Thread Count  ${output}
-        Log To Console    ${vm} has ${threads_n} threads
+        Log To Console       Fetching thread count for ${vm}
+        Switch to vm         ${vm}
+        ${output}            Execute Command    lscpu
+        ${threads_n}         Get Cpu Thread Count  ${output}
         Set To Dictionary    ${threads}    ${vm}=${threads_n}
     END
+    Log To Console       Compiled vm-threads dictionary:
+    Log    ${threads}    console=True
 
     Switch to vm    ${NET_VM}
 
