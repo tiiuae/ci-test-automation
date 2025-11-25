@@ -184,6 +184,25 @@ Allow first screenshot
         Move cursor to corner
         Tab and enter   tabs=2
     END
+    # For a Dell bug, try the same again
+    IF  "Dell" in "${DEVICE}"
+        # Launch a background process that tries to take a screenshot.
+        Execute Command    nohup sh -c 'cosmic-screenshot --interactive=false --save-dir ./test-images' > screenshot.log 2>&1 &
+        Sleep   2
+        ${output}    Execute Command   cat screenshot.log
+        ${screenshot_passed}     Run Keyword And Return Status    Should Contain    ${output}   Screenshot
+        # If taking a screenshot did not work select "Allow" in the permission window.
+        IF    not ${screenshot_passed}
+            Log To Console    BUG with screenshot tool, allowing screenshot again
+            Sleep  5
+            IF  "Dell" in "${DEVICE}"    Sleep  10
+            # Click the permission window to make sure it is active
+            Run ydotool command   mousemove --absolute -x 500 -y 200
+            Run ydotool command   click 0xC0
+            Move cursor to corner
+            Tab and enter   tabs=2
+        END
+    END
     Set Global Variable  ${FIRST_SCREENSHOT}  ${False}
 
 Locate and click
