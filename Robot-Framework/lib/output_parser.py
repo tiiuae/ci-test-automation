@@ -308,3 +308,9 @@ def clean_login_output(output):
     clean_output = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', output)
     clean_output = clean_output.strip().splitlines()[-1]
     return clean_output
+
+def get_cpu_thread_count(output):
+    threads_per_core = int(re.search(r"Thread\(s\) per core:\s+(\d+)", output).group(1))
+    cores_per_socket = int(re.search(r"Core\(s\) per socket:\s+(\d+)", output).group(1))
+
+    return threads_per_core * cores_per_socket
