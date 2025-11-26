@@ -306,19 +306,23 @@ Sysbench test in VMs
     [Documentation]      Run CPU and Memory benchmark using Sysbench in Virtual Machines
     ...                  for 1 thread and MULTIPLE threads if there are more than 1 thread in VM.
     [Tags]               SP-T61-9   lenovo-x1  darter-pro  dell-7330
-    &{threads}    	Create Dictionary    net-vm=1
-    ...                                  gui-vm=2
-    ...                                  zathura-vm=1
-    ...                                  chrome-vm=4
-    ...                                  comms-vm=4
-    ...                                  admin-vm=1
-    ...                                  audio-vm=2
-    ...                                  business-vm=4
-    ${vms}	Get Dictionary Keys	 ${threads}
+    &{threads}    	Create Dictionary
+    @{vms}      Get VM list
     @{FAILED_VMS} 	Create List
     Set Global Variable  @{FAILED_VMS}
+    Switch to vm    ${NET_VM}
+
+    FOR    ${vm}    IN    @{vms}
+        Log To Console    Fetching thread count for ${vm}
+        Switch to vm      ${vm}
+        ${output}         Execute Command    lscpu
+        ${threads_n}      Get Cpu Thread Count  ${output}
+        Log To Console    ${vm} has ${threads_n} threads
+        Set To Dictionary    ${threads}    ${vm}=${threads_n}
+    END
 
     Switch to vm    ${NET_VM}
+
     FOR	 ${vm}	IN	@{vms}
         ${threads_n}	Get From Dictionary	  ${threads}	 ${vm}
         ${vm_fail}      Transfer Sysbench Test Script To VM   ${vm}
