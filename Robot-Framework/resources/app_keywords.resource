@@ -112,6 +112,10 @@ Start app via GUI
     ...                ${exact_match}=false
     Check if ssh is ready on vm    ${app-vm}
 
+    # To speed up connecting later to the app_vm
+    Switch to vm                   ${app-vm}
+    Switch to vm                   ${GUI_VM}  user=${USER_LOGIN}
+
     Open app menu
     Type string and press enter  ${display_name}
     Tab and enter   tabs=1
