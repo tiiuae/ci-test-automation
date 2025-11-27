@@ -62,5 +62,5 @@ Start and close COSMIC Files via GUI
     [Documentation]   Start COSMIC Files via GUI and verify related process started
     ...               Close COSMIC Files via GUI and verify related process stopped
     [Tags]            SP-T206-2
-    Start app via GUI   ${GUI_VM}  cosmic-files  display_name=Files  exact_match=true
-    Close app via GUI   ${GUI_VM}  cosmic-files  ./window-close-neg.png  exact_match=true
+    Start app via GUI   ${GUI_VM}  ^cosmic-files$  display_name=Files
+    Close app via GUI   ${GUI_VM}  ^cosmic-files$  ./window-close-neg.png

@@ -24,7 +24,7 @@ Start Falcon AI
 
     ${answer}  Ask the question     2+2=? Return just the number.
     Should Be Equal As Integers     ${answer}   4
-    [Teardown]  Kill App in VM   ${GUI_VM}
+    [Teardown]  Kill App in VM   ${GUI_VM}   alpaca
 
 Check user systemctl status
     [Documentation]   Verify systemctl status --user is running

@@ -145,59 +145,23 @@ Get VM list
     END
     RETURN    @{vm_list}
 
-Is process started
-    [Arguments]    ${pid}
-    ${rc}=      Execute Command    ps -p ${pid}   return_rc=True
-    ${status}=  Run Keyword And Return Status   Should Be Equal As Integers	 ${rc[1]}	0
-    RETURN      ${status}
+Check if process is running
+    [Arguments]    ${process_name}
+    ${output}  ${rc}    Execute Command    pgrep -f "${process_name}" -a  return_rc=True
+    Log   ${output}
+    ${status}   Run Keyword And Return Status   Should Be Equal As Integers  ${rc}  0
+    RETURN   ${status}
 
-Find pid by name
-    [Arguments]   ${process_name}  ${exact_match}=false
-    Log To Console    Looking for pids of the process ${process_name}
-    IF  $exact_match=='true'
-        ${output}=    Execute Command    sh -c 'ps aux | grep -E " ${process_name}$" | grep -v grep'
+Kill process by name
+    [Arguments]   ${process_name}   ${sudo}=True
+    Log   Killing process ${process_name}   console=True
+    IF  $sudo == "True"
+        ${output}  ${rc}   Execute Command    pkill "${process_name}" -f -e   sudo=True  sudo_password=${password}  return_rc=True  timeout=15
     ELSE
-        ${output}=    Execute Command    sh -c 'ps aux | grep "${process_name}" | grep -v grep'
+        ${output}  ${rc}   Execute Command    pkill "${process_name}" -f -e   return_rc=True  timeout=15
     END
-    Log           ${output}
-    @{pids}=      Find Pid    ${output}  ${process_name}
-    Log To Console    Found PIDs for process '${process_name}':\n${pids}
-    RETURN        @{pids}
-
-Kill process
-    [Arguments]    @{pids}    ${sig}=9    ${sudo}=True
-    FOR   ${pid}  IN  @{pids}
-        IF  '${pid}' == '${EMPTY}'
-            BREAK
-        END
-        IF  $sudo == "True"
-            Execute Command    kill -${sig} ${pid}  sudo=True  sudo_password=${PASSWORD}  timeout=15
-        ELSE
-            Execute Command    kill -${sig} ${pid}  timeout=15
-        END
-        FOR    ${i}    IN RANGE   5
-            ${ps_exists}=    Is Process Started    ${pid}
-            IF  ${ps_exists}
-                Sleep    0.5
-            ELSE
-                BREAK
-            END
-        END
-        IF  ${ps_exists}  FAIL  Process ${pid} haven't stopped
-        # Check if any of the original pids are still running
-        ${any_running} =    Set Variable    False
-        FOR    ${check_pid}  IN  @{pids}
-            ${ps_exists} =    Is Process Started    ${check_pid}
-            IF  ${ps_exists}
-                ${any_running} =    Set Variable    True
-                BREAK
-            END
-        END
-        IF  not ${any_running}
-            BREAK
-        END
-    END
-    Log To Console    Killed processes: @{pids}
+    Log   ${output}
+    Should Be Equal As Integers   ${rc}   0
 
 Save Time
     [Arguments]    ${label}    ${time}=None

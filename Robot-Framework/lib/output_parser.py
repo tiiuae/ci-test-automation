@@ -35,11 +35,6 @@ def get_service_substate(output):
         return match.group(1)
     raise Exception(f"Couldn't parse SubState from systemctl show output")
 
-def find_pid(output, proc_name):
-    output = output.split('\n')
-    pids = [line.split()[1] for line in output if proc_name in line]
-    return pids
-
 
 def verify_shutdown_status(output):
     output = re.sub(r'\033\[.*?m', '', output)   # remove colors from serial console output

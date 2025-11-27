@@ -12,18 +12,26 @@ Resource            ../resources/gui_keywords.resource
 
 *** Variables ***
 ${APP_OUTPUT_FILE}   /home/${USER_LOGIN}/output.log
-@{APP_PIDS}          ${EMPTY}
+@{RUNNING_VMS}
 
 
 *** Keywords ***
 
 Start application in VM
-    [Arguments]    ${app_name}   ${app-vm}   ${process_name}   ${exact_match}=false
-    Check that appVM is running   ${app-vm}
+    [Documentation]    Do not use this keyword outside functional tests!
+    ...                After calling for this keyword use "Kill App in VM" in the test teardown
+    [Arguments]    ${app_name}   ${app-vm}   ${process_name}
+    Set Test Variable    ${APP-VM}        ${app-vm}
+    Set Test Variable    ${PROCESS_NAME}   ${process_name}
+
+    IF    '${app-vm}' not in ${RUNNING_VMS}   Check that appVM is running   ${app-vm}
+    Switch to vm   ${app-vm}
+    Check that the application is not running   ${process_name}  1
+    
     Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
     Start application   ${app_name}
     IF   '${app-vm}' != '${GUI_VM}'   Switch to vm   ${app-vm}
-    Check that the application was started    ${process_name}  5  exact_match=${exact_match}
+    Check that the application was started    ${process_name}  5
 
 Check that appVM is running
     [Arguments]    ${app-vm}
@@ -31,6 +39,8 @@ Check that appVM is running
     Switch to vm      ${app-vm}
     # Wait until systemctl status is running (ignore error in case the status is degraded)
     ${status}   Run Keyword and Ignore Error    Verify Systemctl status
+    Append To List   ${RUNNING_VMS}   ${app-vm}
+    Log    ${RUNNING_VMS}
 
 Start application
     [Arguments]      ${app_name}
@@ -38,32 +48,28 @@ Start application
     Execute Command  nohup sh -c 'WAYLAND_DISPLAY=wayland-1 ghaf-open ${app_name}' > ${APP_OUTPUT_FILE} 2>&1 &
 
 Check that the application was started
-    [Arguments]          ${process_name}  ${range}=2  ${exact_match}=false
+    [Arguments]    ${process_name}  ${range}=2
     FOR   ${i}   IN RANGE  ${range}
-        @{found_pids}        Find pid by name    ${process_name}  ${exact_match}
-        Set Global Variable  @{APP_PIDS}  @{found_pids}
-        ${status}    Run Keyword And Return Status   Should Not Be Empty  ${APP_PIDS}
-        IF    ${status}    BREAK
+        ${status}  Check if process is running   ${process_name}
+        IF    ${status}
+            Log    ${process_name} is running    console=True
+            RETURN
+        END
         Sleep   1
     END
-    Should Not Be Empty  ${APP_PIDS}  ${process_name} is not started
-    Log To Console       ${process_name} is started
+    FAIL   ${process_name} is not running after ${range} seconds
 
 Check that the application is not running
-    [Arguments]          ${process_name}  ${range}=2  ${exact_match}=false
-    ${pids}=  Set Variable  ${EMPTY}
+    [Arguments]    ${process_name}  ${range}=2
     FOR   ${i}   IN RANGE  ${range}
-        ${keyword_status}  ${pids}  Run Keyword And Ignore Error   Find pid by name    ${process_name}  ${exact_match}
-        Set Global Variable  @{APP_PIDS}  @{pids}
-        ${status}    Run Keyword And Return Status   Should Be Empty  ${pids}
-        IF    ${status}    BREAK
+        ${status}  Check if process is running   ${process_name}
+        IF    not ${status}
+            Log    ${process_name} is not running    console=True
+            RETURN
+        END
         Sleep   1
     END
-    Should Be Empty   ${pids}   ${process_name} is still running
-    Log To Console    ${process_name} not running
-
-Launch Cosmic Term
-    Start application in VM   com.system76.CosmicTerm   ${GUI_VM}   cosmic-term   exact_match=true
+    FAIL   ${process_name} is still running after ${range} seconds
 
 Log and remove app output
     [Documentation]    Specify the VM from which the app was started and the user (the owner of the file)
@@ -85,36 +91,37 @@ Kill App Process And Save Logs
     ...                app_start_vm - the VM from which the app was started
     ...                user - by what user the app was started
     ...                log_file - the name of the file which was defined in the app's starting command
+    ...                process_name - the name of the app process that will be killed
     ...                app_running_vm - the VM where the App is actually running
-    [Arguments]        ${app_start_vm}   ${user}   ${log_file}   ${app_running_vm}=${app_start_vm}
-    Switch to vm       ${app_running_vm}
-    Kill process       @{APP_PIDS}
+    ...                status - the status of the test executed
+    [Arguments]        ${app_start_vm}   ${user}   ${log_file}  ${process_name}  ${app_running_vm}  ${status}=${TEST_STATUS}
+    IF   '${app_running_vm}' == '${GUI_VM}'
+        Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
+        Kill process by name    ${process_name}   sudo=False
+    ELSE
+        Switch to vm            ${app_running_vm}
+        Kill process by name    ${process_name}
+    END
     Log and remove app output   ${log_file}  ${app_start_vm}   user=${user}
-    IF  '${TEST_STATUS}'=='FAIL'   Log app vm journalctl  ${app_running_vm}
+    IF  '${status}'=='FAIL'   Log app vm journalctl  ${app_running_vm}
 
 Kill App in VM
-    [Arguments]   ${app-vm}
-    Kill App Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    ${APP_OUTPUT_FILE}    ${app-vm}
+    [Documentation]   Use after "Start application in VM", call this keyword from the test teardown.
+    [Arguments]   ${app-vm}   ${process_name}   ${status}=${TEST_STATUS}
+    Kill App Process And Save Logs    ${GUI_VM}  ${USER_LOGIN}  ${APP_OUTPUT_FILE}  ${process_name}  ${app-vm}  ${status}
 
 Kill App By Name
-    [Arguments]     ${process_name}   ${exact_match}=false   ${sudo}=False
+    [Arguments]     ${process_name}   ${sudo}=False
     ${pass_status}   ${output}    Run Keyword And Ignore Error   Check that the application was started   ${process_name}   1
-    IF  $pass_status=='PASS'
-        Log To Console   ${process_name} is running, killing the process
-        @{pid}           Find pid by name   ${process_name}
-        Kill process     @{pid}   sudo=${sudo}
-    END
+    IF  $pass_status=='PASS'      Kill process by name   ${process_name}   ${sudo}
 
 Start app via GUI
     [Documentation]    Start Application via GUI and verify related process started
     [Arguments]        ${app-vm}
     ...                ${process_name}
     ...                ${display_name}=""
-    ...                ${exact_match}=false
-    Check if ssh is ready on vm    ${app-vm}
-
-    # To speed up connecting later to the app-vm
-    Switch to vm                   ${app-vm}
+    Check that appVM is running   ${app-vm}
+    Check that the application is not running   ${process_name}  1
     Switch to vm                   ${GUI_VM}  user=${USER_LOGIN}
 
     Open app menu
@@ -123,7 +130,7 @@ Start app via GUI
     Save time       ${process_name}_start
 
     Switch to vm    ${app-vm}
-    Check that the application was started    ${process_name}  10  ${exact_match}
+    Check that the application was started    ${process_name}  10
 
     [Teardown]    Run Keywords    Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
     ...           AND             Move cursor to corner
@@ -146,17 +153,16 @@ Close app via GUI
     ...                ${process_name}
     ...                ${close_button}=./window-close.png
     ...                ${windows_to_close}=1
-    ...                ${exact_match}=false
     ...                ${verify_is_killed}=true
     Switch to vm       ${app-vm}
-    Check that the application was started    ${process_name}  exact_match=${exact_match}
+    Check that the application was started    ${process_name}
     Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
     Log To Console     Clicking the close button of the application window
     Locate and click   image  ${close_button}  0.8  iterations=15
     Save Time          ${process_name}_launched    ${LAST_SCREENSHOT_TIME}
     IF  $verify_is_killed=='true'
         Switch to vm       ${app-vm}
-        ${status}          Run Keyword And Return Status  Check that the application is not running  ${process_name}  5  ${exact_match}
+        ${status}          Run Keyword And Return Status  Check that the application is not running  ${process_name}  5
         IF  "${windows_to_close}" != "1"
             # At first launch chrome opens window for selecting account.
             # If this window is closed the actual browser window still opens.
@@ -165,7 +171,7 @@ Close app via GUI
                 Switch to vm        ${GUI_VM}  user=${USER_LOGIN}
                 Locate and click    image  ${close_button}  0.8  iterations=10
                 Switch to vm        ${app-vm}
-                ${status}           Run Keyword And Return Status  Check that the application is not running  ${process_name}  5  ${exact_match}
+                ${status}           Run Keyword And Return Status  Check that the application is not running  ${process_name}  5
             END
         END
         IF  '${status}' != 'True'
@@ -173,5 +179,5 @@ Close app via GUI
         END
     END
     # In case closing the app via GUI failed
-    [Teardown]     Run Keywords   Switch to vm   ${app-vm}   AND   Kill process   @{APP_PIDS}
+    [Teardown]     Run Keywords   Switch to vm   ${app-vm}   AND   Kill App By Name   ${process_name}  sudo=True
     ...            AND   Switch to vm   ${GUI_VM}  user=${USER_LOGIN}   AND   Move cursor to corner

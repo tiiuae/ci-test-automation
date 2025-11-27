@@ -75,29 +75,29 @@ Measure time to launch GPU Screen Recorder
 Measure time to launch COSMIC Files
     [Documentation]   Start COSMIC Files via GUI and measure time of launching
     [Tags]            SP-T285-8
-    Start app via GUI   ${GUI_VM}  cosmic-files  display_name=Files  exact_match=true
-    Close app via GUI   ${GUI_VM}  cosmic-files  ./window-close-neg.png  exact_match=true
-    Save launch time    cosmic-files
+    Start app via GUI   ${GUI_VM}  ^cosmic-files$  display_name=Files
+    Close app via GUI   ${GUI_VM}  ^cosmic-files$  ./window-close-neg.png
+    Save launch time    ^cosmic-files$
 
 Measure time to launch COSMIC Edit
     [Documentation]   Start Editor Terminal via GUI and measure time of launching
     [Tags]            SP-T285-9
-    Start app via GUI   ${GUI_VM}  cosmic-edit  display_name="COSMIC Text Editor"  exact_match=true
-    Close app via GUI   ${GUI_VM}  cosmic-edit  ./window-close-neg.png  exact_match=true
+    Start app via GUI   ${GUI_VM}  cosmic-edit  display_name="COSMIC Text Editor"
+    Close app via GUI   ${GUI_VM}  cosmic-edit  ./window-close-neg.png
     Save launch time    cosmic-edit
 
 Measure time to launch COSMIC Player
     [Documentation]   Start COSMIC Player via GUI and measure time of launching
     [Tags]            SP-T285-10
-    Start app via GUI   ${GUI_VM}  cosmic-player  display_name="COSMIC Media Player"  exact_match=true
-    Close app via GUI   ${GUI_VM}  cosmic-player  ./window-close-neg.png  exact_match=true
+    Start app via GUI   ${GUI_VM}  cosmic-player  display_name="COSMIC Media Player"
+    Close app via GUI   ${GUI_VM}  cosmic-player  ./window-close-neg.png
     Save launch time    cosmic-player
 
 Measure time to launch COSMIC Settings
     [Documentation]   Start COSMIC Settings via GUI and measure time of launching
     [Tags]            SP-T285-11
-    Start app via GUI   ${GUI_VM}  cosmic-settings  display_name="COSMIC Settings"  exact_match=true
-    Close app via GUI   ${GUI_VM}  cosmic-settings  ./window-close-neg.png  exact_match=true
+    Start app via GUI   ${GUI_VM}  cosmic-settings  display_name="COSMIC Settings"
+    Close app via GUI   ${GUI_VM}  cosmic-settings  ./window-close-neg.png
     Save launch time    cosmic-settings
     [Teardown]    Run Keyword If Test Failed    Run Keywords  Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
     ...                                                 AND   Skip  "Known Issue: SSRCSP-7518"
@@ -105,8 +105,8 @@ Measure time to launch COSMIC Settings
 Measure time to launch COSMIC Terminal
     [Documentation]   Start COSMIC Terminal via GUI and measure time of launching
     [Tags]            SP-T285-12
-    Start app via GUI   ${GUI_VM}  cosmic-term  display_name="COSMIC Terminal"  exact_match=true
-    Close app via GUI   ${GUI_VM}  cosmic-term  ./window-close-neg.png  exact_match=true
+    Start app via GUI   ${GUI_VM}  cosmic-term  display_name="COSMIC Terminal"
+    Close app via GUI   ${GUI_VM}  cosmic-term  ./window-close-neg.png
     Save launch time    cosmic-term
 
 Measure time to launch Element

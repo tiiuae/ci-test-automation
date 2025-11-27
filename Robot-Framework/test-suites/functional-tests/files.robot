@@ -19,25 +19,25 @@ Open PDF from chrome-vm
     [Documentation]    Open PDF file from Chrome VM and check that Zathura app is started
     [Tags]             bat  regression  pre-merge  SP-T131-1
     Open PDF from app-vm    ${CHROME_VM}
-    [Teardown]         Kill App Process And Save Logs    ${CHROME_VM}    ghaf    ${OUTPUT_FILE}    ${ZATHURA_VM}
+    [Teardown]         Kill PDF Reader   ${CHROME_VM}
 
 Open PDF from comms-vm
     [Documentation]    Open PDF file from Comms VM and check that Zathura app is started
     [Tags]             regression  SP-T131-2
     Open PDF from app-vm    ${COMMS_VM}
-    [Teardown]         Kill App Process And Save Logs    ${COMMS_VM}    ghaf    ${OUTPUT_FILE}   ${ZATHURA_VM}
+    [Teardown]         Kill PDF Reader   ${COMMS_VM}
 
 Open PDF from business-vm
     [Documentation]    Open PDF file from Business VM and check that Zathura app is started
     [Tags]             regression  SP-T131-3
     Open PDF from app-vm    ${BUSINESS_VM}
-    [Teardown]         Kill App Process And Save Logs    ${BUSINESS_VM}    ghaf   ${OUTPUT_FILE}    ${ZATHURA_VM}
+    [Teardown]         Kill PDF Reader   ${BUSINESS_VM}
 
 Open PDF from gui-vm
     [Documentation]    Open PDF file from Gui VM and check that Zathura app is started
     [Tags]             regression  SP-T131-4
     Open PDF from app-vm    ${GUI_VM}
-    [Teardown]         Kill App Process And Save Logs    ${GUI_VM}    ghaf    ${OUTPUT_FILE}   ${ZATHURA_VM}
+    [Teardown]         Kill PDF Reader   ${GUI_VM}
 
 Open image with Oculante
     [Documentation]    Open PNG image in the Gui VM and check that Oculante app is started and opens the image
@@ -57,7 +57,7 @@ Open image with Oculante
     Switch to vm       ${ZATHURA_VM}
     Check that the application was started    oculante    10
     [Teardown]  Run Keywords  Remove the file in VM       ${img_file}  ${GUI_VM}    AND
-    ...                       Kill App Process And Save Logs  ${GUI_VM}    ${USER_LOGIN}    ${OUTPUT_FILE}    ${ZATHURA_VM}
+    ...                       Kill App Process And Save Logs  ${GUI_VM}    ${USER_LOGIN}    ${OUTPUT_FILE}    oculante    ${ZATHURA_VM}
 
 Open text file with Cosmic Text Editor
     [Documentation]    Open text file and check that Cosmic Text Editor app is started
@@ -67,7 +67,7 @@ Open text file with Cosmic Text Editor
     Open text file     /tmp/test_text.txt
     Check that the application was started    cosmic-edit    10
     [Teardown]  Run Keywords  Remove the file in VM    /tmp/test_text.txt    ${GUI_VM}    ${USER_LOGIN}    AND
-    ...                       Kill App Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    ${OUTPUT_FILE}
+    ...                       Kill App Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    ${OUTPUT_FILE}    cosmic-edit    ${GUI_VM}
 
 
 *** Keywords ***
@@ -76,6 +76,10 @@ Remove the file in VM
     [Arguments]        ${file_name}    ${vm}   ${user}=ghaf
     Switch to vm       ${vm}   user=${user}
     Remove file        ${file_name}
+
+Kill PDF Reader
+    [Arguments]   ${pdf_launcher_vm}
+    Kill App Process And Save Logs   ${pdf_launcher_vm}  ${LOGIN}  ${OUTPUT_FILE}  zathura  ${ZATHURA_VM}
 
 Open PDF from app-vm
     [Arguments]        ${vm}

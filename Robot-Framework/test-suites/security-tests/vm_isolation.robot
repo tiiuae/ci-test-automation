@@ -36,7 +36,7 @@ Stopping one VM does not affect another
     ${state}  ${substate}   Verify service status  service=microvm@${another_vm}.service  expected_state=active  expected_substate=running
     Switch to vm   ${another_vm}
     Check that the application was started    ${process_name}
-    [Teardown]    Start VM        ${one_vm}
+    [Teardown]    Run Keywords   Start VM   ${one_vm}   AND   Kill App in VM   ${another_vm}   ${process_name}   PASS
 
 Stop VM
     [Documentation]         Try to stop VM and verify it stopped
