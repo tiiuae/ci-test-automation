@@ -164,9 +164,6 @@ Start BAT0 power logging
 
 Plot BAT0 power log
     Log To Console        Stopping battery power_now logging
-    @{pid}                Find pid by name   bat0_power_logger
-    Kill process          @{pid}
+    Kill process by name  bat0_power_logger
     SSHLibrary.Get file   /tmp/bat0_power.csv   ${POWER_MEASUREMENT_DIR}/bat0_power.csv
     Generate power plot   bat0_power   ${TEST_NAME}   ${False}
-
-

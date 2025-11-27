@@ -21,7 +21,7 @@ Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Run Keywords  Connect
 ...                 AND  Run iperf server on DUT
-Suite Teardown      Run Keywords  Stop iperf server
+Suite Teardown      Run Keywords   Kill App By Name   iperf
 ...                 AND  Close port 5201 from iptables
 ...                 AND  Close All Connections
 
@@ -174,13 +174,6 @@ Close port 5201 from iptables
     [Documentation]  Firewall rule to close the port that was used in per testing
     Execute Command  iptables -A ghaf-fw-in-filter -p tcp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
     Execute Command  iptables -A ghaf-fw-in-filter -p udp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
-
-Stop iperf server
-    @{pid}=  Find pid by name  iperf
-    IF  @{pid} != @{EMPTY}
-        Log             Close iperf server: @{pid}  console=True
-        Kill process    @{pid}
-    END
 
 Check iperf was started
     [Arguments]       ${timeout}=5
