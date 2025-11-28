@@ -309,3 +309,18 @@ Get VM IP
     ${output}     Execute Command    ifconfig
     ${ip}         Get ip from ifconfig    ${output}   eth
     RETURN        ${ip}
+
+Transfer Shell Script To DUT
+    [Arguments]        ${source_path}   ${file_name}   ${target_path}
+    Put File           ${source_path}/${file_name}    ${target_path}
+    Execute Command    chmod 777 ${target_path}/${file_name}
+
+Transfer Shell Script To VM
+    [Arguments]        ${vm}    ${script_name}
+    IF  "${vm}" != "net-vm"
+        ${vm_fail}    ${result} =    Run Keyword And Ignore Error    Switch to vm    ${vm}
+        Run Keyword If    '${vm_fail}' == 'FAIL'   Append To List	 ${FAILED_VMS}	  ${vm}
+        Run Keyword If    '${vm_fail}' == 'FAIL'   Return From Keyword  ${vm_fail}
+        Log               Successfully connected to ${vm}  console=True
+    END
+    Transfer Shell Script To DUT    performance-tests   ${script_name}   /tmp

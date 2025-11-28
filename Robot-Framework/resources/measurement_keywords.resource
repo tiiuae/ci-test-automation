@@ -2,16 +2,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Library             ../lib/ParsePowerData.py    ${POWER_MEASUREMENT_DIR}    ${PLOT_DIR}
+Library             ../lib/ParseMeasurementData.py    ${LOGGED_PARAMS_DIR}    ${PLOT_DIR}
 Library             DateTime
 Library             SSHLibrary
 Resource            ../resources/common_keywords.resource
 Resource            ../resources/file_keywords.resource
+Resource            ../resources/ssh_keywords.resource
 
 
 *** Variables ***
 ${SSH_MEASUREMENT}        ${EMPTY}
 ${RPI_IP_ADDRESS}         ${EMPTY}
+${DATA_PROCESS_ERROR}     ${False}
 
 
 *** Keywords ***
@@ -66,42 +68,39 @@ Get power record
         RETURN
     END
     Run Keyword And Ignore Error  Connect to measurement agent
-    Run Keyword And Ignore Error  SSHLibrary.Get File           /home/ghaf/ghaf/power_data/${file_name}  ${POWER_MEASUREMENT_DIR}
+    Run Keyword And Ignore Error  SSHLibrary.Get File           /home/ghaf/ghaf/power_data/${file_name}  ${LOGGED_PARAMS_DIR}
 
-Save power measurement interval
+Save measurement interval
     [Documentation]   Extract measurement data within given time interval
-    [Arguments]       ${file_name}   ${start_time}   ${end_time}   ${output_filename}=power_interval.csv  ${check_freq}=${True}  ${hw_measurement}=${True}
-    IF  $SSH_MEASUREMENT=='${EMPTY}' and ${hw_measurement}=='${True}'
-        Log To Console    No connection to power measurement device. Ignoring all power measurement related keywords.
-        RETURN
-    END
-    Log To Console    Extract power data from given time interval
-    ${time_interval}  DateTime.Subtract Date From Date  ${end_time}  ${start_time}    exclude_millis=True
+    [Arguments]       ${file_name}   ${start_time}   ${end_time}   ${output_filename}  ${check_freq}=${False}  ${divider}=1
+    Log To Console    Extract data from given time interval
+    ${time_interval}  DateTime.Subtract Date From Date  ${end_time}  ${start_time}  exclude_millis=True
     IF  ${time_interval} < 0
-        Log To Console    Invalid timestamp criteria for extracting power data
+        Log To Console    Invalid timestamp criteria for extracting data
         RETURN
     END
-    ${divider}      Set Variable  1
-    IF  not ${hw_measurement}
-        ${divider}      Set Variable  1000
+    ${keyword_status}  ${return_value}  Run Keyword And Ignore Error  Extract time interval  ${file_name}  ${start_time}  ${end_time}  ${output_filename}  ${check_freq}  ${divider}
+    IF  $keyword_status=='FAIL'
+        Set Suite Variable   ${DATA_PROCESS_ERROR}   ${True}
     END
-    Run Keyword And Ignore Error  Extract time interval  ${file_name}  ${start_time}  ${end_time}  ${output_filename}  ${check_freq}  ${divider}
 
 Generate power plot
     [Documentation]   Extract power data from start timestamp to current time.
     ...               Plot power vs time and save to png file.
-    [Arguments]       ${id}   ${test_name}  ${hw_measurement}=${True}
-    IF  $SSH_MEASUREMENT=='${EMPTY}' and ${hw_measurement}
+    [Arguments]       ${id}   ${test_name}
+    IF  $SSH_MEASUREMENT=='${EMPTY}'
         Log To Console    No connection to power measurement device. Ignoring all power measurement related keywords.
         RETURN
     END
-    ${end_timestamp}                  Get current timestamp
-    IF  ${hw_measurement}
-        Get power record              ${id}.csv
+    ${end_timestamp}            Get current timestamp
+    Get power record            ${id}.csv
+    Save measurement interval   ${id}.csv  '${power_meas_start}'  '${end_timestamp}'  power_interval.csv  ${True}
+    IF  ${DATA_PROCESS_ERROR}
+        Log To Console          Data processing error. Aborting plot generation.
+        RETURN
     END
-    Save power measurement interval   ${id}.csv  '${power_meas_start}'  '${end_timestamp}'  check_freq=${hw_measurement}  hw_measurement=${hw_measurement}
-    Generate graph                    power_interval.csv  ${test_name}
-    Log                               <img src="${REL_PLOT_DIR}power_${test_name}.png" alt="Power plot" width="1200">    HTML
+    Generate power graph        power_interval.csv  ${test_name}
+    Log                         <img src="${REL_PLOT_DIR}power_${test_name}.png" alt="Power plot" width="1200">    HTML
 
 Set timestamp
     [Arguments]          ${timestamp_variable_name}
@@ -119,14 +118,13 @@ Check power during suspension
         Log To Console    No connection to power measurement device. Ignoring all power measurement related keywords.
         RETURN  ${False}
     END
-    Save power measurement interval   ${id}.csv  '${suspend_start}'  '${suspend_end}'  suspend_interval.csv  ${False}
-    ${max_power_during_suspension}  Measured max    suspend_interval.csv
+    Save measurement interval   ${id}.csv  '${suspend_start}'  '${suspend_end}'  suspend_interval.csv  ${False}
+    ${max_power_during_suspension}  Measured max power    suspend_interval.csv
     IF   ${max_power_during_suspension} > ${max_power}
         RETURN  ${max_power_during_suspension}
         FAIL    Power consumption exceptionally high during suspension
     END
     RETURN  ${False}
-
 
 Calculate average power over interval
     [Arguments]      ${id}  ${start_time}  ${end_time}
@@ -134,7 +132,7 @@ Calculate average power over interval
         Log To Console    No connection to power measurement device. Ignoring all power measurement related keywords.
         RETURN
     END
-    Save power measurement interval   ${id}.csv  '${start_time}'  '${end_time}'  temp_interval.csv  ${False}
+    Save measurement interval   ${id}.csv  '${start_time}'  '${end_time}'  temp_interval.csv  ${False}
     ${keyword_status}   ${mean_P}     Run Keyword And Ignore Error  Mean power   temp_interval.csv
     RETURN              ${mean_P}
 
@@ -155,15 +153,36 @@ Measure power level change
     RETURN  ${False}
 
 Start BAT0 power logging
-    Log To Console  Launching battery power_now logging
-    Remove file    /tmp/bat0_power.csv   sudo=True
-    Put File          ../test-files/bat0_power_logger   /tmp
-    Execute Command   chmod 777 /tmp/bat0_power_logger  sudo=True  sudo_password=${PASSWORD}
-    Run Keyword And Ignore Error   Execute Command  -b /tmp/bat0_power_logger  sudo=True  sudo_password=${PASSWORD}  timeout=2
-    Set timestamp   power_meas_start
+    [Arguments]               ${timeout}=180
+    Start parameter logging   ${HOST}   bat0_power_logger   5   ${timeout}
 
 Plot BAT0 power log
-    Log To Console        Stopping battery power_now logging
-    Kill process by name  bat0_power_logger
-    SSHLibrary.Get file   /tmp/bat0_power.csv   ${POWER_MEASUREMENT_DIR}/bat0_power.csv
-    Generate power plot   bat0_power   ${TEST_NAME}   ${False}
+    Plot parameter log      ${HOST}  power  mW  bat0_power_logger  1000
+
+Start parameter logging
+    [Documentation]         Keyword for logging any parameter in given vm on the target device.
+    ...                     The actual commands for extracting desired parameters are defined in test-files/log_params
+    [Arguments]             ${vm}   ${script}=log_params   ${log_interval}=1   ${timeout}=300
+    Switch to vm                    ${vm}
+    Kill process by name            ${script}   True   ${False}
+    Transfer Shell Script To DUT    ../test-files   ${script}   /tmp
+    Log                             Launching ${script} script in ${vm}     console=True
+    Set timestamp                   ${script}_log_start
+    ${command}                      Set Variable    /tmp/${script} /tmp/${script}.csv ${log_interval} ${timeout}
+    Execute Command                 nohup ${command} > /tmp/output.log 2>&1 &
+
+Plot parameter log
+    [Documentation]   Extract power data from start timestamp to current time.
+    ...               Plot parameter vs time and save to png file.
+    [Arguments]                  ${vm}  ${param_label}  ${param_unit}  ${script}=log_params  ${divider}=1
+    Switch to vm                 ${vm}
+    Kill process by name         ${script}   True   ${False}
+    SSHLibrary.Get file          /tmp/${script}.csv   ${LOGGED_PARAMS_DIR}/${script}.csv
+    ${end_timestamp}             Get current timestamp
+    Save measurement interval    ${script}.csv  '${${script}_log_start}'  '${end_timestamp}'  ${script}_interval.csv  ${False}  ${divider}
+    IF  ${DATA_PROCESS_ERROR}
+        Log To Console           Data processing error. Aborting plot generation.
+        RETURN
+    END
+    Generate param graph         ${script}_interval.csv  ${param_label}  ${param_unit}  ${BUILD_ID}
+    Log                          <img src="${PLOT_DIR}${param_label}_${BUILD_ID}.png" alt="Stats plot" width="1200">    HTML
