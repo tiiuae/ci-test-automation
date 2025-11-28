@@ -151,12 +151,14 @@ Check if process is running
     RETURN   ${status}
 
 Kill process by name
-    [Arguments]   ${process_name}   ${sudo}=True
+    [Arguments]   ${process_name}   ${sudo}=True   ${require_exists}=${True}
     Log   Killing process ${process_name}   console=True
     # 9 = kill instead of terminating, A = ignore pkill process (ancestor), e = display what is killed, f = use full process name to kill
     ${output}  ${rc}   Execute Command    pkill -9 -Aef "${process_name}"  sudo=${sudo}  sudo_password=${PASSWORD}  return_rc=True  timeout=15
     Log   ${output}
-    Should Be Equal As Integers   ${rc}   0
+    IF  ${require_exists}
+        Should Be Equal As Integers   ${rc}   0
+    END
 
 Save Time
     [Arguments]    ${label}    ${time}=None

@@ -9,7 +9,7 @@ start_epochtime=$(date +%s)
 
 # Create label row
 if [ ! -s "${output_file}" ]; then
-    echo "time,power" > ${output_file}
+    echo "time,avg_cpu_freq" > ${output_file}
 fi
 
 while true
@@ -18,9 +18,12 @@ do
     timestamp=$(date +'%Y-%m-%d %H:%M:%S')
 
     # Log average of cpu frequencies
-    power=$(cat /sys/class/power_supply/BAT0/power_now)
+    avg_cpu=$(awk '/MHz/ {sum+=$4; count++} END {print sum/count}' /proc/cpuinfo)
 
-    echo "${timestamp},${power}" >> ${output_file}
+    # Other potential parameters to log
+    # cat /sys/class/power_supply/BAT0/power_now
+
+    echo "${timestamp},${avg_cpu}" >> ${output_file}
     elapsed_time=$(awk "BEGIN {print int(${current_epochtime} - ${start_epochtime})}")
     if [ ${elapsed_time} -gt ${timeout} ]; then
         break

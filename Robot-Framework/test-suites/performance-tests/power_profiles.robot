@@ -7,7 +7,7 @@ Force Tags          performance   power-profiles   lenovo-x1   lab-only
 
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/gui-vm_keywords.resource
-Resource            ../../resources/power_meas_keywords.resource
+Resource            ../../resources/measurement_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Library             ../../lib/output_parser.py

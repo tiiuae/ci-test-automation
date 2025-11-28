@@ -15,6 +15,7 @@ Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/measurement_keywords.resource
 
 Suite Setup         Run Keywords    Prepare Test Environment
 ...                 AND             Switch to vm   ${HOST}
@@ -138,7 +139,7 @@ FileIO test
     ...                 Tag removed 'nuc': SSRCSP-6126
     [Tags]              fileio  SP-T61-7  orin-agx  orin-nx  lenovo-x1  darter-pro  dell-7330
 
-    Transfer FileIO Test Script To DUT
+    Transfer Shell Script To DUT    performance-tests   fileio_test   /tmp
 
     # In case of Lenovo-X1 run the test in /persist which has more disk space
     # Results are saved to /tmp
@@ -186,6 +187,9 @@ FileIO write isolation test
     ...                 Report the impact of another fileio benchmark in separate VM to the reference VM.
     [Tags]              fileio_write_isolation  SP-T303-1  lenovo-x1  darter-pro  dell-7330
 
+    # Total size of files (GiB) to be used in the tests
+    ${files_size}          Set Variable    6
+
     Set custom low limit   -100
     Set Global Variable    ${PERF_LOW_LIMIT}   -100
 
@@ -200,7 +204,7 @@ FileIO write isolation test
     Write                  mkdir ${test_dir}
     Write                  cd ${test_dir}
     Log To Console         Running fileio write test in single VM
-    Write                  sysbench fileio --file-total-size=7G --threads=1 --file-test-mode=seqwr --time=30 run
+    Write                  sysbench fileio --file-total-size=${files_size}G --threads=1 --file-extra-flags=direct --file-test-mode=seqwr --time=30 run
     Sleep                  5
     ${out}                 SSHLibrary.Read Until   execution time
     Write                  sysbench fileio cleanup
@@ -212,9 +216,9 @@ FileIO write isolation test
     Write                  mkdir ${test_dir}
     Write                  cd ${test_dir}
     Log To Console         Running fileio test parallel in two VMs
-    Write                  sysbench fileio --file-total-size=7G --threads=1 --file-test-mode=seqwr --time=30 run
+    Write                  sysbench fileio --file-total-size=${files_size}G --threads=1 --file-extra-flags=direct --file-test-mode=seqwr --time=30 run
     Switch to vm           ${reference-vm}
-    Write                  sysbench fileio --file-total-size=7G --threads=1 --file-test-mode=seqwr --time=30 run
+    Write                  sysbench fileio --file-total-size=${files_size}G --threads=1 --file-extra-flags=direct --file-test-mode=seqwr --time=30 run
     Sleep                  5
     ${out}                 SSHLibrary.Read Until   execution time
     Log To Console         Parsing the test results
@@ -239,6 +243,9 @@ FileIO read isolation test
     ...                 Report the impact of another fileio benchmark in separate VM to the reference VM.
     [Tags]              fileio_read_isolation  SP-T303-2  lenovo-x1  darter-pro  dell-7330
 
+    # Total size of files (GiB) to be used in the tests
+    ${files_size}          Set Variable    6
+
     Set custom low limit   -100
     Set Global Variable    ${PERF_LOW_LIMIT}   -100
 
@@ -247,20 +254,20 @@ FileIO read isolation test
     ${test_dir}=           Set Variable     /guestStorage/fileio
 
     Switch to vm           ${reference-vm}
-    Prepare files for fileio test in VM     7   ${test_dir}
+    Prepare files for fileio test in VM     ${files_size}   ${test_dir}
     Log To Console         Running fileio read test in single VM
-    Write                  sysbench fileio --file-total-size=7G --threads=1 --file-test-mode=seqrd --time=30 run
+    Write                  sysbench fileio --file-total-size=${files_size}G --threads=1 --file-extra-flags=direct --file-test-mode=seqrd --time=30 run
     Sleep                  5
     ${out}                 SSHLibrary.Read Until   execution time
     Log To Console         Parsing the test results
     &{single_data}         Parse FileIO Read Results   ${out}
 
     Switch to vm           ${attacker-vm}
-    Prepare files for fileio test in VM     7   ${test_dir}
+    Prepare files for fileio test in VM     ${files_size}   ${test_dir}
     Log To Console         Running fileio read test parallel in two VMs
-    Write                  sysbench fileio --file-total-size=7G --threads=1 --file-test-mode=seqrd --time=30 run
+    Write                  sysbench fileio --file-total-size=${files_size}G --threads=1 --file-extra-flags=direct --file-test-mode=seqrd --time=30 run
     Switch to vm           ${reference-vm}
-    Write                  sysbench fileio --file-total-size=7G --threads=1 --file-test-mode=seqrd --time=30 run
+    Write                  sysbench fileio --file-total-size=${files_size}G --threads=1 --file-extra-flags=direct --file-test-mode=seqrd --time=30 run
     Sleep                  5
     ${out}                 SSHLibrary.Read Until   execution time
     Log To Console         Parsing the test results
@@ -276,6 +283,7 @@ FileIO read isolation test
     ${result_list}=        Create List     ${single_result}  ${parallel_result}  ${difference}
     &{statistics_dict}     Save Isolation Test Data     ${TEST NAME}  ${result_list}
     Log                    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
+    Plot stats log
     Determine Test Status  ${statistics_dict}  inverted=1
 
     [Teardown]             Teardown of Fileio Read Isolation Test   ${reference-vm}   ${attacker-vm}   ${test_dir}
@@ -285,7 +293,7 @@ Sysbench test in NetVM
     [Tags]               SP-T61-8  nuc  orin-agx  orin-agx-64  orin-nx
 
     Switch to vm                            ${NET_VM}
-    Transfer Sysbench Test Script To VM     ${NET_VM}
+    Transfer Shell Script To VM             ${NET_VM}   sysbench_test
 
     ${output}               Execute Command    /tmp/sysbench_test 1   sudo=True  sudo_password=${PASSWORD}
 
@@ -327,7 +335,7 @@ Sysbench test in VMs
 
     FOR	 ${vm}	IN	@{vms}
         ${threads_n}	Get From Dictionary	  ${threads}	 ${vm}
-        ${vm_fail}      Transfer Sysbench Test Script To VM   ${vm}
+        ${vm_fail}      Transfer Shell Script To VM   ${vm}  sysbench_test
         IF  '${vm_fail}' == 'FAIL'
             Log         Skipping tests for ${vm} because couldn't connect to it  console=True
         ELSE
@@ -370,21 +378,6 @@ Sysbench test in VMs
 
 
 *** Keywords ***
-
-Transfer FileIO Test Script To DUT
-    Put File           performance-tests/fileio_test    /tmp
-    Execute Command    chmod 777 /tmp/fileio_test
-
-Transfer Sysbench Test Script To VM
-    [Arguments]        ${vm}    ${script_name}=sysbench_test
-    IF  "${vm}" != "net-vm"
-        ${vm_fail}    ${result} =    Run Keyword And Ignore Error    Connect to VM    ${vm}
-        Run Keyword If    '${vm_fail}' == 'FAIL'   Append To List	 ${FAILED_VMS}	  ${vm}
-        Run Keyword If    '${vm_fail}' == 'FAIL'   Return From Keyword  ${vm_fail}
-        Log               Successfully connected to ${vm}  console=True
-    END
-    Put File           performance-tests/${script_name}    /tmp
-    Execute Command    chmod 777 /tmp/${script_name}
 
 Save cpu results
     [Arguments]        ${test}=cpu  ${host}=ghaf_host
@@ -430,8 +423,8 @@ Single vs Parallel CPU test
     [Arguments]             ${reference-vm}   ${ref_threads}   ${attack-vm}   ${attack_threads}
     @{FAILED_VMS} 	        Create List
     Set Global Variable     @{FAILED_VMS}
-    Transfer Sysbench Test Script To VM   ${reference-vm}   parallel_cpu_test
-    Transfer Sysbench Test Script To VM   ${attack-vm}   parallel_cpu_test
+    Transfer Shell Script To VM     ${reference-vm}   parallel_cpu_test
+    Transfer Shell Script To VM     ${attack-vm}   parallel_cpu_test
     Should Be Empty         ${FAILED_VMS}
 
     Log To Console          Running single vm cpu test
@@ -494,7 +487,7 @@ Teardown of Fileio Read Isolation Test
 
 Teardown of Fileio Isolation Test
     Set default low limit
-    Set Global Variable  ${PERF_LOW_LIMIT}   1
+    Set Global Variable     ${PERF_LOW_LIMIT}   1
     Close All Connections
     Connect
     Switch to vm   ${HOST}
@@ -504,3 +497,4 @@ Performance Teardown
         Log out from laptop
     END
     Close All Connections
+    Switch to vm            ${HOST}
