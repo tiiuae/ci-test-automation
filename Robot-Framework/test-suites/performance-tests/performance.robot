@@ -19,8 +19,7 @@ Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Run Keywords    Prepare Test Environment
 ...                 AND             Switch to vm   ${HOST}
-Suite Teardown      Run Keywords    Log out from laptop
-...                 AND             Close All Connections
+Suite Teardown      Performance Teardown
 
 
 *** Variables ***
@@ -526,3 +525,9 @@ Teardown of Fileio Isolation Test
     Close All Connections
     Connect
     Switch to vm   ${HOST}
+
+Performance Teardown
+    IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
+        Log out from laptop
+    END
+    Close All Connections
