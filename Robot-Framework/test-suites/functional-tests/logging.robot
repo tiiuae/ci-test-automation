@@ -43,7 +43,7 @@ Check Grafana logs
     [Tags]           SP-T172
     Check Network Availability    8.8.8.8   limit_freq=${False}
     Switch to vm     ${ADMIN_VM}
-    ${id}            Execute Command  cat /etc/common/device-id  sudo=True  sudo_password=${PASSWORD}
+    ${id}            Execute Command  cat /etc/common/device-id
     Run Keyword And Continue On Failure   Create logs in all VMs
     Wait Until Keyword Succeeds  60s  5s  Check Logs Are available  ${id}
 

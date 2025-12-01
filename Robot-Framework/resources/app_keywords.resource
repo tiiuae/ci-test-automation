@@ -18,64 +18,65 @@ ${APP_OUTPUT_FILE}   /home/${USER_LOGIN}/output.log
 *** Keywords ***
 
 Start application in VM
-    [Arguments]    ${app_name}   ${vm_name}   ${process_name}   ${exact_match}=false
-    Check that appVM is running   ${vm_name}
+    [Arguments]    ${app_name}   ${app-vm}   ${process_name}   ${exact_match}=false
+    Check that appVM is running   ${app-vm}
     Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
     Start application   ${app_name}
-    IF   '${vm_name}' != '${GUI_VM}'   Switch to vm   ${vm_name}
+    IF   '${app-vm}' != '${GUI_VM}'   Switch to vm   ${app-vm}
     Check that the application was started    ${process_name}  5  exact_match=${exact_match}
 
 Check that appVM is running
-    [Arguments]    ${vm_name}
-    Check if ssh is ready on vm   ${vm_name}   timeout=60
-    Switch to vm      ${vm_name}
+    [Arguments]    ${app-vm}
+    Check if ssh is ready on vm   ${app-vm}   timeout=60
+    Switch to vm      ${app-vm}
     # Wait until systemctl status is running (ignore error in case the status is degraded)
     ${status}   Run Keyword and Ignore Error    Verify Systemctl status
 
 Start application
     [Arguments]      ${app_name}
+    Log    Starting ${app_name}   console=True
     Execute Command  nohup sh -c 'WAYLAND_DISPLAY=wayland-1 ghaf-open ${app_name}' > ${APP_OUTPUT_FILE} 2>&1 &
 
 Check that the application was started
-    [Arguments]          ${app_name}  ${range}=2  ${exact_match}=false
+    [Arguments]          ${process_name}  ${range}=2  ${exact_match}=false
     FOR   ${i}   IN RANGE  ${range}
-        @{found_pids}        Find pid by name    ${app_name}  ${exact_match}
+        @{found_pids}        Find pid by name    ${process_name}  ${exact_match}
         Set Global Variable  @{APP_PIDS}  @{found_pids}
         ${status}    Run Keyword And Return Status   Should Not Be Empty  ${APP_PIDS}
         IF    ${status}    BREAK
         Sleep   1
     END
-    Should Not Be Empty  ${APP_PIDS}  ${app_name} is not started
-    Log To Console       ${app_name} is started
+    Should Not Be Empty  ${APP_PIDS}  ${process_name} is not started
+    Log To Console       ${process_name} is started
 
 Check that the application is not running
-    [Arguments]          ${app_name}  ${range}=2  ${exact_match}=false
+    [Arguments]          ${process_name}  ${range}=2  ${exact_match}=false
     ${pids}=  Set Variable  ${EMPTY}
     FOR   ${i}   IN RANGE  ${range}
-        ${keyword_status}  ${pids}  Run Keyword And Ignore Error   Find pid by name    ${app_name}  ${exact_match}
+        ${keyword_status}  ${pids}  Run Keyword And Ignore Error   Find pid by name    ${process_name}  ${exact_match}
         Set Global Variable  @{APP_PIDS}  @{pids}
         ${status}    Run Keyword And Return Status   Should Be Empty  ${pids}
         IF    ${status}    BREAK
         Sleep   1
     END
-    Should Be Empty   ${pids}   ${app_name} is still running
-    Log To Console    ${app_name} not running
+    Should Be Empty   ${pids}   ${process_name} is still running
+    Log To Console    ${process_name} not running
 
 Launch Cosmic Term
     Start application in VM   com.system76.CosmicTerm   ${GUI_VM}   cosmic-term   exact_match=true
 
 Log and remove app output
     [Documentation]    Specify the VM from which the app was started and the user (the owner of the file)
-    [Arguments]   ${file}    ${vm}    ${user}=ghaf
-    Switch to vm  ${vm}    ${user}
+    [Arguments]   ${file}    ${app-vm}    ${user}=ghaf
+    Switch to vm  ${app-vm}    ${user}
     ${output}     Execute Command    cat ${file}
     Log           ${output}
     Remove file   ${file}
 
 Log app vm journalctl
     [Documentation]    Specify the VM where the App is actually running
-    [Arguments]   ${vm}
-    Switch to vm  ${vm}
+    [Arguments]   ${app-vm}
+    Switch to vm  ${app-vm}
     ${output}     Execute Command    journalctl -b
     Log           ${output}
 
@@ -92,37 +93,37 @@ Kill App Process And Save Logs
     IF  '${TEST_STATUS}'=='FAIL'   Log app vm journalctl  ${app_running_vm}
 
 Kill App in VM
-    [Arguments]   ${vm}
-    Kill App Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    ${APP_OUTPUT_FILE}    ${vm}
+    [Arguments]   ${app-vm}
+    Kill App Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    ${APP_OUTPUT_FILE}    ${app-vm}
 
 Kill App By Name
-    [Arguments]     ${proc_name}   ${exact_match}=false   ${sudo}=False
-    ${pass_status}   ${output}    Run Keyword And Ignore Error   Check that the application was started   ${proc_name}   1
+    [Arguments]     ${process_name}   ${exact_match}=false   ${sudo}=False
+    ${pass_status}   ${output}    Run Keyword And Ignore Error   Check that the application was started   ${process_name}   1
     IF  $pass_status=='PASS'
-        Log To Console   ${proc_name} is running, killing the process
-        @{pid}           Find pid by name   ${proc_name}
+        Log To Console   ${process_name} is running, killing the process
+        @{pid}           Find pid by name   ${process_name}
         Kill process     @{pid}   sudo=${sudo}
     END
 
 Start app via GUI
     [Documentation]    Start Application via GUI and verify related process started
     [Arguments]        ${app-vm}
-    ...                ${app}
+    ...                ${process_name}
     ...                ${display_name}=""
     ...                ${exact_match}=false
     Check if ssh is ready on vm    ${app-vm}
 
-    # To speed up connecting later to the app_vm
+    # To speed up connecting later to the app-vm
     Switch to vm                   ${app-vm}
     Switch to vm                   ${GUI_VM}  user=${USER_LOGIN}
 
     Open app menu
     Type string and press enter  ${display_name}
     Tab and enter   tabs=1
-    Save time       ${app}_start
+    Save time       ${process_name}_start
 
     Switch to vm    ${app-vm}
-    Check that the application was started    ${app}  10  ${exact_match}
+    Check that the application was started    ${process_name}  10  ${exact_match}
 
     [Teardown]    Run Keywords    Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
     ...           AND             Move cursor to corner
@@ -142,20 +143,20 @@ Open app menu
 Close app via GUI
     [Documentation]    Close Application via GUI and verify related process stopped
     [Arguments]        ${app-vm}
-    ...                ${app}
+    ...                ${process_name}
     ...                ${close_button}=./window-close.png
     ...                ${windows_to_close}=1
     ...                ${exact_match}=false
     ...                ${verify_is_killed}=true
     Switch to vm       ${app-vm}
-    Check that the application was started    ${app}  exact_match=${exact_match}
+    Check that the application was started    ${process_name}  exact_match=${exact_match}
     Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
     Log To Console     Clicking the close button of the application window
     Locate and click   image  ${close_button}  0.8  iterations=15
-    Save Time          ${app}_launched    ${LAST_SCREENSHOT_TIME}
+    Save Time          ${process_name}_launched    ${LAST_SCREENSHOT_TIME}
     IF  $verify_is_killed=='true'
         Switch to vm       ${app-vm}
-        ${status}          Run Keyword And Return Status  Check that the application is not running  ${app}  5  ${exact_match}
+        ${status}          Run Keyword And Return Status  Check that the application is not running  ${process_name}  5  ${exact_match}
         IF  "${windows_to_close}" != "1"
             # At first launch chrome opens window for selecting account.
             # If this window is closed the actual browser window still opens.
@@ -164,7 +165,7 @@ Close app via GUI
                 Switch to vm        ${GUI_VM}  user=${USER_LOGIN}
                 Locate and click    image  ${close_button}  0.8  iterations=10
                 Switch to vm        ${app-vm}
-                ${status}           Run Keyword And Return Status  Check that the application is not running  ${app}  5  ${exact_match}
+                ${status}           Run Keyword And Return Status  Check that the application is not running  ${process_name}  5  ${exact_match}
             END
         END
         IF  '${status}' != 'True'

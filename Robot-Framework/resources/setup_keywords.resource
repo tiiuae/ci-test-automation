@@ -55,7 +55,7 @@ Log versions
 
 Create test user
     Log To Console      Creating test user
-    Execute Command     systemctl start setup-test-user.service  sudo=True  sudo_password=${password}
+    Execute Command     systemctl start setup-test-user.service  sudo=True  sudo_password=${PASSWORD}
 
 Start ydotoold
     [Documentation]    Start ydotool daemon if it is not already running.

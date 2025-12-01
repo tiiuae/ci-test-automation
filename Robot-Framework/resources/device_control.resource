@@ -44,7 +44,7 @@ Soft Reboot Device
     ${device_is_available}   Ping Host   ${DEVICE_IP_ADDRESS}
     IF  ${device_is_available}
         Switch to vm   ${HOST}
-        ${output}  Execute Command  reboot  sudo=True  sudo_password=${password}
+        ${output}  Execute Command  reboot  sudo=True  sudo_password=${PASSWORD}
         Log  ${output}
         Log To Console  Rebooting device from command line
     ELSE

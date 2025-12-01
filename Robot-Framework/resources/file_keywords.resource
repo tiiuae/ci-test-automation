@@ -8,7 +8,7 @@ Create file
     [Arguments]        ${file_name}   ${sudo}=False
     Log To Console     Creating file ${file_name}
     IF  ${sudo}
-        Execute Command    touch ${file_name}  sudo=True  sudo_password=${password}
+        Execute Command    touch ${file_name}  sudo=True  sudo_password=${PASSWORD}
     ELSE
         Execute Command    touch ${file_name}
     END
@@ -26,7 +26,7 @@ Remove file
     [Arguments]        ${file_name}   ${sudo}=False
     Log To Console     Removing file ${file_name}
         IF  ${sudo}
-        Execute Command    rm ${file_name}  sudo=True  sudo_password=${password}
+        Execute Command    rm ${file_name}  sudo=True  sudo_password=${PASSWORD}
     ELSE
         Execute Command    rm ${file_name}
     END
@@ -43,7 +43,7 @@ Check file exists
     [Arguments]        ${file_name}   ${sudo}=False
     Log To Console     Check if file ${file_name} exists
     IF  ${sudo}
-        ${output}  ${rc}   Execute Command    ls ${file_name}   return_rc=True  sudo=True  sudo_password=${password}
+        ${output}  ${rc}   Execute Command    ls ${file_name}   return_rc=True  sudo=True  sudo_password=${PASSWORD}
     ELSE
         ${output}  ${rc}   Execute Command    ls ${file_name}   return_rc=True
     END
@@ -54,7 +54,7 @@ Check file doesn't exist
     [Arguments]        ${file_name}  ${sudo}=False
     Log To Console     Check if file ${file_name} exists
     IF  ${sudo}
-        ${output}  ${rc}   Execute Command    ls ${file_name}   return_rc=True   sudo=True  sudo_password=${password}
+        ${output}  ${rc}   Execute Command    ls ${file_name}   return_rc=True   sudo=True  sudo_password=${PASSWORD}
     ELSE
         ${output}  ${rc}   Execute Command    ls ${file_name}   return_rc=True
     END

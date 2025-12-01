@@ -19,7 +19,7 @@ Verify NetVM is started
     [Tags]                  pre-merge  SP-T45  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330  fmo
     [Setup]                 Switch to vm   ${HOST}
     Verify service status   service=${netvm_service}
-    Check Network Availability      ${NETVM_IP}    expected_result=True    range=5
+    Check Network Availability      ${NET_VM}    expected_result=True    range=5
 
     [Teardown]  Run Keyword If   "NX" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Under investigation: SSRCSP-7453"
 
