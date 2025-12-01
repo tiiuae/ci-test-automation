@@ -152,16 +152,16 @@ Is process started
     RETURN      ${status}
 
 Find pid by name
-    [Arguments]   ${proc_name}  ${exact_match}=false
-    Log To Console    Looking for pids of the process ${proc_name}
+    [Arguments]   ${process_name}  ${exact_match}=false
+    Log To Console    Looking for pids of the process ${process_name}
     IF  $exact_match=='true'
-        ${output}=    Execute Command    sh -c 'ps aux | grep -E " ${proc_name}$" | grep -v grep'
+        ${output}=    Execute Command    sh -c 'ps aux | grep -E " ${process_name}$" | grep -v grep'
     ELSE
-        ${output}=    Execute Command    sh -c 'ps aux | grep "${proc_name}" | grep -v grep'
+        ${output}=    Execute Command    sh -c 'ps aux | grep "${process_name}" | grep -v grep'
     END
     Log           ${output}
-    @{pids}=      Find Pid    ${output}  ${proc_name}
-    Log To Console    Found PIDs for process '${proc_name}':\n${pids}
+    @{pids}=      Find Pid    ${output}  ${process_name}
+    Log To Console    Found PIDs for process '${process_name}':\n${pids}
     RETURN        @{pids}
 
 Kill process
@@ -171,7 +171,7 @@ Kill process
             BREAK
         END
         IF  $sudo == "True"
-            Execute Command    kill -${sig} ${pid}  sudo=True  sudo_password=${password}  timeout=15
+            Execute Command    kill -${sig} ${pid}  sudo=True  sudo_password=${PASSWORD}  timeout=15
         ELSE
             Execute Command    kill -${sig} ${pid}  timeout=15
         END

@@ -55,7 +55,6 @@ Set Variables
     END
     Set Global Variable  ${NET_VM}             net-vm
     Set Global Variable  ${NETVM_SERVICE}      microvm@${NET_VM}.service
-    Set Global Variable  ${NETVM_IP}           192.168.100.1
     Set Global Variable  ${HOST}               ghaf-host
     Set Global Variable  ${ADMIN_VM}           admin-vm
     Set Global Variable  ${AUDIO_VM}           audio-vm

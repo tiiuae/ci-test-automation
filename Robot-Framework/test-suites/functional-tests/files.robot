@@ -9,6 +9,9 @@ Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
+*** Variables ***
+${OUTPUT_FILE}   /tmp/out.log
+
 
 *** Test Cases ***
 
@@ -16,25 +19,25 @@ Open PDF from chrome-vm
     [Documentation]    Open PDF file from Chrome VM and check that Zathura app is started
     [Tags]             bat  regression  pre-merge  SP-T131-1
     Open PDF from app-vm    ${CHROME_VM}
-    [Teardown]         Kill App Process And Save Logs    ${CHROME_VM}    ghaf    /tmp/out.log    ${ZATHURA_VM}
+    [Teardown]         Kill App Process And Save Logs    ${CHROME_VM}    ghaf    ${OUTPUT_FILE}    ${ZATHURA_VM}
 
 Open PDF from comms-vm
     [Documentation]    Open PDF file from Comms VM and check that Zathura app is started
     [Tags]             regression  SP-T131-2
     Open PDF from app-vm    ${COMMS_VM}
-    [Teardown]         Kill App Process And Save Logs    ${COMMS_VM}    ghaf    /tmp/out.log   ${ZATHURA_VM}
+    [Teardown]         Kill App Process And Save Logs    ${COMMS_VM}    ghaf    ${OUTPUT_FILE}   ${ZATHURA_VM}
 
 Open PDF from business-vm
     [Documentation]    Open PDF file from Business VM and check that Zathura app is started
     [Tags]             regression  SP-T131-3
     Open PDF from app-vm    ${BUSINESS_VM}
-    [Teardown]         Kill App Process And Save Logs    ${BUSINESS_VM}    ghaf   /tmp/out.log    ${ZATHURA_VM}
+    [Teardown]         Kill App Process And Save Logs    ${BUSINESS_VM}    ghaf   ${OUTPUT_FILE}    ${ZATHURA_VM}
 
 Open PDF from gui-vm
     [Documentation]    Open PDF file from Gui VM and check that Zathura app is started
     [Tags]             regression  SP-T131-4
     Open PDF from app-vm    ${GUI_VM}
-    [Teardown]         Kill App Process And Save Logs    ${GUI_VM}    ghaf    /tmp/out.log   ${ZATHURA_VM}
+    [Teardown]         Kill App Process And Save Logs    ${GUI_VM}    ghaf    ${OUTPUT_FILE}   ${ZATHURA_VM}
 
 Open image with Oculante
     [Documentation]    Open PNG image in the Gui VM and check that Oculante app is started and opens the image
@@ -54,7 +57,7 @@ Open image with Oculante
     Switch to vm       ${ZATHURA_VM}
     Check that the application was started    oculante    10
     [Teardown]  Run Keywords  Remove the file in VM       ${img_file}  ${GUI_VM}    AND
-    ...                       Kill App Process And Save Logs  ${GUI_VM}    ${USER_LOGIN}    /tmp/out.log    ${ZATHURA_VM}
+    ...                       Kill App Process And Save Logs  ${GUI_VM}    ${USER_LOGIN}    ${OUTPUT_FILE}    ${ZATHURA_VM}
 
 Open text file with Cosmic Text Editor
     [Documentation]    Open text file and check that Cosmic Text Editor app is started
@@ -64,7 +67,7 @@ Open text file with Cosmic Text Editor
     Open text file     /tmp/test_text.txt
     Check that the application was started    cosmic-edit    10
     [Teardown]  Run Keywords  Remove the file in VM    /tmp/test_text.txt    ${GUI_VM}    ${USER_LOGIN}    AND
-    ...                       Kill App Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    /tmp/out.log
+    ...                       Kill App Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    ${OUTPUT_FILE}
 
 
 *** Keywords ***
@@ -86,14 +89,14 @@ Open PDF from app-vm
 Open PDF
     [Arguments]      ${pdf_file}
     Log To Console   Trying to open ${pdf_file}
-    Execute Command  echo ${PASSWORD} | sudo -S nohup sh -c 'xdg-open-ghaf pdf ${pdf_file}' > /tmp/out.log 2>&1 &
+    Execute Command  echo ${PASSWORD} | sudo -S nohup sh -c 'xdg-open-ghaf pdf ${pdf_file}' > ${OUTPUT_FILE} 2>&1 &
 
 Open Image
     [Arguments]      ${pic_file}
     Log To Console   Trying to open ${pic_file}
-    Execute Command  nohup sh -c 'xdg-open-ghaf image ${pic_file}' > /tmp/out.log 2>&1 &
+    Execute Command  nohup sh -c 'xdg-open-ghaf image ${pic_file}' > ${OUTPUT_FILE} 2>&1 &
 
 Open text file
     [Arguments]      ${text_file}
     Log To Console   Trying to open ${text_file}
-    ${output}        Execute Command  WAYLAND_DISPLAY=wayland-1 nohup sh -c 'cosmic-edit -f ${text_file}' > /tmp/out.log 2>&1 &
+    ${output}        Execute Command  WAYLAND_DISPLAY=wayland-1 nohup sh -c 'cosmic-edit -f ${text_file}' > ${OUTPUT_FILE} 2>&1 &
