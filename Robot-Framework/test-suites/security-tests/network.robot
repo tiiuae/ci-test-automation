@@ -22,7 +22,7 @@ Account lockout after failed login
 
 Kill switch disconnects WLAN
     [Documentation]  Verify that killswitch disconnect wi-fi connection and make interface unavailable
-    [Tags]           regression  SP-T304  lenovo-x1  darter-pro
+    [Tags]           regression  SP-T304  lenovo-x1  darter-pro  lab-only
     [Setup]          Kill switch setup
     Verify nmcli device status    ${wifi_if}  connected
     Check Network Availability    8.8.8.8     expected_result=True    limit_freq=${False}    interface=${wifi_if}

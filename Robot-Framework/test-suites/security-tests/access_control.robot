@@ -33,7 +33,7 @@ Check that unauthorised user has limited access to file system
     [Tags]              SP-T291
     Switch to vm        ${GUI_VM}  user=${USER_LOGIN}
     Check access     /root    expected=False
-    Check access     /home/testuser/Pictures    expected=True
+    Check access     /home/${USER_LOGIN}/Pictures    expected=True
     Check access     /Shares    expected=True
     Check available directories    /Shares
 
