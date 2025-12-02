@@ -85,7 +85,7 @@ Set values
 Set cam state
     [Documentation]   Change camera state to ${cam_state_to_set}
     [Arguments]       ${cam_state_to_set}
-    [Setup]           Switch to vm    ${HOST}
+    [Setup]           Switch to vm    ${GUI_VM}
     Should Be True  '${cam_state_to_set}' in ['block', 'unblock']   Wrong state
      ${cam_state}   Get cam state   
     ${status}       Run Keyword And Return Status   Should Be Equal   ${cam_state}   ${cam_state_to_set}
