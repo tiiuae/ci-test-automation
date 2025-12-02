@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 import logging
 from robot.api.deco import keyword
 from performance_thresholds import *
-import parse_perfbench
 
 
 class PerformanceDataProcessing:
@@ -78,11 +77,6 @@ class PerformanceDataProcessing:
             writer = csv.writer(csvfile)
             writer.writerow(data.keys())
             writer.writerows(zip(*(data.values())))
-
-    @keyword("Parse and Copy Perfbench To Csv")
-    def parse_and_copy_perfbench_to_csv(self):
-        perf_result_heading, perf_bit_result_heading = parse_perfbench.parse_perfbench_data(self.commit, self.device, self.data_dir)
-        return perf_result_heading, perf_bit_result_heading
 
     def write_test_data_to_csv(self, test_name, test_data):
         logging.info("Saving test data to csv")
@@ -962,80 +956,7 @@ class PerformanceDataProcessing:
 
 
     # ---------------------------------------------------------------------
-    # Unused functions and functions related to riscv perf analysis
-
-    @keyword("Read Perfbench Csv And Plot")
-    def read_perfbench_csv_and_plot(self, test_name, file_name, headers):
-        self.normalize_columns(file_name, 100)
-        fname = "normalized_" + file_name
-        data = {}
-        file_path = os.path.join(self.data_dir, f"{self.device}_{fname}")
-        with open(file_path ,'r') as csvfile:
-            lines = csv.reader(csvfile)
-            heading = next(lines)
-            logging.info("Reading data from csv file..." )
-            logging.info(file_path)
-
-            data_lines = []
-            for row in lines:
-                data_lines.append(row)
-
-            build_counter = {}  # To keep track of duplicate builds
-            index = 0
-            data = {"commit":[]}
-
-            for header in headers:
-                data.update({
-                header:[]})
-                for row in data_lines:
-                    if header == "commit":
-                        build = str(row[0])
-                        if build in build_counter:
-                            build_counter[build] += 1
-                            modified_build = f"{build}-{build_counter[build]}"
-                        else:
-                            build_counter[build] = 0
-                            modified_build = build
-                        data['commit'].append(modified_build)
-                    else:
-                        data[header].append(float(row[index]))
-                index +=1
-
-        plt.figure(figsize=(20, 15))
-        plt.set_loglevel('WARNING')
-        plt.subplot(1, 1, 1)
-        plt.ticklabel_format(axis='y', style='plain')
-
-        for key, value in data.items():
-            if key not in ['commit']:
-                plt.plot(data['commit'], value, marker='o', linestyle='-', label=key)
-        plt.legend(title="Perfbench measurements", loc="lower left", ncol=3)
-        plt.yticks(fontsize=14)
-        plt.title(f'Perfbench results: {file_name}', loc='right', fontweight="bold", fontsize=16)
-        plt.grid(True)
-        plt.xticks(data['commit'], rotation=90, fontsize=10)
-        plt.tight_layout()
-        plt.savefig(self.plot_dir + f'{self.device}_{test_name}_{file_name}.png')
-
-    def normalize_columns(self, csv_file_name, normalize_to):
-        # Set the various results to the same range.
-        # This makes it easier to notice significant change in any of the result parameters with one glimpse
-        # If columns are plotted later on the whole picture is well displayed
-        build_info_size = 1 # First columns containing buildata
-        file_path = os.path.join(self.data_dir, f"{self.device}_{csv_file_name}")
-        print("Normalizing results from file: ", file_path)
-        data = pandas.read_csv(file_path)
-        column_max = data.max(numeric_only=True)
-        # Cut away the index column which is numeric but not measurement data to be normalized
-        max_values = column_max[1:]
-        data_rows = len(data.axes[0])
-        data_columns = len(max_values)
-        # Normalize all columns between 0...normalize_to
-        for i in range(build_info_size, (build_info_size + data_columns)):
-            for j in range(data_rows):
-                normalized = data.iat[j, i] / max_values[i - build_info_size]
-                data.iloc[[j],[i]] = normalized * normalize_to
-        data.to_csv(self.data_dir + "/" + f"{self.device}_normalized_{csv_file_name}", index=False)
+    # Unused functions
 
     def calc_statistics(self, csv_file_name):
         build_info_size = 1 # First columns containing buildata

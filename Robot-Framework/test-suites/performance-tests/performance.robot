@@ -7,7 +7,6 @@ Force Tags          performance
 
 Resource            ../../config/variables.robot
 Library             ../../lib/output_parser.py
-Library             ../../lib/parse_perfbench.py
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
 ...                 ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}  ${PERF_LOW_LIMIT}
 Library             Collections
@@ -369,21 +368,6 @@ Sysbench test in VMs
       Pass Execution    ${pass_msg}
     END
 
-Perf-Bench test
-    [Documentation]  Execute Perf bench command on device and parse results using python script
-    ...              Publish results in Jenkins
-    [Tags]           SP-T167  riscv
-    ${default_file_format}  Set Variable  perf_results_YYYY-MM-DD_BUILDER-BuildID_SDorEMMC
-    ${renamed_file}  Set Variable  perf_results_${BUILD_ID}
-
-    Log To Console  Starting perf bench test
-    ${output}  Execute Command  perf-test-icicle-kit
-    OperatingSystem.Create File  ${renamed_file}  ${output}
-    Run Process  rm ${default_file_format}  shell=True
-
-    Read And Plot PerfBench Results
-    Log    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}_perf_results.csv.png" alt="PerfBench Results" width="1200">       HTML
-    Log    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}_perf_find_bit_results.csv.png" alt="PerfBench Bit Results" width="1200">       HTML
 
 *** Keywords ***
 
@@ -441,17 +425,6 @@ Save sysbench results
     Save cpu results      test=cpu${1thread}           host=${host}
     Save memory results   test=memory_read${1thread}   host=${host}
     Save memory results   test=memory_write${1thread}  host=${host}
-
-Read And Plot PerfBench Results
-    [Documentation]  Copy normalised perfbench results to combined csv file on agent
-    ${src_results}  Set Variable  perf_results.csv
-    ${src_find_bit_results}  Set Variable  perf_find_bit_results.csv
-
-    ${perf_results_header}  ${perf_bit_results_header}   Parse and Copy Perfbench To Csv
-    Log  ${perf_results_header}
-    Log  ${perf_bit_results_header}
-    Read Perfbench Csv And Plot  ${TEST NAME}  ${src_results}  ${perf_results_header}
-    Read Perfbench Csv And Plot  ${TEST NAME}  ${src_find_bit_results}  ${perf_bit_results_header}
 
 Single vs Parallel CPU test
     [Arguments]             ${reference-vm}   ${ref_threads}   ${attack-vm}   ${attack_threads}

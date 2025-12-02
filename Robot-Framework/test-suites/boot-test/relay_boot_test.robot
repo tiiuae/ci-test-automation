@@ -63,20 +63,6 @@ Verify booting laptop
     Verify service status   service=init.scope
     [Teardown]   Test Teardown
 
-Verify booting RiscV Polarfire
-    [Documentation]    Restart RiscV by power and verify init service is running using serial connection
-    [Tags]             relayboot  plug  riscv
-    Reboot Device Via Relay
-    Sleep   60    # immediate attempt to connect via the serial port may interrupt the normal startup of the Ghaf system
-    Check Serial Connection
-    IF    ${IS_AVAILABLE} == False
-        FAIL    The device did not start
-    ELSE
-        Log To Console  The device started
-    END
-    Verify init.scope status via serial
-    [Teardown]   Test Teardown
-
 Turn OFF Device
     [Documentation]   Turn off device
     [Tags]            relay-turnoff
@@ -105,12 +91,7 @@ Turn ON Device
         Turn Relay On     ${RELAY_NUMBER}
     END
     Sleep    5
-    IF  "${DEVICE_TYPE}" == "riscv"
-        Sleep   60    # immediate attempt to connect via the serial port may interrupt the normal startup of the Ghaf system
-        Check Serial Connection
-    ELSE
-        Check If Device Is Up
-    END
+    Check If Device Is Up
     IF    ${IS_AVAILABLE} == False
         FAIL  The device did not start
     ELSE
