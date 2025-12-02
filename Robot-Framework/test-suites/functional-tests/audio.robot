@@ -5,8 +5,8 @@
 Documentation       Testing audio
 Force Tags          audio   bat  regression   lenovo-x1   darter-pro   dell-7330
 
-Library             DateTime
 Resource            ../../resources/file_keywords.resource
+Resource            ../../resources/audio_and_video_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Switch to vm   ${NET_VM}
@@ -59,28 +59,3 @@ Check Audio devices
         Run Keyword And Continue On Failure   Should Not Contain   ${sources}   Source   ${vm} has Sources
         Run Keyword And Continue On Failure   Should Not Contain   ${sinks}     Sink     ${vm} has Sinks
     END
-
-
-*** Keywords ***
-
-Record Audio And Verify
-    [Documentation]  Record short audio with pulseaudio tool. Verify audio clip is bigger than default empty file (40Kb)
-    [Arguments]      ${vm}   ${audiofile}=test_${vm}.wav
-    Switch to vm           ${vm}
-    Log To Console         Recording audio file
-    Execute Command        sh -c 'parecord -r /tmp/${audiofile} & sleep 5 && pkill parecord && chown ghaf:ghaf /tmp/${audiofile}'    sudo=True  sudo_password=${PASSWORD}    timeout=15
-    SSHLibrary.Get File    /tmp/${audiofile}  ${AUDIO_DIR}/${audiofile}
-    Check Audio File       ${AUDIO_DIR}/${audiofile}
-    [Teardown]   Remove file   /tmp/${audiofile}
-
-Check Audio File
-    [Documentation]  Check some basic audio data
-    [Arguments]  ${audiofile}  ${expected_duration}=2 sec
-    ${out}  Run  ffmpeg -i ${audiofile}
-    ${duration}  Get Regexp Matches  ${out}  (?im)(Duration: )(\\d{1,2}:\\d{1,2}:\\d{1,2}.\\d{1,3})  2
-    ${bitrate}  Get Regexp Matches  ${out}  (?im)(bitrate: )(\\d{1,4})  2
-    Should Not Be Empty  ${duration}[0]
-    Should Not Be Empty  ${bitrate}[0]
-    ${actual_duration}  Convert Time  ${duration}[0]
-    ${expected_duration}  Convert Time  ${expected_duration}
-    Should Be True  ${actual_duration} > ${expected_duration}

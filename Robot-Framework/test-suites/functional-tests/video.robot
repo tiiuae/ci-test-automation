@@ -9,6 +9,7 @@ Library             Collections
 Library             OperatingSystem
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/audio_and_video_keywords.resource
 
 Test Setup          Switch to vm   ${NET_VM}
 Test Timeout        2 minutes
@@ -58,34 +59,3 @@ Record Video With Camera
     END
 
     [Teardown]    Run Keyword If  "Dell" in "${DEVICE}"   Run Keyword If Test Failed   SKIP   "Known issue: SSRCSP-6694"
-
-*** Keywords ***
-Verify Video File
-    [Documentation]  Verify that file size is not 0 and that video is not all black
-    [Arguments]  ${id}
-    ${video_files}      Execute Command  ls -la /tmp/
-    Should Contain      ${video_files}  video${id}.avi
-    ${out}              Execute Command  du -sh /tmp/video${id}.avi
-    ${size}             Get Regexp Matches  ${out}  (?m)(\\d{1,4})(.*\\s*video.*)  1
-    Should Be True      ${size}[0] > 0  msg=Video was not properly captured.
-    Verify Video Has Different Colors  /tmp/video${id}.avi
-
-Verify Video Has Different Colors
-    [Documentation]  Take frames from video and check that image is not all same color
-    [Arguments]  ${video}
-    # Take screenshot every third second
-    Execute Command      ffmpeg -i ${video} -r 1/3 /tmp/image%04d.png  sudo=True  sudo_password=${PASSWORD}
-    SSHLibrary.Get File  /tmp/image0001.png   ${VIDEO_DIR}/image0001.png
-    Execute Command      rm /tmp/image*
-    Run                  magick ${VIDEO_DIR}/image0001.png -identify ${VIDEO_DIR}/colors.txt
-    Should Not Be Empty  ${VIDEO_DIR}/colors.txt  Failed to identify colors
-
-    # Check that all colors are not the same
-    ${line}             Run  cat ${VIDEO_DIR}/colors.txt | tail -1
-    ${color}            Get Regexp Matches  ${line}  (?im)(.*:)(\\s.\\d{1,3},\\d{1,3},\\d{1,3}.)(\\s.*\\s)(.*)  4
-    ${all_lines}        Run  cat ${VIDEO_DIR}/colors.txt
-    ${matching_lines}   Get Lines Containing String   ${all_lines}  ${color}[0]
-    ${line_count}       Get Line Count  ${matching_lines}
-    ${lines}            Run  wc ${VIDEO_DIR}/colors.txt -l
-    ${splitted_lines}   Split String  ${lines}
-    Should Be True      ${line_count} < (${splitted_lines}[0]-${1})  msg=Captured video contains only one color. Maybe lid is closed?
