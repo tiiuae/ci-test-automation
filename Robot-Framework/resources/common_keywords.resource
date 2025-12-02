@@ -183,3 +183,31 @@ Search nix store
     ${file_path}         Execute Command   nix-store --query --requisites /run/current-system | grep ${string}
     Should Not Be Empty  ${file_path}      File not found from the target /nix/store
     RETURN               ${file_path}
+
+Set device state
+    [Documentation]   Change device (cam, mic, net) state to ${expected_state} (blocked, unblocked)
+    [Arguments]       ${expected_state}     ${device}
+    [Setup]           Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
+    Should Be True   '${expected_state}' in ['blocked', 'unblocked']   Wrong state
+    ${device_state}      Get device state   ${device}
+    ${status}         Run Keyword And Return Status   Should Be Equal   ${device_state}   ${expected_state}
+    IF    ${status}
+        Log To Console   Device ${device} state is already ${expected_state}
+    ELSE
+        IF   '${expected_state}' == 'blocked'
+            ${state_to_set}   Set Variable   block
+        ELSE
+            ${state_to_set}   Set Variable   unblock
+        END
+        ${output}        Execute Command   ghaf-killswitch ${state_to_set} ${device}
+        Log  ${output}
+        ${device_state}   Get device state    ${device}
+        Should Be Equal   ${device_state}   ${expected_state}
+    END
+
+Get device state
+    [Arguments]     ${device}
+    [Setup]         Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
+    ${output}       Execute Command   ghaf-killswitch status
+    ${state}        Get kill switch status   ${output}   ${device}
+    RETURN          ${state}

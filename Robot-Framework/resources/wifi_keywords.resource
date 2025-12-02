@@ -57,20 +57,11 @@ Get wifi IP
     END
     IF   ${status} == False    FAIL    NetVM hasn't gotten an IP
 
-Block WLAN
-    Switch to vm  ${GUI_VM}
-    ${output}     Execute Command      ghaf-killswitch block net    sudo=True    sudo_password=${PASSWORD}
-    Switch to vm  ${NET_VM}
-
-Unblock WLAN
-    Switch to vm  ${GUI_VM}
-    ${output}     Execute Command      ghaf-killswitch unblock net    sudo=True    sudo_password=${PASSWORD}
-    Switch to vm  ${NET_VM}
-
 Verify nmcli device status
     [Documentation]    Check state of the interface in the output of `nmcli device status`
     ...                and compare with expected: connected | disconnected | absent
     [Arguments]        ${if_name}    ${expected}
+    Switch to vm  ${NET_VM}
     FOR    ${i}    IN RANGE    20
         ${output}          Execute Command      nmcli device status
         Log     ${output}

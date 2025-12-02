@@ -4,13 +4,13 @@
 *** Settings ***
 Documentation       Check persistence
 Force Tags          security   persistence   regression
-Library             ../../lib/output_parser.py
 Library             ../../lib/TimeLibrary.py
 Resource            ../../resources/device_control.resource
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/gui-vm_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/common_keywords.resource
 
 Suite Setup         Persistence Suite Setup
 Suite Teardown      Persistence Suite Teardown
@@ -42,7 +42,7 @@ Verify timezone persisted
 
 Verify camera block persisted
     [Tags]    SP-T305   lenovo-x1   darter-pro
-    ${cam_state}      Get cam state
+    ${cam_state}      Get device state    cam
     Should Be Equal   ${EXPECTED_CAM_STATE}  ${cam_state}
 
 
@@ -71,7 +71,7 @@ Save original values
     Set Suite Variable       ${ORIGINAL_VOLUME}
     ${ORIGINAL_TIMEZONE}     Run Keyword And Continue On Failure   Get timezone
     Set Suite Variable       ${ORIGINAL_TIMEZONE}
-    ${ORIGINAL_CAM_STATE}    Run Keyword And Continue On Failure   Get cam state
+    ${ORIGINAL_CAM_STATE}    Run Keyword And Continue On Failure   Get device state   cam
     Set Suite Variable       ${ORIGINAL_CAM_STATE}
 
 Set values
@@ -80,31 +80,4 @@ Set values
     Run Keyword And Continue On Failure   Set brightness    ${${type}_BRIGHTNESS}
     Run Keyword And Continue On Failure   Set volume        ${${type}_VOLUME}
     Run Keyword And Continue On Failure   Set timezone      ${${type}_TIMEZONE}
-    Run Keyword And Continue On Failure   Set cam state     ${${type}_CAM_STATE}
-
-Set cam state
-    [Documentation]   Change camera state to ${expected_state}
-    [Arguments]       ${expected_state}
-    [Setup]           Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
-    Should Be True   '${expected_state}' in ['blocked', 'unblocked']   Wrong state
-    ${cam_state}      Get cam state
-    ${status}         Run Keyword And Return Status   Should Be Equal   ${cam_state}   ${expected_state}
-    IF    ${status}
-        Log To Console   Camera state is already ${expected_state}
-    ELSE
-        IF   '${expected_state}' == 'blocked'
-            ${state_to_set}   Set Variable   block
-        ELSE
-            ${state_to_set}   Set Variable   unblock
-        END
-        ${output}        Execute Command   ghaf-killswitch ${state_to_set} cam
-        Log  ${output}
-        ${cam_state}      Get cam state
-        Should Be Equal   ${cam_state}   ${expected_state}
-    END
-
-Get cam state
-    [Setup]         Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
-    ${output}       Execute Command   ghaf-killswitch status
-    ${state}        Get kill switch status   ${output}   cam
-    RETURN          ${state}
+    Run Keyword And Continue On Failure   Set device state  ${${type}_CAM_STATE}  cam
