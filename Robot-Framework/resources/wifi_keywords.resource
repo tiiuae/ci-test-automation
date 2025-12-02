@@ -58,12 +58,12 @@ Get wifi IP
     IF   ${status} == False    FAIL    NetVM hasn't gotten an IP
 
 Block WLAN
-    Switch to vm  ${HOST}
+    Switch to vm  ${GUI_VM}
     ${output}     Execute Command      ghaf-killswitch block net    sudo=True    sudo_password=${PASSWORD}
     Switch to vm  ${NET_VM}
 
 Unblock WLAN
-    Switch to vm  ${HOST}
+    Switch to vm  ${GUI_VM}
     ${output}     Execute Command      ghaf-killswitch unblock net    sudo=True    sudo_password=${PASSWORD}
     Switch to vm  ${NET_VM}
 
