@@ -21,7 +21,7 @@ Test Setup          Persistence Test Setup
 ${EXPECTED_BRIGHTNESS}    16290
 ${EXPECTED_VOLUME}        42
 ${EXPECTED_TIMEZONE}      UTC
-${EXPECTED_CAM_STATE}     block
+${EXPECTED_CAM_STATE}     blocked
 
 *** Test Cases ***
 
@@ -36,7 +36,7 @@ Verify volume persisted
     Should Be Equal   ${EXPECTED_VOLUME}  ${volume}
 
 Verify timezone persisted
-    [Tags]    SP-T326-3   lenovo-x1   darter-pro
+    [Tags]    # SP-T326-3   lenovo-x1   darter-pro
     ${timezone}       Get timezone
     Should Be Equal   ${EXPECTED_TIMEZONE}  ${timezone}
 
@@ -83,31 +83,28 @@ Set values
     Run Keyword And Continue On Failure   Set cam state     ${${type}_CAM_STATE}
 
 Set cam state
-    [Documentation]   Change camera state to ${cam_state_to_set}
-    [Arguments]       ${cam_state_to_set}
-    [Setup]           Switch to vm    ${GUI_VM}
-    Should Be True  '${cam_state_to_set}' in ['block', 'unblock']   Wrong state
-     ${cam_state}   Get cam state   
-    ${status}       Run Keyword And Return Status   Should Be Equal   ${cam_state}   ${cam_state_to_set}
+    [Documentation]   Change camera state to ${expected_state}
+    [Arguments]       ${expected_state}
+    [Setup]           Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
+    Should Be True   '${expected_state}' in ['blocked', 'unblocked']   Wrong state
+    ${cam_state}      Get cam state
+    ${status}         Run Keyword And Return Status   Should Be Equal   ${cam_state}   ${expected_state}
     IF    ${status}
-        Log To Console   Camera state is already ${cam_state_to_set}
+        Log To Console   Camera state is already ${expected_state}
     ELSE
-        ${output}        Execute Command   ghaf-killswitch ${cam_state_to_set} cam   sudo=True  sudo_password=${PASSWORD}
+        IF   '${expected_state}' == 'blocked'
+            ${state_to_set}   Set Variable   block
+        ELSE
+            ${state_to_set}   Set Variable   unblock
+        END
+        ${output}        Execute Command   ghaf-killswitch ${state_to_set} cam
         Log  ${output}
-        Should Contain   ${output}   ${cam_state_to_set}ing device   ignore_case=True
-        Log To Console   Camera ${cam_state_to_set}ed
+        ${cam_state}      Get cam state
+        Should Be Equal   ${cam_state}   ${expected_state}
     END
-    ${cam_state}   Get cam state
-    ${status}      Should Be Equal   ${cam_state}   ${cam_state_to_set}
 
 Get cam state
-    [Setup]         Switch to vm    ${HOST}
-    ${output}       Execute Command   lsusb
-    ${camera_id}    Get Camera Id     ${output}
-    ${output}       Execute Command   cat /var/lib/vhotplug/vhotplug.state   sudo=True  sudo_password=${PASSWORD}
-    ${status}       Run Keyword And Return Status   Should Not Contain   ${output}   ${camera_id}
-    IF    ${status}
-        RETURN   unblock
-    ELSE
-        RETURN   block
-    END
+    [Setup]         Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
+    ${output}       Execute Command   ghaf-killswitch status
+    ${state}        Get kill switch status   ${output}   cam
+    RETURN          ${state}

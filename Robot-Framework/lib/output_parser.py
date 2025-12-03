@@ -289,13 +289,14 @@ def extract_device_hint(text):
     else:
         raise Exception("Could not extract device name from input text")
 
-def get_camera_id(output):
-    pattern = re.compile(r"ID\s+([0-9a-fA-F]{4}:[0-9a-fA-F]{4}).*Camera", re.IGNORECASE)
-    match = pattern.search(output)
-    if match:
-        return match.group(1)
-    else:
-        raise ValueError("No camera device found in lsusb output")
+def get_kill_switch_status(status_list, device):
+    # Parse the status list into a dictionary
+    statuses = {}
+    for line in status_list.splitlines():
+        if ":" in line:
+            key, value = line.split(":", 1)
+            statuses[key.strip()] = value.strip()
+    return statuses.get(device)
     
 def clean_login_output(output):
     if not output:
