@@ -41,7 +41,7 @@ Verify timezone persisted
     Should Be Equal   ${EXPECTED_TIMEZONE}  ${timezone}
 
 Verify camera block persisted
-    [Tags]    SP-T326-4   lenovo-x1   darter-pro
+    [Tags]    SP-T305   lenovo-x1   darter-pro
     ${cam_state}      Get cam state
     Should Be Equal   ${EXPECTED_CAM_STATE}  ${cam_state}
 

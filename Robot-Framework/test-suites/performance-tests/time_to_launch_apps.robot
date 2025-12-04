@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Measuring time of launching applications via GUI
-Force Tags          performance   app_launching_time   lenovo-x1   darter-pro
+Force Tags          performance   app_launching_time   lenovo-x1   darter-pro  SP-T285
 
 Resource            ../../config/variables.robot
 Library             ../../lib/GuiTesting.py   ${OUTPUT_DIR}/outputs/gui-temp/
