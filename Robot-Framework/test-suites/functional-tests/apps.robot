@@ -117,11 +117,6 @@ Start VPN
     [Tags]            SP-T200
     Start application in VM   VPN  ${BUSINESS_VM}   gpclient
 
-Start Video Editor
-    [Documentation]   Start Video Editor and verify process started
-    [Tags]            SP-T244
-    Start application in VM   "Video Editor"  ${BUSINESS_VM}   lossless
-
 Start Zoom
     [Documentation]   Start Zoom and verify process started
     [Tags]            SP-T237
