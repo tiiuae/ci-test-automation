@@ -16,7 +16,7 @@ Test Setup          Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
 
 Start Falcon AI
     [Documentation]   Start Falcon AI and verify process started
-    [Tags]            falcon_ai  SP-T223-1  lenovo-x1  darter-pro  dell-7330
+    [Tags]            falcon_ai  SP-T223-1  lenovo-x1  darter-pro
     Get Falcon LLM Name
     Start application  "Falcon AI"
     Wait Until Falcon Download Complete
