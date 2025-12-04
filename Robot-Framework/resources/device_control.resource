@@ -39,6 +39,19 @@ Reboot Laptop
     Log To Console    Turning device on...
     Press Button      ${SWITCH_BOT}-ON
 
+Turn Laptop On and Connect
+    Log To Console    ${\n}Turning device on...
+    Press Button      ${SWITCH_BOT}-ON
+    Sleep    5
+    Check If Device Is Up
+    IF    ${IS_AVAILABLE} == False
+        FAIL  The device did not start
+    ELSE
+        Log To Console  The device started
+    END
+    Sleep   30
+    Connect    iterations=10
+
 Soft Reboot Device
     [Documentation]  Reboot device from ghaf-host
     ${device_is_available}   Ping Host   ${DEVICE_IP_ADDRESS}
@@ -53,12 +66,7 @@ Soft Reboot Device
 
 Verify Reboot and Connect
     [Documentation]   Verify that device rebooted and connect
-    ${device_not_available}    Run Keyword And Return Status  Wait Until Keyword Succeeds  30s  2s  Check If Ping Fails
-    IF  ${device_not_available} == True
-        Log To Console            Device is down
-    ELSE
-        FAIL                      Device didn't shut down at reboot.
-    END
+    Verify Laptop Shutdown
     Sleep   20
     Check If Device Is Up         range=60
     IF    ${IS_AVAILABLE} == False
@@ -77,4 +85,13 @@ Wake up device
         FAIL             The device did suspend but failed to wake up
     ELSE
         Log To Console   Device successfully woke up after suspend
+    END
+
+Verify Laptop Shutdown
+    [Arguments]      ${timeout}=30
+    ${device_not_available}    Run Keyword And Return Status  Wait Until Keyword Succeeds  ${timeout}s  2s  Check If Ping Fails
+    IF  ${device_not_available} == True
+        Log To Console            Device is down
+    ELSE
+        FAIL                      Device didn't shut down
     END

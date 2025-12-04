@@ -39,13 +39,13 @@ Log in, unlock and verify
     # This is a workaround for a cosmic-greeter bug https://github.com/pop-os/cosmic-greeter/issues/135.
     # If the laptop did not login on the first attempt tries to press Tab to select the password field
     # and then attempts to log in again.
-    ${status}   ${output}   Run Keyword And Ignore Error   Verify desktop availability
+    ${status}   ${output}   Run Keyword And Ignore Error   Verify desktop availability   logging_in=True
     IF   $status == 'FAIL'
         Log To Console    There was maybe a bug with the cosmic-greeter, let's try logging in again
         Log To Console    Pressing Tab to activate the password field
         Press Key(s)      TAB
         Log in via GUI
-        Verify desktop availability
+        Verify desktop availability   logging_in=True
     END
 
     Stop swayidle
@@ -218,6 +218,7 @@ Move cursor to corner
 
 Verify desktop availability
     [Documentation]    Wait for the login and check that launcher icon is available on desktop
+    [Arguments]        ${logging_in}=False
 
     ${activity}        Wait for user session to be active
 
@@ -234,7 +235,7 @@ Verify desktop availability
     Run Keyword And Ignore Error   Verify Systemctl status   range=1
     Run Keyword And Ignore Error   Verify Systemctl status   range=1   user=True
 
-    Kill Initial Setup
+    IF  ${logging_in}   Kill Initial Setup
 
     Log To Console         Verifying login by trying to detect the launcher icon
     # This is a workaround for launcher icon missing sometimes. If launcher icon can't be found tries to search
