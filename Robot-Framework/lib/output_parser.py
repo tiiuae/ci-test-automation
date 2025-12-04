@@ -241,13 +241,6 @@ def get_failed_units(output):
     services = pattern.findall(output)
     return services
 
-def extract_vm_names(output):
-    # Remove ANSI escape codes
-    cleaned_string = re.sub(r'\x1B\[[0-?]*[ -/]*[@-~]', '', output)
-    lines = cleaned_string.split('\n')
-    vm_names = [line.split(':')[0] for line in lines if line]
-    return vm_names
-
 def parse_services_to_list(output):
     match = re.search(r"\[([^\]]+)\]", output)
     if not match:

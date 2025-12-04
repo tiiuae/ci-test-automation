@@ -137,12 +137,10 @@ Check systemctl status for known issues
 Get VM list
     [Arguments]    ${with_host}=False
     Switch to vm    ${HOST}
-    ${output}       Execute Command    microvm -l
-    @{vm_list}      Extract VM names   ${output}
+    ${output}       Execute Command    ls /var/lib/microvms/
+    @{vm_list}      Split String       ${output}
     Should Not Be Empty     ${vm_list}   VM list is empty
-    IF    ${with_host}
-        @{vm_list}    Create List   @{vm_list}   ${HOST}
-    END
+    IF    ${with_host}    Append To List   ${vm_list}   ${HOST}
     RETURN    @{vm_list}
 
 Check if process is running
