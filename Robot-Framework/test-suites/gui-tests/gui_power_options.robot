@@ -6,6 +6,7 @@ Documentation       Testing taskbar power widget options
 Force Tags          gui   gui-power-menu
 
 Library             ../../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
+Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/device_control.resource
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/gui-vm_keywords.resource
@@ -13,8 +14,7 @@ Resource            ../../resources/power_meas_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Test Teardown       Run Keywords  Run Keyword If Test Passed    Switch to vm    ${GUI_VM}   user=${USER_LOGIN}  AND
-...                               Run Keyword If Test Failed    GUI Power Test Teardown
+Test Teardown       GUI Power Test Teardown
 
 
 *** Test Cases ***
@@ -69,22 +69,38 @@ GUI Lock and Unlock
     Unlock
     Verify desktop availability
     [Teardown]        Run Keywords   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}   AND
-    ...               Run Keyword If Test Failed    GUI Power Test Teardown
+    ...               GUI Power Test Teardown
 
 GUI Reboot
     [Documentation]   Reboot the device via GUI power menu reboot icon.
     ...               Check that it shuts down. Check that it turns on and boots to login screen.
     [Tags]            SP-T75-4  lenovo-x1  darter-pro
 
-    Select power menu option   x=870   y=120   confirmation=true
+    Select power menu option   x=870   y=120   confirmation=True
     Verify Reboot and Connect
+    Login to laptop   enable_dnd=True
+
+GUI Shutdown
+    [Documentation]   Shutdown the device via GUI power menu shutdown icon.
+    ...               Check that it shuts down and then wakes up with a short power button press.
+    [Tags]            SP-T75-5  lenovo-x1  darter-pro  lab-only
+    Select power menu option   x=925   y=120   confirmation=True   tabs=3
+    ${start_time}     Get Time    epoch
+    Verify Laptop Shutdown        timeout=60
+    ${end_time}       Get Time    epoch
+    ${elapsed}        Evaluate    ${end_time} - ${start_time}
+    IF    ${elapsed} > 20   FAIL    Shutdown took too long: ${elapsed} seconds (expected < 20)
+    # Give laptop time to properly turn off before trying to turn on
+    ${wait_time}      Evaluate    20 - ${elapsed}
+    Wait     ${wait_time}
+    Turn Laptop On and Connect
     Login to laptop   enable_dnd=True
 
 GUI Log out and log in
     [Documentation]   Logout via GUI power menu icon and verify logged out state.
     ...               Login and verify that desktop is available.
     [Tags]            SP-T75-2   logoutlogin   lenovo-x1  darter-pro
-    Select power menu option   text=LogOut   confirmation=true
+    Select power menu option   text=LogOut   confirmation=True
     ${logout_status}            Check if logged out
     IF  not ${logout_status}    FAIL  Logout failed.
     Log in, unlock and verify
@@ -92,14 +108,18 @@ GUI Log out and log in
 *** Keywords ***
 
 GUI Power Test Teardown
-    Reboot Laptop
-    Verify Reboot and Connect
-    Login to laptop
+    IF  $TEST_STATUS=='PASS'
+        Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
+    ELSE
+        Reboot Laptop
+        Verify Reboot and Connect
+        Login to laptop   enable_dnd=True
+    END
 
 Select power menu option
     [Documentation]    Open power menu by clicking the icon.
     ...                Search the correct text or click given coordinates.
-    [Arguments]        ${text}=${EMPTY}   ${x}=0   ${y}=0   ${confirmation}=false
+    [Arguments]        ${text}=${EMPTY}   ${x}=0   ${y}=0   ${confirmation}=False   ${tabs}=2
     Log To Console     Opening power menu
     Locate and click   image  ./power.png  0.95  10
     IF  '${text}'
@@ -113,11 +133,6 @@ Select power menu option
     END
     Sleep   1
     # Some options have a separate confirmation window that needs to be clicked.
-    IF  '${confirmation}' == 'true'
-        # Confirmation window needs to be clicked twice to focus it
-        # Word "automatically" is used to locate the window since it is used in all confirmations
-        Locate and click   text   automatically
-        Locate and click   text   automatically
-        Tab and enter   tabs=2
-    END
+    # Error is ignored because the connection is sometimes lost before the last Enter returns a value.
+    IF  ${confirmation}   Run Keyword And Ignore Error   Tab and enter   tabs=${tabs}
     Sleep   1
