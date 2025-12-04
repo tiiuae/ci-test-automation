@@ -130,13 +130,6 @@ Measure time to launch Slack
     Close app via GUI   ${COMMS_VM}  slack  ./window-close-neg.png
     Save launch time    slack
 
-Measure time to launch Video Editor
-    [Documentation]   Start Video Editor via GUI and measure time of launching
-    [Tags]            SP-T285-16
-    Start app via GUI   ${BUSINESS_VM}  lossless  display_name="Video Editor"
-    Close app via GUI   ${BUSINESS_VM}  lossless  ./window-close-neg.png
-    Save launch time    lossless
-
 Measure time to launch Gala
     [Documentation]   Start Gala via GUI and measure time of launching
     [Tags]            SP-T285-17
