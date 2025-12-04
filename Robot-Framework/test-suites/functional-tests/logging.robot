@@ -13,7 +13,6 @@ Suite Setup         Logging Suite Setup
 
 
 *** Variables ***
-${GRAFANA_LOGS}       https://loki.ghaflogs.vedenemo.dev
 ${TEST_LOG}           Started Session
 
 
