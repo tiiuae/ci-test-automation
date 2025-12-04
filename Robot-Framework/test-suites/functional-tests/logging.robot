@@ -13,7 +13,6 @@ Suite Setup         Logging Suite Setup
 
 
 *** Variables ***
-${GRAFANA_LOGS}       https://loki.ghaflogs.vedenemo.dev
 ${TEST_LOG}           Started Session
 
 
@@ -51,8 +50,10 @@ Check Grafana logs
 *** Keywords ***
 
 Logging Suite Setup
-    @{VM_LIST}    Get VM list    with_host=True
-    Set Suite Variable      @{VM_LIST}
+    @{VM_LIST}               Get VM list  with_host=True
+    Append To List           ${VM_LIST}   ${NETVM_NAME}
+    Remove Values From List  ${VM_LIST}   ${NET_VM}
+    Set Suite Variable       @{VM_LIST}
 
 Check Logs Are available
     [Documentation]  Check that virtual machine's logs are available in Grafana
@@ -68,7 +69,7 @@ Check Logs Are available
         Set Log Level  INFO
         Log            ${out}
         ${lines}    Count lines    ${out}
-        IF   '${vm}' == '${NET_VM}'
+        IF   '${vm}' == '${NETVM_NAME}'
             # Ignore net-vm error SSRCSP-7542
             ${status}  ${output}  Run Keyword And Ignore Error  Should Be True  ${lines} > 1   ${vm} query does not contain logs
             IF   $status == 'FAIL'

@@ -86,9 +86,3 @@ Get amount of boot entries
         END
     END
     RETURN    ${count}
-
-Reboot Laptop
-    Soft Reboot Device
-    Set Global Variable  ${FIRST_SCREENSHOT}  ${True}
-    Verify Reboot and Connect
-    Login to laptop

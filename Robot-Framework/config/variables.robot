@@ -116,6 +116,7 @@ Set Variables
         END
     END
 
+    Set Global Variable  ${GRAFANA_LOGS}    https://loki.ghaflogs.vedenemo.dev
 
 Read Config
     [Arguments]  ${file_path}
