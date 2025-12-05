@@ -67,7 +67,7 @@ Update teardown
     IF  ${gen_at_teardown}!=${gen_before}
         Log To Console    Rolling back to original generation and removing the new generation
         Execute Command   bootctl unlink nixos-generation-${gen_at_teardown}.conf  sudo=True  sudo_password=${PASSWORD}
-        Execute Command   sudo nix-env -p /nix/var/nix/profiles/system --switch-generation ${gen_before}  sudo=True  sudo_password=${PASSWORD}
+        Execute Command   nix-env -p /nix/var/nix/profiles/system --switch-generation ${gen_before}  sudo=True  sudo_password=${PASSWORD}
         Execute Command   nix-env -p /nix/var/nix/profiles/system --delete-generations ${gen_at_teardown}  sudo=True  sudo_password=${PASSWORD}
     ELSE
         Log To Console    New generation not found. Skipping roll back.

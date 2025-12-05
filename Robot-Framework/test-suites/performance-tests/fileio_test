@@ -22,7 +22,7 @@ echo -e "\nRunning the test in $DISK_CHECK_DIRECTORY" | tee -a $RESULT_DIR/test_
 
 # Calculate total memory in kB and set FILE_TOTAL_SIZE 4GB higher than the total memory
 TOTAL_MEM_kB=$(free | awk -F: 'NR==2 {print $2}' | awk '{print $1}')
-FILE_TOTAL_SIZE_kB=$((TOTAL_MEM_kB + 4000000))
+FILE_TOTAL_SIZE_kB=$((TOTAL_MEM_kB + 1000000))
 
 # Read available disk space in kB and check for sufficient disk space
 AVAILABLE_DISK_SPACE_kB=$(df | grep -w $DISK_CHECK_DIRECTORY | awk '{print $4}')
@@ -32,10 +32,10 @@ if [ $((FILE_TOTAL_SIZE_kB + FILE_TOTAL_SIZE_kB / 10)) -gt $AVAILABLE_DISK_SPACE
 fi
 
 # Execute sysbench fileio tests if the checks passed
-sysbench fileio --file-total-size=${FILE_TOTAL_SIZE_kB}K --threads=${THREADS} --file-test-mode=seqrd prepare
-sysbench fileio --file-total-size=${FILE_TOTAL_SIZE_kB}K --threads=${THREADS} --file-test-mode=seqrd --time=30 run | tee $RESULT_DIR/fileio_rd_report
+sysbench fileio --file-total-size=${FILE_TOTAL_SIZE_kB}K --threads=${THREADS} --file-extra-flags=direct --file-test-mode=seqrd prepare
+sysbench fileio --file-total-size=${FILE_TOTAL_SIZE_kB}K --threads=${THREADS} --file-extra-flags=direct --file-test-mode=seqrd --time=30 run | tee $RESULT_DIR/fileio_rd_report
 sysbench fileio cleanup
-sysbench fileio --file-total-size=${FILE_TOTAL_SIZE_kB}K --threads=${THREADS} --file-test-mode=seqwr --time=30 run | tee $RESULT_DIR/fileio_wr_report
+sysbench fileio --file-total-size=${FILE_TOTAL_SIZE_kB}K --threads=${THREADS} --file-extra-flags=direct --file-test-mode=seqwr --time=30 run | tee $RESULT_DIR/fileio_wr_report
 sysbench fileio cleanup
 
 echo -e "\nTest finished.\n"

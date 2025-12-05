@@ -18,7 +18,7 @@ ${DEVICE_TYPE}            ${EMPTY}
 ${JOB}                    ${EMPTY}
 ${LOGIN}                  ghaf
 ${CONFIG_PATH}            ../config
-${POWER_MEASUREMENT_DIR}  ../../../power_measurements/
+${LOGGED_PARAMS_DIR}      ../../../logged_parameters/
 ${PERF_DATA_DIR}          ../../../Performance_test_results/
 ${PLOT_DIR}               ./
 ${REL_PLOT_DIR}           ./
@@ -30,7 +30,7 @@ Set Variables
     [Arguments]  ${device}
     ${DIR_BODY}   ${DIR_END}     Split String From Right    ${OUTPUT_DIR}   /   1
     IF  $DIR_END != 'test-suites'
-        Set Global Variable  ${POWER_MEASUREMENT_DIR}  ${OUTPUT_DIR}/outputs/power_measurements/
+        Set Global Variable  ${LOGGED_PARAMS_DIR}  ${OUTPUT_DIR}/outputs/logged_parameters/
         Set Global Variable  ${PERF_DATA_DIR}  ${OUTPUT_DIR}/outputs/Performance_test_results/
         Set Global Variable  ${PLOT_DIR}  ${OUTPUT_DIR}/outputs/performance_plots/
         Set Global Variable  ${REL_PLOT_DIR}  ./outputs/performance_plots/
