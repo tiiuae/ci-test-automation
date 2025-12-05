@@ -41,14 +41,17 @@ Get grafana logs
     FOR   ${i}   IN RANGE  15
     #    Set Log Level    NONE
     #    Wait Until Keyword Succeeds  60s  5s
-        ${logs}          Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --from="${from}" --limit="5000" '{machine="${device_id}"}'
+        ${logs}          Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --since="3m" --limit="5000" '{machine="${device_id}"}'
     #    ${logs}          Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --since="5m" --limit="1000" '{machine="${device_id}", host="${host}"} |= `${text}`'
     #    Set Log Level    INFO
+        Log      ${logs}
         ${lines}    Count lines    ${logs}
         ${status}  ${output}  Run Keyword And Ignore Error  Should Be True  ${lines} > 1   Query does not contain logs
         IF   $status == 'PASS'
             Sleep    5
-            ${logs}          Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --from="${from}" --limit="5000" '{machine="${device_id}"}'
+            ${logs}          Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --since="3m" --limit="5000" '{machine="${device_id}"}'
+            ${lines}    Count lines    ${logs}
+            Log      ${logs}
             BREAK
         ELSE
             Sleep    3
@@ -56,15 +59,15 @@ Get grafana logs
     END
 
     ${lines}          Split To Lines   ${logs}
-    ${last_line}      Get From List    ${lines}    -1
-    ${ts_pattern}     Set Variable    ^(\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2})
+    ${last_line}      Get From List    ${lines}    -4
+    ${ts_pattern}     Set Variable     ^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z)
     ${matches}        Get Regexp Matches    ${last_line}    ${ts_pattern}
     ${last_ts}        Set Variable    ${matches[0]}
-    ${iso_ts}         Convert Date    ${last_ts}    date_format=%Y/%m/%d %H:%M:%S   result_format=%Y-%m-%dT%H:%M:%SZ
+#    ${iso_ts}         Convert Date    ${last_ts}    date_format=%Y/%m/%d %H:%M:%S   result_format=%Y-%m-%dT%H:%M:%SZ
     Log    Last timestamp: ${last_ts}
     ${is_later}       Evaluate    '${last_ts}' > '${from}'
     IF    ${is_later}
-        ${logs2}      Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --from="${from}" --to="${iso_ts}" --limit="5000" '{machine="${device_id}"}'
+        ${logs2}      Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --since="3m" --to="${last_ts}" --limit="5000" '{machine="${device_id}"}'
         ${lines1}     Split To Lines    ${logs}
         ${lines2}     Split To Lines    ${logs2}
 
