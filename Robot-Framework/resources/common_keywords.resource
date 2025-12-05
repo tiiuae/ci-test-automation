@@ -155,11 +155,8 @@ Check if process is running
 Kill process by name
     [Arguments]   ${process_name}   ${sudo}=True
     Log   Killing process ${process_name}   console=True
-    IF  $sudo == "True"
-        ${output}  ${rc}   Execute Command    pkill "${process_name}" -f -e   sudo=True  sudo_password=${password}  return_rc=True  timeout=15
-    ELSE
-        ${output}  ${rc}   Execute Command    pkill "${process_name}" -f -e   return_rc=True  timeout=15
-    END
+    # 9 = kill instead of terminating, A = ignore pkill process (ancestor), e = display what is killed, f = use full process name to kill
+    ${output}  ${rc}   Execute Command    pkill -9 -Aef "${process_name}"  sudo=${sudo}  sudo_password=${PASSWORD}  return_rc=True  timeout=15
     Log   ${output}
     Should Be Equal As Integers   ${rc}   0
 
