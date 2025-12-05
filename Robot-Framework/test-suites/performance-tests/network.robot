@@ -6,7 +6,7 @@ Documentation       Network performance tests
 ...                 Requires iperf installed on test running PC (sudo apt install iperf)
 Force Tags          performance  network
 
-Resource            ../../config/variables.robot
+Resource            ../../config/variables.robotq
 Library             ../../lib/output_parser.py
 Library             Process
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
