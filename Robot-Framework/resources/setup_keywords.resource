@@ -61,7 +61,7 @@ Start ydotoold
     ${ydotoold_state}=    Execute Command    sh -c 'ps aux | grep ydotoold | grep -v grep'
     IF  $ydotoold_state == '${EMPTY}'
         Log To Console    Starting ydotool daemon
-        Run Keyword And Ignore Error  Execute Command   -b /run/current-system/sw/bin/ydotoold --socket-path /tmp/.ydotool_socket  sudo=True  sudo_password=${PASSWORD}  timeout=3
+        Run Keyword And Ignore Error  Execute Command   /run/current-system/sw/bin/ydotoold --socket-path /tmp/.ydotool_socket  sudo=True  sudo_password=${PASSWORD}  timeout=3
         ${ydotoold_state}=    Execute Command    sh -c 'ps aux | grep ydotoold | grep -v grep'
         Should Not Be Empty  ${ydotoold_state}  failed to start ydotool daemon
         # Allow all users to use Ydotool
@@ -75,7 +75,7 @@ Stop ydotoold
     [Documentation]   Kill ydotool daemon
     [Setup]           Switch to vm    ${GUI_VM}
     Log To Console    Stopping ydotool daemon
-    Execute Command   pkill ydotoold  sudo=True  sudo_password=${PASSWORD}
+    Kill process by name   ydotoold   sudo=True
 
 Save gui icons and icon path
     [Documentation]         Save the icons that are used in multiple test cases

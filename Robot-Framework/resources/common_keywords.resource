@@ -175,9 +175,16 @@ Search nix store
     [Documentation]      Search a file containing string argument in the target nix store.
     ...                  Return only the file path which is linked to the current generation.
     [Arguments]          ${string}
-    ${file_path}         Execute Command   nix-store --query --requisites /run/current-system | grep ${string}
-    Should Not Be Empty  ${file_path}      File not found from the target /nix/store
-    RETURN               ${file_path}
+    # nix-store --query does not work on storeDisk images
+    ${file_path}  ${rc}   Execute Command  nix-store --query --requisites /run/current-system | grep ${string}   return_rc=True
+    IF   ${rc} == 0
+        Should Not Be Empty  ${file_path}      File not found from the target /nix/store
+        RETURN               ${file_path}
+    ELSE
+        ${file_path}         Execute Command   ls /nix/store | grep ${string}
+        Should Not Be Empty  ${file_path}      File not found from the target /nix/store
+        RETURN               /nix/store/${file_path}
+    END
 
 Set device state
     [Documentation]   Change device (cam, mic, net) state to ${expected_state} (blocked, unblocked)
