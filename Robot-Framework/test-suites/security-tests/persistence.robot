@@ -16,7 +16,6 @@ Suite Setup         Persistence Suite Setup
 Suite Teardown      Persistence Suite Teardown
 Test Setup          Persistence Test Setup
 
-
 *** Variables ***
 ${EXPECTED_BRIGHTNESS}    16290
 ${EXPECTED_VOLUME}        42
@@ -59,6 +58,11 @@ Persistence Suite Setup
     Login to laptop   enable_dnd=True
 
 Persistence Suite Teardown
+    IF  $SUITE_STATUS=='FAIL'
+        Reboot Laptop
+        Verify Reboot and Connect
+        Login to laptop   enable_dnd=True
+    END
     Set values   ORIGINAL
 
 Persistence Test Setup
