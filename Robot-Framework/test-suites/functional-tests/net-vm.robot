@@ -21,8 +21,6 @@ Verify NetVM is started
     Verify service status   service=${netvm_service}
     Check Network Availability      ${NET_VM}    expected_result=True    range=5
 
-    [Teardown]  Run Keyword If   "NX" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Under investigation: SSRCSP-7453"
-
 Wifi passthrough into NetVM (Orin-AGX)
     [Documentation]     Verify that wifi works inside netvm
     ...                 Test case not in use in CI/CD Pipeline.

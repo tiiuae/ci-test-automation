@@ -27,11 +27,9 @@ Prepare Test Environment
 Clean Up Test Environment
     [Timeout]     5 minutes
     [Arguments]   ${disable_dnd}=False
-    # Temporarily taking journal log taking our from Orin-NX [SSRCSP-7453]
-    IF  "NX" not in "${DEVICE}"
-        Switch to vm   ${HOST}
-        Save host journalctl
-    END
+    Switch to vm   ${HOST}
+    Save host journalctl
+
     IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
         Log out from laptop
     END
