@@ -47,6 +47,24 @@ Check Grafana logs
     Run Keyword And Continue On Failure   Create logs in all VMs
     Wait Until Keyword Succeeds  60s  5s  Check Logs Are available  ${id}
 
+Check Grafana log forwarding after disconnected state
+    [Documentation]  Check that logs are sent to Grafana also from time of disconnection after reboot
+    [Tags]           SP-T283
+    Switch to vm     ${ADMIN_VM}
+    ${id}            Execute Command  cat /etc/common/device-id
+    ${rule}          Set Variable   OUTPUT -p tcp --dport 443 -m owner --uid-owner "$(systemctl show alloy -p UID --value)" -j REJECT
+    Execute Command  logger --priority=user.info --tag=myjob "logtest0_${BUILD_ID}"    sudo=True  sudo_password=${PASSWORD}
+    Sleep            30
+    Execute Command  iptables -I ${rule}    sudo=True  sudo_password=${PASSWORD}
+    Sleep            5
+    Execute Command  logger --priority=user.info --tag=myjob "logtest1_${BUILD_ID}"    sudo=True  sudo_password=${PASSWORD}
+
+    Soft Reboot Device
+
+    # Execute Command  iptables -D ${rule}    sudo=True  sudo_password=${PASSWORD}
+
+    Wait Until Keyword Succeeds  60s  5s  Check Logs Are available  ${id}
+
 
 *** Keywords ***
 
