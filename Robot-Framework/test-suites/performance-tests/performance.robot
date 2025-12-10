@@ -283,7 +283,6 @@ FileIO read isolation test
     ${result_list}=        Create List     ${single_result}  ${parallel_result}  ${difference}
     &{statistics_dict}     Save Isolation Test Data     ${TEST NAME}  ${result_list}
     Log                    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
-    Plot stats log
     Determine Test Status  ${statistics_dict}  inverted=1
 
     [Teardown]             Teardown of Fileio Read Isolation Test   ${reference-vm}   ${attacker-vm}   ${test_dir}
