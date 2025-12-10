@@ -4,6 +4,7 @@
 *** Settings ***
 Library             ../lib/output_parser.py
 Library             Collections
+Library             OperatingSystem
 
 
 *** Keywords ***
@@ -232,3 +233,21 @@ Restart VM
     ${state}  ${substate}   Verify service status  service=microvm@${vm}.service  expected_state=active  expected_substate=running
     Log                     ${vm} is ${substate}    console=True
     Check if ssh is ready on vm   ${vm}
+
+Check VM Log on Grafana
+    [Documentation]  Check that specific log entry (log line contains) from a VM is available in Grafana
+    [Arguments]      ${id}   ${vm}  ${since}=10  ${expected}=nofail  ${log_entry}=${EMPTY}
+    Set Log Level  NONE
+    IF  $log_entry == '${EMPTY}'
+        ${out}    Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --since="${since}m" --limit=10 '{machine="${id}", host="${vm}"}' | grep -v ${GRAFANA_LOGS}
+    ELSE
+        ${out}    Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --since="${since}m" --limit=0 '{machine="${id}", host="${vm}"}' | grep ${log_entry}
+    END
+    Set Log Level  INFO
+    Log            ${out}
+    ${lines}       Count lines    ${out}
+    ${status}      Run Keyword And Return Status   Should Be True   ${lines} > 0   ${vm} query does not contain logs
+    IF  $expected != 'nofail' and $expected != $status
+        FAIL
+    END
+    RETURN         ${status}
