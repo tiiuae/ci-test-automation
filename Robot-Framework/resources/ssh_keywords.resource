@@ -11,6 +11,10 @@ Library             String
 Resource            ../config/variables.robot
 Resource            ../resources/common_keywords.resource
 
+*** Variables ***
+
+${NETVM_NAME}       ${EMPTY}
+
 
 *** Keywords ***
 
@@ -163,7 +167,7 @@ Connect
 Connect to VM
     [Documentation]      Connect to any VM or ghaf-host over internal virtual network
     [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=60
-    Switch to vm   ${NET_VM}
+    Switch to vm         ${NET_VM}
     Log                  Connecting to ${vm_name} as ${user}...   console=True
     Check if ssh is ready on vm        ${vm_name}   ${timeout}
     ${failed_connection}  Set Variable  True
@@ -209,6 +213,11 @@ Save log
 
 Check if ssh is ready on vm
     [Arguments]    ${vm}  ${timeout}=40
+    IF  $vm=='${NETVM_NAME}'
+        Log To Console   WARNING: Use of net-vm hostname in ssh keywords is not recommended.
+        Log To Console   Skipping the keyword 'Check if ssh is ready on vm'
+        RETURN
+    END
     ${start_time}                   Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
         ${status}  ${output}    Run Keyword And Ignore Error   Execute Command    timeout 4 nc -zvw3 ${vm} 22    return_rc=True   timeout=5
@@ -290,7 +299,11 @@ Try to switch to active vm connection
 
     ${status}   ${output_host}    Run Keyword And Ignore Error   Execute Command    hostname
     Log    ${output_host}
-    ${host_status}    Run Keyword And Return Status    Should Be Equal    ${output_host}    ${hostname}
+    IF  $hostname=='${NET_VM}' or $hostname=='${NETVM_NAME}'
+        ${host_status}    Run Keyword And Return Status    Should Be Equal    ${output_host}    ${NETVM_NAME}
+    ELSE
+        ${host_status}    Run Keyword And Return Status    Should Be Equal    ${output_host}    ${hostname}
+    END
 
     IF   $connection_status=='FAIL' or not ${user_status} or not ${host_status}
         RETURN   False

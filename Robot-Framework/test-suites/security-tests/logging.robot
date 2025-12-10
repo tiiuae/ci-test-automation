@@ -6,6 +6,8 @@ Documentation       Check security in logs
 Force Tags          security  regression  logging  darter-pro
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
+Resource            ../../resources/common_keywords.resource
+Resource            ../../resources/device_control.resource
 Library             DateTime
 
 Suite Setup         Setup logs
@@ -29,6 +31,34 @@ User password is not revealed in Grafana
     ${found}  ${logs}    Get logs by key words   ${USER_PASSWORD}
     Should Not Be True   ${found}
     [Teardown]           Teardown Logs    ${data_available}
+
+Check Grafana log forwarding after disconnected state
+    [Documentation]  Check that logs are sent to Grafana from time of disconnection during previous boot
+    [Tags]           SP-T283
+    Switch to vm     ${ADMIN_VM}
+    ${id}            Execute Command  cat /etc/common/device-id
+    Log To Console   Creating log entry and verifying forwarding to grafana
+    Execute Command  logger --priority=user.info "logtest0_${BUILD_ID}"    sudo=True  sudo_password=${PASSWORD}
+    Wait Until Keyword Succeeds  60s  5s  Check VM Log on Grafana  ${id}  ${ADMIN_VM}  2  ${True}  logtest0_${BUILD_ID}
+    Log To Console   Initial check for log forwarding passed
+
+    Log To Console   Blocking log forwarding from admin-vm
+    ${rule}          Set Variable   OUTPUT -p tcp --dport 443 -m owner --uid-owner "$(systemctl show alloy -p UID --value)" -j REJECT
+    Execute Command  iptables -I ${rule}    sudo=True  sudo_password=${PASSWORD}
+    Sleep            3
+    Log To Console   Creating log entry and waiting 50 sec      no_newline=true
+    Execute Command  logger --priority=user.info "logtest1_${BUILD_ID}"    sudo=True  sudo_password=${PASSWORD}
+    FOR   ${i}   IN RANGE   50
+        Log To Console   .  no_newline=true
+        Sleep            1
+    END
+
+    Check VM Log on Grafana      ${id}   ${ADMIN_VM}   2   ${False}   logtest1_${BUILD_ID}
+    Log To Console               Verified that iptables rule is blocking log forwarding
+    Soft Reboot Device
+    Verify Reboot and Connect
+    Wait Until Keyword Succeeds  60s  5s  Check VM Log on Grafana     ${id}   ${ADMIN_VM}   5   ${True}   logtest1_${BUILD_ID}
+    Log To Console               Checked that log is forwarded after clearing the iptables rule by reboot
 
 
 *** Keywords ***
