@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                              | TICKET / Additional Data.                                                                       |
 | ---------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| 11.12.2025 | GUI Shutdown                                           | SSRCSP-7512                                                                                     |
 | 18.11.2025 | Check Grafana logs (any logs from the last 10 minutes) | SSRCSP-7612                                                                                     |
 | 07.11.2025 | Measure time to launch COSMIC Settings                 | SSRCSP-7518                                                                                     |
 | 06.11.2025 | Check Grafana logs (net-vm)                            | SSRCSP-7542                                                                                     |
@@ -22,7 +23,7 @@
 ## TAGs removed
 
 | DATE SET   | TEST CASE                                         | TICKET / Additional Data.                                                                         |
-|------------|---------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| ---------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | 4.12.2025  | Start Falcon AI and verify process started (Dell) | Test stucks with circle running on screen. Not relevant case for this HW target.                  |
 | 3.12.2025  | Verify timezone persisted                         | Uses the timezone that is the default in Ghaf now. Needs to be rewritten to use another timezone. |
 | 28.10.2025 | Verify brightness persisted                       | Works locally but not in the lab. Needs further investigation.                                    |
