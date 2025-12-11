@@ -33,9 +33,8 @@ nvpmodel check test
     [Documentation]     If power mode changed it would probably have an effect on performance test results.
     ...                 Ensure that the power mode level is as expected (3) on Orin AGX/NX targets. Do not apply to
     ...                 other targets.
+    ...                 This test does not apply to other than Orin AGX/NX targets.
     [Tags]              nvpmodel  SP-T175  orin-agx  orin-agx-64  orin-nx
-    [Setup]             Skip If   not ("Orin" in "${DEVICE}")
-    ...                 Skipped because this test does not apply to other than Orin AGX/NX targets.
     ${ExpectedNVPmode}  Set Variable  3
     ${output}           Execute Command     nvpmodel-check ${ExpectedNVPmode}
     IF  not ("Power mode check ok: ${ExpectedNVPmode}" in $output)
@@ -143,7 +142,7 @@ FileIO test
 
     # In case of Lenovo-X1 run the test in /persist which has more disk space
     # Results are saved to /tmp
-    IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
+    IF  ${IS_LAPTOP}
         Log To Console        Preparing for fileio test
         Execute Command       cp /tmp/fileio_test /persist  sudo=True  sudo_password=${PASSWORD}
         Elevate to superuser
@@ -492,7 +491,7 @@ Teardown of Fileio Isolation Test
     Switch to vm   ${HOST}
 
 Performance Teardown
-    IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
+    IF  ${IS_LAPTOP}
         Log out from laptop
     END
     Close All Connections

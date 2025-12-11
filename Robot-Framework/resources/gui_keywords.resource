@@ -77,7 +77,7 @@ Log in via GUI
     Run ydotool command   mousemove --absolute -x 50 -y 50   sudo=True
     Run ydotool command   click 0xC0  sudo=True
 
-    IF  "Dell" in "${DEVICE}"    Sleep  5
+    IF  "${DEVICE_TYPE}" == "dell-7330"    Sleep  5
     Type string and press enter  ${USER_PASSWORD}  confidential=True   sudo=True
 
 Log out via GUI
@@ -90,7 +90,7 @@ Log out via GUI
     END
     Log To Console    Logging out by pressing Super+Shift+Escape 
     Press Key(s)      LEFTMETA+LEFTSHIFT+ESC
-    IF  "Dell" in "${DEVICE}"    Sleep  3
+    IF  "${DEVICE_TYPE}" == "dell-7330"    Sleep  3
     Tab and enter     tabs=2
 
 Type string and press enter
@@ -177,7 +177,7 @@ Allow first screenshot
     # If taking a screenshot did not work select "Allow" in the permission window.
     IF    not ${screenshot_passed}
         Sleep  5
-        IF  "Dell" in "${DEVICE}"    Sleep  10
+        IF  "${DEVICE_TYPE}" == "dell-7330"    Sleep  10
         # Click the permission window to make sure it is active
         Run ydotool command   mousemove --absolute -x 500 -y 200
         Run ydotool command   click 0xC0
@@ -185,7 +185,7 @@ Allow first screenshot
         Tab and enter   tabs=2
     END
     # For a Dell bug, try the same again
-    IF  "Dell" in "${DEVICE}"
+    IF  "${DEVICE_TYPE}" == "dell-7330"
         # Launch a background process that tries to take a screenshot.
         Execute Command    nohup sh -c 'cosmic-screenshot --interactive=false --save-dir ./test-images' > screenshot.log 2>&1 &
         Sleep   2
@@ -195,7 +195,7 @@ Allow first screenshot
         IF    not ${screenshot_passed}
             Log To Console    BUG with screenshot tool, allowing screenshot again
             Sleep  5
-            IF  "Dell" in "${DEVICE}"    Sleep  10
+            IF  "${DEVICE_TYPE}" == "dell-7330"    Sleep  10
             # Click the permission window to make sure it is active
             Run ydotool command   mousemove --absolute -x 500 -y 200
             Run ydotool command   click 0xC0
@@ -229,7 +229,7 @@ Verify desktop availability
     END
 
     IF  $activity != "active"    FAIL    User-session did not activate, it is ${activity}
-    IF  "Dell" in "${DEVICE}"    Sleep   10
+    IF  "${DEVICE_TYPE}" == "dell-7330"    Sleep   10
 
     # For debugging, check gui-vm systemctl status before trying to take a cosmic-screenshot in case it gets stuck
     Run Keyword And Ignore Error   Verify Systemctl status   range=1

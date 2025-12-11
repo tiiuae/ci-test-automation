@@ -15,7 +15,7 @@ Prepare Test Environment
     Switch to vm    ${HOST}
     Log versions
 
-    IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
+    IF  ${IS_LAPTOP}
         Switch to vm    ${GUI_VM}
         Create test user
         IF  ${login}
@@ -28,11 +28,11 @@ Clean Up Test Environment
     [Timeout]     5 minutes
     [Arguments]   ${disable_dnd}=False
     # Temporarily taking journal log taking our from Orin-NX [SSRCSP-7453]
-    IF  "NX" not in "${DEVICE}"
+    IF  "${DEVICE_TYPE}" != "orin-nx"
         Switch to vm   ${HOST}
         Save host journalctl
     END
-    IF  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"
+    IF  ${IS_LAPTOP}
         Log out from laptop
     END
     Close All Connections
