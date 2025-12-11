@@ -31,7 +31,7 @@ Check Camera Application
         Log  ${out}
         IF  '${vm}' == '${BUSINESS_VM}'  Should Contain  ${out}  /dev/video  ELSE  Should Not Contain  ${out}  /dev/video
     END
-    [Teardown]  Run Keyword If   "Dell" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6450"
+    [Teardown]  Run Keyword If   "${DEVICE_TYPE}" == "dell-7330"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6450"
 
 Record Video With Camera
     [Documentation]  Start Camera application and record short video
@@ -58,4 +58,4 @@ Record Video With Camera
         Verify Video File  ${id}
     END
 
-    [Teardown]    Run Keyword If  "Dell" in "${DEVICE}"   Run Keyword If Test Failed   SKIP   "Known issue: SSRCSP-6694"
+    [Teardown]    Run Keyword If  "${DEVICE_TYPE}" == "dell-7330"   Run Keyword If Test Failed   SKIP   "Known issue: SSRCSP-6694"

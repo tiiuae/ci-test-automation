@@ -122,7 +122,7 @@ Measure UDP Bidir Throughput Small Packets
     ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
     Determine Test Status   ${statistics}
 
-    [Teardown]  Run Keyword If   "Dell" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6774"
+    [Teardown]  Run Keyword If   "${DEVICE_TYPE}" == "dell-7330"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6774"
 
 Measure UDP Throughput Big Packets
     [Documentation]  Start server on DUT. Send data from agent PC in reverse mode to get tx speed

@@ -23,7 +23,7 @@ Verify service status
     ${vmservice}      Run Keyword And Return Status  Should Contain  ${service}  microvm@
     ${finished}       Set Variable  False
 
-    ${welcome_check}  Set Variable If  "Lenovo" in "${DEVICE}" or "Darter" in "${DEVICE}" or "Dell" in "${DEVICE}"    False    True
+    ${welcome_check}  Set Variable If  ${IS_LAPTOP}    False    True
 
     FOR    ${i}    IN RANGE    ${range}
         ${output}  ${stderr}  ${rc}=   Execute Command  systemctl show ${service}  return_stderr=True  return_rc=True

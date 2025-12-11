@@ -623,7 +623,7 @@ class PerformanceDataProcessing:
         if "write" in test_name:
             threshold = thresholds['fileio']['wr']
         else:
-            if "Lenovo" in self.device:
+            if "X1" in self.device:
                 threshold = thresholds['fileio']['rd_lenovo-x1']
             else:
                 threshold = thresholds['fileio']['rd']
