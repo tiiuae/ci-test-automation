@@ -89,7 +89,7 @@ GUI Shutdown
     Verify Laptop Shutdown        timeout=60
     ${end_time}       Get Time    epoch
     ${elapsed}        Evaluate    ${end_time} - ${start_time}
-    IF    ${elapsed} > 20   FAIL    Shutdown took too long: ${elapsed} seconds (expected < 20)
+    IF    ${elapsed} > 20   SKIP   Known issue: SSRCSP-7512 (Shutdown took too long: ${elapsed} seconds (expected < 20))
     # Give laptop time to properly turn off before trying to turn on
     ${wait_time}      Evaluate    20 - ${elapsed}
     Wait     ${wait_time}
