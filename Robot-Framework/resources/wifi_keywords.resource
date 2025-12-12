@@ -60,9 +60,9 @@ Get wifi IP
 Verify nmcli device status
     [Documentation]    Check state of the interface in the output of `nmcli device status`
     ...                and compare with expected: connected | disconnected | absent
-    [Arguments]        ${if_name}    ${expected}
+    [Arguments]        ${if_name}    ${expected}    ${range}=20
     Switch to vm  ${NET_VM}
-    FOR    ${i}    IN RANGE    20
+    FOR    ${i}    IN RANGE    ${range}
         ${output}          Execute Command      nmcli device status
         Log     ${output}
 

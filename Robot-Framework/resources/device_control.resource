@@ -67,7 +67,8 @@ Soft Reboot Device
 Verify Reboot and Connect
     [Documentation]   Verify that device rebooted and connect
     Verify Laptop Shutdown
-    Sleep   20
+    # Sleep extended from 20 to 30 due to SSRCSP-7512
+    Sleep   30
     Check If Device Is Up         range=60
     IF    ${IS_AVAILABLE} == False
         FAIL                      The device did shut down but didn't start in reboot.

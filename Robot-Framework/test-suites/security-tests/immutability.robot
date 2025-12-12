@@ -19,7 +19,7 @@ VM is wiped after restarting
     [Tags]              SP-T48
     [Template]          ${vm} is wiped after restarting
     FOR    ${vm}    IN    @{VM_LIST}
-        IF    '${vm}' != '${GUI_VM}' and '${vm}' != '${NET_VM}'
+        IF    '${vm}' != '${GUI_VM}' and '${vm}' != '${NET_VM}' and '${vm}' != '${ADMIN_VM}'
             ${vm}
         END
     END

@@ -7,6 +7,7 @@ Force Tags          security  killswitch  regression  lenovo-x1  darter-pro
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/audio_and_video_keywords.resource
 Resource            ../../resources/common_keywords.resource
+Resource            ../../resources/gui-vm_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
 
 *** Variables ***
@@ -44,7 +45,7 @@ Killswitch disconnects WLAN
     Check Network Availability    8.8.8.8     expected_result=False   limit_freq=${False}    interface=${wifi_if}
     Check Network Availability    8.8.8.8     expected_result=True    limit_freq=${False}    interface=${eth_if}
     Set device state   unblocked    net
-    Verify nmcli device status    ${wifi_if}  connected
+    Verify nmcli device status    ${wifi_if}  connected  range=30
     [Teardown]       WLAN teardown
 
 

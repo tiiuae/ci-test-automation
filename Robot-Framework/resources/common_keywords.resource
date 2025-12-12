@@ -189,30 +189,31 @@ Search nix store
     END
 
 Set device state
-    [Documentation]   Change device (cam, mic, net) state to ${expected_state} (blocked, unblocked)
+    [Documentation]   Change device (cam, mic, net, bluetooth) state to ${expected_state} (blocked, unblocked)
     [Arguments]       ${expected_state}     ${device}
     [Setup]           Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
     Should Be True   '${expected_state}' in ['blocked', 'unblocked']   Wrong state
     ${device_state}      Get device state   ${device}
     ${status}         Run Keyword And Return Status   Should Be Equal   ${device_state}   ${expected_state}
     IF    ${status}
-        Log To Console   Device ${device} state is already ${expected_state}
+        Log To Console   ${device} is already ${expected_state}
+        RETURN
+    END
+    IF   '${expected_state}' == 'blocked'
+        ${state_to_set}   Set Variable   block
     ELSE
-        IF   '${expected_state}' == 'blocked'
-            ${state_to_set}   Set Variable   block
-        ELSE
-            ${state_to_set}   Set Variable   unblock
-        END
-        ${output}        Execute Command   ghaf-killswitch ${state_to_set} ${device}
-        Log  ${output}
-        ${device_state}   Get device state    ${device}
-        Should Be Equal   ${device_state}   ${expected_state}
+        ${state_to_set}   Set Variable   unblock
+    END
+    ${output}        Execute Command   ghaf-killswitch ${state_to_set} ${device}
+    Log  ${output}
+    ${device_state}   Get device state    ${device}
+    Should Be Equal   ${device_state}   ${expected_state}
+    Log To Console    ${device} is ${device_state}
 
-        # Workaround for a known issue: SSRCSP-7727 (blocking microphone breaks audio)
-        IF   '${device}' == 'mic' and '${expected_state}' == 'unblocked'
-            Log To Console   Restarting audio-vm to make sure that audio works in later tests
-            Restart VM   ${AUDIO_VM}
-        END
+    # Workaround for a known issue: SSRCSP-7727 (blocking microphone breaks audio)
+    IF   '${device}' == 'mic' and '${expected_state}' == 'unblocked'
+        Log To Console   Restarting audio-vm to make sure that audio works in later tests
+        Restart VM   ${AUDIO_VM}
     END
 
 Get device state

@@ -43,7 +43,7 @@ Wifi passthrough into NetVM (Orin-AGX)
 
 Wifi passthrough into NetVM
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              SP-T101  orin-agx  orin-agx-64  lenovo-x1  darter-pro  dell-7330
+    [Tags]              SP-T101  orin-agx  orin-agx-64  lenovo-x1  darter-pro  dell-7330  lab-only
     [Setup]             Switch to vm   ${NET_VM}
     Configure wifi      ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
