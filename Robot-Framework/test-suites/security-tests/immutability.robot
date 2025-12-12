@@ -45,16 +45,6 @@ ${vm} is wiped after restarting
     Check file doesn't exist    /etc/test.txt    sudo=True
     [Teardown]  Run Keyword If  "${KEYWORD STATUS}" == 'FAIL'   Start VM   ${vm}
 
-Restart VM
-    [Documentation]         Try to restart VM service and verify it started
-    ...                     Pre-condition: requires active ssh connection to ghaf host.
-    [Arguments]             ${vm}
-    Log                     Going to start ${vm}    console=True
-    Execute Command         systemctl restart microvm@${vm}.service  sudo=True  sudo_password=${PASSWORD}  timeout=120
-    ${state}  ${substate}   Verify service status  service=microvm@${vm}.service  expected_state=active  expected_substate=running
-    Log                     ${vm} is ${substate}    console=True
-    Check if ssh is ready on vm   ${vm}
-
 Start VM
     [Documentation]         Try to start VM and verify it started
     [Arguments]             ${vm}
