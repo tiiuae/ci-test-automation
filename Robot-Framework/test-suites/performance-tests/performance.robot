@@ -137,7 +137,7 @@ FileIO test
     ...                 Create visual plots to represent these metrics comparing to previous tests.
     ...                 KNOWN ISSUES:
     ...                 Tag removed 'nuc': SSRCSP-6126
-    [Tags]              fileio  SP-T61-7  orin-agx  orin-nx  lenovo-x1  darter-pro  dell-7330
+    [Tags]              fileio  SP-T61-7  lenovo-x1  darter-pro  dell-7330   #SSRCSP-7730: orin-agx  orin-nx
 
     Transfer Shell Script To DUT    performance-tests   fileio_test   /tmp
 
