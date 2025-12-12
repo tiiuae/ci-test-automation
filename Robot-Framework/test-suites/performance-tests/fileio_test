@@ -32,10 +32,11 @@ if [ $((FILE_TOTAL_SIZE_kB + FILE_TOTAL_SIZE_kB / 10)) -gt $AVAILABLE_DISK_SPACE
 fi
 
 # Execute sysbench fileio tests if the checks passed
-sysbench fileio --file-total-size=${FILE_TOTAL_SIZE_kB}K --threads=${THREADS} --file-extra-flags=direct --file-test-mode=seqrd prepare
-sysbench fileio --file-total-size=${FILE_TOTAL_SIZE_kB}K --threads=${THREADS} --file-extra-flags=direct --file-test-mode=seqrd --time=30 run | tee $RESULT_DIR/fileio_rd_report
+#--report-interval=10
+sysbench fileio --file-total-size=${FILE_TOTAL_SIZE_kB}K --threads=${THREADS} --report-interval=15 --file-extra-flags=direct --file-test-mode=seqrd prepare
+sysbench fileio --file-total-size=${FILE_TOTAL_SIZE_kB}K --threads=${THREADS} --report-interval=15 --file-extra-flags=direct --file-test-mode=seqrd --time=30 run | tee $RESULT_DIR/fileio_rd_report
 sysbench fileio cleanup
-sysbench fileio --file-total-size=${FILE_TOTAL_SIZE_kB}K --threads=${THREADS} --file-extra-flags=direct --file-test-mode=seqwr --time=30 run | tee $RESULT_DIR/fileio_wr_report
+sysbench fileio --file-total-size=${FILE_TOTAL_SIZE_kB}K --threads=${THREADS} --report-interval=15 --file-extra-flags=direct --file-test-mode=seqwr --time=30 run | tee $RESULT_DIR/fileio_wr_report
 sysbench fileio cleanup
 
 echo -e "\nTest finished.\n"

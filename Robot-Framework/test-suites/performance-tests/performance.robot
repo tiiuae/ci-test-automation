@@ -21,7 +21,6 @@ Suite Setup         Run Keywords    Prepare Test Environment
 ...                 AND             Switch to vm   ${HOST}
 Suite Teardown      Performance Teardown
 
-
 *** Variables ***
 @{FAILED_VM_TESTS}
 @{IMPROVED_VM_TESTS}
@@ -136,7 +135,7 @@ FileIO test
     ...                 Create visual plots to represent these metrics comparing to previous tests.
     ...                 KNOWN ISSUES:
     ...                 Tag removed 'nuc': SSRCSP-6126
-    [Tags]              fileio  SP-T61-7  lenovo-x1  darter-pro  dell-7330   #SSRCSP-7730: orin-agx  orin-nx
+    [Tags]              fileio  SP-T61-7  orin-agx  orin-nx  lenovo-x1  darter-pro  dell-7330
 
     Transfer Shell Script To DUT    performance-tests   fileio_test   /tmp
 
@@ -154,10 +153,22 @@ FileIO test
         Set Client Configuration	  timeout=30
         Log                  ${out}
     ELSE
-        Execute Command      /tmp/fileio_test ${threads_number}  sudo=True  sudo_password=${PASSWORD}
+        FOR  ${try}  IN RANGE  1
+        ${result}      Execute Command      /tmp/fileio_test ${threads_number}  sudo=True  sudo_password=${PASSWORD}
+        Log            ${result}      console=True
+             IF  "FATAL: Failed to" in $result
+                 Log to console  run again!!
+                 Remove File  $RESULT_DIR/fileio_rd_report  sudo=True
+             ELSE
+                  Log to console  Result got!!
+                  Exit For Loop
+             END
+        END
     END
 
     ${test_info}  Execute Command    cat /tmp/sysbench_results/test_info
+    Log                 ${test_info}
+
     IF  "Insufficient disk space" in $test_info
         FAIL            Insufficient disk space for fileio test.
     END
@@ -165,6 +176,9 @@ FileIO test
     Log To Console       Parsing the test results
     ${fileio_rd_output}  Execute Command    cat /tmp/sysbench_results/fileio_rd_report
     Log                  ${fileio_rd_output}
+    #IF  "FATAL: Failed to" in $fileio_rd_output
+    #    IF  "Orin" in "${DEVICE}"   Skip   "Failure seen in 'fileio_rd_report'. Known issue: SSRCSP-7730"
+    #END
     &{fileio_rd_data}    Parse FileIO Read Results   ${fileio_rd_output}
     &{statistics_rd}     Save FileIO Data       ${TEST NAME}_read  ${fileio_rd_data}
 
