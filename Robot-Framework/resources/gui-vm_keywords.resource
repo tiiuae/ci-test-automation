@@ -4,6 +4,7 @@
 *** Settings ***
 
 Library             ../lib/output_parser.py
+Library             ../lib/TimeLibrary.py
 Resource            ../resources/common_keywords.resource
 Resource            ../resources/ssh_keywords.resource
 
@@ -34,25 +35,37 @@ Set brightness
 Get timezone
     [Documentation]   Get and return current timezone
     [Setup]       Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
-    ${output}     Execute Command    timedatectl -a
-    Log           ${output}
+    ${output}  ${err}  ${rc}   Execute Command    file /etc/localtime   return_stderr=True  return_rc=True
+    Log    ${output}
+    Should Be Equal As Integers   ${rc}   0   ${err}
     ${timezone}   Extract timezone   ${output}
-    RETURN        ${timezone}
+    IF    '${timezone}' == 'None'
+        # If timezone has not yet been set it is UTC by default
+        RETURN   UTC
+    ELSE
+        RETURN   ${timezone}
+    END
 
 Set timezone
     [Documentation]   Set timezone to ${timezone_to_set}
     [Arguments]       ${timezone_to_set}
-    [Setup]           Switch to vm    ${GUI_VM}
-    Execute Command   timedatectl set-timezone ${timezone_to_set}  sudo=True  sudo_password=${PASSWORD}
     ${timezone}       Get timezone
-    Log To Console    Timezone is ${timezone_to_set}
+    IF   '${timezone_to_set}' == '${timezone}'   RETURN
+    Switch to vm    ${GUI_VM}
+    ${output}  ${err}  ${rc}   Execute Command   givc-cli set-timezone ${timezone_to_set}  return_stderr=True  return_rc=True
+    Log    ${output}, ${err}
+    Should Be Equal As Integers   ${rc}   0   ${err}
+    Sleep   3
+    ${timezone}       Get timezone
+    Log               Timezone is ${timezone}  console=True
     Should Be Equal   ${timezone_to_set}    ${timezone}
 
 Get volume level
     [Documentation]   Get and return current volume value
     [Setup]           Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
     ${pamixer}        Search nix store   pamixer
-    ${volume}         Execute Command    ${pamixer}/bin/pamixer --get-volume
+    ${volume}  ${err}  ${rc}    Execute Command    ${pamixer}/bin/pamixer --get-volume  return_stderr=True  return_rc=True
+    Should Be Equal As Integers   ${rc}   0   ${err}
     RETURN            ${volume}
 
 Get mute status
@@ -67,9 +80,11 @@ Set volume
     [Arguments]       ${volume_to_set}
     [Setup]           Switch to vm    ${GUI_VM}
     ${path}           Search nix store   pamixer
-    ${output}         Execute Command    ${path}/bin/pamixer --set-volume ${volume_to_set}  sudo=True  sudo_password=${PASSWORD}
-    ${volume}         Execute Command    ${path}/bin/pamixer --get-volume
-    Log To Console    Volume is ${volume}
+    ${output}  ${err}  ${rc}    Execute Command    ${path}/bin/pamixer --set-volume ${volume_to_set}  return_stderr=True  return_rc=True  sudo=True  sudo_password=${PASSWORD}
+    Should Be Equal As Integers  ${rc}   0   ${err}
+    ${volume}  ${err}  ${rc}    Execute Command    ${path}/bin/pamixer --get-volume  return_stderr=True  return_rc=True
+    Should Be Equal As Integers  ${rc}   0   ${err}
+    Log                Volume is ${volume}   console=True
     Should Be Equal   ${volume_to_set}    ${volume}
 
 Check the screen state

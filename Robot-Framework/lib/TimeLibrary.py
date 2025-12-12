@@ -64,7 +64,7 @@ def convert_to_utc(time_string):
 
 
 def extract_timezone(output):
-    time_zone_pattern = r"Time zone:\s+([^\s]+)"
+    time_zone_pattern = r"zoneinfo/+(.+)"
     time_zone_match = re.search(time_zone_pattern, output)
     time_zone = time_zone_match.group(1) if time_zone_match else None
     return time_zone

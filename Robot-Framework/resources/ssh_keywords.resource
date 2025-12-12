@@ -267,10 +267,7 @@ Switch to vm
         ${connection_index}     Set Variable    ${${ssh_connection}}
         ${status}   Try to switch to active vm connection   ${connection_index}   ${hostname}   ${user}
 
-        IF   ${status}
-            Log    Switched to ${hostname} as ${user}   console=True
-            RETURN
-        END
+        IF   ${status}   RETURN
     END
     IF  '${hostname}' == '${NET_VM}'
         ${connection_index}      Connect
@@ -295,6 +292,7 @@ Try to switch to active vm connection
     IF   $connection_status=='FAIL' or not ${user_status} or not ${host_status}
         RETURN   False
     ELSE
+        IF  '${previous_connection}' != '${ssh_index}'   Log    Switched to ${hostname} as ${user}   console=True
         RETURN   True
     END
 
