@@ -23,7 +23,8 @@
 ## TAGs removed
 
 | DATE SET   | TEST CASE                                         | TICKET / Additional Data.                                                                         |
-| ---------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+|------------|---------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| 12.12.2025 | FileIO test (Orin-NX/AGX)                         | File IO test is not working on Orin-NX/AGX after refactoring it. (SSRCSP-7730)                    |
 | 4.12.2025  | Start Falcon AI and verify process started (Dell) | Test stucks with circle running on screen. Not relevant case for this HW target.                  |
 | 3.12.2025  | Verify timezone persisted                         | Uses the timezone that is the default in Ghaf now. Needs to be rewritten to use another timezone. |
 | 28.10.2025 | Verify brightness persisted                       | Works locally but not in the lab. Needs further investigation.                                    |
