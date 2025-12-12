@@ -207,6 +207,12 @@ Set device state
         Log  ${output}
         ${device_state}   Get device state    ${device}
         Should Be Equal   ${device_state}   ${expected_state}
+
+        # Workaround for a known issue: SSRCSP-7727 (blocking microphone breaks audio)
+        IF   '${device}' == 'mic' and '${expected_state}' == 'unblocked'
+            Log To Console   Restarting audio-vm to make sure that audio works in later tests
+            Restart VM   ${AUDIO_VM}
+        END
     END
 
 Get device state
@@ -215,3 +221,13 @@ Get device state
     ${output}       Execute Command   ghaf-killswitch status
     ${state}        Get kill switch status   ${output}   ${device}
     RETURN          ${state}
+
+Restart VM
+    [Documentation]         Try to restart VM service and verify it started
+    [Arguments]             ${vm}
+    [Setup]                 Switch to vm   ${HOST}
+    Log                     Going to start ${vm}    console=True
+    Execute Command         systemctl restart microvm@${vm}.service  sudo=True  sudo_password=${PASSWORD}  timeout=120
+    ${state}  ${substate}   Verify service status  service=microvm@${vm}.service  expected_state=active  expected_substate=running
+    Log                     ${vm} is ${substate}    console=True
+    Check if ssh is ready on vm   ${vm}
