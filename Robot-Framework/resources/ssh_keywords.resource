@@ -131,8 +131,10 @@ Connect
             ${login_output}   Get Regexp Matches   ${login_output}    ${target_output}
             Log To Console    Connected successfully to ${login_output}[0]
             Set Global Variable  ${NET-VM_GHAF_SSH}    ${connection}
-            ${netvm_name}        Get Regexp Matches    ${login_output}[0]    ghaf-\\d{10}
-            Set Global Variable  ${NETVM_NAME}         ${netvm_name}[0]
+            IF  '${target_output}' == 'None'
+                ${netvm_name}        Get Regexp Matches    ${login_output}[0]    ghaf-\\d{10}
+                Set Global Variable  ${NETVM_NAME}         ${netvm_name}[0]
+            END
             RETURN  ${connection}
         ELSE
             # If connection was opened to a wrong VM collect logs to find out why
