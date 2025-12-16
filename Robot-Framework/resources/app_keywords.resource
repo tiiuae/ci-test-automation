@@ -158,7 +158,7 @@ Close app via GUI
     Check that the application was started    ${process_name}
     Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
     Log To Console     Clicking the close button of the application window
-    Locate and click   image  ${close_button}  0.8  iterations=15
+    Locate and click   image  ${close_button}  0.7  iterations=15
     Save Time          ${process_name}_launched    ${LAST_SCREENSHOT_TIME}
     IF  $verify_is_killed=='true'
         Switch to vm       ${app-vm}
@@ -169,7 +169,7 @@ Close app via GUI
             # So need to prepare to close another window in chrome test case.
             IF  '${status}' != 'True'
                 Switch to vm        ${GUI_VM}  user=${USER_LOGIN}
-                Locate and click    image  ${close_button}  0.8  iterations=10
+                Locate and click    image  ${close_button}  0.7  iterations=10
                 Switch to vm        ${app-vm}
                 ${status}           Run Keyword And Return Status  Check that the application is not running  ${process_name}  5
             END
