@@ -105,7 +105,7 @@ Run installer
     Press Button      ${SWITCH_BOT}-ON
     Check If Device Is Up
     Run Keyword If    ${IS_AVAILABLE} == False   FAIL    The device did not start
-    Connect           target_output=@ghaf-installer
+    Connect           target=@ghaf-installer
     Run ghaf-installer
 
 Wipe installed Ghaf from internal memory
@@ -115,7 +115,7 @@ Wipe installed Ghaf from internal memory
     Press Button      ${SWITCH_BOT}-ON
     Check If Device Is Up   range=60
     Run Keyword If    ${IS_AVAILABLE} == False   FAIL    The device did not start
-    Connect           target_output=@ghaf-installer
+    Connect           target=@ghaf-installer
 
     ${status}         Wipe system with ghaf-installer    ${device}
     IF  '${status}' != 'True'
