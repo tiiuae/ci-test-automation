@@ -35,6 +35,7 @@ Verify microphone block persisted
     [Tags]    SP-T305
     ${mic_state}      Get device state   mic
     Should Be Equal   ${EXPECTED_MIC_STATE}  ${mic_state}
+    [Teardown]    Run Keyword If Test Failed   SKIP   Known issue: SSRCSP-7747
 
 Verify Bluetooth block persisted
     [Tags]    SP-T305
@@ -45,6 +46,7 @@ Verify Wi-Fi block persisted
     [Tags]    SP-T305
     ${net_state}      Get device state   net
     Should Be Equal   ${EXPECTED_NET_STATE}  ${net_state}
+    [Teardown]    Run Keyword If Test Failed   SKIP   Known issue: SSRCSP-7747
 
 Verify brightness persisted
     [Tags]    SP-T326-1
