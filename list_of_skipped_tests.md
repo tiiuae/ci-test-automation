@@ -4,6 +4,8 @@
 
 | DATE SET   | TEST CASE                                              | TICKET / Additional Data.                                                                       |
 | ---------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| 16.12.2025 | Verify microphone block persisted                      | SSRCSP-7747                                                                                     |
+| 16.12.2025 | Verify Wi-Fi block persisted                           | SSRCSP-7747                                                                                     |
 | 11.12.2025 | GUI Shutdown                                           | SSRCSP-7512                                                                                     |
 | 18.11.2025 | Check Grafana logs (any logs from the last 10 minutes) | SSRCSP-7612                                                                                     |
 | 07.11.2025 | Measure time to launch COSMIC Settings                 | SSRCSP-7518                                                                                     |
