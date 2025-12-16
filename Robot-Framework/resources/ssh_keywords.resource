@@ -112,13 +112,14 @@ Login with timeout
 
 Connect
     [Documentation]   Set up the SSH connection to the device
-    [Arguments]       ${IP}=${DEVICE_IP_ADDRESS}    ${PORT}=22    ${target_output}=None   ${iterations}=3
-    IF  '${target_output}' != 'None'
-        Log    Expecting ${target_output} target output  console=True
-        Log    Trying to connect to ${target_output}  console=True
-    ELSE
+    [Arguments]       ${IP}=${DEVICE_IP_ADDRESS}    ${PORT}=22    ${target}=net-vm   ${iterations}=3
+    IF  '${target}' == 'net-vm'
         ${target_output}  Set Variable  ghaf@ghaf-\\d{10}
         Log To Console    Trying to connect to net-vm
+    ELSE
+        ${target_output}  Set Variable  ${target}
+        Log    Expecting ${target_output} target output  console=True
+        Log    Trying to connect to ${target_output}  console=True
     END
     # Iterations are necessary at boot for those targets which should expose net-vm to ethernet interface.
     # Ghaf-host is accessible on these targets for a short period of time at boot.
@@ -130,9 +131,11 @@ Connect
         IF    ${pass_status}
             ${login_output}   Get Regexp Matches   ${login_output}    ${target_output}
             Log To Console    Connected successfully to ${login_output}[0]
-            Set Global Variable  ${NET-VM_GHAF_SSH}    ${connection}
-            ${netvm_name}        Get Regexp Matches    ${login_output}[0]    ghaf-\\d{10}
-            Set Global Variable  ${NETVM_NAME}         ${netvm_name}[0]
+            IF  '${target}' == 'net-vm'
+                Set Global Variable  ${NET-VM_GHAF_SSH}    ${connection}
+                ${netvm_name}        Get Regexp Matches    ${login_output}[0]    ghaf-\\d{10}
+                Set Global Variable  ${NETVM_NAME}         ${netvm_name}[0]
+            END
             RETURN  ${connection}
         ELSE
             # If connection was opened to a wrong VM collect logs to find out why
