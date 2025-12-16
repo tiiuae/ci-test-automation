@@ -18,12 +18,14 @@ Test ota update
     [Documentation]  Check that ota-update tooling works and new revision shows up in the bootloader list.
     ...              Do not try boot to the new revision. After test unlink the new revision.
     [Tags]           ota-update  SP-T147
+    Run Keyword If   "${DEVICE_TYPE}" == "x1-sec-boot"   Skip   Updating is not supported by signed images.
     Update with      ota-update
 
 Update via givc-cli
     [Documentation]  Check that update succeeds via givc-cli and new revision shows up in the bootloader list.
     ...              Do not try boot to the new revision. After test unlink the new revision.
     [Tags]           givc-cli-update  SP-T148
+    Run Keyword If   "${DEVICE_TYPE}" == "x1-sec-boot"   Skip   Updating is not supported by signed images.
     Update with      givc-cli
 
 
@@ -63,15 +65,17 @@ Update with
     END
 
 Update teardown
-    ${gen_at_teardown}    Get current generation
-    IF  ${gen_at_teardown}!=${gen_before}
-        Log To Console    Rolling back to original generation and removing the new generation
-        Execute Command   bootctl unlink nixos-generation-${gen_at_teardown}.conf  sudo=True  sudo_password=${PASSWORD}
-        Execute Command   nix-env -p /nix/var/nix/profiles/system --switch-generation ${gen_before}  sudo=True  sudo_password=${PASSWORD}
-        Execute Command   nix-env -p /nix/var/nix/profiles/system --delete-generations ${gen_at_teardown}  sudo=True  sudo_password=${PASSWORD}
-    ELSE
-        Log To Console    New generation not found. Skipping roll back.
+    IF   "${DEVICE_TYPE}" != "x1-sec-boot"
+        ${gen_at_teardown}    Get current generation
+        IF  ${gen_at_teardown}!=${gen_before}
+            Log To Console    Rolling back to original generation and removing the new generation
+            Execute Command   bootctl unlink nixos-generation-${gen_at_teardown}.conf  sudo=True  sudo_password=${PASSWORD}
+            Execute Command   nix-env -p /nix/var/nix/profiles/system --switch-generation ${gen_before}  sudo=True  sudo_password=${PASSWORD}
+            Execute Command   nix-env -p /nix/var/nix/profiles/system --delete-generations ${gen_at_teardown}  sudo=True  sudo_password=${PASSWORD}
+        ELSE
+            Log To Console    New generation not found. Skipping roll back.
+        END
+        Log To Console        Running garbage collect
+        Execute Command       nix-collect-garbage  sudo=True  sudo_password=${PASSWORD}
+        Close All Connections
     END
-    Log To Console        Running garbage collect
-    Execute Command       nix-collect-garbage  sudo=True  sudo_password=${PASSWORD}
-    Close All Connections
