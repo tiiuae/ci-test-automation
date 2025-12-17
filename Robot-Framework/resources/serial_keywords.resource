@@ -50,7 +50,7 @@ Check Serial Connection
     [Documentation]    Check if device is available by serial
     Log To Console     Trying to connect via serial...
     Open Serial Port
-    FOR    ${i}    IN RANGE    120
+    FOR    ${i}    IN RANGE    30
         Write Data    ${\n}
         ${output} =    SerialLibrary.Read Until
         ${status} =    Run Keyword And Return Status    Should contain    ${output}    ghaf
