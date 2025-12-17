@@ -21,8 +21,8 @@ Start application in VM
     [Documentation]    Do not use this keyword outside functional tests!
     ...                After calling for this keyword use "Kill App in VM" in the test teardown
     [Arguments]    ${app_name}   ${app-vm}   ${process_name}
-    Set Test Variable    ${APP-VM}        ${app-vm}
-    Set Test Variable    ${PROCESS_NAME}   ${process_name}
+    Set Test Variable    ${TEST_APP-VM}         ${app-vm}
+    Set Test Variable    ${TEST_PROCESS_NAME}   ${process_name}
 
     IF    '${app-vm}' not in ${RUNNING_VMS}   Check that appVM is running   ${app-vm}
     Switch to vm   ${app-vm}

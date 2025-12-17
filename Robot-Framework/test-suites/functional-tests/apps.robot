@@ -7,7 +7,7 @@ Force Tags          apps  pre-merge  bat  regression  lenovo-x1  darter-pro  del
 
 Resource            ../../resources/app_keywords.resource
 
-Test Teardown       Kill App in VM   ${APP-VM}   ${PROCESS_NAME}
+Test Teardown       Kill App in VM   ${TEST_APP-VM}   ${TEST_PROCESS_NAME}
 
 
 *** Test Cases ***
