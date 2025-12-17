@@ -42,6 +42,7 @@ Check systemctl status in every VM
     ...    gui-vm|plymouth-quit.service|SSRCSP-7306
     ...    gui-vm|setup-ghaf-user.service|SSRCSP-7234
     ...    ANY|tuned.service|SSRCSP-7717
+    ...    ANY|fail2ban.service|SSRCSP-7759
 
     FOR  ${vm}  IN  @{VM_LIST_WITH_HOST}
         Switch to vm     ${vm}
