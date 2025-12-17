@@ -56,7 +56,7 @@ Open image with Oculante
 
     Switch to vm       ${ZATHURA_VM}
     Check that the application was started    oculante    10
-    [Teardown]  Run Keywords  Remove the file in VM       ${img_file}  ${GUI_VM}    AND
+    [Teardown]  Run Keywords  Remove the file in VM       ${img_file}  ${GUI_VM}   ${USER_LOGIN}   AND
     ...                       Kill App Process And Save Logs  ${GUI_VM}    ${USER_LOGIN}    ${OUTPUT_FILE}    oculante    ${ZATHURA_VM}
 
 Open text file with Cosmic Text Editor
