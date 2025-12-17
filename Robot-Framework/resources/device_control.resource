@@ -46,6 +46,8 @@ Turn Laptop On and Connect
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False
         FAIL  The device did not start
+    ELSE IF  "${CONNECTION_TYPE}" == "serial"
+        FAIL    The device is available only via serial, but tests require SSH.
     ELSE
         Log To Console  The device started
     END
@@ -72,6 +74,8 @@ Verify Reboot and Connect
     Check If Device Is Up         range=60
     IF    ${IS_AVAILABLE} == False
         FAIL                      The device did shut down but didn't start in reboot.
+    ELSE IF  "${CONNECTION_TYPE}" == "serial"
+        FAIL    The device is available only via serial, but tests require SSH.
     ELSE
         Log To Console            Device started
     END
@@ -84,6 +88,8 @@ Wake up device
     Check If Device Is Up    range=30
     IF    ${IS_AVAILABLE} == False
         FAIL             The device did suspend but failed to wake up
+    ELSE IF  "${CONNECTION_TYPE}" == "serial"
+        FAIL    The device is available only via serial, but tests require SSH.
     ELSE
         Log To Console   Device successfully woke up after suspend
     END

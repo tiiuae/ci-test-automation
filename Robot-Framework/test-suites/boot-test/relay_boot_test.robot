@@ -58,9 +58,13 @@ Verify booting laptop
     ELSE
         Log To Console  The device started
     END
-    Sleep  30
-    Connect   iterations=10
-    Verify service status   service=init.scope
+    IF  "${CONNECTION_TYPE}" == "ssh"
+        Sleep  30
+        Connect   iterations=10
+        Verify service status   service=init.scope
+    ELSE IF  "${CONNECTION_TYPE}" == "serial"
+        Verify init.scope status via serial
+    END
     [Teardown]   Test Teardown
 
 Turn OFF Device
@@ -94,6 +98,8 @@ Turn ON Device
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False
         FAIL  The device did not start
+    ELSE IF  "${CONNECTION_TYPE}" == "serial"
+        Log    The device is available only via serial.     level=WARN
     ELSE
         Log To Console  The device started
     END
@@ -105,8 +111,14 @@ Run installer
     Press Button      ${SWITCH_BOT}-ON
     Check If Device Is Up
     Run Keyword If    ${IS_AVAILABLE} == False   FAIL    The device did not start
-    Connect           target=@ghaf-installer
-    Run ghaf-installer
+
+    IF  "${CONNECTION_TYPE}" == "ssh"
+        Connect           target=@ghaf-installer
+        Run ghaf-installer
+    ELSE IF  "${CONNECTION_TYPE}" == "serial"
+        FAIL    SSH is not available and running installer via serial is not supported by test.
+    END
+
 
 Wipe installed Ghaf from internal memory
     [Documentation]   Turn on device and wipe internal memory using ghaf-installer or dd if installer fails
@@ -115,12 +127,16 @@ Wipe installed Ghaf from internal memory
     Press Button      ${SWITCH_BOT}-ON
     Check If Device Is Up   range=60
     Run Keyword If    ${IS_AVAILABLE} == False   FAIL    The device did not start
-    Connect           target=@ghaf-installer
 
-    ${status}         Wipe system with ghaf-installer    ${device}
-    IF  '${status}' != 'True'
-        Log To Console         Wiping with ghaf-installer wasn't successful, trying wipe the system with 'dd'
-        Wipe system with dd    ${device}
+    IF  "${CONNECTION_TYPE}" == "ssh"
+        Connect           target=@ghaf-installer
+        ${status}         Wipe system with ghaf-installer    ${device}
+        IF  '${status}' != 'True'
+            Log To Console         Wiping with ghaf-installer wasn't successful, trying wipe the system with 'dd'
+            Wipe system with dd    ${device}
+        END
+    ELSE IF  "${CONNECTION_TYPE}" == "serial"
+        FAIL    SSH is not available and running installer via serial is not supported by test.
     END
 
 

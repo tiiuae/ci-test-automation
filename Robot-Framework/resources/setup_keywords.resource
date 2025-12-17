@@ -11,6 +11,12 @@ Resource            ../resources/ssh_keywords.resource
 
 Prepare Test Environment
     [Arguments]   ${login}=True   ${enable_dnd}=False
+    Check If Device Is Up    range=5
+    IF    ${IS_AVAILABLE} == False
+        FAIL    The device is not available via SSH or serial.
+    ELSE IF  "${CONNECTION_TYPE}" == "serial"
+        FAIL    The device is available only via serial, but tests require SSH.
+    END
     Close All Connections
     Switch to vm    ${HOST}
     Log versions
@@ -27,13 +33,15 @@ Prepare Test Environment
 Clean Up Test Environment
     [Timeout]     5 minutes
     [Arguments]   ${disable_dnd}=False
-    # Temporarily taking journal log taking our from Orin-NX [SSRCSP-7453]
-    IF  "${DEVICE_TYPE}" != "orin-nx"
-        Switch to vm   ${HOST}
-        Save host journalctl
-    END
-    IF  ${IS_LAPTOP}
-        Log out from laptop
+    IF    ${IS_AVAILABLE} == True and "${CONNECTION_TYPE}" == "ssh"
+        # Temporarily taking journal log taking our from Orin-NX [SSRCSP-7453]
+        IF  "${DEVICE_TYPE}" != "orin-nx"
+            Switch to vm   ${HOST}
+            Save host journalctl
+        END
+        IF  ${IS_LAPTOP}
+            Log out from laptop
+        END
     END
     Close All Connections
 

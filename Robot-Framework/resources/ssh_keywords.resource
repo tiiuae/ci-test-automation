@@ -10,6 +10,7 @@ Library             SSHLibrary
 Library             String
 Resource            ../config/variables.robot
 Resource            ../resources/common_keywords.resource
+Resource            ../resources/serial_keywords.resource
 
 *** Variables ***
 
@@ -42,7 +43,7 @@ Check Network Availability
     FOR   ${i}   IN RANGE  ${range}
         Write    ${cmd}
         TRY
-            Read Until           1 received
+            SSHLibrary.Read Until           1 received
             Set Global Variable  ${IS_AVAILABLE}  True
             Log   ${host} is available  console=True
             IF    ${expected_result} == True
@@ -85,6 +86,7 @@ Check If Device Is Up
     IF    ${ping}
         ${port_22_is_available}     Check if ssh is ready on device
         IF  ${port_22_is_available}
+            Set Global Variable    ${CONNECTION_TYPE}    ssh
             Set Global Variable    ${IS_AVAILABLE}       True
         ELSE
             Set Global Variable    ${IS_AVAILABLE}       False
@@ -96,7 +98,7 @@ Check If Device Is Up
     IF  ${IS_AVAILABLE}    Log To Console    Device woke up after ${diff} sec.
 
     IF  ${IS_AVAILABLE} == False
-        Log To Console    Device is not available, waited for ${diff} sec!
+        Log To Console    Device is not available via SSH, waited for ${diff} sec!
         IF  "${SERIAL_PORT}" == "NONE"
             Log To Console    There is no address for serial connection
         ELSE
