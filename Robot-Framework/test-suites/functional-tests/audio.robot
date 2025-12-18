@@ -44,8 +44,12 @@ Check Audio devices
     [Documentation]  List audio sinks and sources in VMs
     [Tags]      SP-T246  pre-merge
     # VMs with audio
-    FOR  ${vm}  IN  ${BUSINESS_VM}  ${CHROME_VM}  ${COMMS_VM}  ${FLATPAK_VM}  ${GUI_VM} 
-        Switch to vm   ${vm}
+    FOR  ${vm}  IN  ${BUSINESS_VM}  ${CHROME_VM}  ${COMMS_VM}  ${FLATPAK_VM}  ${GUI_VM}
+        IF   '${vm}' == '${GUI_VM}'
+            Switch to vm   ${vm}   ${USER_LOGIN}
+        ELSE
+            Switch to vm   ${vm}
+        END
         ${sources}   Execute Command  pactl list sources
         ${sinks}     Execute Command  pactl list sinks
         Run Keyword And Continue On Failure   Should Contain   ${sources}   Source   ${vm} does not have Sources
