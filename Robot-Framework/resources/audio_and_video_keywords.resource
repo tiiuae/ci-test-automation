@@ -58,7 +58,7 @@ Verify Video File
     ${size}             Get Regexp Matches  ${out}  (?m)(\\d{1,4})(.*\\s*video.*)  1
     Should Be True      ${size}[0] > 0  msg=Video was not properly captured.
     Verify Video Has Different Colors  /tmp/video${id}.avi
-    Save video file   /tmp/video${id}.avi   ${id}
+    [Teardown]   Save video file   /tmp/video${id}.avi   ${id}
 
 Verify Video Has Different Colors
     [Documentation]  Take frames from video and check that image is not all same color
