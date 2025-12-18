@@ -53,6 +53,7 @@ Verify Video File
     ${size}             Get Regexp Matches  ${out}  (?m)(\\d{1,4})(.*\\s*video.*)  1
     Should Be True      ${size}[0] > 0  msg=Video was not properly captured.
     Verify Video Has Different Colors  /tmp/video${id}.avi
+    Save video file   /tmp/video${id}.avi   ${id}
 
 Verify Video Has Different Colors
     [Documentation]  Take frames from video and check that image is not all same color
@@ -73,3 +74,9 @@ Verify Video Has Different Colors
     ${lines}            Run  wc ${VIDEO_DIR}/colors.txt -l
     ${splitted_lines}   Split String  ${lines}
     Should Be True      ${line_count} < (${splitted_lines}[0]-${1})  msg=Captured video contains only one color. Maybe lid is closed?
+
+Save video file
+    [Documentation]   Save the video for debugging. File is converted to mp4 because avi files are not saved from the agent.
+    [Arguments]    ${video_file}  ${id}
+    ${out}    Execute Command   ffmpeg -y -i ${video_file} -c copy /tmp/video${id}.mp4
+    SSHLibrary.Get File  /tmp/video${id}.mp4   ${VIDEO_DIR}/video${id}.mp4
