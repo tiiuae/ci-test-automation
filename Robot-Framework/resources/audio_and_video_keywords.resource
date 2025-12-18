@@ -20,13 +20,18 @@ Check camera
 
 Record Audio And Verify
     [Documentation]  Record short audio with pulseaudio tool. Verify audio clip is bigger than default empty file (40Kb)
-    [Arguments]      ${vm}   ${audiofile}=test_${vm}.wav    ${expected_duration}=2 sec
-    Switch to vm           ${vm}
+    [Arguments]      ${vm}   ${audiofile}=test_${vm}.wav    ${expected_duration}=2 sec   ${sudo}=True
+    IF   '${vm}' == '${GUI_VM}'
+        Switch to vm   ${vm}  ${USER_LOGIN}
+        ${sudo}   Set Variable   False
+    ELSE
+        Switch to vm   ${vm}
+    END
     Log To Console         Recording audio file
-    ${output}    Execute Command   sh -c 'parecord -r /tmp/${audiofile} & sleep 5 && pkill parecord && chown ghaf:ghaf /tmp/${audiofile}'    sudo=True  sudo_password=${PASSWORD}    timeout=15
+    ${output}    Execute Command   sh -c 'parecord -r /tmp/${audiofile} & sleep 5 && pkill parecord && chown ghaf:ghaf /tmp/${audiofile}'    sudo=${sudo}  sudo_password=${PASSWORD}    timeout=15
     SSHLibrary.Get File    /tmp/${audiofile}  ${AUDIO_DIR}/${audiofile}
     Check Audio File       ${AUDIO_DIR}/${audiofile}    ${expected_duration}
-    [Teardown]   Remove file   /tmp/${audiofile}    sudo=True
+    [Teardown]   Remove file   /tmp/${audiofile}    sudo=${sudo}
 
 Check Audio File
     [Documentation]  Check some basic audio data
