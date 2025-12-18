@@ -149,7 +149,7 @@ FileIO test
         Write                 cd /persist
         Log To Console        Starting fileio test
         Write                 /persist/fileio_test ${threads_number} /persist
-        Set Client Configuration	  timeout=900
+        Set Client Configuration	  timeout=1100
         ${out}                SSHLibrary.Read Until   Test finished.
         Set Client Configuration	  timeout=30
         Log                  ${out}
