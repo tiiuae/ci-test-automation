@@ -19,10 +19,10 @@ Create text file
 
 Remove file
     [Documentation]    Remove file with given path & name, requires existing ssh connection
-    [Arguments]        ${file_name}   ${sudo}=False
+    [Arguments]        ${file_name}   ${sudo}=False   ${failure_allowed}=False
     Log To Console     Removing file ${file_name}
     ${output}  ${err}  ${rc}  Execute Command    rm ${file_name}  return_stderr=True  return_rc=True  sudo=${sudo}  sudo_password=${PASSWORD}
-    Should Be Equal As Integers   ${rc}   0   ${err}
+    IF  not ${failure_allowed}   Should Be Equal As Integers   ${rc}   0   ${err}
 
 Copy file
     [Documentation]    Copy file, requires existing ssh connection
