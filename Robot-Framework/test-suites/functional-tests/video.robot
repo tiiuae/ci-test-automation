@@ -37,7 +37,7 @@ Record Video With Camera
     [Documentation]  Start Camera application and record short video
     [Tags]  SP-T236
     Switch to vm            ${BUSINESS_VM}
-    Execute Command         rm /tmp/video*  sudo=True  sudo_password=${PASSWORD}
+    Remove file             /tmp/video*   sudo=True  failure_allowed=True
     @{recorded_video_ids}   Create List
     ${listed_devices}       Execute Command  v4l2-ctl --list-devices  sudo=True  sudo_password=${PASSWORD}
     ${video_devices}        Get Regexp Matches  ${listed_devices}  (?im)(.*\\S*.*)(video)(\\d{1})  3
@@ -48,8 +48,8 @@ Record Video With Camera
         # Check if video device is able to capture video
         ${video_caps}       Get Regexp Matches  ${video}  (?im)(.*\\S*Device Caps.*\\s*)(.*\\S*)  2
         IF  'Video Capture' in '${video_caps}[0]'
-            Log To Console      Recording video${id} for 5s
-            Execute Command     ffmpeg -i /dev/video${id} -t 5 -vcodec mpeg4 /tmp/video${id}.avi  timeout=15  sudo=True  sudo_password=${PASSWORD}
+            Log To Console      Recording video${id} for 8 seconds
+            Execute Command     ffmpeg -i /dev/video${id} -t 8 -vcodec mpeg4 /tmp/video${id}.avi  timeout=15  sudo=True  sudo_password=${PASSWORD}
             Append To List      ${recorded_video_ids}  ${id}
         END
     END

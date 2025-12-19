@@ -57,17 +57,17 @@ Verify Video File
     ${out}              Execute Command  du -sh /tmp/video${id}.avi
     ${size}             Get Regexp Matches  ${out}  (?m)(\\d{1,4})(.*\\s*video.*)  1
     Should Be True      ${size}[0] > 0  msg=Video was not properly captured.
-    Verify Video Has Different Colors  /tmp/video${id}.avi
+    Verify Video Has Different Colors  /tmp/video${id}.avi  ${id}
     [Teardown]   Save video file   /tmp/video${id}.avi   ${id}
 
 Verify Video Has Different Colors
     [Documentation]  Take frames from video and check that image is not all same color
-    [Arguments]  ${video}
-    # Take screenshot every third second
-    Execute Command      ffmpeg -i ${video} -r 1/3 /tmp/image%04d.png  sudo=True  sudo_password=${PASSWORD}
-    SSHLibrary.Get File  /tmp/image0001.png   ${VIDEO_DIR}/image0001.png
-    Execute Command      rm /tmp/image*
-    Run                  magick ${VIDEO_DIR}/image0001.png -identify ${VIDEO_DIR}/colors.txt
+    [Arguments]  ${video}  ${id}
+    Remove file          /tmp/video_frame*   sudo=True  failure_allowed=True
+    # Save one frame from the video 1 second before it ends
+    Execute Command      ffmpeg -sseof -1 -i ${video} -frames:v 1 /tmp/video_frame%01d.png  sudo=True  sudo_password=${PASSWORD}
+    SSHLibrary.Get File  /tmp/video_frame1.png   ${VIDEO_DIR}/video_frame${id}.png
+    Run                  magick ${VIDEO_DIR}/video_frame${id}.png -identify ${VIDEO_DIR}/colors.txt
     Should Not Be Empty  ${VIDEO_DIR}/colors.txt  Failed to identify colors
 
     # Check that all colors are not the same
