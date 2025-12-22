@@ -134,9 +134,7 @@ FileIO test
     ...                 The benchmark records File Operations, Throughput, Average Events per Thread,
     ...                 and Latency for read and write operations.
     ...                 Create visual plots to represent these metrics comparing to previous tests.
-    ...                 KNOWN ISSUES:
-    ...                 Tag removed 'nuc': SSRCSP-6126
-    [Tags]              fileio  SP-T61-7  lenovo-x1  darter-pro  dell-7330   #SSRCSP-7730: orin-agx  orin-nx
+    [Tags]              fileio  SP-T61-7  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-nx
 
     Transfer Shell Script To DUT    performance-tests   fileio_test   /tmp
 
@@ -152,9 +150,10 @@ FileIO test
         Set Client Configuration	  timeout=900
         ${out}                SSHLibrary.Read Until   Test finished.
         Set Client Configuration	  timeout=30
-        Log                  ${out}
+        Log                   ${out}
     ELSE
-        Execute Command      /tmp/fileio_test ${threads_number}  sudo=True  sudo_password=${PASSWORD}
+        Log To Console        Starting fileio test
+        Execute Command       /tmp/fileio_test ${threads_number}  sudo=True  sudo_password=${PASSWORD}
     END
 
     ${test_info}  Execute Command    cat /tmp/sysbench_results/test_info

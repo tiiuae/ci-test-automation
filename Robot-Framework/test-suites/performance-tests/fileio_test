@@ -20,9 +20,11 @@ echo -e "$(lscpu)" "\n\n" "$(free)" "\n\n" "$(df)" "\n\n" > $RESULT_DIR/test_inf
 echo -e "\nHost: $(hostname)\n" | tee -a $RESULT_DIR/test_info
 echo -e "\nRunning the test in $DISK_CHECK_DIRECTORY" | tee -a $RESULT_DIR/test_info
 
-# Calculate total memory in kB and set FILE_TOTAL_SIZE 4GB higher than the total memory
-TOTAL_MEM_kB=$(free | awk -F: 'NR==2 {print $2}' | awk '{print $1}')
-FILE_TOTAL_SIZE_kB=$((TOTAL_MEM_kB + 1000000))
+# Calculate total memory in kB and set FILE_TOTAL_SIZE 1GB higher than the total memory
+# TOTAL_MEM_kB=$(free | awk -F: 'NR==2 {print $2}' | awk '{print $1}')
+# FILE_TOTAL_SIZE_kB=$((TOTAL_MEM_kB + 1000000))
+# Instead we can set fixed FILE_TOTAL_SIZE when running with --file-extra-flags=direct
+FILE_TOTAL_SIZE_kB=8000000
 
 # Read available disk space in kB and check for sufficient disk space
 AVAILABLE_DISK_SPACE_kB=$(df | grep -w $DISK_CHECK_DIRECTORY | awk '{print $4}')
