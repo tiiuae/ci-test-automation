@@ -211,12 +211,6 @@ Set device state
     Should Be Equal   ${device_state}   ${expected_state}
     Log To Console    ${device} is ${device_state}
 
-    # Workaround for a known issue: SSRCSP-7727 (blocking microphone breaks audio)
-    IF   '${device}' == 'mic' and '${expected_state}' == 'unblocked'
-        Log To Console   Restarting audio-vm to make sure that audio works in later tests
-        Restart VM   ${AUDIO_VM}
-    END
-
 Get device state
     [Arguments]     ${device}
     [Setup]         Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
