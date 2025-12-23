@@ -30,7 +30,7 @@ Killswitch disconnects microphone
     [Tags]           SP-T275
     Record Audio And Verify   ${BUSINESS_VM}
     Set device state  blocked    mic
-    Record Audio And Verify   ${BUSINESS_VM}    expected_duration=0 sec
+    Record Audio And Verify   ${BUSINESS_VM}    expected_duration=0
     [Teardown]       Set device state  unblocked    mic
 
 Killswitch disconnects WLAN

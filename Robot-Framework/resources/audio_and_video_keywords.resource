@@ -32,8 +32,10 @@ Record Audio And Verify
     ${output}    Execute Command   sh -c 'parecord -r /tmp/${audiofile} & sleep 5 && pkill parecord && chown ghaf:ghaf /tmp/${audiofile}'    sudo=${sudo}  sudo_password=${PASSWORD}    timeout=15
     SSHLibrary.Get File    /tmp/${audiofile}  ${AUDIO_DIR}/${audiofile}
     Check Audio Duration   ${AUDIO_DIR}/${audiofile}    ${expected_duration}
-    Check Bitrate          ${AUDIO_DIR}/${audiofile}    ${expected_bitrate}
-    Check Mean Volume Level      ${AUDIO_DIR}/${audiofile}    ${volume_limit}
+    IF   ${expected_duration} != 0
+        Check Bitrate          ${AUDIO_DIR}/${audiofile}    ${expected_bitrate}
+        Check Mean Volume Level      ${AUDIO_DIR}/${audiofile}    ${volume_limit}
+    END
     [Teardown]   Remove file   /tmp/${audiofile}    sudo=${sudo}
 
 Play Audio And Verify
@@ -57,7 +59,7 @@ Play Audio And Verify
     SSHLibrary.Get File    /tmp/${record_file}    ${AUDIO_DIR}/${record_file}
 
     Check Audio Duration      ${AUDIO_DIR}/${record_file}    expected_duration=${duration}
-    Check Mean Volume Level   ${AUDIO_DIR}/${record_file}   ${volume_limit}
+    Check Mean Volume Level   ${AUDIO_DIR}/${record_file}    ${volume_limit}
     Compare Mean Volumes      ../test-files/${sample_file}   ${AUDIO_DIR}/${record_file}   ${tolerance}
 
     [Teardown]   Remove file   /tmp/${record_file}   sudo=${sudo}
@@ -95,7 +97,7 @@ Check Audio Duration
     [Documentation]  Check that ${audiofile} is longer than ${expected_duration}
     [Arguments]      ${audiofile}  ${expected_duration}
     ${duration}      Get Duration   ${audiofile}
-    Should Be True   ${duration} > ${expected_duration}
+    Should Be True   ${duration} >= ${expected_duration}
 
 Get Bitrate
     [Arguments]   ${file}

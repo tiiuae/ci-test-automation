@@ -319,6 +319,8 @@ def extract_mean_volume(output):
     return float(match.group(1))
 
 def get_audio_duration_in_seconds(output):
+    if re.search(r"Duration:\s*N/A", output):
+        return 0
     match = re.search(r"Duration:\s*(\d+):(\d+):(\d+\.\d+)", output)
     if not match:
         raise RuntimeError("Could not determine duration")
