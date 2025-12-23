@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Tests for update tooling
-Force Tags          regression  update  lenovo-x1
+Force Tags          regression  update  lenovo-x1  darter-pro
 
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/device_control.resource
@@ -46,12 +46,19 @@ Update with
     Log                   Generation before update: ${gen_before}    console=True
     Set Suite Variable    ${gen_before}    ${gen_before}
     Log To Console        Updating...
+    IF  "${DEVICE_TYPE}" == "lenovo-x1"
+        ${release_name}   Set Variable  lenovo-x1-carbon-gen11-debug
+    ELSE IF  "${DEVICE_TYPE}" == "darter-pro"
+        ${release_name}   Set Variable  system76-darp11-b-debug
+    ELSE
+        Log               DEVICE_TYPE: ${DEVICE_TYPE} not allowed in update tests   console=True
+    END
     IF  "${update_method}"=="ota-update"
-        ${output}             Execute Command  ota-update cachix --cache ghaf-release lenovo-x1-carbon-gen11-debug  sudo=True  sudo_password=${PASSWORD}
+        ${output}             Execute Command  ota-update cachix --cache ghaf-release ${release_name}  sudo=True  sudo_password=${PASSWORD}
         Should Not Contain    ${output}  Error
     ELSE IF  "${update_method}"=="givc-cli"
         Switch to vm          ${GUI_VM}
-        ${output}             Execute Command  givc-cli update cachix --cache ghaf-release lenovo-x1-carbon-gen11-debug  sudo=True  sudo_password=${PASSWORD}
+        ${output}             Execute Command  givc-cli update cachix --cache ghaf-release ${release_name}  sudo=True  sudo_password=${PASSWORD}
         Should Not Contain    ${output}  Error
         Switch to vm          ${HOST}
     ELSE
