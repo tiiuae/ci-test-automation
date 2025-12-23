@@ -303,3 +303,24 @@ def get_cpu_thread_count(output):
     cores_per_socket = int(re.search(r"Core\(s\) per socket:\s+(\d+)", output).group(1))
 
     return threads_per_core * cores_per_socket
+
+def get_monitor_microphone_source(output):
+    for line in output.splitlines():
+        if "Monitor" in line:
+            match = re.match(r"(\d+)", line)
+            if match:
+                return int(match.group(1))
+    raise ValueError("Monitor microphone source not found")
+
+def extract_mean_volume(output):
+    match = re.search(r"mean_volume:\s*([-\d.]+)\s*dB", output)
+    if not match:
+        raise ValueError("mean_volume not found in ffmpeg output")
+    return float(match.group(1))
+
+def get_audio_duration_in_seconds(output):
+    match = re.search(r"Duration:\s*(\d+):(\d+):(\d+\.\d+)", output)
+    if not match:
+        raise RuntimeError("Could not determine duration")
+    hours, minutes, seconds = match.groups()
+    return int(hours) * 3600 + int(minutes) * 60 + float(seconds)
