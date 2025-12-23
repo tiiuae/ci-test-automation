@@ -19,8 +19,9 @@ Check camera
     END
 
 Record Audio And Verify
-    [Documentation]  Record short audio with pulseaudio tool. Verify audio clip is bigger than default empty file (40Kb)
-    [Arguments]      ${vm}   ${audiofile}=test_${vm}.wav    ${expected_duration}=2 sec   ${sudo}=True
+    [Documentation]  Record short audio with pulseaudio tool.
+    ...    Verify audio clip is longer than ${expected_duration}, has higher bitrate than ${expected_bitrate} and higher mean volume than ${volume_limit}
+    [Arguments]      ${vm}  ${audiofile}=record_${vm}.wav  ${expected_bitrate}=1000  ${expected_duration}=2  ${volume_limit}=-30  ${sudo}=True
     IF   '${vm}' == '${GUI_VM}'
         Switch to vm   ${vm}  ${USER_LOGIN}
         ${sudo}   Set Variable   False
@@ -30,24 +31,84 @@ Record Audio And Verify
     Log To Console         Recording audio file
     ${output}    Execute Command   sh -c 'parecord -r /tmp/${audiofile} & sleep 5 && pkill parecord && chown ghaf:ghaf /tmp/${audiofile}'    sudo=${sudo}  sudo_password=${PASSWORD}    timeout=15
     SSHLibrary.Get File    /tmp/${audiofile}  ${AUDIO_DIR}/${audiofile}
-    Check Audio File       ${AUDIO_DIR}/${audiofile}    ${expected_duration}
+    Check Audio Duration   ${AUDIO_DIR}/${audiofile}    ${expected_duration}
+    Check Bitrate          ${AUDIO_DIR}/${audiofile}    ${expected_bitrate}
+    Check Mean Volume Level      ${AUDIO_DIR}/${audiofile}    ${volume_limit}
     [Teardown]   Remove file   /tmp/${audiofile}    sudo=${sudo}
 
-Check Audio File
-    [Documentation]  Check some basic audio data
-    [Arguments]  ${audiofile}  ${expected_duration}=2 sec
-    ${out}  Run  ffmpeg -i ${audiofile}
-    ${duration}  Get Regexp Matches  ${out}  (?im)(Duration: )(\\d{1,2}:\\d{1,2}:\\d{1,2}.\\d{1,3})  2
-    ${bitrate}  Get Regexp Matches  ${out}  (?im)(bitrate: )(\\d{1,4})  2
-    IF    '${expected_duration}' == '0 sec'
-        Should Be Empty  ${duration}
-    ELSE
-        Should Not Be Empty  ${duration}[0]
-        Should Not Be Empty  ${bitrate}[0]
-        ${actual_duration}  Convert Time  ${duration}[0]
-        ${expected_duration}  Convert Time  ${expected_duration}
-        Should Be True  ${actual_duration} > ${expected_duration}
+Play Audio And Verify
+    [Arguments]     ${vm}   ${record_file}=play_${vm}.wav  ${sample_file}=wind.wav  ${tolerance}=2.0  ${volume_limit}=-30  ${sudo}=True
+    Switch to vm    ${vm}
+    Put File        ../test-files/${sample_file}   /tmp
+    Remove file     /tmp/recording_${vm}.wav    sudo=True  failure_allowed=True
+    ${duration}     Get Duration   ../test-files/${sample_file}
+    IF   '${vm}' == '${GUI_VM}'
+        Switch to vm   ${vm}  ${USER_LOGIN}
+        ${sudo}   Set Variable   False
     END
+    ${pamixer}      Search nix store   pamixer
+    ${sources}      Execute Command    ${pamixer}/bin/pamixer --list-sources
+    Log             ${sources}
+    ${source_id}    Get Monitor Microphone Source    ${sources}
+
+    Log To Console  Playing audio and recording it
+    # Play sound + record mic simultaneously
+    Execute Command   sh -c 'paplay /tmp/${sample_file} & parecord -r /tmp/${record_file} -d ${source_id} & sleep 2.5 && sleep ${duration} && pkill parecord'  sudo=${sudo}  sudo_password=${PASSWORD}
+    SSHLibrary.Get File    /tmp/${record_file}    ${AUDIO_DIR}/${record_file}
+
+    Check Audio Duration      ${AUDIO_DIR}/${record_file}    expected_duration=${duration}
+    Check Mean Volume Level   ${AUDIO_DIR}/${record_file}   ${volume_limit}
+    Compare Mean Volumes      ../test-files/${sample_file}   ${AUDIO_DIR}/${record_file}   ${tolerance}
+
+    [Teardown]   Remove file   /tmp/${record_file}   sudo=${sudo}
+
+Get Mean Volume
+    [Arguments]   ${file}   ${log}=True
+    ${out}        Run   ffmpeg -i ${file} -filter:a volumedetect -f null /dev/null
+    Log           ${out}
+    ${mean}       Extract Mean Volume   ${out}
+    Log           Mean volume of ${file} is ${mean}  console=${log}
+    RETURN        ${mean}
+
+Check Mean Volume Level
+    [Documentation]   Check that mean volume of ${file} is higher than ${volume_limit}
+    [Arguments]   ${file}   ${volume_limit}
+    ${mean}       Get mean Volume   ${file}   log=False
+    Should Be True    ${mean} > ${volume_limit}    Audio file is too quiet, mean volume ${mean} dB (should be > ${volume_limit} dB)
+
+Compare Mean Volumes
+    [Documentation]   Check that the mean volumes of ${file1} and ${file2} are within ${tolerance} of each other
+    [Arguments]   ${file1}   ${file2}   ${tolerance}
+    ${mean1}    Get Mean Volume    ${file1}
+    ${mean2}    Get Mean Volume    ${file2}
+    ${diff}   Evaluate   abs(${mean1} - ${mean2})
+    Should Be True    ${diff} <= ${tolerance}    Audio files differ too much (difference ${diff} dB, tolerance ${tolerance} dB)
+
+Get Duration
+    [Arguments]   ${file}
+    ${out}        Run   ffmpeg -i ${file}
+    Log           ${out}
+    ${duration}   Get Audio Duration In Seconds   ${out}
+    RETURN        ${duration}
+
+Check Audio Duration
+    [Documentation]  Check that ${audiofile} is longer than ${expected_duration}
+    [Arguments]      ${audiofile}  ${expected_duration}
+    ${duration}      Get Duration   ${audiofile}
+    Should Be True   ${duration} > ${expected_duration}
+
+Get Bitrate
+    [Arguments]   ${file}
+    ${out}        Run   ffmpeg -i ${file}
+    Log           ${out}
+    ${bitrate}    Get Regexp Matches  ${out}  (?im)(bitrate: )(\\d{1,4})  2
+    RETURN        ${bitrate}[0]
+
+Check Bitrate
+    [Documentation]  Check that ${audiofile} has higher bitrate than ${expected_bitrate}
+    [Arguments]      ${audiofile}  ${expected_bitrate}
+    ${bitrate}       Get Bitrate   ${audiofile}
+    Should Be True   ${bitrate} > ${expected_bitrate}
 
 Verify Video File
     [Documentation]  Verify that file size is not 0 and that video is not all black

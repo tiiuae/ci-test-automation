@@ -40,6 +40,26 @@ Record audio in gui-vm
     [Tags]   SP-T247-5
     Record Audio And Verify   ${GUI_VM}
 
+Play audio in business-vm
+    [Tags]   SP-T212-1  pre-merge
+    Play Audio And Verify   ${BUSINESS_VM}
+    
+Play audio in chrome-vm
+    [Tags]   SP-T212-2  pre-merge
+    Play Audio And Verify   ${CHROME_VM}
+
+Play audio in comms-vm
+    [Tags]   SP-T212-3
+    Play Audio And Verify   ${COMMS_VM}
+
+Play audio in flatpak-vm
+    [Tags]   SP-T212-4
+    Play Audio And Verify   ${FLATPAK_VM}
+
+Play audio in gui-vm
+    [Tags]   SP-T212-5
+    Play Audio And Verify   ${GUI_VM}
+
 Check Audio devices
     [Documentation]  List audio sinks and sources in VMs
     [Tags]      SP-T246  pre-merge
