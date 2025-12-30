@@ -78,7 +78,7 @@ Log in via GUI
     Run ydotool command   click 0xC0  sudo=True
 
     IF  "${DEVICE_TYPE}" == "dell-7330"    Sleep  5
-    Type string and press enter  ${USER_PASSWORD}  confidential=True   sudo=True
+    Confidential password write  ${USER_PASSWORD}
 
 Log out via GUI
     [Documentation]   Log out by using keyboard shortcut
@@ -94,12 +94,8 @@ Log out via GUI
     Tab and enter     tabs=2
 
 Type string and press enter
-    [Arguments]    ${string}=${EMPTY}  ${confidential}=False  ${enter}=True   ${sudo}=False
-    IF  ${confidential} 
-        Log To Console    Typing password
-    ELSE
-        Log To Console    Typing "${string}"
-    END
+    [Arguments]    ${string}=${EMPTY}  ${enter}=True   ${sudo}=False
+    Log To Console    Typing "${string}"
     IF  $string != '${EMPTY}'
         Run ydotool command   type ${string}  ${sudo}
     END
@@ -309,8 +305,7 @@ Unlock
     Locate and click   image  ${LOCK_ICON}   0.95  10
     # Can't explain the second click but does not work without
     Locate and click   image  ${LOCK_ICON}   0.95  10
-    Log To Console     Typing password to unlock
-    Type string and press enter  ${USER_PASSWORD}  confidential=True
+    Confidential password write  ${USER_PASSWORD}
     Sleep   2
 
 Stop swayidle
@@ -353,6 +348,23 @@ Press Key(s)
     Log                   ${ydotool_command}
     Log To Console        Pressing key(s): ${key_combination}
     Run ydotool command   ${ydotool_command}   ${sudo}
+
+Confidential password write
+    [Arguments]      ${pw}
+    Switch to vm     ${GUI_VM}
+    Log To Console   Typing password secretly
+    Set Log Level    NONE
+    Write            read -r -s -p 'pw: ' PASSWD
+    Sleep            1
+    Write            ${pw}
+    Sleep            2
+    Write            sudo ydotool type "$PASSWD"
+    ${output} 	     SSHLibrary.Read Until 	:
+    Should Contain 	 ${output}    password
+    Write            ${PASSWORD}
+    Write            unset PASSWD
+    Set Log Level    INFO
+    Press Key(s)     ENTER   True
 
 Run ydotool command
     [Arguments]    ${command}   ${sudo}=False
