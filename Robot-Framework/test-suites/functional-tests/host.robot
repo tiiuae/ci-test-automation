@@ -61,7 +61,7 @@ Check all VMs are running
 Check serial connection
     [Documentation]    Check serial connection
     [Tags]             nuc  orin-agx  orin-agx-64  orin-nx  darter-pro  SP-T51  SP-T170  pre-merge  bat
-    [Setup]     Open Serial Port
+    [Setup]            Serial setup
     FOR    ${i}    IN RANGE    120
         Write Data    ${\n}
         ${output} =    SerialLibrary.Read Until
@@ -97,6 +97,13 @@ Check veritysetup status
 
 
 *** Keywords ***
+
+Serial setup
+    IF  "${SERIAL_PORT}" == "NONE"
+        Skip    There is no address for serial connection
+    ELSE
+        Open Serial Port
+    END
 
 Verify Ghaf Version Format
     [Documentation]    Check that ghaf-version contains version number in the format:"dd.dd"
