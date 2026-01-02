@@ -264,11 +264,13 @@ Check if ssh is ready on device
 Switch to vm
     [Arguments]         ${hostname}   ${user}=ghaf
 
+    Log Level           NONE
     IF  $user=='ghaf'
         ${pw}   Set Variable    ${PASSWORD}
     ELSE
         ${pw}   Set Variable    ${USER_PASSWORD}
     END
+    Log Level           INFO
 
     ${c_hostname}       Convert To Uppercase    ${hostname}
     ${c_user}           Convert To Uppercase    ${user}
