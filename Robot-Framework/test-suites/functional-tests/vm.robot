@@ -43,6 +43,7 @@ Check systemctl status in every VM
     ...    gui-vm|setup-ghaf-user.service|SSRCSP-7234
     ...    ANY|tuned.service|SSRCSP-7717
     ...    ANY|fail2ban.service|SSRCSP-7759
+    ...    gui-vm|user-provision-interactive.service|PR#1416
 
     FOR  ${vm}  IN  @{VM_LIST_WITH_HOST}
         Switch to vm     ${vm}
