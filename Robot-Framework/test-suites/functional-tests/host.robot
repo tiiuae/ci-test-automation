@@ -60,7 +60,7 @@ Check all VMs are running
 
 Check serial connection
     [Documentation]    Check serial connection
-    [Tags]             nuc  orin-agx  orin-agx-64  orin-nx  darter-pro  SP-T51  SP-T170  pre-merge  bat
+    [Tags]             nuc  orin-agx  orin-agx-64  orin-nx  darter-pro  SP-T51  SP-T170  pre-merge  bat  lab-only
     [Setup]            Serial setup
     FOR    ${i}    IN RANGE    120
         Write Data    ${\n}

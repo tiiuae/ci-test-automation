@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Documentation       Checking retenion policies
+Documentation       Checking retention policies
 Force Tags          security   retention
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
