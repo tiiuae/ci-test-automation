@@ -59,7 +59,8 @@ Update system time from internet in VMs
 
 VM Time Update Setup
     @{VM_LIST}      Get VM list
-    Set Suite Variable      @{VM_LIST}
+    Remove Values From List  ${VM_LIST}   ${ADMIN_VM}
+    Set Suite Variable       @{VM_LIST}
 
 Update system time from internet in ${vm}
     [Documentation]   Disable internet, change time in vm, restart timesyncd, check that time was changed to wrong

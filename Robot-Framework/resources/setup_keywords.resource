@@ -22,7 +22,6 @@ Prepare Test Environment
     Log versions
 
     IF  ${IS_LAPTOP}
-        Switch to vm    ${GUI_VM}
         Create test user
         IF  ${login}
             Save gui icons and icon path
@@ -62,8 +61,13 @@ Log versions
     Log To Console      Device ID: ${device_id}
 
 Create test user
-    Log To Console      Creating test user
-    Execute Command     systemctl start setup-test-user.service  sudo=True  sudo_password=${PASSWORD}
+    [Setup]          Switch to vm    ${GUI_VM}
+    Log To Console   Creating test user
+    ${out}  ${err}  ${rc}   Execute Command   systemctl start user-provision-test.service    return_stderr=True  return_rc=True  sudo=True  sudo_password=${PASSWORD}
+    Should Be Equal As Integers   ${rc}  0   ${err}
+    ${out}            Execute Command    homectl
+    Log               ${out}
+    Should Contain    ${out}  ${USER_LOGIN}   User not created
 
 Start ydotoold
     [Documentation]    Start ydotool daemon if it is not already running.
