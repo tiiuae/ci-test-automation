@@ -18,6 +18,9 @@ Get screen brightness
     ${output}         Search nix store   brightnessctl
     ${brightness}     Execute Command    ${output}/bin/brightnessctl get
     IF  ${log_brightness}    Log To Console    Brightness is ${brightness}
+    # For debugging, save some logs
+    ${output}   Execute Command   journalctl -u systemd-backlight*
+    Log   ${output}
     RETURN            ${brightness}
     [Teardown]   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
 
@@ -52,7 +55,7 @@ Set timezone
     ${timezone}       Get timezone
     IF   '${timezone_to_set}' == '${timezone}'   RETURN
     Switch to vm    ${GUI_VM}
-    ${output}  ${err}  ${rc}   Execute Command   givc-cli set-timezone ${timezone_to_set}  return_stderr=True  return_rc=True
+    ${output}  ${err}  ${rc}   Execute Command   givc-cli set-timezone ${timezone_to_set}  return_stderr=True  return_rc=True  sudo=True  sudo_password=${PASSWORD}
     Log    ${output}, ${err}
     Should Be Equal As Integers   ${rc}   0   ${err}
     Sleep   3
