@@ -67,6 +67,18 @@ Check Grafana log forwarding after disconnected state
     Log To Console               Checked that log is forwarded after clearing the iptables rule by reboot
     [Teardown]        Skip If    ${initial_check}   Konwn issue: SSRCSP-7612 (Grafana logging stops from a VM).\nDidn't find admin-vm logs in the initial check. Skipping the test.
 
+Check update logging
+    Switch to vm            ${HOST}
+    Elevate to superuser
+    Write                   nix-shell -p git
+    Write                   git clone https://github.com/tiiuae/ghaf.git /home
+    Write                   git checkout ${COMMIT_HASH}
+    Edit file               /home/ghaf/modules/reference/profiles/mvp-user-trial.nix  security.audit.enable = false;  security.audit.enable = true;
+    Edit file               /home/ghaf/modules/common/security/audit/default.nix  ghaf.security.audit.enableVerboseRebuild = false;  ghaf.security.audit.enableVerboseRebuild = true;
+    Edit file               /home/ghaf/modules/microvm/host/microvm-host.nix  storeWatcher.enable = false;  storeWatcher.enable = true;
+    Write                   cd /home/ghaf
+    Write                   nixos-rebuild --flake .#lenovo-x1-carbon-gen11-debug switch
+    # TODO: Need to answer y for multiple questions
 
 *** Keywords ***
 
