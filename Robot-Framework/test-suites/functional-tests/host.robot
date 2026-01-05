@@ -18,13 +18,13 @@ Suite Setup         Switch to vm   ${HOST}
 Test ghaf version format
     [Documentation]    Test getting Ghaf version and verify its format:
     ...                Expected format: major.minor.yyyymmdd.commit_hash
-    [Tags]             SP-T54  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330  fmo  pre-merge  bat
+    [Tags]             SP-T54  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330  fmo  pre-merge  bat
     Verify Ghaf Version Format
 
 Test nixos version format
     [Documentation]    Test getting Nixos version and verify its format:
     ...                Expected format: major.minor.yyyymmdd.commit_hash (name)
-    [Tags]             SP-T55  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330  fmo  pre-merge  bat
+    [Tags]             SP-T55  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330  fmo  pre-merge  bat
     Verify Nixos Version Format
 
 Check QSPI version
@@ -34,7 +34,7 @@ Check QSPI version
 
 Check host systemctl status
     [Documentation]    Verify systemctl status is running on host
-    [Tags]             SP-T98  systemctl  nuc  orin-agx  orin-agx-64  orin-nx  fmo  pre-merge  bat
+    [Tags]             SP-T98  systemctl  orin-agx  orin-agx-64  orin-nx  fmo  pre-merge  bat
     ${status}   ${output}   Run Keyword And Ignore Error    Verify Systemctl status
     Log   ${output}
 
@@ -42,7 +42,6 @@ Check host systemctl status
         ${failing_services}    Parse Services To List    ${output}
 
         ${known_issues}=    Create List
-        ...    NUC|ANY|SSRCSP-4632
         ...    Orin|nvfancontrol.service|SSRCSP-6303
         ...    AGX|systemd-rfkill.service|SSRCSP-6303
         ...    Orin|systemd-oomd.service|SSRCSP-6685
@@ -60,7 +59,7 @@ Check all VMs are running
 
 Check serial connection
     [Documentation]    Check serial connection
-    [Tags]             nuc  orin-agx  orin-agx-64  orin-nx  darter-pro  SP-T51  SP-T170  pre-merge  bat  lab-only
+    [Tags]             orin-agx  orin-agx-64  orin-nx  darter-pro  SP-T51  SP-T170  pre-merge  bat  lab-only
     [Setup]            Serial setup
     FOR    ${i}    IN RANGE    120
         Write Data    ${\n}

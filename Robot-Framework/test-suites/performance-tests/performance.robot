@@ -45,7 +45,7 @@ CPU One thread test
     [Documentation]         Run a CPU benchmark using Sysbench with a duration of 10 seconds and a SINGLE thread.
     ...                     The benchmark records to csv CPU events per second, events per thread, and latency data.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]                  cpu  SP-T61-1  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330
+    [Tags]                  cpu  SP-T61-1  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330
     ${output}               Execute Command    sysbench cpu --time=10 --threads=1 --cpu-max-prime=20000 run
     Log                     ${output}
     &{cpu_data}             Parse Cpu Results   ${output}
@@ -57,7 +57,7 @@ CPU multiple threads test
     [Documentation]         Run a CPU benchmark using Sysbench with a duration of 10 seconds and MULTIPLE threads.
     ...                     The benchmark records to csv CPU events per second, events per thread, and latency data.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]                  cpu  SP-T61-2  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330
+    [Tags]                  cpu  SP-T61-2  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330
     ${output}               Execute Command    sysbench cpu --time=10 --threads=${threads_number} --cpu-max-prime=20000 run
     Log                     ${output}
     &{cpu_data}             Parse Cpu Results   ${output}
@@ -82,7 +82,7 @@ Memory Read One thread test
     ...                     The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
     ...                     and Latency for READ operations.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]                  memory  SP-T61-3  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330
+    [Tags]                  memory  SP-T61-3  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330
     ${output}               Execute Command    sysbench memory --time=60 --memory-oper=read --threads=1 run
     Log                     ${output}
     &{mem_data}             Parse Memory Results   ${output}
@@ -95,7 +95,7 @@ Memory Write One thread test
     ...                     The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
     ...                     and Latency for WRITE operations.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]                  memory  SP-T61-4  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330
+    [Tags]                  memory  SP-T61-4  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330
     ${output}               Execute Command    sysbench memory --time=60 --memory-oper=write --threads=1 run
     Log                     ${output}
     &{mem_data}             Parse Memory Results   ${output}
@@ -108,7 +108,7 @@ Memory Read multiple threads test
     ...                     The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
     ...                     and Latency for READ operations.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]                  memory  SP-T61-5  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330
+    [Tags]                  memory  SP-T61-5  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330
     ${output}               Execute Command    sysbench memory --time=60 --memory-oper=read --threads=${threads_number} run
     Log                     ${output}
     &{mem_data}             Parse Memory Results   ${output}
@@ -121,7 +121,7 @@ Memory Write multiple threads test
     ...                     The benchmark records Operations Per Second, Data Transfer Speed, Average Events per Thread,
     ...                     and Latency for WRITE operations.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
-    [Tags]                  memory  SP-T61-6  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330
+    [Tags]                  memory  SP-T61-6  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330
     ${output}               Execute Command    sysbench memory --time=60 --memory-oper=write --threads=${threads_number} run
     Log                     ${output}
     &{mem_data}             Parse Memory Results   ${output}
@@ -287,7 +287,7 @@ FileIO read isolation test
 
 Sysbench test in NetVM
     [Documentation]      Run CPU and Memory benchmark using Sysbench in NetVM.
-    [Tags]               SP-T61-8  nuc  orin-agx  orin-agx-64  orin-nx
+    [Tags]               SP-T61-8  orin-agx  orin-agx-64  orin-nx
 
     Switch to vm                            ${NET_VM}
     Transfer Shell Script To VM             ${NET_VM}   sysbench_test
