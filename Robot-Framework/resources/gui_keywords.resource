@@ -355,13 +355,23 @@ Confidential password write
     Log To Console   Typing password secretly
     Set Log Level    NONE
     Write            read -r -s -p 'pw: ' PASSWD
-    Sleep            1
+    Sleep            0.5
+    ${output} 	     SSHLibrary.Read
     Write            ${pw}
-    Sleep            2
+    Sleep            0.5
+    ${output} 	     SSHLibrary.Read
     Write            sudo ydotool type "$PASSWD"
-    ${output} 	     SSHLibrary.Read Until 	:
-    Should Contain 	 ${output}    password
-    Write            ${PASSWORD}
+    Sleep            3
+    ${output} 	     SSHLibrary.Read
+    ${pw_required}   Run Keyword And Return Status   Should Contain   ${output}   password
+    IF  ${pw_required}
+        Write        ${PASSWORD}
+        Sleep        3
+        ${output} 	     SSHLibrary.Read
+        Should Contain 	 ${output}    ${LOGIN}@
+    ELSE
+        Should Contain 	 ${output}    ${LOGIN}@
+    END
     Write            unset PASSWD
     Set Log Level    INFO
     Press Key(s)     ENTER   True
