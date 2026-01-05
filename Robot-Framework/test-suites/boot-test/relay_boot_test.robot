@@ -24,7 +24,7 @@ ${DEVICE_TYPE}           ${EMPTY}
 
 Verify booting after restart by power
     [Documentation]    Restart device by power and verify init service is running
-    [Tags]             relayboot  plug  nuc  orin-agx  orin-agx-64  orin-nx
+    [Tags]             relayboot  orin-agx  orin-agx-64  orin-nx
     Reboot Device Via Relay
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False
@@ -45,7 +45,7 @@ Verify booting after restart by power
 
 Verify booting laptop
     [Documentation]    Restart the laptop by power and verify init service is running
-    [Tags]             relayboot  plug  lenovo-x1  darter-pro  dell-7330
+    [Tags]             relayboot  lenovo-x1  darter-pro  dell-7330
     Reboot Laptop
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False

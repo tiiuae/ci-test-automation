@@ -16,7 +16,7 @@ Resource            ../../resources/wifi_keywords.resource
 
 Verify NetVM is started
     [Documentation]         Verify that NetVM is active and running
-    [Tags]                  pre-merge  SP-T45  nuc  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330  fmo
+    [Tags]                  pre-merge  SP-T45  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330  fmo
     [Setup]                 Switch to vm   ${HOST}
     Verify service status   service=${netvm_service}
     Check Network Availability      ${NET_VM}    expected_result=True    range=5
@@ -68,7 +68,7 @@ NetVM stops and starts successfully
 
 Verify NetVM PCI device passthrough
     [Documentation]     Verify that proper PCI devices have been passed through to the NetVM
-    [Tags]              SP-T96  nuc  orin-agx  orin-agx-64  orin-nx
+    [Tags]              SP-T96  orin-agx  orin-agx-64  orin-nx
     [Setup]             Switch to vm   ${NET_VM}
     Verify microvm PCI device passthrough    vmname=${NET_VM}
 
