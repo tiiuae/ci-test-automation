@@ -10,9 +10,7 @@
 | 06.11.2025 | Check Grafana logs (net-vm)                            | SSRCSP-7542                                                                                     |
 | 23.10.2025 | Save host journalctl/Verify NetVM is started           | SSRCSP-7453                                                                                     |
 | 16.09.2025 | Check systemctl status in every VM                     | [Full list of skips in the test case](/Robot-Framework/test-suites/functional-tests/vm.robot)   |
-| 27.06.2025 | Measure UDP Bidir Throughput Small Packets (Dell)      | SSRCSP-6774                                                                                     |
 | 13.06.2025 | Record Video With Camera (Dell)                        | SSRCSP-6694                                                                                     |
-| 05.06.2025 | Measure UDP Bidir Throughput Big Packets(AGX)          | SSRCSP-6623                                                                                     |
 |            | Measure Hard Boot Time                                 | The searched journalctl line is sometimes (randomly) not there. Didn't find it this time        |
 |            | Measure Soft Boot Time -Dell                           | The searched journalctl line is sometimes (randomly) not there. Didn't find it this time.       |
 |            | OP-TEE xtest 1033 -orin-agx & orin-nx                  | Known issue encountered, skipping the test                                                      |
