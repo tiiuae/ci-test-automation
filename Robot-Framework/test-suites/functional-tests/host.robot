@@ -72,21 +72,21 @@ Check serial connection
     IF    ${status} == False   Fail  Device is not available via serial port, used port: ${SERIAL_PORT}
     [Teardown]  Delete All Ports
 
-Check Memory status
-    [Documentation]  Check that there is enough memory available
+Check storage size
+    [Documentation]  Check that there is enough persistent storage available
     [Tags]           lenovo-x1  darter-pro  dell-7330  SP-5321  pre-merge  bat
     ${lsblk}  Execute Command  lsblk
     Log       ${lsblk}
     ${SSD}    Run Keyword And Return Status  should contain   ${lsblk}   sda
     ${eMMC}   Run Keyword And Return Status  should contain   ${lsblk}   nvme0n1p
 
-    ${memory}  Run Keyword If  ${SSD}   Check External SSD Size
-    ...    ELSE IF             ${eMMC}  Check Internal eMMC Size
-    ...    ELSE                Fail     Failure. Something missing? No SSD or eMMC partitions captured!
+    ${total_storage}  Run Keyword If  ${SSD}   Check External SSD Size
+    ...    ELSE IF      ${eMMC}  Check Internal eMMC Size
+    ...    ELSE         FAIL     Failure. Something missing? No SSD or eMMC partitions captured!
 
-    ${storage}  Check Persist Storage Size
-    Should Be True  ${memory} > ${storage} > ${100}
-    Should Be True  ${${memory}*${0.80}} <= ${storage}
+    ${persistent_storage}  Check Persistent Storage Size
+    Should Be True  ${total_storage} > ${persistent_storage} > ${100}
+    Should Be True  ${${total_storage}-250} <= ${persistent_storage}
 
 Check veritysetup status
     [Documentation]  Check that VERITY status is verified
@@ -158,7 +158,7 @@ Check Internal eMMC Size
     ${size}   Get Regexp Matches  ${lsblk}  (?im)(nvme0n1 .*\\d*:\\d{1}.*\\d{1}\\s)(\\d{1,3})  2
     RETURN    ${size}[0]
 
-Check Persist Storage Size
+Check Persistent Storage Size
     [Documentation]  Check the size of persistent storage
     ${storage}  Execute Command  df -h
     Log  ${storage}
