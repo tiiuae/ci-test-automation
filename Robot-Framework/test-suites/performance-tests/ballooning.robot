@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing performance of memory ballooning
-Force Tags          performance     ballooning
+Force Tags          ballooning  performance
 
 Resource            ../../config/variables.robot
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
@@ -27,11 +27,11 @@ ${rebooted}               False
 *** Test Cases ***
 
 Test ballooning in chrome-vm
-    [Tags]                  ballooning_chrome_vm    lenovo-x1   darter-pro   SP-T255
+    [Tags]                  SP-T255  ballooning_chrome_vm  lenovo-x1  darter-pro
     Test ballooning in VM   vm=chrome-vm   mem_quota=6144   max_inflate_ratio=3
 
 Test ballooning in business-vm
-    [Tags]                  ballooning_business_vm   lenovo-x1   darter-pro   SP-T256
+    [Tags]                  SP-T256  ballooning_business_vm  lenovo-x1  darter-pro
     Test ballooning in VM   vm=business-vm   mem_quota=6144   max_inflate_ratio=3
 
 

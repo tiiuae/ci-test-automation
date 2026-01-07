@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing launching applications via GUI
-Force Tags          gui   gui-apps   lenovo-x1   darter-pro
+Force Tags          gui-apps  gui  lenovo-x1  darter-pro
 
 Library             ../../lib/GuiTesting.py   ${OUTPUT_DIR}/outputs/gui-temp/
 Resource            ../../resources/app_keywords.resource

@@ -3,7 +3,7 @@
 
 *** Settings ***
 Resource            ../../resources/ssh_keywords.resource
-Force Tags          security    regression
+Force Tags          regression  security
 Test Timeout        3 minutes
 
 
@@ -15,7 +15,7 @@ ${ip_server}
 *** Test Cases ***
 
 Test IP spoofing
-    [Tags]            SP-T128  ipspoofing  lenovo-x1  dell-7330  darter-pro
+    [Tags]            SP-T128  ipspoofing  lenovo-x1  darter-pro  dell-7330
     Set Suite Variable      ${file_path}   /home/appuser/'Unsafe share'
     Set Suite Variable      ${server_vm}   ${BUSINESS_VM}
     Set Suite Variable      ${client_vm}   ${COMMS_VM}

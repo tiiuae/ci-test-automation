@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing launching files
-Force Tags          files   lenovo-x1   darter-pro   dell-7330
+Force Tags          files  lenovo-x1  darter-pro  dell-7330
 
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/file_keywords.resource
@@ -17,31 +17,31 @@ ${OUTPUT_FILE}   /tmp/out.log
 
 Open PDF from chrome-vm
     [Documentation]    Open PDF file from Chrome VM and check that Zathura app is started
-    [Tags]             bat  regression  pre-merge  SP-T131-1
+    [Tags]             SP-T131-1  pre-merge  bat  regression
     Open PDF from app-vm    ${CHROME_VM}
     [Teardown]         Kill PDF Reader   ${CHROME_VM}
 
 Open PDF from comms-vm
     [Documentation]    Open PDF file from Comms VM and check that Zathura app is started
-    [Tags]             regression  SP-T131-2
+    [Tags]             SP-T131-2  regression
     Open PDF from app-vm    ${COMMS_VM}
     [Teardown]         Kill PDF Reader   ${COMMS_VM}
 
 Open PDF from business-vm
     [Documentation]    Open PDF file from Business VM and check that Zathura app is started
-    [Tags]             regression  SP-T131-3
+    [Tags]             SP-T131-3  regression
     Open PDF from app-vm    ${BUSINESS_VM}
     [Teardown]         Kill PDF Reader   ${BUSINESS_VM}
 
 Open PDF from gui-vm
     [Documentation]    Open PDF file from Gui VM and check that Zathura app is started
-    [Tags]             regression  SP-T131-4
+    [Tags]             SP-T131-4  regression
     Open PDF from app-vm    ${GUI_VM}
     [Teardown]         Kill PDF Reader   ${GUI_VM}
 
 Open image with Oculante
     [Documentation]    Open PNG image in the Gui VM and check that Oculante app is started and opens the image
-    [Tags]             bat  regression  pre-merge  SP-T197
+    [Tags]             SP-T197  pre-merge  bat  regression
     Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
 
     Execute Command    mkdir test-images
@@ -61,7 +61,7 @@ Open image with Oculante
 
 Open text file with Cosmic Text Editor
     [Documentation]    Open text file and check that Cosmic Text Editor app is started
-    [Tags]             bat  regression  pre-merge  SP-T262
+    [Tags]             SP-T262  pre-merge  bat  regression
     Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
     Create text file   test    /tmp/test_text.txt
     Open text file     /tmp/test_text.txt

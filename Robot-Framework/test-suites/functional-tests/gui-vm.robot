@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing Gui-vm
-Force Tags          gui-vm   regression
+Force Tags          gui-vm  regression
 
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/common_keywords.resource
@@ -16,7 +16,7 @@ Test Setup          Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
 
 Start Falcon AI
     [Documentation]   Start Falcon AI and verify process started
-    [Tags]            falcon_ai  SP-T223-1  lenovo-x1  darter-pro
+    [Tags]            SP-T223-1  falcon_ai  lenovo-x1  darter-pro
     Get Falcon LLM Name
     Start application  "Falcon AI"
     Wait Until Falcon Download Complete
@@ -28,7 +28,7 @@ Start Falcon AI
 
 Check user systemctl status
     [Documentation]   Verify systemctl status --user is running
-    [Tags]            bat   pre-merge  SP-T260  systemctl  lenovo-x1  darter-pro  dell-7330  fmo
+    [Tags]            SP-T260  systemctl  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  fmo
 
     ${known_issues}=    Create List
     # Add any known failing services here with the target device and bug ticket number.

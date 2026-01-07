@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Check network related security
-Force Tags          security  network-security
+Force Tags          network-security  security
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
 
@@ -13,7 +13,7 @@ Resource            ../../resources/wifi_keywords.resource
 Account lockout after failed login
     [Documentation]  Try to connect from Comms-vm to Chrome-vm with a wrong password for several times, then check that
     ...              Comms-vm's ip is blacklisted in Chrome-vm and it is not possible to connect even with correct password
-    [Tags]           regression  SP-T268  lenovo-x1  darter-pro
+    [Tags]           SP-T268  regression  lenovo-x1  darter-pro
     Switch to vm     ${COMMS_VM}
     ${ip}            Get VM IP
     Try to connect with wrong password    ${CHROME_VM}  jumphost=${COMMS-VM_GHAF_SSH}

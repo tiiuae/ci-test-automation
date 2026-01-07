@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing audio
-Force Tags          audio   bat  regression   lenovo-x1   darter-pro   dell-7330
+Force Tags          audio  bat  regression  lenovo-x1  darter-pro  dell-7330
 
 Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/audio_and_video_keywords.resource

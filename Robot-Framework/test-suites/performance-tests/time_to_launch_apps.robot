@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Measuring time of launching applications via GUI
-Force Tags          performance   app_launching_time   lenovo-x1   darter-pro  SP-T285
+Force Tags          SP-T285  app_launching_time  performance  lenovo-x1  darter-pro
 
 Resource            ../../config/variables.robot
 Library             ../../lib/GuiTesting.py   ${OUTPUT_DIR}/outputs/gui-temp/
@@ -203,4 +203,3 @@ Save launch time
     IF    not ${passed}
         FAIL    ${app_boot} was started in ~${diff} sec, expected <6 sec
     END
-    

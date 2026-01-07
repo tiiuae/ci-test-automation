@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing automatic suspension of Lenovo-X1
-Force Tags          regression   suspension
+Force Tags          regression  suspension
 
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/device_control.resource
@@ -25,7 +25,7 @@ Automatic suspension
     ...               in 5 min - the screen locks (brightness is 25 %)
     ...               in 15 min - the laptop is suspended
     ...               in 20 min press the button and check that laptop woke up
-    [Tags]            SP-T162    lenovo-x1   lab-only
+    [Tags]            SP-T162  lenovo-x1  lab-only
     [Setup]           Test setup
     [Teardown]        Test teardown
 

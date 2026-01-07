@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing taskbar power widget options
-Force Tags          gui   gui-power-menu
+Force Tags          gui-power-menu  gui
 
 Library             ../../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
 Resource            ../../resources/common_keywords.resource
@@ -26,7 +26,7 @@ GUI Suspend and wake up
     ...               Check that the device is awake.
     ...               Logs device power consumption during the test
     ...               if power measurement tooling is set.
-    [Tags]            SP-T75-3   lenovo-x1   lab-only
+    [Tags]            SP-T75-3  lenovo-x1  lab-only
     Start power measurement       ${BUILD_ID}   timeout=180
     # Connect back to gui-vm after power measurement has been started
     Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
@@ -61,7 +61,7 @@ GUI Suspend and wake up
 GUI Lock and Unlock
     [Documentation]   Lock the screen via GUI power menu lock icon and check that the screen is locked.
     ...               Unlock lock screen by typing the password and check that desktop is available.
-    [Tags]            SP-T75-1   lock  lenovo-x1  darter-pro
+    [Tags]            SP-T75-1  lock  lenovo-x1  darter-pro
     [Setup]           Start screen recording
     Select power menu option   text=Lock
     ${lock}           Check if locked
@@ -99,7 +99,7 @@ GUI Shutdown
 GUI Log out and log in
     [Documentation]   Logout via GUI power menu icon and verify logged out state.
     ...               Login and verify that desktop is available.
-    [Tags]            SP-T75-2   logoutlogin   lenovo-x1  darter-pro
+    [Tags]            SP-T75-2  logoutlogin  lenovo-x1  darter-pro
     Select power menu option   text=LogOut   confirmation=True
     ${logout_status}            Check if logged out
     IF  not ${logout_status}    FAIL  Logout failed.

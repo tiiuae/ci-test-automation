@@ -3,7 +3,7 @@
 ## Active SKIPS
 
 | DATE SET   | TEST CASE                                              | TICKET / Additional Data.                                                                       |
-|------------|--------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| ---------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
 | 07.01.2026 | Check Grafana log forwarding after disconnected state  | SSRCSP-7612                                                                                     |
 | 11.12.2025 | GUI Shutdown                                           | SSRCSP-7512                                                                                     |
 | 18.11.2025 | Check Grafana logs (any logs from the last 10 minutes) | SSRCSP-7612                                                                                     |
@@ -23,7 +23,6 @@
 
 | DATE SET   | TEST CASE                                         | TICKET / Additional Data.                                                              |
 | ---------- | ------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| 12.12.2025 | FileIO test (Orin-NX/AGX)                         | File IO test is not working on Orin-NX/AGX after refactoring it. (SSRCSP-7730)         |
 | 4.12.2025  | Start Falcon AI and verify process started (Dell) | Test stucks with circle running on screen. Not relevant case for this HW target.       |
 | 03.09.2025 | Performance/network suite (AGX)                   | SSRCSP-7160. Network-adapter usage had impact on results. Needs further investigation. |
 | 03/2025    | Performance Network.robot - ‘orin-nx’             | SSRCSP-6372 - Works locally but problems when Jenkins used, fails all..                |

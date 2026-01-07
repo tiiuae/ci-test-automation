@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing power consumption with different power profiles on Lenovo-X1
-Force Tags          performance   power-profiles   lenovo-x1   lab-only
+Force Tags          power-profiles  performance  lenovo-x1  lab-only
 
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/gui-vm_keywords.resource
