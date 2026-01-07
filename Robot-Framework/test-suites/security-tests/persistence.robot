@@ -12,7 +12,6 @@ Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Persistence Suite Setup
 Suite Teardown      Persistence Suite Teardown
-Test Setup          Persistence Test Setup
 
 *** Variables ***
 ${EXPECTED_BRIGHTNESS}    7758
@@ -71,7 +70,7 @@ Persistence Suite Setup
     Save original values
     Set values        EXPECTED
 
-    Soft Reboot Device
+    Soft Reboot Device   ${GUI_VM}
     Verify Reboot and Connect
     Login to laptop   enable_dnd=True
 
@@ -82,9 +81,6 @@ Persistence Suite Teardown
         Login to laptop   enable_dnd=True
     END
     Set values   ORIGINAL
-
-Persistence Test Setup
-    Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
 
 Save original values
     ${ORIGINAL_BRIGHTNESS}   Run Keyword And Continue On Failure   Get screen brightness  log_brightness=False
