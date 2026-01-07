@@ -360,18 +360,10 @@ Confidential password write
     Write            ${pw}
     Sleep            0.5
     ${output} 	     SSHLibrary.Read
-    Write            sudo ydotool type "$PASSWD"
+    Write            printf '%s' "$PASSWD" | YDOTOOL_SOCKET=${YDOTOOL_SOCKET} ydotool type -f -
     Sleep            3
     ${output} 	     SSHLibrary.Read
-    ${pw_required}   Run Keyword And Return Status   Should Contain   ${output}   password
-    IF  ${pw_required}
-        Write        ${PASSWORD}
-        Sleep        3
-        ${output} 	     SSHLibrary.Read
-        Should Contain 	 ${output}    ${LOGIN}@
-    ELSE
-        Should Contain 	 ${output}    ${LOGIN}@
-    END
+    Should Contain 	 ${output}    ${LOGIN}@
     Write            unset PASSWD
     Set Log Level    INFO
     Press Key(s)     ENTER   True
