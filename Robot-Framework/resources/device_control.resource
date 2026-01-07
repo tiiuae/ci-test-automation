@@ -55,10 +55,11 @@ Turn Laptop On and Connect
     Connect    iterations=10
 
 Soft Reboot Device
-    [Documentation]  Reboot device from ghaf-host
+    [Documentation]  Reboot device from ${vm}
+    [Arguments]      ${vm}=${HOST}
     ${device_is_available}   Ping Host   ${DEVICE_IP_ADDRESS}
     IF  ${device_is_available}
-        Switch to vm   ${HOST}
+        Switch to vm   ${vm}
         ${output}  Execute Command  reboot  sudo=True  sudo_password=${PASSWORD}
         Log  ${output}
         Log To Console  Rebooting device from command line
