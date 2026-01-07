@@ -3,7 +3,8 @@
 ## Active SKIPS
 
 | DATE SET   | TEST CASE                                              | TICKET / Additional Data.                                                                       |
-| ---------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+|------------|--------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| 07.01.2026 | Check Grafana log forwarding after disconnected state  | SSRCSP-7612                                                                                     |
 | 11.12.2025 | GUI Shutdown                                           | SSRCSP-7512                                                                                     |
 | 18.11.2025 | Check Grafana logs (any logs from the last 10 minutes) | SSRCSP-7612                                                                                     |
 | 07.11.2025 | Measure time to launch COSMIC Settings                 | SSRCSP-7518                                                                                     |
