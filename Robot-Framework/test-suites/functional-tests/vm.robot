@@ -43,21 +43,20 @@ Check systemctl status in every VM
     ...    gui-vm|setup-ghaf-user.service|SSRCSP-7234
     ...    ANY|tuned.service|SSRCSP-7717
     ...    ANY|fail2ban.service|SSRCSP-7759
-    ...    gui-vm|user-provision-interactive.service|PR#1416
 
     FOR  ${vm}  IN  @{VM_LIST_WITH_HOST}
         Switch to vm     ${vm}
-        ${status}  ${output}   Run Keyword And Ignore Error   Verify Systemctl status
-        IF  $status=='FAIL'
-            Log To Console    ${vm}: ${output}
-            ${failing_services}    Parse Services To List    ${output}
-            ${new_issues}  ${old_issues}  Check VM systemctl status for known issues    ${vm}   ${known_issues}   ${failing_services}
-            IF  ${new_issues} != []   Append To List    ${failed_new_services}   ${vm}: ${new_issues}
-            IF  ${old_issues} != []   Append To List    ${failed_old_services}   ${vm}: ${old_issues}
+        Run Keyword And Ignore Error   Verify Systemctl status
+        Log    ${failed_units}
+
+        # Filter out interactive user provisioning service (we use the non-interactive version in tests)
+        ${filtered_failed_units}    Evaluate   [u for u in ${failed_units} if "user-provision-interactive.service" not in u]
+        Log   ${filtered_failed_units}
+
+        IF    ${filtered_failed_units}
+            Run Keyword And Continue On Failure   Check systemctl status for known issues    ${vm}   ${known_issues}   ${filtered_failed_units}
         END
     END
-    IF  ${failed_new_services} != []    FAIL    Unexpected failed services: ${failed_new_services}, known failed services: ${failed_old_services}
-    IF  ${failed_old_services} != []    SKIP    Known failed services: ${failed_old_services}
 
 Verify EPT is enabled in every VM
     [Documentation]    Check that ETP is enabled in every vm.
@@ -80,30 +79,3 @@ Verify EPT is enabled in every VM
 VM Suite Setup
     @{VM_LIST_WITH_HOST}    Get VM list    with_host=True
     Set Suite Variable      @{VM_LIST_WITH_HOST}
-
-Check VM systemctl status for known issues
-    [Arguments]    ${vm}   ${known_issues_list}   ${failing_services}
-    [Documentation]    Check if failing services in VMs contain issues that are not listed as known
-    ${old_issues}=    Create List
-    ${new_issues}=    Create List
-    FOR    ${failing_service}    IN    @{failing_services}
-        ${known}=     Set Variable    False
-        ${unit_logs}  Execute command   journalctl -u ${failing_service}
-        Log            ${unit_logs}
-        FOR    ${entry}    IN    @{known_issues_list}
-            ${list_vm}  ${service}  ${issue}   Parse Known Issue   ${entry}
-
-            ${vm_match}=         Run Keyword And Return Status    Should Contain    ${vm}    ${list_vm}
-            ${service_match}=    Run Keyword And Return Status    Should Contain    ${failing_service}    ${service}
-
-            IF   (${vm_match} or '${list_vm}' == 'ANY') and (${service_match} or '${service}' == 'ANY')
-                ${known}=     Set Variable    True
-            END
-        END
-        IF    ${known}   
-            Append To List    ${old_issues}    ${failing_service}
-        ELSE
-            Append To List    ${new_issues}    ${failing_service}
-        END
-    END
-    RETURN    ${new_issues}   ${old_issues}

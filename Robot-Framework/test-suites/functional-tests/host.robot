@@ -46,7 +46,7 @@ Check host systemctl status
         ...    AGX|systemd-rfkill.service|SSRCSP-6303
         ...    Orin|systemd-oomd.service|SSRCSP-6685
 
-        Check systemctl status for known issues    ${known_issues}   ${failing_services}
+        Check systemctl status for known issues    ${DEVICE}   ${known_issues}   ${failing_services}
     END
 
 Check all VMs are running

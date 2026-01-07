@@ -96,8 +96,9 @@ Verify Systemctl status
     FAIL    Systemctl is not running after ${diff} sec! Status is ${status}. Failed processes?: ${failed_units}
 
 Check systemctl status for known issues
-    [Arguments]    ${known_issues_list}   ${failing_services}   ${user}=False
-    [Documentation]    Check if failing services contain issues that are not listed as known
+    [Documentation]    Check if failing services contain issues that are not listed as known.
+    ...    ${name} can be either the device name or the vm name.
+    [Arguments]    ${name}  ${known_issues_list}  ${failing_services}  ${user}=False
 
     Should Not Be Empty    ${failing_services}     Failing services list is empty.
 
@@ -106,33 +107,33 @@ Check systemctl status for known issues
     ELSE
         ${unit_logs_cmd}     Set Variable   journalctl -u
     END
-
     ${old_issues}=    Create List
     ${new_issues}=    Create List
+
     FOR    ${failing_service}    IN    @{failing_services}
         ${known}=    Set Variable    False
-        ${unit_logs}   Execute command    ${unit_logs_cmd} ${failing_service}
+        ${unit_logs}   Execute Command    ${unit_logs_cmd} ${failing_service}
         Log            ${unit_logs}
         FOR    ${entry}    IN    @{known_issues_list}
-            ${list_device}  ${service}  ${issue}   Parse Known Issue   ${entry}
+            ${list_name}  ${service}  ${issue}   Parse Known Issue   ${entry}
 
-            ${device_match}=     Run Keyword And Return Status    Should Contain    ${DEVICE}    ${list_device}
+            ${name_match}=       Run Keyword And Return Status    Should Contain    ${name}    ${list_name}
             ${service_match}=    Run Keyword And Return Status    Should Contain    ${failing_service}    ${service}
 
-            IF   ('${list_device}'=='ANY' or ${device_match}) and ('${service}'=='ANY' or ${service_match})
+            IF    ('${list_name}' == 'ANY' or ${name_match}) and ('${service}' == 'ANY' or ${service_match})
                 ${known}=     Set Variable    True
             END
         END
-        IF    ${known}   
+        IF    ${known}
             Append To List    ${old_issues}    ${failing_service}
         ELSE
             Append To List    ${new_issues}    ${failing_service}
         END
     END
     IF   ${new_issues} != []
-        Fail    Unexpected failed services: ${new_issues}, known failed services: ${old_issues}
+        Fail    Unexpected failed services in/on ${name}: ${new_issues}, known failed services: ${old_issues}
     ELSE
-        Skip    Known failed services: ${old_issues}
+        Skip    Known failed services in/on ${name}: ${old_issues}
     END
 
 Get VM list

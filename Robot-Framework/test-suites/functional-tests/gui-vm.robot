@@ -42,7 +42,7 @@ Check user systemctl status
     Log   ${filtered_failed_units}
 
     IF    ${filtered_failed_units}
-        Check systemctl status for known issues  ${known_issues}  ${filtered_failed_units}   user=True
+        Check systemctl status for known issues  ${DEVICE}  ${known_issues}  ${filtered_failed_units}   user=True
     END
 
 
