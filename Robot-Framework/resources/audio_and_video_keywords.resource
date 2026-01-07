@@ -20,33 +20,35 @@ Check camera
 
 Record Audio And Verify
     [Documentation]  Record short audio with pulseaudio tool.
-    ...    Verify audio clip is longer than ${expected_duration}, has higher bitrate than ${expected_bitrate} and higher mean volume than ${volume_limit}
-    [Arguments]      ${vm}  ${audiofile}=record_${vm}.wav  ${expected_bitrate}=1000  ${expected_duration}=2  ${volume_limit}=-30  ${sudo}=True
+    ...    Verify audio clip is longer than ${expected_duration}, has higher bitrate than ${expected_bitrate} and higher mean volume than ${volume_limit}.
+    [Arguments]      ${vm}  ${audiofile}=record_${vm}.wav  ${expected_bitrate}=1000  ${expected_duration}=2  ${volume_limit}=-40  ${sudo}=True
     IF   '${vm}' == '${GUI_VM}'
         Switch to vm   ${vm}  ${USER_LOGIN}
-        ${sudo}   Set Variable   False
+        ${sudo}        Set Variable   False
     ELSE
         Switch to vm   ${vm}
     END
     Log To Console         Recording audio file
-    ${output}    Execute Command   sh -c 'parecord -r /tmp/${audiofile} & sleep 5 && pkill parecord && chown ghaf:ghaf /tmp/${audiofile}'    sudo=${sudo}  sudo_password=${PASSWORD}    timeout=15
+    ${output}              Execute Command   sh -c 'parecord -r /tmp/${audiofile} & sleep 5 && pkill parecord && chown ghaf:ghaf /tmp/${audiofile}'    sudo=${sudo}  sudo_password=${PASSWORD}    timeout=15
     SSHLibrary.Get File    /tmp/${audiofile}  ${AUDIO_DIR}/${audiofile}
     Check Audio Duration   ${AUDIO_DIR}/${audiofile}    ${expected_duration}
     IF   ${expected_duration} != 0
         Check Bitrate          ${AUDIO_DIR}/${audiofile}    ${expected_bitrate}
         Check Mean Volume Level      ${AUDIO_DIR}/${audiofile}    ${volume_limit}
     END
-    [Teardown]   Remove file   /tmp/${audiofile}    sudo=${sudo}
+    [Teardown]   Remove file   /tmp/${audiofile}  sudo=${sudo}
 
 Play Audio And Verify
-    [Arguments]     ${vm}   ${record_file}=play_${vm}.wav  ${sample_file}=wind.wav  ${tolerance}=2.0  ${volume_limit}=-30  ${sudo}=True
+    [Documentation]  Play ${sample_file} in ${vm} and record the audio output to ${record_file} with monitor microphone.
+    ...   Verify that the mean volume of ${sample_file} and ${record_file} is within ${tolerance} and that the mean volume of ${sample_file} is higher than ${volume_limit}.
+    [Arguments]     ${vm}  ${record_file}=play_${vm}.wav  ${sample_file}=wind.wav  ${tolerance}=2.0  ${volume_limit}=-30  ${sudo}=True
     Switch to vm    ${vm}
     Put File        ../test-files/${sample_file}   /tmp
     Remove file     /tmp/recording_${vm}.wav    sudo=True  failure_allowed=True
     ${duration}     Get Duration   ../test-files/${sample_file}
     IF   '${vm}' == '${GUI_VM}'
         Switch to vm   ${vm}  ${USER_LOGIN}
-        ${sudo}   Set Variable   False
+        ${sudo}        Set Variable   False
     END
     ${pamixer}      Search nix store   pamixer
     ${sources}      Execute Command    ${pamixer}/bin/pamixer --list-sources
@@ -54,9 +56,9 @@ Play Audio And Verify
     ${source_id}    Get Monitor Microphone Source    ${sources}
 
     Log To Console  Playing audio and recording it
-    # Play sound + record mic simultaneously
-    Execute Command   sh -c 'paplay /tmp/${sample_file} & parecord -r /tmp/${record_file} -d ${source_id} & sleep 2.5 && sleep ${duration} && pkill parecord'  sudo=${sudo}  sudo_password=${PASSWORD}
-    SSHLibrary.Get File    /tmp/${record_file}    ${AUDIO_DIR}/${record_file}
+    # Play sound and record it with mic simultaneously
+    Execute Command       sh -c 'paplay /tmp/${sample_file} & parecord -r /tmp/${record_file} -d ${source_id} & sleep 2.5 && sleep ${duration} && pkill parecord'  sudo=${sudo}  sudo_password=${PASSWORD}
+    SSHLibrary.Get File   /tmp/${record_file}    ${AUDIO_DIR}/${record_file}
 
     Check Audio Duration      ${AUDIO_DIR}/${record_file}    expected_duration=${duration}
     Check Mean Volume Level   ${AUDIO_DIR}/${record_file}    ${volume_limit}

@@ -25,7 +25,7 @@ Record audio in business-vm
     Record Audio And Verify   ${BUSINESS_VM}
 
 Record audio in chrome-vm
-    [Tags]  SP-T247-2  pre-merge
+    [Tags]  SP-T247-2
     Record Audio And Verify   ${CHROME_VM}
 
 Record audio in comms-vm
@@ -37,7 +37,7 @@ Record audio in flatpak-vm
     Record Audio And Verify   ${FLATPAK_VM}
 
 Record audio in gui-vm
-    [Tags]   SP-T247-5
+    [Tags]   SP-T247-5  pre-merge
     Record Audio And Verify   ${GUI_VM}
 
 Play audio in business-vm
@@ -45,7 +45,7 @@ Play audio in business-vm
     Play Audio And Verify   ${BUSINESS_VM}
     
 Play audio in chrome-vm
-    [Tags]   SP-T212-2  pre-merge
+    [Tags]   SP-T212-2
     Play Audio And Verify   ${CHROME_VM}
 
 Play audio in comms-vm
@@ -57,7 +57,7 @@ Play audio in flatpak-vm
     Play Audio And Verify   ${FLATPAK_VM}
 
 Play audio in gui-vm
-    [Tags]   SP-T212-5
+    [Tags]   SP-T212-5  pre-merge
     Play Audio And Verify   ${GUI_VM}
 
 Check Audio devices
