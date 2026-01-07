@@ -18,23 +18,23 @@ Suite Setup         Switch to vm   ${HOST}
 Test ghaf version format
     [Documentation]    Test getting Ghaf version and verify its format:
     ...                Expected format: major.minor.yyyymmdd.commit_hash
-    [Tags]             SP-T54  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330  fmo  pre-merge  bat
+    [Tags]             SP-T54  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  fmo
     Verify Ghaf Version Format
 
 Test nixos version format
     [Documentation]    Test getting Nixos version and verify its format:
     ...                Expected format: major.minor.yyyymmdd.commit_hash (name)
-    [Tags]             SP-T55  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330  fmo  pre-merge  bat
+    [Tags]             SP-T55  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  fmo
     Verify Nixos Version Format
 
 Check QSPI version
     [Documentation]    QSPI version should be up-to-date
-    [Tags]             SP-T95  orin-agx  orin-agx-64  orin-nx  pre-merge  bat
+    [Tags]             SP-T95  pre-merge  bat  orin-agx  orin-agx-64  orin-nx
     Check QSPI Version is up to date
 
 Check host systemctl status
     [Documentation]    Verify systemctl status is running on host
-    [Tags]             SP-T98  systemctl  orin-agx  orin-agx-64  orin-nx  fmo  pre-merge  bat
+    [Tags]             SP-T98  systemctl  pre-merge  bat  orin-agx  orin-agx-64  orin-nx  fmo
     ${status}   ${output}   Run Keyword And Ignore Error    Verify Systemctl status
     Log   ${output}
 
@@ -51,7 +51,7 @@ Check host systemctl status
 
 Check all VMs are running
     [Documentation]    Check that all VMs are running.
-    [Tags]             SP-T68  lenovo-x1  darter-pro  dell-7330  fmo  pre-merge  bat
+    [Tags]             SP-T68  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  fmo
     @{vms}      Get VM list
     FOR   ${vm}  IN  @{vms}
         ${status}=    Run Keyword And Continue On Failure    Verify service status  service=microvm@${vm}
@@ -59,7 +59,7 @@ Check all VMs are running
 
 Check serial connection
     [Documentation]    Check serial connection
-    [Tags]             orin-agx  orin-agx-64  orin-nx  darter-pro  SP-T51  SP-T170  pre-merge  bat  lab-only
+    [Tags]             SP-T170  SP-T51  pre-merge  bat  darter-pro  orin-agx  orin-agx-64  orin-nx  lab-only
     [Setup]            Serial setup
     FOR    ${i}    IN RANGE    120
         Write Data    ${\n}
@@ -73,7 +73,7 @@ Check serial connection
 
 Check storage size
     [Documentation]  Check that there is enough persistent storage available
-    [Tags]           lenovo-x1  darter-pro  dell-7330  SP-5321  pre-merge  bat
+    [Tags]           SP-T342  pre-merge  bat  lenovo-x1  darter-pro  dell-7330
     ${lsblk}  Execute Command  lsblk
     Log       ${lsblk}
     ${SSD}    Run Keyword And Return Status  should contain   ${lsblk}   sda
@@ -89,7 +89,7 @@ Check storage size
 
 Check veritysetup status
     [Documentation]  Check that VERITY status is verified
-    [Tags]           bat    hardening-installer
+    [Tags]           hardening-installer  bat
     ${output}        Execute Command    veritysetup status root  sudo=True  sudo_password=${PASSWORD}
     ${status}        Get Verity Status  ${output}
     Should Be True   '${status}' == 'verified'

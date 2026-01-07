@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Check security in logs
-Force Tags          security  regression  logging  darter-pro  lenovo-x1
+Force Tags          logging  regression  security  lenovo-x1  darter-pro
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
 Resource            ../../resources/common_keywords.resource

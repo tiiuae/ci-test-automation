@@ -16,7 +16,7 @@ Resource            ../../resources/wifi_keywords.resource
 
 Verify NetVM is started
     [Documentation]         Verify that NetVM is active and running
-    [Tags]                  pre-merge  SP-T45  orin-agx  orin-agx-64  orin-nx  lenovo-x1  darter-pro  dell-7330  fmo
+    [Tags]                  SP-T45  pre-merge  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  fmo
     [Setup]                 Switch to vm   ${HOST}
     Verify service status   service=${netvm_service}
     Check Network Availability      ${NET_VM}    expected_result=True    range=5
@@ -27,7 +27,7 @@ Wifi passthrough into NetVM (Orin-AGX)
     [Documentation]     Verify that wifi works inside netvm
     ...                 Test case not in use in CI/CD Pipeline.
     ...                 Obsoleted when AGX devices use a network adapter.
-    [Tags]              # SP-T111  orin-agx  orin-agx-64
+    # [Tags]              SP-T111  orin-agx  orin-agx-64
     [Setup]             Switch to vm   ${NET_VM}
     Configure wifi      ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
@@ -43,7 +43,7 @@ Wifi passthrough into NetVM (Orin-AGX)
 
 Wifi passthrough into NetVM
     [Documentation]     Verify that wifi works inside netvm
-    [Tags]              SP-T101  orin-agx  orin-agx-64  lenovo-x1  darter-pro  dell-7330  lab-only
+    [Tags]              SP-T101  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  lab-only
     [Setup]             Switch to vm   ${NET_VM}
     Configure wifi      ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
@@ -61,7 +61,7 @@ NetVM stops and starts successfully
     [Documentation]     Verify that NetVM stops properly and starts after that
     ...                 Test case not in use in CI/CD Pipeline.
     ...                 Obsoleted when AGX devices use a network adapter.
-    [Tags]              # SP-T47  SP-T90   orin-agx  orin-agx-64
+    # [Tags]              SP-T47  SP-T90  orin-agx  orin-agx-64
     [Setup]             Switch to vm   ${HOST}
     Restart NetVM
     [Teardown]          Run Keywords  Start NetVM   AND  Close All Connections

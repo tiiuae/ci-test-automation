@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing target device bootup time.
-Force Tags          boot_time_test   performance
+Force Tags          boot_time_test  performance
 
 Resource            ../../config/variables.robot
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}

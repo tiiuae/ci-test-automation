@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing logging
-Force Tags          bat  regression  pre-merge  logging  lenovo-x1  darter-pro  dell-7330
+Force Tags          logging  pre-merge  bat  regression  lenovo-x1  darter-pro  dell-7330
 
 Library             DateTime
 Library             OperatingSystem

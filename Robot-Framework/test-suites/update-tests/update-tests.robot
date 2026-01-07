@@ -17,14 +17,14 @@ Test Timeout        10 minutes
 Test ota update
     [Documentation]  Check that ota-update tooling works and new revision shows up in the bootloader list.
     ...              Do not try boot to the new revision. After test unlink the new revision.
-    [Tags]           ota-update  SP-T147
+    [Tags]           SP-T147  ota-update
     Run Keyword If   "${DEVICE_TYPE}" == "x1-sec-boot"   Skip   Updating is not supported by signed images.
     Update with      ota-update
 
 Update via givc-cli
     [Documentation]  Check that update succeeds via givc-cli and new revision shows up in the bootloader list.
     ...              Do not try boot to the new revision. After test unlink the new revision.
-    [Tags]           givc-cli-update  SP-T148
+    [Tags]           SP-T148  givc-cli-update
     Run Keyword If   "${DEVICE_TYPE}" == "x1-sec-boot"   Skip   Updating is not supported by signed images.
     Update with      givc-cli
 

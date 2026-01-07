@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Check killswitch functionality
-Force Tags          security  killswitch  regression  lenovo-x1  darter-pro
+Force Tags          killswitch  regression  security  lenovo-x1  darter-pro
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/audio_and_video_keywords.resource
 Resource            ../../resources/common_keywords.resource

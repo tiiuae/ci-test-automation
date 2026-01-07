@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Tests for input-related GUI functionality
-Force Tags          gui  gui-input
+Force Tags          gui-input  gui
 
 Library             ../../lib/output_parser.py
 Library             Collections
