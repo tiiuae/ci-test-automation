@@ -19,12 +19,12 @@ Start App Store
 
 Start Bluetooth Settings
     [Documentation]   Start Bluetooth Settings and verify process started
-    [Tags]            SP-T204  fmo
+    [Tags]            SP-T204  SP-T204-1  fmo
     Start application in VM   "Bluetooth Settings"   ${GUI_VM}   blueman-manager-wrapped-wrapped
 
 Start COSMIC Files
     [Documentation]   Start Cosmic Files and verify process started
-    [Tags]            SP-T206  fmo
+    [Tags]            SP-T206  SP-T206-1  fmo
     Start application in VM   com.system76.CosmicFiles   ${GUI_VM}   cosmic-files %U
 
 Start COSMIC Media Player
@@ -49,7 +49,7 @@ Start COSMIC Text Editor
 
 Start Calculator
     [Documentation]   Start Calculator and verify process started
-    [Tags]            SP-T202  fmo
+    [Tags]            SP-T202  SP-T202-1  fmo
     Start application in VM   Calculator   ${GUI_VM}   calculator
 
 Start Element
@@ -69,7 +69,7 @@ Start Gala
 
 Start Ghaf Control Panel
     [Documentation]   Start Ghaf Control Panel and verify process started
-    [Tags]            SP-T205  fmo
+    [Tags]            SP-T205  SP-T205-1  fmo
     Start application in VM   "Ghaf Control Panel"   ${GUI_VM}   ctrl-panel
 
 Start Google Chrome
@@ -99,7 +99,7 @@ Start Slack
 
 Start Sticky Notes
     [Documentation]   Start Sticky Notes and verify process started
-    [Tags]            SP-T201-1  fmo
+    [Tags]            SP-T201  SP-T201-1  fmo
     Start application in VM   "Sticky Notes"   ${GUI_VM}   sticky-wrapped
 
 Start Teams

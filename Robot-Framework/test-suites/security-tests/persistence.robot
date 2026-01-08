@@ -26,38 +26,38 @@ ${EXPECTED_NET_STATE}     blocked
 *** Test Cases ***
 
 Verify camera block persisted
-    [Tags]    SP-T305
+    [Tags]    SP-T305  SP-T305-1
     ${cam_state}      Get device state   cam
     Should Be Equal   ${EXPECTED_CAM_STATE}  ${cam_state}
 
 Verify microphone block persisted
-    [Tags]    SP-T305
+    [Tags]    SP-T305  SP-T305-2
     ${mic_state}      Get device state   mic
     Should Be Equal   ${EXPECTED_MIC_STATE}  ${mic_state}
 
 Verify Bluetooth block persisted
-    [Tags]    SP-T305
+    [Tags]    SP-T305  SP-T305-3
     ${bt_state}      Get device state   bluetooth
     Should Be Equal   ${EXPECTED_BT_STATE}  ${bt_state}
 
 Verify Wi-Fi block persisted
-    [Tags]    SP-T305
+    [Tags]    SP-T305  SP-T305-4
     ${net_state}      Get device state   net
     Should Be Equal   ${EXPECTED_NET_STATE}  ${net_state}
 
 Verify brightness persisted
-    [Tags]    SP-T326-1
+    [Tags]    SP-T326  SP-T326-1
     ${brightness}     Get screen brightness
     Should Be Equal   ${EXPECTED_BRIGHTNESS}  ${brightness}
 
 Verify volume persisted
-    [Tags]    SP-T326-2
+    [Tags]    SP-T326  SP-T326-2
     [Setup]   Set device state  unblocked  mic  # Unblock audio before checking volume
     ${volume}         Get volume level
     Should Be Equal   ${EXPECTED_VOLUME}  ${volume}
 
 Verify timezone persisted
-    [Tags]    SP-T326-3
+    [Tags]    SP-T326  SP-T326-3
     ${timezone}       Get timezone
     Should Be Equal   ${EXPECTED_TIMEZONE}  ${timezone}
 

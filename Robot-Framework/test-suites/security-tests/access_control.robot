@@ -15,7 +15,7 @@ Suite Setup         Setup
 Check access to host devices
     [Documentation]     Check that ghaf user has access to host devices in ghaf-host
     ...                 and does not have the access inside VMs
-    [Tags]              SP-T265
+    [Tags]              SP-T265  SP-T265-1
     [Template]          Check access to host devices in ${vm}
     FOR    ${vm}    IN    @{VM_LIST_WITH_HOST}
         ${vm}
@@ -23,14 +23,14 @@ Check access to host devices
 
 Check that unauthorised user has no access to host devices
     [Documentation]     Check that test user does not have access to host devices in Gui-vm
-    [Tags]              SP-T265
+    [Tags]              SP-T265  SP-T265-2
     Switch to vm        ${GUI_VM}  user=${USER_LOGIN}
     Check access   /dev/nvme0n1    expected=False
 
 Check that unauthorised user has limited access to file system
     [Documentation]     Check that test user does not have access to /root
     ...                 and have access to normal directories like: Pictures, Videos, Shares
-    [Tags]              SP-T291
+    [Tags]              SP-T291  SP-T291-1
     Switch to vm        ${GUI_VM}  user=${USER_LOGIN}
     Check access     /root    expected=False
     Check access     /home/${USER_LOGIN}/Pictures    expected=True
@@ -39,7 +39,7 @@ Check that unauthorised user has limited access to file system
 
 Check user account is only in gui-vm
     [Documentation]    Check that user account is only available in gui-vm
-    [Tags]             SP-T291
+    [Tags]             SP-T291  SP-T291-2
     ${failed_vms}      Create List
     FOR  ${vm}  IN  @{VM_LIST_WITH_HOST}
         IF   '${vm}' != '${GUI_VM}'

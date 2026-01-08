@@ -34,7 +34,7 @@ Check QSPI version
 
 Check host systemctl status
     [Documentation]    Verify systemctl status is running on host
-    [Tags]             SP-T98  systemctl  pre-merge  bat  orin-agx  orin-agx-64  orin-nx  fmo
+    [Tags]             SP-T98  SP-T98-1  systemctl  pre-merge  bat  orin-agx  orin-agx-64  orin-nx  fmo
     ${status}   ${output}   Run Keyword And Ignore Error    Verify Systemctl status
     Log   ${output}
 

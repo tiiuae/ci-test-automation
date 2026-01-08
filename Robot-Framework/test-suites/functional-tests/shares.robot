@@ -15,27 +15,27 @@ Suite Setup         Shares setup
 *** Test Cases ***
 
 File sharing from Chrome-VM to Business-VM
-    [Tags]          regression
+    [Tags]          SP-T198-1  regression
     ${CHROME_VM}    ${BUSINESS_VM}
 
 File sharing from Chrome-VM to Comms-VM
-    [Tags]          pre-merge  bat  regression
+    [Tags]          SP-T198-2  pre-merge  bat  regression
     ${CHROME_VM}    ${COMMS_VM}
 
 File sharing from Comms-VM to Business-VM
-    [Tags]          regression
+    [Tags]          SP-T198-3  regression
     ${COMMS_VM}     ${BUSINESS_VM}
 
 File sharing from Comms-VM to Chrome-VM
-    [Tags]          regression
+    [Tags]          SP-T198-4  regression
     ${COMMS_VM}     ${CHROME_VM}
 
 File sharing from Business-VM to Comms-VM
-    [Tags]          regression
+    [Tags]          SP-T198-5  regression
     ${BUSINESS_VM}  ${COMMS_VM}
 
 File sharing from Business-VM to Chrome-VM
-    [Tags]          regression
+    [Tags]          SP-T198-6  regression
     ${BUSINESS_VM}  ${CHROME_VM}
 
 *** Keywords ***

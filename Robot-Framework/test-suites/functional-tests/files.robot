@@ -17,25 +17,25 @@ ${OUTPUT_FILE}   /tmp/out.log
 
 Open PDF from chrome-vm
     [Documentation]    Open PDF file from Chrome VM and check that Zathura app is started
-    [Tags]             SP-T131-1  pre-merge  bat  regression
+    [Tags]             SP-T131  SP-T131-1  pre-merge  bat  regression
     Open PDF from app-vm    ${CHROME_VM}
     [Teardown]         Kill PDF Reader   ${CHROME_VM}
 
 Open PDF from comms-vm
     [Documentation]    Open PDF file from Comms VM and check that Zathura app is started
-    [Tags]             SP-T131-2  regression
+    [Tags]             SP-T131  SP-T131-2  regression
     Open PDF from app-vm    ${COMMS_VM}
     [Teardown]         Kill PDF Reader   ${COMMS_VM}
 
 Open PDF from business-vm
     [Documentation]    Open PDF file from Business VM and check that Zathura app is started
-    [Tags]             SP-T131-3  regression
+    [Tags]             SP-T131  SP-T131-3  regression
     Open PDF from app-vm    ${BUSINESS_VM}
     [Teardown]         Kill PDF Reader   ${BUSINESS_VM}
 
 Open PDF from gui-vm
     [Documentation]    Open PDF file from Gui VM and check that Zathura app is started
-    [Tags]             SP-T131-4  regression
+    [Tags]             SP-T131  SP-T131-4  regression
     Open PDF from app-vm    ${GUI_VM}
     [Teardown]         Kill PDF Reader   ${GUI_VM}
 
