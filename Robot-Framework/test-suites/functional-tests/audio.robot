@@ -21,43 +21,43 @@ ${AUDIO_DIR}    ${OUTPUT_DIR}/outputs/audio-temp
 *** Test Cases ***
 
 Record audio in business-vm
-    [Tags]   SP-T247-1  pre-merge
+    [Tags]   SP-T247  SP-T247-1  pre-merge
     Record Audio And Verify   ${BUSINESS_VM}
 
 Record audio in chrome-vm
-    [Tags]  SP-T247-2
+    [Tags]  SP-T247  SP-T247-2
     Record Audio And Verify   ${CHROME_VM}
 
 Record audio in comms-vm
-    [Tags]   SP-T247-3
+    [Tags]   SP-T247  SP-T247-3
     Record Audio And Verify   ${COMMS_VM}
 
 Record audio in flatpak-vm
-    [Tags]   SP-T247-4
+    [Tags]   SP-T247  SP-T247-4
     Record Audio And Verify   ${FLATPAK_VM}
 
 Record audio in gui-vm
-    [Tags]   SP-T247-5  pre-merge
+    [Tags]   SP-T247  SP-T247-5  pre-merge
     Record Audio And Verify   ${GUI_VM}
 
 Play audio in business-vm
-    [Tags]   SP-T212-1  pre-merge
+    [Tags]   SP-T212  SP-T212-1  pre-merge
     Play Audio And Verify   ${BUSINESS_VM}
     
 Play audio in chrome-vm
-    [Tags]   SP-T212-2
+    [Tags]   SP-T212  SP-T212-2
     Play Audio And Verify   ${CHROME_VM}
 
 Play audio in comms-vm
-    [Tags]   SP-T212-3
+    [Tags]   SP-T212  SP-T212-3
     Play Audio And Verify   ${COMMS_VM}
 
 Play audio in flatpak-vm
-    [Tags]   SP-T212-4
+    [Tags]   SP-T212  SP-T212-4
     Play Audio And Verify   ${FLATPAK_VM}
 
 Play audio in gui-vm
-    [Tags]   SP-T212-5  pre-merge
+    [Tags]   SP-T212  SP-T212-5  pre-merge
     Play Audio And Verify   ${GUI_VM}
 
 Check Audio devices

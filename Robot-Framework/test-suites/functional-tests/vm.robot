@@ -31,7 +31,7 @@ Check internet connection in every VM
 
 Check systemctl status in every VM
     [Documentation]    Check that systemctl status is running in every vm.
-    [Tags]             SP-T98-2   systemctl
+    [Tags]             SP-T98  SP-T98-2   systemctl
     ${failed_new_services}=    Create List
     ${failed_old_services}=    Create List
     ${known_issues}=    Create List

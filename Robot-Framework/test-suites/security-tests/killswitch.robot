@@ -19,7 +19,7 @@ ${AUDIO_DIR}    ${OUTPUT_DIR}/outputs/audio-temp
 
 Killswitch disconnects camera
     [Documentation]  Check that camera works, then block it using killswitch and verify that it doesn't work
-    [Tags]           SP-T275
+    [Tags]           SP-T275  SP-T275-1
     Check camera     expected=True
     Set device state  blocked    cam
     Check camera     expected=False
@@ -27,7 +27,7 @@ Killswitch disconnects camera
 
 Killswitch disconnects microphone
     [Documentation]  Check that microphone works, then block it using killswitch and verify that it doesn't work
-    [Tags]           SP-T275
+    [Tags]           SP-T275  SP-T275-2
     Record Audio And Verify   ${BUSINESS_VM}
     Set device state  blocked    mic
     Record Audio And Verify   ${BUSINESS_VM}    expected_duration=0
