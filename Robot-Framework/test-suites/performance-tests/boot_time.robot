@@ -23,7 +23,7 @@ Suite Teardown      Close All Connections
 
 *** Variables ***
 ${PING_TIMEOUT}     120
-${SEARCH_TIMEOUT}   40
+${SEARCH_TIMEOUT}   60
 
 
 *** Test Cases ***
@@ -32,7 +32,7 @@ Measure Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
     [Tags]  SP-T187  lenovo-x1  darter-pro  dell-7330
     Soft Reboot Device
-    Wait Until Keyword Succeeds  35s  2s  Check If Ping Fails
+    Wait Until Device Is Down
     Close All Connections
     Get Boot times
     [Teardown]    Run Keyword If Test Failed  Log Journal To Debug
@@ -42,7 +42,7 @@ Measure Hard Boot Time
     [Tags]  SP-T182  lenovo-x1  darter-pro  dell-7330  lab-only
     Log To Console                Shutting down by pressing the power button
     Press Button                  ${SWITCH_BOT}-OFF
-    Wait Until Keyword Succeeds   15s  2s  Check If Ping Fails
+    Wait Until Device Is Down
     Close All Connections
     Log To Console                The device has shut down
     Log To Console                Waiting for the robot finger to return
@@ -56,23 +56,23 @@ Measure Orin Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
     [Tags]  SP-T187  orin-agx  orin-agx-64  orin-nx
     Soft Reboot Device
-    Wait Until Keyword Succeeds  35s  2s  Check If Ping Fails
+    Wait Until Device Is Down
     Close All Connections
     Get Time To Ping
-    [Teardown]                   Sleep    30
+    [Teardown]     Switch to vm   ${NET_VM}   timeout=120
 
 Measure Orin Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
     [Tags]  SP-T182  orin-agx  orin-agx-64  orin-nx  lab-only
     Log To Console                Shutting down by switching the power off
     Turn Relay Off                ${RELAY_NUMBER}
-    Wait Until Keyword Succeeds   15s  2s  Check If Ping Fails
+    Wait Until Device Is Down
     Close All Connections
     Log To Console                The device has shut down
     Log To Console                Booting the device by switching the power on
     Turn Relay On                 ${RELAY_NUMBER}
     Get Time To Ping              plot_name=Hard Boot Times
-    [Teardown]                    Sleep    30
+    [Teardown]      Switch to vm   ${NET_VM}   timeout=120
 
 
 *** Keywords ***
@@ -115,13 +115,11 @@ Get Boot times
     ${start_time_epoch}  DateTime.Get Current Date   result_format=epoch
     # For detecting timestamp of Login screen in cosmic desktop
     ${testuser_line}  Catenate  SEPARATOR=\n
-    ...  testuser_line=$(journalctl -b --output=short-iso | grep "testuser: changing state activating-for-acquire")
+    ...  testuser_line=$(journalctl -b --output=short-iso | grep "${USER_LOGIN}: changing state activating-for-acquire")
     ...  echo $testuser_line
 
     ${ping_response_seconds}    Measure Time To Ping    ${start_time_epoch}
-    Sleep  30
-    Connect
-    Connect to VM  ${GUI_VM}
+    Switch to vm            ${GUI_VM}
     ${time_to_desktop}      Check Time To Notification  ${testuser_line}   ${start_time_epoch}
     Log                     Boot time to login screen measured: ${time_to_desktop}   console=True
     &{final_results}        Create Dictionary

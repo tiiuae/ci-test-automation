@@ -36,12 +36,11 @@ GUI Suspend and wake up
     Check that device is suspended
 
     Log To Console                Letting the device stay suspended for 30 sec
-    Sleep                         30
+    Wait                          30
     Log To Console                Waking the device up by pressing the power button for 1 sec
 
     Wake up device
     Close All Connections
-    Connect
     Start ydotoold
     Switch to vm             ${GUI_VM}   user=${USER_LOGIN}
 

@@ -42,8 +42,6 @@ Test IP spoofing
         Log To Console   .  no_newline=true
         Sleep       5
     END
-
-    Connect
     Check the result files
     [Teardown]                      Spoofing Test Teardown
 

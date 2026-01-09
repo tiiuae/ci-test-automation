@@ -33,7 +33,7 @@ Verify booting after restart by power
         Sleep  30
     END
     IF  "${CONNECTION_TYPE}" == "ssh"
-        Connect   iterations=10
+        Switch to vm    ${HOST}
         Verify service status   service=init.scope
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Verify init.scope status via serial
@@ -50,8 +50,7 @@ Verify booting laptop
     ELSE
         Log To Console  The device started
     END
-    Sleep  30
-    Connect   iterations=10
+    Switch to vm   ${HOST}
     Verify service status   service=init.scope
     [Teardown]   Teardown
 

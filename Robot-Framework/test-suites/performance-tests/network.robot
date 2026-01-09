@@ -19,7 +19,7 @@ Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Suite Setup         Run Keywords  Connect
+Suite Setup         Run Keywords  Switch to vm    ${NET_VM}
 ...                 AND  Run iperf server on DUT
 Suite Teardown      Run Keywords   Kill App By Name   iperf
 ...                 AND  Close port 5201 from iptables
