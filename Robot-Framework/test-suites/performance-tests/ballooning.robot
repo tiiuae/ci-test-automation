@@ -12,7 +12,6 @@ Resource            ../../resources/device_control.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/performance_keywords.resource
 
-Suite Setup         Connect
 Suite Teardown      Close All Connections
 Test Teardown       Ballooning Test Teardown
 Test Timeout        10 minutes
@@ -59,7 +58,7 @@ Test ballooning in VM
     ${timeout_deflate}=               Evaluate      int(${expected_mem_at_inflate} * 0.005)
     ${timeout_logging}=               Evaluate      int(${timeout_inflate} + ${timeout_deflate} + 20)
 
-    Connect to VM                     ${vm}     timeout=120
+    Switch to vm                     ${vm}     timeout=120
 
     Log                               Minimum expected total memory at inflate: ${expected_mem_at_inflate} MiB  console=True
     Log                               Maximum allowed total memory at inflate: ${max_mem_at_inflate} MiB  console=True
@@ -177,9 +176,8 @@ Plot ballooning
 Procedure After Timeout
     Reboot Laptop
     Check If Device Is Up
-    Sleep  30
-    Connect                  iterations=10
-    ${rebooted}=             Set Variable  True
+    Switch to vm    ${NET_VM}
+    ${rebooted}     Set Variable  True
 
 Clean Test Files
     Execute Command   rm /dev/shm/test/*      sudo=True  sudo_password=${PASSWORD}

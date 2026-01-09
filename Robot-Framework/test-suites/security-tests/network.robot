@@ -24,19 +24,19 @@ Account lockout after failed login
 *** Keywords ***
 
 Try to connect with wrong password
-    [Arguments]   ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${jumphost}=None
-    ${connection}       Open Connection    ${vm_name}    port=22    prompt=\$    timeout=30
+    [Arguments]   ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${jumphost}=None   ${timeout}=10
+    ${connection}       Open Connection    ${vm_name}    port=22    prompt=\$    timeout=${timeout}
     FOR    ${i}    IN RANGE     5
         TRY
-            ${status}  ${login_output}   Run Keyword And Ignore Error  Login with timeout  username=${user}  password=wrong  jumphost=${jumphost}
-        EXCEPT    Keyword timeout 30 seconds exceeded.
+            ${status}  ${login_output}   Run Keyword And Ignore Error  Login with timeout  expected_output=${vm_name}  username=${user}  password=wrong  timeout=${timeout}  jumphost=${jumphost}
+        EXCEPT    Keyword timeout ${timeout} seconds exceeded.
             BREAK
         END
     END
     TRY
-        Run Keyword And Ignore Error  Login with timeout  username=${user}  password=${pw}  jumphost=${jumphost}
-    EXCEPT    Keyword timeout 30 seconds exceeded.
-        Log   Failed to connect with correct password in 30 seconds.
+        Run Keyword And Ignore Error  Login with timeout  expected_output=${vm_name}  username=${user}  password=${pw}  timeout=${timeout}  jumphost=${jumphost}
+    EXCEPT    Keyword timeout ${timeout} seconds exceeded.
+        Log   Failed to connect with correct password in ${timeout} seconds.
     END
 
 Check ip is in the blacklist

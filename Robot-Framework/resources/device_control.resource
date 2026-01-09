@@ -52,8 +52,7 @@ Turn Laptop On and Connect
     ELSE
         Log To Console  The device started
     END
-    Sleep   30
-    Connect    iterations=10
+    Switch to vm    ${NET_VM}
 
 Soft Reboot Device
     [Documentation]  Reboot device from ${vm}
@@ -61,7 +60,7 @@ Soft Reboot Device
     ${device_is_available}   Ping Host   ${DEVICE_IP_ADDRESS}
     IF  ${device_is_available}
         Switch to vm   ${vm}
-        Run Command  reboot  sudo=True
+        Run Command  reboot  sudo=True   rc_match=skip
         Log To Console  Rebooting device from command line
     ELSE
         FAIL    Device expected to be available but not responding.
@@ -78,8 +77,7 @@ Connect After Reboot
         FAIL    The device is available only via serial, but tests require SSH.
     ELSE
         Log To Console            Device started
-        Sleep   30
-        Connect    iterations=10
+        Switch to vm    ${NET_VM}
     END
 
 Wake up device
@@ -120,3 +118,12 @@ Wait Until Device Is Down
         Sleep    1s
     END
     Fail    Device at ${DEVICE_IP_ADDRESS} still responds after 60 seconds.
+
+Check that device is suspended
+    ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
+    IF  ${device_not_available} == True
+        Log To Console  Device is suspended
+    ELSE
+        Log To Console  Device is available
+        FAIL    Device failed to suspend.
+    END

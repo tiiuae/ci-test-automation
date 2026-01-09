@@ -73,7 +73,6 @@ CPU resource isolation test
     # Overshoot the sysbench cpu thread number in the attacking VM although qemu will/should limit it to 4.
     Single vs Parallel CPU test       reference-vm=${BUSINESS_VM}   ref_threads=4   attack-vm=${CHROME_VM}   attack_threads=20
     [Teardown]              Run Keywords    Close All Connections
-    ...                     AND             Connect
     ...                     AND             Switch to vm   ${HOST}
 
 Memory Read One thread test
@@ -202,6 +201,7 @@ FileIO write isolation test
     Write                  cd ${test_dir}
     Log To Console         Running fileio write test in single VM
     Write                  sysbench fileio --file-total-size=${files_size}G --threads=1 --file-extra-flags=direct --file-test-mode=seqwr --time=30 run
+    Set Client Configuration	  timeout=60
     Sleep                  5
     ${out}                 SSHLibrary.Read Until   execution time
     Write                  sysbench fileio cleanup
@@ -254,6 +254,7 @@ FileIO read isolation test
     Prepare files for fileio test in VM     ${files_size}   ${test_dir}
     Log To Console         Running fileio read test in single VM
     Write                  sysbench fileio --file-total-size=${files_size}G --threads=1 --file-extra-flags=direct --file-test-mode=seqrd --time=30 run
+    Set Client Configuration	  timeout=60
     Sleep                  5
     ${out}                 SSHLibrary.Read Until   execution time
     Log To Console         Parsing the test results
@@ -462,6 +463,9 @@ Prepare files for fileio test in VM
     Write                 cd ${test_dir}
     Write                 sysbench fileio --file-total-size=${total_size}G --file-num=128 --threads=1 --file-test-mode=seqrd prepare
     ${iterations}         Evaluate              int(${total_size} * 20)
+    IF  "${DEVICE_TYPE}" == "dell-7330"
+        ${iterations}   Evaluate                int(${total_size} * 40)
+    END
     FOR    ${i}    IN RANGE    ${iterations}
         Write            ls ${test_dir}
         Sleep            1
@@ -485,7 +489,6 @@ Teardown of Fileio Isolation Test
     Set default low limit
     Set Global Variable     ${PERF_LOW_LIMIT}   1
     Close All Connections
-    Connect
     Switch to vm   ${HOST}
 
 Performance Teardown

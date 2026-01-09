@@ -19,7 +19,7 @@ Get screen brightness
     ${brightness}     Run Command    ${output}/bin/brightnessctl get
     IF  ${log_brightness}    Log To Console    Brightness is ${brightness}
     # For debugging, save some logs
-    Run Command       journalctl -u systemd-backlight*
+    Run Command       journalctl -u systemd-backlight*   rc_match=skip
     RETURN            ${brightness}
     [Teardown]   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
 

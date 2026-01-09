@@ -15,6 +15,7 @@ Resource            ../resources/serial_keywords.resource
 *** Variables ***
 
 ${NETVM_NAME}       ${EMPTY}
+${NETVM_SYNTAX}     ghaf-[0-9]{10}
 
 
 *** Keywords ***
@@ -107,107 +108,79 @@ Check If Device Is Up
     END
 
 Login with timeout
-    [Arguments]       ${username}=${LOGIN}    ${password}=${PASSWORD}   ${timeout}=30   ${jumphost}=None
+    [Arguments]       ${expected_output}   ${username}=${LOGIN}   ${password}=${PASSWORD}   ${timeout}=10   ${jumphost}=None
     [Timeout]         ${timeout}
-    IF  $jumphost != 'None'
-        ${login_output}   Login   username=${username}    password=${password}    jumphost_index_or_alias=${jumphost}
+    ${login_output}   Login   username=${username}    password=${password}    jumphost_index_or_alias=${jumphost}
+    IF   '${expected_output}' == '${NET_VM}'
+        ${status}  ${output}  Run Keyword And Ignore Error   Should Match Regexp    ${login_output}   ${NETVM_SYNTAX}
+        IF   '${status}' == 'PASS'
+            ${netvm_name}        Get Regexp Matches    ${login_output}    ${NETVM_SYNTAX}
+            Set Global Variable  ${NETVM_NAME}    ${netvm_name}[0]
+        END
     ELSE
-        ${login_output}   Login   username=${username}    password=${password}
+        ${status}  ${output}  Run Keyword And Ignore Error   Should Contain   ${login_output}   ${expected_output}
     END
-    RETURN            ${login_output}
+    IF   '${status}' != 'PASS'
+        ${matches}    Get Regexp Matches   ${login_output}    @([^:]+):~   1
+        Log   Connected to ${matches}[0] instead   console=True
+
+        # If connection was opened to host collect logs to find out why
+        IF   '${HOST}' in $login_output
+            Run Keyword And Ignore Error   Run Command    journalctl   timeout=5
+            Run Keyword And Ignore Error   Run Command    systemctl status ${NETVM_SERVICE}   timeout=5
+        END
+        FAIL
+    END
+
+Open connection and login
+    [Arguments]    ${connection_point}   ${username}   ${password}   ${target_output}   ${jumphost}=None   ${timeout}=60
+    Log    Connecting to ${connection_point} as ${username}, target output ${target_output}
+    Log To Console    Connecting to ${connection_point} as ${username}...   no_newline=True
+    WHILE    True    limit=${timeout} seconds
+        TRY
+            ${connection}     Open Connection   ${connection_point}   port=22   prompt=\$   timeout=10
+        EXCEPT     Keyword timeout 10 seconds exceeded.
+            Log    Opening connection timeout 10 seconds reached, trying again    console=True
+        EXCEPT
+            Log    Failed to open connection, trying again    console=True
+        ELSE
+            TRY
+                Login with timeout   username=${username}   password=${password}   timeout=${timeout}   jumphost=${jumphost}   expected_output=${target_output}
+            EXCEPT     Keyword timeout 10 seconds exceeded.
+                Log    Login timeout 10 seconds reached, trying again    console=True
+            EXCEPT
+                No Operation   # Do nothing, logging already done in Login with timeout
+            ELSE
+                Log To Console   Connected to ${connection_point}
+                RETURN           ${connection}
+            END
+            Close Connection
+        END
+        Sleep    2
+    END
+    FAIL   Failed to login to ${connection_point} as ${username}
 
 Connect
-    [Documentation]   Set up the SSH connection to the device
-    [Arguments]       ${IP}=${DEVICE_IP_ADDRESS}    ${PORT}=22    ${target}=net-vm   ${iterations}=3
-    IF  '${target}' == 'net-vm'
-        ${target_output}  Set Variable  ghaf@ghaf-\\d{10}
-        Log To Console    Trying to connect to net-vm
-    ELSE
-        ${target_output}  Set Variable  ${target}
-        Log    Expecting ${target_output} target output  console=True
-        Log    Trying to connect to ${target_output}  console=True
-    END
-    # Iterations are necessary at boot for those targets which should expose net-vm to ethernet interface.
-    # Ghaf-host is accessible on these targets for a short period of time at boot.
-    FOR    ${i}    IN RANGE    ${iterations}
-        ${pass_status}  ${connection}    Run Keyword And Ignore Error  Open Connection    ${IP}       port=${PORT}    prompt=\$    timeout=30
-        ${login_status}  ${login_output}  Run Keyword And Ignore Error  Login with timeout    username=${LOGIN}    password=${PASSWORD}
-        ${pass_status}    Run Keyword And Return Status    Should Match Regexp    ${login_output}    ${target_output}
-
-        IF    ${pass_status}
-            ${login_output}   Get Regexp Matches   ${login_output}    ${target_output}
-            Log To Console    Connected successfully to ${login_output}[0]
-            IF  '${target}' == 'net-vm'
-                Set Global Variable  ${NET-VM_GHAF_SSH}    ${connection}
-                ${netvm_name}        Get Regexp Matches    ${login_output}[0]    ghaf-\\d{10}
-                Set Global Variable  ${NETVM_NAME}         ${netvm_name}[0]
-            END
-            RETURN  ${connection}
-        ELSE
-            # If connection was opened to a wrong VM collect logs to find out why
-            IF   $login_status=='PASS'
-                Run Command    journalctl
-                IF  'ghaf@${HOST}' in $login_output
-                    Run Command    systemctl status ${NETVM_SERVICE}
-                END
-                ${login_output}     Clean Login Output   ${login_output}
-                Log To Console      Failed to connect to ${target_output}, connected to ${login_output} instead.
-            ELSE
-                Log To Console    Failed to connect.
-            END
-            Close All Connections
-        END
-        Sleep  5
-    END
-    IF   $login_status=='PASS'
-        FAIL   Failed to connect to ${target_output}, connected to ${login_output} instead
-    END
-    FAIL   Failed to connect
+    [Documentation]   Set up SSH connection to ${target}
+    [Arguments]       ${target}   ${timeout}=60
+    [Timeout]         ${timeout}
+    IF   '${target}' == '${NET_VM}' or '${target}' == '${NETVM_NAME}'   FAIL  Use 'Switch to vm  ${NET_VM}' instead of calling this keyword directly
+    Open connection and login   connection_point=${DEVICE_IP_ADDRESS}   username=${LOGIN}   password=${PASSWORD}   target_output=${target}   timeout=${timeout}
 
 Connect to VM
-    [Documentation]      Connect to any VM or ghaf-host over internal virtual network
-    [Arguments]          ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=60
-    Switch to vm         ${NET_VM}
-    Log                  Connecting to ${vm_name} as ${user}...   console=True
+    [Documentation]   Connect to any VM or ghaf-host over internal virtual network
+    [Arguments]       ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=60
+    [Timeout]         ${timeout}
+    [Tags]            robot:private   # Use 'Switch to vm' instead of calling this keyword directly
+    Switch to vm      ${NET_VM}
     Check if ssh is ready on vm        ${vm_name}   ${timeout}
-    ${failed_connection}  Set Variable  True
-    ${start_time}  Get Time	epoch
-    ${jumphost}    Set Variable  ${NET-VM_GHAF_SSH}
-    # Opening connection
-    FOR    ${i}    IN RANGE    10
-        TRY
-            ${connection}=       Open Connection    ${vm_name}    port=22    prompt=\$    timeout=30
-        EXCEPT    ChannelException: ChannelException(2, 'Connect failed')    type=LITERAL
-            ${diff}=    Evaluate    int(time.time()) - int(${start_time})
-            IF   ${diff} < ${timeout}
-                Sleep    1
-                CONTINUE
-            ELSE
-                BREAK
-            END
-        END
-        ${failed_connection}    Set Variable  False
-        BREAK
-    END
-    IF  ${failed_connection}    FAIL  Couldn't connect ${vm_name}
-    # Logging in to vm
-    ${logged_in}  Set Variable  False
-    FOR    ${i}    IN RANGE     5
-        ${status}  ${login_output}   Run Keyword And Ignore Error  Login with timeout  username=${user}  password=${pw}  jumphost=${jumphost}
-        ${logged_in}            Run Keyword And Return Status  Should Contain  ${login_output}  ${vm_name}
-        Exit For Loop If        ${logged_in}
-        Sleep                   2
-    END
-    IF  not ${logged_in}  Log to console   FAILED to login to ${vm_name} as ${user}.
-    IF  not ${logged_in}  FAIL  Could not login to ${vm_name} as ${user}.
-    Log To Console  Connected and logged in.
-    # If connected and logged in successfully
-    RETURN  ${connection}
+    ${connection}     Open connection and login   connection_point=${vm_name}   username=${user}   password=${pw}   target_output=${vm_name}   jumphost=${NET-VM_GHAF_SSH}   timeout=${timeout}
+    RETURN   ${connection}
 
 Save log
-    Connect
+    Switch to vm  ${HOST}
     Run Command   journalctl > jrnl.txt${\n}
-    Eun Command   cat jrnl.txt${\n}
+    Run Command   cat jrnl.txt${\n}
     Close All Connections
 
 Check if ssh is ready on vm
@@ -257,7 +230,7 @@ Check if ssh is ready on device
     RETURN  ${is_ready}
 
 Switch to vm
-    [Arguments]         ${hostname}   ${user}=ghaf
+    [Arguments]         ${hostname}   ${user}=ghaf   ${timeout}=60
 
     Set Log Level           NONE
     IF  $user=='ghaf'
@@ -281,15 +254,15 @@ Switch to vm
         IF   ${status}   RETURN
     END
     IF  '${hostname}' == '${NET_VM}'
-        ${connection_index}      Connect
+        ${connection_index}   Open connection and login   connection_point=${DEVICE_IP_ADDRESS}   username=${LOGIN}   password=${PASSWORD}   target_output=${NET_VM}   timeout=${timeout}
     ELSE
-        ${connection_index}      Connect to VM          ${hostname}     ${user}     ${pw}
+        ${connection_index}   Connect to VM    ${hostname}   ${user}   ${pw}   ${timeout}
     END
     Set Variable By Name     ${ssh_connection}    ${connection_index}
 
 Try to switch to active vm connection
     [Arguments]        ${ssh_index}    ${hostname}   ${user}
-
+    [Tags]             robot:private
     ${connection_status}  ${previous_connection}   Run Keyword And Ignore Error    Switch Connection   ${ssh_index}
 
     ${status}   ${output_user}    Run Keyword And Ignore Error   Run Command    whoami
@@ -307,15 +280,6 @@ Try to switch to active vm connection
     ELSE
         IF  '${previous_connection}' != '${ssh_index}'   Log    Switched to ${hostname} as ${user}   console=True
         RETURN   True
-    END
-
-Check that device is suspended
-    ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
-    IF  ${device_not_available} == True
-        Log To Console  Device is suspended
-    ELSE
-        Log To Console  Device is available
-        FAIL    Device failed to suspend.
     END
 
 Get VM IP
