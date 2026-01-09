@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Check persistence
-Force Tags          persistence  regression  security  lenovo-x1  darter-pro  lab-only
+Test Tags           persistence  lenovo-x1  darter-pro  lab-only
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/device_control.resource
 Resource            ../../resources/gui-vm_keywords.resource

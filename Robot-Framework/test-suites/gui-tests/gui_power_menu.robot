@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing taskbar power widget options
-Force Tags          gui-power-menu  gui
+Test Tags           gui-power-menu
 
 Library             ../../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
 Resource            ../../resources/common_keywords.resource

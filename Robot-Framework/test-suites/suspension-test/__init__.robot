@@ -3,6 +3,7 @@
 
 *** Settings ***
 Documentation       Suspension test
+Test Tags           regression  suspension
 
 Resource            ../../resources/device_control.resource
 Resource            ../../resources/setup_keywords.resource

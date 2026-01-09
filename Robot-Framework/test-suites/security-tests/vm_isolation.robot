@@ -4,7 +4,7 @@
 *** Settings ***
 Documentation       Validates that individual VM failures are isolated and do not impact
 ...                 the availability, performance, or security of other VMs or the host system.
-Force Tags          regression  security  lenovo-x1  darter-pro  dell-7330
+Test Tags           vm-isolation  lenovo-x1  darter-pro  dell-7330
 
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/setup_keywords.resource

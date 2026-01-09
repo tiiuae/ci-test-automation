@@ -3,6 +3,7 @@
 
 *** Settings ***
 Documentation       Performance tests
+Test Tags           performance
 
 Library             SSHLibrary
 Resource            ../../config/variables.robot

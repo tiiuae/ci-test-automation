@@ -3,6 +3,7 @@
 
 *** Settings ***
 Documentation       Test OP-TEE PKCS#11 through pkcs11-tool wrappers
+Test Tags           optee  bat  orin-agx  orin-agx-64  orin-nx
 
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
@@ -28,7 +29,7 @@ OP-TEE xtest
        ...              2. Delete corresponding "OP-TEE xtest XXXX" test case
        ...
        ...              (3. If everything is fixed (no more "-x"-flags), remove this comment!!)
-       [Tags]  SP-T122  optee  optee-xtest  bat  regression  orin-agx  orin-agx-64  orin-nx
+       [Tags]  SP-T122  optee-xtest
 
        ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest -x 1008 -x 1033    sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
        Log     ${stdout}
@@ -39,7 +40,7 @@ OP-TEE xtest 1008
     [Documentation]   Xtest 1008
     ...               Test will be skipped in case of failure, because this is a known issue.
     ...               Please read OP-TEE Test suite comment
-    [Tags]  SP-T129  optee  optee-xtest  bat  regression  orin-agx  orin-agx-64  orin-nx
+    [Tags]  SP-T129  optee-xtest
 
     ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest 1008   sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
     Should Be Equal As Integers    ${rc}    1
@@ -50,7 +51,7 @@ OP-TEE xtest 1033
     [Documentation]   Xtest 1033
     ...               Test will be skipped in case of failure, because this is a known issue.
     ...               Please read OP-TEE Test suite comment
-    [Tags]  SP-T129  optee  optee-xtest  bat  regression  orin-agx  orin-agx-64  orin-nx
+    [Tags]  SP-T129  optee-xtest
 
     ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest 1033   sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
     Should Be Equal As Integers    ${rc}    1
@@ -63,7 +64,7 @@ Basic pkcs11-tool-optee test
     ...               calling OP-TEE. Then it generates RSA 2048-bit and ECDSA
     ...               secp256r1 keys, for which signing and signature
     ...               verification operations are tested.
-    [Tags]            SP-T113  optee  bat  regression  orin-agx  orin-agx-64  orin-nx
+    [Tags]            SP-T113
 
     ${tool}=    Set Variable    "pkcs11-tool-optee"
     List key slots    ${tool}
@@ -77,32 +78,32 @@ Basic pkcs11-tool-optee test
 # These two tests are for the ghaf-caml-crush, which is not included in the
 # default build, but the tests are included here for convenience.
 
-Check caml-crush service is running
-    [Documentation]  Checks if the systemd service for caml-crush is running.
-    # Tags should be really: optee orin-agx  orin-nx
-    # but caml-crush is not included in basic ghaf builds
-    [Tags]  caml-crush
+# Check caml-crush service is running
+#     [Documentation]  Checks if the systemd service for caml-crush is running.
+#     # Tags should be really: optee orin-agx  orin-nx
+#     # but caml-crush is not included in basic ghaf builds
+#     [Tags]  caml-crush
 
-    ${state}  ${substate}=    Verify service status  service="caml-crush.service"  expected_state=active  expected_substate=running
+#     ${state}  ${substate}=    Verify service status  service="caml-crush.service"  expected_state=active  expected_substate=running
 
 
-Basic pkcs11-tool-caml-crush RSA and ECDSA key test
-    [Documentation]   Test OP-TEE PKCS#11 through pkcs11-tool-caml-crush
-    ...               wrapper. Basic test which initalizes key slots, by
-    ...               directly calling OP-TEE. Then it generates RSA 2048-bit
-    ...               and ECDSA secp256r1 keys, for which signing and signature
-    ...               verification operations are tested.
-    # Tags should be really: optee  orin-agx  orin-nx
-    # but caml-crush is not included in basic ghaf builds
-    [Tags]  caml-crush
+# Basic pkcs11-tool-caml-crush RSA and ECDSA key test
+#     [Documentation]   Test OP-TEE PKCS#11 through pkcs11-tool-caml-crush
+#     ...               wrapper. Basic test which initalizes key slots, by
+#     ...               directly calling OP-TEE. Then it generates RSA 2048-bit
+#     ...               and ECDSA secp256r1 keys, for which signing and signature
+#     ...               verification operations are tested.
+#     # Tags should be really: optee  orin-agx  orin-nx
+#     # but caml-crush is not included in basic ghaf builds
+#     [Tags]  caml-crush
 
-    ${tool}=    Set Variable    "pkcs11-tool-caml-crush-optee"
-    List key slots    ${tool}
-    Initialize slot    ${tool}
-    Test Public Key usage    ${tool}    keyid=1    keylabel=rsakey0    mechanism=SHA256-RSA-PKCS-PSS
-    Test Public Key usage    ${tool}    keyid=2    keylabel=eckey0    mechanism=ECDSA-SHA256
-    List key slots    ${tool}
-    List objects    ${tool}
+#     ${tool}=    Set Variable    "pkcs11-tool-caml-crush-optee"
+#     List key slots    ${tool}
+#     Initialize slot    ${tool}
+#     Test Public Key usage    ${tool}    keyid=1    keylabel=rsakey0    mechanism=SHA256-RSA-PKCS-PSS
+#     Test Public Key usage    ${tool}    keyid=2    keylabel=eckey0    mechanism=ECDSA-SHA256
+#     List key slots    ${tool}
+#     List objects    ${tool}
 
 
 *** Keywords ***

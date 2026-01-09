@@ -4,7 +4,7 @@
 *** Settings ***
 Documentation       Network performance tests
 ...                 Requires iperf installed on test running PC (sudo apt install iperf)
-Force Tags          network  performance
+Test Tags           network
 
 Resource            ../../config/variables.robot
 Library             ../../lib/output_parser.py
