@@ -47,7 +47,11 @@ Verify booting laptop
     [Documentation]    Restart the laptop by power and verify init service is running
     [Tags]             relayboot  lenovo-x1  darter-pro  dell-7330
     Reboot Laptop
-    Check If Device Is Up
+    IF    "installer" in "${JOB}"
+        Check If Device Is Up    range=240
+    ELSE
+        Check If Device Is Up
+    END
     IF    ${IS_AVAILABLE} == False
         Log To Console    Turning device on again...
         Press Button      ${SWITCH_BOT}-ON
@@ -155,7 +159,7 @@ Teardown
     Close Relay Board Connection
 
 Run ghaf-installer
-    Write             sudo ghaf-installer
+    Write             sudo ghaf-installer -e
     ${output} 	      SSHLibrary.Read Until 	]:
     Should Contain 	  ${output}    Device name
     ${device}         Extract Device Hint    ${output}
