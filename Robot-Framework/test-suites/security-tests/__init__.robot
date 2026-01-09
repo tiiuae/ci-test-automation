@@ -3,6 +3,7 @@
 
 *** Settings ***
 Documentation       Security tests
+Test Tags           regression  security
 
 Resource            ../../resources/setup_keywords.resource
 

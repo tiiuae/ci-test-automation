@@ -3,6 +3,7 @@
 
 *** Settings ***
 Documentation       Update tests
+Test Tags           regression  update
 
 Library             SSHLibrary
 Resource            ../../config/variables.robot

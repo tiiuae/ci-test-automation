@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing FMO target
-Force Tags          fmo-apps  bat  regression  fmo
+Test Tags           fmo-apps  bat  fmo
 
 Resource            ../../resources/app_keywords.resource
 

@@ -3,7 +3,6 @@
 
 *** Settings ***
 Documentation       Gathering performance data
-Force Tags          performance
 
 Resource            ../../config/variables.robot
 Library             ../../lib/output_parser.py

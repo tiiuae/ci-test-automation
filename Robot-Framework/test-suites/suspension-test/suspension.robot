@@ -3,7 +3,6 @@
 
 *** Settings ***
 Documentation       Testing automatic suspension of Lenovo-X1
-Force Tags          regression  suspension
 
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/device_control.resource

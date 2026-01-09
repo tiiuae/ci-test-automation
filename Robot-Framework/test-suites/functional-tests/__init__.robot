@@ -3,6 +3,7 @@
 
 *** Settings ***
 Documentation       Functional tests
+Test Tags           regression
 
 Resource            ../../resources/setup_keywords.resource
 

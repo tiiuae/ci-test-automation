@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Common system tests on host
-Force Tags          host  regression
+Test Tags           host
 
 Library             ../../lib/output_parser.py
 Resource            ../../resources/common_keywords.resource

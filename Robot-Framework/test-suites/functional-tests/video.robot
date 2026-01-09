@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing camera application
-Force Tags          video  bat  regression  lenovo-x1  darter-pro  dell-7330
+Test Tags           video  bat  lenovo-x1  darter-pro  dell-7330
 
 Library             Collections
 Library             OperatingSystem

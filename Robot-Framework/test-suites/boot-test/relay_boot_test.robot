@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing target device booting up.
-Force Tags          ssh_boot_test
+Test Tags           ssh_boot_test
 
 Library             ../../lib/output_parser.py
 Resource            ../../resources/common_keywords.resource

@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Checking retention policies
-Force Tags          retention  security
+Test Tags           retention
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/device_control.resource
@@ -14,7 +14,7 @@ Resource            ../../resources/setup_keywords.resource
 
 Log retention policies
     [Documentation]   Check that retention policies are applied and enforced
-    [Tags]            SP-T329  regression  lenovo-x1  darter-pro
+    [Tags]            SP-T329  lenovo-x1  darter-pro
 
     Switch to vm   ${HOST}
     Check journald configuration

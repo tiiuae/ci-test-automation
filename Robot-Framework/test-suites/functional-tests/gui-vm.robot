@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing Gui-vm
-Force Tags          gui-vm  regression
+Test Tags           gui-vm
 
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/common_keywords.resource

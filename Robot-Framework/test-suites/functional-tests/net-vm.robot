@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing Network VM
-Force Tags          net-vm  bat  regression
+Test Tags           net-vm  bat
 
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/file_keywords.resource

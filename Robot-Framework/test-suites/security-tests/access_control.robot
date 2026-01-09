@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Verify access rights and isolation across memory zones, virtual machines, and system resources
-Force Tags          regression  security  lenovo-x1  darter-pro  dell-7330
+Test Tags           firewall  lenovo-x1  darter-pro  dell-7330
 
 Resource            ../../resources/ssh_keywords.resource
 

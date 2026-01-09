@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing launching applications
-Force Tags          apps  pre-merge  bat  regression  lenovo-x1  darter-pro  dell-7330
+Test Tags           apps  pre-merge  bat  lenovo-x1  darter-pro  dell-7330
 
 Resource            ../../resources/app_keywords.resource
 

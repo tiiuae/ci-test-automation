@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Tests for update tooling
-Force Tags          regression  update  lenovo-x1  darter-pro
+Test Tags           lenovo-x1  darter-pro
 
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/device_control.resource

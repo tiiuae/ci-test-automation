@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Checking VM's firewall
-Force Tags          firewall  security
+Test Tags           firewall
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
@@ -17,7 +17,7 @@ ${port}             5432
 *** Test Cases ***
 
 Network traffic passes through all VMs' firewall
-    [Tags]            SP-T288  regression  lenovo-x1  darter-pro  dell-7330
+    [Tags]            SP-T288  lenovo-x1  darter-pro  dell-7330
     [Template]        Network traffic passes through ${vm} firewall
     FOR    ${vm}    IN    @{VM_LIST}
         IF  '${vm}' != '${GUI_VM}'
