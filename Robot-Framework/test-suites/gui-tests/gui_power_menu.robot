@@ -26,7 +26,8 @@ GUI Suspend and wake up
     ...               Check that the device is awake.
     ...               Logs device power consumption during the test
     ...               if power measurement tooling is set.
-    [Tags]            SP-T75  SP-T75-3  lenovo-x1  lab-only
+    [Tags]            SP-T75  SP-T75-3  lenovo-x1  darter-pro  lab-only
+    [Setup]           Run Keyword If   "${DEVICE_TYPE}" == "darter-pro"   SKIP   Known issue: SSRCSP-7185
     Start power measurement       ${BUILD_ID}   timeout=180
     # Connect back to gui-vm after power measurement has been started
     Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
@@ -57,6 +58,7 @@ GUI Suspend and wake up
     Verify desktop availability
     Generate power plot           ${BUILD_ID}   ${TEST NAME}
     Stop recording power
+    [Teardown]        Run Keyword If   "${DEVICE_TYPE}" != "darter-pro"   GUI Power Test Teardown
 
 GUI Lock and Unlock
     [Documentation]   Lock the screen via GUI power menu lock icon and check that the screen is locked.

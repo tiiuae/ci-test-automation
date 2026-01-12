@@ -45,7 +45,7 @@ Verify booting after restart by power
 
 Verify booting laptop
     [Documentation]    Restart the laptop by power and verify init service is running
-    [Tags]             relayboot  lenovo-x1  darter-pro  dell-7330
+    [Tags]             SP-T287  SP-T290  relayboot  lenovo-x1  darter-pro  dell-7330
     Reboot Laptop
     IF    "installer" in "${JOB}"
         Check If Device Is Up    range=240
