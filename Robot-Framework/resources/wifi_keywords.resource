@@ -5,6 +5,7 @@
 
 Configure wifi
     [Arguments]         ${SSID}  ${passw}
+    [Timeout]    2min
     Switch to vm        ${NET_VM}
     Log To Console      Configuring Wifi
     Set Log Level       NONE
