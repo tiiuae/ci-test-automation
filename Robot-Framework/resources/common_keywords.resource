@@ -262,6 +262,8 @@ Restart VM
 
 Check VM Log on Grafana
     [Documentation]  Check that specific log entry (log line contains) from a VM is available in Grafana
+    ...              If expected=nofail, test will not fail in any case but just return th status
+    ...              If expected is True or False, test will compare expected and actual result and Fail is not equal
     [Arguments]      ${id}   ${vm}  ${since}=10  ${expected}=nofail  ${log_entry}=${EMPTY}
     Set Log Level  NONE
     IF  $log_entry == '${EMPTY}'
@@ -274,6 +276,6 @@ Check VM Log on Grafana
     ${lines}       Count lines    ${out}
     ${status}      Run Keyword And Return Status   Should Be True   ${lines} > 0   ${vm} query does not contain logs
     IF  $expected != 'nofail' and $expected != $status
-        FAIL
+        FAIL    Logs check status is ${status}, but expected ${expected}
     END
     RETURN         ${status}

@@ -232,7 +232,7 @@ Check if ssh is ready on vm
     IF   ${status} == False    FAIL    Port 22 of ${vm} is not ready after ${timeout}
 
 Check if ssh is ready on device
-    [Arguments]    ${timeout}=40
+    [Arguments]    ${timeout}=50
     ${is_ready}    Set Variable    False
     ${start_time}  Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}

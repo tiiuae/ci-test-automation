@@ -35,7 +35,8 @@ Reboot Laptop
     END
     Log To Console    ${\n}Turning device off...
     Press Button      ${SWITCH_BOT}-OFF
-    Sleep    ${delay}
+    Sleep             ${delay}    # needed because Pressing OFF button takes up to 15 sec
+    Wait Until Device Is Down
     Log To Console    Turning device on...
     Press Button      ${SWITCH_BOT}-ON
 
@@ -66,9 +67,8 @@ Soft Reboot Device
         FAIL    Device expected to be available but not responding.
     END
 
-Verify Reboot and Connect
+Connect After Reboot
     [Documentation]   Verify that device rebooted and connect
-    Verify Laptop Shutdown
     # Sleep extended from 20 to 30 due to SSRCSP-7512
     Sleep   30
     Check If Device Is Up         range=60
@@ -78,9 +78,9 @@ Verify Reboot and Connect
         FAIL    The device is available only via serial, but tests require SSH.
     ELSE
         Log To Console            Device started
+        Sleep   30
+        Connect    iterations=10
     END
-    Sleep   30
-    Connect    iterations=10
 
 Wake up device
     Log To Console    Pressing the power button...
@@ -102,3 +102,21 @@ Verify Laptop Shutdown
     ELSE
         FAIL                      Device didn't shut down
     END
+
+Wait Until Device Is Down
+    [Documentation]    Check ping and port 22 until device stops responding both.
+    ...                "Connection refused" is NOT considered as powered off.
+    [Arguments]       ${timeout}=60
+    FOR    ${i}    IN RANGE    ${timeout}
+        ${nc}     Run Process    nc    -zvw1    ${DEVICE_IP_ADDRESS}    22    stderr=STDOUT    shell=False
+        Log       rc ${nc.rc} \n${nc.stdout}
+        ${ping}    Run Process  ping  ${DEVICE_IP_ADDRESS}  -c1  -W  1  timeout=1s
+        Log       rc ${ping.rc} \n${ping.stdout}
+
+        IF    ${ping.rc} != 0 and 'Connection timed out' in '''${nc.stdout}'''
+            Log    Device at ${DEVICE_IP_ADDRESS} powered off
+            RETURN
+        END
+        Sleep    1s
+    END
+    Fail    Device at ${DEVICE_IP_ADDRESS} still responds after 60 seconds.

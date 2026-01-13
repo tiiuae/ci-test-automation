@@ -71,13 +71,14 @@ Persistence Suite Setup
     Set values        EXPECTED
 
     Soft Reboot Device   ${GUI_VM}
-    Verify Reboot and Connect
+    Wait Until Device Is Down
+    Connect After Reboot
     Login to laptop   enable_dnd=True
 
 Persistence Suite Teardown
     IF  $SUITE_STATUS=='FAIL'
         Reboot Laptop
-        Verify Reboot and Connect
+        Connect After Reboot
         Login to laptop   enable_dnd=True
     END
     Set values   ORIGINAL

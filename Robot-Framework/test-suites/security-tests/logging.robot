@@ -60,7 +60,8 @@ Check Grafana log forwarding after disconnected state
     Check VM Log on Grafana      ${id}   ${ADMIN_VM}   2   ${False}   logtest1_${BUILD_ID}
     Log To Console               Verified that iptables rule is blocking log forwarding
     Soft Reboot Device
-    Verify Reboot and Connect
+    Wait Until Device Is Down
+    Connect After Reboot
     Login to laptop
     Wait Until Keyword Succeeds  60s  5s  Check VM Log on Grafana     ${id}   ${ADMIN_VM}   5   ${True}   logtest1_${BUILD_ID}
     Log To Console               Checked that log is forwarded after clearing the iptables rule by reboot

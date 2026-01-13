@@ -9,8 +9,9 @@ Configure wifi
     Switch to vm        ${NET_VM}
     Log To Console      Configuring Wifi
     Set Log Level       NONE
-    Run Command         nmcli dev wifi connect ${SSID} password ${passw}   sudo=True
+    ${output}           Run Command    nmcli dev wifi connect ${SSID} password ${passw}   return=out,err,rc   sudo=True
     Set Log Level       INFO
+    Log                 ${output}
 
 Remove Wifi configuration
     [Arguments]         ${SSID}
