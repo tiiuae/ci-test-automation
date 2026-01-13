@@ -26,6 +26,9 @@ Start power measurement
     IF  ${availability}==False
         Log To Console    Power measurement agent IP address not defined. Ignoring all power measurement related keywords.
         RETURN
+    ELSE IF    "${DEVICE_TYPE}" == "x1-sec-boot"
+        Log To Console    Power measurement is not av available for Secure Boot Lenovo X1. Ignoring all power measurement related keywords.
+        RETURN
     END
     ${status}  ${connection}   Run Keyword And Ignore Error   Connect to measurement agent
     IF  '${status}'!='PASS'
