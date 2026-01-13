@@ -7,6 +7,10 @@ Resource            ../resources/gui_keywords.resource
 Resource            ../resources/ssh_keywords.resource
 
 
+*** Variables ***
+${CONNECTION_TYPE}       ssh
+
+
 *** Keywords ***
 
 Prepare Test Environment
