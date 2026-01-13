@@ -35,7 +35,7 @@ Start COSMIC Media Player
 Start COSMIC Settings
     [Documentation]   Start Cosmic Settings and verify process started
     [Tags]            SP-T254  fmo
-    Start application in VM   com.system76.CosmicSettings   ${GUI_VM}   ^cosmic-settings$
+    Start application in VM   com.system76.CosmicSettings   ${GUI_VM}   cosmic-settings-wrapped
 
 Start COSMIC Terminal
     [Documentation]   Start Cosmic Terminal and verify process started

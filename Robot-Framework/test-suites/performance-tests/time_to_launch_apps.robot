@@ -96,9 +96,9 @@ Measure time to launch COSMIC Player
 Measure time to launch COSMIC Settings
     [Documentation]   Start COSMIC Settings via GUI and measure time of launching
     [Tags]            SP-T285-11
-    Start app via GUI   ${GUI_VM}  ^cosmic-settings$  display_name="COSMIC Settings"
-    Close app via GUI   ${GUI_VM}  ^cosmic-settings$  ./window-close-neg.png
-    Save launch time    ^cosmic-settings$
+    Start app via GUI   ${GUI_VM}  cosmic-settings-wrapped  display_name="COSMIC Settings"
+    Close app via GUI   ${GUI_VM}  cosmic-settings-wrapped  ./window-close-neg.png
+    Save launch time    cosmic-settings-wrapped
     [Teardown]    Run Keyword If Test Failed    Run Keywords  Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
     ...                                                 AND   Skip  "Known Issue: SSRCSP-7518"
 
