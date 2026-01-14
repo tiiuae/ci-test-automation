@@ -70,20 +70,14 @@ Check Audio devices
         ELSE
             Switch to vm   ${vm}
         END
-        ${sources}   Execute Command  pactl list sources
-        ${sinks}     Execute Command  pactl list sinks
-        Log   ${sources}
-        Log   ${sinks}
+        ${sources}   Run Command  pactl list sources
+        ${sinks}     Run Command  pactl list sinks
         Run Keyword And Continue On Failure   Should Contain   ${sources}   Source   ${vm} does not have Sources
         Run Keyword And Continue On Failure   Should Contain   ${sinks}     Sink     ${vm} does not have Sinks
     END
     # VMs without audio
     FOR  ${vm}  IN  ${AUDIO_VM}  ${ADMIN_VM}  ${HOST}  ${NET_VM}  ${ZATHURA_VM}
         Switch to vm   ${vm}
-        ${sources}   Execute Command  pactl list sources
-        ${sinks}     Execute Command  pactl list sinks
-        Log   ${sources}
-        Log   ${sinks}
-        Run Keyword And Continue On Failure   Should Not Contain   ${sources}   Source   ${vm} has Sources
-        Run Keyword And Continue On Failure   Should Not Contain   ${sinks}     Sink     ${vm} has Sinks
+        Run Command  pactl list sources  rc_match=not_equal  compare_rc=0
+        Run Command  pactl list sinks  rc_match=not_equal  compare_rc=0
     END

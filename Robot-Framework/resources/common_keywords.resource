@@ -9,6 +9,46 @@ Library             OperatingSystem
 
 *** Keywords ***
 
+Run Command
+    [Documentation]   By default, executes a command, checks that return code is 0 and returns output.
+    ...    The return code can be validated in three modes using `rc_match`:
+    ...    - `equal`      : return code must equal `compare_rc` (default)
+    ...    - `not_equal`  : return code must NOT equal `compare_rc`
+    ...    - `skip`       : do not validate the return code
+    ...    The `return` argument controls which values are returned.
+    ...    Possible values are: `out` (stdout), `err` (stderr) and `rc` (return code)
+    ...    If only `out` is requested, stdout is returned directly. If `err` or `rc` is requested,
+    ...    a list is returned in the order: out, err, rc (only including requested values).
+    [Arguments]  ${cmd}  ${return}=out  ${sudo}=False  ${rc_match}=equal  ${compare_rc}=0  ${timeout}=60
+
+    ${output}  ${err}  ${rc}    Execute Command  ${cmd}  return_stderr=True  return_rc=True  sudo=${sudo}  sudo_password=${PASSWORD}  timeout=${timeout}
+    Log   Output: ${output} \nRc: ${rc} \nErr: ${err}
+
+    # Error is not relevant if the return code is 0
+    IF   ${rc} == 0
+        ${err}   Set Variable   ${EMPTY}
+    END
+
+    IF    '${rc_match}' == 'equal'
+        Should Be Equal As Integers        ${rc}  ${compare_rc}   Error with command: ${cmd} \nReturn code: ${rc}, expected: ${compare_rc} \nError: ${err} \n
+    ELSE IF    '${rc_match}' == 'not_equal'
+        Should Not Be Equal As Integers    ${rc}  ${compare_rc}   Error with command: ${cmd} \nReturn code: ${rc}, expected not to be equal with: ${compare_rc} \nError: ${err} \n
+    ELSE IF    '${rc_match}' != 'skip'
+        ERROR   Wrong rc_match type: ${rc_match}
+    END
+
+    IF  'err' in '${return}' or 'rc' in '${return}'
+        ${results}    Create List
+        IF  'out' in '${return}'  Append To List  ${results}  ${output}
+        IF  'err' in '${return}'  Append To List  ${results}  ${err}
+        IF  'rc' in '${return}'   Append To List  ${results}  ${rc}
+        RETURN    @{results}
+    ELSE IF   'out' in '${return}'
+        RETURN   ${output}
+    ELSE
+        RETURN
+    END
+
 Check variable availability
     [Arguments]    ${variable_name}
     ${value}=    Get Variable Value    ${${variable_name}}
