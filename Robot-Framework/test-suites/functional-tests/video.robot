@@ -27,9 +27,12 @@ Check Camera Application
     @{vms}      Get VM list
     FOR  ${vm}  IN  @{vms}
         Switch to vm        ${vm}
-        ${out}  Execute Command  v4l2-ctl --list-devices  sudo=True  sudo_password=${PASSWORD}
-        Log  ${out}
-        IF  '${vm}' == '${BUSINESS_VM}'  Should Contain  ${out}  /dev/video  ELSE  Should Not Contain  ${out}  /dev/video
+        IF  '${vm}' == '${BUSINESS_VM}'
+            ${out}   Run Command  v4l2-ctl --list-devices  sudo=True
+            Should Contain  ${out}  /dev/video
+        ELSE
+            Run Command  v4l2-ctl --list-devices  sudo=True  rc_match=not_equal  compare_rc=0
+        END
     END
     [Teardown]  Run Keyword If   "${DEVICE_TYPE}" == "dell-7330"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6450"
 
@@ -37,20 +40,20 @@ Record Video With Camera
     [Documentation]  Start Camera application and record short video
     [Tags]  SP-T236
     Switch to vm            ${BUSINESS_VM}
-    Remove file             /tmp/video*   sudo=True  failure_allowed=True
+    Remove file             /tmp/video*   sudo=True  rc_match=skip
     @{recorded_video_ids}   Create List
-    ${listed_devices}       Execute Command  v4l2-ctl --list-devices  sudo=True  sudo_password=${PASSWORD}
+    ${listed_devices}       Run Command  v4l2-ctl --list-devices  sudo=True
     ${video_devices}        Get Regexp Matches  ${listed_devices}  (?im)(.*\\S*.*)(video)(\\d{1})  3
     Run Keyword If  "${video_devices}" == "[]"    FAIL  No Video devices identified. There should be some.
 
     FOR  ${id}  IN  @{video_devices}
-        ${video}            Execute Command  v4l2-ctl --device=/dev/video${id} --all  sudo=True  sudo_password=${PASSWORD}
+        ${video}            Run Command  v4l2-ctl --device=/dev/video${id} --all  sudo=True
         # Check if video device is able to capture video
         ${video_caps}       Get Regexp Matches  ${video}  (?im)(.*\\S*Device Caps.*\\s*)(.*\\S*)  2
         IF  'Video Capture' in '${video_caps}[0]'
-            Log To Console      Recording video${id} for 8 seconds
-            Execute Command     ffmpeg -i /dev/video${id} -t 8 -vcodec mpeg4 /tmp/video${id}.avi  timeout=15  sudo=True  sudo_password=${PASSWORD}
-            Append To List      ${recorded_video_ids}  ${id}
+            Log To Console    Recording video${id} for 8 seconds
+            Run Command       ffmpeg -i /dev/video${id} -t 8 -vcodec mpeg4 /tmp/video${id}.avi  timeout=15  sudo=True
+            Append To List    ${recorded_video_ids}  ${id}
         END
     END
 
