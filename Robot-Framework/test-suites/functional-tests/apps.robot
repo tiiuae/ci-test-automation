@@ -112,6 +112,11 @@ Start Trusted Browser
     [Tags]            SP-T179
     Start application in VM   "Trusted Browser"  ${BUSINESS_VM}   google-chrome
 
+Start Volume Control
+    [Documentation]   Start Volume Control and verify process started
+    [Tags]            SP-T349
+    Start application in VM   org.pulseaudio.pavucontrol  ${GUI_VM}   pavucontrol
+
 Start VPN
     [Documentation]   Start VPN app and verify process started
     [Tags]            SP-T200

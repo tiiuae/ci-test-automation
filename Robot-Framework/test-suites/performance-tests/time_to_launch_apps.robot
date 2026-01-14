@@ -109,23 +109,30 @@ Measure time to launch COSMIC Terminal
     Close app via GUI   ${GUI_VM}  cosmic-term  ./window-close-neg.png
     Save launch time    cosmic-term
 
+Measure time to launch Volume Control
+    [Documentation]   Start COSMIC Terminal via GUI and measure time of launching
+    [Tags]            SP-T285-13
+    Start app via GUI   ${GUI_VM}  pavucontrol  display_name="Volume Control"
+    Close app via GUI   ${GUI_VM}  pavucontrol  ./window-close-neg.png
+    Save launch time    pavucontrol
+
 Measure time to launch Element
     [Documentation]   Start Element via GUI and measure time of launching
-    [Tags]            SP-T285-13
+    [Tags]            SP-T285-14
     Start app via GUI   ${COMMS_VM}  element  display_name=Element
     Close app via GUI   ${COMMS_VM}  element  ./window-close-neg.png
     Save launch time    element
 
 Measure time to launch Zoom
     [Documentation]   Start Zoom via GUI and measure time of launching
-    [Tags]            SP-T285-14
+    [Tags]            SP-T285-15
     Start app via GUI   ${COMMS_VM}  zoom  display_name=Zoom
     Close app via GUI   ${COMMS_VM}  zoom  ./window-close-neg.png
     Save launch time    zoom
 
 Measure time to launch Slack
     [Documentation]   Start Slack via GUI and measure time of launching
-    [Tags]            SP-T285-15
+    [Tags]            SP-T285-16
     Start app via GUI   ${COMMS_VM}  slack  display_name=Slack
     Close app via GUI   ${COMMS_VM}  slack  ./window-close-neg.png
     Save launch time    slack
