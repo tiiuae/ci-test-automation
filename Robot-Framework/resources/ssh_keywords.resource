@@ -146,11 +146,9 @@ Connect
         ELSE
             # If connection was opened to a wrong VM collect logs to find out why
             IF   $login_status=='PASS'
-                ${vm_logs}          Execute Command    journalctl
-                Log                 ${vm_logs}
+                Run Command    journalctl
                 IF  'ghaf@${HOST}' in $login_output
-                    ${net-vm_status}    Execute Command    systemctl status ${NETVM_SERVICE}
-                    Log                 ${net-vm_status}
+                    Run Command    systemctl status ${NETVM_SERVICE}
                 END
                 ${login_output}     Clean Login Output   ${login_output}
                 Log To Console      Failed to connect to ${target_output}, connected to ${login_output} instead.
@@ -208,9 +206,8 @@ Connect to VM
 
 Save log
     Connect
-    ${output}     Execute Command   journalctl > jrnl.txt${\n}
-    ${output}     Execute Command   cat jrnl.txt${\n}
-    Log  ${output}
+    Run Command   journalctl > jrnl.txt${\n}
+    Eun Command   cat jrnl.txt${\n}
     Close All Connections
 
 Check if ssh is ready on vm
@@ -222,9 +219,7 @@ Check if ssh is ready on vm
     END
     ${start_time}                   Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
-        ${status}  ${output}    Run Keyword And Ignore Error   Execute Command    timeout 4 nc -zvw3 ${vm} 22    return_rc=True   timeout=5
-        ${status}    Run Keyword And Return Status
-        ...          Should Be Equal As Integers    ${output}[1]   0
+        ${status}    Run Keyword And Ignore Error   Run Command    timeout 4 nc -zvw3 ${vm} 22  timeout=5
         Sleep        ${PING_SPACING}
         IF  ${status}
             BREAK
@@ -297,12 +292,10 @@ Try to switch to active vm connection
 
     ${connection_status}  ${previous_connection}   Run Keyword And Ignore Error    Switch Connection   ${ssh_index}
 
-    ${status}   ${output_user}    Run Keyword And Ignore Error   Execute Command    whoami
-    Log    ${output_user}
+    ${status}   ${output_user}    Run Keyword And Ignore Error   Run Command    whoami
     ${user_status}    Run Keyword And Return Status    Should Be Equal    ${output_user}    ${user}
 
-    ${status}   ${output_host}    Run Keyword And Ignore Error   Execute Command    hostname
-    Log    ${output_host}
+    ${status}   ${output_host}    Run Keyword And Ignore Error   Run Command    hostname
     IF  $hostname=='${NET_VM}' or $hostname=='${NETVM_NAME}'
         ${host_status}    Run Keyword And Return Status    Should Be Equal    ${output_host}    ${NETVM_NAME}
     ELSE
@@ -326,14 +319,14 @@ Check that device is suspended
     END
 
 Get VM IP
-    ${output}     Execute Command    ifconfig
+    ${output}     Run Command    ifconfig
     ${ip}         Get ip from ifconfig    ${output}   eth
     RETURN        ${ip}
 
 Transfer Shell Script To DUT
     [Arguments]        ${source_path}   ${file_name}   ${target_path}
     Put File           ${source_path}/${file_name}    ${target_path}
-    Execute Command    chmod 777 ${target_path}/${file_name}
+    Run Command        chmod 777 ${target_path}/${file_name}
 
 Transfer Shell Script To VM
     [Arguments]        ${vm}    ${script_name}

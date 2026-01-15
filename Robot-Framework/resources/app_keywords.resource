@@ -45,7 +45,7 @@ Check that appVM is running
 Start application
     [Arguments]      ${app_name}
     Log    Starting ${app_name}   console=True
-    Execute Command  nohup sh -c 'WAYLAND_DISPLAY=wayland-1 ghaf-open ${app_name}' > ${APP_OUTPUT_FILE} 2>&1 &
+    Run Command  nohup sh -c 'WAYLAND_DISPLAY=wayland-1 ghaf-open ${app_name}' > ${APP_OUTPUT_FILE} 2>&1 &
 
 Check that the application was started
     [Arguments]    ${process_name}  ${range}=2
@@ -75,16 +75,14 @@ Log and remove app output
     [Documentation]    Specify the VM from which the app was started and the user (the owner of the file)
     [Arguments]   ${file}    ${app-vm}    ${user}=ghaf
     Switch to vm  ${app-vm}    ${user}
-    ${output}     Execute Command    cat ${file}
-    Log           ${output}
+    Run Command   cat ${file}
     Remove file   ${file}
 
 Log app vm journalctl
     [Documentation]    Specify the VM where the App is actually running
     [Arguments]   ${app-vm}
     Switch to vm  ${app-vm}
-    ${output}     Execute Command    journalctl -b
-    Log           ${output}
+    Run Command   journalctl -b
 
 Kill App Process And Save Logs
     [Documentation]    Kill all running process and log apps output and journalctl

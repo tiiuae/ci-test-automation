@@ -129,8 +129,8 @@ Test teardown
 
 
 Get expected brightness values
-    ${device}     Execute Command    ls /sys/class/backlight/
-    ${max}        Execute Command    cat /sys/class/backlight/${device}/max_brightness
+    ${device}     Run Command    ls /sys/class/backlight/
+    ${max}        Run Command    cat /sys/class/backlight/${device}/max_brightness
     Set Test Variable  ${max_brightness}     ${max}
     Log                Max brightness value is ${max}  console=True
     ${int_max}         Convert To Integer    ${max}

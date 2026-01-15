@@ -49,19 +49,19 @@ Check user systemctl status
 *** Keywords ***
 
 Get Falcon LLM Name
-    ${output}            Execute Command     cat '/run/current-system/sw/share/applications/Falcon AI.desktop'
+    ${output}            Run Command    cat '/run/current-system/sw/share/applications/Falcon AI.desktop'
     ${line}              Get Lines Containing String  ${output}  Exec=
     ${path}              Set Variable  ${line[5:]}
-    ${llm_name_raw}      Execute Command  cat ${path} | grep LLM_NAME | head -n 1
+    ${llm_name_raw}      Run Command  cat ${path} | grep LLM_NAME | head -n 1
     # LLM_NAME="falcon3:10b" -> falcon3:10b
     ${tmp}               Fetch From Right  ${llm_name_raw}  =
     ${LLM_NAME}          Set Variable  ${tmp[1:-1]}
-    Set Global Variable  ${LLM_NAME}
+    Set Suite Variable  ${LLM_NAME}
 
 Wait Until Falcon Download Complete
     FOR  ${i}  IN RANGE   100
-        ${output}          Execute Command  ollama list
-        ${download_done}   Run Keyword And Return Status  Should contain   ${output}  ${LLM_NAME}
+        ${output}          Run Command  ollama list
+        ${download_done}   Run Keyword And Return Status  Should Contain   ${output}  ${LLM_NAME}
         IF  ${download_done}  BREAK
         Sleep  3
     END
@@ -69,7 +69,7 @@ Wait Until Falcon Download Complete
 Ask the question
     [Arguments]      ${question}
     Log              Asking AI: ${question}  console=True
-    Execute Command  script -q -c 'ollama run falcon3:10b "${question}" > result.txt'     return_stderr=True    timeout=60
-    ${answer}        Execute Command  cat result.txt
+    Run Command      script -q -c 'ollama run falcon3:10b "${question}" > result.txt'   timeout=60
+    ${answer}        Run Command   cat result.txt
     Log              The answer is: ${answer}  console=True
     RETURN           ${answer}

@@ -60,8 +60,7 @@ Soft Reboot Device
     ${device_is_available}   Ping Host   ${DEVICE_IP_ADDRESS}
     IF  ${device_is_available}
         Switch to vm   ${vm}
-        ${output}  Execute Command  reboot  sudo=True  sudo_password=${PASSWORD}
-        Log  ${output}
+        Run Command  reboot  sudo=True
         Log To Console  Rebooting device from command line
     ELSE
         FAIL    Device expected to be available but not responding.

@@ -23,24 +23,6 @@ Verify NetVM is started
 
     [Teardown]  Run Keyword If   "${DEVICE_TYPE}" == "orin-nx"   Run Keyword If Test Failed   Skip   "Under investigation: SSRCSP-7453"
 
-Wifi passthrough into NetVM (Orin-AGX)
-    [Documentation]     Verify that wifi works inside netvm
-    ...                 Test case not in use in CI/CD Pipeline.
-    ...                 Obsoleted when AGX devices use a network adapter.
-    # [Tags]              SP-T111  orin-agx  orin-agx-64
-    [Setup]             Switch to vm   ${NET_VM}
-    Configure wifi      ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
-    Get wifi IP
-    Check Network Availability    8.8.8.8   expected_result=True    limit_freq=${False}
-    Turn OFF WiFi       ${TEST_WIFI_SSID}
-    Check Network Availability    8.8.8.8   expected_result=False   limit_freq=${False}
-    Turn ON WiFi        ${TEST_WIFI_SSID}
-    Check Network Availability    8.8.8.8   expected_result=True    limit_freq=${False}
-    Turn OFF WiFi       ${TEST_WIFI_SSID}
-    Check Network Availability    8.8.8.8   expected_result=False   limit_freq=${False}
-    Sleep               1
-    [Teardown]          Run Keyword  Remove Wifi configuration  ${TEST_WIFI_SSID}
-
 Wifi passthrough into NetVM
     [Documentation]     Verify that wifi works inside netvm
     [Tags]              SP-T101  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  lab-only
@@ -57,36 +39,8 @@ Wifi passthrough into NetVM
     Get wifi IP
     [Teardown]          Run Keywords  Remove Wifi configuration  ${TEST_WIFI_SSID}  AND  Close All Connections
 
-NetVM stops and starts successfully
-    [Documentation]     Verify that NetVM stops properly and starts after that
-    ...                 Test case not in use in CI/CD Pipeline.
-    ...                 Obsoleted when AGX devices use a network adapter.
-    # [Tags]              SP-T47  SP-T90  orin-agx  orin-agx-64
-    [Setup]             Switch to vm   ${HOST}
-    Restart NetVM
-    [Teardown]          Run Keywords  Start NetVM   AND  Close All Connections
-
 Verify NetVM PCI device passthrough
     [Documentation]     Verify that proper PCI devices have been passed through to the NetVM
     [Tags]              SP-T96  orin-agx  orin-agx-64  orin-nx
     [Setup]             Switch to vm   ${NET_VM}
     Verify microvm PCI device passthrough    vmname=${NET_VM}
-
-
-*** Keywords ***
-
-Configure wifi via wpa_supplicant
-    [Arguments]         ${SSID}  ${passw}  ${lenovo}=False
-    Switch to vm        ${NET_VM}
-    Log To Console      Configuring Wifi
-    Set Log Level       NONE
-    Execute Command     sh -c "wpa_passphrase ${SSID} ${passw} > /etc/wpa_supplicant.conf"   sudo=True    sudo_password=${PASSWORD}
-    Execute Command     systemctl restart wpa_supplicant.service   sudo=True    sudo_password=${PASSWORD}
-    Set Log Level       INFO
-
-Remove wpa_supplicant configuration
-    Switch to vm        ${NET_VM}
-    Log To Console      Removing Wifi configuration
-    Execute Command     rm /etc/wpa_supplicant.conf  sudo=True    sudo_password=${PASSWORD}
-    Execute Command     systemctl restart wpa_supplicant.service  sudo=True    sudo_password=${PASSWORD}
-

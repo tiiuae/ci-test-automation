@@ -64,7 +64,7 @@ Check serial connection
     FOR    ${i}    IN RANGE    120
         Write Data    ${\n}
         ${output} =    SerialLibrary.Read Until
-        ${status} =    Run Keyword And Return Status    Should contain    ${output}    ghaf
+        ${status} =    Run Keyword And Return Status    Should Contain    ${output}    ghaf
         IF    ${status}    BREAK
         Sleep   1
     END
@@ -74,10 +74,9 @@ Check serial connection
 Check storage size
     [Documentation]  Check that there is enough persistent storage available
     [Tags]           SP-T342  pre-merge  bat  lenovo-x1  darter-pro  dell-7330
-    ${lsblk}  Execute Command  lsblk
-    Log       ${lsblk}
-    ${SSD}    Run Keyword And Return Status  should contain   ${lsblk}   sda
-    ${eMMC}   Run Keyword And Return Status  should contain   ${lsblk}   nvme0n1p
+    ${lsblk}  Run Command  lsblk
+    ${SSD}    Run Keyword And Return Status  Should Contain   ${lsblk}   sda
+    ${eMMC}   Run Keyword And Return Status  Should Contain   ${lsblk}   nvme0n1p
 
     ${total_storage}  Run Keyword If  ${SSD}   Check External SSD Size
     ...    ELSE IF      ${eMMC}  Check Internal eMMC Size
@@ -90,7 +89,7 @@ Check storage size
 Check veritysetup status
     [Documentation]  Check that VERITY status is verified
     [Tags]           hardening-installer  bat
-    ${output}        Execute Command    veritysetup status root  sudo=True  sudo_password=${PASSWORD}
+    ${output}        Run Command    veritysetup status root  sudo=True
     ${status}        Get Verity Status  ${output}
     Should Be True   '${status}' == 'verified'
 
@@ -124,42 +123,39 @@ Verify Nixos Version Format
 Get Ghaf Version
     [Documentation]    Get version of Ghaf system, Example:
     ...     "ghaf-version"    output: 23.05   parse result: 23.05
-    ${output}   ${rc}    Execute Command   ghaf-version   return_rc=True
-    Should Be Equal As Integers     ${rc}   0   Couldn't get ghaf version, command return code
+    ${output}   Run Command   ghaf-version
     Log To Console    ghaf-version: ${output}
     RETURN    ${output}
 
 Get Nixos Version
     [Documentation]    Get version of NixOS, Example:
     ...     "nixos-version"   output: 23.05.20230625.35130d4 (Stoat)    parse result: 23.05, 20230625, 35130d4, Stoat
-    ${output}   ${rc}    Execute Command   nixos-version   return_rc=True
-    Should Be Equal As Integers     ${rc}   0   Couldn't get ghaf version, command return code
+    ${output}   Run Command   nixos-version
     Log To Console    nixos-version: ${output}
     ${major}  ${minor}  ${date}  ${commit}  ${name}     Parse Nixos Version   ${output}
     RETURN    ${major}  ${minor}  ${date}  ${commit}  ${name}
 
 Check QSPI Version is up to date
-    ${output}      Execute Command    ota-check-firmware
-    ${fw_version}  ${sw_version}      Get qspi versions   ${output}
+    ${output}      Run Command     ota-check-firmware  rc_match=skip
+    ${fw_version}  ${sw_version}   Get qspi versions   ${output}
     Should Be True	'${fw_version}' == '${sw_version}'	  Update QSPI version! Test results can be wrong!
 
 Check External SSD Size
     [Documentation]  Check the size of ssd used in setup
     Log To Console   Memory to be checked: SSD
-    ${lsblk}  Execute Command  lsblk
+    ${lsblk}  Run Command  lsblk
     ${size}  Get Regexp Matches  ${lsblk}  (?im)(sda .*\\d*:\\d{1}.*\\d{1}\\s)(\\d{1,3})  2
     RETURN  ${size}[0]
 
 Check Internal eMMC Size
     [Documentation]  Check the size of eMMC used in setup
     Log To Console   Memory to be checked: eMMC
-    ${lsblk}  Execute Command  lsblk
+    ${lsblk}  Run Command  lsblk
     ${size}   Get Regexp Matches  ${lsblk}  (?im)(nvme0n1 .*\\d*:\\d{1}.*\\d{1}\\s)(\\d{1,3})  2
     RETURN    ${size}[0]
 
 Check Persistent Storage Size
     [Documentation]  Check the size of persistent storage
-    ${storage}  Execute Command  df -h
-    Log  ${storage}
+    ${storage}  Run Command  df -h
     ${size}  Get Regexp Matches  ${storage}  (?im)(\\d{1,3}G)\(\\s*.*\\s)(\\d{1,3})(G)(\\s*.*\\s)/persist  3
     RETURN  ${size}[0]

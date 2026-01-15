@@ -64,8 +64,7 @@ Verify EPT is enabled in every VM
     ${failed_vms}      Create List
     FOR  ${vm}  IN  @{VM_LIST_WITH_HOST}
         Switch to vm     ${vm}
-        ${output}        Execute Command    cat /sys/module/kvm_intel/parameters/ept
-        Log              ${output}
+        ${output}        Run Command    cat /sys/module/kvm_intel/parameters/ept
         ${result}        Run Keyword And Return Status    Should Contain    ${output}    Y
         IF    not ${result}
             Log To Console    FAIL: ${vm} does not have ETP enabled

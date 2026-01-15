@@ -43,7 +43,7 @@ Check Grafana logs
     [Tags]           SP-T172
     Check Network Availability    8.8.8.8   limit_freq=${False}
     Switch to vm     ${ADMIN_VM}
-    ${id}            Execute Command  cat /etc/common/device-id
+    ${id}            Run Command  cat /etc/common/device-id
     Run Keyword And Continue On Failure   Create logs in all VMs
     Wait Until Keyword Succeeds  60s  5s  Check Logs Are available  ${id}
 
@@ -83,14 +83,12 @@ Create logs in all VMs
     Close All Connections
     FOR  ${vm}  IN  @{VM_LIST}
         Switch to vm   ${vm}
-        Execute Command  logger --priority=user.info "${TEST_LOG}"    sudo=True  sudo_password=${PASSWORD}
-        ${out}   Execute Command    journalctl --since "1 minute ago" | grep "${TEST_LOG}"
-        Log      ${out}
+        Run Command  logger --priority=user.info "${TEST_LOG}"    sudo=True
+        ${out}   Run Command    journalctl --since "1 minute ago" | grep "${TEST_LOG}"
         Run Keyword And Continue On Failure   Should Contain  ${out}   ${TEST_LOG}   Log was not created in ${vm}
     END
 
 Save net-vm log
     Switch to vm   ${NET_VM}
-    ${journal}     Execute Command   journalctl -b
-    Log            ${journal}
+    Run Command   journalctl -b
     [Teardown]     Switch to vm   ${ADMIN_VM}
