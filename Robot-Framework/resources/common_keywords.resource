@@ -67,9 +67,7 @@ Verify service status
     ${welcome_check}  Set Variable If  ${IS_LAPTOP}    False    True
 
     FOR    ${i}    IN RANGE    ${range}
-        ${output}  ${stderr}  ${rc}=   Execute Command  systemctl show ${service}  return_stderr=True  return_rc=True
-        Log           stdout: ${output}\nstderr: ${stderr}
-        Should Not Be Equal As Integers	    ${rc}	4   Stderr: "${stderr}", Return code
+        ${output}            Run Command          systemctl show ${service}  rc_match=not_equal  compare_rc=4
         ${state}             Get Service State     ${output}
         ${substate}          Get Service Substate  ${output}
         ${state_status}      Run Keyword And Return Status    Should Be True	'${state}' == '${expected_state}'  Expected ${expected_state} but in fact ${state}
@@ -77,8 +75,7 @@ Verify service status
 
         # 'Welcome to NixOS' is not got if 'non-vm service' or if service is expected to be inactive/dead.
         IF  ${vmservice} and '${expected_substate}' == 'running' and ${state_status} and ${substate_status} and ${welcome_check}
-            ${logs}        Execute Command   journalctl -b -u ${service}
-            Log            ${logs}
+            ${logs}        Run Command   journalctl -b -u ${service}
             ${finished}    Run Keyword And Return Status    Should Contain    ${logs}    Welcome to NixOS
             IF  ${finished}
                 BREAK
@@ -93,8 +90,7 @@ Verify service status
     IF  ${finished}
         Log To Console  ${\n}systemctl status ${service}: ${state} (${substate})
     ELSE
-        ${output}       Execute Command  journalctl -b -u ${service}
-        Log             ${output}
+        Run Command   journalctl -b -u ${service}
         IF   ${welcome_check}   FAIL    systemctl status ${service}: ${state} (${substate}), expected: ${expected_state} (${expected_substate}), welcome check passed: ${finished}
         FAIL            systemctl status ${service}: ${state} (${substate}), expected: ${expected_state} (${expected_substate})
     END
@@ -114,9 +110,9 @@ Verify Systemctl status
 
     ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
-        ${status}=    Execute Command    ${cmd}
+        ${status}=    Run Command    ${cmd}    rc_match=skip
 
-        ${data_failed_units}   Execute Command    ${failed_units_cmd}
+        ${data_failed_units}   Run Command    ${failed_units_cmd}
         Log  ${data_failed_units}
         ${failed_units}  Get failed units  ${data_failed_units}
         Log   ${failed_units}
@@ -152,8 +148,7 @@ Check systemctl status for known issues
 
     FOR    ${failing_service}    IN    @{failing_services}
         ${known}=    Set Variable    False
-        ${unit_logs}   Execute Command    ${unit_logs_cmd} ${failing_service}
-        Log            ${unit_logs}
+        Run Command    ${unit_logs_cmd} ${failing_service}
         FOR    ${entry}    IN    @{known_issues_list}
             ${list_name}  ${service}  ${issue}   Parse Known Issue   ${entry}
 
@@ -179,7 +174,7 @@ Check systemctl status for known issues
 Get VM list
     [Arguments]    ${with_host}=False
     Switch to vm    ${HOST}
-    ${output}       Execute Command    ls /var/lib/microvms/
+    ${output}       Run Command    ls /var/lib/microvms/
     @{vm_list}      Split String       ${output}
     Should Not Be Empty     ${vm_list}   VM list is empty
     IF    ${with_host}    Append To List   ${vm_list}   ${HOST}
@@ -187,19 +182,16 @@ Get VM list
 
 Check if process is running
     [Arguments]    ${process_name}
-    ${output}  ${rc}    Execute Command    pgrep -f "${process_name}" -a  return_rc=True
-    Log   ${output}
-    ${status}   Run Keyword And Return Status   Should Be Equal As Integers  ${rc}  0
-    RETURN   ${status}
+    ${status}  ${output}   Run Keyword And Ignore Error   Run Command    pgrep -f "${process_name}" -a
+    RETURN   '${status}' == 'PASS'
 
 Kill process by name
     [Arguments]   ${process_name}   ${sudo}=True   ${require_exists}=${True}
     Log   Killing process ${process_name}   console=True
     # 9 = kill instead of terminating, A = ignore pkill process (ancestor), e = display what is killed, f = use full process name to kill
-    ${output}  ${rc}   Execute Command    pkill -9 -Aef "${process_name}"  sudo=${sudo}  sudo_password=${PASSWORD}  return_rc=True  timeout=15
-    Log   ${output}
+    ${output}   Run Command    pkill -9 -Aef "${process_name}"  sudo=${sudo}  return=rc  rc_match=skip  timeout=15
     IF  ${require_exists}
-        Should Be Equal As Integers   ${rc}   0
+        Should Be Equal As Integers   ${output}[0]   0
     END
 
 Save Time
@@ -220,14 +212,14 @@ Search nix store
     ...                  Return only the file path which is linked to the current generation.
     [Arguments]          ${string}
     # nix-store --query does not work on storeDisk images
-    ${file_path}  ${rc}   Execute Command  nix-store --query --requisites /run/current-system | grep ${string}   return_rc=True
-    IF   ${rc} == 0
-        Should Not Be Empty  ${file_path}      File not found from the target /nix/store
-        RETURN               ${file_path}
+    ${status}  ${path}   Run Keyword And Ignore Error   Run Command  nix-store --query --requisites /run/current-system | grep ${string}
+    IF   $status == 'PASS'
+        Should Not Be Empty  ${path}      File not found from the target /nix/store
+        RETURN               ${path}
     ELSE
-        ${file_path}         Execute Command   ls /nix/store | grep ${string}
-        Should Not Be Empty  ${file_path}      File not found from the target /nix/store
-        RETURN               /nix/store/${file_path}
+        ${path}         Run Command       ls /nix/store | grep ${string}
+        Should Not Be Empty  ${path}      File not found from the target /nix/store
+        RETURN               /nix/store/${path}
     END
 
 Set device state
@@ -246,8 +238,7 @@ Set device state
     ELSE
         ${state_to_set}   Set Variable   unblock
     END
-    ${output}        Execute Command   ghaf-killswitch ${state_to_set} ${device}
-    Log  ${output}
+    Run Command   ghaf-killswitch ${state_to_set} ${device}
     ${device_state}   Get device state    ${device}
     Should Be Equal   ${device_state}   ${expected_state}
     Log To Console    ${device} is ${device_state}
@@ -255,7 +246,7 @@ Set device state
 Get device state
     [Arguments]     ${device}
     [Setup]         Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
-    ${output}       Execute Command   ghaf-killswitch status
+    ${output}       Run Command   ghaf-killswitch status
     ${state}        Get kill switch status   ${output}   ${device}
     RETURN          ${state}
 
@@ -264,7 +255,7 @@ Restart VM
     [Arguments]             ${vm}
     [Setup]                 Switch to vm   ${HOST}
     Log                     Going to start ${vm}    console=True
-    Execute Command         systemctl restart microvm@${vm}.service  sudo=True  sudo_password=${PASSWORD}  timeout=120
+    Run Command             systemctl restart microvm@${vm}.service  sudo=True  timeout=120
     ${state}  ${substate}   Verify service status  service=microvm@${vm}.service  expected_state=active  expected_substate=running
     Log                     ${vm} is ${substate}    console=True
     Check if ssh is ready on vm   ${vm}

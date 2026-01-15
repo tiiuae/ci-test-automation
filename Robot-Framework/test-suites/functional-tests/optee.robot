@@ -31,9 +31,7 @@ OP-TEE xtest
        ...              (3. If everything is fixed (no more "-x"-flags), remove this comment!!)
        [Tags]  SP-T122  optee-xtest
 
-       ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest -x 1008 -x 1033    sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
-       Log     ${stdout}
-       Should Be Equal As Integers    ${rc}    0
+       Run Command    xtest -x 1008 -x 1033    sudo=True   timeout=300
 
 
 OP-TEE xtest 1008
@@ -42,10 +40,8 @@ OP-TEE xtest 1008
     ...               Please read OP-TEE Test suite comment
     [Tags]  SP-T129  optee-xtest
 
-    ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest 1008   sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
-    Should Be Equal As Integers    ${rc}    1
-    Skip If    ${rc}    Known issue encountered, skipping the test
-
+    ${status}   Run Keyword And Ignore Error   Run Command    xtest 1008   sudo=True
+    IF   $status == 'FAIL'   SKIP   Known issue encountered, skipping the test
 
 OP-TEE xtest 1033
     [Documentation]   Xtest 1033
@@ -53,9 +49,8 @@ OP-TEE xtest 1033
     ...               Please read OP-TEE Test suite comment
     [Tags]  SP-T129  optee-xtest
 
-    ${stdout}    ${stderr}    ${rc}=    Execute Command    xtest 1033   sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
-    Should Be Equal As Integers    ${rc}    1
-    Skip If    ${rc}    Known issue encountered, skipping the test
+    ${status}   Run Keyword And Ignore Error   Run Command    xtest 1033   sudo=True
+    IF   $status == 'FAIL'   SKIP   Known issue encountered, skipping the test
 
 
 Basic pkcs11-tool-optee test
@@ -114,8 +109,7 @@ List key slots
     [Arguments]        ${tool}
 
     ${cmd}=    Set Variable    ${tool} -L
-    ${stdout}    ${stderr}    ${rc}=    Execute Command    ${cmd}    sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
-    Should Be Equal As Integers    ${rc}    0
+    Run Command    ${cmd}    sudo=True
 
 
 List objects
@@ -123,8 +117,7 @@ List objects
     [Arguments]        ${tool}
 
     ${cmd}=    Set Variable    ${tool} --list-objects
-    ${stdout}    ${stderr}    ${rc}=    Execute Command    ${cmd}    sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
-    Should Be Equal As Integers    ${rc}    0
+    Run Command    ${cmd}    sudo=True
 
 
 Initialize slot
@@ -132,20 +125,16 @@ Initialize slot
     [Arguments]        ${tool}
 
     ${cmd}=    Set Variable    ${tool} --init-token --label mytoken --so-pin 1234
-    ${stdout}    ${stderr}    ${rc}=    Execute Command    ${cmd}    sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
-    Should Be Equal As Integers    ${rc}    0
+    Run Command    ${cmd}    sudo=True
 
     ${cmd}=    Set Variable    ${tool} --label mytoken --login --so-pin 1234 --init-pin --pin 0000
-    ${stdout}    ${stderr}    ${rc}=    Execute Command    ${cmd}    sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
-    Should Be Equal As Integers    ${rc}    0
+    Run Command    ${cmd}    sudo=True
 
     ${cmd}=    Set Variable    ${tool} --token-label mytoken --pin 0000 --keypairgen --key-type RSA:2048 --id 1 --label rsakey0
-    ${stdout}    ${stderr}    ${rc}=    Execute Command    ${cmd}    sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
-    Should Be Equal As Integers    ${rc}    0
+    Run Command    ${cmd}    sudo=True
 
     ${cmd}=    Set Variable    ${tool} --token-label mytoken --pin 0000 --keypairgen --key-type EC:secp256r1 --id 2 --label eckey0
-    ${stdout}    ${stderr}    ${rc}=    Execute Command    ${cmd}    sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
-    Should Be Equal As Integers    ${rc}    0
+    Run Command    ${cmd}    sudo=True
 
 
 Test Public Key usage
@@ -156,15 +145,12 @@ Test Public Key usage
     ${signature_file}=    Set Variable    /tmp/pkcs11test_signature
 
     ${cmd}=    Set Variable    dd if=/dev/random of=${content_file} count=1 bs=32
-    ${stdout}    ${stderr}    ${rc}=    Execute Command    ${cmd}    sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
-    Should Be Equal As Integers    ${rc}    0
+    Run Command    ${cmd}    sudo=True
 
     ${cmd}=    Set Variable    ${tool} --token-label mytoken --pin 0000 --id ${keyid} --label ${keylabel} --sign -m ${mechanism} --input-file ${content_file} --output-file ${signature_file}
-    ${stdout}    ${stderr}    ${rc}=    Execute Command    ${cmd}    sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
-    Should Be Equal As Integers    ${rc}    0
+    Run Command    ${cmd}    sudo=True
 
     ${cmd}=    Set Variable    ${tool} --token-label mytoken --pin 0000 --id ${keyid} --label ${keylabel} --verify -m ${mechanism} --signature-file ${signature_file} --input-file ${content_file}
-    ${stdout}    ${stderr}    ${rc}=    Execute Command    ${cmd}    sudo=True    sudo_password=${PASSWORD}    return_stdout=True    return_stderr=True    return_rc=True
-    Should Be Equal As Integers    ${rc}    0
-    Should Contain    ${stdout}    Signature is valid
-    Should Not Contain    ${stdout}    Invalid signature
+    ${output}    Run Command    ${cmd}    sudo=True
+    Should Contain    ${output}    Signature is valid
+    Should Not Contain    ${output}    Invalid signature

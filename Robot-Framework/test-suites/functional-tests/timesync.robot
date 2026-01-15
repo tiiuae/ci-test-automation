@@ -27,7 +27,7 @@ Time synchronization
     ...                  - Ghaf-host is directly connected to net if wire directly connected to the HW.
     ...                      -Net-vm is not connected to net.
     ...                  - Ghaf-host is connected to net via Net-VM if adapter is used!.
-    ...                  - In this test we expect adapter is not used -> Set Wi-Fi ON to enable net-vm to address net.
+    ...                  - In this test we expect adapter to be used.
     [Tags]            SP-T97  bat  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  fmo
 
     Switch to vm   ${HOST}
@@ -76,18 +76,18 @@ Update system time from internet in ${vm}
 
 
 Stop timesync daemon
-    Execute Command        systemctl stop systemd-timesyncd.service  sudo=True  sudo_password=${PASSWORD}
+    Run Command            systemctl stop systemd-timesyncd.service  sudo=True
     Verify service status  service=systemd-timesyncd.service  expected_state=inactive  expected_substate=dead
 
 Start timesync daemon
-    Execute Command        systemctl start systemd-timesyncd.service  sudo=True  sudo_password=${PASSWORD}
+    Run Command            systemctl start systemd-timesyncd.service  sudo=True
     Verify service status  service=systemd-timesyncd.service  expected_state=active  expected_substate=running
-    ${output}              Execute Command    timedatectl -a
+    Run Command            timedatectl -a
 
 Restart timesync daemon
-    Execute Command        systemctl restart systemd-timesyncd.service  sudo=True  sudo_password=${PASSWORD}
+    Run Command            systemctl restart systemd-timesyncd.service  sudo=True
     Verify service status  service=systemd-timesyncd.service  expected_state=active  expected_substate=running
-    ${output}              Execute Command    timedatectl -a
+    Run Command            timedatectl -a
 
 Check that time is correct
     [Documentation]   Check that current system time is correct (time tolerance = 30 sec)
@@ -95,7 +95,7 @@ Check that time is correct
 
     ${is_synchronized} =   Set Variable    False
     FOR    ${i}    IN RANGE    30
-        ${output}      Execute Command    timedatectl -a
+        ${output}      Run Command    timedatectl -a
         ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}  ${is_synchronized}   Parse time info  ${output}
         IF    ${is_synchronized}
             BREAK
@@ -116,18 +116,15 @@ Set RTC time
     ${original_time}      Get Time	epoch
     Set Test Variable     ${original_time}  ${original_time}
     Log To Console        Setting time ${time}
-    ${output}  ${stderr}  ${rc}      Execute Command  hwclock --set --date="${time}"  sudo=True  sudo_password=${PASSWORD}  return_stderr=True  return_rc=True
-    Should Be Equal As Integers      ${rc}   0   ${stderr}
+    Run Command     hwclock --set --date="${time}"  sudo=True
     Sleep    3
-    ${output}  ${stderr}  ${rc}      Execute Command  hwclock -s  sudo=True  sudo_password=${PASSWORD}  return_stderr=True  return_rc=True
-    Should Be Equal As Integers      ${rc}   0   ${stderr}
-    ${output}   Execute Command  timedatectl -a
-    Log         ${output}
+    Run Command     hwclock -s  sudo=True
+    Run Command     timedatectl -a
 
 Check time was changed
     [Documentation]   Check that current system time is equal to given time tolerance.
     [Arguments]       ${expected_time}=${wrong_time}  ${timezone}=UTC
-    ${output}         Execute Command    timedatectl -a
+    ${output}         Run Command    timedatectl -a
     ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}  ${is_synchronized}   Parse time info  ${output}
     ${now}            Get Time  epoch
     ${time_diff}      Evaluate  ${now} - ${original_time}
@@ -148,7 +145,7 @@ Compare local and universal time
     [Documentation]   Universal time should be UTC,
     ...               Local time should be Asia/Dubai time zone for LenovoX1 and UTC for others
     [Arguments]       ${timezone}=UTC
-    ${output}         Execute Command    timedatectl -a
+    ${output}         Run Command    timedatectl -a
     ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}  ${is_synchronized}    Parse time info  ${output}
     ${local_time_utc}  Convert To UTC  ${local_time}
     ${time_close}     Is time close  ${universal_time}  ${local_time_utc}  tolerance_seconds=1
@@ -156,15 +153,15 @@ Compare local and universal time
 
 Set RTC from system clock
     [Documentation]   Set the Hardware Clock from the System Clock
-    ${output}         Execute Command    hwclock -w  sudo=True  sudo_password=${PASSWORD}
-    ${output}         Execute Command    timedatectl -a
+    Run Command       hwclock -w  sudo=True
+    Run Command       timedatectl -a
 
 Set system time
     [Arguments]         ${time}=${wrong_time}
     ${original_time}    Get Time	epoch
     Set Test Variable   ${original_time}  ${original_time}
-    ${output}           Execute Command   sudo date -s '${time}'  sudo=True  sudo_password=${PASSWORD}
-    ${output}           Execute Command   timedatectl -a
+    Run Command         date -s '${time}'  sudo=True
+    Run Command         timedatectl -a
 
 Disable Wifi passthrough from NetVM
     Check Network Availability    8.8.8.8   expected_result=True
@@ -174,14 +171,14 @@ Disable Wifi passthrough from NetVM
     Remove Wifi configuration  ${TEST_WIFI_SSID}
 
 Block internet traffic
-    Execute Command    iptables -I OUTPUT -p udp --dport 123 -j DROP  sudo=True  sudo_password=${PASSWORD}
-    Execute Command    iptables -I OUTPUT -p tcp -m multiport --dports 80,443 -j DROP  sudo=True  sudo_password=${PASSWORD}
-    Execute Command    iptables -I OUTPUT -p udp -m multiport --dports 80,443 -j DROP  sudo=True  sudo_password=${PASSWORD}
+    Run Command    iptables -I OUTPUT -p udp --dport 123 -j DROP  sudo=True
+    Run Command    iptables -I OUTPUT -p tcp -m multiport --dports 80,443 -j DROP  sudo=True
+    Run Command    iptables -I OUTPUT -p udp -m multiport --dports 80,443 -j DROP  sudo=True
 
 Unblock internet traffic
-    Execute Command    iptables -D OUTPUT -p udp --dport 123 -j DROP  sudo=True  sudo_password=${PASSWORD}
-    Execute Command    iptables -D OUTPUT -p tcp -m multiport --dports 80,443 -j DROP  sudo=True  sudo_password=${PASSWORD}
-    Execute Command    iptables -D OUTPUT -p udp -m multiport --dports 80,443 -j DROP  sudo=True  sudo_password=${PASSWORD}
+    Run Command    iptables -D OUTPUT -p udp --dport 123 -j DROP  sudo=True
+    Run Command    iptables -D OUTPUT -p tcp -m multiport --dports 80,443 -j DROP  sudo=True
+    Run Command    iptables -D OUTPUT -p udp -m multiport --dports 80,443 -j DROP  sudo=True
 
 Timesync Teardown
      [Timeout]      2 minutes

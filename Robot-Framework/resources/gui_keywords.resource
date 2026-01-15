@@ -120,22 +120,21 @@ Locate on screen
     [Timeout]          2 minutes
     ${coordinates}=        Set Variable  ${EMPTY}
     ${pass_status}=        Set Variable  FAIL
-    Execute Command        mkdir test-images
+    Run Command            mkdir test-images   rc_match=skip
     ${screenshot_cmd}=     Set Variable  cosmic-screenshot --interactive=false --save-dir ./test-images
     IF   ${FIRST_SCREENSHOT}==${True}   Allow first screenshot
     FOR   ${i}   IN RANGE  ${iterations}
         Log To Console     Taking cosmic screenshot
-        ${result}=         Run Keyword And Ignore Error  Execute Command  ${screenshot_cmd}  return_stdout=True  return_rc=True  timeout=5
+        ${status}  ${result}     Run Keyword And Ignore Error  Run Command  ${screenshot_cmd}   timeout=5
         ${LAST_SCREENSHOT_TIME}  Evaluate    time.time()
         Set Global Variable      ${LAST_SCREENSHOT_TIME}
-        Log                ${result}
-        IF  "${result}[1][1]" == "0"
-            SSHLibrary.Get File  ${result[1][0]}  ${GUI_TEMP_DIR}/screenshot.png
+        IF  '${status}' == 'PASS'
+            SSHLibrary.Get File  ${result}  ${GUI_TEMP_DIR}/screenshot.png
             IF  $type=="image"
-                Log To Console    Locating image ${searched_item} on ${result[1][0]}
+                Log To Console    Locating image ${searched_item} on ${result}
                 ${pass_status}    ${coordinates}  Run Keyword And Ignore Error  Locate image  ${GUI_TEMP_DIR}/${searched_item}   ${confidence}
             ELSE IF  $type=="text"
-                Log To Console    Locating text ${searched_item} on ${result[1][0]}
+                Log To Console    Locating text ${searched_item} on ${result}
                 ${pass_status}    ${coordinates}  Run Keyword And Ignore Error  Locate text  ${searched_item}
             ELSE
                 FAIL              Wrong type given for image recognition
@@ -166,9 +165,9 @@ Locate on screen
 Allow first screenshot
     [Documentation]   Allow screenshot tool take screenshots. Permission must be given on first use.
     # Launch a background process that tries to take a screenshot.
-    Execute Command    nohup sh -c 'cosmic-screenshot --interactive=false --save-dir ./test-images' > screenshot.log 2>&1 &
+    Run Command    nohup sh -c 'cosmic-screenshot --interactive=false --save-dir ./test-images' > screenshot.log 2>&1 &
     Sleep   2
-    ${output}    Execute Command   cat screenshot.log
+    ${output}    Run Command   cat screenshot.log
     ${screenshot_passed}     Run Keyword And Return Status    Should Contain    ${output}   Screenshot
     # If taking a screenshot did not work select "Allow" in the permission window.
     IF    not ${screenshot_passed}
@@ -183,9 +182,9 @@ Allow first screenshot
     # For a Dell bug, try the same again
     IF  "${DEVICE_TYPE}" == "dell-7330"
         # Launch a background process that tries to take a screenshot.
-        Execute Command    nohup sh -c 'cosmic-screenshot --interactive=false --save-dir ./test-images' > screenshot.log 2>&1 &
+        Run Command    nohup sh -c 'cosmic-screenshot --interactive=false --save-dir ./test-images' > screenshot.log 2>&1 &
         Sleep   2
-        ${output}    Execute Command   cat screenshot.log
+        ${output}    Run Command   cat screenshot.log
         ${screenshot_passed}     Run Keyword And Return Status    Should Contain    ${output}   Screenshot
         # If taking a screenshot did not work select "Allow" in the permission window.
         IF    not ${screenshot_passed}
@@ -253,7 +252,7 @@ Check if logged out
     [Documentation]    Check if system is in logged out state
     [Arguments]        ${iterations}=10
     FOR   ${i}   IN RANGE  ${iterations}
-        ${activity}=       Execute Command    systemctl --user is-active xdg-desktop-portal.service  return_stdout=True
+        ${activity}=       Run Command    systemctl --user is-active xdg-desktop-portal.service   rc_match=skip
         IF  $activity == "active"
             Log      User session is ${activity}, user is logged in  console=True
         ELSE
@@ -269,7 +268,7 @@ Wait for user session to be active
     [Arguments]        ${iterations}=30
     Log To Console     Waiting for the user session to be active...  no_newline=true 
     FOR   ${i}   IN RANGE   ${iterations}
-        ${activity}=       Execute Command    systemctl --user is-active xdg-desktop-portal.service  return_stdout=True
+        ${activity}=       Run Command    systemctl --user is-active xdg-desktop-portal.service   rc_match=skip
         IF  $activity == "active"
             Log    Success  console=True
             Log    User session is ${activity}, user is logged in  console=True
@@ -311,28 +310,28 @@ Unlock
 Stop swayidle
     [Documentation]    Stop swayidle to prevent automatic suspension
     Log To Console    Disabling automated lock and suspend
-    Execute Command   systemctl --user stop swayidle
+    Run Command   systemctl --user stop swayidle
 
 Start swayidle
     [Documentation]    Start swayidle to allow automatic suspension
     Log To Console    Enabling automated lock and suspend
-    Execute Command   systemctl --user start swayidle
+    Run Command   systemctl --user start swayidle
 
 Set do not disturb state
     [Documentation]   Set do not disturb to true or false
     [Arguments]       ${state}
     Log To Console    Setting Do Not Disturb to ${state}
-    Execute Command   echo ${state} > ~/.config/cosmic/com.system76.CosmicNotifications/v1/do_not_disturb
+    Run Command   echo ${state} > ~/.config/cosmic/com.system76.CosmicNotifications/v1/do_not_disturb
     # Make sure that currently shown notifications get closed
     IF   $state == "true"
-        Execute Command   echo 0 > ~/.config/cosmic/com.system76.CosmicNotifications/v1/max_notifications
+        Run Command   echo 0 > ~/.config/cosmic/com.system76.CosmicNotifications/v1/max_notifications
     ELSE
-        Execute Command   echo 3 > ~/.config/cosmic/com.system76.CosmicNotifications/v1/max_notifications
+        Run Command   echo 3 > ~/.config/cosmic/com.system76.CosmicNotifications/v1/max_notifications
     END
 
 Get gui-vm user journalctl log
     [Arguments]       ${filename}=gui-vm-user.txt
-    Execute Command   journalctl --user > /tmp/${filename}
+    Run Command   journalctl --user > /tmp/${filename}
     SSHLibrary.Get file   /tmp/${filename}   ${OUTPUT_DIR}/${filename}
     OperatingSystem.File Should Exist   ${OUTPUT_DIR}/${filename}
 
@@ -373,18 +372,17 @@ Run ydotool command
     IF   $sudo == "True"
         Switch to vm    ${GUI_VM}
         Log To Console   Running ydotool command with ghaf user
-        ${output}    ${rc}    Execute Command   ydotool ${command}  sudo=True  sudo_password=${PASSWORD}    return_rc=True
+        Run Command   ydotool ${command}  sudo=True
         Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
     ELSE
-        ${output}    ${rc}    Execute Command    YDOTOOL_SOCKET=${YDOTOOL_SOCKET} ydotool ${command}    return_rc=True
+        Run Command    YDOTOOL_SOCKET=${YDOTOOL_SOCKET} ydotool ${command}
     END
-    Should Be Equal As Integers     ${rc}   0
     Sleep   0.2
 
 Change to gray wallpaper
     Log To Console    Changing to gray wallpaper
     Put File          ../test-files/background.config   .
-    Execute Command   mv background.config .config/cosmic/com.system76.CosmicBackground/v1/all
+    Run Command   mv background.config .config/cosmic/com.system76.CosmicBackground/v1/all
 
 Restore default wallpaper
     Log To Console    Changing back to default wallpaper
@@ -419,14 +417,14 @@ Stop screen recording
     Press key(s)     LEFTCTRL+LEFTSHIFT+LEFTALT+R
     Kill App By Name   gpu-screen-recorder
     # Get the name of the last recording
-    ${video_file}    Execute Command   ls /home/${USER_LOGIN}/Videos -Art | tail -n 1
+    ${video_file}    Run Command   ls /home/${USER_LOGIN}/Videos -Art | tail -n 1
     # Save the video file if the test failed
     IF  $test_status=='FAIL' or $test_status=='SKIP'
         Log To Console        Saving video file
         ${name}               Replace String   ${test_name}   ${SPACE}   _
         SSHLibrary.Get File   /home/${USER_LOGIN}/Videos/${video_file}   ${GUI_TEMP_DIR}/${name}.mp4
     END
-    Execute Command   rm /home/${USER_LOGIN}/Videos/${video_file}
+    Run Command   rm /home/${USER_LOGIN}/Videos/${video_file}
     [Teardown]        Kill App By Name   gpu-screen-recorder
 
 Kill Initial Setup

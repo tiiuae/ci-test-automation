@@ -33,7 +33,7 @@ Update via givc-cli
 
 Get current generation
     [Documentation]        Extract the number of current generation
-    ${output}              Execute Command  nix-env -p /nix/var/nix/profiles/system --list-generations  sudo=True  sudo_password=${PASSWORD}
+    ${output}              Run Command  nix-env -p /nix/var/nix/profiles/system --list-generations  sudo=True
     ${current_line}        Get Lines Containing String  ${output}  (current)
     ${current_generation}  ${rest}  Split String   ${current_line}  max_split=1
     RETURN                 ${current_generation}
@@ -54,11 +54,11 @@ Update with
         Log               DEVICE_TYPE: ${DEVICE_TYPE} not allowed in update tests   console=True
     END
     IF  "${update_method}"=="ota-update"
-        ${output}             Execute Command  ota-update cachix --cache ghaf-release ${release_name}  sudo=True  sudo_password=${PASSWORD}
+        ${output}             Run Command  ota-update cachix --cache ghaf-release ${release_name}  sudo=True
         Should Not Contain    ${output}  Error
     ELSE IF  "${update_method}"=="givc-cli"
         Switch to vm          ${GUI_VM}
-        ${output}             Execute Command  givc-cli update cachix --cache ghaf-release ${release_name}  sudo=True  sudo_password=${PASSWORD}
+        ${output}             Run Command  givc-cli update cachix --cache ghaf-release ${release_name}  sudo=True
         Should Not Contain    ${output}  Error
         Switch to vm          ${HOST}
     ELSE
@@ -76,13 +76,13 @@ Update teardown
         ${gen_at_teardown}    Get current generation
         IF  ${gen_at_teardown}!=${gen_before}
             Log To Console    Rolling back to original generation and removing the new generation
-            Execute Command   bootctl unlink nixos-generation-${gen_at_teardown}.conf  sudo=True  sudo_password=${PASSWORD}
-            Execute Command   nix-env -p /nix/var/nix/profiles/system --switch-generation ${gen_before}  sudo=True  sudo_password=${PASSWORD}
-            Execute Command   nix-env -p /nix/var/nix/profiles/system --delete-generations ${gen_at_teardown}  sudo=True  sudo_password=${PASSWORD}
+            Run Command   bootctl unlink nixos-generation-${gen_at_teardown}.conf  sudo=True
+            Run Command   nix-env -p /nix/var/nix/profiles/system --switch-generation ${gen_before}  sudo=True
+            Run Command   nix-env -p /nix/var/nix/profiles/system --delete-generations ${gen_at_teardown}  sudo=True
         ELSE
             Log To Console    New generation not found. Skipping roll back.
         END
         Log To Console        Running garbage collect
-        Execute Command       nix-collect-garbage  sudo=True  sudo_password=${PASSWORD}
+        Run Command           nix-collect-garbage  sudo=True
         Close All Connections
     END

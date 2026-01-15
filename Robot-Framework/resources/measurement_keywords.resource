@@ -54,7 +54,7 @@ Connect to measurement agent
 Start recording power
     [Arguments]       ${file_name}   ${timeout}
     Log To Console    Starting to record power measurements
-    Run Keyword And Ignore Error  Execute Command   nohup python /home/ghaf/ghaf/ghaf-power-measurement/measure_power.py ${file_name}.csv ${timeout} > output.log 2>&1 &  timeout=3
+    Run Keyword And Ignore Error  Run Command   nohup python /home/ghaf/ghaf/ghaf-power-measurement/measure_power.py ${file_name}.csv ${timeout} > output.log 2>&1 &  timeout=3
 
 Stop recording power
     IF  $SSH_MEASUREMENT=='${EMPTY}'
@@ -62,7 +62,7 @@ Stop recording power
         RETURN
     END
     Log To Console    Stopping power recording
-    Run Keyword And Ignore Error  Execute Command   pkill python  timeout=3
+    Run Keyword And Ignore Error  Run Command   pkill python  timeout=3
 
 Get power record
     [Arguments]       ${file_name}=power_data.csv
@@ -172,7 +172,7 @@ Start parameter logging
     Log                             Launching ${script} script in ${vm}     console=True
     Set timestamp                   ${script}_log_start
     ${command}                      Set Variable    /tmp/${script} /tmp/${script}.csv ${log_interval} ${timeout}
-    Execute Command                 nohup ${command} > /tmp/output.log 2>&1 &
+    Run Command                     nohup ${command} > /tmp/output.log 2>&1 &
 
 Plot parameter log
     [Documentation]   Extract power data from start timestamp to current time.

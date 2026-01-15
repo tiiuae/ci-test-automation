@@ -44,13 +44,8 @@ Open image with Oculante
     [Tags]             SP-T197  pre-merge  bat
     Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
 
-    Execute Command    mkdir test-images
-    ${result}          Run Keyword And Ignore Error  Execute Command  cosmic-screenshot --interactive=false --save-dir ./  return_stdout=True   return_rc=True   timeout=5
-    IF  "${result}[1][1]" == "0"
-        ${img_file}    Set Variable    ${result}[1][0]
-    ELSE
-        Fail           Couldn't take a screenshot
-    END
+    Run Command        mkdir test-images   rc_match=skip
+    ${img_file}        Run Command   cosmic-screenshot --interactive=false --save-dir ./   timeout=5
 
     Open Image         ${img_file}
 
@@ -93,14 +88,14 @@ Open PDF from app-vm
 Open PDF
     [Arguments]      ${pdf_file}
     Log To Console   Trying to open ${pdf_file}
-    Execute Command  echo ${PASSWORD} | sudo -S nohup sh -c 'xdg-open-ghaf pdf ${pdf_file}' > ${OUTPUT_FILE} 2>&1 &
+    Run Command      echo ${PASSWORD} | sudo -S nohup sh -c 'xdg-open-ghaf pdf ${pdf_file}' > ${OUTPUT_FILE} 2>&1 &
 
 Open Image
     [Arguments]      ${pic_file}
     Log To Console   Trying to open ${pic_file}
-    Execute Command  nohup sh -c 'xdg-open-ghaf image ${pic_file}' > ${OUTPUT_FILE} 2>&1 &
+    Run Command      nohup sh -c 'xdg-open-ghaf image ${pic_file}' > ${OUTPUT_FILE} 2>&1 &
 
 Open text file
     [Arguments]      ${text_file}
     Log To Console   Trying to open ${text_file}
-    ${output}        Execute Command  WAYLAND_DISPLAY=wayland-1 nohup sh -c 'cosmic-edit -f ${text_file}' > ${OUTPUT_FILE} 2>&1 &
+    Run Command      WAYLAND_DISPLAY=wayland-1 nohup sh -c 'cosmic-edit -f ${text_file}' > ${OUTPUT_FILE} 2>&1 &
