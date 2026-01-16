@@ -6,6 +6,7 @@ Documentation       Check network related security
 Test Tags           network-security
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
+Resource            ../../resources/common_keywords.resource
 
 
 *** Test Cases ***
@@ -20,6 +21,12 @@ Account lockout after failed login
     Check ip is in the blacklist  ${CHROME_VM}  ${ip}
     [Teardown]       Remove from the blacklist  ${ip}
 
+Check OpenSSL3 is Available In Nix Store
+    [Documentation]  Connect to GUI-VM and check that OpenSSL3 is available in NixStore.
+    [Tags]           SP-T295  lenovo-x1  darter-pro   dell-7330
+    Switch to vm     ${GUI_VM}
+    ${output}        Run Command    ls /nix/store | grep openssl-3    rc_match=skip
+    Should Not Be Empty    ${output}    msg=Found no openssl in Nix Store
 
 *** Keywords ***
 
