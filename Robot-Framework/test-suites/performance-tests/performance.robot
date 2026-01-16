@@ -450,11 +450,6 @@ Single vs Parallel CPU test
     Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
     Determine Test Status   ${statistics_dict}  inverted=1
 
-Elevate to superuser
-    Write                 sudo su
-    ${out}                SSHLibrary.Read Until   password for ghaf:
-    ${out}                Write        ${PASSWORD}
-
 Prepare files for fileio test in VM
     [Arguments]         ${total_size}   ${test_dir}
     Log To Console      Preparing files for fileio test

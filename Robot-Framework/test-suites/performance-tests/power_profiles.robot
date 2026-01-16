@@ -10,6 +10,7 @@ Resource            ../../resources/gui-vm_keywords.resource
 Resource            ../../resources/measurement_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/common_keywords.resource
 Library             ../../lib/output_parser.py
 Library             JSONLibrary
 

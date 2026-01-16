@@ -105,16 +105,6 @@ Generate power plot
     Generate power graph        power_interval.csv  ${test_name}
     Log                         <img src="${REL_PLOT_DIR}power_${test_name}.png" alt="Power plot" width="1200">    HTML
 
-Set timestamp
-    [Arguments]          ${timestamp_variable_name}
-    ${current_time}      DateTime.Get Current Date   UTC  exclude_millis=yes
-    Set Global Variable  ${${timestamp_variable_name}}    ${current_time}
-    Log                  Setting timestamp ${timestamp_variable_name}: ${${timestamp_variable_name}}    console=True
-
-Get current timestamp
-    ${current_time}   DateTime.Get Current Date  UTC  exclude_millis=yes
-    RETURN            ${current_time}
-
 Check power during suspension
     [Arguments]       ${id}  ${max_power}
     IF  $SSH_MEASUREMENT=='${EMPTY}'
