@@ -122,7 +122,7 @@ Run installer
 
 
 Wipe installed Ghaf from internal memory
-    [Documentation]   Turn on device and wipe internal memory using ghaf-installer or dd if installer fails
+    [Documentation]   Turn on device and wipe internal memory using ghaf-installer
     [Tags]            wiping  lenovo-x1
     Log To Console    ${\n}Turning device on...
     Press Button      ${SWITCH_BOT}-ON
@@ -131,11 +131,7 @@ Wipe installed Ghaf from internal memory
 
     IF  "${CONNECTION_TYPE}" == "ssh"
         Connect           target=@ghaf-installer
-        ${status}         Wipe system with ghaf-installer    ${device}
-        IF  '${status}' != 'True'
-            Log To Console         Wiping with ghaf-installer wasn't successful, trying wipe the system with 'dd'
-            Wipe system with dd    ${device}
-        END
+        Wipe system with ghaf-installer    ${device}
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         FAIL    SSH is not available and running installer via serial is not supported by test.
     END
@@ -196,19 +192,4 @@ Wipe system with ghaf-installer
     Write             echo $?
     ${raw}            Read Until Prompt
     ${rc}             Evaluate    [s for s in """${raw}""".splitlines() if s.strip().isdigit()][-1]
-    ${status}         Run Keyword And Return Status    Should Be Equal As Integers    ${rc}   0    Wiping was not successful
-    RETURN    ${status}
-
-Wipe system with dd
-    [Arguments]           ${device}
-    ${sector}             Set Variable    512     # Set sector size to 512 bytes
-    ${mib_to_sectors}     Set Variable    20480   # 10 MiB in 512-byte sectors
-    ${sectors}  ${err}  ${rc}     Execute Command    sudo blockdev --getsz ${device}   return_stderr=True   return_rc=True    # Disk size in 512-byte sectors
-    Should Be Equal As Integers    ${rc}    0    ${err}
-    # Wipe first 10MiB of disk
-    ${out}  ${err}  ${rc}         Execute Command    sudo dd if=/dev/zero of=${device} bs=${sector} count=${mib_to_sectors} conv=fsync status=none   return_stderr=True   return_rc=True
-    Should Be Equal As Integers    ${rc}    0    ${err}
-    # Wipe last 10MiB of disk
-    ${last_offset}        Evaluate    int(${sectors}) - int(${mib_to_sectors})
-    ${out}  ${err}  ${rc}         Execute Command    sudo dd if=/dev/zero of=${device} bs=${sector} count=${mib_to_sectors} seek=${last_offset}   return_stderr=True conv=fsync status=none   return_rc=True
-    Should Be Equal As Integers    ${rc}    0    ${err}
+    Should Be Equal As Integers    ${rc}   0    Wiping was not successful

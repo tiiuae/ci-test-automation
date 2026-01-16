@@ -64,27 +64,27 @@ Test ballooning in VM
     Log                               Maximum allowed total memory at inflate: ${max_mem_at_inflate} MiB  console=True
     Log                               Target total memory at deflate: ${max_init_memory} MiB  console=True
 
-    Execute Command                   mkdir ${test_dir}
+    Run Command                       mkdir ${test_dir}                         rc_match=skip
     Put File                          performance-tests/consume_memory          ${test_dir}
     Put File                          performance-tests/log_memory              ${test_dir}
-    Execute Command                   chmod 777 ${test_dir}/consume_memory      sudo=True  sudo_password=${PASSWORD}
-    Execute Command                   chmod 777 ${test_dir}/log_memory          sudo=True  sudo_password=${PASSWORD}
-    Execute Command                   echo "started" > ${test_dir}/status_for_logging
-    Execute Command                   mkdir ${test_dir}/script_status
-    Execute Command                   rm -r ${test_dir}/script_status/*      sudo=True  sudo_password=${PASSWORD}
+    Run Command                       chmod 777 ${test_dir}/consume_memory      sudo=True
+    Run Command                       chmod 777 ${test_dir}/log_memory          sudo=True
+    Run Command                       echo "started" > ${test_dir}/status_for_logging
+    Run Command                       mkdir ${test_dir}/script_status           rc_match=skip
+    Run Command                       rm -r ${test_dir}/script_status/*         sudo=True  rc_match=skip
 
     Initial Memory Check              ${max_init_memory}  iterations=7
 
     Log To Console                    Starting memory logging script
-    Run Keyword And Ignore Error      Execute Command  -b timeout ${timeout_logging} ${test_dir}/log_memory ${test_dir} ${vm}_${BUILD_ID} ${test_dir}/status_for_logging  sudo=True  sudo_password=${PASSWORD}  timeout=1
+    Run Keyword And Ignore Error      Run Command  -b timeout ${timeout_logging} ${test_dir}/log_memory ${test_dir} ${vm}_${BUILD_ID} ${test_dir}/status_for_logging  sudo=True  timeout=1
 
     Log To Console                    Starting memory consuming scripts
     Log To Console                    Launching memory consume at /dev/shm
-    Run Keyword And Ignore Error      Execute Command  -b timeout ${timeout_inflate} ${test_dir}/consume_memory /dev/shm ${test_dir}  sudo=True  sudo_password=${PASSWORD}  timeout=1
+    Run Keyword And Ignore Error      Run Command  -b timeout ${timeout_inflate} ${test_dir}/consume_memory /dev/shm ${test_dir}  sudo=True  timeout=1
     Log To Console                    Launching memory consume at /dev
-    Run Keyword And Ignore Error      Execute Command  -b timeout ${timeout_inflate} ${test_dir}/consume_memory /dev ${test_dir}  sudo=True  sudo_password=${PASSWORD}  timeout=1
+    Run Keyword And Ignore Error      Run Command  -b timeout ${timeout_inflate} ${test_dir}/consume_memory /dev ${test_dir}  sudo=True  timeout=1
     Log To Console                    Launching memory consume at /run
-    Run Keyword And Ignore Error      Execute Command  -b timeout ${timeout_inflate} ${test_dir}/consume_memory /run ${test_dir}  sudo=True  sudo_password=${PASSWORD}  timeout=1
+    Run Keyword And Ignore Error      Run Command  -b timeout ${timeout_inflate} ${test_dir}/consume_memory /run ${test_dir}  sudo=True  timeout=1
 
     Log To Console                    Monitoring memory during inflate
     ${start_time}=                    Get Time	epoch
@@ -100,7 +100,7 @@ Test ballooning in VM
             ${mem_limit_exceeded}=        Set Variable   True
         END
 
-        ${scripts_finished}=          Execute Command   ls ${test_dir}/script_status | wc -l    timeout=5
+        ${scripts_finished}=          Run Command   ls ${test_dir}/script_status | wc -l    timeout=5
         ${scripts_finished_int}=      Evaluate  int(${scripts_finished})
         IF  ${scripts_finished_int} > 2
             Log To Console            All memory consuming scripts finished
@@ -140,7 +140,7 @@ Test ballooning in VM
         END
     END
 
-    Execute Command                   echo "finish" > ${test_dir}/status_for_logging
+    Run Command                      echo "finish" > ${test_dir}/status_for_logging
 
     Sleep                             1
     Get memory logs                   ${test_dir}/ballooning_${vm}_${BUILD_ID}.csv
@@ -160,8 +160,8 @@ Test ballooning in VM
     END
 
 Read memory status
-    ${total_mem}=                 Execute Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $1}'  timeout=5
-    ${used_mem}=                  Execute Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $2}'  timeout=5
+    ${total_mem}=                 Run Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $1}'  timeout=5
+    ${used_mem}=                  Run Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $2}'  timeout=5
     Log                           Used memory: ${used_mem} / Total memory: ${total_mem}  console=True
     ${total_int}                  Evaluate    int(${total_mem})
     RETURN                        ${total_int}   ${used_mem}
@@ -183,12 +183,12 @@ Procedure After Timeout
     ${rebooted}     Set Variable  True
 
 Clean Test Files
-    Execute Command   rm /dev/shm/test/*      sudo=True  sudo_password=${PASSWORD}
-    Execute Command   rm /dev/test/*          sudo=True  sudo_password=${PASSWORD}
-    Execute Command   rm /run/test/*          sudo=True  sudo_password=${PASSWORD}
-    Execute Command   rm -r /dev/shm/test     sudo=True  sudo_password=${PASSWORD}
-    Execute Command   rm -r /dev/test         sudo=True  sudo_password=${PASSWORD}
-    Execute Command   rm -r /run/test         sudo=True  sudo_password=${PASSWORD}
+    Run Command   rm /dev/shm/test/*      sudo=True   rc_match=skip
+    Run Command   rm /dev/test/*          sudo=True   rc_match=skip
+    Run Command   rm /run/test/*          sudo=True   rc_match=skip
+    Run Command   rm -r /dev/shm/test     sudo=True   rc_match=skip
+    Run Command   rm -r /dev/test         sudo=True   rc_match=skip
+    Run Command   rm -r /run/test         sudo=True   rc_match=skip
 
 Ballooning Test Teardown
     [Documentation]    If test gets stuck, reboot device and connect to netvm (the next test can be executed).
@@ -197,5 +197,5 @@ Ballooning Test Teardown
     Run Keyword If   '${TEST STATUS}' == 'FAIL' and 'SSHException' in '${TEST MESSAGE}'   Procedure After Timeout
     IF  $rebooted != 'True'
         Clean Test Files
-        Execute Command   rm -r ${test_dir}   sudo=True  sudo_password=${PASSWORD}
+        Run Command   rm -r ${test_dir}   sudo=True
     END

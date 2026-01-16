@@ -82,13 +82,13 @@ Set power profile
     [Arguments]         ${profile}
     [Setup]             Switch to vm   ${GUI_VM}
     Log                 Setting power profile to ${profile}   console=True
-    Execute Command     tuned-adm profile ${profile}   sudo=True  sudo_password=${PASSWORD}
+    Run Command         tuned-adm profile ${profile}   sudo=True
     ${active_profile}   Get active power profile
     Should Contain      ${active_profile}   ${profile}
 
 Get active power profile
     [Documentation]     Return active power profile
-    ${output}           Execute Command   tuned-adm active
+    ${output}           Run Command   tuned-adm active
     ${parts}            Split String    ${output}    : 
     ${active_profile}   Strip String    ${parts}[1]
     Log                 Active power profile is ${active_profile}   console=True

@@ -35,7 +35,7 @@ nvpmodel check test
     ...                 This test does not apply to other than Orin AGX/NX targets.
     [Tags]              SP-T175  nvpmodel  orin-agx  orin-agx-64  orin-nx
     ${ExpectedNVPmode}  Set Variable  3
-    ${output}           Execute Command     nvpmodel-check ${ExpectedNVPmode}
+    ${output}           Run Command     nvpmodel-check ${ExpectedNVPmode}
     IF  not ("Power mode check ok: ${ExpectedNVPmode}" in $output)
         FAIL  ${output}\n\nExpected: ${ExpectedNVPmode}
     END
@@ -45,8 +45,7 @@ CPU One thread test
     ...                     The benchmark records to csv CPU events per second, events per thread, and latency data.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
     [Tags]                  SP-T61  SP-T61-1  cpu  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
-    ${output}               Execute Command    sysbench cpu --time=10 --threads=1 --cpu-max-prime=20000 run
-    Log                     ${output}
+    ${output}               Run Command    sysbench cpu --time=10 --threads=1 --cpu-max-prime=20000 run
     &{cpu_data}             Parse Cpu Results   ${output}
     &{statistics}           Save Cpu Data       ${TEST NAME}  ${cpu_data}
     Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
@@ -57,8 +56,7 @@ CPU multiple threads test
     ...                     The benchmark records to csv CPU events per second, events per thread, and latency data.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
     [Tags]                  SP-T61  SP-T61-2  cpu  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
-    ${output}               Execute Command    sysbench cpu --time=10 --threads=${threads_number} --cpu-max-prime=20000 run
-    Log                     ${output}
+    ${output}               Run Command    sysbench cpu --time=10 --threads=${threads_number} --cpu-max-prime=20000 run
     &{cpu_data}             Parse Cpu Results   ${output}
     &{statistics}           Save Cpu Data       ${TEST NAME}  ${cpu_data}
     Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
@@ -81,8 +79,7 @@ Memory Read One thread test
     ...                     and Latency for READ operations.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
     [Tags]                  SP-T61  SP-T61-3  memory  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
-    ${output}               Execute Command    sysbench memory --time=60 --memory-oper=read --threads=1 run
-    Log                     ${output}
+    ${output}               Run Command    sysbench memory --time=60 --memory-oper=read --threads=1 run
     &{mem_data}             Parse Memory Results   ${output}
     &{statistics}           Save Memory Data       ${TEST NAME}  ${mem_data}
     Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
@@ -94,8 +91,7 @@ Memory Write One thread test
     ...                     and Latency for WRITE operations.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
     [Tags]                  SP-T61  SP-T61-4  memory  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
-    ${output}               Execute Command    sysbench memory --time=60 --memory-oper=write --threads=1 run
-    Log                     ${output}
+    ${output}               Run Command    sysbench memory --time=60 --memory-oper=write --threads=1 run
     &{mem_data}             Parse Memory Results   ${output}
     &{statistics}           Save Memory Data       ${TEST NAME}  ${mem_data}
     Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
@@ -107,8 +103,7 @@ Memory Read multiple threads test
     ...                     and Latency for READ operations.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
     [Tags]                  SP-T61  SP-T61-5  memory  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
-    ${output}               Execute Command    sysbench memory --time=60 --memory-oper=read --threads=${threads_number} run
-    Log                     ${output}
+    ${output}               Run Command    sysbench memory --time=60 --memory-oper=read --threads=${threads_number} run
     &{mem_data}             Parse Memory Results   ${output}
     ${statistics}           Save Memory Data       ${TEST NAME}  ${mem_data}
     Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
@@ -120,8 +115,7 @@ Memory Write multiple threads test
     ...                     and Latency for WRITE operations.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
     [Tags]                  SP-T61  SP-T61-6  memory  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
-    ${output}               Execute Command    sysbench memory --time=60 --memory-oper=write --threads=${threads_number} run
-    Log                     ${output}
+    ${output}               Run Command    sysbench memory --time=60 --memory-oper=write --threads=${threads_number} run
     &{mem_data}             Parse Memory Results   ${output}
     &{statistics}           Save Memory Data       ${TEST NAME}  ${mem_data}
     Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
@@ -140,7 +134,7 @@ FileIO test
     # Results are saved to /tmp
     IF  ${IS_LAPTOP}
         Log To Console        Preparing for fileio test
-        Execute Command       cp /tmp/fileio_test /persist  sudo=True  sudo_password=${PASSWORD}
+        Run Command           cp /tmp/fileio_test /persist  sudo=True
         Elevate to superuser
         Write                 cd /persist
         Log To Console        Starting fileio test
@@ -151,22 +145,20 @@ FileIO test
         Log                   ${out}
     ELSE
         Log To Console        Starting fileio test
-        Execute Command       /tmp/fileio_test ${threads_number}  sudo=True  sudo_password=${PASSWORD}
+        Run Command           /tmp/fileio_test ${threads_number}  sudo=True   timeout=300
     END
 
-    ${test_info}  Execute Command    cat /tmp/sysbench_results/test_info
+    ${test_info}  Run Command    cat /tmp/sysbench_results/test_info
     IF  "Insufficient disk space" in $test_info
         FAIL            Insufficient disk space for fileio test.
     END
 
     Log To Console       Parsing the test results
-    ${fileio_rd_output}  Execute Command    cat /tmp/sysbench_results/fileio_rd_report
-    Log                  ${fileio_rd_output}
+    ${fileio_rd_output}  Run Command    cat /tmp/sysbench_results/fileio_rd_report
     &{fileio_rd_data}    Parse FileIO Read Results   ${fileio_rd_output}
     &{statistics_rd}     Save FileIO Data       ${TEST NAME}_read  ${fileio_rd_data}
 
-    ${fileio_wr_output}  Execute Command    cat /tmp/sysbench_results/fileio_wr_report
-    Log                  ${fileio_wr_output}
+    ${fileio_wr_output}  Run Command    cat /tmp/sysbench_results/fileio_wr_report
     &{fileio_wr_data}    Parse FileIO Write Results   ${fileio_wr_output}
     &{statistics_wr}     Save FileIO Data       ${TEST NAME}_write  ${fileio_wr_data}
 
@@ -292,7 +284,7 @@ Sysbench test in NetVM
     Switch to vm                            ${NET_VM}
     Transfer Shell Script To VM             ${NET_VM}   sysbench_test
 
-    ${output}               Execute Command    /tmp/sysbench_test 1   sudo=True  sudo_password=${PASSWORD}
+    Run Command    /tmp/sysbench_test 1   sudo=True   timeout=180
 
     &{threads}    	        Create Dictionary	 net-vm=1
     Save sysbench results   net-vm   _1thread
@@ -321,7 +313,7 @@ Sysbench test in VMs
     FOR    ${vm}    IN    @{vms}
         Log To Console       Fetching thread count for ${vm}
         Switch to vm         ${vm}
-        ${output}            Execute Command    lscpu
+        ${output}            Run Command    lscpu
         ${threads_n}         Get Cpu Thread Count  ${output}
         Set To Dictionary    ${threads}    ${vm}=${threads_n}
     END
@@ -336,7 +328,7 @@ Sysbench test in VMs
         IF  '${vm_fail}' == 'FAIL'
             Log         Skipping tests for ${vm} because couldn't connect to it  console=True
         ELSE
-            ${output}       Execute Command      /tmp/sysbench_test ${threads_n}  sudo=True  sudo_password=${PASSWORD}
+            Run Command       /tmp/sysbench_test ${threads_n}  sudo=True   timeout=120
             Run Keyword If    ${threads_n} > 1   Save sysbench results   ${vm}
             Save sysbench results   ${vm}   _1thread
         END
@@ -378,8 +370,7 @@ Sysbench test in VMs
 
 Save cpu results
     [Arguments]        ${test}=cpu  ${host}=ghaf_host
-    ${output}           Execute Command       cat /tmp/sysbench_results/${test}_report
-    Log                 ${output}
+    ${output}           Run Command       cat /tmp/sysbench_results/${test}_report
     &{data}             Parse Cpu Results     ${output}
     &{statistics_dict}  Save Cpu Data         ${host}_${TEST NAME}_${test}  ${data}
     ${statistics}       Output Dictionary First Value   ${statistics_dict}
@@ -395,8 +386,7 @@ Save cpu results
 Save memory results
     [Arguments]        ${test}=memory_read  ${host}=ghaf_host
 
-    ${output}           Execute Command       cat /tmp/sysbench_results/${test}_report
-    Log                 ${output}
+    ${output}           Run Command       cat /tmp/sysbench_results/${test}_report
     &{data}             Parse Memory Results  ${output}
     &{statistics_dict}  Save Memory Data      ${host}_${TEST NAME}_${test}  ${data}
     ${statistics}       Output Dictionary First Value   ${statistics_dict}
@@ -426,17 +416,17 @@ Single vs Parallel CPU test
 
     Log To Console          Running single vm cpu test
     Switch to vm            ${reference-vm}
-    ${output}               Execute Command         /tmp/parallel_cpu_test ${ref_threads} 30 /tmp/cpu_single_report
-    &{single_vm_data}       Parse Cpu Results       ${output}
+    ${output}               Run Command           /tmp/parallel_cpu_test ${ref_threads} 30 /tmp/cpu_single_report
+    &{single_vm_data}       Parse Cpu Results     ${output}
     Log                     ${single_vm_data}     console=True
 
     Log To Console          Running parallel cpu test
     ${command}              Set Variable    /tmp/parallel_cpu_test ${ref_threads} 30 /tmp/cpu_parallel_report
-    Execute Command         nohup ${command} > /tmp/output.log 2>&1 &
+    Run Command             nohup ${command} > /tmp/output.log 2>&1 &
     Switch to vm            ${attack-vm}
-    Execute Command         /tmp/parallel_cpu_test ${attack_threads} 30 /tmp/cpu_parallel_report
+    Run Command             /tmp/parallel_cpu_test ${attack_threads} 30 /tmp/cpu_parallel_report
     Switch to vm            ${reference-vm}
-    ${output}               Execute Command         cat /tmp/cpu_parallel_report/cpu_report
+    ${output}               Run Command             cat /tmp/cpu_parallel_report/cpu_report
     &{parallel_vm_data}     Parse Cpu Results       ${output}
     Log                     ${parallel_vm_data}     console=True
 
@@ -473,11 +463,11 @@ Prepare files for fileio test in VM
     FAIL    Failed to prepare files for fileio test
 
 Teardown of Fileio Read Isolation Test
-    [Arguments]                 ${reference-vm}  ${attacker-vm}  ${test_dir}
-    Switch to vm                ${reference-vm}
-    Execute Command             rm -r ${test_dir}   sudo=True  sudo_password=${PASSWORD}
-    Switch to vm                ${attacker-vm}
-    Execute Command             rm -r ${test_dir}   sudo=True  sudo_password=${PASSWORD}
+    [Arguments]      ${reference-vm}  ${attacker-vm}  ${test_dir}
+    Switch to vm     ${reference-vm}
+    Run Command      rm -r ${test_dir}   sudo=True
+    Switch to vm     ${attacker-vm}
+    Run Command      rm -r ${test_dir}   sudo=True
     Teardown of Fileio Isolation Test
 
 Teardown of Fileio Isolation Test
