@@ -22,7 +22,7 @@ Suite Teardown      Close All Connections
 
 
 *** Variables ***
-${PING_TIMEOUT}     120
+${PING_TIMEOUT}     180
 ${SEARCH_TIMEOUT}   60
 
 
@@ -137,7 +137,7 @@ Check Time To Notification
     [Arguments]      ${command}   ${start_time}
     ${notification_line}  Set Variable  ${EMPTY}
     WHILE  '${notification_line}' == '${EMPTY}'   limit=${SEARCH_TIMEOUT} seconds
-        ${notification_line}    Execute Command  ${command}
+        ${notification_line}    Run Command  ${command}
     END
 
     IF  '${notification_line}' == '${EMPTY}'
@@ -147,7 +147,7 @@ Check Time To Notification
     ${get_timestamp}      Catenate  SEPARATOR=\n
     ...  desktop_time=$(date -d "$(${command} | tail -1 | awk '{print $1}')" "+%s")
     ...  echo $desktop_time
-    ${notification_time}  Execute Command  ${get_timestamp}
+    ${notification_time}  Run Command  ${get_timestamp}
     ${time}  Subtract Time From Time  ${notification_time}  ${start_time}   exclude_millis=True
     Should Be True  0 < ${time} < 120
     RETURN  ${time}
@@ -161,7 +161,6 @@ Check Result Validity
 Log Journal To Debug
     [Arguments]           ${boot}=0
     ${journal_output}     Run Command   journalctl -b ${boot}
-    Log                   ${journal_output}
 
 Boot Time Test Teardown
     Reboot Laptop

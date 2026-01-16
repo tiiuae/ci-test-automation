@@ -167,25 +167,25 @@ Run iperf server on DUT
     [Documentation]   Run iperf on DUT in server mode
     Open port 5201 from iptables
     ${command}                      Set Variable    iperf -s
-    Execute Command                 nohup ${command} > /tmp/output.log 2>&1 &
+    Run Command                     nohup ${command} > /tmp/output.log 2>&1 &
     Check iperf was started
 
 Open port 5201 from iptables
     [Documentation]  Firewall rule to open needed port for perf test.
-    Execute Command  iptables -A ghaf-fw-in-filter -p tcp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
-    Execute Command  iptables -A ghaf-fw-in-filter -p udp --dport 5201 -j ACCEPT  sudo=True  sudo_password=${PASSWORD}
+    Run Command      iptables -A ghaf-fw-in-filter -p tcp --dport 5201 -j ACCEPT  sudo=True
+    Run Command      iptables -A ghaf-fw-in-filter -p udp --dport 5201 -j ACCEPT  sudo=True
     Sleep        1
 
 Close port 5201 from iptables
     [Documentation]  Firewall rule to close the port that was used in per testing
-    Execute Command  iptables -A ghaf-fw-in-filter -p tcp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
-    Execute Command  iptables -A ghaf-fw-in-filter -p udp --dport 5201 -j DROP  sudo=True  sudo_password=${PASSWORD}
+    Run Command  iptables -A ghaf-fw-in-filter -p tcp --dport 5201 -j DROP  sudo=True
+    Run Command  iptables -A ghaf-fw-in-filter -p udp --dport 5201 -j DROP  sudo=True
 
 Check iperf was started
     [Arguments]       ${timeout}=5
     ${is_started} =   Set Variable    False
     FOR    ${i}    IN RANGE    ${timeout}
-        ${output}=     Execute Command    sh -c 'ps aux | grep "iperf" | grep -v grep'
+        ${output}=     Run Command    sh -c 'ps aux | grep "iperf" | grep -v grep'
         ${status} =    Run Keyword And Return Status    Should Contain    ${output}    iperf -s
         IF    ${status}
             ${is_started} =  Set Variable    True

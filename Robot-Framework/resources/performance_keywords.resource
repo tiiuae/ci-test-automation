@@ -56,11 +56,11 @@ Output Dictionary First Value
     RETURN                  ${output}
 
 Install sysbench tool
-    ${command_output}=    Execute Command    nix-env --query --installed
+    ${command_output}=    Run Command    nix-env --query --installed
     ${not_installed} =	Run Keyword And Return Status	Should Not Contain    ${command_output}    sysbench
     IF  ${not_installed}
-        Execute Command    nix-env -i sysbench
-        ${command_output}=    Execute Command    nix-env --query --installed
+        Run Command       nix-env -i sysbench
+        ${command_output}=    Run Command    nix-env --query --installed
         Log               ${\n}Installed packages:${\n}${command_output}  console=True
         Should Contain    ${command_output}    sysbench    sysbench tool was not installed
         Log To Console    sysbench tool was successfully installed
@@ -69,11 +69,11 @@ Install sysbench tool
     END
 
 Install iperf tool
-    ${command_output}=    Execute Command    nix-env --query --installed
+    ${command_output}=    Run Command    nix-env --query --installed
     ${not_installed} =	  Run Keyword And Return Status	Should Not Contain    ${command_output}    iperf
     IF  ${not_installed}
-        Execute Command   nix-env -i iperf
-        ${command_output}=    Execute Command    nix-env --query --installed
+        Run Command   nix-env -i iperf
+        ${command_output}=    Run Command    nix-env --query --installed
         Log To Console    ${\n}Installed packages:${\n}${command_output}
         Should Contain    ${command_output}    iperf    iperf tool was not installed
         Log To Console    iperf tool was successfully installed
@@ -86,7 +86,7 @@ Initial Memory Check
     ${init_mem_check_ok}=             Set Variable  False
     ${sleep_between}                  Evaluate      10
     FOR    ${i}    IN RANGE    ${iterations}
-        ${init_total_mem}=                Execute Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $1}'
+        ${init_total_mem}=                Run Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $1}'
         Log                               Total memory at start ${init_total_mem} MiB  console=True
         IF  ${init_total_mem} > ${max_init_memory}
             Log To Console                Initial total memory too high. Waiting for the mem-manager to adjust it.
