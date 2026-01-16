@@ -21,10 +21,13 @@ ${NETVM_SYNTAX}     ghaf-[0-9]{10}
 *** Keywords ***
 
 Ping Host
-    [Arguments]        ${hostname}  ${timeout}=${PING_SPACING}
+    [Arguments]        ${hostname}  ${timeout}=${PING_SPACING}  ${allow_fail}=${False}
     [Documentation]    Ping the given hostname once and return boolean result
     ${ping_output}=    Run Process   ping ${hostname} -c 1 -W ${timeout}   shell=True
     ${ping_success}    Run Keyword And Return Status    Should Contain    ${ping_output.stdout}    1 received
+    IF  ${allow_fail} and not ${ping_success}
+        FAIL
+    END
     Return From Keyword    ${ping_success}
 
 Check If Ping Fails
@@ -301,3 +304,18 @@ Transfer Shell Script To VM
         Log               Successfully connected to ${vm}  console=True
     END
     Transfer Shell Script To DUT    performance-tests   ${script_name}   /tmp
+
+Elevate to superuser
+    SSHLibrary.Read
+    Write                 sudo su
+    Sleep                 0.5
+    ${out}                SSHLibrary.Read
+    IF  'password for ${LOGIN}' in $out
+        ${out}            Write        ${PASSWORD}
+        Sleep             0.5
+        ${out}            SSHLibrary.Read
+    END
+    IF  'root@' in $out
+        RETURN
+    END
+    FAIL              Elevating to superuser failed

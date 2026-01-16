@@ -29,7 +29,7 @@ Wifi password is not revealed in Grafana
 User password is not revealed in Grafana
     [Documentation]  Check that logs in Grafana don't contain user's password
     [Tags]           SP-T328  SP-T328-2
-    ${data_available}    ${logs}    Get logs by key words   ${USER_LOGIN}    hide_found_data=${False}
+    ${data_available}    ${logs}    Get logs by key words    ${USER_LOGIN}    hide_found_data=${False}
     ${found}  ${logs}    Get logs by key words   ${USER_PASSWORD}
     Should Not Be True   ${found}
     [Teardown]           Teardown Logs    ${data_available}
@@ -67,18 +67,6 @@ Check Grafana log forwarding after disconnected state
     Log To Console               Checked that log is forwarded after clearing the iptables rule by reboot
     [Teardown]        Skip If    ${initial_check}   Konwn issue: SSRCSP-7612 (Grafana logging stops from a VM).\nDidn't find admin-vm logs in the initial check. Skipping the test.
 
-Check update logging
-    Switch to vm            ${HOST}
-    Elevate to superuser
-    Write                   nix-shell -p git
-    Write                   git clone https://github.com/tiiuae/ghaf.git /home
-    Write                   git checkout ${COMMIT_HASH}
-    Edit file               /home/ghaf/modules/reference/profiles/mvp-user-trial.nix  security.audit.enable = false;  security.audit.enable = true;
-    Edit file               /home/ghaf/modules/common/security/audit/default.nix  ghaf.security.audit.enableVerboseRebuild = false;  ghaf.security.audit.enableVerboseRebuild = true;
-    Edit file               /home/ghaf/modules/microvm/host/microvm-host.nix  storeWatcher.enable = false;  storeWatcher.enable = true;
-    Write                   cd /home/ghaf
-    Write                   nixos-rebuild --flake .#lenovo-x1-carbon-gen11-debug switch
-    # TODO: Need to answer y for multiple questions
 
 *** Keywords ***
 
@@ -97,23 +85,3 @@ Teardown Logs
             SKIP    There is not enough logs to check
         END
     END
-
-Get logs by key words
-    [Arguments]      ${word}    ${period}=1d    ${hide_found_data}=${True}
-    [Documentation]    Search and get logs from Grafana
-    ...                *Args*'\n:
-    ...                - word - key word to find in log line
-    ...                - period - sets a period of time for searching to limit lines, 1 day by default
-    ...                - hide_found_data - replace found pattern with a placeholder to hid it robot logs in case of sensitive data
-    Set Log Level    NONE
-    ${logs}          Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --since="${period}" --limit="100" '{machine="${device_id}"} |= `${word}`'
-    IF    ${hide_found_data}
-        ${logs}          Replace String    string=${logs}        search_for=${word}        replace_with=<***HIDDEN_SENSITIVE_DATA***>
-    END
-    ${lines}         Split To Lines    ${logs}
-    Remove From List    ${lines}    0    # contains full query including potentially sensitive searched word
-    Set Log Level    INFO
-    ${length}        Get Length   ${lines}
-    ${status}        Run Keyword And Return Status  Should Be True  ${length} > 0   Logs do not contain searched word
-    Log              ${logs}
-    RETURN           ${status}    ${logs}

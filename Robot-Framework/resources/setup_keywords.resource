@@ -24,7 +24,6 @@ Prepare Test Environment
     Close All Connections
     Switch to vm    ${HOST}
     Log versions
-
     IF  ${IS_LAPTOP}
         Create test user
         IF  ${login}

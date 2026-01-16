@@ -5,6 +5,7 @@
 Library             ../lib/output_parser.py
 Library             Collections
 Library             OperatingSystem
+Library             DateTime
 
 
 *** Keywords ***
@@ -279,3 +280,33 @@ Check VM Log on Grafana
         FAIL    Logs check status is ${status}, but expected ${expected}
     END
     RETURN         ${status}
+
+Get logs by key words
+    [Arguments]      ${word}   ${period}=1d   ${hide_found_data}=${True}
+    [Documentation]    Search and get logs from Grafana
+    ...                *Args*'\n:
+    ...                - word - key word to find in log line
+    ...                - period - sets a period of time for searching to limit lines, 1 day by default
+    ...                - hide_found_data - replace found pattern with a placeholder to hid it robot logs in case of sensitive data
+    Set Log Level    NONE
+    ${logs}          Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --since="${period}" --limit="100" '{machine="${device_id}"} |= `${word}`'
+    IF    ${hide_found_data}
+        ${logs}          Replace String    string=${logs}        search_for=${word}        replace_with=<***HIDDEN_SENSITIVE_DATA***>
+    END
+    ${lines}         Split To Lines    ${logs}
+    Remove From List    ${lines}    0    # contains full query including potentially sensitive searched word
+    Set Log Level    INFO
+    ${length}        Get Length   ${lines}
+    ${status}        Run Keyword And Return Status  Should Be True  ${length} > 0   Logs do not contain searched word
+    Log              ${logs}
+    RETURN           ${status}    ${logs}
+
+Get current timestamp
+    ${current_time}   DateTime.Get Current Date  UTC  exclude_millis=yes
+    RETURN            ${current_time}
+
+Set timestamp
+    [Arguments]          ${timestamp_variable_name}
+    ${current_time}      Get current timestamp
+    Set Global Variable  ${${timestamp_variable_name}}    ${current_time}
+    Log                  Setting timestamp ${timestamp_variable_name}: ${${timestamp_variable_name}}    console=True

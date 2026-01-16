@@ -39,8 +39,16 @@ Check file doesn't exist
     Log To Console     Checking that file ${file_name} does not exist
     Run Command        ls ${file_name}  sudo=${sudo}  rc_match=not_equal  compare_rc=0
 
-Edit file
-    [Documentation]    Replaces specific string with the given string in a file.
-    ...                If the file does not contain the string to be replaced this keyword does nothing.
-    [Arguments]        ${file_path}  ${old}  ${new}
-    Execute Command    sed -i s/'${old}'/'${new}'/ ${file_path}
+Edit File
+    [Documentation]    Replaces all ${position} strings with ${new_string} if replace=true
+    ...                Adds ${new_string} under all lines containing ${position} string if replace=false
+    ...                Keyword fails if the file does not contain ${position} string
+    [Arguments]        ${file_path}  ${position}  ${new_string}  ${replace}=${True}
+    Run Command        grep -l '${position}' ${file_path}
+    IF  ${replace}
+        Run Command    sed -i s/'${position}'/'${new_string}'/ ${file_path}    sudo=True
+    ELSE
+        Run Command    sed -i '/${position}/a ${new_string}' ${file_path}    sudo=True
+    END
+    ${out}             Run Command    cat ${file_path}
+    Log                ${out}
