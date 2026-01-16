@@ -38,3 +38,16 @@ Check file doesn't exist
     [Arguments]        ${file_name}  ${sudo}=False
     Log To Console     Checking that file ${file_name} does not exist
     Run Command        ls ${file_name}  sudo=${sudo}  rc_match=not_equal  compare_rc=0
+
+Edit File
+    [Documentation]    Replaces specific string with the given string in a file.
+    ...                If the file does not contain the string to be replaced this keyword does nothing.
+    [Arguments]        ${file_path}  ${position}  ${new_line}  ${replace}=${True}
+    IF  ${replace}
+        ${out}         Write    sed -i s/'${position}'/'${new_line}'/ ${file_path} ; echo rc=$?
+    ELSE
+        ${out}         Write    sed -i '/${position}/a ${new_line}' ${file_path} ; echo rc=$?
+    END
+    Sleep              1
+    ${out}             SSHLibrary.Read
+    Should Contain     ${out}   rc=0

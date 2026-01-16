@@ -24,7 +24,7 @@ Prepare Test Environment
     Close All Connections
     Switch to vm    ${HOST}
     Log versions
-
+    RETURN
     IF  ${IS_LAPTOP}
         Create test user
         IF  ${login}
@@ -36,6 +36,7 @@ Prepare Test Environment
 Clean Up Test Environment
     [Timeout]     5 minutes
     [Arguments]   ${disable_dnd}=False
+    RETURN
     IF    ${IS_AVAILABLE} == True and "${CONNECTION_TYPE}" == "ssh"
         # Temporarily taking journal log taking our from Orin-NX [SSRCSP-7453]
         IF  "${DEVICE_TYPE}" != "orin-nx"
