@@ -7,9 +7,16 @@ Test Tags           lenovo-x1  darter-pro
 
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/device_control.resource
+Resource            ../../resources/common_keywords.resource
+Resource            ../../resources/file_keywords.resource
 
 Test Teardown       Update teardown
 Test Timeout        10 minutes
+
+
+*** Variables ***
+
+${repository_path}  /persist/ghaf
 
 
 *** Test Cases ***
@@ -27,6 +34,62 @@ Update via givc-cli
     [Tags]           SP-T148  givc-cli-update
     Run Keyword If   "${DEVICE_TYPE}" == "x1-sec-boot"   Skip   Updating is not supported by signed images.
     Update with      givc-cli
+
+Check audit update logging and device-id immutability
+    [Documentation]         Enable audit logging and verify that system updates are properly logged
+    [Tags]                  SP-T276
+
+    IF  "${DEVICE_TYPE}" == "lenovo-x1"
+        ${target_name}      Set Variable    lenovo-x1-carbon-gen11-debug
+    ELSE IF  "${DEVICE_TYPE}" == "darter-pro"
+        ${target_name}      Set Variable    system76-darp11-b-debug
+    ELSE
+        Skip                Test case not supporting this device type
+    END
+
+    Switch to vm              ${HOST}
+    ${device_id}              Execute Command        cat /persist/common/device-id
+    Set Suite Variable        ${device_id}
+    ${gen_before}             Get current generation
+    Set Suite Variable        ${gen_before}    ${gen_before}
+    Elevate to superuser
+    Run Nix Shell             git
+
+    # Move this to the end of the test
+    Write                     rm -r ${repository_path}
+    Sleep                     2
+
+    Clone Ghaf Repository     ${repository_path}    ${COMMIT_HASH}
+    Log To Console            Making changes to the local ghaf repository
+    Edit file                 ${repository_path}/modules/reference/profiles/mvp-user-trial.nix  security.audit.enable = false;  security.audit.enable = true;
+    Edit file                 ${repository_path}/modules/common/security/audit/default.nix  ghaf.security.audit.enableOspp  ghaf.security.audit.enableVerboseRebuild = true;  ${False}
+    Edit file                 ${repository_path}/modules/microvm/host/microvm-host.nix  storeWatcher.enable = false;  storeWatcher.enable = true;
+    Log To Console            Switching to audit mode
+    Run Nixos Rebuild         ${repository_path}  ${target_name}
+    # Login to laptop
+
+    Switch to vm              ${HOST}
+    ${state}  ${substate}     Verify service status  range=10  service=nixos-rebuild-watch.service
+    ${device_id_check}        Execute Command        cat /persist/common/device-id
+    IF  $device_id_check != '${device_id}'
+        Run Keyword And Continue On Failure    FAIL    Device ID has changed over nixos-rebuild boot
+        ${device_id}          Set Suite Variable   ${device_id_check}
+    END
+    Elevate to superuser
+    Run Nix Shell             git
+    Log To Console            Modifying modules/development/debug-tools.nix
+    Edit file                 ${repository_path}/modules/development/debug-tools.nix  pkgs.file  pkgs.git  ${False}
+    ${before_rebuild}         Get current timestamp
+    Log To Console            Starting nixos-rebuild and interrupting when copying started
+    Run Nixos Rebuild         ${repository_path}  ${target_name}  copied
+    ${after_rebuild}          Get current timestamp
+    ${log_search_window}      DateTime.Subtract Date From Date   ${after_rebuild}  ${before_rebuild}   exclude_millis=True
+    Sleep                     5
+    ${found}  ${logs}         Get logs by key words   ${device_id}   nixos_rebuild_store   ${log_search_window}s   ${False}
+    Should Be True            ${found}
+    Log                       ${logs}
+
+    [Teardown]                Teardown Audit Update Logging
 
 
 *** Keywords ***
@@ -86,3 +149,93 @@ Update teardown
         Execute Command       nix-collect-garbage  sudo=True  sudo_password=${PASSWORD}
         Close All Connections
     END
+
+Run Nixos Rebuild
+    [Arguments]      ${repository_path}  ${target_name}  ${interrupt}=${EMPTY}
+    ${no_output_timeout}  Set Variable    180
+    ${no_output_start}    Set Variable    ${EMPTY}
+    Write            cd ${repository_path}
+    Sleep            0.5
+    Write            nixos-rebuild --flake .#${target_name} boot
+    ${rebuild_ok}    Set Variable  ${False}
+    FOR   ${i}  IN RANGE  240
+        ${output}               SSHLibrary.Read
+        IF  'exit status 1' in $output
+            FAIL  error in nixos-rebuild
+        END
+        IF  ${i} > 0 and '[nix-shell:' in $output
+            Log To Console      .
+            Log To Console      nixos-rebuild finished
+            ${rebuild_ok}    Set Variable  ${True}
+            BREAK
+        END
+        # May have to answer "y" to multiple y/N questions
+        IF  '(y/N)' in $output
+            Write   y
+            Sleep   0.5
+        END
+        IF  $output == '${EMPTY}'
+            IF  $no_output_start == '${EMPTY}'
+                ${no_output_start}      Get current timestamp
+            ELSE
+                ${current_time}         Get current timestamp
+                ${no_output_time}       DateTime.Subtract Date From Date   ${current_time}  ${no_output_start}  exclude_millis=True
+                IF  ${no_output_time} > ${no_output_timeout}
+                    FAIL   nixos-rebuild was running without output ${no_output_timeout}s\nMight be stuck. Interrupting.
+                END
+            END
+            # Ensure that the device is still alive
+            Wait Until Keyword Succeeds  15s  3s  Ping Host  ${DEVICE_IP_ADDRESS}
+            Sleep                   10
+            Log To Console          .   no_newline=true
+        ELSE
+            ${no_output_start}      Set Variable    ${EMPTY}
+        END
+        IF  $interrupt != '${EMPTY}'
+            IF  '${interrupt}' in $output
+                Log To Console           Interrupting nixos-rebuild
+                ${ctrl_c}                Evaluate    chr(int(3))
+                SSHLibrary.Write Bare    ${ctrl_c}
+                SSHLibrary.Read Until    [nix-shell:
+                RETURN
+            END
+        END
+    END
+    IF  not ${rebuild_ok}
+        FAIL  nixos-rebuild didn't finish successfully withing the given time
+    END
+    Soft Reboot Device
+    Verify Reboot and Connect
+
+Run Nix Shell
+    [Arguments]      ${package}
+    SSHLibrary.Read
+    Set Client Configuration  timeout=60
+    Write                     nix-shell -p ${package}
+    SSHLibrary.Read Until     [nix-shell:
+
+Clone Ghaf Repository
+    [Arguments]               ${repository_path}    ${commit}=${EMPTY}
+    Log To Console            Cloning ghaf repository
+    SSHLibrary.Read
+    Write                     git clone https://github.com/tiiuae/ghaf.git ${repository_path}
+    SSHLibrary.Read Until     Cloning
+    SSHLibrary.Read Until     [nix-shell:
+    Sleep                     0.5
+    Write                     cd ${repository_path}
+    IF  $commit != '${EMPTY}'
+        Log                       Checking out commit ${commit}  console=True
+        Write                     git checkout ${commit}
+        SSHLibrary.Read Until     HEAD is now at
+        SSHLibrary.Read Until     [nix-shell:
+    END
+
+Remove Ghaf Repository
+    Execute Command   rm -r ${repository_path}   sudo=True  sudo_password=${PASSWORD}
+
+Teardown Audit Update Logging
+    Set Client Configuration      timeout=3
+    # Run Keyword If Test Failed    Reboot Laptop
+    # Run Keyword If Test Failed    Login to laptop
+    Update teardown
+    Remove Ghaf Repository
