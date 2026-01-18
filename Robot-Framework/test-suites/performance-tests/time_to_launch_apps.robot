@@ -175,10 +175,10 @@ Measure time to launch Microsoft Outlook
 Measure time to launch VPN
     [Documentation]   Start VPN app via GUI and measure time of launching
     [Tags]            SP-T285-22
-    Start app via GUI   ${BUSINESS_VM}  gpclient  display_name=VPN
+    Start app via GUI   ${BUSINESS_VM}  gp-gui  display_name=VPN
     # Closing is ignored because the process stays running
-    Close app via GUI   ${BUSINESS_VM}  gpclient  verify_is_killed=false
-    Save launch time    gpclient
+    Close app via GUI   ${BUSINESS_VM}  gp-gui  ./window-close-neg.png  verify_is_killed=false
+    Save launch time    gp-gui
 
 Measure time to launch App Store
     [Documentation]   Start App Store via GUI and measure time of launching

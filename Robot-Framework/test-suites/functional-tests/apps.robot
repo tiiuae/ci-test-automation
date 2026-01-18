@@ -120,7 +120,7 @@ Start Volume Control
 Start VPN
     [Documentation]   Start VPN app and verify process started
     [Tags]            SP-T200
-    Start application in VM   VPN  ${BUSINESS_VM}   gpclient
+    Start application in VM   VPN  ${BUSINESS_VM}   gp-gui
 
 Start Zoom
     [Documentation]   Start Zoom and verify process started
