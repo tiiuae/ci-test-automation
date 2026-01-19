@@ -3,8 +3,7 @@
 
 *** Settings ***
 Documentation       GUI tests
-# Exclude gui-tests from the regression until the pipelines have been updated
-Test Tags           gui
+Test Tags           regression    gui
 
 Library             ../../lib/GuiTesting.py   ${OUTPUT_DIR}/outputs/gui-temp/
 Library             ../../lib/helper_functions.py
