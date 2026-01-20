@@ -4,6 +4,7 @@
 *** Settings ***
 Library             ../lib/PlugLibrary/PlugLibrary.py  ${PLUG_TYPE}
 Library             ../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
+Resource            ../resources/common_keywords.resource
 
 
 *** Keywords ***

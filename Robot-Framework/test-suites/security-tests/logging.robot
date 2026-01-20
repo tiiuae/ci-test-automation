@@ -42,7 +42,7 @@ Check Grafana log forwarding after disconnected state
     ${id}             Execute Command  cat /etc/common/device-id
     Log To Console    Creating log entry and verifying forwarding to grafana
     Execute Command   logger --priority=user.info "logtest0_${BUILD_ID}"    sudo=True  sudo_password=${PASSWORD}
-    Wait Until Keyword Succeeds  60s  5s  Check VM Log on Grafana  ${id}  ${ADMIN_VM}  2  ${True}  logtest0_${BUILD_ID}
+    Wait Until Keyword Succeeds  60s  5s  Check VM Log on Grafana  ${id}  ${ADMIN_VM}  2m  ${True}  logtest0_${BUILD_ID}
     ${initial_check}  Set Variable  ${False}
     Log To Console    Initial check for log forwarding passed
 
@@ -57,13 +57,13 @@ Check Grafana log forwarding after disconnected state
         Sleep            1
     END
 
-    Check VM Log on Grafana      ${id}   ${ADMIN_VM}   2   ${False}   logtest1_${BUILD_ID}
+    Check VM Log on Grafana      ${id}   ${ADMIN_VM}   2m   ${False}   logtest1_${BUILD_ID}
     Log To Console               Verified that iptables rule is blocking log forwarding
     Soft Reboot Device
     Wait Until Device Is Down
     Connect After Reboot
     Login to laptop
-    Wait Until Keyword Succeeds  60s  5s  Check VM Log on Grafana     ${id}   ${ADMIN_VM}   5   ${True}   logtest1_${BUILD_ID}
+    Wait Until Keyword Succeeds  60s  5s  Check VM Log on Grafana     ${id}   ${ADMIN_VM}   5m   ${True}   logtest1_${BUILD_ID}
     Log To Console               Checked that log is forwarded after clearing the iptables rule by reboot
     [Teardown]        Skip If    ${initial_check}   Konwn issue: SSRCSP-7612 (Grafana logging stops from a VM).\nDidn't find admin-vm logs in the initial check. Skipping the test.
 
