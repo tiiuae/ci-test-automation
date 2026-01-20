@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Check security in logs
-Test Tags           logging  lenovo-x1  darter-pro
+Test Tags           logging  lenovo-x1  darter-pro  lab-only
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
 Resource            ../../resources/common_keywords.resource
@@ -39,19 +39,19 @@ Check Grafana log forwarding after disconnected state
     [Tags]           SP-T283
     ${initial_check}  Set Variable  ${True}
     Switch to vm      ${ADMIN_VM}
-    ${id}             Execute Command  cat /etc/common/device-id
+    ${id}             Run Command  cat /etc/common/device-id
     Log To Console    Creating log entry and verifying forwarding to grafana
-    Execute Command   logger --priority=user.info "logtest0_${BUILD_ID}"    sudo=True  sudo_password=${PASSWORD}
+    Run Command       logger --priority=user.info "logtest0_${BUILD_ID}"    sudo=True
     Wait Until Keyword Succeeds  60s  5s  Check VM Log on Grafana  ${id}  ${ADMIN_VM}  2m  ${True}  logtest0_${BUILD_ID}
     ${initial_check}  Set Variable  ${False}
     Log To Console    Initial check for log forwarding passed
 
     Log To Console    Blocking log forwarding from admin-vm
     ${rule}           Set Variable   OUTPUT -p tcp --dport 443 -m owner --uid-owner "$(systemctl show alloy -p UID --value)" -j REJECT
-    Execute Command   iptables -I ${rule}    sudo=True  sudo_password=${PASSWORD}
+    Run Command   iptables -I ${rule}    sudo=True
     Sleep             3
     Log To Console    Creating log entry and waiting 50 sec      no_newline=true
-    Execute Command   logger --priority=user.info "logtest1_${BUILD_ID}"    sudo=True  sudo_password=${PASSWORD}
+    Run Command   logger --priority=user.info "logtest1_${BUILD_ID}"    sudo=True
     FOR   ${i}   IN RANGE   50
         Log To Console   .  no_newline=true
         Sleep            1
@@ -74,7 +74,7 @@ Setup logs
     Configure wifi      ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Sleep   3           # Time for needed data to be logged
     Switch to vm        ${HOST}
-    ${device_id}        Execute Command   cat /persist/common/device-id
+    ${device_id}        Run Command   cat /persist/common/device-id
     Set Suite Variable  ${device_id}
 
 Teardown Logs
