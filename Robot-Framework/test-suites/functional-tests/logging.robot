@@ -7,6 +7,7 @@ Test Tags           logging  pre-merge  bat  lenovo-x1  darter-pro  dell-7330
 
 Library             DateTime
 Library             OperatingSystem
+Library             Collections
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/common_keywords.resource
 
@@ -42,13 +43,46 @@ Check Grafana logs
     [Documentation]  Check that all virtual machines are sending logs to Grafana
     [Tags]           SP-T172
     Check Network Availability    8.8.8.8   limit_freq=${False}
-    Switch to vm     ${ADMIN_VM}
-    ${id}            Run Command  cat /etc/common/device-id
+    Switch to vm       ${ADMIN_VM}
+    ${id}              Run Command  cat /etc/common/device-id
     Run Keyword And Continue On Failure   Create logs in all VMs
-    Wait Until Keyword Succeeds  60s  5s  Check Logs Are available  ${id}
-
+    Sleep              5
+    ${failed_vms_check_1}   Check Logs Are Available   ${id}  since=3m  word=${TEST_LOG}
+    ${check_status}         Run Keyword And Return Status    Should Be Empty   ${failed_vms_check_1}
+    IF  not ${check_status}
+        ${since_boot}  Get Time Since Last Boot
+        ${failed_vms_check_2}   Check Logs Are available   ${id}   since=${since_boot}s
+        ${check_status}         Run Keyword And Return Status    Should Be Empty   ${failed_vms_check_2}
+        IF  ${check_status}
+            ${skip_msg}=    Catenate    SEPARATOR=\n
+            ...    Known issue: SSRCSP-7612 Grafana logging stops from a VM
+            ...    Log forwarding stopped for these VMs: ${failed_vms_check_1}
+            ...    Verified that log forwarding was working some time after boot for all VMs
+            Skip   ${skip_msg}
+        ELSE
+            ${failed_vm_count}   Get Length   ${failed_vms_check_2}
+            ${net-vm_included}   Run Keyword And Return Status   List Should Contain Value   ${failed_vms_check_2}   ${NETVM_NAME}
+            IF  ${failed_vm_count} < 2 and ${net-vm_included}
+                ${skip_msg}=    Catenate    SEPARATOR=\n
+                ...    Known issue: SSRCSP-7612 Grafana logging stops from a VM
+                ...    Log forwarding stopped for these VMs: ${failed_vms_check_1}
+                ...    Known issue: SSRCSP-7542 net-vm Grafana logs missing frequently
+                ...    Verified that log forwarding was working some time after boot for all VMs, except no logs at all from net-vm.
+                Skip   ${skip_msg}
+            ELSE
+                FAIL       Failed to find any logs since boot for one or more VMs.\nVMs missing all logs since last boot: ${failed_vms_check_2}
+            END
+        END
+    END
 
 *** Keywords ***
+
+Get Time Since Last Boot
+    Switch to vm        ${HOST}
+    ${last_boot}        Run Command  journalctl --list-boots | tail -n1 | awk '{print $4,$5}'
+    ${current_time}     Get current timestamp
+    ${time_since_boot}  DateTime.Subtract Date From Date   ${current_time}  ${LAST_BOOT}  exclude_millis=True
+    RETURN              ${time_since_boot}
 
 Logging Suite Setup
     @{VM_LIST}               Get VM list  with_host=True
@@ -59,24 +93,30 @@ Logging Suite Setup
     Set Suite Variable       @{HOSTNAME_LIST}
 
 Check Logs Are Available
-    [Documentation]  Check that virtual machine's logs are available in Grafana
-    [Arguments]      ${id}
+    [Documentation]  Check if logs are available from each VM in Grafana
+    ...              Without ${word} argument the keyword tries to find any logs
+    [Arguments]      ${id}  ${since}=600s  ${word}=${EMPTY}
+    ${failed_vms}    Create List
     FOR  ${vm}  IN  @{HOSTNAME_LIST}
-        ${status}   Check VM Log on Grafana    ${id}   ${vm}   10
+        IF  $word=='${EMPTY}'
+            ${status}  Check VM Log on Grafana   ${id}   ${vm}   ${since}
+        ELSE
+            ${status}  Check VM Log on Grafana   ${id}   ${vm}   ${since}   log_entry=${word}
+        END
 
         # Logging from one VM sometimes stops during the run (SSRCSP-7612).
         # To avoid failures in the pipelines the test checks for any logs during the last 10 minutes.
         # 10 minutes should be enough to make sure that logs from previous run are not detected.
         # When the bug is fixed the old version should be taken back into use.
-        IF   $status == ${False}
-            IF   '${vm}' == '${NETVM_NAME}'
-                # Ignore net-vm error SSRCSP-7542
+        IF  $status == ${False}
+            IF  '${vm}' == '${NETVM_NAME}'
+                # Special case for net-vm SSRCSP-7542
                 Save net-vm log
-            ELSE
-                Run Keyword And Continue On Failure   FAIL   ${vm} query does not contain logs
             END
+            Append To List    ${failed_vms}    ${vm}
         END
     END
+    RETURN  ${failed_vms}
 
 Create logs in all VMs
     [Documentation]    Create new SSH connection to all VMs to make sure there are recent logs

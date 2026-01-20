@@ -269,14 +269,14 @@ Restart VM
 
 Check VM Log on Grafana
     [Documentation]  Check that specific log entry (log line contains) from a VM is available in Grafana
-    ...              If expected=nofail, test will not fail in any case but just return th status
-    ...              If expected is True or False, test will compare expected and actual result and Fail is not equal
-    [Arguments]      ${id}   ${vm}  ${since}=10  ${expected}=nofail  ${log_entry}=${EMPTY}
+    ...              If expected=nofail, test will not fail in any case but just return the status
+    ...              If expected is True or False, test will compare expected and actual result and Fail if not equal
+    [Arguments]      ${id}   ${vm}  ${since}=10m  ${expected}=nofail  ${log_entry}=${EMPTY}
     Set Log Level  NONE
     IF  $log_entry == '${EMPTY}'
-        ${out}    Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --since="${since}m" --limit=10 '{machine="${id}", host="${vm}"}' | grep -v ${GRAFANA_LOGS}
+        ${out}    Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --since="${since}" --limit=10 '{machine="${id}", host="${vm}"}' | grep -v ${GRAFANA_LOGS}
     ELSE
-        ${out}    Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --since="${since}m" --limit=0 '{machine="${id}", host="${vm}"}' | grep ${log_entry}
+        ${out}    Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --since="${since}" --limit=0 '{machine="${id}", host="${vm}"}' | grep ${log_entry}
     END
     Set Log Level  INFO
     Log            ${out}
