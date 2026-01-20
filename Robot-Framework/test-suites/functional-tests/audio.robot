@@ -15,7 +15,9 @@ Test Timeout        3 minutes
 
 *** Variables ***
 
-${AUDIO_DIR}    ${OUTPUT_DIR}/outputs/audio-temp
+${AUDIO_DIR}           ${OUTPUT_DIR}/outputs/audio-temp
+@{VMS_WITH_AUDIO}      ${BUSINESS_VM}  ${CHROME_VM}  ${COMMS_VM}  ${FLATPAK_VM}  ${GUI_VM}
+@{VMS_WITHOUT_AUDIO}   ${AUDIO_VM}  ${ADMIN_VM}  ${HOST}  ${NET_VM}  ${ZATHURA_VM}
 
 
 *** Test Cases ***
@@ -64,8 +66,8 @@ Check Audio devices
     [Documentation]  List audio sinks and sources in VMs
     [Tags]      SP-T246  pre-merge
     # VMs with audio
-    FOR  ${vm}  IN  ${BUSINESS_VM}  ${CHROME_VM}  ${COMMS_VM}  ${FLATPAK_VM}  ${GUI_VM}
-        IF   '${vm}' == '${GUI_VM}'
+    FOR  ${vm}  IN  @{VMS_WITH_AUDIO}
+        IF   '$vm' == '${GUI_VM}'
             Switch to vm   ${vm}   ${USER_LOGIN}
         ELSE
             Switch to vm   ${vm}
@@ -76,8 +78,26 @@ Check Audio devices
         Run Keyword And Continue On Failure   Should Contain   ${sinks}     Sink     ${vm} does not have Sinks
     END
     # VMs without audio
-    FOR  ${vm}  IN  ${AUDIO_VM}  ${ADMIN_VM}  ${HOST}  ${NET_VM}  ${ZATHURA_VM}
+    FOR  ${vm}  IN  @{VMS_WITHOUT_AUDIO}
         Switch to vm   ${vm}
         Run Command  pactl list sources  rc_match=not_equal  compare_rc=0
         Run Command  pactl list sinks  rc_match=not_equal  compare_rc=0
+    END
+
+Check audio server
+    [Documentation]  Check that audio server is available in correct VMs
+    [Tags]      SP-T350  pre-merge
+    FOR  ${vm}  IN  @{VMS_WITH_AUDIO}
+        IF   '$vm' == '${GUI_VM}'
+            Switch to vm   ${vm}   ${USER_LOGIN}
+        ELSE
+            Switch to vm   ${vm}
+        END
+        ${server}   Run Command   echo $PULSE_SERVER
+        Run Keyword And Continue On Failure   Should Not Be Empty   ${server}
+    END
+    FOR  ${vm}  IN  @{VMS_WITHOUT_AUDIO}
+        Switch to vm   ${vm}
+        ${server}   Run Command   echo $PULSE_SERVER
+        Run Keyword And Continue On Failure   Should Be Empty   ${server}
     END
