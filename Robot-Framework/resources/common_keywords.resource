@@ -315,3 +315,8 @@ Set timestamp
     ${current_time}      Get current timestamp
     Set Global Variable  ${${timestamp_variable_name}}    ${current_time}
     Log                  Setting timestamp ${timestamp_variable_name}: ${${timestamp_variable_name}}    console=True
+
+Get Actual Device ID
+    ${device_id}     Run Command   cat /persist/common/device-id
+    Log To Console   Actual Device ID: ${device_id}
+    RETURN           ${device_id}
