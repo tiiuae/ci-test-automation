@@ -44,7 +44,7 @@ Check user account is only in gui-vm
     FOR  ${vm}  IN  @{VM_LIST_WITH_HOST}
         IF   '${vm}' != '${GUI_VM}'
             Switch to vm   ${vm}
-            ${output}      Execute Command    users
+            ${output}      Run Command    users
             ${result}      Run Keyword And Return Status   Should Not Contain    ${output}    ${USER_LOGIN}
             IF    not ${result}
                 Log To Console    FAIL: User account available in ${vm}
@@ -71,15 +71,15 @@ Check access to host devices in ${vm}
 
 Check access
     [Arguments]   ${path}    ${expected}=True
-    ${out}  ${err}  ${rc}    Execute Command    ls ${path}    return_stderr=True    return_rc=True
-    ${status}    Evaluate    ${rc} == 0
+    ${output}    Run Command    ls ${path}    return=rc   rc_match=skip
+    ${status}    Evaluate    ${output}[0] == 0
     IF    ${status} != ${expected}
         Run Keyword And Continue On Failure      FAIL    User has access: ${status}, but expected: ${expected}
     END
 
 Check available directories
     [Arguments]   ${path}
-    ${out}  ${rc}    Execute Command    ls ${path}     return_rc=True
+    ${out}   Run Command    ls ${path}
     Run Keyword And Continue On Failure   Should Contain   ${out}    Unsafe business-vm share
     Run Keyword And Continue On Failure   Should Contain   ${out}    Unsafe chrome-vm share
     Run Keyword And Continue On Failure   Should Contain   ${out}    Unsafe comms-vm share

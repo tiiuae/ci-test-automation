@@ -9,9 +9,11 @@ Configure wifi
     Switch to vm        ${NET_VM}
     Log To Console      Configuring Wifi
     Set Log Level       NONE
-    ${output}           Run Command    nmcli dev wifi connect ${SSID} password ${passw}   return=out,err,rc   sudo=True
+    ${output}           Run Command    nmcli dev wifi connect ${SSID} password ${passw}   return=out,err,rc   sudo=True   rc_match=skip
     Set Log Level       INFO
+    # Log output and check return code without revealing sensitive information
     Log                 ${output}
+    Should Be Equal As Integers        ${output}[2]  0   Configuring wifi failed with ${output}[0] \nReturn code: ${output}[2], expected: 0 \nError: ${output}[1] \n
 
 Remove Wifi configuration
     [Arguments]         ${SSID}

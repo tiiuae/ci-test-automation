@@ -54,32 +54,32 @@ Suite Setup
     Set Suite Variable      @{VM_LIST}
 
 Create firewall logging rules
-    Execute Command  iptables -t filter -I nixos-fw-log-refuse -j LOG --log-prefix "Packet passed through firewall: "  sudo=True  sudo_password=${PASSWORD}
-    Execute Command  iptables -t filter -I INPUT -p tcp --dport ${port} -j LOG --log-prefix "Packet arrived: "  sudo=True  sudo_password=${PASSWORD}
-    Execute Command  iptables -t filter -I INPUT -p udp --dport ${port} -j LOG --log-prefix "Packet arrived: "  sudo=True  sudo_password=${PASSWORD}
+    Run Command  iptables -t filter -I nixos-fw-log-refuse -j LOG --log-prefix "Packet passed through firewall: "  sudo=True
+    Run Command  iptables -t filter -I INPUT -p tcp --dport ${port} -j LOG --log-prefix "Packet arrived: "  sudo=True
+    Run Command  iptables -t filter -I INPUT -p udp --dport ${port} -j LOG --log-prefix "Packet arrived: "  sudo=True
 
 Remove rules
-    Execute Command  iptables -t filter -D nixos-fw-log-refuse -j LOG --log-prefix "Packet passed through firewall: "  sudo=True  sudo_password=${PASSWORD}
-    Execute Command  iptables -t filter -D INPUT -p tcp --dport ${port} -j LOG --log-prefix "Packet arrived: "  sudo=True  sudo_password=${PASSWORD}
-    Execute Command  iptables -t filter -D INPUT -p udp --dport ${port} -j LOG --log-prefix "Packet arrived: "  sudo=True  sudo_password=${PASSWORD}
+    Run Command  iptables -t filter -D nixos-fw-log-refuse -j LOG --log-prefix "Packet passed through firewall: "  sudo=True
+    Run Command  iptables -t filter -D INPUT -p tcp --dport ${port} -j LOG --log-prefix "Packet arrived: "  sudo=True
+    Run Command  iptables -t filter -D INPUT -p udp --dport ${port} -j LOG --log-prefix "Packet arrived: "  sudo=True
 
 Send connection request to closed port
     [Arguments]        ${ip}    ${port}
     Log                Sending tcp and udp traffic to ip ${ip}, port ${port}     console=True
-    ${timestamp_tcp}   Execute Command    date +%s
+    ${timestamp_tcp}   Run Command    date +%s
     Set Test Variable  ${time_tcp}  ${timestamp_tcp}
-    ${output}          Execute Command    nc -v -w1 ${ip} ${port}       return_rc=True
+    Run Command        nc -v -w1 ${ip} ${port}   rc_match=skip
     Sleep              1
-    ${timestamp_udp}   Execute Command    date +%s
+    ${timestamp_udp}   Run Command    date +%s
     Set Test Variable  ${time_udp}  ${timestamp_udp}
-    ${output}          Execute Command    printf 'ping' | nc -u -w1 -N ${ip} ${port}    return_rc=True
+    Run Command        printf 'ping' | nc -u -w1 -N ${ip} ${port}
     Sleep              1
-    ${timestamp_end}   Execute Command    date +%s
+    ${timestamp_end}   Run Command    date +%s
     Set Test Variable  ${time_end}  ${timestamp_end}
 
 Check that packet arrived
     [Arguments]        ${since}    ${until}    ${port}    ${protocol}
-    ${output}          Execute Command    journalctl -k --since @${since} --until @${until} | grep 'kernel: Packet arrived'
+    ${output}          Run Command    journalctl -k --since @${since} --until @${until} | grep 'kernel: Packet arrived'
     ${status1}         Run Keyword And Return Status   Should contain    ${output}    DPT=${port}
     ${status2}         Run Keyword And Return Status   Should contain    ${output}    ${protocol}
     IF    ${status1} and ${status2}
@@ -91,7 +91,7 @@ Check that packet arrived
 
 Check that packet refused
     [Arguments]        ${since}    ${until}    ${port}    ${protocol}
-    ${output}          Execute Command    journalctl -k --since @${since} --until @${until} | grep 'kernel: Packet passed through firewal'
+    ${output}          Run Command    journalctl -k --since @${since} --until @${until} | grep 'kernel: Packet passed through firewal'
     ${status1}         Run Keyword And Return Status   Should contain    ${output}    DPT=${port}
     ${status2}         Run Keyword And Return Status   Should contain    ${output}    ${protocol}
     IF    ${status1} and ${status2}
@@ -103,7 +103,7 @@ Check that packet refused
 
 Check that TCP connection refused
     [Arguments]        ${since}    ${until}    ${port}
-    ${output}          Execute Command    journalctl -k --since @${since} --until @${until} | grep 'refused connection:'
+    ${output}          Run Command    journalctl -k --since @${since} --until @${until} | grep 'refused connection:'
     ${status1}         Run Keyword And Return Status   Should contain    ${output}    DPT=${port}
     ${status2}         Run Keyword And Return Status   Should contain    ${output}    PROTO=TCP
     IF    ${status1} and ${status2}
@@ -114,5 +114,4 @@ Check that TCP connection refused
     END
 
 Log journalctl
-    ${output}    Execute Command    journalctl -k --since @${time_tcp} --until @${time_end}
-    Log          ${output}
+    Run Command    journalctl -k --since @${time_tcp} --until @${time_end}
