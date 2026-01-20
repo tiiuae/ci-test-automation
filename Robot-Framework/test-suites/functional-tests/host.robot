@@ -15,6 +15,15 @@ Suite Setup         Switch to vm   ${HOST}
 
 *** Test Cases ***
 
+Check device id
+    [Documentation]    Compare actual device id with expected one from the config file,
+    ...                It should never change.
+    [Tags]             SP-T351  SP-T351-1  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  lab-only
+    ${actual_device_id}          Get Actual Device ID
+    Log                Comparing actual device ID ${actual_device_id} and expected ${STATIC_DEVICE_ID}     console=True
+    Should Be Equal As Strings   ${actual_device_id}    ${STATIC_DEVICE_ID}    ignore_case=True
+    ...                          msg=Actual device ID != Expected
+
 Test ghaf version format
     [Documentation]    Test getting Ghaf version and verify its format:
     ...                Expected format: major.minor.yyyymmdd.commit_hash
