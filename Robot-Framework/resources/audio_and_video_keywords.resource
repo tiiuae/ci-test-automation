@@ -50,8 +50,7 @@ Play Audio And Verify
         Switch to vm   ${vm}  ${USER_LOGIN}
         ${sudo}        Set Variable   False
     END
-    ${pamixer}      Search nix store   pamixer
-    ${sources}      Run Command    ${pamixer}/bin/pamixer --list-sources
+    ${sources}      Run Command    pactl list short sources
     ${source_id}    Get Monitor Microphone Source    ${sources}
 
     Log To Console  Playing audio and recording it
