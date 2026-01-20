@@ -44,7 +44,7 @@ Play Audio And Verify
     [Arguments]     ${vm}  ${record_file}=play_${vm}.wav  ${sample_file}=wind.wav  ${tolerance}=2.0  ${volume_limit}=-30  ${sudo}=True
     Switch to vm    ${vm}
     Put File        ../test-files/${sample_file}   /tmp
-    Remove file     /tmp/recording_${vm}.wav    sudo=True  rc_match=skip
+    Remove file     /tmp/${record_file}    sudo=True  rc_match=skip
     ${duration}     Get Duration   ../test-files/${sample_file}
     IF   '${vm}' == '${GUI_VM}'
         Switch to vm   ${vm}  ${USER_LOGIN}
