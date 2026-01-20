@@ -29,6 +29,8 @@ Start Falcon AI
 Check user systemctl status
     [Documentation]   Verify systemctl status --user is running
     [Tags]            SP-T260  systemctl  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  fmo
+    [Teardown]        Set Test Message    append=${True}  separator=\n    message=${found_known_issues_message}
+    Set Test Variable   ${found_known_issues_message}   ${EMPTY}
 
     ${known_issues}=    Create List
     # Add any known failing services here with the target device and bug ticket number.

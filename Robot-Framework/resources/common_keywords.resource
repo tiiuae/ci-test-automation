@@ -134,9 +134,14 @@ Verify Systemctl status
 
 Check systemctl status for known issues
     [Documentation]    Check if failing services contain issues that are not listed as known.
-    ...    ${name} can be either the device name or the vm name.
+    ...                ${name} can be either the device name or the vm name.
+    ...
+    ...                Variable \${found_known_issues_message} should be defined outside the keyword on the test scope,
+    ...                it's not defined inside this keyword because Robot Framework works differently with test messages
+    ...                if Template is in use.
+    ...                To add message \${found_known_issues_message} to the log and report add to test's teardown
+    ...                `Set Test Message    append=\${True}  separator=\\n    message=\${found_known_issues_message}`
     [Arguments]    ${name}  ${known_issues_list}  ${failing_services}  ${user}=False
-
     Should Not Be Empty    ${failing_services}     Failing services list is empty.
 
     IF    ${user}
@@ -169,7 +174,8 @@ Check systemctl status for known issues
     IF   ${new_issues} != []
         Fail    Unexpected failed services in/on ${name}: ${new_issues}, known failed services: ${old_issues}
     ELSE
-        Skip    Known failed services in/on ${name}: ${old_issues}
+        Log     level=WARN        message=Test `${TEST NAME}` for VM `${name}` failed with known issue: failed services ${old_issues}
+        Set Test Variable    ${found_known_issues_message}      ${found_known_issues_message}VM `${name}` has services failed with known issue: ${old_issues}\n
     END
 
 Get VM list
