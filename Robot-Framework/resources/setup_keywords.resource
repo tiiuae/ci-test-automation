@@ -59,9 +59,8 @@ Log versions and device unique data
     Log                 Ghaf version: ${ghaf_version}     console=True
     ${nixos_version}    Run Command   nixos-version
     Log                 Nixos version: ${nixos_version}   console=True
-    ${device_id}        Run Command   cat /persist/common/device-id
-    Log                 Device ID: ${device_id}           console=True
     Log                 NetVM hostname: ${NETVM_NAME}     console=True
+    Get Actual Device ID
 
 Create test user
     [Setup]          Switch to vm    ${GUI_VM}

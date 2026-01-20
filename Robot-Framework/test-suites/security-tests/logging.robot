@@ -74,7 +74,7 @@ Setup logs
     Configure wifi      ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Sleep   3           # Time for needed data to be logged
     Switch to vm        ${HOST}
-    ${device_id}        Run Command   cat /persist/common/device-id
+    ${device_id}        Get Actual Device ID
     Set Suite Variable  ${device_id}
 
 Teardown Logs

@@ -12,6 +12,7 @@ Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         VM Suite Setup
 
+
 *** Variables ***
 # Add any known failing services here with the vm name and bug ticket number.
 # vm|service-name|ticket-number
@@ -26,6 +27,7 @@ Suite Setup         VM Suite Setup
 # Container for test message. Keyword `Set Test Message` doesn't work properly with Templates.
 # Accumulates messages from tests that use 'Check systemctl status Template' to be added to the main test message in teardown
 ${found_known_issues_message}=
+
 
 *** Test Cases ***
 
@@ -67,7 +69,28 @@ Verify EPT is enabled in every VM
     END
     IF  ${failed_vms} != []    FAIL    VMs with ETP not enabled: ${failed_vms}
 
+Check Device ID in every VM
+    [Documentation]    Check that Device ID is the same in every vm.
+    [Tags]             SP-T351  SP-T351-2  orin-agx  orin-agx-64  orin-nx
+    ${host_device_id}  Get Actual Device ID
+    @{VM_LIST}         Get VM list
+    ${failed_vms}      Create List
+    FOR  ${vm}  IN  @{VM_LIST}
+        Switch to vm   ${vm}
+        ${id}          Execute Command  cat /etc/common/device-id
+        Log            Device ID in ${vm}: ${id}, expected be te same as in host: ${host_device_id}     console=True
+        ${result}      Run Keyword And Return Status    Should Be Equal As Strings
+        ...            ${id}    ${host_device_id}    ignore_case=True
+        IF    not ${result}
+            Log To Console    FAIL: Device ID in ${vm} is ${id}, but device ID in host is ${host_device_id}
+            Append To List    ${failed_vms}    ${vm}
+        END
+    END
+    IF  ${failed_vms} != []    FAIL    VMs with different Device IDs: ${failed_vms}
+
+
 *** Keywords ***
+
 Check systemctl status Template
     [Arguments]    ${vm}
     ${failed_new_services}=    Create List

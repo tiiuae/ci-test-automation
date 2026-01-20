@@ -44,3 +44,12 @@ Verify NetVM PCI device passthrough
     [Tags]              SP-T96  orin-agx  orin-agx-64  orin-nx
     [Setup]             Switch to vm   ${NET_VM}
     Verify microvm PCI device passthrough    vmname=${NET_VM}
+
+Check net-vm hostname
+    [Documentation]    Compare actual net-vm hostname with expected one from the config file,
+    ...                It should never change.
+    [Tags]             SP-352  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  lab-only
+    Switch to vm       ${NET_VM}
+    Log                Comparing actual net-vm hostanme ${NETVM_NAME} and expected ${STATIC_NETVM_NAME}     console=True
+    Should Be Equal As Strings   ${NETVM_NAME}    ${STATIC_NETVM_NAME}    ignore_case=True
+    ...                          msg=Actual NetVM hostname != Expected
