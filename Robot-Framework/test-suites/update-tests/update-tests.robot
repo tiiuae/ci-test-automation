@@ -54,11 +54,11 @@ Update with
         Log               DEVICE_TYPE: ${DEVICE_TYPE} not allowed in update tests   console=True
     END
     IF  "${update_method}"=="ota-update"
-        ${output}             Run Command  ota-update cachix --cache ghaf-release ${release_name}  sudo=True
+        ${output}             Run Command  ota-update cachix --cache ghaf-release ${release_name}  sudo=True   timeout=600
         Should Not Contain    ${output}  Error
     ELSE IF  "${update_method}"=="givc-cli"
         Switch to vm          ${GUI_VM}
-        ${output}             Run Command  givc-cli update cachix --cache ghaf-release ${release_name}  sudo=True
+        ${output}             Run Command  givc-cli update cachix --cache ghaf-release ${release_name}  sudo=True   timeout=600
         Should Not Contain    ${output}  Error
         Switch to vm          ${HOST}
     ELSE
