@@ -45,13 +45,13 @@ Open image with Oculante
     Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
 
     Run Command        mkdir test-images   rc_match=skip
-    ${img_file}        Run Command   cosmic-screenshot --interactive=false --save-dir ./   timeout=5
+    Run Command        WAYLAND_DISPLAY=wayland-1 grim ./screenshot.png   timeout=5
 
-    Open Image         ${img_file}
+    Open Image         ./screenshot.png
 
     Switch to vm       ${ZATHURA_VM}
     Check that the application was started    oculante    10
-    [Teardown]  Run Keywords  Remove the file in VM       ${img_file}  ${GUI_VM}   ${USER_LOGIN}   AND
+    [Teardown]  Run Keywords  Remove the file in VM       ./screenshot.png  ${GUI_VM}   ${USER_LOGIN}   AND
     ...                       Kill App Process And Save Logs  ${GUI_VM}    ${USER_LOGIN}    ${OUTPUT_FILE}    oculante    ${ZATHURA_VM}
 
 Open text file with Cosmic Text Editor
