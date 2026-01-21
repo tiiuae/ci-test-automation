@@ -7,43 +7,44 @@ Library             ../lib/output_parser.py
 Library             AdvancedLogging
 Library             SerialLibrary    encoding=ascii
 Library             String
+Resource            ../resources/device_control.resource
 
 
 *** Keywords ***
 
 Open Serial Port
-    [Arguments]    ${timeout}=1.0
-    Add Port   ${SERIAL_PORT}
-    ...        baudrate=115200
-    ...        bytesize=8
-    ...        parity=N
-    ...        stopbits=1
-    ...        timeout=${timeout}
+    [Arguments]   ${timeout}=1.0
+    Add Port      ${SERIAL_PORT}
+    ...           baudrate=115200
+    ...           bytesize=8
+    ...           parity=N
+    ...           stopbits=1
+    ...           timeout=${timeout}
 
 Turn Relay Off
-    [Documentation]   Turn given ${relay_number} relay off.
-    [Arguments]    ${relay_number}
-    Set Relay State    ${relay_number}    OFF
+    [Documentation]     Turn given ${relay_number} relay off.
+    [Arguments]         ${relay_number}
+    Set Relay State     ${relay_number}    OFF
     Sleep    1s
-    ${state}=    Get Relay State    ${relay_number}
-    ${status} =    Run Keyword And Return Status     Should Be Equal As Strings    ${state}    OFF
-    IF    ${status}
-        Log To Console    Relay number:${relay_number} is turned OFF!
+    ${state}            Get Relay State    ${relay_number}
+    ${status}           Run Keyword And Return Status     Should Be Equal As Strings    ${state}    OFF
+    IF  ${status}
+        Log To Console  Relay number:${relay_number} is turned OFF!
     ELSE
-        FAIL     Relay number:${relay_number} failed to turn OFF!
+        FAIL            Relay number:${relay_number} failed to turn OFF!
     END
 
 Turn Relay On
-    [Documentation]   Turn given ${relay_number} relay on.
-    [Arguments]    ${relay_number}
-    Set Relay State    ${relay_number}   ON
+    [Documentation]     Turn given ${relay_number} relay on.
+    [Arguments]         ${relay_number}
+    Set Relay State     ${relay_number}   ON
     Sleep    1s
-    ${state}=    Get Relay State    ${relay_number}
-    ${status} =    Run Keyword And Return Status     Should Be Equal As Strings    ${state}    ON
-    IF    ${status}
-        Log To Console    Relay number:${relay_number} is turned ON!
+    ${state}            Get Relay State    ${relay_number}
+    ${status}           Run Keyword And Return Status     Should Be Equal As Strings    ${state}    ON
+    IF  ${status}
+        Log To Console  Relay number:${relay_number} is turned ON!
     ELSE
-        FAIL     Relay number:${relay_number} failed to turn ON!
+        FAIL            Relay number:${relay_number} failed to turn ON!
     END
 
 Check Serial Connection
@@ -51,57 +52,57 @@ Check Serial Connection
     Log To Console     Trying to connect via serial...
     Open Serial Port
     FOR    ${i}    IN RANGE    30
-        Write Data    ${\n}
-        ${output} =    SerialLibrary.Read Until
-        ${status} =    Run Keyword And Return Status    Should contain    ${output}    ghaf
+        Write Data     ${\n}
+        ${output}      SerialLibrary.Read Until
+        ${status}      Run Keyword And Return Status    Should contain    ${output}    ghaf
         IF    ${status}    BREAK
         Sleep   1
     END
     Delete All Ports
-    IF    ${status}
-        Log To Console    Device is available via serial
-        Set Global Variable    ${CONNECTION_TYPE}    serial
-        Set Global Variable    ${IS_AVAILABLE}       True
+    IF  ${status}
+        Log To Console       Device is available via serial
+        Set Global Variable  ${CONNECTION_TYPE}    serial
+        Set Global Variable  ${IS_AVAILABLE}       True
     ELSE
-        Log To Console    Device is not available via serial
+        Log To Console       Device is not available via serial
     END
 
 Log In To Ghaf OS
-    [Documentation]    Log in with ${LOGIN} and ${PASSWORD}
-    Log To Console     Trying to log in via serial...
+    [Documentation]       Log in with ${LOGIN} and ${PASSWORD}
+    Log To Console        Trying to log in via serial...
     FOR    ${i}    IN RANGE    10
-        Write Data    ${\n}
-        ${output} =    SerialLibrary.Read Until    terminator=${HOST} login
-        ${status} =    Run Keyword And Return Status    Should contain    ${output}    ${HOST} login
-        IF    ${status}
+        Write Data        ${\n}
+        ${output}         SerialLibrary.Read Until    terminator=${HOST} login
+        ${status}         Run Keyword And Return Status    Should contain    ${output}    ${HOST} login
+        IF  ${status}
             Write Data    ${LOGIN}${\n}
-            ${output} =    SerialLibrary.Read Until    terminator=Password
+            ${output}     SerialLibrary.Read Until    terminator=Password
             Write Data    ${PASSWORD}${\n}
         END
-        ${status} =    Run Keyword And Return Status    Should contain    ${output}    @${HOST}
-        IF    ${status}
-            Log To Console     Successfully logged in
+        ${status}         Run Keyword And Return Status    Should contain    ${output}    @${HOST}
+        IF  ${status}
+            Log           Successfully logged in      console=True
             BREAK
         END
     END
     IF    ${status}==False    FAIL      Console is not ready
 
 Verify init.scope status via serial
-    [Arguments]    ${range}=60
-    [Documentation]    Check if init.scope service is running with given loop ${range}
+    [Arguments]         ${range}=60
+    [Documentation]     Check if init.scope service is running with given loop ${range}
     Connect via serial  timeout=10
-    ${start_time}=    Get Time	epoch
+    ${start_time}       Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
-        Write Data    systemctl status init.scope${\n}
-        ${output} =    SerialLibrary.Read Until    terminator=Units
-        Write Data    \x03${\n}        # write ctrl+c to stop reading status
+        Write Data      systemctl status init.scope${\n}
+        ${output}       SerialLibrary.Read Until    terminator=Units
+        Write Data      \x03${\n}        # write ctrl+c to stop reading status
         ${status}  ${state}   Get Service Status    ${output}
         IF  '${state}' not in ['running', 'starting']
-            Log     init.scope status is ${status}  console=True
-            FAIL    init.scope is not running! Status is ${state}
-        ELSE IF    '${state}' == 'running'
-            ${diff}=    Evaluate    int(time.time()) - int(${start_time})
-            Log     init.scope status is ${status}  console=True
+            Log         init.scope status is ${status}  console=True
+            FAIL        init.scope is not running! Status is ${state}
+        ELSE IF  '${state}' == 'running'
+            ${diff}     Evaluate    int(time.time()) - int(${start_time})
+            Log         init.scope status is ${status}  console=True
             RETURN
         END
         Sleep    1
@@ -111,22 +112,39 @@ Verify init.scope status via serial
     [Teardown]       Delete All Ports
 
 Connect via serial
-    [Arguments]     ${timeout}=1.0
-    Open Serial Port     timeout=${timeout}
+    [Arguments]         ${timeout}=1.0
+    Open Serial Port    timeout=${timeout}
     Log In To Ghaf OS
 
 Save log
-    Connect via serial    timeout=60.0
-    Write Data    sh -c 'journalctl | tee jrnl.txt | cat'${\n}
-    ${output} =   SerialLibrary.Read Until    ghaf@${HOST}:
+    Connect via serial   timeout=60.0
+    Write Data           sh -c 'journalctl | tee jrnl.txt | cat'${\n}
+    ${output}            SerialLibrary.Read Until    ghaf@${HOST}:
     Write Advanced Testlog    journalctl.txt     ${output}
     Log  ${output}
-    [Teardown]    Delete All Ports
+    [Teardown]           Delete All Ports
 
 Get ethernet IP address
     Connect via serial
-    Write Data    ifconfig${\n}
-    ${output}     SerialLibrary.Read Until    ghaf@${HOST}:
-    ${ip}         Get ip from ifconfig    ${output}   eth0
+    Write Data           ifconfig${\n}
+    ${output}            SerialLibrary.Read Until    ghaf@${HOST}:
+    ${ip}                Get ip from ifconfig    ${output}   eth0
     Set Global Variable  ${DEVICE_IP_ADDRESS}  ${ip}
-    [Teardown]    Delete All Ports
+    [Teardown]           Delete All Ports
+
+Verify shutdown via serial
+    [Documentation]   Reading serial port and expects 'System Power Off' text.
+    ...               Works only in case of Shutdown (not reboot)
+    Log               Wait until shutdown via serial    console=True
+    Open Serial Port  timeout=60
+    ${output}         SerialLibrary.Read Until    System Power Off
+    Log               ${output}
+    IF  "System Power Off" in $output
+        Log    Found "System Power Off" in serial logs    console=True
+    ELSE
+        Log    Can't find "System Power Off" in serial logs of ${DEVICE}
+        Verify shutdown via network
+    END
+    ${time}           BuiltIn.Get Time   epoch
+    RETURN            ${time}
+    [Teardown]        Delete Port    ${SERIAL_PORT}
