@@ -20,7 +20,6 @@ ${DISABLE_LOGOUT}      ${EMPTY}
 ${GUI_TEMP_DIR}        ${OUTPUT_DIR}/outputs/gui-temp
 ${YDOTOOL_SOCKET}      /tmp/.ydotool_socket
 ${SCREEN_SELECTED}     ${False}
-${FIRST_SCREENSHOT}    ${True}
 
 
 *** Keywords ***
@@ -121,20 +120,19 @@ Locate on screen
     ${coordinates}=        Set Variable  ${EMPTY}
     ${pass_status}=        Set Variable  FAIL
     Run Command            mkdir test-images   rc_match=skip
-    ${screenshot_cmd}=     Set Variable  cosmic-screenshot --interactive=false --save-dir ./test-images
-    IF   ${FIRST_SCREENSHOT}==${True}   Allow first screenshot
+    ${screenshot_cmd}=     Set Variable   WAYLAND_DISPLAY=wayland-1 grim ./test-images/screenshot.png
     FOR   ${i}   IN RANGE  ${iterations}
-        Log To Console     Taking cosmic screenshot
+        Log To Console           Taking screenshot
         ${status}  ${result}     Run Keyword And Ignore Error  Run Command  ${screenshot_cmd}   timeout=5
         ${LAST_SCREENSHOT_TIME}  Evaluate    time.time()
         Set Global Variable      ${LAST_SCREENSHOT_TIME}
         IF  '${status}' == 'PASS'
-            SSHLibrary.Get File  ${result}  ${GUI_TEMP_DIR}/screenshot.png
+            SSHLibrary.Get File  ./test-images/screenshot.png  ${GUI_TEMP_DIR}/screenshot.png
             IF  $type=="image"
-                Log To Console    Locating image ${searched_item} on ${result}
+                Log To Console    Locating image ${searched_item} on screenshot
                 ${pass_status}    ${coordinates}  Run Keyword And Ignore Error  Locate image  ${GUI_TEMP_DIR}/${searched_item}   ${confidence}
             ELSE IF  $type=="text"
-                Log To Console    Locating text ${searched_item} on ${result}
+                Log To Console    Locating text ${searched_item} on screenshot
                 ${pass_status}    ${coordinates}  Run Keyword And Ignore Error  Locate text  ${searched_item}
             ELSE
                 FAIL              Wrong type given for image recognition
@@ -162,44 +160,6 @@ Locate on screen
     ${mouse_y}  Get From Dictionary   ${coordinates}  y
     RETURN  ${mouse_x}  ${mouse_y}
 
-Allow first screenshot
-    [Documentation]   Allow screenshot tool take screenshots. Permission must be given on first use.
-    # Launch a background process that tries to take a screenshot.
-    Run Command    nohup sh -c 'cosmic-screenshot --interactive=false --save-dir ./test-images' > screenshot.log 2>&1 &
-    Sleep   2
-    ${output}    Run Command   cat screenshot.log
-    ${screenshot_passed}     Run Keyword And Return Status    Should Contain    ${output}   Screenshot
-    # If taking a screenshot did not work select "Allow" in the permission window.
-    IF    not ${screenshot_passed}
-        Sleep  5
-        IF  "${DEVICE_TYPE}" == "dell-7330"    Sleep  10
-        # Click the permission window to make sure it is active
-        Run ydotool command   mousemove --absolute -x 500 -y 200
-        Run ydotool command   click 0xC0
-        Move cursor to corner
-        Tab and enter   tabs=2
-    END
-    # For a Dell bug, try the same again
-    IF  "${DEVICE_TYPE}" == "dell-7330"
-        # Launch a background process that tries to take a screenshot.
-        Run Command    nohup sh -c 'cosmic-screenshot --interactive=false --save-dir ./test-images' > screenshot.log 2>&1 &
-        Sleep   2
-        ${output}    Run Command   cat screenshot.log
-        ${screenshot_passed}     Run Keyword And Return Status    Should Contain    ${output}   Screenshot
-        # If taking a screenshot did not work select "Allow" in the permission window.
-        IF    not ${screenshot_passed}
-            Log To Console    BUG with screenshot tool, allowing screenshot again
-            Sleep  5
-            IF  "${DEVICE_TYPE}" == "dell-7330"    Sleep  10
-            # Click the permission window to make sure it is active
-            Run ydotool command   mousemove --absolute -x 500 -y 200
-            Run ydotool command   click 0xC0
-            Move cursor to corner
-            Tab and enter   tabs=2
-        END
-    END
-    Set Global Variable  ${FIRST_SCREENSHOT}  ${False}
-
 Locate and click
     [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=10
     ${mouse_x}  ${mouse_y}  Locate on screen  ${type}  ${searched_item}  ${confidence}  ${iterations}
@@ -225,10 +185,6 @@ Verify desktop availability
 
     IF  $activity != "active"    FAIL    User-session did not activate, it is ${activity}
     IF  "${DEVICE_TYPE}" == "dell-7330"    Sleep   10
-
-    # For debugging, check gui-vm systemctl status before trying to take a cosmic-screenshot in case it gets stuck
-    Run Keyword And Ignore Error   Verify Systemctl status   range=1
-    Run Keyword And Ignore Error   Verify Systemctl status   range=1   user=True
 
     IF  ${logging_in}   Kill Initial Setup
 
