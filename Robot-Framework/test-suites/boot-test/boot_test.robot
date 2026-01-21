@@ -93,10 +93,12 @@ Turn ON Device
 *** Keywords ***
 
 Teardown
-    IF  "${CONNECTION_TYPE}" == "ssh"
-        Run Keyword If Test Failed    ssh_keywords.Save log
-    ELSE IF  "${CONNECTION_TYPE}" == "serial"
-        Run Keyword If Test Failed    serial_keywords.Save log
+    IF  ${IS_AVAILABLE}
+        IF  "${CONNECTION_TYPE}" == "ssh"
+            Run Keyword If Test Failed    ssh_keywords.Save log
+        ELSE IF  "${CONNECTION_TYPE}" == "serial"
+            Run Keyword If Test Failed    serial_keywords.Save log
+        END
     END
     Close All Connections
     Delete All Ports

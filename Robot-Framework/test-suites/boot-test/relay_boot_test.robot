@@ -146,10 +146,12 @@ Wipe installed Ghaf from internal memory
 *** Keywords ***
 
 Test Teardown
-    IF  "${CONNECTION_TYPE}" == "ssh"
-        Run Keyword If Test Failed    ssh_keywords.Save log
-    ELSE IF  "${CONNECTION_TYPE}" == "serial"
-        Run Keyword If Test Failed    serial_keywords.Save log
+    IF  ${IS_AVAILABLE}
+        IF  "${CONNECTION_TYPE}" == "ssh"
+            Run Keyword If Test Failed    ssh_keywords.Save log
+        ELSE IF  "${CONNECTION_TYPE}" == "serial"
+            Run Keyword If Test Failed    serial_keywords.Save log
+        END
     END
 
 Teardown
