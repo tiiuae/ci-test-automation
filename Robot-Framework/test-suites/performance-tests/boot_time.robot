@@ -30,16 +30,16 @@ ${SEARCH_TIMEOUT}   60
 
 Measure Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
-    [Tags]  SP-T187  lenovo-x1  darter-pro  dell-7330
+    [Tags]           SP-T187  SP-T187-1  lenovo-x1  darter-pro  dell-7330
     Soft Reboot Device
-    Wait Until Device Is Down
+    Verify shutdown via network
     Close All Connections
     Get Boot times
     [Teardown]    Run Keyword If Test Failed  Log Journal To Debug
 
 Measure Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
-    [Tags]  SP-T182  lenovo-x1  darter-pro  dell-7330  lab-only
+    [Tags]           SP-T182  SP-T182-1  lenovo-x1  darter-pro  dell-7330  lab-only
     Log To Console                Shutting down by pressing the power button
     Press Button                  ${SWITCH_BOT}-OFF
     Wait Until Device Is Down
@@ -54,16 +54,16 @@ Measure Hard Boot Time
 
 Measure Orin Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
-    [Tags]  SP-T187  orin-agx  orin-agx-64  orin-nx
+    [Tags]           SP-T187  SP-T187-2  orin-agx  orin-agx-64  orin-nx
     Soft Reboot Device
-    Wait Until Device Is Down
+    Verify shutdown via network
     Close All Connections
     Get Time To Ping
     [Teardown]     Switch to vm   ${NET_VM}   timeout=120
 
 Measure Orin Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
-    [Tags]  SP-T182  orin-agx  orin-agx-64  orin-nx  lab-only
+    [Tags]           SP-T182  SP-T182-2  orin-agx  orin-agx-64  orin-nx  lab-only
     Log To Console                Shutting down by switching the power off
     Turn Relay Off                ${RELAY_NUMBER}
     Wait Until Device Is Down

@@ -78,7 +78,7 @@ GUI Reboot
     [Tags]            SP-T75  SP-T75-4  lenovo-x1  darter-pro
 
     Select power menu option   x=870   y=120   confirmation=True
-    Wait Until Device Is Down
+    Verify shutdown via network
     Connect After Reboot
     Login to laptop   enable_dnd=True
 
@@ -88,16 +88,18 @@ GUI Shutdown
     [Tags]            SP-T75  SP-T75-5  lenovo-x1  darter-pro  lab-only
     Select power menu option   x=925   y=120   confirmation=True   tabs=3
     ${start_time}     Get Time    epoch
-    Wait Until Device Is Down
-    ${end_time}       Get Time    epoch
+    ${end_time}       Wait Until Device Is Down
     ${elapsed}        Evaluate    ${end_time} - ${start_time}
+    # After shutdown always wait at least for 10 seconds or more if shutdown was faster then 10 sec
     IF    ${elapsed} <= 20
-        ${wait_time}      Evaluate    20 - ${elapsed}
-        Wait   ${wait_time}
+        ${wait_time}  Evaluate    30 - ${elapsed}
+        Wait          ${wait_time}
+    ELSE
+        Wait          10
     END
     Turn Laptop On and Connect
     Login to laptop   enable_dnd=True
-    IF    ${elapsed} > 20   SKIP   Known issue: SSRCSP-7512 (Shutdown took too long: ${elapsed} seconds (expected < 20))
+    IF   ${elapsed} > 20    SKIP   Known issue: SSRCSP-7512 (Shutdown took too long: ${elapsed} seconds (expected < 20))
     [Teardown]        Run Keyword If   $TEST_STATUS=='FAIL'   GUI Power Test Teardown
 
 GUI Log out and log in

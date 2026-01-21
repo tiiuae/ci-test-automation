@@ -5,6 +5,7 @@
 Library             ../lib/PlugLibrary/PlugLibrary.py  ${PLUG_TYPE}
 Library             ../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
 Resource            ../resources/common_keywords.resource
+Resource            ../resources/serial_keywords.resource
 
 
 *** Keywords ***
@@ -37,7 +38,11 @@ Reboot Laptop
     Log To Console    ${\n}Turning device off...
     Press Button      ${SWITCH_BOT}-OFF
     Sleep             ${delay}    # needed because Pressing OFF button takes up to 15 sec
-    Wait Until Device Is Down
+    IF    "${TEST_NAME}" == "Verify booting laptop"
+        Verify shutdown via network
+    ELSE
+        Wait Until Device Is Down
+    END
     Log To Console    Turning device on...
     Press Button      ${SWITCH_BOT}-ON
 
@@ -103,18 +108,27 @@ Verify Laptop Shutdown
     END
 
 Wait Until Device Is Down
+    IF  "${SERIAL_PORT}" == "NONE"
+        ${time}   Verify shutdown via network    # less precise
+    ELSE
+        ${time}   Verify shutdown via serial
+    END
+    RETURN    ${time}
+
+Verify shutdown via network
     [Documentation]    Check ping and port 22 until device stops responding both.
     ...                "Connection refused" is NOT considered as powered off.
-    [Arguments]       ${timeout}=60
+    [Arguments]        ${timeout}=60
     FOR    ${i}    IN RANGE    ${timeout}
         ${nc}     Run Process    nc    -zvw1    ${DEVICE_IP_ADDRESS}    22    stderr=STDOUT    shell=False
         Log       rc ${nc.rc} \n${nc.stdout}
-        ${ping}    Run Process  ping  ${DEVICE_IP_ADDRESS}  -c1  -W  1  timeout=1s
+        ${ping}   Run Process  ping  ${DEVICE_IP_ADDRESS}  -c1  -W  1  timeout=1s
         Log       rc ${ping.rc} \n${ping.stdout}
 
-        IF    ${ping.rc} != 0 and 'Connection timed out' in '''${nc.stdout}'''
-            Log    Device at ${DEVICE_IP_ADDRESS} powered off
-            RETURN
+        IF    ${ping.rc} == 1 and 'Connection timed out' in '''${nc.stdout}'''
+            Log       Device at ${DEVICE_IP_ADDRESS} powered off
+            ${time}   BuiltIn.Get Time   epoch
+            RETURN    ${time}
         END
         Sleep    1s
     END
