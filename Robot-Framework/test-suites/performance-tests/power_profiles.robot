@@ -51,7 +51,7 @@ Test Setup
     ${availability}   Check variable availability  RPI_IP_ADDRESS
     IF  ${availability}==False   SKIP   Power measurement agent IP address not defined. Skipping the test
     Prepare Test Environment
-    Stop swayidle
+    Disable automatic suspension
     ${active_profile}    Get active power profile
     Set Suite Variable   ${ORIGINAL_POWER_PROFILE}   ${active_profile}
 

@@ -47,7 +47,7 @@ Log in, unlock and verify
         Verify desktop availability   logging_in=True
     END
 
-    Stop swayidle
+    Disable automatic suspension
     IF  ${enable_dnd}      Set do not disturb state   true
 
 Log out and verify
@@ -263,15 +263,19 @@ Unlock
     Confidential password write  ${USER_PASSWORD}
     Sleep   2
 
-Stop swayidle
-    [Documentation]    Stop swayidle to prevent automatic suspension
+Disable automatic suspension
+    [Documentation]   Make sure that the device does not turn off during tests
     Log To Console    Disabling automated lock and suspend
-    Run Command   systemctl --user stop swayidle
+    Run Command       echo None > /home/${USER_LOGIN}/.config/cosmic/com.system76.CosmicIdle/v1/screen_off_time
+    Run Command       echo None > /home/${USER_LOGIN}/.config/cosmic/com.system76.CosmicIdle/v1/suspend_on_ac_time
+    Run Command       echo None > /home/${USER_LOGIN}/.config/cosmic/com.system76.CosmicIdle/v1/suspend_on_battery_time
 
-Start swayidle
-    [Documentation]    Start swayidle to allow automatic suspension
+Enable automatic suspension
+    [Documentation]   Switch back to default suspension times
     Log To Console    Enabling automated lock and suspend
-    Run Command   systemctl --user start swayidle
+    Remove file       /home/${USER_LOGIN}/.config/cosmic/com.system76.CosmicIdle/v1/screen_off_time
+    Remove file       /home/${USER_LOGIN}/.config/cosmic/com.system76.CosmicIdle/v1/suspend_on_ac_time
+    Remove file       /home/${USER_LOGIN}/.config/cosmic/com.system76.CosmicIdle/v1/suspend_on_battery_time
 
 Set do not disturb state
     [Documentation]   Set do not disturb to true or false
