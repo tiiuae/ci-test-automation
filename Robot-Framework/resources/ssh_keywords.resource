@@ -148,7 +148,7 @@ Open connection and login
             Log    Failed to open connection, trying again    console=True
         ELSE
             TRY
-                Login with timeout   username=${username}   password=${password}   timeout=${timeout}   jumphost=${jumphost}   expected_output=${target_output}
+                Login with timeout   username=${username}   password=${password}   timeout=10   jumphost=${jumphost}   expected_output=${target_output}
             EXCEPT     Keyword timeout 10 seconds exceeded.
                 Log    Login timeout 10 seconds reached, trying again    console=True
             EXCEPT
