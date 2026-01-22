@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Documentation       Testing automatic suspension of Lenovo-X1
+Documentation       Testing automatic suspension
 
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/device_control.resource
@@ -17,11 +17,10 @@ Library             JSONLibrary
 
 *** Test Cases ***
 
-Automatic suspension
+Automatic suspension (Lenovo X1)
     [Documentation]   Wait and check that
     ...               in the beginning brightness is 100 %
-    ...               in 4 min - the screen dims (brightness is 25 %)
-    ...               in 5 min - the screen locks (brightness is 25 %)
+    ...               in 5 min - the screen locks and turns off
     ...               in 15 min - the laptop is suspended
     ...               in 20 min press the button and check that laptop woke up
     [Tags]            SP-T162  lenovo-x1  lab-only
@@ -38,15 +37,9 @@ Automatic suspension
     Set timestamp            before_suspend_start
     Wait                     60
     Set timestamp            before_suspend_end
-    Wait                     120
-    Check screen brightness  ${dimmed_brightness}
+    Wait                     200
 
-    Wait                     10
-
-    Check the screen state   on
-    Wait                     50
-    ${locked}                Check if locked
-    Should Be True           ${locked}
+    Check the screen state   off
 
     Wait                     610
 
@@ -95,29 +88,27 @@ Automatic lock (Darter Pro)
     [Documentation]   Suspension is disabled on Darter Pro but automatic lock works
     ...               Wait and check that
     ...               in the beginning brightness is 100 %
-    ...               in 4 min - the screen dims (brightness is 25 %)
-    ...               in 5 min - the screen locks (brightness is 25 %)
+    ...               in 5 min - the screen locks and turns off
     [Tags]            SP-T269    darter-pro
     [Setup]           Test setup
 
     Check the screen state   on
-    Check screen brightness  ${max_brightness}
+    Check screen brightness   ${max_brightness}
 
-    Wait     240
-    Check screen brightness  ${dimmed_brightness}
+    Wait     320
+    Check the screen state   off
+    
+    # Screen has to be turned on before checking for lock
+    Move cursor
 
-    Wait     10
-
-    Check the screen state   on
-    Wait    50
     ${locked}         Check if locked
     Should Be True    ${locked}
 
 *** Keywords ***
 
 Test setup
-    Start swayidle
-    Get expected brightness values
+    Enable automatic suspension
+    Save max brightness
     Set display to max brightness
     Move cursor
 
@@ -126,15 +117,11 @@ Test teardown
     Run Keyword If Test Failed    Reboot Laptop
 
 
-Get expected brightness values
+Save max brightness
     ${device}     Run Command    ls /sys/class/backlight/
     ${max}        Run Command    cat /sys/class/backlight/${device}/max_brightness
     Set Test Variable  ${max_brightness}     ${max}
     Log                Max brightness value is ${max}  console=True
-    ${int_max}         Convert To Integer    ${max}
-    ${dimmed}          Evaluate   __import__('math').ceil(${int_max} / 4)
-    Log                Dimmed brightness is expected to be ~${dimmed}  console=True
-    Set Test Variable  ${dimmed_brightness}  ${dimmed}
 
 Set display to max brightness
     [Setup]   Switch to vm    ${GUI_VM}
@@ -147,17 +134,6 @@ Set display to max brightness
     [Teardown]   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
 
 Check screen brightness
-    [Arguments]       ${brightness}    ${timeout}=60
-    # 10 second timeout should be enough, but for some reason sometimes dimming the screen takes longer.
-    # To prevent unnecessary fails timeout has been increased.
-    FOR  ${i}  IN RANGE  ${timeout}
-        ${output}     Get screen brightness  log_brightness=False
-        Log           Check ${i}: Brightness is ${output}  console=True
-        ${status}     Run Keyword And Return Status  Should be Equal As Numbers   ${output}  ${brightness}
-        IF  ${status}
-            BREAK
-        ELSE
-            Sleep    1
-        END
-    END
-    IF  ${status} == False    FAIL    The screen brightness is ${output}, expected ${brightness}
+    [Arguments]       ${expected_brightness}
+    ${output}     Get screen brightness
+    Should be Equal As Numbers   ${output}  ${expected_brightness}   The screen brightness is ${output}, expected ${expected_brightness}
