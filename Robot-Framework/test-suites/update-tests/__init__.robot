@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Update tests
-Test Tags           regression  update
+Test Tags           regression  update  lenovo-x1  darter-pro
 
 Library             SSHLibrary
 Resource            ../../config/variables.robot
