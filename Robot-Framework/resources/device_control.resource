@@ -30,7 +30,7 @@ Reboot Device Via Relay
     Turn Relay On     ${RELAY_NUMBER}
 
 Reboot Laptop
-    [Arguments]       ${delay}=15
+    [Arguments]       ${delay}=15    ${verify_shutdown}=True
     [Documentation]   Turn off the laptop by pressing power button for 10 sec turn on by short pressing power button
     IF  "${DEVICE_TYPE}" == "lenovo-x1" or "${DEVICE_TYPE}" == "darter-pro" or "${DEVICE_TYPE}" == "x1-sec-boot"
         ${delay}      Set variable    20
@@ -38,10 +38,8 @@ Reboot Laptop
     Log To Console    ${\n}Turning device off...
     Press Button      ${SWITCH_BOT}-OFF
     Sleep             ${delay}    # needed because Pressing OFF button takes up to 15 sec
-    IF    "${TEST_NAME}" == "Verify booting laptop"
+    IF  ${verify_shutdown}
         Verify shutdown via network
-    ELSE
-        Wait Until Device Is Down
     END
     Log To Console    Turning device on...
     Press Button      ${SWITCH_BOT}-ON

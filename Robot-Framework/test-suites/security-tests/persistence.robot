@@ -71,7 +71,7 @@ Persistence Suite Setup
     Set values        EXPECTED
 
     Soft Reboot Device   ${GUI_VM}
-    Wait Until Device Is Down
+    Verify shutdown via network
     Connect After Reboot
     Login to laptop   enable_dnd=True
 
