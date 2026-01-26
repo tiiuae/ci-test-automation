@@ -74,6 +74,7 @@ Check Grafana logs
             END
         END
     END
+    [Teardown]   Run Keyword If Test Failed    SKIP   Known issue: SSRCSP-7907
 
 *** Keywords ***
 
