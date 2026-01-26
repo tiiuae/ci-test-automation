@@ -213,7 +213,7 @@ Run Nixos Rebuild
         FAIL  nixos-rebuild didn't finish successfully withing the given time
     END
     Soft Reboot Device
-    Wait Until Device Is Down
+    Verify shutdown via network
     Close All Connections
     Sleep                           20
     Connect After Reboot
@@ -253,7 +253,7 @@ Teardown Audit Update Logging
     Remove Ghaf Repository
     Update Teardown
     Soft Reboot Device
-    Wait Until Device Is Down
+    Verify shutdown via network
     Close All Connections
     Sleep                         20
     Connect After Reboot

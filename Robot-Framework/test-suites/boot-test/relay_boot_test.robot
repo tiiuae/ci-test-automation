@@ -46,7 +46,7 @@ Verify booting after restart by power
 Verify booting laptop
     [Documentation]    Restart the laptop by power and verify init service is running
     [Tags]             SP-T287  SP-T290  relayboot  lenovo-x1  darter-pro  dell-7330
-    Reboot Laptop
+    Reboot Laptop      verify_shutdown=False
     IF    "installer" in "${JOB}"
         Check If Device Is Up    range=240
     ELSE
@@ -110,7 +110,7 @@ Turn ON Device
 Run installer
     [Documentation]   Reboot laptop and run installer, will not turn off after test, boot test is required after this
     [Tags]            installer  lenovo-x1
-    Reboot Laptop
+    Reboot Laptop     verify_shutdown=False
     Check If Device Is Up
     Run Keyword If    ${IS_AVAILABLE} == False   FAIL    The device did not start
 
