@@ -108,10 +108,9 @@ Turn ON Device
     END
 
 Run installer
-    [Documentation]   Turn on device and run installer, will not turn off after test, boot test is required after this
+    [Documentation]   Reboot laptop and run installer, will not turn off after test, boot test is required after this
     [Tags]            installer  lenovo-x1
-    Log To Console    ${\n}Turning device on...
-    Press Button      ${SWITCH_BOT}-ON
+    Reboot Laptop
     Check If Device Is Up
     Run Keyword If    ${IS_AVAILABLE} == False   FAIL    The device did not start
 
