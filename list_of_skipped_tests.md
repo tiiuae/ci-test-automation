@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                              | TICKET / Additional Data.                                                                       |
 | ---------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| 26.01.2026 | All Grafana related test cases                         | SSRCSP-7907                                                                                     |
 | 12.01.2026 | GUI Suspend and wake up (Darter Pro)                   | SSRCSP-7185                                                                                     |
 | 07.01.2026 | Check Grafana log forwarding after disconnected state  | SSRCSP-7612                                                                                     |
 | 11.12.2025 | GUI Shutdown                                           | SSRCSP-7512                                                                                     |
