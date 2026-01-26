@@ -195,9 +195,9 @@ Check if ssh is ready on vm
     END
     ${start_time}                   Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
-        ${status}    Run Keyword And Ignore Error   Run Command    timeout 4 nc -zvw3 ${vm} 22  timeout=5
+        ${status}  ${out}   Run Keyword And Ignore Error   Run Command    timeout 4 nc -zvw3 ${vm} 22  timeout=5
         Sleep        ${PING_SPACING}
-        IF  ${status}
+        IF   '${status}' == 'PASS'
             BREAK
         END
         ${diff}=    Evaluate    int(time.time()) - int(${start_time})
@@ -205,7 +205,7 @@ Check if ssh is ready on vm
             BREAK
         END
     END
-    IF   ${status} == False    FAIL    Port 22 of ${vm} is not ready after ${timeout}
+    IF   '${status}' == 'FAIL'    FAIL    Port 22 of ${vm} is not ready after ${timeout}
 
 Check if ssh is ready on device
     [Arguments]    ${timeout}=50

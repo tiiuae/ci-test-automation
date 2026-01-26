@@ -40,7 +40,7 @@ OP-TEE xtest 1008
     ...               Please read OP-TEE Test suite comment
     [Tags]  SP-T129  optee-xtest
 
-    ${status}   Run Keyword And Ignore Error   Run Command    xtest 1008   sudo=True
+    ${status}  ${out}   Run Keyword And Ignore Error   Run Command    xtest 1008   sudo=True
     IF   $status == 'FAIL'   SKIP   Known issue encountered, skipping the test
 
 OP-TEE xtest 1033
@@ -49,7 +49,7 @@ OP-TEE xtest 1033
     ...               Please read OP-TEE Test suite comment
     [Tags]  SP-T129  optee-xtest
 
-    ${status}   Run Keyword And Ignore Error   Run Command    xtest 1033   sudo=True
+    ${status}  ${out}   Run Keyword And Ignore Error   Run Command    xtest 1033   sudo=True
     IF   $status == 'FAIL'   SKIP   Known issue encountered, skipping the test
 
 
