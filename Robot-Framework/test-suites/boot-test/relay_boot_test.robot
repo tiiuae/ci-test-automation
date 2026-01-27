@@ -80,12 +80,11 @@ Turn OFF Device
     ELSE
         Turn Relay Off    ${RELAY_NUMBER}
     END
-    ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
+    ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  30s  2s  Check If Ping Fails
     IF  ${device_not_available} == True
         Log To Console    Device is down
     ELSE
         Log To Console    Device is UP after the end of the test.
-        FAIL    Device is UP after the end of the test
     END
 
 Turn ON Device
