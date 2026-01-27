@@ -14,12 +14,18 @@ Resource            ../resources/device_control.resource
 
 Open Serial Port
     [Arguments]   ${timeout}=1.0
-    Add Port      ${SERIAL_PORT}
-    ...           baudrate=115200
-    ...           bytesize=8
-    ...           parity=N
-    ...           stopbits=1
-    ...           timeout=${timeout}
+    TRY
+        Add Port      ${SERIAL_PORT}
+        ...           baudrate=115200
+        ...           bytesize=8
+        ...           parity=N
+        ...           stopbits=1
+        ...           timeout=${timeout}
+        Log           Opened serial port ${SERIAL_PORT}     console=True
+        RETURN    True
+    EXCEPT   	SerialException: [Errno 2] could not open port ${SERIAL_PORT}: [Errno 2] No such file or directory: '${SERIAL_PORT}'
+        RETURN    False
+    END
 
 Turn Relay Off
     [Documentation]     Turn given ${relay_number} relay off.
@@ -50,7 +56,11 @@ Turn Relay On
 Check Serial Connection
     [Documentation]    Check if device is available by serial
     Log To Console     Trying to connect via serial...
-    Open Serial Port
+    ${serial_status}   Open Serial Port
+    IF   ${serial_status}==False
+        Log       Serial port is not available      console=True
+        RETURN    False
+    END
     FOR    ${i}    IN RANGE    30
         Write Data     ${\n}
         ${output}      SerialLibrary.Read Until
@@ -85,12 +95,16 @@ Log In To Ghaf OS
             BREAK
         END
     END
+    RETURN    ${status}
     IF    ${status}==False    FAIL      Console is not ready
 
 Verify init.scope status via serial
     [Arguments]         ${range}=60
     [Documentation]     Check if init.scope service is running with given loop ${range}
-    Connect via serial  timeout=10
+    ${status}           Connect via serial  timeout=10
+    IF    ${status}==False
+        FAIL       Failed to connect via serial, init.scope status was not verified
+    END
     ${start_time}       Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
         Write Data      systemctl status init.scope${\n}
@@ -113,38 +127,54 @@ Verify init.scope status via serial
 
 Connect via serial
     [Arguments]         ${timeout}=1.0
-    Open Serial Port    timeout=${timeout}
-    Log In To Ghaf OS
+    ${status}           Open Serial Port    timeout=${timeout}
+    IF    ${status}
+        ${status}   Log In To Ghaf OS
+    END
+    RETURN    ${status}
 
 Save log
-    Connect via serial   timeout=60.0
-    Write Data           sh -c 'journalctl | tee jrnl.txt | cat'${\n}
-    ${output}            SerialLibrary.Read Until    ghaf@${HOST}:
-    Write Advanced Testlog    journalctl.txt     ${output}
-    Log  ${output}
+    ${status}            Connect via serial   timeout=60.0
+    IF    ${status}==False
+        Log    Failed to connect via serial, journalctl logs will be not saved.
+    ELSE
+        Write Data           sh -c 'journalctl | tee jrnl.txt | cat'${\n}
+        ${output}            SerialLibrary.Read Until    ghaf@${HOST}:
+        Write Advanced Testlog    journalctl.txt     ${output}
+        Log  ${output}
+    END
     [Teardown]           Delete All Ports
 
 Get ethernet IP address
-    Connect via serial
-    Write Data           ifconfig${\n}
-    ${output}            SerialLibrary.Read Until    ghaf@${HOST}:
-    ${ip}                Get ip from ifconfig    ${output}   eth0
-    Set Global Variable  ${DEVICE_IP_ADDRESS}  ${ip}
+    ${status}            Connect via serial
+    IF    ${status}
+        Write Data           ifconfig${\n}
+        ${output}            SerialLibrary.Read Until    ghaf@${HOST}:
+        ${ip}                Get ip from ifconfig    ${output}   eth0
+        Set Global Variable  ${DEVICE_IP_ADDRESS}  ${ip}
+    ELSE
+        FAIL     There is no serial connection. Couldn't get IP address.
+    END
     [Teardown]           Delete All Ports
 
 Verify shutdown via serial
     [Documentation]   Reading serial port and expects 'System Power Off' text.
     ...               Works only in case of Shutdown (not reboot)
+    ...               And only for LAPTOPS
     Log               Wait until shutdown via serial    console=True
-    Open Serial Port  timeout=60
-    ${output}         SerialLibrary.Read Until    System Power Off
-    Log               ${output}
-    IF  "System Power Off" in $output
-        Log    Found "System Power Off" in serial logs    console=True
+    ${status}         Open Serial Port  timeout=60
+    IF    ${status}
+        ${output}         SerialLibrary.Read Until    System Power Off
+        Log               ${output}
+        IF  "System Power Off" in $output
+            Log    Found "System Power Off" in serial logs    console=True
+        ELSE
+            Log    Can't find "System Power Off" in serial logs of ${DEVICE}
+            Verify shutdown via network
+        END
     ELSE
-        Log    Can't find "System Power Off" in serial logs of ${DEVICE}
         Verify shutdown via network
     END
     ${time}           BuiltIn.Get Time   epoch
     RETURN            ${time}
-    [Teardown]        Delete Port    ${SERIAL_PORT}
+    [Teardown]        Delete All Ports

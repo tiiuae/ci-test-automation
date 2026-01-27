@@ -23,7 +23,7 @@ Prepare Test Environment
     END
     Close All Connections
     Switch to vm    ${HOST}
-    Log versions
+    Log versions and device unique data
     IF  ${IS_LAPTOP}
         Create test user
         IF  ${login}
@@ -54,13 +54,14 @@ Save host journalctl
     SSHLibrary.Get file  /tmp/jrnl.txt   ${OUTPUT_DIR}/jrnl.txt
     OperatingSystem.File Should Exist    ${OUTPUT_DIR}/jrnl.txt
 
-Log versions
+Log versions and device unique data
     ${ghaf_version}     Run Command   ghaf-version
-    Log To Console      Ghaf version: ${ghaf_version}
+    Log                 Ghaf version: ${ghaf_version}     console=True
     ${nixos_version}    Run Command   nixos-version
-    Log To Console      Nixos version: ${nixos_version}
+    Log                 Nixos version: ${nixos_version}   console=True
     ${device_id}        Run Command   cat /persist/common/device-id
-    Log To Console      Device ID: ${device_id}
+    Log                 Device ID: ${device_id}           console=True
+    Log                 NetVM hostname: ${NETVM_NAME}     console=True
 
 Create test user
     [Setup]          Switch to vm    ${GUI_VM}

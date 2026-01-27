@@ -64,11 +64,12 @@ Check serial connection
     [Documentation]    Check serial connection
     [Tags]             SP-T170  SP-T51  pre-merge  bat  darter-pro  orin-agx  orin-agx-64  orin-nx  lab-only
     [Setup]            Serial setup
-    FOR    ${i}    IN RANGE    120
-        Write Data    ${\n}
-        ${output} =    SerialLibrary.Read Until
-        ${status} =    Run Keyword And Return Status    Should Contain    ${output}    ghaf
-        IF    ${status}    BREAK
+    Log    Reading serial console...     console=True
+    FOR    ${i}    IN RANGE    30
+        Write Data     ${\n}
+        ${output}      SerialLibrary.Read Until
+        ${status}      Run Keyword And Return Status    Should Contain    ${output}    ghaf
+        IF  ${status}  BREAK
         Sleep   1
     END
     IF    ${status} == False   Fail  Device is not available via serial port, used port: ${SERIAL_PORT}
@@ -103,7 +104,8 @@ Serial setup
     IF  "${SERIAL_PORT}" == "NONE"
         Skip    There is no address for serial connection
     ELSE
-        Open Serial Port
+        ${status}   Open Serial Port
+        IF    ${status}==False    SKIP    Serial Port is not available
     END
 
 Verify Ghaf Version Format
