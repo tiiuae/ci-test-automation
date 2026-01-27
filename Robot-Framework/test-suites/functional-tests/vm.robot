@@ -17,6 +17,7 @@ Suite Setup         VM Suite Setup
 # vm|service-name|ticket-number
 @{known_issues}=    audio-vm|systemd-rfkill.service|SSRCSP-7321
              ...    ghaf-host|autovt@ttyUSB0.service|SSRCSP-6667
+             ...    gui-vm|plymouth-start.service|SSRCSP-7306
              ...    gui-vm|plymouth-quit.service|SSRCSP-7306
              ...    gui-vm|setup-ghaf-user.service|SSRCSP-7234
              ...    ANY|tuned.service|SSRCSP-7717
