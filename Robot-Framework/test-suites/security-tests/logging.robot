@@ -65,8 +65,7 @@ Check Grafana log forwarding after disconnected state
     Login to laptop
     Wait Until Keyword Succeeds  60s  5s  Check VM Log on Grafana     ${id}   ${ADMIN_VM}   5m   ${True}   logtest1_${BUILD_ID}
     Log To Console               Checked that log is forwarded after clearing the iptables rule by reboot
-    [Teardown]        Run Keywords   Skip If    ${initial_check}   Known issue: SSRCSP-7612 (Grafana logging stops from a VM).\nDidn't find admin-vm logs in the initial check. Skipping the test.
-    ...    AND   Run Keyword If Test Failed    SKIP   Known issue: SSRCSP-7907
+    [Teardown]        Skip If    ${initial_check}   Known issue: SSRCSP-7612 (Grafana logging stops from a VM).\nDidn't find admin-vm logs in the initial check. Skipping the test.
 
 
 *** Keywords ***
@@ -86,4 +85,4 @@ Teardown Logs
             SKIP    There is not enough logs to check
         END
     END
-    Run Keyword If Test Failed    SKIP   Known issue: SSRCSP-7907
+

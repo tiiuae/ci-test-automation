@@ -259,7 +259,6 @@ Teardown Audit Update Logging
     Connect After Reboot
     Close All Connections
     Run Keyword If Test Failed    Check Skip Conditions
-    Run Keyword If Test Failed    SKIP   Known issue: SSRCSP-7907
 
 Check Skip Conditions
     IF  ${device_id_unchanged} and not ${preparation_ok}
