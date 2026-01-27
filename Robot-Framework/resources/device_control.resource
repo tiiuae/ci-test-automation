@@ -106,8 +106,8 @@ Verify Laptop Shutdown
     END
 
 Wait Until Device Is Down
-    IF  "${SERIAL_PORT}" == "NONE"
-        ${time}   Verify shutdown via network    # less precise
+    IF  not ${IS_LAPTOP} or "${SERIAL_PORT}" == "NONE"
+        ${time}   Verify shutdown via network
     ELSE
         ${time}   Verify shutdown via serial
     END

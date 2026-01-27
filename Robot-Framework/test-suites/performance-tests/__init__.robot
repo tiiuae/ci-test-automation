@@ -24,4 +24,4 @@ Performance Setup
         FAIL    The device is available only via serial, but tests require SSH.
     END
     Switch to vm    ${HOST}
-    Log versions
+    Log versions and device unique data
