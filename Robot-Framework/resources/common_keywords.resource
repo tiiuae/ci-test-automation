@@ -6,6 +6,7 @@ Library             ../lib/output_parser.py
 Library             Collections
 Library             OperatingSystem
 Library             DateTime
+Library             String
 
 
 *** Keywords ***
@@ -102,25 +103,23 @@ Verify Systemctl status
     [Documentation]    Check is systemctl running with given loop ${range}
 
     IF    ${user}
-        ${cmd}               Set Variable   systemctl is-system-running --user
-        ${failed_units_cmd}  Set Variable   systemctl list-units --state=failed --user
+        ${user_param}=    Set variable    --user
     ELSE
-        ${cmd}               Set Variable   systemctl is-system-running
-        ${failed_units_cmd}  Set Variable   systemctl list-units --state=failed
+        ${user_param}=    Set variable    ${EMPTY}
     END
 
     ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
-        ${status}=    Run Command    ${cmd}    rc_match=skip
+        ${status}=    Run Command    systemctl is-system-running ${user_param}      rc_match=skip
 
-        ${data_failed_units}   Run Command    ${failed_units_cmd}
-        ${failed_units}  Get failed units  ${data_failed_units}
+        ${data_failed_units}   Run Command       systemctl list-units --state=failed ${user_param}
+        ${failed_units}        Get failed units  ${data_failed_units}
         Log   ${failed_units}
         Set Test Variable   ${failed_units}
 
         IF  '${status}' not in ['running', 'starting']
             Log     Systemctl status is ${status}  console=True
-            FAIL    Systemctl is not running! Status is ${status}. Failed processes are: ${failed_units}
+            BREAK
         ELSE IF    '${status}' == 'running'
             ${diff}=    Evaluate    int(time.time()) - int(${start_time})
             Log     Systemctl status is ${status} after ${diff} sec  console=True
@@ -129,7 +128,76 @@ Verify Systemctl status
         Sleep    1
     END
     ${diff}=    Evaluate    int(time.time()) - int(${start_time})
-    FAIL    Systemctl is not running after ${diff} sec! Status is ${status}. Failed processes?: ${failed_units}
+
+    ${services_jctl_summary}=   Get JournalCtl Info For Not Running Services
+    Log                         ${services_jctl_summary}    html=${True}
+
+    FAIL    Current systemctl status is ${status}. Waiting for status `running` for ${diff} sec! Failed processes?: ${failed_units}
+
+Get SystemCtl All Services
+    [Arguments]    ${user_param}=${EMPTY}
+    [Documentation]    Returns information about all systemd services as a dictionary {service_name -> service_info}, using `systemctl list-units`.
+
+    ${all_services}=          Run Command    systemctl list-units --plain --no-legend --no-pager ${user_param}
+    ${all_services_dict}=     Create Dictionary
+    Log                       ${all_services}
+    ${all_services_lines}=    Split to lines     ${all_services}
+
+    FOR     ${line}     IN      @{all_services_lines}
+        ${service_name}     ${load_status}  ${active_status}  ${sub_status}  ${description}=    Split String   ${line}   max_split=4
+        ${service_dict}=    Create Dictionary
+        ...                                       load=${load_status}     active=${active_status}
+        ...                                       sub=${sub_status}       description=${description}
+        ${all_services_dict}[${service_name}]=    Set Variable            ${service_dict}
+    END
+
+    RETURN    ${all_services_dict}
+
+Get JournalCtl Info For Not Running Services
+    [Arguments]    ${user_param}=${EMPTY}
+    [Documentation]    Collects and summarizes journalctl output for systemd services that are not running or still starting,
+    ...    skipping services without log entries. Returns a formatted multiline string suitable for reporting.
+    ${summary_info_list}=             Create List
+    ${services_with_jctl_output}=     Create Dictionary
+
+    ${not_running_services}=          Get Not Running Services    ${user_param}
+
+    FOR     ${service_name}   ${service_info}    IN    &{not_running_services}
+        ${service_journalctl}=    Run Command    journalctl --lines 50 --no-pager -u ${service_name}
+
+        IF  $service_journalctl != '-- No entries --'
+            Set To Dictionary    ${services_with_jctl_output}    ${service_name}=${service_info}
+            Append to list       ${summary_info_list}            ${service_name}
+            Append To List       ${summary_info_list}            <b>${service_name} ${service_info}</b>\n${service_journalctl}\n
+            Log                  ${service_journalctl}
+        END
+    END
+    ${summary_info}     Catenate    SEPARATOR=\n    @{summary_info_list}
+
+    Log     Taking a closer look into services that have journalctl output
+    FOR     ${service_name}   ${service_info}    IN    &{services_with_jctl_output}
+        ${service_journalctl}=    Run Command    journalctl --lines 300 --no-pager -u ${service_name}
+        Log                       ${service_journalctl}
+    END
+
+    RETURN    ${summary_info}
+
+Get Not Running Services
+    [Arguments]    ${user_param}=${EMPTY}
+    [Documentation]     Returns systemd services that are not active or are still in the "starting" state as a dictionary {service_name -> service_info}.
+
+    ${services}=                Get SystemCtl All Services  user_param=${user_param}
+    ${not_running_services}=    Create Dictionary
+
+    FOR    ${service_name}   ${service_info}    IN    &{services}
+        ${is_not_active}=    Evaluate    $service_info['active'] != 'active'
+        ${is_starting}=      Evaluate    $service_info['sub'] == 'starting'
+
+        IF    $is_not_active or $is_starting
+            Set To Dictionary    ${not_running_services}    ${service_name}=${service_info}
+        END
+    END
+    RETURN     ${not_running_services}
 
 Check systemctl status for known issues
     [Documentation]    Check if failing services contain issues that are not listed as known.
