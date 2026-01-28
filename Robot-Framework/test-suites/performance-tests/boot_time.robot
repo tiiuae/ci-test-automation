@@ -35,7 +35,7 @@ Measure Soft Boot Time
     Verify shutdown via network
     Close All Connections
     Get Boot times
-    [Teardown]    Run Keyword If Test Failed  Log Journal To Debug
+    [Teardown]                    Run Keyword If Test Failed    Boot Time Test Teardown
 
 Measure Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
@@ -50,7 +50,7 @@ Measure Hard Boot Time
     Log To Console                Booting the device by pressing the power button
     Press Button                  ${SWITCH_BOT}-ON
     Get Boot times                plot_name=Hard Boot Times
-    [Teardown]    Run Keyword If Test Failed  Log Journal To Debug
+    [Teardown]                    Run Keyword If Test Failed    Boot Time Test Teardown
 
 Measure Orin Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
@@ -59,7 +59,7 @@ Measure Orin Soft Boot Time
     Verify shutdown via network
     Close All Connections
     Get Time To Ping
-    [Teardown]     Switch to vm   ${NET_VM}   timeout=120
+    [Teardown]                    Orin Boot Time Test Teardown
 
 Measure Orin Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
@@ -72,7 +72,7 @@ Measure Orin Hard Boot Time
     Log To Console                Booting the device by switching the power on
     Turn Relay On                 ${RELAY_NUMBER}
     Get Time To Ping              plot_name=Hard Boot Times
-    [Teardown]      Switch to vm   ${NET_VM}   timeout=120
+    [Teardown]                    Orin Boot Time Test Teardown
 
 
 *** Keywords ***
@@ -159,6 +159,17 @@ Check Result Validity
     END
 
 Log Journal To Debug
-    ${journal_output}     Execute Command   journalctl -b
+    [Arguments]           ${boot}=0
+    ${journal_output}     Run Command   journalctl -b ${boot}
     Log                   ${journal_output}
 
+Boot Time Test Teardown
+    Reboot Laptop
+    Connect After Reboot
+    Switch to vm          ${HOST}
+    Log Journal To Debug  boot=-1
+
+Orin Boot Time Test Teardown
+    Run Keyword If Test Failed  Reboot Device Via Relay
+    Run Keyword If Test Failed  Check If Device Is Up
+    Switch to vm                ${NET_VM}   timeout=120
