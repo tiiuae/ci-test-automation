@@ -124,7 +124,7 @@ Start app via GUI
 
     Open app menu
     Type string and press enter  ${display_name}
-    Tab and enter   tabs=1
+    Tab and enter   tabs=1   # TODO: Remove this line, it is not needed. Removal will affect the launch times.
     Save time       ${process_name}_start
 
     Switch to vm    ${app-vm}
@@ -143,6 +143,7 @@ Open app menu
     ELSE
         Log To Console    Opening app menu
         Locate and click  image  ${APP_MENU_LAUNCHER}  0.95  10
+        Locate on screen  image  search-neg.png  0.90  5
     END
 
 Close app via GUI
@@ -156,7 +157,7 @@ Close app via GUI
     Check that the application was started    ${process_name}
     Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
     Log To Console     Clicking the close button of the application window
-    Locate and click   image  ${close_button}  0.7  iterations=15
+    Locate and click   image  ${close_button}  0.9  iterations=15
     Save Time          ${process_name}_launched    ${LAST_SCREENSHOT_TIME}
     IF  $verify_is_killed=='true'
         Switch to vm       ${app-vm}
@@ -167,7 +168,7 @@ Close app via GUI
             # So need to prepare to close another window in chrome test case.
             IF  '${status}' != 'True'
                 Switch to vm        ${GUI_VM}  user=${USER_LOGIN}
-                Locate and click    image  ${close_button}  0.7  iterations=10
+                Locate and click    image  ${close_button}  0.9  iterations=10
                 Switch to vm        ${app-vm}
                 ${status}           Run Keyword And Return Status  Check that the application is not running  ${process_name}  5
             END

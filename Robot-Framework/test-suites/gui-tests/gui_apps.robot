@@ -20,21 +20,21 @@ Start and close Google Chrome via GUI
     [Documentation]   Start Google Chrome via GUI and verify related process started
     ...               Close Google Chrome via GUI and verify related process stopped
     [Tags]            SP-T41
-    Start app via GUI   ${CHROME_VM}  chrome  display_name=Chrome
-    Close app via GUI   ${CHROME_VM}  google-chrome  ./window-close-neg.png   2
+    Start app via GUI   ${CHROME_VM}  chrome  display_name="Google Chrome"
+    Close app via GUI   ${CHROME_VM}  chrome  ./ghaf-close.png   2
 
 Start and close PDF Viewer via GUI
     [Documentation]   Start PDF Viewer via GUI and verify related process started
     ...               Close PDF Viewer via GUI and verify related process stopped
     [Tags]            SP-T70
-    Start app via GUI   ${ZATHURA_VM}  zathura   display_name=PDF
+    Start app via GUI   ${ZATHURA_VM}  zathura   display_name="PDF Viewer"
     Close app via GUI   ${ZATHURA_VM}  zathura  ./window-close.png
 
 Start and close Sticky Notes via GUI
     [Documentation]   Start Sticky Notes via GUI and verify related process started
     ...               Close Sticky Notes via GUI and verify related process stopped
     [Tags]            SP-T201  SP-T201-2
-    Start app via GUI   ${GUI_VM}  sticky-wrapped  display_name=Sticky
+    Start app via GUI   ${GUI_VM}  sticky-wrapped  display_name="Sticky Notes"
     Close app via GUI   ${GUI_VM}  sticky-wrapped  ./window-close-neg.png
 
 Start and close Calculator via GUI
@@ -48,19 +48,19 @@ Start and close Bluetooth Settings via GUI
     [Documentation]   Start Bluetooth Settings via GUI and verify related process started
     ...               Close Bluetooth Settings via GUI and verify related process stopped
     [Tags]            SP-T204  SP-T204-2
-    Start app via GUI   ${GUI_VM}  blueman-manager-wrapped-wrapped  display_name=Bluetooth
+    Start app via GUI   ${GUI_VM}  blueman-manager-wrapped-wrapped  display_name="Bluetooth Settings"
     Close app via GUI   ${GUI_VM}  blueman-manager-wrapped-wrapped  ./window-close.png
 
 Start and close Ghaf Control Panel via GUI
     [Documentation]   Start Ghaf Control Panel via GUI and verify related process started
     ...               Close Ghaf Control Panel via GUI and verify related process stopped
     [Tags]            SP-T205  SP-T205-2
-    Start app via GUI   ${GUI_VM}  ctrl-panel  display_name=Control
+    Start app via GUI   ${GUI_VM}  ctrl-panel  display_name="Ghaf Control Panel"
     Close app via GUI   ${GUI_VM}  ctrl-panel  ./window-close-neg.png
     
 Start and close COSMIC Files via GUI
     [Documentation]   Start COSMIC Files via GUI and verify related process started
     ...               Close COSMIC Files via GUI and verify related process stopped
     [Tags]            SP-T206  SP-T206-2
-    Start app via GUI   ${GUI_VM}  ^cosmic-files$  display_name=Files
-    Close app via GUI   ${GUI_VM}  ^cosmic-files$  ./window-close-neg.png
+    Start app via GUI   ${GUI_VM}  ^cosmic-files$  display_name="COSMIC Files"
+    Close app via GUI   ${GUI_VM}  ^cosmic-files$  ./ghaf-close.png
