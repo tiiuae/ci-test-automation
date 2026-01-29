@@ -113,7 +113,11 @@ Check If Device Is Up
 Login with timeout
     [Arguments]       ${expected_output}   ${username}=${LOGIN}   ${password}=${PASSWORD}   ${timeout}=10   ${jumphost}=None
     [Timeout]         ${timeout}
-    ${login_output}   Login   username=${username}    password=${password}    jumphost_index_or_alias=${jumphost}
+    ${status}   ${login_output}   Run Keyword And Ignore Error   Login   username=${username}    password=${password}    jumphost_index_or_alias=${jumphost}
+    IF   '${status}' == 'FAIL'
+        FAIL   ${login_output}, trying again
+        RETURN
+    END
     IF   '${expected_output}' == '${NET_VM}'
         ${status}  ${output}  Run Keyword And Ignore Error   Should Match Regexp    ${login_output}   ${NETVM_SYNTAX}
         IF   '${status}' == 'PASS'
@@ -125,14 +129,12 @@ Login with timeout
     END
     IF   '${status}' != 'PASS'
         ${matches}    Get Regexp Matches   ${login_output}    @([^:]+):~   1
-        Log   Connected to ${matches}[0] instead   console=True
-
         # If connection was opened to host collect logs to find out why
         IF   '${HOST}' in $login_output
             Run Keyword And Ignore Error   Run Command    journalctl   timeout=5
             Run Keyword And Ignore Error   Run Command    systemctl status ${NETVM_SERVICE}   timeout=5
         END
-        FAIL
+        FAIL   Connected to ${matches}[0] instead, trying again
     END
 
 Open connection and login
@@ -144,15 +146,15 @@ Open connection and login
             ${connection}     Open Connection   ${connection_point}   port=22   prompt=\$   timeout=10
         EXCEPT     Keyword timeout 10 seconds exceeded.
             Log    Opening connection timeout 10 seconds reached, trying again    console=True
-        EXCEPT
-            Log    Failed to open connection, trying again    console=True
+        EXCEPT    AS    ${error_message}
+            Log    ${error_message}   console=True
         ELSE
             TRY
                 Login with timeout   username=${username}   password=${password}   timeout=10   jumphost=${jumphost}   expected_output=${target_output}
             EXCEPT     Keyword timeout 10 seconds exceeded.
                 Log    Login timeout 10 seconds reached, trying again    console=True
-            EXCEPT
-                No Operation   # Do nothing, logging already done in Login with timeout
+            EXCEPT    AS    ${error_message}
+                Log    ${error_message}   console=True
             ELSE
                 Log To Console   Connected to ${connection_point}
                 RETURN           ${connection}
