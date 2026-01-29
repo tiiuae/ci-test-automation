@@ -63,10 +63,22 @@ Check host systemctl status
 
 Check all VMs are running
     [Documentation]    Check that all VMs are running.
-    [Tags]             SP-T68  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  fmo
+    [Tags]             SP-T68  SP-T68-1  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  fmo
     @{vms}      Get VM list
     FOR   ${vm}  IN  @{vms}
         ${status}=    Run Keyword And Continue On Failure    Verify service status  service=microvm@${vm}
+    END
+
+Check all VMs are running on Orins
+    [Documentation]    Check that all VMs are running.
+    [Tags]             SP-T68  SP-T68-2  pre-merge  bat  orin-nx  orin-agx  orin-agx-64
+    Switch to vm    ${HOST}
+    ${output}       Run Command        microvm -l
+    ${output}       Replace String Using Regexp    ${output}    \x1b\\[[0-9;]*m    ${EMPTY}
+    @{lines}        Split To Lines     ${output}
+    Should Not Be Empty     ${lines}   VM list is empty
+    FOR   ${line}  IN  @{lines}
+        ${status}    Run Keyword And Continue On Failure    Should Not Contain   ${line}   not booted
     END
 
 Check serial connection

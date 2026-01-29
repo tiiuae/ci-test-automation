@@ -68,7 +68,7 @@ Verify service status
     ${welcome_check}  Set Variable If  ${IS_LAPTOP}    False    True
 
     FOR    ${i}    IN RANGE    ${range}
-        ${output}            Run Command          systemctl show ${service}  rc_match=not_equal  compare_rc=4
+        ${output}            Run Command          systemctl show ${service} --no-pager  rc_match=not_equal  compare_rc=4
         ${state}             Get Service State     ${output}
         ${substate}          Get Service Substate  ${output}
         ${state_status}      Run Keyword And Return Status    Should Be True	'${state}' == '${expected_state}'  Expected ${expected_state} but in fact ${state}
@@ -76,7 +76,7 @@ Verify service status
 
         # 'Welcome to NixOS' is not got if 'non-vm service' or if service is expected to be inactive/dead.
         IF  ${vmservice} and '${expected_substate}' == 'running' and ${state_status} and ${substate_status} and ${welcome_check}
-            ${logs}        Run Command   journalctl -b -u ${service}
+            ${logs}        Run Command   journalctl -b -u ${service} --no-pager -n 200
             ${finished}    Run Keyword And Return Status    Should Contain    ${logs}    Welcome to NixOS
             IF  ${finished}
                 BREAK
