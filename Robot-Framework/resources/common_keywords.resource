@@ -114,7 +114,6 @@ Verify Systemctl status
         ${status}=    Run Command    ${cmd}    rc_match=skip
 
         ${data_failed_units}   Run Command    ${failed_units_cmd}
-        Log  ${data_failed_units}
         ${failed_units}  Get failed units  ${data_failed_units}
         Log   ${failed_units}
         Set Test Variable   ${failed_units}

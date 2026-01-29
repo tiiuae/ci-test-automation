@@ -35,7 +35,7 @@ Check Loki Journal Directory Activity
     [Documentation]     Looking for files in the given directory changed recently (period given in minutes).
     ...                 If file name is given, check it presents in the directory and also was changed in given period.
     [Arguments]         ${dir}    ${file}=None    ${period}=3
-    ${output}  Execute Command    find ${dir} -maxdepth 1 -type f -mmin -${period}  sudo=True  sudo_password=${PASSWORD}
+    ${output}  Run Command    find ${dir} -maxdepth 1 -type f -mmin -${period}  sudo=True   rc_match=skip
     Run Keyword And Continue On Failure   Should Not Be Empty   ${output}
 
     IF  $file != 'None'
@@ -43,7 +43,7 @@ Check Loki Journal Directory Activity
     END
 
 Check journald configuration
-    ${output}           Execute command   cat /etc/systemd/journald.conf
+    ${output}   Run Command   cat /etc/systemd/journald.conf
     Run Keyword And Continue On Failure   Should Match Regexp    ${output}    MaxRetentionSec=\\d+
     Run Keyword And Continue On Failure   Should Match Regexp    ${output}    SystemMaxUse=\\d+M
     Run Keyword And Continue On Failure   Should Match Regexp    ${output}    SystemMaxFileSize=\\d+M
@@ -53,7 +53,7 @@ Check journald configuration
 Check Disk Usage Under 500M
     [Documentation]     Extracts value of disk usage by journals, converts it to megabytes
     ...                 and verifies that the total journal size is below 500M.
-    ${output}      Execute command        journalctl --disk-usage
+    ${output}      Run Command        journalctl --disk-usage
     ${match}       Get Regexp Matches     ${output}    (\\d+(?:\\.\\d+)?)\\s*([KMG]?)    1    2
     Run Keyword And Continue On Failure   Should Not Be Empty    ${match}   Couldn't find disk usage
 
@@ -74,7 +74,7 @@ Check Boot Entries
     Run Keyword And Continue On Failure   Should Be True    ${count} >= ${minimum}
 
 Get amount of boot entries
-    ${output}     Execute command   journalctl --list-boots
+    ${output}     Run Command      journalctl --list-boots
 
     @{lines}      Split To Lines    ${output}
     ${count}      Set Variable      0

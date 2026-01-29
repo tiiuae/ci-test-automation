@@ -50,7 +50,7 @@ Start VM
     [Arguments]             ${vm}
     Switch to vm            ${HOST}
     Log                     Going to start ${vm}    console=True
-    Execute Command         systemctl start microvm@${vm}.service  sudo=True  sudo_password=${PASSWORD}  timeout=120
+    Run Command             systemctl start microvm@${vm}.service  sudo=True  timeout=120
     ${state}  ${substate}   Verify service status  service=microvm@${vm}.service  expected_state=active  expected_substate=running
     Log                     ${vm} is ${substate}    console=True
     Check if ssh is ready on vm   ${vm}

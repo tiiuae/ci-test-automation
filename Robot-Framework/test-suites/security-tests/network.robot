@@ -49,10 +49,9 @@ Try to connect with wrong password
 Check ip is in the blacklist
     [Arguments]     ${vm}  ${ip}
     Switch to vm    ${vm}
-    ${output} 	    Execute Command    ipset list f2b-sshBlacklist   sudo=True    sudo_password=${PASSWORD}
-    Log             ${output}
+    ${output} 	    Run Command    ipset list f2b-sshBlacklist   sudo=True
     Should contain  ${output}    ${ip}
 
 Remove from the blacklist
     [Arguments]      ${ip}
-    Execute Command  ipset del f2b-sshBlacklist ${ip}   sudo=True    sudo_password=${PASSWORD}
+    Run Command  ipset del f2b-sshBlacklist ${ip}   sudo=True

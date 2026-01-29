@@ -43,7 +43,7 @@ Stop VM
     [Arguments]             ${vm}
     Switch to vm            ${HOST}
     Log                     Going to stop ${vm}    console=True
-    Execute Command         systemctl stop microvm@${vm}.service  sudo=True  sudo_password=${PASSWORD}  timeout=120
+    Run Command             systemctl stop microvm@${vm}.service  sudo=True  timeout=120
     Sleep    3
     ${state}  ${substate}   Verify service status  service=microvm@${vm}.service  expected_state=inactive  expected_substate=dead
     Log                     ${vm} is ${substate}    console=True
@@ -53,7 +53,7 @@ Start VM
     [Arguments]             ${vm}
     Switch to vm            ${HOST}
     Log                     Going to start ${vm}    console=True
-    Execute Command         systemctl start microvm@${vm}.service  sudo=True  sudo_password=${PASSWORD}  timeout=120
+    Run Command             systemctl start microvm@${vm}.service  sudo=True  timeout=120
     ${state}  ${substate}   Verify service status  service=microvm@${vm}.service  expected_state=active  expected_substate=running
     Log                     ${vm} is ${substate}    console=True
 
