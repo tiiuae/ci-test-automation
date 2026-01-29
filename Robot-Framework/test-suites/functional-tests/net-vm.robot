@@ -16,7 +16,7 @@ Resource            ../../resources/wifi_keywords.resource
 
 Verify NetVM is started
     [Documentation]         Verify that NetVM is active and running
-    [Tags]                  SP-T45  pre-merge  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  fmo
+    [Tags]                  SP-T45  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  fmo
     [Setup]                 Switch to vm   ${HOST}
     Verify service status   service=${netvm_service}
     Check Network Availability      ${NET_VM}    expected_result=True    range=5
