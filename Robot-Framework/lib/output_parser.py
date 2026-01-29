@@ -306,7 +306,7 @@ def get_cpu_thread_count(output):
 
 def get_monitor_microphone_source(output):
     for line in output.splitlines():
-        if "Monitor" in line:
+        if "monitor" in line:
             match = re.match(r"(\d+)", line)
             if match:
                 return int(match.group(1))
