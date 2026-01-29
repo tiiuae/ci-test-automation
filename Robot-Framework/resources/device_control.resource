@@ -140,3 +140,12 @@ Check that device is suspended
         Log To Console  Device is available
         FAIL    Device failed to suspend.
     END
+
+Reboot Orin if ssh connection dropped
+    ${ssh_available}  Run Keyword And Return Status    Run Command    ls  timeout=5
+    IF  not ${ssh_available}
+        Reboot Device Via Relay
+        Close All Connections
+        Check If Device Is Up
+        Switch to vm                ${NET_VM}   timeout=120
+    END

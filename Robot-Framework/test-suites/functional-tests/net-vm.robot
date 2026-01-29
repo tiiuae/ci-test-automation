@@ -10,6 +10,7 @@ Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/virtualization_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
+Resource            ../../resources/device_control.resource
 
 
 *** Test Cases ***
@@ -21,7 +22,8 @@ Verify NetVM is started
     Verify service status   service=${netvm_service}
     Check Network Availability      ${NET_VM}    expected_result=True    range=5
 
-    [Teardown]  Run Keyword If   "${DEVICE_TYPE}" == "orin-nx"   Run Keyword If Test Failed   Skip   "Under investigation: SSRCSP-7453"
+    [Teardown]              Run Keywords  Reboot Orin if ssh connection dropped
+    ...                     AND           Run Keyword If  "${DEVICE_TYPE}" == "orin-nx"  Run Keyword If Test Failed  Skip  "Under investigation: SSRCSP-7453"
 
 Wifi passthrough into NetVM
     [Documentation]     Verify that wifi works inside netvm
