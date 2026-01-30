@@ -35,8 +35,10 @@ Time synchronization
 
     Stop timesync daemon
     Set RTC time  ${wrong_time}
-    Check time was changed
-
+    ${time_changed}  Run Keyword And Return Status  Wait Until Keyword Succeeds  5s  1s  Check time was changed
+    IF  ${time_changed} != True
+        FAIL    Failed to set RTC time
+    END
     Start timesync daemon
     Check that time is correct
 
@@ -132,12 +134,12 @@ Check time was changed
         ${expected_time}  Convert To UTC  ${expected_time}
         Log               Comparing device time: ${universal_time} and time which was set ${expected_time}    console=True
         ${time_close}     Is time close  ${universal_time}  ${expected_time}  tolerance_seconds=${time_diff}
-        Should Be True    ${time_close}
+        Should Be True    ${time_close}   Time was not set, expected close to: ${expected_time}, in fact: ${universal_time}
     ELSE
         ${actual_time}    Get Current Time
         Log               Comparing device time: ${universal_time} and actual time    console=True
         ${time_close}     Is time close  ${universal_time}  ${actual_time}  tolerance_seconds=${time_diff}
-        Should Not Be True    ${time_close}
+        Should Not Be True    ${time_close}    Time was not changed, expected close to: ${actual_time}, in fact: ${universal_time}
     END
     Compare local and universal time
 
