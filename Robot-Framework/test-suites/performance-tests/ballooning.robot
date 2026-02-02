@@ -79,11 +79,14 @@ Test ballooning in VM
     Run Keyword And Ignore Error      Execute Command  -b timeout ${timeout_logging} ${test_dir}/log_memory ${test_dir} ${vm}_${BUILD_ID} ${test_dir}/status_for_logging  sudo=True  sudo_password=${PASSWORD}  timeout=1
 
     Log To Console                    Starting memory consuming scripts
+    Log To Console                    Launching memory consume at /dev/shm
     Run Keyword And Ignore Error      Execute Command  -b timeout ${timeout_inflate} ${test_dir}/consume_memory /dev/shm ${test_dir}  sudo=True  sudo_password=${PASSWORD}  timeout=1
+    Log To Console                    Launching memory consume at /dev
     Run Keyword And Ignore Error      Execute Command  -b timeout ${timeout_inflate} ${test_dir}/consume_memory /dev ${test_dir}  sudo=True  sudo_password=${PASSWORD}  timeout=1
+    Log To Console                    Launching memory consume at /run
     Run Keyword And Ignore Error      Execute Command  -b timeout ${timeout_inflate} ${test_dir}/consume_memory /run ${test_dir}  sudo=True  sudo_password=${PASSWORD}  timeout=1
 
-    # Monitor memory during inflate
+    Log To Console                    Monitoring memory during inflate
     ${start_time}=                    Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout_inflate}
         ${total_int}   ${used_mem}        Read memory status
@@ -97,7 +100,7 @@ Test ballooning in VM
             ${mem_limit_exceeded}=        Set Variable   True
         END
 
-        ${scripts_finished}=          Execute Command   ls ${test_dir}/script_status | wc -l
+        ${scripts_finished}=          Execute Command   ls ${test_dir}/script_status | wc -l    timeout=5
         ${scripts_finished_int}=      Evaluate  int(${scripts_finished})
         IF  ${scripts_finished_int} > 2
             Log To Console            All memory consuming scripts finished
@@ -157,8 +160,8 @@ Test ballooning in VM
     END
 
 Read memory status
-    ${total_mem}=                 Execute Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $1}'
-    ${used_mem}=                  Execute Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $2}'
+    ${total_mem}=                 Execute Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $1}'  timeout=5
+    ${used_mem}=                  Execute Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $2}'  timeout=5
     Log                           Used memory: ${used_mem} / Total memory: ${total_mem}  console=True
     ${total_int}                  Evaluate    int(${total_mem})
     RETURN                        ${total_int}   ${used_mem}
