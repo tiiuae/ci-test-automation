@@ -388,3 +388,14 @@ Get Actual Device ID
     ${device_id}     Run Command   cat /persist/common/device-id
     Log To Console   Actual Device ID: ${device_id}
     RETURN           ${device_id}
+
+Get Timestamp of Last Boot
+    Switch to vm        ${HOST}
+    ${last_boot}        Run Command  journalctl --list-boots | tail -n1 | awk '{print $4,$5}'
+    RETURN              ${last_boot}
+
+Get Time Since Last Boot
+    ${last_boot}        Get Timestamp of Last Boot
+    ${current_time}     Get current timestamp
+    ${time_since_boot}  DateTime.Subtract Date From Date   ${current_time}  ${LAST_BOOT}  exclude_millis=True
+    RETURN              ${time_since_boot}
