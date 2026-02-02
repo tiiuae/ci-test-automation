@@ -326,3 +326,6 @@ def get_audio_duration_in_seconds(output):
         raise RuntimeError("Could not determine duration")
     hours, minutes, seconds = match.groups()
     return int(hours) * 3600 + int(minutes) * 60 + float(seconds)
+
+def remove_colors(output):
+    return re.sub(r'\033\[.*?m', '', output)   # remove colors from console output

@@ -8,6 +8,7 @@ Test Tags           logging  pre-merge  bat  lenovo-x1  darter-pro  dell-7330
 Library             DateTime
 Library             OperatingSystem
 Library             Collections
+Library             ../../lib/helper_functions.py
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/common_keywords.resource
 
@@ -72,6 +73,21 @@ Check Grafana logs
             ELSE
                 FAIL       Failed to find any logs since boot for one or more VMs.\nVMs missing all logs since last boot: ${failed_vms_check_2}
             END
+        END
+    END
+
+Validate Forward Secure Sealing
+    [Documentation]   Run Forward Secure Sealing tests in all VMs
+    [Tags]            SP-T353
+    FOR  ${vm}  IN  @{VM_LIST}
+        Switch to vm   ${vm}
+        ${output}   Run Command   fss-test   sudo=True   return=out,rc   rc_match=skip
+        IF   ${output}[1] != 0
+            ${cleaned_output}   Remove Colors   ${output}[0]
+            ${failed_tests}     Get Matching Lines   ${cleaned_output}   FAIL
+            ${msg}              Catenate   SEPARATOR=\n   Fss test failed in ${vm}:
+            ...    @{failed_tests}
+            Run Keyword And Continue On Failure   FAIL   ${msg}
         END
     END
 
