@@ -10,3 +10,6 @@ def set_variable_by_name(name, value):
 def count_lines(output):
     lines = [line for line in output.splitlines()]
     return len(lines)
+
+def get_matching_lines(output, match):
+    return [line for line in output.splitlines() if match in line]
