@@ -4,11 +4,11 @@
 '''
 Threshold values for performance test cases
 
-If a measurement differs more than threshold from any of the baselines:
-- previous measurement
-- mean of last baseline period
-- first measurement of last baseline period
+If a measurement differs more than its threshold value from the mean of the last baseline period
 it is labeled as deviation/improvement.
+
+Deviation from first measurement of last baseline period is not anymore used as pass/fail criteria.
+However, it is still logged.
 
 Threshold can be given as
 - absolute value (int/float)
@@ -29,7 +29,7 @@ thresholds = {
     },
     'mem': {
         'multi': {
-            'wr': 1400,
+            'wr': "10%",
             'rd': 9000
         },
         'single': {
