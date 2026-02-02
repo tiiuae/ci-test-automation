@@ -124,7 +124,6 @@ Start app via GUI
 
     Open app menu
     Type string and press enter  ${display_name}
-    Tab and enter   tabs=1   # TODO: Remove this line, it is not needed. Removal will affect the launch times.
     Save time       ${process_name}_start
 
     Switch to vm    ${app-vm}
