@@ -8,5 +8,12 @@ Test Tags           regression  update  lenovo-x1  darter-pro
 Library             SSHLibrary
 Resource            ../../config/variables.robot
 
-Suite Setup         Set Variables   ${DEVICE}
+Suite Setup         Update tests setup
 Suite Teardown      Close All Connections
+
+
+*** Keywords ***
+
+Update tests setup
+    Set Variables   ${DEVICE}
+    IF    "storeDisk" in "${JOB}"   SKIP    Update tests can't be executed for storeDisk image.
