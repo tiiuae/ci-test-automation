@@ -188,6 +188,13 @@ Measure time to launch App Store
     Close app via GUI   ${FLATPAK_VM}  cosmic-store  ./window-close-neg.png  verify_is_killed=false
     Save launch time    cosmic-store
 
+Measure time to launch Getting Started
+    [Documentation]   Start 'Getting Started' via GUI and measure time of launching
+    [Tags]            SP-T285-24
+    Start app via GUI   ${CHROME_VM}  ghaf-intro  display_name="Getting Started"
+    Close app via GUI   ${CHROME_VM}  ghaf-intro  ./ghaf-close.png   2
+    Save launch time    ghaf-intro
+
 *** Keywords ***
 
 Tests Setup
