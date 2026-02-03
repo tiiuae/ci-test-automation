@@ -67,6 +67,11 @@ Start Gala
     [Tags]            SP-T104
     Start application in VM   Gala   ${BUSINESS_VM}   gala
 
+Start Getting Started
+    [Documentation]   Start 'Getting Started' and verify process started
+    [Tags]            SP-T354
+    Start application in VM   "Getting Started"  ${CHROME_VM}   ghaf-intro
+
 Start Ghaf Control Panel
     [Documentation]   Start Ghaf Control Panel and verify process started
     [Tags]            SP-T205  SP-T205-1  fmo
