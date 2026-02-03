@@ -28,7 +28,7 @@ Time synchronization
     ...                      -Net-vm is not connected to net.
     ...                  - Ghaf-host is connected to net via Net-VM if adapter is used!.
     ...                  - In this test we expect adapter to be used.
-    [Tags]            SP-T97  bat  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  fmo
+    [Tags]            SP-T97  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  fmo
 
     Switch to vm   ${HOST}
     Check that time is correct  timezone=UTC
@@ -43,11 +43,6 @@ Time synchronization
     Check that time is correct
 
     [Teardown]  Timesync Teardown
-
-Update system time from internet in Gui-vm
-    [Tags]            SP-T217  bat  -regression  lenovo-x1  darter-pro  dell-7330
-    [Template]        Update system time from internet in ${vm}
-    ${GUI_VM}
 
 Update system time from internet in VMs
     [Tags]            SP-T217  lenovo-x1  darter-pro  dell-7330
