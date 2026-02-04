@@ -5,7 +5,6 @@
 | DATE SET   | TEST CASE                                                                                   | TICKET / Additional Data.                                                                       |
 | ---------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | 29.01.2026 | Check that unauthorised user has limited access to file system (Pictures folder check only) | SSRCSP-7918                                                                                     |
-| 12.01.2026 | GUI Suspend and wake up (Darter Pro)                                                        | SSRCSP-7185                                                                                     |
 | 07.01.2026 | Check Grafana log forwarding after disconnected state                                       | SSRCSP-7612                                                                                     |
 | 11.12.2025 | GUI Shutdown                                                                                | SSRCSP-7512                                                                                     |
 | 18.11.2025 | Check Grafana logs (any logs from the last 10 minutes)                                      | SSRCSP-7612                                                                                     |

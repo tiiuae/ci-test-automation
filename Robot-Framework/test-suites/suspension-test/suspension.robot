@@ -17,13 +17,13 @@ Library             JSONLibrary
 
 *** Test Cases ***
 
-Automatic suspension (Lenovo X1)
+Automatic suspension
     [Documentation]   Wait and check that
     ...               in the beginning brightness is 100 %
     ...               in 5 min - the screen locks and turns off
     ...               in 15 min - the laptop is suspended
     ...               in 20 min press the button and check that laptop woke up
-    [Tags]            SP-T162  lenovo-x1  lab-only
+    [Tags]            SP-T162  lenovo-x1  darter-pro  lab-only
     [Setup]           Test setup
     [Teardown]        Test teardown
 
@@ -83,26 +83,6 @@ Automatic suspension (Lenovo X1)
             FAIL  Average suspended power ${suspended_power}mW (test limit 2500mW)\nPower consumption level increased ${power_changed}% over suspension and wake up (test limit 25%)
         END
     END
-
-Automatic lock (Darter Pro)
-    [Documentation]   Suspension is disabled on Darter Pro but automatic lock works
-    ...               Wait and check that
-    ...               in the beginning brightness is 100 %
-    ...               in 5 min - the screen locks and turns off
-    [Tags]            SP-T269    darter-pro
-    [Setup]           Test setup
-
-    Check the screen state   on
-    Check screen brightness   ${max_brightness}
-
-    Wait     320
-    Check the screen state   off
-    
-    # Screen has to be turned on before checking for lock
-    Move cursor
-
-    ${locked}         Check if locked
-    Should Be True    ${locked}
 
 *** Keywords ***
 
