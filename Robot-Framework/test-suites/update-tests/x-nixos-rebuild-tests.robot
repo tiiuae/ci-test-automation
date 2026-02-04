@@ -57,10 +57,10 @@ Check audit update logging
     Sleep                     5
     ${any_logs_found}         Check VM Log on Grafana   ${device_id}  ${HOST}  ${log_search_window}s
     IF  not ${any_logs_found}
-        Skip                  Known issue SSRCSP-7612 'Grafana logging stops from a VM' spoiled the test. Skipping.
+        FAIL                  Grafana missing logs from ghaf-host completely from the time period of interest.\nCheck if log forwarding is broken.
     END
     ${found}  ${logs}         Get logs by key words   nixos_rebuild_store   ${log_search_window}s   ${False}
-    Should Be True            ${found}
+    Should Be True            ${found}    No 'nixos_rebuild_store' keywords found in Grafana from the time of nixos-rebuild.
     Log                       ${logs}
 
 

@@ -55,24 +55,12 @@ Check Grafana logs
         ${failed_vms_check_2}   Check Logs Are available   ${id}   since=${since_boot}s
         ${check_status}         Run Keyword And Return Status    Should Be Empty   ${failed_vms_check_2}
         IF  ${check_status}
-            ${skip_msg}=    Catenate    SEPARATOR=\n
-            ...    Known issue: SSRCSP-7612 Grafana logging stops from a VM
+            ${fail_msg}=    Catenate    SEPARATOR=\n
             ...    Log forwarding stopped for these VMs: ${failed_vms_check_1}
             ...    Verified that log forwarding was working some time after boot for all VMs
-            Skip   ${skip_msg}
+            FAIL   ${fail_msg}
         ELSE
-            ${failed_vm_count}   Get Length   ${failed_vms_check_2}
-            ${net-vm_included}   Run Keyword And Return Status   List Should Contain Value   ${failed_vms_check_2}   ${NETVM_NAME}
-            IF  ${failed_vm_count} < 2 and ${net-vm_included}
-                ${skip_msg}=    Catenate    SEPARATOR=\n
-                ...    Known issue: SSRCSP-7612 Grafana logging stops from a VM
-                ...    Log forwarding stopped for these VMs: ${failed_vms_check_1}
-                ...    Known issue: SSRCSP-7542 net-vm Grafana logs missing frequently
-                ...    Verified that log forwarding was working some time after boot for all VMs, except no logs at all from net-vm.
-                Skip   ${skip_msg}
-            ELSE
-                FAIL       Failed to find any logs since boot for one or more VMs.\nVMs missing all logs since last boot: ${failed_vms_check_2}
-            END
+            FAIL   Failed to find any logs since last boot for one or more VMs.\nVMs missing all logs since last boot: ${failed_vms_check_2}
         END
     END
 

@@ -21,29 +21,21 @@ Suite Teardown      Remove Wifi configuration  ${TEST_WIFI_SSID}
 Wifi password is not revealed in Grafana
     [Documentation]  Check that logs in Grafana don't contain wifi password
     [Tags]           SP-T328  SP-T328-1
-    ${data_available}    ${logs}    Get logs by key words   ${TEST_WIFI_SSID}   hide_found_data=${False}
-    ${found}  ${logs}    Get logs by key words   ${TEST_WIFI_PSWD}
-    Should Not Be True   ${found}
-    [Teardown]           Teardown Logs    ${data_available}
+    Is password revealed in Grafana    ${TEST_WIFI_SSID}    ${TEST_WIFI_PSWD}
 
 User password is not revealed in Grafana
     [Documentation]  Check that logs in Grafana don't contain user's password
     [Tags]           SP-T328  SP-T328-2
-    ${data_available}    ${logs}    Get logs by key words    ${USER_LOGIN}    hide_found_data=${False}
-    ${found}  ${logs}    Get logs by key words   ${USER_PASSWORD}
-    Should Not Be True   ${found}
-    [Teardown]           Teardown Logs    ${data_available}
+    Is password revealed in Grafana    ${USER_LOGIN}    ${USER_PASSWORD}
 
 Check Grafana log forwarding after disconnected state
     [Documentation]  Check that logs are sent to Grafana from time of disconnection during previous boot
     [Tags]           SP-T283
-    ${initial_check}  Set Variable  ${True}
     Switch to vm      ${ADMIN_VM}
     ${id}             Run Command  cat /etc/common/device-id
     Log To Console    Creating log entry and verifying forwarding to grafana
     Run Command       logger --priority=user.info "logtest0_${BUILD_ID}"    sudo=True
     Wait Until Keyword Succeeds  60s  5s  Check VM Log on Grafana  ${id}  ${ADMIN_VM}  2m  ${True}  logtest0_${BUILD_ID}
-    ${initial_check}  Set Variable  ${False}
     Log To Console    Initial check for log forwarding passed
 
     Log To Console    Blocking log forwarding from admin-vm
@@ -65,7 +57,6 @@ Check Grafana log forwarding after disconnected state
     Login to laptop
     Wait Until Keyword Succeeds  60s  5s  Check VM Log on Grafana     ${id}   ${ADMIN_VM}   5m   ${True}   logtest1_${BUILD_ID}
     Log To Console               Checked that log is forwarded after clearing the iptables rule by reboot
-    [Teardown]        Skip If    ${initial_check}   Known issue: SSRCSP-7612 (Grafana logging stops from a VM).\nDidn't find admin-vm logs in the initial check. Skipping the test.
 
 
 *** Keywords ***
@@ -77,12 +68,11 @@ Setup logs
     ${device_id}        Get Actual Device ID
     Set Suite Variable  ${device_id}
 
-Teardown Logs
-    [Arguments]    ${data_checked}
-    IF    '${TEST STATUS}' != 'FAIL'
-        IF  not ${data_checked}
-            # Logging from VM sometimes stops during the run (SSRCSP-7612).
-            SKIP    There is not enough logs to check
-        END
+Is password revealed in Grafana
+    [Arguments]          ${id}    ${pw}
+    ${data_available}    ${logs}    Get logs by key words   ${id}   hide_found_data=${False}
+    IF  not ${data_available}
+        FAIL    Not enough logs for the test.\nCheck if log forwarding is broken.
     END
-
+    ${found}  ${logs}    Get logs by key words   ${pw}
+    Should Not Be True   ${found}    ALERT: password leak to grafana detected
