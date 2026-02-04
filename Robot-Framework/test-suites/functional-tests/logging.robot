@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing logging
-Test Tags           logging  pre-merge  bat  lenovo-x1  darter-pro  dell-7330
+Test Tags           logging  bat  lenovo-x1  darter-pro  dell-7330
 
 Library             DateTime
 Library             OperatingSystem
@@ -23,7 +23,7 @@ ${TEST_LOG}           log_check_${BUILD_ID}
 
 Logging service is running in all VMs
     [Documentation]    Check that logging service is running in every VM
-    [Tags]             SP-T333
+    [Tags]             SP-T333  pre-merge
     ${failed_vms}      Create List
     FOR  ${vm}  IN  @{VM_LIST}
         Switch to vm   ${vm}
@@ -42,7 +42,7 @@ Logging service is running in all VMs
 
 Check Grafana logs
     [Documentation]  Check that all virtual machines are sending logs to Grafana
-    [Tags]           SP-T172
+    [Tags]           SP-T172  pre-merge
     Check Network Availability    8.8.8.8   limit_freq=${False}
     Switch to vm       ${ADMIN_VM}
     ${id}              Run Command  cat /etc/common/device-id
@@ -139,7 +139,7 @@ Create logs in all VMs
     Close All Connections
     FOR  ${vm}  IN  @{VM_LIST}
         Switch to vm   ${vm}
-        Run Command  logger --priority=user.info "${TEST_LOG}"    sudo=True
+        Run Command  logger --priority=user.info "${TEST_LOG}"
         ${out}   Run Command    journalctl --since "1 minute ago" | grep "${TEST_LOG}"
         Run Keyword And Continue On Failure   Should Contain  ${out}   ${TEST_LOG}   Log was not created in ${vm}
     END
