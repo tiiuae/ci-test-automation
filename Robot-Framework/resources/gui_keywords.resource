@@ -273,9 +273,9 @@ Disable automatic suspension
 Enable automatic suspension
     [Documentation]   Switch back to default suspension times
     Log To Console    Enabling automated lock and suspend
-    Remove file       /home/${USER_LOGIN}/.config/cosmic/com.system76.CosmicIdle/v1/screen_off_time           rc_match=skip
-    Remove file       /home/${USER_LOGIN}/.config/cosmic/com.system76.CosmicIdle/v1/suspend_on_ac_time        rc_match=skip
-    Remove file       /home/${USER_LOGIN}/.config/cosmic/com.system76.CosmicIdle/v1/suspend_on_battery_time   rc_match=skip
+    Remove file       /home/${USER_LOGIN}/.config/cosmic/com.system76.CosmicIdle/v1/screen_off_time
+    Remove file       /home/${USER_LOGIN}/.config/cosmic/com.system76.CosmicIdle/v1/suspend_on_ac_time
+    Remove file       /home/${USER_LOGIN}/.config/cosmic/com.system76.CosmicIdle/v1/suspend_on_battery_time
 
 Set do not disturb state
     [Documentation]   Set do not disturb to true or false

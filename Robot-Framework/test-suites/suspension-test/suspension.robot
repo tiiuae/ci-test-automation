@@ -17,16 +17,15 @@ Library             JSONLibrary
 
 *** Test Cases ***
 
-Automatic suspension (Lenovo X1)
+Automatic suspension
     [Documentation]   Wait and check that
     ...               in the beginning brightness is 100 %
     ...               in 5 min - the screen locks and turns off
     ...               in 15 min - the laptop is suspended
     ...               in 20 min press the button and check that laptop woke up
-    [Tags]            SP-T162  lenovo-x1  lab-only
+    [Tags]            SP-T162  lenovo-x1  darter-pro  lab-only
     [Setup]           Test setup
     [Teardown]        Test teardown
-    SKIP   Known issue: SSRCSP-8012
     Check the screen state   on
     Check screen brightness  ${max_brightness}
 
@@ -84,26 +83,6 @@ Automatic suspension (Lenovo X1)
         END
     END
 
-Automatic lock
-    [Documentation]   Suspension is currently broken but automatic lock works (without screen state checks)
-    ...               Wait and check that
-    ...               in the beginning brightness is 100 %
-    ...               in 5 min - the screen locks and turns off
-    [Tags]            SP-T269  lenovo-X1  darter-pro
-    [Setup]           Test setup
-
-    # Check the screen state   on   Skipped due to SSRCSP-8015
-    Check screen brightness   ${max_brightness}
-
-    Wait     320
-    # Check the screen state   off   Skipped due to SSRCSP-8015
-    
-    # Screen has to be turned on before checking for lock
-    Move cursor
-
-    ${locked}         Check if locked
-    Should Be True    ${locked}
-
 *** Keywords ***
 
 Test setup
@@ -113,9 +92,13 @@ Test setup
     Move cursor
 
 Test teardown
-    Run Keyword If Test Passed    Run Keywords   Switch to vm   ${GUI_VM}   user=${USER_LOGIN}   AND   Log out and verify
-    Run Keyword If Test Failed    Reboot Laptop
-
+    IF  $TEST_STATUS=='PASS'
+        Switch to vm   ${GUI_VM}   user=${USER_LOGIN}
+        Log out and verify
+    ELSE
+        Reboot Laptop
+        Connect After Reboot
+    END
 
 Save max brightness
     ${device}     Run Command    ls /sys/class/backlight/
