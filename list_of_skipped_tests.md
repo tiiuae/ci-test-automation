@@ -7,11 +7,8 @@
 | 05.02.2026 | Validate Forward Secure Sealing (Lenovo X1)                                                 | SSRCSP-7973                                                                                     |
 | 29.01.2026 | Check that unauthorised user has limited access to file system (Pictures folder check only) | SSRCSP-7918                                                                                     |
 | 12.01.2026 | GUI Suspend and wake up (Darter Pro)                                                        | SSRCSP-7185                                                                                     |
-| 07.01.2026 | Check Grafana log forwarding after disconnected state                                       | SSRCSP-7612                                                                                     |
 | 11.12.2025 | GUI Shutdown                                                                                | SSRCSP-7512                                                                                     |
-| 18.11.2025 | Check Grafana logs (any logs from the last 10 minutes)                                      | SSRCSP-7612                                                                                     |
 | 07.11.2025 | Measure time to launch COSMIC Settings                                                      | SSRCSP-7518                                                                                     |
-| 06.11.2025 | Check Grafana logs (net-vm)                                                                 | SSRCSP-7542                                                                                     |
 | 23.10.2025 | Save host journalctl/Verify NetVM is started                                                | SSRCSP-7453                                                                                     |
 | 16.09.2025 | Check systemctl status in every VM                                                          | [Full list of skips in the test case](/Robot-Framework/test-suites/functional-tests/vm.robot)   |
 | 13.06.2025 | Record Video With Camera (Dell)                                                             | SSRCSP-6694                                                                                     |
