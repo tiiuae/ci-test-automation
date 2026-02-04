@@ -79,9 +79,20 @@ Soft Reboot Device
 
 Connect After Reboot
     [Documentation]   Verify that device rebooted and connect
+    [Arguments]      ${soft_reboot}=False
     # Sleep extended from 20 to 30 due to SSRCSP-7512
-    Sleep   30
-    Check If Device Is Up         range=60
+    Wait   30
+    IF    "${DEVICE_TYPE}" == "darter-pro" and ${soft_reboot}
+        WHILE    True    limit=120 seconds
+            Log              Pressing Enter    console=True
+            Press Button     ${SWITCH_BOT}-Enter
+            Run Keyword And Ignore Error    Check If Device Is Up    range=5
+            IF   ${IS_AVAILABLE} == True and "${CONNECTION_TYPE}" == "ssh"   BREAK
+        END
+    ELSE
+        Check If Device Is Up         range=60
+    END
+    
     IF    ${IS_AVAILABLE} == False
         FAIL                      The device did shut down but didn't start in reboot.
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
