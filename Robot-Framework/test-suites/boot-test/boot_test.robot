@@ -44,7 +44,7 @@ Verify booting laptop
     [Documentation]    Restart laptop by power and verify init service is running
     [Tags]             boot  plug  lenovo-x1  darter-pro  dell-7330
     Reboot Laptop      verify_shutdown=False
-    Check If Device Is Up
+    Check If Device Is Up     range=300
     IF    ${IS_AVAILABLE} == False
         FAIL    The device did not start
     ELSE

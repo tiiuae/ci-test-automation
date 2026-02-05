@@ -43,6 +43,14 @@ Reboot Laptop
     END
     Log To Console    Turning device on...
     Press Button      ${SWITCH_BOT}-ON
+    IF    "${DEVICE_TYPE}" == "darter-pro"
+        Wait        15
+        Log     Pressing Enter    console=True
+        Press Button      ${SWITCH_BOT}-Enter
+        Sleep     3
+        Log     Pressing Enter one more time    console=True
+        Press Button      ${SWITCH_BOT}-Enter
+    END
 
 Turn Laptop On and Connect
     Log To Console    ${\n}Turning device on...

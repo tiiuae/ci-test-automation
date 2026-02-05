@@ -50,7 +50,7 @@ Verify booting laptop
     IF    "installer" in "${JOB}"
         Check If Device Is Up    range=240
     ELSE
-        Check If Device Is Up
+        Check If Device Is Up    range=300
     END
     IF    ${IS_AVAILABLE} == False
         Log To Console    Turning device on again...
@@ -108,7 +108,7 @@ Turn ON Device
 
 Run installer
     [Documentation]   Reboot laptop and run installer, will not turn off after test, boot test is required after this
-    [Tags]            installer  lenovo-x1
+    [Tags]            installer  lenovo-x1  darter-pro
     Reboot Laptop     verify_shutdown=False
     Check If Device Is Up
     Run Keyword If    ${IS_AVAILABLE} == False   FAIL    The device did not start
@@ -126,6 +126,14 @@ Wipe installed Ghaf from internal memory
     [Tags]            wiping  lenovo-x1
     Log To Console    ${\n}Turning device on...
     Press Button      ${SWITCH_BOT}-ON
+    IF    "${DEVICE_TYPE}" == "darter-pro"
+        Wait        15
+        Log     Pressing Enter    console=True
+        Press Button      ${SWITCH_BOT}-Enter
+        Sleep     3
+        Log     Pressing Enter one more time    console=True
+        Press Button      ${SWITCH_BOT}-Enter
+    END
     Check If Device Is Up   range=60
     Run Keyword If    ${IS_AVAILABLE} == False   FAIL    The device did not start
 
@@ -139,6 +147,12 @@ Wipe installed Ghaf from internal memory
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         FAIL    SSH is not available and running installer via serial is not supported by test.
     END
+
+Break the system
+    [Documentation]   Wipe boot partition
+    [Tags]            break  darter-pro
+    Switch to vm      ${HOST}
+    Run Command       dd if=/dev/zero of=/dev/nvme0n1p2 count=100 bs=32M    sudo=True    rc_match=skip
 
 
 *** Keywords ***
