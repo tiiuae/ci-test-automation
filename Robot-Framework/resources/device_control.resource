@@ -41,16 +41,23 @@ Reboot Laptop
     IF  ${verify_shutdown}
         Verify shutdown via network
     END
-    Log To Console    Turning device on...
+    Turn Laptop On
+
+Turn Laptop On
+    Log To Console    ${\n}Turning device on...
     Press Button      ${SWITCH_BOT}-ON
+    IF    "${DEVICE_TYPE}" == "darter-pro"
+        Wait    15
+        Log     Pressing Enter    console=True
+        Press Button      ${SWITCH_BOT}-Enter
+    END
 
 Turn Laptop On and Connect
     Log To Console    ${\n}Turning device on...
-    Press Button      ${SWITCH_BOT}-ON
-    Sleep    5
+    Turn Laptop On
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False
-        FAIL  The device did not start
+        FAIL    The device did not start
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         FAIL    The device is available only via serial, but tests require SSH.
     ELSE
