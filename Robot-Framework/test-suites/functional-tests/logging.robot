@@ -84,12 +84,14 @@ Validate Forward Secure Sealing
         ${output}   Run Command   fss-test   sudo=True   return=out,rc   rc_match=skip
         IF   ${output}[1] != 0
             ${cleaned_output}   Remove Colors   ${output}[0]
+            Log  ${cleaned_output}
             ${failed_tests}     Get Matching Lines   ${cleaned_output}   FAIL
             ${msg}              Catenate   SEPARATOR=\n   Fss test failed in ${vm}:
             ...    @{failed_tests}
             Run Keyword And Continue On Failure   FAIL   ${msg}
         END
     END
+    [Teardown]  Run Keyword If Test Failed   Run Keyword If  "${DEVICE_TYPE}" == "lenovo-x1"   SKIP   Known issue: SSRCSP-7973
 
 *** Keywords ***
 
