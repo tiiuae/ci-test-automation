@@ -23,6 +23,7 @@ Suite Setup         VM Suite Setup
              ...    gui-vm|setup-ghaf-user.service|SSRCSP-7234
              ...    ANY|tuned.service|SSRCSP-7717
              ...    ANY|fail2ban.service|SSRCSP-7759
+             ...    ANY|journal-fss-verify.service|SSRCSP-7973
 
 # Container for test message. Keyword `Set Test Message` doesn't work properly with Templates.
 # Accumulates messages from tests that use 'Check systemctl status Template' to be added to the main test message in teardown
