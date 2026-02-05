@@ -130,7 +130,7 @@ Verify Systemctl status
     ${diff}=    Evaluate    int(time.time()) - int(${start_time})
 
     ${services_jctl_summary}=   Get JournalCtl Info For Not Running Services
-    Log                         ${services_jctl_summary}    html=${True}
+    Log                         ${services_jctl_summary}     html=${True}     level=WARN
 
     FAIL    Current systemctl status is ${status}. Waiting for status `running` for ${diff} sec! Failed processes?: ${failed_units}
 
