@@ -48,7 +48,7 @@ Measure Hard Boot Time
     Log To Console                Waiting for the robot finger to return
     Sleep  20
     Log To Console                Booting the device by pressing the power button
-    Press Button                  ${SWITCH_BOT}-ON
+    Turn Laptop On
     Get Boot times                plot_name=Hard Boot Times
     [Teardown]                    Run Keyword If Test Failed    Boot Time Test Teardown
 
