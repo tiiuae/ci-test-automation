@@ -15,15 +15,23 @@ Suite Setup         VM Suite Setup
 
 *** Variables ***
 # Add any known failing services here with the vm name and bug ticket number.
-# vm|service-name|ticket-number
-@{known_issues}=    audio-vm|systemd-rfkill.service|SSRCSP-7321
-             ...    ghaf-host|autovt@ttyUSB0.service|SSRCSP-6667
-             ...    gui-vm|plymouth-start.service|SSRCSP-7306
-             ...    gui-vm|plymouth-quit.service|SSRCSP-7306
-             ...    gui-vm|setup-ghaf-user.service|SSRCSP-7234
-             ...    ANY|tuned.service|SSRCSP-7717
-             ...    ANY|fail2ban.service|SSRCSP-7759
-             ...    ANY|journal-fss-verify.service|SSRCSP-7973
+# device|vm|service-name|ticket-number
+@{known_issues}=    ANY|audio-vm|systemd-rfkill.service|SSRCSP-7321
+             ...    dell-7330|ghaf-host|autovt@ttyUSB0.service|SSRCSP-6667
+             ...    ANY|gui-vm|plymouth-start.service|SSRCSP-7306
+             ...    ANY|gui-vm|plymouth-quit.service|SSRCSP-7306
+             ...    ANY|gui-vm|setup-ghaf-user.service|SSRCSP-7234
+             ...    ANY|ANY|tuned.service|SSRCSP-7717
+             ...    ANY|ANY|fail2ban.service|SSRCSP-7759
+             ...    ANY|ANY|journal-fss-verify.service|SSRCSP-7973
+             ...    orin|ghaf-host|nvfancontrol.service|SSRCSP-6303
+             ...    orin-agx|ghaf-host|systemd-rfkill.service|SSRCSP-6303
+             ...    orin|ghaf-host|systemd-oomd.service|SSRCSP-6685
+             ...    orin|admin-vm|audit-rules-nixos.service|SSRCSP-8066
+             ...    orin|net-vm|audit-rules-nixos.service|SSRCSP-8066
+             ...    orin|admin-vm|stunnel.service|SSRCSP-8067
+             ...    orin|admin-vm|alloy.service|SSRCSP-8071
+             ...    orin|admin-vm|ghaf-journal-alloy-recover.service|SSRCSP-8071
 
 # Container for test message. Keyword `Set Test Message` doesn't work properly with Templates.
 # Accumulates messages from tests that use 'Check systemctl status Template' to be added to the main test message in teardown
@@ -34,7 +42,7 @@ ${found_known_issues_message}=
 
 Check internet connection in every VM
     [Documentation]    Pings google from every vm.
-    [Tags]             SP-T257
+    [Tags]             SP-T257   orin-agx  orin-agx-64  orin-nx
     ${failed_vms}=    Create List
     FOR  ${vm}  IN  @{VM_LIST_WITH_HOST}
         Switch to vm     ${vm}
@@ -50,7 +58,7 @@ Check systemctl status in every VM
     [Documentation]    Check that systemctl status is running in every vm.
     [Template]    Check systemctl status Template
     [Teardown]    Set Test Message    append=${True}  separator=\n    message=${found_known_issues_message}
-    [Tags]             SP-T98  SP-T98-2   systemctl
+    [Tags]             SP-T98  systemctl  orin-agx  orin-agx-64  orin-nx
     FOR    ${vm}    IN    @{VM_LIST_WITH_HOST}
         ${vm}
     END
@@ -106,7 +114,7 @@ Check systemctl status Template
     Log    ${filtered_failed_units}
 
     IF     ${filtered_failed_units}
-        Check systemctl status for known issues    ${vm}   ${known_issues}   ${filtered_failed_units}
+        Check systemctl status for known issues    ${DEVICE_TYPE}   ${vm}   ${known_issues}   ${filtered_failed_units}
     END
 
 VM Suite Setup

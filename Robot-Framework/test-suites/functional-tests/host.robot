@@ -42,24 +42,6 @@ Check QSPI version
     [Tags]             SP-T95  pre-merge  bat  orin-agx  orin-agx-64  orin-nx
     Check QSPI Version is up to date
 
-Check host systemctl status
-    [Documentation]    Verify systemctl status is running on host
-    [Tags]             SP-T98  SP-T98-1  systemctl  pre-merge  bat  orin-agx  orin-agx-64  orin-nx  fmo
-    [Teardown]         Set Test Message    append=${True}  separator=\n    message=${found_known_issues_message}
-    Set Test Variable       ${found_known_issues_message}   ${EMPTY}
-
-    ${status}     ${failed_units}   Verify Systemctl status
-    Should not be true    '${status}' == 'starting'      msg=Current systemctl status is ${status}. Failed processes?: ${failed_units}
-
-    IF    '${status}' != 'running'
-        ${known_issues}=    Create List
-        ...    Orin|nvfancontrol.service|SSRCSP-6303
-        ...    AGX|systemd-rfkill.service|SSRCSP-6303
-        ...    Orin|systemd-oomd.service|SSRCSP-6685
-
-        Check systemctl status for known issues    ${DEVICE}   ${known_issues}   ${failed_units}
-    END
-
 Check all VMs are running
     [Documentation]    Check that all VMs are running.
     [Tags]             SP-T68  SP-T68-1  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  fmo
