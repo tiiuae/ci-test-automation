@@ -160,13 +160,6 @@ Set system time
     Run Command         date -s '${time}'  sudo=True
     Run Command         timedatectl -a
 
-Disable Wifi passthrough from NetVM
-    Check Network Availability    8.8.8.8   expected_result=True
-    Turn OFF WiFi       ${TEST_WIFI_SSID}
-    Check Network Availability    8.8.8.8   expected_result=False
-    Sleep               1
-    Remove Wifi configuration  ${TEST_WIFI_SSID}
-
 Block internet traffic
     Run Command    iptables -I OUTPUT -p udp --dport 123 -j DROP  sudo=True
     Run Command    iptables -I OUTPUT -p tcp -m multiport --dports 80,443 -j DROP  sudo=True
