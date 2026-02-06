@@ -210,14 +210,13 @@ Get Not Running Services
 
 Check systemctl status for known issues
     [Documentation]    Check if failing services contain issues that are not listed as known.
-    ...                ${name} can be either the device name or the vm name.
     ...
     ...                Variable \${found_known_issues_message} should be defined outside the keyword on the test scope,
     ...                it's not defined inside this keyword because Robot Framework works differently with test messages
     ...                if Template is in use.
     ...                To add message \${found_known_issues_message} to the log and report add to test's teardown
     ...                `Set Test Message    append=\${True}  separator=\\n    message=\${found_known_issues_message}`
-    [Arguments]    ${name}  ${known_issues_list}  ${failing_services}  ${user}=False
+    [Arguments]    ${device}  ${vm}  ${known_issues_list}  ${failing_services}  ${user}=False
     Should Not Be Empty    ${failing_services}     Failing services list is empty.
 
     IF    ${user}
@@ -232,12 +231,13 @@ Check systemctl status for known issues
         ${known}=    Set Variable    False
         Run Command    ${unit_logs_cmd} ${failing_service}
         FOR    ${entry}    IN    @{known_issues_list}
-            ${list_name}  ${service}  ${issue}   Parse Known Issue   ${entry}
+            ${list_device}  ${list_vm}  ${service}  ${issue}   Parse Known Issue   ${entry}
 
-            ${name_match}=       Run Keyword And Return Status    Should Contain    ${name}    ${list_name}
+            ${device_match}=     Run Keyword And Return Status    Should Contain    ${device}    ${list_device}
+            ${vm_match}=         Run Keyword And Return Status    Should Contain    ${vm}        ${list_vm}
             ${service_match}=    Run Keyword And Return Status    Should Contain    ${failing_service}    ${service}
 
-            IF    ('${list_name}' == 'ANY' or ${name_match}) and ('${service}' == 'ANY' or ${service_match})
+            IF    ('${list_device}' == 'ANY' or ${device_match}) and ('${list_vm}' == 'ANY' or ${vm_match}) and ('${service}' == 'ANY' or ${service_match})
                 ${known}=     Set Variable    True
             END
         END
@@ -248,10 +248,10 @@ Check systemctl status for known issues
         END
     END
     IF   ${new_issues} != []
-        Fail    Unexpected failed services in/on ${name}: ${new_issues}, known failed services: ${old_issues}
+        Fail    Unexpected failed services in ${vm}: ${new_issues}, known failed services: ${old_issues}
     ELSE
-        Log     level=WARN        message=Test `${TEST NAME}` for VM `${name}` failed with known issue: failed services ${old_issues}
-        Set Test Variable    ${found_known_issues_message}      ${found_known_issues_message}VM `${name}` has services failed with known issue: ${old_issues}\n
+        Log     level=WARN        message=Test `${TEST NAME}` for VM `${vm}` failed with known issue: failed services ${old_issues}
+        Set Test Variable    ${found_known_issues_message}      ${found_known_issues_message}VM `${vm}` has services failed with known issue: ${old_issues}\n
     END
 
 Get VM list

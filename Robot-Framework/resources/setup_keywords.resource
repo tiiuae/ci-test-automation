@@ -55,6 +55,7 @@ Save host journalctl
     OperatingSystem.File Should Exist    ${OUTPUT_DIR}/jrnl.txt
 
 Log versions and device unique data
+    Log                 ---- Versions ----                console=True
     ${ghaf_version}     Run Command   ghaf-version
     Log                 Ghaf version: ${ghaf_version}     console=True
     ${nixos_version}    Run Command   nixos-version
@@ -64,6 +65,10 @@ Log versions and device unique data
     #Save the Robot Framework version
     ${robot_version}    Run   robot --version
     Log                 Robot version of the tests: ${robot_version}   console=True
+    Log                 Device: ${DEVICE}                 console=True
+    Log                 Device type: ${DEVICE_TYPE}       console=True
+    Log                 Job: ${JOB}                       console=True
+    Log                 --------                          console=True
 
 Create test user
     [Setup]          Switch to vm    ${GUI_VM}

@@ -34,7 +34,7 @@ Check user systemctl status
 
     ${known_issues}=    Create List
     # Add any known failing services here with the target device and bug ticket number.
-    # ...    device|service-name|ticket-number
+    # ...    device|gui-vm|service-name|ticket-number
 
     ${status}     ${failed_units}=  Verify Systemctl status    range=3   add_params=--user
     Should not be true    '${status}' == 'starting'      msg=Current systemctl status is ${status}. Failed processes?: ${failed_units}
@@ -46,7 +46,7 @@ Check user systemctl status
     Log   ${filtered_failed_units}
 
     IF    ${filtered_failed_units}
-        Check systemctl status for known issues  ${DEVICE}  ${known_issues}  ${filtered_failed_units}   user=True
+        Check systemctl status for known issues  ${DEVICE_TYPE}  ${GUI_VM}  ${known_issues}  ${filtered_failed_units}   user=True
     END
 
 

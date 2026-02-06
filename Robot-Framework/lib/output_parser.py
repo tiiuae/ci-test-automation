@@ -252,9 +252,9 @@ def parse_services_to_list(output):
 
 def parse_known_issue(output):
     parts = output.split('|')
-    if len(parts) != 3:
+    if len(parts) != 4:
         raise ValueError(f"Invalid known issue format: {output}")
-    return parts[0].strip(), parts[1].strip(), parts[2].strip()
+    return parts[0].strip(), parts[1].strip(), parts[2].strip(), parts[3].strip()
 
 def parse_keyboard_layout(layout_row):
     if not "layout" in layout_row:
