@@ -36,42 +36,27 @@ Check If Ping Fails
     Should Not Be Equal   ${result.rc}  ${0}
 
 Check Network Availability
-    [Arguments]            ${host}  ${expected_result}=True  ${range}=5  ${limit_freq}=${True}  ${interface}=None
-    Log                    Checking network ${host} availability, expected: ${expected_result}  console=True
+    [Arguments]    ${host}  ${expected_result}=True  ${range}=5  ${limit_freq}=${True}  ${interface}=None
+    Log            Checking network ${host} availability, expected: ${expected_result}  console=True
     IF  $interface != 'None'
-        ${cmd}    Set Variable    ping -I ${interface} ${host} -c 1
+        ${cmd}    Set Variable    ping -I ${interface} ${host} -c 1 -W 1
     ELSE
-        ${cmd}    Set Variable    ping ${host} -c 1
+        ${cmd}    Set Variable    ping ${host} -c 1 -W 1
     END
-    Set Global Variable    ${IS_AVAILABLE}   False
+    ${availability}    Set Variable    False
     FOR   ${i}   IN RANGE  ${range}
-        Write    ${cmd}
-        TRY
-            SSHLibrary.Read Until           1 received
-            Set Global Variable  ${IS_AVAILABLE}  True
-            Log   ${host} is available  console=True
-            IF    ${expected_result} == True
-                BREAK
-            END
-        EXCEPT
-            IF    ${expected_result} == False
-                Log    ${host} is unavailable  console=True
-                BREAK
+        ${availability}     Run Keyword And Return Status   Run Command    ${cmd}
+        IF  ${limit_freq}   Sleep   ${PING_SPACING}
+        IF  ${availability} == ${expected_result}
+            IF   ${availability}
+                Log   ${host} is available  console=True
             ELSE
-                IF  ${limit_freq}
-                    Sleep       ${PING_SPACING}
-                END
-                CONTINUE
+                Log   ${host} is unavailable  console=True
             END
+            RETURN
         END
     END
-    # Ensure that ping is not executed too fast after this keyword
-    IF  ${limit_freq}
-        Sleep       ${PING_SPACING}
-    END
-    IF    ${IS_AVAILABLE} != ${expected_result}
-        FAIL    Expected availability of ${host}: ${expected_result}, in fact: ${IS_AVAILABLE}
-    END
+    FAIL    Expected availability of ${host}: ${expected_result}, in fact: ${availability}
 
 Check If Device Is Up
     [Arguments]    ${range}=50
