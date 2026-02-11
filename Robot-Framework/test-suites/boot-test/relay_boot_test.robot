@@ -144,6 +144,14 @@ Wipe installed Ghaf from internal memory
 Break the system
     [Documentation]   Wipe boot partition
     [Tags]            break  darter-pro
+    Check If Device Is Up    range=5
+    IF    ${IS_AVAILABLE} == False
+        Turn Laptop On
+        Check If Device Is Up    range=240
+        IF    ${IS_AVAILABLE} == False
+            FAIL    Darter is not available, Wiping is not possible, requires manual maintenance.
+        END
+    END
     Switch to vm      ${HOST}
     Run Command       dd if=/dev/zero of=/dev/nvme0n1p2 count=100 bs=32M    sudo=True    rc_match=skip
 
