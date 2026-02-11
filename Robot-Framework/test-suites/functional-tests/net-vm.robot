@@ -52,6 +52,24 @@ Check net-vm hostname
     ...                It should never change.
     [Tags]             SP-352  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  lab-only
     Switch to vm       ${NET_VM}
-    Log                Comparing actual net-vm hostanme ${NETVM_NAME} and expected ${STATIC_NETVM_NAME}     console=True
+    Log                Comparing actual net-vm hostname ${NETVM_NAME} and expected ${STATIC_NETVM_NAME}     console=True
     Should Be Equal As Strings   ${NETVM_NAME}    ${STATIC_NETVM_NAME}    ignore_case=True
     ...                          msg=Actual NetVM hostname != Expected
+    [Teardown]         Run Keyword If Test Failed    Check net-vm hostname failure
+
+
+*** Keywords ***
+
+Check net-vm hostname failure
+    IF    "system76-darp11-b-storeDisk-debug-installer" in "${JOB}"
+        &{ids}    Create Dictionary
+        ...    DarterPRO-prod=ghaf-3225688438
+        ...    DarterPRO-rel=ghaf-2302431837
+        ...    DarterPRO-dev=ghaf-3875859939
+        ${expected_wrong_name}    Get From Dictionary    ${ids}    ${SWITCH_BOT}
+        IF    "${NETVM_NAME}" == "${expected_wrong_name}"
+            SKIP   Known issue: SSRCSP-7997
+        ELSE
+            FAIL   Actual net-vm hostname: ${NETVM_NAME}, Should be: ${STATIC_NETVM_NAME}, Expected to fail with ${expected_wrong_name}
+        END
+    END

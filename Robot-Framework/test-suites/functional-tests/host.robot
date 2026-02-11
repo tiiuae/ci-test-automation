@@ -23,6 +23,7 @@ Check device id
     Log                Comparing actual device ID ${actual_device_id} and expected ${STATIC_DEVICE_ID}     console=True
     Should Be Equal As Strings   ${actual_device_id}    ${STATIC_DEVICE_ID}    ignore_case=True
     ...                          msg=Actual device ID != Expected
+    [Teardown]         Run Keyword If Test Failed    Check device id failure    ${actual_device_id}
 
 Test ghaf version format
     [Documentation]    Test getting Ghaf version and verify its format:
@@ -169,19 +170,31 @@ Check QSPI Version is up to date
 Check External SSD Size
     [Documentation]  Check the size of ssd used in setup
     Log To Console   Memory to be checked: SSD
-    ${lsblk}  Run Command  lsblk
-    ${size}  Get Regexp Matches  ${lsblk}  (?im)(sda .*\\d*:\\d{1}.*\\d{1}\\s)(\\d{1,3})  2
-    RETURN  ${size}[0]
+    ${size}          Run Command  lsblk -b -dn -o NAME,SIZE | awk '$1=="sda" {print int(($2/1024/1024/1024)+0.5)}'
+    RETURN           ${size}
 
 Check Internal eMMC Size
     [Documentation]  Check the size of eMMC used in setup
     Log To Console   Memory to be checked: eMMC
-    ${lsblk}  Run Command  lsblk
-    ${size}   Get Regexp Matches  ${lsblk}  (?im)(nvme0n1 .*\\d*:\\d{1}.*\\d{1}\\s)(\\d{1,3})  2
-    RETURN    ${size}[0]
+    ${size}          Run Command  lsblk -b -dn -o NAME,SIZE | awk '$1=="nvme0n1" {print int(($2/1024/1024/1024)+0.5)}'
+    RETURN           ${size}
 
 Check Persistent Storage Size
     [Documentation]  Check the size of persistent storage
-    ${storage}  Run Command  df -h
-    ${size}  Get Regexp Matches  ${storage}  (?im)(\\d{1,3}G)\(\\s*.*\\s)(\\d{1,3})(G)(\\s*.*\\s)/persist  3
-    RETURN  ${size}[0]
+    ${size}          Run Command  df -B1G --output=avail /persist | tail -1
+    RETURN           ${size}
+
+Check device id failure
+    [Arguments]    ${actual_device_id}
+    IF    "system76-darp11-b-storeDisk-debug-installer" in "${JOB}"
+        &{ids}    Create Dictionary
+        ...    DarterPRO-prod=00-c0-44-19-76
+        ...    DarterPRO-rel=00-89-3c-52-5d
+        ...    DarterPRO-dev=00-e7-04-ed-e3
+        ${expected_wrong_id}    Get From Dictionary    ${ids}    ${SWITCH_BOT}
+        IF    "${actual_device_id}" == "${expected_wrong_id}"
+            SKIP   Known issue: SSRCSP-7997
+        ELSE
+            FAIL   Actual device ID: ${actual_device_id}, Should be: ${STATIC_DEVICE_ID}, expected to fail with ${expected_wrong_id}
+        END
+    END
