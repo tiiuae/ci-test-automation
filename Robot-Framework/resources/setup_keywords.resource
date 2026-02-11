@@ -61,6 +61,9 @@ Log versions and device unique data
     Log                 Nixos version: ${nixos_version}   console=True
     Log                 NetVM hostname: ${NETVM_NAME}     console=True
     Get Actual Device ID
+    #Save the Robot Framework version
+    ${robot_version}    Run   robot --version
+    Log                 Robot version of the tests: ${robot_version}   console=True
 
 Create test user
     [Setup]          Switch to vm    ${GUI_VM}
