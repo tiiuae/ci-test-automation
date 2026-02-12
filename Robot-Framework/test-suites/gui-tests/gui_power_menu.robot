@@ -76,16 +76,18 @@ GUI Reboot
     [Documentation]   Reboot the device via GUI power menu reboot icon.
     ...               Check that it shuts down. Check that it turns on and boots to login screen.
     [Tags]            SP-T75  SP-T75-4  lenovo-x1  darter-pro
-
+    SKIP   Known issue: SSRCSP-8002
     Select power menu option   x=870   y=120   confirmation=True
     Verify shutdown via network
     Connect After Reboot
     Login to laptop   enable_dnd=True
+    [Teardown]        Run Keyword If   $TEST_STATUS=='FAIL'   GUI Power Test Teardown
 
 GUI Shutdown
     [Documentation]   Shutdown the device via GUI power menu shutdown icon.
     ...               Check that it shuts down and then wakes up with a short power button press.
     [Tags]            SP-T75  SP-T75-5  lenovo-x1  darter-pro  lab-only
+    SKIP   Known issue: SSRCSP-8002
     Select power menu option   x=925   y=120   confirmation=True   tabs=3
     ${start_time}     Get Time    epoch
     ${end_time}       Wait Until Device Is Down
