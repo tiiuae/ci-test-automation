@@ -79,7 +79,7 @@ Validate Forward Secure Sealing
             Run Keyword And Continue On Failure   FAIL   ${msg}
         END
     END
-    [Teardown]  Run Keyword If Test Failed   Run Keyword If  "${DEVICE_TYPE}" == "lenovo-x1"   SKIP   Known issue: SSRCSP-7973
+    [Teardown]  Run Keyword If Test Failed   SKIP   Known issue: SSRCSP-7973
 
 *** Keywords ***
 

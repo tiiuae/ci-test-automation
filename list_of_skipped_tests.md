@@ -3,8 +3,13 @@
 ## Active SKIPS
 
 | DATE SET   | TEST CASE                                                                                   | TICKET / Additional Data.                                                                       |
-| ---------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| 05.02.2026 | Validate Forward Secure Sealing (Lenovo X1)                                                 | SSRCSP-7973                                                                                     |
+|------------|---------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| 12.02.2026 | Persistence setup                                                                           | SSRCSP-8007                                                                                     |
+| 12.02.2026 | Account lockout after failed login                                                          | SSRCSP-8006                                                                                     |
+| 12.02.2026 | Start Falcon AI                                                                             | SSRCSP-8005                                                                                     |
+| 12.02.2026 | GUI Reboot                                                                                  | SSRCSP-8002                                                                                     |
+| 12.02.2026 | GUI Shutdown                                                                                | SSRCSP-8002                                                                                     |
+| 05.02.2026 | Validate Forward Secure Sealing                                                             | SSRCSP-7973                                                                                     |
 | 29.01.2026 | Check that unauthorised user has limited access to file system (Pictures folder check only) | SSRCSP-7918                                                                                     |
 | 12.01.2026 | GUI Suspend and wake up (Darter Pro)                                                        | SSRCSP-7185                                                                                     |
 | 11.12.2025 | GUI Shutdown                                                                                | SSRCSP-7512                                                                                     |

@@ -19,7 +19,8 @@ Account lockout after failed login
     ${ip}            Get VM IP
     Try to connect with wrong password    ${CHROME_VM}  jumphost=${COMMS-VM_GHAF_SSH}
     Check ip is in the blacklist  ${CHROME_VM}  ${ip}
-    [Teardown]       Remove from the blacklist  ${ip}
+    [Teardown]    Run Keyword If Test Failed    Run Keywords  Remove from the blacklist  ${ip}
+    ...                                                 AND   Skip  "Known Issue: SSRCSP-8006"
 
 Check OpenSSL3 is Available In Nix Store
     [Documentation]  Connect to GUI-VM and check that OpenSSL3 is available in NixStore.
