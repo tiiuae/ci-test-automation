@@ -25,27 +25,27 @@ Start Bluetooth Settings
 Start COSMIC Files
     [Documentation]   Start Cosmic Files and verify process started
     [Tags]            SP-T206  SP-T206-1  fmo
-    Start application in VM   com.system76.CosmicFiles   ${GUI_VM}   cosmic-files %U
+    Start application in VM   "COSMIC Files"   ${GUI_VM}   ^cosmic-files$
 
 Start COSMIC Media Player
     [Documentation]   Start Cosmic Media Player and verify process started
     [Tags]            SP-T294
-    Start application in VM   com.system76.CosmicPlayer   ${GUI_VM}   cosmic-player %U
+    Start application in VM   "COSMIC Media Player"   ${GUI_VM}   cosmic-player
 
 Start COSMIC Settings
     [Documentation]   Start Cosmic Settings and verify process started
     [Tags]            SP-T254  fmo
-    Start application in VM   com.system76.CosmicSettings   ${GUI_VM}   cosmic-settings-wrapped
+    Start application in VM   "COSMIC Settings"   ${GUI_VM}   cosmic-settings-wrapped
 
 Start COSMIC Terminal
     [Documentation]   Start Cosmic Terminal and verify process started
     [Tags]            SP-T263  fmo
-    Start application in VM   com.system76.CosmicTerm   ${GUI_VM}   cosmic-term
+    Start application in VM   "COSMIC Terminal"   ${GUI_VM}   cosmic-term
 
 Start COSMIC Text Editor
     [Documentation]   Start Cosmic Text Editor and verify process started
     [Tags]            SP-T243  fmo
-    Start application in VM   com.system76.CosmicEdit   ${GUI_VM}   cosmic-edit %F
+    Start application in VM   "COSMIC Text Editor"   ${GUI_VM}   cosmic-edit
 
 Start Calculator
     [Documentation]   Start Calculator and verify process started
@@ -60,10 +60,10 @@ Start Element
 Start GPU Screen Recorder
     [Documentation]   Start GPU Screen Recorder and verify process started
     [Tags]            SP-T293
-    Start application in VM   com.dec05eba.gpu_screen_recorder   ${GUI_VM}   gpu-screen-recorder
+    Start application in VM   "GPU Screen Recorder"   ${GUI_VM}   gpu-screen-recorder
 
 Start Gala
-    [Documentation]   Start Gala in Business-vm and verify process started
+    [Documentation]   Start Gala and verify process started
     [Tags]            SP-T104
     Start application in VM   Gala   ${BUSINESS_VM}   gala
 
@@ -120,7 +120,7 @@ Start Trusted Browser
 Start Volume Control
     [Documentation]   Start Volume Control and verify process started
     [Tags]            SP-T349
-    Start application in VM   org.pulseaudio.pavucontrol  ${GUI_VM}   pavucontrol
+    Start application in VM   "Volume Control"  ${GUI_VM}   pavucontrol
 
 Start VPN
     [Documentation]   Start VPN app and verify process started
