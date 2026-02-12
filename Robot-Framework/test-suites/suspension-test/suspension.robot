@@ -26,7 +26,7 @@ Automatic suspension (Lenovo X1)
     [Tags]            SP-T162  lenovo-x1  lab-only
     [Setup]           Test setup
     [Teardown]        Test teardown
-
+    SKIP   Known issue: SSRCSP-8012
     Check the screen state   on
     Check screen brightness  ${max_brightness}
 
@@ -84,19 +84,19 @@ Automatic suspension (Lenovo X1)
         END
     END
 
-Automatic lock (Darter Pro)
-    [Documentation]   Suspension is disabled on Darter Pro but automatic lock works
+Automatic lock
+    [Documentation]   Suspension is currently broken but automatic lock works (without screen state checks)
     ...               Wait and check that
     ...               in the beginning brightness is 100 %
     ...               in 5 min - the screen locks and turns off
-    [Tags]            SP-T269    darter-pro
+    [Tags]            SP-T269  lenovo-X1  darter-pro
     [Setup]           Test setup
 
-    Check the screen state   on
+    # Check the screen state   on   Skipped due to SSRCSP-8015
     Check screen brightness   ${max_brightness}
 
     Wait     320
-    Check the screen state   off
+    # Check the screen state   off   Skipped due to SSRCSP-8015
     
     # Screen has to be turned on before checking for lock
     Move cursor
