@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                                                                   | TICKET / Additional Data.                                                                       |
 | ---------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| 13.02.2026 | Measure Soft Boot Time (Darter Pro)                                                         | Needs refactoring (SSRCSP-8027)                                                                 |
 | 12.02.2026 | Persistence setup                                                                           | SSRCSP-8007                                                                                     |
 | 12.02.2026 | Account lockout after failed login                                                          | SSRCSP-8006                                                                                     |
 | 12.02.2026 | Start Falcon AI                                                                             | SSRCSP-8005                                                                                     |

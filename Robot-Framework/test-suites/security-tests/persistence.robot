@@ -72,9 +72,7 @@ Persistence Suite Setup
     IF  '${status}' != 'True'
         Skip  "Known Issue: SSRCSP-8007"
     END
-    Soft Reboot Device   ${GUI_VM}
-    Verify shutdown via network
-    Connect After Reboot
+    Soft Reboot Device And Connect   vm=${GUI_VM}
     Login to laptop   enable_dnd=True
 
 Persistence Suite Teardown
