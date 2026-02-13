@@ -83,13 +83,6 @@ Validate Forward Secure Sealing
 
 *** Keywords ***
 
-Get Time Since Last Boot
-    Switch to vm        ${HOST}
-    ${last_boot}        Run Command  journalctl --list-boots | tail -n1 | awk '{print $4,$5}'
-    ${current_time}     Get current timestamp
-    ${time_since_boot}  DateTime.Subtract Date From Date   ${current_time}  ${LAST_BOOT}  exclude_millis=True
-    RETURN              ${time_since_boot}
-
 Logging Suite Setup
     @{VM_LIST}               Get VM list  with_host=True
     @{HOSTNAME_LIST}         Set Variable   @{VM_LIST}
