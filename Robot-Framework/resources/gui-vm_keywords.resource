@@ -50,12 +50,15 @@ Set timezone
     [Arguments]       ${timezone_to_set}
     ${timezone}       Get timezone
     IF   '${timezone_to_set}' == '${timezone}'   RETURN
-    Switch to vm      ${GUI_VM}
-    Run Command       givc-cli set-timezone ${timezone_to_set}  sudo=True
-    Sleep   3
-    ${timezone}       Get timezone
+    Switch to vm      ${GUI_VM}  user=${USER_LOGIN}
+    Run Command       givc-cli set-timezone ${timezone_to_set}
+    Wait Until Keyword Succeeds  10s  1s   Verify timezone   ${timezone_to_set}
     Log               Timezone is ${timezone}  console=True
-    Should Be Equal   ${timezone_to_set}    ${timezone}
+
+Verify timezone
+    [Arguments]       ${expected_timezone}
+    ${timezone}       Get timezone
+    Should Be Equal   ${expected_timezone}  ${timezone}    Timezone is ${timezone}, expected ${expected_timezone}
 
 Get volume level
     [Documentation]   Get and return current volume value
