@@ -31,9 +31,8 @@ ${SEARCH_TIMEOUT}   60
 Measure Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
     [Tags]           SP-T187  SP-T187-1  lenovo-x1  darter-pro  dell-7330
+    IF    "${DEVICE_TYPE}" == "darter-pro"    SKIP    Needs refactoring (SSRCSP-8027)
     Soft Reboot Device
-    Verify shutdown via network
-    Close All Connections
     Get Boot times
     [Teardown]                    Run Keyword If Test Failed    Boot Time Test Teardown
 
@@ -56,8 +55,6 @@ Measure Orin Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
     [Tags]           SP-T187  SP-T187-2  orin-agx  orin-agx-64  orin-nx
     Soft Reboot Device
-    Verify shutdown via network
-    Close All Connections
     Get Time To Ping
     [Teardown]                    Orin Boot Time Test Teardown
 

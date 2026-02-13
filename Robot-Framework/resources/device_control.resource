@@ -65,6 +65,12 @@ Turn Laptop On and Connect
     END
     Switch to vm    ${NET_VM}
 
+Soft Reboot Device And Connect
+    [Documentation]  Reboot device from ${vm} and connect after the reboot
+    [Arguments]      ${vm}=${HOST}
+    Soft Reboot Device   ${vm}
+    Connect After Reboot   soft_reboot=True
+
 Soft Reboot Device
     [Documentation]  Reboot device from ${vm}
     [Arguments]      ${vm}=${HOST}
@@ -76,6 +82,8 @@ Soft Reboot Device
     ELSE
         FAIL    Device expected to be available but not responding.
     END
+    Verify shutdown via network
+    Close All Connections
 
 Connect After Reboot
     [Documentation]   Verify that device rebooted and connect

@@ -164,11 +164,7 @@ Run Nixos Rebuild
     IF  not ${rebuild_ok}
         FAIL  nixos-rebuild didn't finish successfully withing the given time
     END
-    Soft Reboot Device
-    Verify shutdown via network
-    Close All Connections
-    Sleep                           20
-    Connect After Reboot
+    Soft Reboot Device And Connect
 
 Run Nix Shell
     [Arguments]      ${package}
@@ -206,9 +202,5 @@ Teardown Audit Update Logging
     Switch to vm    ${HOST}
     Remove Ghaf Repository
     Roll back to original generation
-    Soft Reboot Device
-    Verify shutdown via network
-    Close All Connections
-    Sleep                         20
-    Connect After Reboot
+    Soft Reboot Device And Connect
     Close All Connections
