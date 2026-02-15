@@ -99,40 +99,49 @@ Verify service status
     RETURN    ${state}  ${substate}
 
 Verify Systemctl status
-    [Arguments]    ${range}=60    ${user}=False
+    [Arguments]    ${range}=60    ${add_params}=${EMPTY}
     [Documentation]    Check is systemctl running with given loop ${range}
+    ${status}    ${diff}    ${failed_units}=    Wait Systemctl Starting With Time Measurement   add_params=${add_params}
 
-    IF    ${user}
-        ${user_param}=    Set variable    --user
-    ELSE
-        ${user_param}=    Set variable    ${EMPTY}
+    IF   '${status}' != 'running'
+        ${services_jctl_summary}=   Get JournalCtl Info For Not Running Services
+        Log                         ${services_jctl_summary}     html=${True}
+
+        Log       Current systemctl status is ${status}. Waiting for status `running` for ${diff} sec! Failed processes?: ${failed_units}
     END
+    RETURN    ${status}     ${failed_units}
 
+Wait Systemctl Starting With Time Measurement
+    [Arguments]    ${limit}=60    ${add_params}=${EMPTY}
     ${start_time}=    Get Time	epoch
-    FOR    ${i}    IN RANGE    ${range}
-        ${status}=    Run Command    systemctl is-system-running ${user_param}      rc_match=skip
+    ${status}     ${failed_units}=    Wait While Systemctl Status Is Starting   limit=${limit}    add_params=${add_params}
+    ${diff}=          Evaluate    int(time.time()) - int(${start_time})
 
-        ${data_failed_units}   Run Command       systemctl list-units --state=failed ${user_param}
-        ${failed_units}        Get failed units  ${data_failed_units}
-        Log   ${failed_units}
-        Set Test Variable   ${failed_units}
+    Log     Systemctl status is ${status} after ${diff} sec  console=True
+    RETURN    ${status}     ${diff}     ${failed_units}
 
-        IF  '${status}' not in ['running', 'starting']
-            Log     Systemctl status is ${status}  console=True
-            BREAK
-        ELSE IF    '${status}' == 'running'
-            ${diff}=    Evaluate    int(time.time()) - int(${start_time})
-            Log     Systemctl status is ${status} after ${diff} sec  console=True
-            RETURN
-        END
+Wait While Systemctl Status Is Starting
+    [Arguments]   ${limit}=60      ${add_params}=${EMPTY}
+
+    ${status}=    Get systemctl status   add_params=${add_params}
+    WHILE    '${status}' == 'starting'    limit=${limit}
+        ${status}=    Get systemctl status   ${add_params}
         Sleep    1
     END
-    ${diff}=    Evaluate    int(time.time()) - int(${start_time})
+    ${failed_units}=        Get failed units from systemctl    ${add_params}
+    RETURN    ${status}     ${failed_units}
 
-    ${services_jctl_summary}=   Get JournalCtl Info For Not Running Services
-    Log                         ${services_jctl_summary}    html=${True}
+Get systemctl status
+    [Arguments]    ${add_params}=${EMPTY}
+    ${status}=    Run Command    systemctl is-system-running ${add_params}      rc_match=skip
+    RETURN    ${status}
 
-    FAIL    Current systemctl status is ${status}. Waiting for status `running` for ${diff} sec! Failed processes?: ${failed_units}
+Get failed units from systemctl
+    [Arguments]    ${add_params}=${EMPTY}
+    ${data_failed_units}   Run Command       systemctl list-units --state=failed ${add_params}
+    ${failed_units}        Get failed units  ${data_failed_units}
+    Log                    ${failed_units}
+    RETURN    ${failed_units}
 
 Get SystemCtl All Services
     [Arguments]    ${user_param}=${EMPTY}

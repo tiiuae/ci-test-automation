@@ -36,7 +36,9 @@ Check user systemctl status
     # Add any known failing services here with the target device and bug ticket number.
     # ...    device|service-name|ticket-number
 
-    Run Keyword And Ignore Error   Verify Systemctl status    range=3   user=True
+    ${status}     ${failed_units}=  Verify Systemctl status    range=3   add_params=--user
+    Should not be true    '${status}' == 'starting'      msg=Current systemctl status is ${status}. Failed processes?: ${failed_units}
+
     Log    ${failed_units}
 
     # Filter out Cosmic Initial Setup (we kill it at the beginning of the tests)

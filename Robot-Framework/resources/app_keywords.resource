@@ -38,7 +38,8 @@ Check that appVM is running
     Check if ssh is ready on vm   ${app-vm}   timeout=60
     Switch to vm      ${app-vm}
     # Wait until systemctl status is running (ignore error in case the status is degraded)
-    ${status}   Run Keyword and Ignore Error    Verify Systemctl status
+    ${status}     ${failed_units}     Verify Systemctl status
+
     Append To List   ${RUNNING_VMS}   ${app-vm}
     Log    ${RUNNING_VMS}
 
