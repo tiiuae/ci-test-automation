@@ -48,18 +48,16 @@ Check host systemctl status
     [Teardown]         Set Test Message    append=${True}  separator=\n    message=${found_known_issues_message}
     Set Test Variable       ${found_known_issues_message}   ${EMPTY}
 
-    ${status}   ${output}   Run Keyword And Ignore Error    Verify Systemctl status
-    Log   ${output}
+    ${status}     ${failed_units}   Verify Systemctl status
+    Should not be true    '${status}' == 'starting'      msg=Current systemctl status is ${status}. Failed processes?: ${failed_units}
 
-    IF    '${status}' == 'FAIL'
-        ${failing_services}    Parse Services To List    ${output}
-
+    IF    '${status}' != 'running'
         ${known_issues}=    Create List
         ...    Orin|nvfancontrol.service|SSRCSP-6303
         ...    AGX|systemd-rfkill.service|SSRCSP-6303
         ...    Orin|systemd-oomd.service|SSRCSP-6685
 
-        Check systemctl status for known issues    ${DEVICE}   ${known_issues}   ${failing_services}
+        Check systemctl status for known issues    ${DEVICE}   ${known_issues}   ${failed_units}
     END
 
 Check all VMs are running

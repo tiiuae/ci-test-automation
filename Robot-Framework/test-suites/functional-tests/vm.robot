@@ -98,8 +98,8 @@ Check systemctl status Template
     ${failed_old_services}=    Create List
 
     Switch to vm     ${vm}
-    Run Keyword And Ignore Error   Verify Systemctl status
-    Log    ${failed_units}
+    ${status}   ${failed_units}   Verify Systemctl status
+    Should not be true    '${status}' == 'starting'      msg=Current systemctl status is ${status}. Failed processes?: ${failed_units}
 
     # Filter out interactive user provisioning service (we use the non-interactive version in tests)
     ${filtered_failed_units}    Evaluate   [u for u in ${failed_units} if "user-provision-interactive.service" not in u]
