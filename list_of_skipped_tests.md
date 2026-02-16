@@ -5,9 +5,7 @@
 | DATE SET   | TEST CASE                                                                                   | TICKET / Additional Data.                                                                       |
 | ---------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | 13.02.2026 | Measure Soft Boot Time (Darter Pro)                                                         | Needs refactoring (SSRCSP-8027)                                                                 |
-| 12.02.2026 | Persistence setup                                                                           | SSRCSP-8007                                                                                     |
 | 12.02.2026 | Account lockout after failed login                                                          | SSRCSP-8006                                                                                     |
-| 12.02.2026 | Start Falcon AI                                                                             | SSRCSP-8005                                                                                     |
 | 05.02.2026 | Validate Forward Secure Sealing                                                             | SSRCSP-7973                                                                                     |
 | 11.02.2026 | Check device id                                                                             | SSRCSP-7997                                                                                     |
 | 11.02.2026 | Check net-vm hostname                                                                       | SSRCSP-7997                                                                                     |
