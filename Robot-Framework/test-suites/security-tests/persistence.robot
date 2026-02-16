@@ -68,10 +68,7 @@ Persistence Suite Setup
     Switch to vm      ${NET_VM}
     Login to laptop   enable_dnd=True
     Save original values
-    ${status}    Run Keyword And Return Status    Set values        EXPECTED
-    IF  '${status}' != 'True'
-        Skip  "Known Issue: SSRCSP-8007"
-    END
+    Set values        EXPECTED
     Soft Reboot Device And Connect   vm=${GUI_VM}
     Login to laptop   enable_dnd=True
 
