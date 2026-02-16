@@ -24,8 +24,8 @@ Start Falcon AI
 
     ${answer}  Ask the question     2+2=? Return just the number.
     Should Be Equal As Integers     ${answer}   4
-    [Teardown]    Run Keyword If Test Failed    Run Keywords  Kill App in VM   ${GUI_VM}   alpaca
-    ...                                                 AND   Skip  "Known Issue: SSRCSP-8005"
+    [Teardown]    Run Keywords  Kill App in VM   ${GUI_VM}   alpaca
+    ...           AND   Run Keyword If Test Failed    Skip  "Known Issue: SSRCSP-8005"
 
 Check user systemctl status
     [Documentation]   Verify systemctl status --user is running
