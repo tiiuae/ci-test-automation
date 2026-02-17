@@ -27,6 +27,13 @@ Verify booting after restart by power
     [Tags]             relayboot  orin-agx  orin-agx-64  orin-nx
     Reboot Device Via Relay
     Check If Device Is Up   range=70
+
+    IF      "${DEVICE_TYPE}" == "orin-nx" and ${IS_AVAILABLE} == False
+            Log                     message=Orin-nx failed to start, rebooting via relay one more time...    level=WARN
+            Reboot Device Via Relay
+            Check If Device Is Up   range=70
+    END
+
     IF    ${IS_AVAILABLE} == False
         FAIL    The device did not start
     ELSE
