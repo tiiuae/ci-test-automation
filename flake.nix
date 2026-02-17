@@ -74,6 +74,7 @@
                 opencv4
                 paramiko
                 evdev
+                matplotlib
               ])
               ++ (with self.packages.${system}; [
                 robotframework-jsonlibrary
