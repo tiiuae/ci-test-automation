@@ -26,7 +26,7 @@ Verify booting after restart by power
     [Documentation]    Restart device by power and verify init service is running
     [Tags]             relayboot  orin-agx  orin-agx-64  orin-nx
     Reboot Device Via Relay
-    Check If Device Is Up
+    Check If Device Is Up   range=70
     IF    ${IS_AVAILABLE} == False
         FAIL    The device did not start
     ELSE
