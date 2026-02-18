@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                                                                   | TICKET / Additional Data.                                                                       |
 | ---------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| 18.02.2026 | Killswitch disconnects WLAN (storeDisk images)                                              | SSRCSP-8042                                                                                     |
 | 13.02.2026 | Measure Soft Boot Time (Darter Pro)                                                         | Needs refactoring (SSRCSP-8027)                                                                 |
 | 12.02.2026 | Account lockout after failed login                                                          | SSRCSP-8006                                                                                     |
 | 05.02.2026 | Validate Forward Secure Sealing                                                             | SSRCSP-7973                                                                                     |
