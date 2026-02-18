@@ -31,6 +31,7 @@ writeShellApplication {
       ps.pytesseract
       ps.opencv4
       ps.evdev
+      ps.matplotlib
 
       # These are taken from this flake
       robotframework-advancedlogging
