@@ -51,7 +51,7 @@ Check user systemctl status
 *** Keywords ***
 
 Get Falcon LLM Name
-    ${output}            Run Command    cat '/run/current-system/sw/share/applications/Falcon AI.desktop'
+    ${output}            Run Command    cat '/run/current-system/sw/share/applications/com.jeffser.Alpaca.desktop'
     ${line}              Get Lines Containing String  ${output}  Exec=
     ${path}              Set Variable  ${line[5:]}
     ${llm_name_raw}      Run Command  cat ${path} | grep LLM_NAME | head -n 1
