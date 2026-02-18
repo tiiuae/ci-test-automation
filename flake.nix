@@ -2,7 +2,7 @@
   description = "A flake for for running Robot Framework tests";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -74,6 +74,7 @@
                 opencv4
                 paramiko
                 evdev
+                matplotlib
               ])
               ++ (with self.packages.${system}; [
                 robotframework-jsonlibrary
