@@ -160,7 +160,11 @@ Break the system
         END
     END
     Switch to vm      ${HOST}
-    Run Command       dd if=/dev/zero of=/dev/nvme0n1p2 count=100 bs=32M    sudo=True    rc_match=skip
+    Log               Trying to remove EFI partition   console=True
+    Run Command       mkdir -p /mnt                sudo=True
+    Run Command       mount /dev/nvme0n1p2 /mnt    sudo=True
+    Run Command       rm -rf /mnt/EFI              sudo=True
+    Run Command       sync                         sudo=True
 
 
 *** Keywords ***
