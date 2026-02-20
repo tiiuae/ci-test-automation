@@ -37,7 +37,6 @@ Killswitch disconnects WLAN
     [Documentation]  Verify that killswitch disconnect wi-fi connection and make interface unavailable
     [Tags]           SP-T304  lab-only
     [Setup]          WLAN setup
-    IF    "storeDisk" in "${JOB}"   SKIP    Known issue: SSRCSP-8042 (Unblocking Wi-Fi is broken on storeDisk images)
     Verify nmcli device status    ${wifi_if}  connected
     Check Network Availability    8.8.8.8     expected_result=True    limit_freq=${False}    interface=${wifi_if}
     Set device state   blocked    net
