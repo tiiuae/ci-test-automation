@@ -25,12 +25,15 @@ ${rebooted}               False
 
 *** Test Cases ***
 
+# Tags removed:  lenovo-x1  darter-pro
+# Ballooning feature was turned off in ghaf by PR#1770
+
 Test ballooning in chrome-vm
-    [Tags]                  SP-T255  ballooning_chrome_vm  lenovo-x1  darter-pro
+    [Tags]                  SP-T255  ballooning_chrome_vm
     Test ballooning in VM   vm=chrome-vm   mem_quota=6144   max_inflate_ratio=3
 
 Test ballooning in business-vm
-    [Tags]                  SP-T256  ballooning_business_vm  lenovo-x1  darter-pro
+    [Tags]                  SP-T256  ballooning_business_vm
     Test ballooning in VM   vm=business-vm   mem_quota=6144   max_inflate_ratio=3
 
 
