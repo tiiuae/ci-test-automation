@@ -187,7 +187,8 @@ FileIO write isolation test
 
     Switch to vm           ${reference-vm}
     # Inflated memory (after boot) can affect the results
-    Initial Memory Check   max_init_memory=5000  iterations=7
+    # but ballooning feature was turned off in ghaf by PR#1770
+    # Initial Memory Check   max_init_memory=5000  iterations=7
     Elevate to superuser
     Write                  mkdir ${test_dir}
     Write                  cd ${test_dir}
