@@ -438,15 +438,6 @@ Verify app window is minimized
     [Documentation]    Wait until Window disappear from the screen by checking close button
     Wait Until Keyword Succeeds    3x    1s    Verify Image On The Screen    ${Zoom}[close_button]    ${False}
 
-Verify app window restored near coordinates
-    [Arguments]    ${expected_x}   ${expected_y}   ${searched_type}=image   ${searched_item}=${Zoom}[close_button]   ${tolerance}=5
-    ${actual_x}   ${actual_y}    Locate on screen   ${searched_type}   ${searched_item}   0.99   10   timeout=120   scale=2
-    ${x_in_range}    Evaluate    abs(${actual_x} - ${expected_x}) <= ${tolerance}
-    ${y_in_range}    Evaluate    abs(${actual_y} - ${expected_y}) <= ${tolerance}
-    IF    not ${x_in_range} or not ${y_in_range}
-        FAIL    Window anchor '${searched_item}' was restored at unexpected location: expected around (${expected_x}, ${expected_y}), got (${actual_x}, ${actual_y}).
-    END
-
 Save Zoom window baseline coordinates
     Accept Chrome Terms Of Service If Shown    attempts=3
     ${status}   Run Keyword And Return Status   Locate on screen   image   ${Zoom}[close_button]   0.99   10   timeout=120   scale=2
@@ -462,9 +453,9 @@ Verify Zoom window restored to baseline
     [Arguments]    ${window_coords}    ${anchor_coords}
     Focus Zoom window
     Run Keyword And Ignore Error   Verify Image On The Screen    ${Zoom}[close_button]
-    Run Keyword And Continue On Failure    Verify app window restored near coordinates
+    Run Keyword And Continue On Failure    Verify item is near expected coordinates
     ...    ${anchor_coords}[0]   ${anchor_coords}[1]   searched_type=text   searched_item=Workplace   tolerance=3
-    Verify app window restored near coordinates    ${window_coords}[0]   ${window_coords}[1]
+    Verify item is near expected coordinates    ${window_coords}[0]   ${window_coords}[1]   searched_type=image   searched_item=${Zoom}[close_button]   tolerance=5
 
 Focus Zoom window
     [Documentation]    Move the mouse on the top of the window,coordinates are hardcoded,
