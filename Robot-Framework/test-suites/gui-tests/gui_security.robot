@@ -3,17 +3,18 @@
 
 *** Settings ***
 Documentation       Testing security via GUI
-Force Tags          gui-security
+Test Tags           gui-security
 
-Test Timeout        10 minutes
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/app_keywords.resource
+Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/gui_keywords.resource
+Resource            ../../resources/setup_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 
 Test Setup          Run keywords      Start screen recording
 Test Teardown       Run keywords      Switch to vm            ${GUI_VM}  user=${USER_LOGIN}        AND
 ...                                   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+Test Timeout        10 minutes
 
 *** Test Cases ***
 Check Access List In Trusted Browser
@@ -42,7 +43,7 @@ Check Access List In Trusted Browser
 Account lockout after failed GUI login
     [Documentation]     Try to login to the device with a wrong password for several times, then check that user account is locked.
     ...                 Remove account from the lock list and log back in with the correct password.
-    [Tags]              SP-T267  lenovo-x1  darter-pro
+    [Tags]              SP-T267  lenovo-x1  darter-pro  lab-only
     Skip If    ${DISABLE_LOGOUT}    This test can't run when logging out is disabled
     Set Test Variable    ${FAILLOCK_COUNT_OFFSET}    False
     Log out and verify
@@ -78,6 +79,8 @@ Account lockout after failed GUI login
     Run Keyword And Expect Error     *    Log in, unlock and verify
     [Teardown]       Run keywords    Unlock account and login
     ...                       AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+    ...                       AND    Soft Reboot Device And Connect
+    ...                       AND    Login to laptop
 
 *** Keywords ***
 
@@ -106,7 +109,6 @@ Unlock account and login
     # First login after unlocking the account fails
     Log in via GUI   password=reset_login   sleep_seconds=1
     Log in, unlock and verify
-    Run Keyword If Test Failed   Log Error    Account lockout    Account lockout after failed GUI login failed
 
 Check faillock entry count
     [Documentation]    Verify that the current faillock entry count matches ${expected_count}

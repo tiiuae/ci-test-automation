@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing App Store
-Force Tags          app-store  darter-pro  storeDisk-only
+Test Tags           app-store  darter-pro  storeDisk-only
 
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/gui_keywords.resource

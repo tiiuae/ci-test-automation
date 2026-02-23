@@ -135,6 +135,7 @@ Verify Text Is On The Screen
     [Arguments]    ${text}    ${expected}=${True}    ${scale}=1     ${compare_alphanum_only}=${False}
     ...            ${allowed_error_percent}=0
     ${screenshot_path}      Take Remote Screenshot And Download
+    Log                     Checking for text "${text}", expected: ${expected}    console=True
     ${is_visible}           Is Text On The Screen   ${screenshot_path}   ${text}   scale=${scale}
     ...                     compare_alphanum_only=${compare_alphanum_only}
     ...                     allowed_error_percent=${allowed_error_percent}
@@ -144,6 +145,7 @@ Verify Text Is On The Screen
 Verify Image On The Screen
     [Arguments]    ${image}    ${expected}=${True}    ${confidence}=0.99
     ${screenshot_path}      Take Remote Screenshot And Download
+    Log                     Checking for image "${image}", expected: ${expected}   console=True
     ${is_visible}           Is Image On The Screen   ${screenshot_path}   ${ICONS_DIR}/${image}   ${confidence}
     Should Be Equal         ${is_visible}    ${expected}
     ...                     msg=Image '${image}' is on the screen: ${is_visible}, expected: ${expected}
@@ -209,6 +211,15 @@ Locate and click
     ...                         timeout=${timeout}  scale=${scale}  allowed_error_percent=${allowed_error_percent}
     Run ydotool command   mousemove --absolute -x ${mouse_x} -y ${mouse_y}
     Click    ${double_click}   ${wiggle}
+
+Verify item is near expected coordinates
+    [Arguments]    ${expected_x}   ${expected_y}   ${searched_type}   ${searched_item}   ${tolerance}   ${confidence}=0.99
+    ${actual_x}   ${actual_y}    Locate on screen   ${searched_type}   ${searched_item}   ${confidence}   10   timeout=120   scale=2
+    ${x_in_range}    Evaluate    abs(${actual_x} - ${expected_x}) <= ${tolerance}
+    ${y_in_range}    Evaluate    abs(${actual_y} - ${expected_y}) <= ${tolerance}
+    IF    not ${x_in_range} or not ${y_in_range}
+        FAIL    Item '${searched_item}' is in unexpected location: expected around (${expected_x}, ${expected_y}), got (${actual_x}, ${actual_y}).
+    END
 
 Accept Chrome Terms Of Service If Shown
     [Documentation]    Chrome Terms of Service dialog is shown only on some fresh profiles.
