@@ -35,13 +35,28 @@ Check If Ping Fails
     ${result}  Run Process  ping  ${DEVICE_IP_ADDRESS}  -c1  timeout=1s
     Should Not Be Equal   ${result.rc}  ${0}
 
+Get Interface name
+    [Documentation]    Returns system interface name for given type using nmcli
+    ...                ${interface} must be either 'wifi' or 'eth'
+    [Arguments]    ${interface}
+    ${if_name}     Run Command    nmcli device status | grep ${interface} | head -n 1 | awk '{print $1}'
+    RETURN         ${if_name}
+
 Check Network Availability
+    [Documentation]    Checks ${host} availability using ping
+    ...                Passes when actual result matches ${expected_result}, otherwise fails
+    ...                ${interface} can be: 'wifi', 'eth', 'None' (no -I), or a specific
+    ...                system interface name (e.g. wlp0s5f0, eth0, enp0s8)
     [Arguments]    ${host}  ${expected_result}=True  ${range}=5  ${limit_freq}=${True}  ${interface}=None
     Log            Checking network ${host} availability, expected: ${expected_result}  console=True
-    IF  $interface != 'None'
-        ${cmd}    Set Variable    ping -I ${interface} ${host} -c 1 -W 1
-    ELSE
+    IF  $interface == 'wifi' or $interface == 'eth'
+        ${if}     Get Interface name      ${interface}
+        Should Not Be Empty       ${if}   Could not get interface name
+        ${cmd}    Set Variable    ping -I ${if} ${host} -c 1 -W 1
+    ELSE IF  $interface == 'None'
         ${cmd}    Set Variable    ping ${host} -c 1 -W 1
+    ELSE
+        ${cmd}    Set Variable    ping -I ${interface} ${host} -c 1 -W 1
     END
     ${availability}    Set Variable    False
     FOR   ${i}   IN RANGE  ${range}

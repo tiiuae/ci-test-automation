@@ -1,6 +1,9 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+*** Settings ***
+Resource            ../resources/ssh_keywords.resource
+
 *** Keywords ***
 
 Configure wifi
@@ -33,17 +36,9 @@ Turn ON WiFi
     Log To Console      Turning on Wifi
     Run Command         nmcli con up id ${SSID}    sudo=True
 
-Get Wifi Interface name
-    ${if_name}     Run Command    nmcli device status | grep wifi | head -n 1 | awk '{print $1}'
-    RETURN         ${if_name}
-
-Get Ethernet Interface name
-    ${if_name}     Run Command    nmcli device status | grep eth | head -n 1 | awk '{print $1}'
-    RETURN         ${if_name}
-
 Get wifi IP
     [Documentation]     Parse ifconfig output and looks for wifi IP
-    ${if_name}     Get Wifi Interface name
+    ${if_name}     Get Interface name    wifi
     ${is_ready}    Set Variable    False
     FOR    ${i}    IN RANGE    20
         ${output}     Run Command      ifconfig
