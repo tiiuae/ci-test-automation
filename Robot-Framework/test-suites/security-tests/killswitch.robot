@@ -43,7 +43,7 @@ Killswitch disconnects WLAN
     Switch to vm       ${NET_VM}
     Verify nmcli device status    ${wifi_if}  absent
     Check Network Availability    8.8.8.8     expected_result=False   limit_freq=${False}    interface=${wifi_if}
-    Check Network Availability    8.8.8.8     expected_result=True    limit_freq=${False}    interface=${eth_if}
+    Check Network Availability    8.8.8.8     expected_result=True    limit_freq=${False}    interface=eth
     Set device state   unblocked    net
     Verify nmcli device status    ${wifi_if}  connected  range=30
     [Teardown]       WLAN teardown
@@ -53,10 +53,8 @@ Killswitch disconnects WLAN
 
 WLAN setup
     Switch to vm       ${NET_VM}
-    ${wifi_if}         Get Wifi Interface name
+    ${wifi_if}         Get Interface name    wifi
     Set Test Variable  ${wifi_if}
-    ${eth_if}          Get Ethernet Interface name
-    Set Test Variable  ${eth_if}
     Configure wifi     ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
 

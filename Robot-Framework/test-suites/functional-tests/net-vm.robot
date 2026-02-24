@@ -26,7 +26,7 @@ Verify NetVM is started
     ...                     AND           Run Keyword If  "${DEVICE_TYPE}" == "orin-nx"  Run Keyword If Test Failed  Skip  "Under investigation: SSRCSP-7453"
 
 Wifi passthrough into NetVM
-    [Documentation]     Verify that wifi works inside netvm
+    [Documentation]     Verify that wifi works inside netvm and internet is available
     [Tags]              SP-T101  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  lab-only
     [Setup]             Switch to vm   ${NET_VM}
     Configure wifi      ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
@@ -39,7 +39,14 @@ Wifi passthrough into NetVM
         END
     Turn ON WiFi        ${TEST_WIFI_SSID}
     Get wifi IP
+    Check Network Availability   8.8.8.8   limit_freq=${False}   interface=wifi
     [Teardown]          Run Keywords  Remove Wifi configuration  ${TEST_WIFI_SSID}  AND  Close All Connections
+
+Ethernet passthrough into NetVM
+    [Documentation]     Verify that ethernet connection works inside netvm and internet is available
+    [Tags]              SP-T62  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  lab-only
+    [Setup]             Switch to vm   ${NET_VM}
+    Check Network Availability   8.8.8.8   limit_freq=${False}   interface=eth
 
 Verify NetVM PCI device passthrough
     [Documentation]     Verify that proper PCI devices have been passed through to the NetVM
