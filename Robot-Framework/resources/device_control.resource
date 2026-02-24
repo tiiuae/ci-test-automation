@@ -147,7 +147,7 @@ Verify shutdown via network
     FOR    ${i}    IN RANGE    ${timeout}
         ${nc}     Run Process    nc    -zvw1    ${DEVICE_IP_ADDRESS}    22    stderr=STDOUT    shell=False
         Log       rc ${nc.rc} \n${nc.stdout}
-        ${ping}   Run Process  ping  ${DEVICE_IP_ADDRESS}  -c1  -W  1  timeout=1s
+        ${ping}   Run Process  ping  ${DEVICE_IP_ADDRESS}  -c1  -W  1  timeout=3s
         Log       rc ${ping.rc} \n${ping.stdout}
 
         IF    ${ping.rc} == 1 and 'Connection timed out' in '''${nc.stdout}'''
