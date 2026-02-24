@@ -143,6 +143,7 @@ Verify shutdown via network
     [Documentation]    Check ping and port 22 until device stops responding both.
     ...                "Connection refused" is NOT considered as powered off.
     [Arguments]        ${timeout}=60
+    ${start_time}      Get Time    epoch
     FOR    ${i}    IN RANGE    ${timeout}
         ${nc}     Run Process    nc    -zvw1    ${DEVICE_IP_ADDRESS}    22    stderr=STDOUT    shell=False
         Log       rc ${nc.rc} \n${nc.stdout}
@@ -150,13 +151,15 @@ Verify shutdown via network
         Log       rc ${ping.rc} \n${ping.stdout}
 
         IF    ${ping.rc} == 1 and 'Connection timed out' in '''${nc.stdout}'''
-            Log       Device at ${DEVICE_IP_ADDRESS} powered off
+            ${diff}   Evaluate    int(time.time()) - int(${start_time})
+            Log       Device at ${DEVICE_IP_ADDRESS} stopped responding ping in ${diff} seconds.    console=True
             ${time}   BuiltIn.Get Time   epoch
             RETURN    ${time}
         END
         Sleep    1s
     END
-    Fail    Device at ${DEVICE_IP_ADDRESS} still responds after 60 seconds.
+    ${diff}    Evaluate    int(time.time()) - int(${start_time})
+    Fail       Device at ${DEVICE_IP_ADDRESS} still responds after ${diff} seconds.
 
 Check that device is suspended
     ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
