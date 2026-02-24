@@ -6,6 +6,7 @@ import time
 import sys
 
 passwd = sys.argv[1]
+results_path = sys.argv[2]
 
 def main():
     start_time = time.time()
@@ -21,9 +22,9 @@ def main():
 
     print("Sending files.")
     scp = client.open_sftp()
-    scp.put('../test-suites/report.html', '/tmp/report.html')
-    scp.put('../test-suites/log.html', '/tmp/log.html')
-    scp.put('../test-suites/output.xml', '/tmp/output.xml')
+    scp.put(results_path + '/report.html', '/tmp/report.html')
+    scp.put(results_path + '/log.html', '/tmp/log.html')
+    scp.put(results_path + '/output.xml', '/tmp/output.xml')
     time.sleep(5)
     scp.close()
 

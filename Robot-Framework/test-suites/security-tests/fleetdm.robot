@@ -20,17 +20,11 @@ Check device status on FleetDM
     ...                 status: online
     ...                 last_restarted_at: close to the actual boot time
     [Tags]              SP-T347
-    # FleetDM server detail_update_interval is 1h
-    ${tolerance}        Set Variable    3700
     Log To Console      Verifying device online status at fleetdm
-    ${output}           Wait Until Keyword Succeeds  31s  10s  Check device on fleetdm
-    ${fleet_restart}    Get Lines Containing String  ${output.stdout}  "last_restarted_at":
-    ${device_restart}   Get Timestamp of Last Boot
-    ${difference}       DateTime.Subtract Date From Date    ${fleet_restart}  ${device_restart}   exclude_millis=True
-    IF  ${difference} > ${tolerance} or ${difference} < -${tolerance}
-        FAIL    FleetDM last_restarted_at differs more than an hour from the actual device start time
-    END
-
+    Wait Until Keyword Succeeds  31s  10s  Check device on fleetdm
+    Log To Console      FleetDM updated device status to 'online'
+    Wait Until Keyword Succeeds  61s  10s  Check fleetdm shows correct device start time
+    Log To Console      Device start time on FleetDM checked
 
 *** Keywords ***
 
@@ -45,6 +39,7 @@ FleetDM Setup
     Set Log Level         INFO
     Write Bare            \x04
     SSHLibrary.Read
+    Sleep                 2
     Run Command           systemctl restart orbit   sudo=True
 
 Check device on fleetdm
@@ -60,3 +55,14 @@ Check device on fleetdm
         Should Contain      ${output.stdout}  "status": "offline",
     END
     RETURN              ${output}
+
+Check fleetdm shows correct device start time
+    # FleetDM server detail_update_interval is 1h
+    ${tolerance}        Set Variable    3700
+    ${output}           Check device on fleetdm
+    ${fleet_restart}    Get Lines Containing String  ${output.stdout}  "last_restarted_at":
+    ${device_restart}   Get Timestamp of Last Boot
+    ${difference}       DateTime.Subtract Date From Date    ${fleet_restart}  ${device_restart}   exclude_millis=True
+    IF  ${difference} > ${tolerance} or ${difference} < -${tolerance}
+        FAIL    FleetDM last_restarted_at differs more than an hour from the actual device start time\ndifference: ${difference}
+    END
