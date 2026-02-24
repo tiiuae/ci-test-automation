@@ -16,6 +16,8 @@ ${TEST_WIFI_SSID}         ${EMPTY}
 ${TEST_WIFI_PSWD}         ${EMPTY}
 ${DEVICE_TYPE}            ${EMPTY}
 ${JOB}                    ${EMPTY}
+${USER_LOGIN}             ${EMPTY}
+${USER_PASSWORD}          ${EMPTY}
 ${LOGIN}                  ghaf
 ${CONFIG_PATH}            ../config
 ${LOGGED_PARAMS_DIR}      ../../../logged_parameters/
@@ -38,6 +40,7 @@ Set Variables
     IF  $CONFIG_PATH == 'None'
         Log To Console    No path for test_config.json given. Ignore reading the config variables.
         Set Global Variable  ${RELAY_SERIAL_PORT}   NONE
+        Set Global Variable  ${PLUG_TYPE}   NONE
     ELSE
         ${config}=     Read Config    ${CONFIG_PATH}/test_config.json
         Set Global Variable  ${SERIAL_PORT}        ${config['addresses']['${DEVICE}']['serial_port']}
@@ -103,13 +106,15 @@ Set Variables
     ${result} 	Run Process    sh    -c    cat /etc/secrets/testuser       shell=true
     IF  $result.stdout != '${EMPTY}'
         Set Global Variable        ${USER_LOGIN}         ${result.stdout}
-    ELSE
-        Set Global Variable        ${USER_LOGIN}         testuser
+    END
+    IF  $USER_LOGIN=='${EMPTY}'
+            Set Global Variable        ${USER_LOGIN}         testuser
     END
     ${result} 	Run Process    sh    -c    cat /etc/secrets/testpw         shell=true
     IF  $result.stdout != '${EMPTY}'
         Set Global Variable        ${USER_PASSWORD}      ${result.stdout}
-    ELSE
+    END
+    IF  $USER_PASSWORD=='${EMPTY}'
         Set Global Variable        ${USER_PASSWORD}      testpw
     END
 
