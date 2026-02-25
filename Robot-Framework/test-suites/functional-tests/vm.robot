@@ -101,14 +101,31 @@ Check Device ID in every VM
 *** Keywords ***
 
 Check systemctl status Template
-    [Arguments]    ${vm}
-    IF    "${JOB}" == "packages.aarch64-linux.nvidia-jetson-orin-nx-debug"  SKIP   Needs investigating
+    [Arguments]    ${vm}   ${timeout}=2 minutes
     ${failed_new_services}=    Create List
     ${failed_old_services}=    Create List
+    Switch to vm    ${vm}
 
-    Switch to vm     ${vm}
-    ${status}   ${failed_units}   Verify Systemctl status
-    Should not be true    '${status}' == 'starting'      msg=Current systemctl status is ${status}. Failed processes?: ${failed_units}
+    IF   "${DEVICE_TYPE}" == "orin-nx"
+        TRY
+            ${status}   ${failed_units}   Verify Systemctl status   timeout=${timeout}
+        EXCEPT   Keyword timeout ${timeout} exceeded.
+            Log    Systemctl check timed out in ${timeout}   console=True
+            Reboot Orin if ssh connection dropped
+            Switch to vm     ${vm}
+            TRY
+                ${status}   ${failed_units}   Verify Systemctl status   timeout=${timeout}
+            EXCEPT   Keyword timeout ${timeout} exceeded.
+                Log    Systemctl check timed out in ${timeout}   console=True
+                Reboot Orin if ssh connection dropped
+                Switch to vm     ${vm}
+                FAIL    Systemctl check timed out twice (waited ${timeout} both times)
+            END
+        END
+    ELSE
+        ${status}   ${failed_units}   Verify Systemctl status
+    END
+    Should Not Be True    '${status}' == 'starting'      msg=Current systemctl status is ${status}. Failed processes?: ${failed_units}
 
     # Filter out interactive user provisioning service (we use the non-interactive version in tests)
     ${filtered_failed_units}    Evaluate   [u for u in ${failed_units} if "user-provision-interactive.service" not in u]

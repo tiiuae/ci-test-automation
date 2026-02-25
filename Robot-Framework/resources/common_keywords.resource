@@ -99,8 +99,9 @@ Verify service status
     RETURN    ${state}  ${substate}
 
 Verify Systemctl status
-    [Arguments]    ${range}=60    ${add_params}=${EMPTY}
+    [Arguments]    ${range}=60    ${add_params}=${EMPTY}   ${timeout}=3 minutes
     [Documentation]    Check is systemctl running with given loop ${range}
+    [Timeout]          ${timeout}
     ${status}    ${diff}    ${failed_units}=    Wait Systemctl Starting With Time Measurement   add_params=${add_params}
 
     IF   '${status}' != 'running'
