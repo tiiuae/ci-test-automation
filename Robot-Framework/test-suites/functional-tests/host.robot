@@ -99,6 +99,15 @@ Check veritysetup status
     ${status}        Get Verity Status  ${output}
     Should Be True   '${status}' == 'verified'
 
+Check full disk encryption
+    [Documentation]  Check that full disk encryption was done for images installed with "ghaf-installer -e"
+    [Tags]           SP-T348  lenovo-x1  darter-pro
+    IF    "installer" not in "${JOB}"   SKIP    Full Disk Encryption test is applicable only for installer images.
+    ${output}        Run Command    lsblk -dno FSTYPE /dev/nvme0n1p3
+    Should Be Equal  ${output}      crypto_LUKS    /dev/nvme0n1p3 FSTYPE is ${output}, expected crypto_LUKS
+    ${output}        Run Command    lsblk -dno TYPE /dev/mapper/crypted
+    Should Be Equal  ${output}      crypt          /dev/mapper/crypted TYPE is ${output}, expected crypt
+
 
 *** Keywords ***
 
