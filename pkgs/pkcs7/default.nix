@@ -16,11 +16,18 @@ buildPythonPackage rec {
   };
 
   postPatch = ''
+    # Delete everything between ##importdebugstart and ##importdebugend
+    # from file src/pkcs7/__init_debug__.py
+    sed -i '/^##importdebugstart/,/^##importdebugend/d' src/pkcs7/__init_debug__.py
+    # Rename src/pkcs7/__init_debug__.py to src/pkcs7/__init__.py
+    mv src/pkcs7/__init_debug__.py src/pkcs7/__init__.py
+    # Install
     python make_setup.py
     # Move sources to folder, where setup.py search for them
     mv src/pkcs7 pkcs7
   '';
 
+  pythonImportsCheck = ["pkcs7"];
   # unit tests are impure
   # doCheck = false;
 
