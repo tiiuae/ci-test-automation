@@ -24,12 +24,10 @@ Prepare Test Environment
     Close All Connections
     Switch to vm    ${HOST}
     Log versions and device unique data
-    IF  ${IS_LAPTOP}
+    IF  ${IS_LAPTOP} and ${login}
         Create test user
-        IF  ${login}
-            Save gui icons and icon path
-            Login to laptop   ${enable_dnd}
-        END
+        Save gui icons and icon path
+        Login to laptop   ${enable_dnd}
     END
 
 Clean Up Test Environment

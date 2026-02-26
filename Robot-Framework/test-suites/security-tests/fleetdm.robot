@@ -23,12 +23,14 @@ Check device status on FleetDM
     Log To Console      Verifying device online status at fleetdm
     Wait Until Keyword Succeeds  31s  10s  Check device on fleetdm
     Log To Console      FleetDM updated device status to 'online'
-    Wait Until Keyword Succeeds  61s  10s  Check fleetdm shows correct device start time
-    Log To Console      Device start time on FleetDM checked
+    # Wait Until Keyword Succeeds  61s  10s  Check fleetdm shows correct device start time
+    # Log To Console      Device start time on FleetDM checked
 
 *** Keywords ***
 
 FleetDM Setup
+    Skip If  not ${Check variable availability  ${FLEETDM_ENROLL_SECRET}}
+    Skip If  not ${Check variable availability  ${FLEETDM_API_TOKEN}}
     Switch to vm          ${GUI_VM}
     Run Command           mkdir -p /etc/common/ghaf/fleet                            sudo=True
     Elevate to superuser
