@@ -14,7 +14,7 @@ ${CONNECTION_TYPE}       ssh
 *** Keywords ***
 
 Prepare Test Environment
-    [Arguments]   ${login}=True   ${enable_dnd}=False
+    [Arguments]   ${enable_dnd}=False
     Check If Device Is Up    range=5
     IF    ${IS_AVAILABLE} == False
         FAIL    The device is not available via SSH or serial.
@@ -26,10 +26,8 @@ Prepare Test Environment
     Log versions and device unique data
     IF  ${IS_LAPTOP}
         Create test user
-        IF  ${login}
-            Save gui icons and icon path
-            Login to laptop   ${enable_dnd}
-        END
+        Save gui icons and icon path
+        Login to laptop   ${enable_dnd}
     END
 
 Clean Up Test Environment
