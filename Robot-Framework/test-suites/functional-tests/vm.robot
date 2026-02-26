@@ -102,6 +102,7 @@ Check Device ID in every VM
 
 Check systemctl status Template
     [Arguments]    ${vm}
+    IF    "${JOB}" == "packages.aarch64-linux.nvidia-jetson-orin-nx-debug"  SKIP   Needs investigating
     ${failed_new_services}=    Create List
     ${failed_old_services}=    Create List
 

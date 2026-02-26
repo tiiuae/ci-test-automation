@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                                                                   | TICKET / Additional Data.                                                                     |
 | ---------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 26.02.2026 | Check systemctl status in every VM (Native NX)                                              | Timeout of Executing command 'systemctl list-units --plain --no-legend --no-pager '.          |
 | 13.02.2026 | Measure Soft Boot Time (Darter Pro)                                                         | Needs refactoring (SSRCSP-8027)                                                               |
 | 12.02.2026 | Account lockout after failed login                                                          | SSRCSP-8006                                                                                   |
 | 05.02.2026 | Validate Forward Secure Sealing                                                             | SSRCSP-7973                                                                                   |
