@@ -16,9 +16,7 @@ Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/measurement_keywords.resource
 
-Suite Setup         Run Keywords    Prepare Test Environment
-...                 AND             Switch to vm   ${HOST}
-Suite Teardown      Performance Teardown
+Suite Setup         Switch to vm   ${HOST}
 
 
 *** Variables ***
@@ -476,10 +474,3 @@ Teardown of Fileio Isolation Test
     Set Global Variable     ${PERF_LOW_LIMIT}   1
     Close All Connections
     Switch to vm   ${HOST}
-
-Performance Teardown
-    IF  ${IS_LAPTOP}
-        Log out from laptop
-    END
-    Close All Connections
-    Switch to vm            ${HOST}
