@@ -1,7 +1,9 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
 from robot.libraries.BuiltIn import BuiltIn
+
 
 def set_variable_by_name(name, value):
     var_name = '${' + name + '}'
@@ -13,3 +15,7 @@ def count_lines(output):
 
 def get_matching_lines(output, match):
     return [line for line in output.splitlines() if match in line]
+
+def get_epoch_time(timestamp):
+    epoch_time = int(datetime.datetime.fromisoformat(timestamp).timestamp())
+    return epoch_time

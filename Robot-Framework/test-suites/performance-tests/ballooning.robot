@@ -61,7 +61,7 @@ Test ballooning in VM
     ${timeout_deflate}=               Evaluate      int(${expected_mem_at_inflate} * 0.005)
     ${timeout_logging}=               Evaluate      int(${timeout_inflate} + ${timeout_deflate} + 20)
 
-    Switch to vm                     ${vm}     timeout=120
+    Switch to vm                      ${vm}     timeout=120
 
     Log                               Minimum expected total memory at inflate: ${expected_mem_at_inflate} MiB  console=True
     Log                               Maximum allowed total memory at inflate: ${max_mem_at_inflate} MiB  console=True
@@ -181,9 +181,9 @@ Plot ballooning
 
 Procedure After Timeout
     Reboot Laptop
-    Check If Device Is Up
-    Switch to vm    ${NET_VM}
     ${rebooted}     Set Variable  True
+    Check If Device Is Up
+    Login to laptop    enable_dnd=True
 
 Clean Test Files
     Run Command   rm /dev/shm/test/*      sudo=True   rc_match=skip
