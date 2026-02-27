@@ -5,10 +5,7 @@
 Documentation       GUI tests
 Test Tags           regression    gui
 
-Library             ../../lib/GuiTesting.py   ${OUTPUT_DIR}/outputs/gui-temp/
-Library             ../../lib/helper_functions.py
 Resource            ../../resources/app_keywords.resource
-Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 
 Suite Setup         GUI Tests Setup

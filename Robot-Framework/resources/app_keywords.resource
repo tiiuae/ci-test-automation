@@ -4,7 +4,6 @@
 *** Settings ***
 Library             ../lib/output_parser.py
 Resource            ../resources/common_keywords.resource
-Library             ../lib/GuiTesting.py   ${OUTPUT_DIR}/outputs/gui-temp/
 Resource            ../resources/file_keywords.resource
 Resource            ../resources/ssh_keywords.resource
 Resource            ../resources/gui_keywords.resource
@@ -137,7 +136,7 @@ Open app menu
     [Documentation]    Check if app menu is open and if not open it
     # Searches for app menu magnifying glass to identify if app menu is open
     Log To Console     Checking that app menu is not already open
-    ${status}   ${output}      Run Keyword And Ignore Error   Locate on screen  image  search-neg.png  0.90  1  fail_expected=True
+    ${status}   ${output}      Run Keyword And Ignore Error   Locate on screen  image  search-neg.png  0.90  1  expected_result=FAIL
     IF  '${status}' == 'PASS'
         Log To Console    App menu is already open
     ELSE
@@ -157,7 +156,7 @@ Close app via GUI
     Check that the application was started    ${process_name}
     Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
     Log To Console     Clicking the close button of the application window
-    Locate and click   image  ${close_button}  0.9  iterations=15
+    Locate and click   image  ${close_button}  0.9  iterations=25
     Save Time          ${process_name}_launched    ${LAST_SCREENSHOT_TIME}
     IF  $verify_is_killed=='true'
         Switch to vm       ${app-vm}
