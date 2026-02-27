@@ -12,6 +12,7 @@ Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Persistence Suite Setup
 Suite Teardown      Persistence Suite Teardown
+Test Teardown       Run Keyword If Test Failed   Log persistence setup errors
 
 *** Variables ***
 ${EXPECTED_BRIGHTNESS}    7758
@@ -65,6 +66,8 @@ Verify timezone persisted
 *** Keywords ***
 
 Persistence Suite Setup
+    ${PERSISTENCE_SETUP_ERRORS}    Create List
+    Set Suite Variable             ${PERSISTENCE_SETUP_ERRORS}
     Switch to vm      ${NET_VM}
     Login to laptop   enable_dnd=True
     Save original values
@@ -81,30 +84,47 @@ Persistence Suite Teardown
     Set values   ORIGINAL
 
 Save original values
-    ${ORIGINAL_BRIGHTNESS}   Run Keyword And Continue On Failure   Get screen brightness  log_brightness=False
-    Set Suite Variable       ${ORIGINAL_BRIGHTNESS}
-    ${ORIGINAL_VOLUME}       Run Keyword And Continue On Failure   Get volume level
-    Set Suite Variable       ${ORIGINAL_VOLUME}
-    ${ORIGINAL_TIMEZONE}     Run Keyword And Continue On Failure   Get timezone
-    Set Suite Variable       ${ORIGINAL_TIMEZONE}
-    ${ORIGINAL_CAM_STATE}    Run Keyword And Continue On Failure   Get device state   cam
-    Set Suite Variable       ${ORIGINAL_CAM_STATE}
-    ${ORIGINAL_MIC_STATE}    Run Keyword And Continue On Failure   Get device state   mic
-    Set Suite Variable       ${ORIGINAL_MIC_STATE}
-    ${ORIGINAL_BT_STATE}     Run Keyword And Continue On Failure   Get device state   bluetooth
-    Set Suite Variable       ${ORIGINAL_BT_STATE}
-    ${ORIGINAL_NET_STATE}    Run Keyword And Continue On Failure   Get device state   net
-    Set Suite Variable       ${ORIGINAL_NET_STATE}
+    Save original value    ORIGINAL_BRIGHTNESS   Get screen brightness  False
+    Save original value    ORIGINAL_VOLUME       Get volume level
+    Save original value    ORIGINAL_TIMEZONE     Get timezone
+    Save original value    ORIGINAL_CAM_STATE    Get device state   cam
+    Save original value    ORIGINAL_MIC_STATE    Get device state   mic
+    Save original value    ORIGINAL_BT_STATE     Get device state   bluetooth
+    Save original value    ORIGINAL_NET_STATE    Get device state   net
+
+Save original value
+    [Arguments]    ${variable}    ${keyword}    @{args}
+    ${status}    ${value}=    Run Keyword And Ignore Error    ${keyword}    @{args}
+    IF    '${status}' == 'PASS'
+        Set Suite Variable    ${${variable}}    ${value}
+    ELSE
+        Set Suite Variable    ${${variable}}    ${EMPTY}
+        Append To List    ${PERSISTENCE_SETUP_ERRORS}    Failed to get ${variable}: ${value}
+    END
 
 Set values
     [Arguments]    ${type}
-    [Setup]    Run Keyword And Continue On Failure   
-    ...    Set device state  unblocked  mic  # Mic needs to be unblocked before volume can be set
+    [Setup]   Set value and record error    Set device state   unblocked    mic  # Mic needs to be unblocked before volume can be set
     Should Be True  '${type}' in ['ORIGINAL', 'EXPECTED']   Wrong type
-    Run Keyword And Continue On Failure   Set brightness    ${${type}_BRIGHTNESS}
-    Run Keyword And Continue On Failure   Set volume        ${${type}_VOLUME}
-    Run Keyword And Continue On Failure   Set timezone      ${${type}_TIMEZONE}
-    Run Keyword And Continue On Failure   Set device state  ${${type}_CAM_STATE}  cam
-    Run Keyword And Continue On Failure   Set device state  ${${type}_MIC_STATE}  mic
-    Run Keyword And Continue On Failure   Set device state  ${${type}_BT_STATE}   bluetooth
-    Run Keyword And Continue On Failure   Set device state  ${${type}_NET_STATE}  net
+    Set value and record error    Set brightness     ${${type}_BRIGHTNESS}
+    Set value and record error    Set volume         ${${type}_VOLUME}
+    Set value and record error    Set timezone       ${${type}_TIMEZONE}
+    Set value and record error    Set device state   ${${type}_CAM_STATE}   cam
+    Set value and record error    Set device state   ${${type}_MIC_STATE}   mic
+    Set value and record error    Set device state   ${${type}_BT_STATE}    bluetooth
+    Set value and record error    Set device state   ${${type}_NET_STATE}   net
+
+Set value and record error
+    [Arguments]    ${keyword}    @{args}
+    ${status}    ${message}    Run Keyword And Ignore Error    ${keyword}    @{args}
+    IF    '${status}' == 'FAIL'
+        ${args_text}    Catenate    SEPARATOR=,    @{args}
+        Append To List    ${PERSISTENCE_SETUP_ERRORS}    Failed to run ${keyword} (${args_text}): ${message}
+    END
+
+Log persistence setup errors
+    ${error_count}    Get Length    ${PERSISTENCE_SETUP_ERRORS}
+    IF    ${error_count} > 0
+        ${error_message}    Catenate    SEPARATOR=\n    @{PERSISTENCE_SETUP_ERRORS}
+        FAIL    Persistence suite setup had ${error_count} issue(s):\n${error_message}
+    END
