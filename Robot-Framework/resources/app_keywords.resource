@@ -8,6 +8,7 @@ Library             ../lib/GuiTesting.py   ${OUTPUT_DIR}/outputs/gui-temp/
 Resource            ../resources/file_keywords.resource
 Resource            ../resources/ssh_keywords.resource
 Resource            ../resources/gui_keywords.resource
+Resource            ../resources/service_keywords.resource
 
 
 *** Variables ***

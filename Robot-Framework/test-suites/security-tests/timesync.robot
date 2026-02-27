@@ -9,6 +9,7 @@ Library             ../../lib/TimeLibrary.py
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
+Resource            ../../resources/service_keywords.resource
 
 
 *** Variables ***

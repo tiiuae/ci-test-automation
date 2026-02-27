@@ -11,6 +11,7 @@ Library             Collections
 Library             ../../lib/helper_functions.py
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/common_keywords.resource
+Resource            ../../resources/service_keywords.resource
 
 Suite Setup         Logging Suite Setup
 

@@ -11,6 +11,7 @@ Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/update_keywords.resource
+Resource            ../../resources/service_keywords.resource
 
 Suite Setup          Rebuild Setup
 Suite Teardown       Teardown Audit Update Logging
