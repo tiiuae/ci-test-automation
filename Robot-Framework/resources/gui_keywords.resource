@@ -5,7 +5,7 @@
 Documentation       Keywords for gui tests. Note: These keywords assume the connection is to the gui-vm
 ...                 as the non-privileged user.
 
-Library             ../lib/GuiTesting.py    ${OUTPUT_DIR}/outputs/gui-temp/
+Library             ../lib/GuiTesting.py
 Library             Collections
 Library             DateTime
 Resource            ../resources/app_keywords.resource
@@ -17,7 +17,10 @@ Resource            ../resources/ssh_keywords.resource
 ${APP_MENU_LAUNCHER}   ./launcher.png
 ${LOCK_ICON}           ./lock.png
 ${DISABLE_LOGOUT}      ${EMPTY}
-${GUI_TEMP_DIR}        ${OUTPUT_DIR}/outputs/gui-temp
+${GUI_OUTPUT_DIR}      ${OUTPUT_DIR}/outputs/gui
+${ICONS_DIR}           ${OUTPUT_DIR}/outputs/icons
+${SCREENSHOT_GHAF}     /home/${USER_LOGIN}/test-images/screenshot.jpeg
+${SCREENSHOT_LOCAL}    ${GUI_OUTPUT_DIR}/screenshot.jpeg
 ${YDOTOOL_SOCKET}      /tmp/.ydotool_socket
 ${SCREEN_SELECTED}     ${False}
 
@@ -115,50 +118,49 @@ Tab and enter
 Locate on screen
     [Documentation]    Take a screenshot. Locate given image or text on the screenshot.
     ...                Return center coordinates of the item in mouse coordinate system.
-    [Arguments]        ${type}  ${searched_item}  ${confidence}=0.999   ${iterations}=10   ${fail_expected}=False  ${debug_screenshot}=True
+    [Arguments]        ${type}  ${searched_item}  ${confidence}=0.99   ${iterations}=10   ${expected_result}=PASS  ${debug_screenshot}=True
     [Timeout]          2 minutes
     ${coordinates}=        Set Variable  ${EMPTY}
-    ${pass_status}=        Set Variable  FAIL
-    Run Command            mkdir test-images   rc_match=skip
-    ${screenshot_cmd}=     Set Variable   WAYLAND_DISPLAY=wayland-1 grim ./test-images/screenshot.png
+    ${locate_status}=      Set Variable  FAIL
+    Run Command            mkdir -p test-images
     FOR   ${i}   IN RANGE  ${iterations}
-        Log To Console           Taking screenshot
-        ${status}  ${result}     Run Keyword And Ignore Error  Run Command  ${screenshot_cmd}   timeout=5
-        ${LAST_SCREENSHOT_TIME}  Evaluate    time.time()
-        Set Global Variable      ${LAST_SCREENSHOT_TIME}
-        IF  '${status}' == 'PASS'
-            SSHLibrary.Get File  ./test-images/screenshot.png  ${GUI_TEMP_DIR}/screenshot.png
+        ${screenshot_status}  ${result}     Take a screenshot   ${i+1}
+        IF  '${screenshot_status}' == 'PASS'
+            Log To Console       Done, locating ${type} ${searched_item} on screenshot
+            SSHLibrary.Get File  ${SCREENSHOT_GHAF}  ${SCREENSHOT_LOCAL}
             IF  $type=="image"
-                Log To Console    Locating image ${searched_item} on screenshot
-                ${pass_status}    ${coordinates}  Run Keyword And Ignore Error  Locate image  ${GUI_TEMP_DIR}/${searched_item}   ${confidence}
+                ${locate_status}    ${coordinates}  Run Keyword And Ignore Error  Locate image  ${SCREENSHOT_LOCAL}  ${ICONS_DIR}/${searched_item}   ${confidence}
             ELSE IF  $type=="text"
-                Log To Console    Locating text ${searched_item} on screenshot
-                ${pass_status}    ${coordinates}  Run Keyword And Ignore Error  Locate text  ${searched_item}
+                ${locate_status}    ${coordinates}  Run Keyword And Ignore Error  Locate text  ${SCREENSHOT_LOCAL}  ${searched_item}
             ELSE
-                FAIL              Wrong type given for image recognition
+                FAIL              Wrong type ${type} given for image recognition
             END
+            IF    $locate_status=='PASS'   BREAK
+        ELSE
+            Log To Console       FAIL: ${result}
         END
-        IF    $pass_status=='PASS'
-            IF  ${fail_expected} and ${debug_screenshot}
-                Timestamp screenshot
-                Log     Image recognition succeeded but fail_expected=${fail_expected}    console=True
-            END
-            BREAK
-        END
-        Sleep  0.5
     END
-    IF  $pass_status=='FAIL' and ${debug_screenshot} and not ${fail_expected}
-        Timestamp screenshot
-        FAIL  Image recognition failure: ${searched_item}
+    IF  ${debug_screenshot} and ($locate_status != $expected_result)
+        Log    Image recognition status ${locate_status} but expected_result=${expected_result}    console=True
+        Timestamp last screenshot
     END
-    IF  $pass_status=='PASS'
-        Log   Coordinates: ${coordinates}  console=True
+    IF  $locate_status=='PASS'
+        Log   Found, coordinates: ${coordinates}  console=True
+        ${mouse_x}  Get From Dictionary   ${coordinates}  x
+        ${mouse_y}  Get From Dictionary   ${coordinates}  y
+        RETURN  ${mouse_x}  ${mouse_y}
     ELSE
-        Log   Could not find ${type}: ${searched_item}  console=True
+        Log    Could not find ${type}: ${searched_item}  console=True
+        FAIL   Could not find ${type}: ${searched_item}
     END
-    ${mouse_x}  Get From Dictionary   ${coordinates}  x
-    ${mouse_y}  Get From Dictionary   ${coordinates}  y
-    RETURN  ${mouse_x}  ${mouse_y}
+
+Take a screenshot
+    [Arguments]   ${attempt}=0
+    Log To Console           Taking a screenshot (#${attempt})...  no_newline=True
+    ${screenshot_status}  ${result}   Run Keyword And Ignore Error  Run Command  WAYLAND_DISPLAY=wayland-1 grim -t jpeg -q 100 ${SCREENSHOT_GHAF}   timeout=5
+    ${LAST_SCREENSHOT_TIME}  Evaluate    time.time()
+    Set Global Variable      ${LAST_SCREENSHOT_TIME}
+    RETURN   ${screenshot_status}  ${result}
 
 Locate and click
     [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=10
@@ -238,8 +240,8 @@ Wait for user session to be active
 Get icon
     [Documentation]    Copy icon svg file to test agent machine. Crop and convert the svg file to png.
     [Arguments]        ${path}   ${icon_name}   ${crop}=0   ${background}=none   ${output_filename}=icon.png
-    SSHLibrary.Get File  ${path}/${icon_name}   ${GUI_TEMP_DIR}/icon.svg
-    Convert app icon  ${crop}   ${background}   input_file=${GUI_TEMP_DIR}/icon.svg  output_file=${GUI_TEMP_DIR}/${output_filename}
+    SSHLibrary.Get File  ${path}/${icon_name}   ${ICONS_DIR}/icon.svg
+    Convert app icon  ${crop}   ${background}   input_file=${ICONS_DIR}/icon.svg  output_file=${ICONS_DIR}/${output_filename}
 
 Check if locked
     [Documentation]    Check if the screen lock is active
@@ -295,9 +297,9 @@ Get gui-vm user journalctl log
     SSHLibrary.Get file   /tmp/${filename}   ${OUTPUT_DIR}/${filename}
     OperatingSystem.File Should Exist   ${OUTPUT_DIR}/${filename}
 
-Timestamp screenshot
+Timestamp last screenshot
     ${current_time}  DateTime.Get Current Date  result_format=%Y%m%d_%H%M%S
-    Run Process      sh  -c  cp ${GUI_TEMP_DIR}/screenshot.png ${GUI_TEMP_DIR}/screenshot_${current_time}.png  shell=true
+    Run Process      sh  -c  cp ${SCREENSHOT_LOCAL} ${GUI_OUTPUT_DIR}/screenshot_${current_time}.jpeg  shell=true
 
 Press Key(s)
     [Arguments]        ${key_combination}   ${sudo}=False
@@ -326,6 +328,7 @@ Confidential password write
     Write            unset PASSWD
     Set Log Level    INFO
     Press Key(s)     ENTER   True
+    [Teardown]       Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
 
 Run ydotool command
     [Arguments]    ${command}   ${sudo}=False
@@ -355,7 +358,7 @@ Start screen recording
     IF   ${SCREEN_SELECTED}==${False}
         # The window to record needs to be selected when recording first time
         # Check if selection window opened
-        ${pass_status}  ${output}  Run Keyword And Ignore Error   Locate on screen   text   Share   iterations=5
+        ${pass_status}  ${output}  Run Keyword And Ignore Error   Locate on screen   text   Share   iterations=5   debug_screenshot=False
         IF  $pass_status=='PASS'
             # Select the display to record
             Tab and enter    tabs=3
@@ -364,7 +367,7 @@ Start screen recording
         Set Global Variable  ${SCREEN_SELECTED}  ${True}
     END
     Check that the application was started   gpu-screen-recorder
-        
+    [Teardown]       Run Keyword If   '${KEYWORD_STATUS}' == 'FAIL'   Timestamp last screenshot
 
 Stop screen recording
     [Arguments]      ${test_status}   ${test_name}=""
@@ -382,7 +385,7 @@ Stop screen recording
     IF  $test_status=='FAIL' or $test_status=='SKIP'
         Log To Console        Saving video file
         ${name}               Replace String   ${test_name}   ${SPACE}   _
-        SSHLibrary.Get File   /home/${USER_LOGIN}/Videos/${video_file}   ${GUI_TEMP_DIR}/${name}.mp4
+        SSHLibrary.Get File   /home/${USER_LOGIN}/Videos/${video_file}   ${GUI_OUTPUT_DIR}/${name}.mp4
     END
     Run Command   rm /home/${USER_LOGIN}/Videos/${video_file}
     [Teardown]        Kill App By Name   gpu-screen-recorder

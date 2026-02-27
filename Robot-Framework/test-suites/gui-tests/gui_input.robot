@@ -5,9 +5,6 @@
 Documentation       Tests for input-related GUI functionality
 Test Tags           gui-input  lenovo-x1  darter-pro
 
-Library             ../../lib/output_parser.py
-Library             Collections
-Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/gui-vm_keywords.resource
 

@@ -5,7 +5,6 @@
 Documentation       Testing taskbar power widget options
 Test Tags           gui-power-menu
 
-Library             ../../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/device_control.resource
 Resource            ../../resources/gui_keywords.resource

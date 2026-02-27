@@ -106,12 +106,12 @@ Save gui icons and icon path
     Set Global Variable     ${ICONS}
     Get icon                ${ICONS}/hicolor/scalable/apps  com.system76.CosmicAppLibrary.svg  crop=0  background=black  output_filename=launcher.png
     Get icon                ${ICONS}/Cosmic/scalable/actions  window-close-symbolic.svg  crop=0  background=white  output_filename=window-close.png
-    Negate app icon         ${GUI_TEMP_DIR}/window-close.png  ${GUI_TEMP_DIR}/window-close-neg.png
+    Negate app icon         ${ICONS_DIR}/window-close.png  ${ICONS_DIR}/window-close-neg.png
     Get icon                ${ICONS}/Cosmic/scalable/actions  system-search-symbolic.svg  crop=0  background=white  output_filename=search.png
-    Negate app icon         ${GUI_TEMP_DIR}/search.png  ${GUI_TEMP_DIR}/search-neg.png
+    Negate app icon         ${ICONS_DIR}/search.png  ${ICONS_DIR}/search-neg.png
     Get icon                ${ICONS}/Papirus/24x24/actions  system-shutdown.svg  crop=0  background=black  output_filename=power.png
     Get icon                ${ICONS}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
-    OperatingSystem.Copy File    ../test-files/ghaf-close.png    ${GUI_TEMP_DIR}/
+    OperatingSystem.Copy File    ../test-files/ghaf-close.png    ${ICONS_DIR}/
 
 Login to laptop
     [Documentation]   Log in to the laptop

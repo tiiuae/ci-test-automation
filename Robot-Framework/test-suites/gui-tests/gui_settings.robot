@@ -36,7 +36,7 @@ Search in Cosmic Settings
     Move cursor to corner
     Locate and click  image  settings.png  0.95
     # Wait for settings to open
-    Locate on screen  text   Network
+    Locate on screen  text   Network   iterations=20
     Tab and enter     tabs=1
     Tab and enter     tabs=1
     Type string and press enter   ${search_term}

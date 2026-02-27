@@ -6,7 +6,6 @@ Documentation       Measuring time of launching applications via GUI
 Test Tags           SP-T285  time-to-launch-apps  lenovo-x1  darter-pro
 
 Resource            ../../config/variables.robot
-Library             ../../lib/GuiTesting.py   ${OUTPUT_DIR}/outputs/gui-temp/
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
 ...                 ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}  ${PERF_LOW_LIMIT}
 Resource            ../../resources/app_keywords.resource

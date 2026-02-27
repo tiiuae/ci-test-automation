@@ -5,10 +5,8 @@
 Documentation       Testing launching applications via GUI
 Test Tags           gui-apps  lenovo-x1  darter-pro
 
-Library             ../../lib/GuiTesting.py   ${OUTPUT_DIR}/outputs/gui-temp/
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/gui_keywords.resource
-Resource            ../../resources/ssh_keywords.resource
 
 Test Setup          Start screen recording
 Test Teardown       Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
