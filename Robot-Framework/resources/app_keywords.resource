@@ -7,6 +7,7 @@ Resource            ../resources/common_keywords.resource
 Resource            ../resources/file_keywords.resource
 Resource            ../resources/ssh_keywords.resource
 Resource            ../resources/gui_keywords.resource
+Resource            ../resources/service_keywords.resource
 
 
 *** Variables ***
