@@ -9,6 +9,7 @@ Library             ../../lib/output_parser.py
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/service_keywords.resource
 
 Suite Setup         Switch to vm   ${HOST}
 

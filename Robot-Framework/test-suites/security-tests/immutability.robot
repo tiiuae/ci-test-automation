@@ -8,6 +8,7 @@ Test Tags           immutability  lenovo-x1  darter-pro  dell-7330
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/service_keywords.resource
 
 Suite Setup         Suite Setup
 
