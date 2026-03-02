@@ -125,7 +125,7 @@ Wait While Systemctl Status Is Starting
     [Arguments]   ${limit}=60      ${add_params}=${EMPTY}
 
     ${status}=    Get systemctl status   add_params=${add_params}
-    WHILE    '${status}' == 'starting'    limit=${limit}
+    WHILE    '${status}' == 'starting'    limit=${limit}    on_limit=pass
         ${status}=    Get systemctl status   ${add_params}
         Sleep    1
     END
