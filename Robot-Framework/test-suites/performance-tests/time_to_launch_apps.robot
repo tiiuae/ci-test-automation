@@ -25,7 +25,7 @@ Measure time to launch Google Chrome
     [Documentation]   Start Google Chrome via GUI and measure time of launching
     [Tags]            SP-T285-1
     Start app via GUI   ${CHROME_VM}  chrome  display_name="Google Chrome"
-    Close app via GUI   ${CHROME_VM}  chrome  ./ghaf-close.png   2
+    Close app via GUI   ${CHROME_VM}  chrome  ghaf-close.png   2
     Save launch time    chrome
 
 Measure time to launch PDF Viewer
@@ -39,14 +39,14 @@ Measure time to launch Sticky Notes
     [Documentation]   Start Sticky Notes via GUI and measure time of launching
     [Tags]            SP-T285-3
     Start app via GUI   ${GUI_VM}  sticky-wrapped  display_name="Sticky Notes"
-    Close app via GUI   ${GUI_VM}  sticky-wrapped  ./window-close-neg.png
+    Close app via GUI   ${GUI_VM}  sticky-wrapped  window-close-neg.png
     Save launch time    sticky-wrapped
 
 Measure time to launch Calculator
     [Documentation]   Start Calculator via GUI and measure time of launching
     [Tags]            SP-T285-4
     Start app via GUI   ${GUI_VM}  gnome-calculator  display_name=Calculator
-    Close app via GUI   ${GUI_VM}  gnome-calculator  ./window-close-neg.png
+    Close app via GUI   ${GUI_VM}  gnome-calculator  window-close-neg.png
     Save launch time    gnome-calculator
 
 Measure time to launch Bluetooth Settings
@@ -60,7 +60,7 @@ Measure time to launch Ghaf Control Panel
     [Documentation]   Start Ghaf Control Panel via GUI and measure time of launching
     [Tags]            SP-T285-6
     Start app via GUI   ${GUI_VM}  ctrl-panel  display_name="Ghaf Control Panel"
-    Close app via GUI   ${GUI_VM}  ctrl-panel  ./window-close-neg.png
+    Close app via GUI   ${GUI_VM}  ctrl-panel  window-close-neg.png
     Save launch time    ctrl-panel
 
 Measure time to launch GPU Screen Recorder
@@ -74,28 +74,28 @@ Measure time to launch COSMIC Files
     [Documentation]   Start COSMIC Files via GUI and measure time of launching
     [Tags]            SP-T285-8
     Start app via GUI   ${GUI_VM}  ^cosmic-files$  display_name="COSMIC Files"
-    Close app via GUI   ${GUI_VM}  ^cosmic-files$  ./ghaf-close.png
+    Close app via GUI   ${GUI_VM}  ^cosmic-files$  ghaf-close.png
     Save launch time    ^cosmic-files$
 
 Measure time to launch COSMIC Text Editor
     [Documentation]   Start COSMIC Text Editor via GUI and measure time of launching
     [Tags]            SP-T285-9
     Start app via GUI   ${GUI_VM}  cosmic-edit  display_name="COSMIC Text Editor"
-    Close app via GUI   ${GUI_VM}  cosmic-edit  ./ghaf-close.png
+    Close app via GUI   ${GUI_VM}  cosmic-edit  ghaf-close.png
     Save launch time    cosmic-edit
 
 Measure time to launch COSMIC Media Player
     [Documentation]   Start COSMIC Media Player via GUI and measure time of launching
     [Tags]            SP-T285-10
     Start app via GUI   ${GUI_VM}  cosmic-player  display_name="COSMIC Media Player"
-    Close app via GUI   ${GUI_VM}  cosmic-player  ./window-close-neg.png
+    Close app via GUI   ${GUI_VM}  cosmic-player  window-close-neg.png
     Save launch time    cosmic-player
 
 Measure time to launch COSMIC Settings
     [Documentation]   Start COSMIC Settings via GUI and measure time of launching
     [Tags]            SP-T285-11
     Start app via GUI   ${GUI_VM}  cosmic-settings-wrapped  display_name="COSMIC Settings"
-    Close app via GUI   ${GUI_VM}  cosmic-settings-wrapped  ./ghaf-close.png
+    Close app via GUI   ${GUI_VM}  cosmic-settings-wrapped  ghaf-close.png
     Save launch time    cosmic-settings-wrapped
     [Teardown]    Run Keyword If Test Failed    Run Keywords  Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
     ...                                                 AND   Skip  "Known Issue: SSRCSP-7518"
@@ -104,70 +104,70 @@ Measure time to launch COSMIC Terminal
     [Documentation]   Start COSMIC Terminal via GUI and measure time of launching
     [Tags]            SP-T285-12
     Start app via GUI   ${GUI_VM}  cosmic-term  display_name="COSMIC Terminal"
-    Close app via GUI   ${GUI_VM}  cosmic-term  ./ghaf-close.png
+    Close app via GUI   ${GUI_VM}  cosmic-term  ghaf-close.png
     Save launch time    cosmic-term
 
 Measure time to launch Volume Control
     [Documentation]   Start Volume Control via GUI and measure time of launching
     [Tags]            SP-T285-13
     Start app via GUI   ${GUI_VM}  pavucontrol  display_name="Volume Control"
-    Close app via GUI   ${GUI_VM}  pavucontrol  ./window-close-neg.png
+    Close app via GUI   ${GUI_VM}  pavucontrol  window-close-neg.png
     Save launch time    pavucontrol
 
 Measure time to launch Element
     [Documentation]   Start Element via GUI and measure time of launching
     [Tags]            SP-T285-14
     Start app via GUI   ${COMMS_VM}  element  display_name=Element
-    Close app via GUI   ${COMMS_VM}  element  ./ghaf-close.png
+    Close app via GUI   ${COMMS_VM}  element  ghaf-close.png
     Save launch time    element
 
 Measure time to launch Zoom
     [Documentation]   Start Zoom via GUI and measure time of launching
     [Tags]            SP-T285-15
     Start app via GUI   ${COMMS_VM}  zoom  display_name=Zoom
-    Close app via GUI   ${COMMS_VM}  zoom  ./ghaf-close.png
+    Close app via GUI   ${COMMS_VM}  zoom  ghaf-close.png
     Save launch time    zoom
 
 Measure time to launch Slack
     [Documentation]   Start Slack via GUI and measure time of launching
     [Tags]            SP-T285-16
     Start app via GUI   ${COMMS_VM}  slack  display_name=Slack
-    Close app via GUI   ${COMMS_VM}  slack  ./ghaf-close.png
+    Close app via GUI   ${COMMS_VM}  slack  ghaf-close.png
     Save launch time    slack
 
 Measure time to launch Gala
     [Documentation]   Start Gala via GUI and measure time of launching
     [Tags]            SP-T285-17
     Start app via GUI   ${BUSINESS_VM}  gala  display_name=Gala
-    Close app via GUI   ${BUSINESS_VM}  gala  ./ghaf-close.png
+    Close app via GUI   ${BUSINESS_VM}  gala  ghaf-close.png
     Save launch time    gala
 
 Measure time to launch Teams
     [Documentation]   Start Teams via GUI and measure time of launching
     [Tags]            SP-T285-18
     Start app via GUI   ${BUSINESS_VM}  teams  display_name=Teams
-    Close app via GUI   ${BUSINESS_VM}  teams  ./ghaf-close.png
+    Close app via GUI   ${BUSINESS_VM}  teams  ghaf-close.png
     Save launch time    teams
 
 Measure time to launch Trusted Browser
     [Documentation]   Start Trusted Browser via GUI and measure time of launching
     [Tags]            SP-T285-19
     Start app via GUI   ${BUSINESS_VM}  google-chrome  display_name="Trusted Browser"
-    Close app via GUI   ${BUSINESS_VM}  google-chrome  ./ghaf-close.png   2
+    Close app via GUI   ${BUSINESS_VM}  google-chrome  ghaf-close.png   2
     Save launch time    google-chrome
 
 Measure time to launch Microsoft 365
     [Documentation]   Start Microsoft 365 via GUI and measure time of launching
     [Tags]            SP-T285-20
     Start app via GUI   ${BUSINESS_VM}  microsoft365  display_name="Microsoft 365"
-    Close app via GUI   ${BUSINESS_VM}  microsoft365  ./ghaf-close.png
+    Close app via GUI   ${BUSINESS_VM}  microsoft365  ghaf-close.png
     Save launch time    microsoft365
 
 Measure time to launch Outlook
     [Documentation]   Start Outlook via GUI and measure time of launching
     [Tags]            SP-T285-21
     Start app via GUI   ${BUSINESS_VM}  outlook  display_name=Outlook
-    Close app via GUI   ${BUSINESS_VM}  outlook  ./ghaf-close.png
+    Close app via GUI   ${BUSINESS_VM}  outlook  ghaf-close.png
     Save launch time    outlook
 
 Measure time to launch VPN
@@ -175,7 +175,7 @@ Measure time to launch VPN
     [Tags]            SP-T285-22
     Start app via GUI   ${BUSINESS_VM}  gp-gui  display_name=VPN
     # Closing is ignored because the process stays running
-    Close app via GUI   ${BUSINESS_VM}  gp-gui  ./ghaf-close.png  verify_is_killed=false
+    Close app via GUI   ${BUSINESS_VM}  gp-gui  ghaf-close.png  verify_is_killed=false
     Save launch time    gp-gui
 
 Measure time to launch App Store
@@ -183,14 +183,14 @@ Measure time to launch App Store
     [Tags]            SP-T285-23
     Start app via GUI   ${FLATPAK_VM}  cosmic-store  display_name="App Store"
     # Closing is ignored because it takes a while before the window can be closed via GUI
-    Close app via GUI   ${FLATPAK_VM}  cosmic-store  ./window-close-neg.png  verify_is_killed=false
+    Close app via GUI   ${FLATPAK_VM}  cosmic-store  window-close-neg.png  verify_is_killed=false
     Save launch time    cosmic-store
 
 Measure time to launch Getting Started
     [Documentation]   Start 'Getting Started' via GUI and measure time of launching
     [Tags]            SP-T285-24
     Start app via GUI   ${CHROME_VM}  ghaf-intro  display_name="Getting Started"
-    Close app via GUI   ${CHROME_VM}  ghaf-intro  ./ghaf-close.png   2
+    Close app via GUI   ${CHROME_VM}  ghaf-intro  ghaf-close.png   2
     Save launch time    ghaf-intro
 
 *** Keywords ***

@@ -14,8 +14,8 @@ Resource            ../resources/ssh_keywords.resource
 
 
 *** Variables ***
-${APP_MENU_LAUNCHER}   ./launcher.png
-${LOCK_ICON}           ./lock.png
+${APP_MENU_LAUNCHER}   launcher.png
+${LOCK_ICON}           lock.png
 ${DISABLE_LOGOUT}      ${EMPTY}
 ${GUI_OUTPUT_DIR}      ${OUTPUT_DIR}/outputs/gui
 ${ICONS_DIR}           ${OUTPUT_DIR}/outputs/icons
@@ -202,7 +202,7 @@ Verify desktop availability
     IF   $status == 'FAIL'
         Get gui-vm user journalctl log
         Log To Console    Could not find launcher icon, checking for power menu icon
-        Locate on screen  image  ./power.png  0.95  10
+        Locate on screen  image  power.png  0.95  10
     END
 
 Move cursor
