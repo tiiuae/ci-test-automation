@@ -12,6 +12,7 @@ Resource            ../../resources/device_control.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/performance_keywords.resource
 
+Suite Setup         Prepare Test Environment  login=False
 Suite Teardown      Close All Connections
 Test Teardown       Ballooning Test Teardown
 Test Timeout        10 minutes

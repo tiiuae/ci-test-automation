@@ -17,7 +17,7 @@ Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Variables           ../../lib/performance_thresholds.py
 
-Suite Setup         Prepare Test Environment  login=False
+Suite Setup         Prepare Test Environment
 Suite Teardown      Close All Connections
 
 

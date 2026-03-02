@@ -80,9 +80,13 @@ Set Variables
     Set Log Level       NONE
 
     ${result} 	Run Process    sh    -c    cat /run/secrets/fleetdm_enroll_secret    shell=true
-    Set Global Variable        ${FLEETDM_ENROLL_SECRET}   ${result.stdout}
+    IF  $result.stdout != '${EMPTY}'
+        Set Global Variable        ${FLEETDM_ENROLL_SECRET}   ${result.stdout}
+    END
     ${result} 	Run Process    sh    -c    cat /run/secrets/fleetdm_api_token    shell=true
-    Set Global Variable        ${FLEETDM_API_TOKEN}   ${result.stdout}
+    IF  $result.stdout != '${EMPTY}'
+        Set Global Variable        ${FLEETDM_API_TOKEN}   ${result.stdout}
+    END
     ${result} 	Run Process    sh    -c    cat /run/secrets/pi-login  shell=true
     Set Global Variable        ${LOGIN_PI}   ${result.stdout}
     ${result} 	Run Process    sh    -c    cat /run/secrets/pi-pass  shell=true
