@@ -150,7 +150,7 @@ Close app via GUI
     [Documentation]    Close Application via GUI and verify related process stopped
     [Arguments]        ${app-vm}
     ...                ${process_name}
-    ...                ${close_button}=./window-close.png
+    ...                ${close_button}=window-close.png
     ...                ${windows_to_close}=1
     ...                ${verify_is_killed}=true
     Switch to vm       ${app-vm}

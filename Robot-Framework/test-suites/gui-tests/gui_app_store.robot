@@ -48,7 +48,7 @@ Launch App Store app
     Wait until flatpak app is installed    ${app_name}
 
     # Close App Store
-    Close app via GUI   ${FLATPAK_VM}  cosmic-store  ./window-close-neg.png
+    Close app via GUI   ${FLATPAK_VM}  cosmic-store  window-close-neg.png
 
     # Launch app from app menu, verify and kill it
     Start app via GUI   ${FLATPAK_VM}   ${process_name}   ${app_name}
@@ -57,7 +57,7 @@ Launch App Store app
 
     Open App Store
     Uninstall app in App Store   ${app_name}
-    Close app via GUI   ${FLATPAK_VM}  cosmic-store  ./window-close-neg.png
+    Close app via GUI   ${FLATPAK_VM}  cosmic-store  window-close-neg.png
 
     [Teardown]   Run Keywords   Switch to vm   ${FLATPAK_VM}
     ...    AND   Kill App By Name   cosmic-store   sudo=True
