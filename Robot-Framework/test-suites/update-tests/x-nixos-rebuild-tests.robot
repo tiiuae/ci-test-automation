@@ -41,6 +41,32 @@ Check net-vm hostname persistence over nixos-rebuild
         FAIL    Net-vm hostname has changed over nixos-rebuild and reboot
     END
 
+Check file system changes are logged
+    [Documentation]         Create file and verify that the operation was logged
+    [Tags]                  SP-T280
+    ${file_path}              Set Variable    /tmp/test_text.txt
+
+    ${state}  ${substate}     Verify service status  range=60  service=microvm@${CHROME_VM}.service  expected_state=active  expected_substate=running
+    Switch to vm              ${CHROME_VM}
+    Create text file          test    ${file_path}
+    ${file_owner_id}          Get file owner id    ${file_path}
+    Sleep                     3
+    ${found}  ${logs}         Get logs by key words   ${file_path}   15s   ${False}
+    Should Be True            ${found}    No log entry for ${file_path} found in Grafana during the last 15 seconds
+    Run Keyword And Continue On Failure   Should Contain    ${logs}    nametype=CREATE
+    Run Keyword And Continue On Failure   Should Contain    ${logs}    ouid=${file_owner_id}
+
+Check that system logs privilege uses and key events
+    [Documentation]         Execute check of ipset list and verify that the command was logged
+    [Tags]                  SP-T281
+    Switch to vm              ${NET_VM}
+    Run Command               ipset list   sudo=True
+    Sleep                     3
+    ${found}  ${logs}         Get logs by key words  ipset   15s   ${False}
+    Should Be True            ${found}    No log entry for 'ipset' found in Grafana during the last 15 seconds
+    Run Keyword And Continue On Failure   Should Contain    ${logs}    USER=root
+    Run Keyword And Continue On Failure   Should Contain    ${logs}    ipset list
+
 Check audit update logging
     [Documentation]         Verify that interrupted nixos-rebuild (system update) is properly logged
     [Tags]                  SP-T276
@@ -98,6 +124,7 @@ Enable audit logging and nix-store-watch
     Log To Console            Making changes to the local ghaf repository
     Edit file                 ${repository_path}/modules/reference/profiles/mvp-user-trial.nix  security.audit.enable = false;  security.audit.enable = true;
     Edit file                 ${repository_path}/modules/common/security/audit/default.nix  ghaf.security.audit.enableOspp  ghaf.security.audit.enableVerboseRebuild = true;  ${False}
+    Edit file                 ${repository_path}/modules/common/security/audit/default.nix  ghaf.security.audit.enableOspp = mkIf cfg.enableVerboseOspp true;  ghaf.security.audit.enableOspp = true;
     Edit file                 ${repository_path}/modules/microvm/host/microvm-host.nix  storeWatcher.enable = false;  storeWatcher.enable = true;
     Log To Console            Switching to audit mode
     Run Nixos Rebuild         ${repository_path}  ${target_name}

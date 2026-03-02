@@ -15,6 +15,12 @@ Create text file
     Log To Console     Writing to file ${file_name}
     Run Command        echo '${text}' > ${file_name}
 
+Get file owner id
+    [Arguments]        ${file_name}
+    ${user}            Run Command    stat -c "%U" ${file_name}
+    ${id}              Run Command    id -u ${user}
+    RETURN             ${id}
+
 Remove file
     [Documentation]    Remove file with given path & name, requires existing ssh connection
     [Arguments]        ${file_name}   ${sudo}=False   ${rc_match}=equal
