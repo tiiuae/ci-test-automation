@@ -53,7 +53,9 @@ Set timezone
     Switch to vm      ${GUI_VM}  user=${USER_LOGIN}
     Run Command       givc-cli set-timezone ${timezone_to_set}
     Wait Until Keyword Succeeds  10s  1s   Verify timezone   ${timezone_to_set}
-    Log               Timezone is ${timezone}  console=True
+    Log               Timezone is ${timezone_to_set}  console=True
+    # For debugging
+    Run Command       timedatectl -a
 
 Verify timezone
     [Arguments]       ${expected_timezone}
