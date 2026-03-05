@@ -109,6 +109,14 @@ Check full disk encryption
     ${output}        Run Command    lsblk -dno TYPE /dev/mapper/crypted
     Should Be Equal  ${output}      crypt          /dev/mapper/crypted TYPE is ${output}, expected crypt
 
+Check Secure Boot is enabled
+    [Documentation]  To be run only on Secure Boot X1
+    ...              Install sbctl and check that Secure Boot is enabled
+    [Tags]           SP-T341  lenovo-x1
+    IF    "${DEVICE_TYPE}" != "x1-sec-boot"   SKIP   To be executed only on Secure Boot Laptop.
+    ${sb_status}      Get Secure Boot Status
+    Should Be Equal   ${sb_status}   Enabled   Secure Boot is not enabled
+
 
 *** Keywords ***
 
@@ -187,4 +195,23 @@ Check device id failure
         ELSE
             FAIL   Actual device ID: ${actual_device_id}, Should be: ${STATIC_DEVICE_ID}, expected to fail with ${expected_wrong_id}
         END
+    END
+
+Get Secure Boot Status
+    [Documentation]    Install sbctl, get status and returns Secure Boot state (Enabled/Disabled)
+    SSHLibrary.Read
+    Set Client Configuration  timeout=60
+    Write              nix-shell -p sbctl
+    ${output} 	       SSHLibrary.Read Until     [nix-shell:
+    Write              sbctl status
+    ${output} 	       SSHLibrary.Read Until     [nix-shell:
+    ${clean}           Replace String Using Regexp    ${output}    \x1B\[[0-9;?]*[ -/]*[@-~]    ${EMPTY}
+    ${line}            Get Lines Containing String    ${clean}     Secure Boot:
+    Should Not Be Empty    ${line}    Could not find Secure Boot line in sbctl output
+    IF    'Enabled' in $line
+        RETURN    Enabled
+    ELSE IF    'Disabled' in $line
+        RETURN    Disabled
+    ELSE
+        FAIL      Could not determine Secure Boot state from line: ${line}
     END
