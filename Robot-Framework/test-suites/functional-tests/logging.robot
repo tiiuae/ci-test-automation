@@ -64,7 +64,6 @@ Check Grafana logs
             FAIL   Failed to find any logs since last boot for one or more VMs.\nVMs missing all logs since last boot: ${failed_vms_check_2}
         END
     END
-    [Teardown]    Run Keyword If Test Failed   SKIP   Known issue: SSRCSP-8137
 
 Validate Forward Secure Sealing
     [Documentation]   Run Forward Secure Sealing tests in all VMs
