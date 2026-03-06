@@ -14,8 +14,7 @@ Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/performance_keywords.resource
 
-Suite Setup         Tests Setup
-Suite Teardown      Tests Teardown
+Suite Setup         Switch to vm         ${GUI_VM}  user=${USER_LOGIN}
 Test Setup          Start screen recording
 Test Teardown       Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
@@ -196,13 +195,6 @@ Measure time to launch Getting Started
 
 *** Keywords ***
 
-Tests Setup
-    [Timeout]    5 minutes
-    Prepare Test Environment   enable_dnd=True
-
-Tests Teardown
-    Log out from laptop
-    
 Save launch time
     [Documentation]    Evaluate the time between starting the app from the GUI app menu
     ...                and locating & clicking the close button on the app window.

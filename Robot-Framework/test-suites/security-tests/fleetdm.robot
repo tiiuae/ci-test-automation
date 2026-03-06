@@ -8,6 +8,7 @@ Test Tags           fleetdm  lenovo-x1  darter-pro
 Library             Process
 Library             String
 Library             DateTime
+Library             ../../lib/helper_functions.py
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/common_keywords.resource
 
@@ -23,12 +24,15 @@ Check device status on FleetDM
     Log To Console      Verifying device online status at fleetdm
     Wait Until Keyword Succeeds  31s  10s  Check device on fleetdm
     Log To Console      FleetDM updated device status to 'online'
-    Wait Until Keyword Succeeds  61s  10s  Check fleetdm shows correct device start time
-    Log To Console      Device start time on FleetDM checked
+    # FleetDM server long update_interval (1h) causes this check to fail sometimes.
+    # If update_interval gets decreased this check could be enabled
+    # Wait Until Keyword Succeeds  31s  10s  Check fleetdm shows correct device start time
+    # Log To Console      Device start time on FleetDM checked
 
 *** Keywords ***
 
 FleetDM Setup
+    Skip If  $FLEETDM_ENROLL_SECRET=='${EMPTY}' or $FLEETDM_API_TOKEN=='${EMPTY}'  FleetDM secrets not available -> Skipping the test
     Switch to vm          ${GUI_VM}
     Run Command           mkdir -p /etc/common/ghaf/fleet                            sudo=True
     Elevate to superuser
@@ -58,11 +62,16 @@ Check device on fleetdm
 
 Check fleetdm shows correct device start time
     # FleetDM server detail_update_interval is 1h
-    ${tolerance}        Set Variable    3700
-    ${output}           Check device on fleetdm
-    ${fleet_restart}    Get Lines Containing String  ${output.stdout}  "last_restarted_at":
-    ${device_restart}   Get Timestamp of Last Boot
-    ${difference}       DateTime.Subtract Date From Date    ${fleet_restart}  ${device_restart}   exclude_millis=True
+    ${tolerance}         Set Variable    3700
+    ${output}            Check device on fleetdm
+    ${fleet_time}        Get Lines Containing String  ${output.stdout}  "last_restarted_at":
+    ${fleet_time}        Replace String Using Regexp    ${fleet_time}    .*"(.*?)".*    \\1
+    ${fleet_time}        Get Epoch Time    ${fleet_time}
+    ${device_time}       Get Timestamp of Last Boot
+    # datetime cannot handle UTC timezone name
+    ${device_time}       Replace String    ${device_time}    UTC    +00:00
+    ${device_time}       Get Epoch Time    ${device_time}
+    ${difference}=       Evaluate    ${fleet_time} - ${device_time}
     IF  ${difference} > ${tolerance} or ${difference} < -${tolerance}
         FAIL    FleetDM last_restarted_at differs more than an hour from the actual device start time\ndifference: ${difference}
     END

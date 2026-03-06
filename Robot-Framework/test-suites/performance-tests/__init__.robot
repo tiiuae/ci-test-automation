@@ -11,17 +11,13 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 
-Suite Setup         Performance Setup
-Suite Teardown      Close All Connections
-
+Suite Setup         Prepare Test Environment
+Suite Teardown      Performance Teardown
 
 *** Keywords ***
-Performance Setup
-    Check If Device Is Up    range=5
-    IF    ${IS_AVAILABLE} == False
-        FAIL    The device is not available via SSH or serial.
-    ELSE IF  "${CONNECTION_TYPE}" == "serial"
-        FAIL    The device is available only via serial, but tests require SSH.
+
+Performance Teardown
+    IF  ${IS_LAPTOP}
+        Log out from laptop
     END
-    Switch to vm    ${HOST}
-    Log versions and device unique data
+    Close All Connections

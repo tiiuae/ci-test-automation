@@ -207,11 +207,10 @@ Get Actual Device ID
 
 Get Timestamp of Last Boot
     Switch to vm        ${HOST}
-    ${last_boot}        Run Command  journalctl --list-boots | tail -n1 | awk '{print $4,$5}'
+    ${last_boot}        Run Command  journalctl --list-boots | tail -n1 | awk '{print $4,$5,$6}'
     RETURN              ${last_boot}
 
 Get Time Since Last Boot
-    ${last_boot}        Get Timestamp of Last Boot
-    ${current_time}     Get current timestamp
-    ${time_since_boot}  DateTime.Subtract Date From Date   ${current_time}  ${LAST_BOOT}  exclude_millis=True
-    RETURN              ${time_since_boot}
+    Switch to vm        ${HOST}
+    ${output}           Run Command    cat /proc/uptime | cut -d. -f1
+    RETURN              ${output}

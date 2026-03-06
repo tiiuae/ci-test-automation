@@ -17,9 +17,7 @@ Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Variables           ../../lib/performance_thresholds.py
 
-Suite Setup         Prepare Test Environment  login=False
 Suite Teardown      Close All Connections
-
 
 *** Variables ***
 ${PING_TIMEOUT}     180
@@ -33,7 +31,7 @@ Measure Soft Boot Time
     [Tags]           SP-T187  SP-T187-1  lenovo-x1  dell-7330
     Soft Reboot Device
     Get Boot times
-    [Teardown]                    Run Keyword If Test Failed    Boot Time Test Teardown
+    [Teardown]                    Boot Time Test Teardown
 
 Measure Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
@@ -48,7 +46,7 @@ Measure Hard Boot Time
     Log To Console                Booting the device by pressing the power button
     Turn Laptop On
     Get Boot times                plot_name=Hard Boot Times
-    [Teardown]                    Run Keyword If Test Failed    Boot Time Test Teardown
+    [Teardown]                    Boot Time Test Teardown
 
 Measure Orin Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
@@ -159,6 +157,10 @@ Log Journal To Debug
     ${journal_output}     Run Command   journalctl -b ${boot}
 
 Boot Time Test Teardown
+    Run Keyword If Test Failed   Reboot Laptop
+    Login to laptop
+
+Failed Boot Time Test Teardown
     Reboot Laptop
     Connect After Reboot
     Switch to vm          ${HOST}

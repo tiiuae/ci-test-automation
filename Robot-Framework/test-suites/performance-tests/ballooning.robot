@@ -12,6 +12,7 @@ Resource            ../../resources/device_control.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/performance_keywords.resource
 
+Suite Setup         Prepare Test Environment
 Suite Teardown      Close All Connections
 Test Teardown       Ballooning Test Teardown
 Test Timeout        10 minutes
@@ -21,6 +22,7 @@ Test Timeout        10 minutes
 ${test_dir}               /tmp/ballooning
 ${script_status_file}     /tmp/ballooning/ballooning_script_status
 ${rebooted}               False
+${teardown_vm}
 
 
 *** Test Cases ***
@@ -47,6 +49,7 @@ Test ballooning in VM
     ...                Give mem_quota argument in the same units: mebibytes (MiB)
     [Arguments]        ${vm}   ${mem_quota}   ${max_inflate_ratio}
 
+    ${teardown_vm}=                   Set Suite Variable    ${vm}
     ${inflate_passed}=                Set Variable  False
     ${deflate_passed}=                Set Variable  False
     ${mem_limit_exceeded}=            Set Variable  False
@@ -61,7 +64,7 @@ Test ballooning in VM
     ${timeout_deflate}=               Evaluate      int(${expected_mem_at_inflate} * 0.005)
     ${timeout_logging}=               Evaluate      int(${timeout_inflate} + ${timeout_deflate} + 20)
 
-    Switch to vm                     ${vm}     timeout=120
+    Switch to vm                      ${vm}     timeout=120
 
     Log                               Minimum expected total memory at inflate: ${expected_mem_at_inflate} MiB  console=True
     Log                               Maximum allowed total memory at inflate: ${max_mem_at_inflate} MiB  console=True
@@ -181,9 +184,9 @@ Plot ballooning
 
 Procedure After Timeout
     Reboot Laptop
-    Check If Device Is Up
-    Switch to vm    ${NET_VM}
     ${rebooted}     Set Variable  True
+    Check If Device Is Up
+    Login to laptop
 
 Clean Test Files
     Run Command   rm /dev/shm/test/*      sudo=True   rc_match=skip
