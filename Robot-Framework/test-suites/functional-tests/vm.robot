@@ -110,17 +110,17 @@ Check systemctl status Template
     IF   "${DEVICE_TYPE}" == "orin-nx"
         TRY
             ${status}   ${failed_units}   Verify Systemctl status   timeout=${timeout}
-        EXCEPT   Keyword timeout ${timeout} exceeded.
-            Log    Systemctl check timed out in ${timeout}   console=True
+        EXCEPT    AS    ${error_message}
+            Log    ${error_message}   console=True
             Reboot Orin if ssh connection dropped
             Switch to vm     ${vm}
             TRY
                 ${status}   ${failed_units}   Verify Systemctl status   timeout=${timeout}
-            EXCEPT   Keyword timeout ${timeout} exceeded.
-                Log    Systemctl check timed out in ${timeout}   console=True
+            EXCEPT    AS    ${error_message}
+                Log    ${error_message}   console=True
                 Reboot Orin if ssh connection dropped
                 Switch to vm     ${vm}
-                FAIL    Systemctl check timed out twice (waited ${timeout} both times)
+                FAIL    Systemctl check failed twice in ${vm}
             END
         END
     ELSE
