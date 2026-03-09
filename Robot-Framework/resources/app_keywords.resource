@@ -18,13 +18,13 @@ ${APP_OUTPUT_FILE}   /home/${USER_LOGIN}/output.log
 *** Keywords ***
 
 Start application in VM
-    [Documentation]    Do not use this keyword outside functional tests!
+    [Documentation]    Use always_check_vm=True if calling from tests other than functional
     ...                After calling for this keyword use "Kill App in VM" in the test teardown
-    [Arguments]    ${app_name}   ${app-vm}   ${process_name}
+    [Arguments]    ${app_name}   ${app-vm}   ${process_name}   ${always_check_vm}=False
     Set Test Variable    ${TEST_APP-VM}         ${app-vm}
     Set Test Variable    ${TEST_PROCESS_NAME}   ${process_name}
 
-    IF    '${app-vm}' not in ${RUNNING_VMS}   Check that appVM is running   ${app-vm}
+    IF    '${app-vm}' not in ${RUNNING_VMS} or ${always_check_vm}   Check that appVM is running   ${app-vm}
     Switch to vm   ${app-vm}
     Check that the application is not running   ${process_name}  1
     

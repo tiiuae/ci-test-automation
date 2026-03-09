@@ -32,7 +32,7 @@ Stopping one VM does not affect others
 Stopping one VM does not affect another
     [Arguments]     ${one_vm}    ${another_vm}    ${app_name}    ${process_name}
     Switch to vm   ${another_vm}
-    Start application in VM   ${app_name}   ${another_vm}    ${process_name}
+    Start application in VM   ${app_name}   ${another_vm}    ${process_name}   always_check_vm=True
     Stop VM        ${one_vm}
     ${state}  ${substate}   Verify service status  service=microvm@${another_vm}.service  expected_state=active  expected_substate=running
     Switch to vm   ${another_vm}
