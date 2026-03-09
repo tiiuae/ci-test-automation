@@ -163,10 +163,10 @@ Measure time to launch Microsoft 365
     Close app via GUI   ${BUSINESS_VM}  microsoft365  ./ghaf-close.png
     Save launch time    microsoft365
 
-Measure time to launch Microsoft Outlook
-    [Documentation]   Start Microsoft Outlook via GUI and measure time of launching
+Measure time to launch Outlook
+    [Documentation]   Start Outlook via GUI and measure time of launching
     [Tags]            SP-T285-21
-    Start app via GUI   ${BUSINESS_VM}  outlook  display_name="Microsoft Outlook"
+    Start app via GUI   ${BUSINESS_VM}  outlook  display_name=Outlook
     Close app via GUI   ${BUSINESS_VM}  outlook  ./ghaf-close.png
     Save launch time    outlook
 
