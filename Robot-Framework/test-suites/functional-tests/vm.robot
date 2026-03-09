@@ -28,8 +28,6 @@ Suite Setup         VM Suite Setup
              ...    orin|ghaf-host|nvfancontrol.service|SSRCSP-6303
              ...    orin-agx|ghaf-host|systemd-rfkill.service|SSRCSP-6303
              ...    orin|ghaf-host|systemd-oomd.service|SSRCSP-6685
-             ...    orin|admin-vm|audit-rules-nixos.service|SSRCSP-8066
-             ...    orin|net-vm|audit-rules-nixos.service|SSRCSP-8066
              ...    orin|admin-vm|stunnel.service|SSRCSP-8067
              ...    orin|admin-vm|alloy.service|SSRCSP-8071
              ...    orin|admin-vm|ghaf-journal-alloy-recover.service|SSRCSP-8071
