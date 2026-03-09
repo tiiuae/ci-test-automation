@@ -18,9 +18,10 @@ def locate_image(screenshot, image, confidence):
     logging.info(image_center_in_mouse_coordinates)
     return image_center_in_mouse_coordinates
 
-def locate_text(screenshot, text):
+def locate_text(screenshot, text, scale=1):
     logging.info("Searching " + text)
     image = Image.open(screenshot)
+    image = image.resize((image.width * scale, image.height * scale), Image.BICUBIC)
     data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
     logging.info(data)
 
@@ -28,6 +29,7 @@ def locate_text(screenshot, text):
     for i, word in enumerate(data['text']):
         if text.lower() in word.strip().lower():
             x, y, w, h = (data[key][i] for key in ['left', 'top', 'width', 'height'])
+            x, y, w, h = (v // scale for v in (x, y, w, h))
             text_center = (x + w // 2, y + h // 2)
             logging.info(f"Found '{text}' at {text_center}")
             image_center_in_mouse_coordinates = convert_resolution(text_center)

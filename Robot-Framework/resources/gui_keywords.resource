@@ -118,8 +118,8 @@ Tab and enter
 Locate on screen
     [Documentation]    Take a screenshot. Locate given image or text on the screenshot.
     ...                Return center coordinates of the item in mouse coordinate system.
-    [Arguments]        ${type}  ${searched_item}  ${confidence}=0.99   ${iterations}=10   ${expected_result}=PASS  ${debug_screenshot}=True
-    [Timeout]          2 minutes
+    [Arguments]        ${type}  ${searched_item}  ${confidence}=0.99   ${iterations}=10   ${expected_result}=PASS  ${debug_screenshot}=True   ${timeout}=120   ${scale}=1
+    [Timeout]          ${timeout} seconds
     ${coordinates}=        Set Variable  ${EMPTY}
     ${locate_status}=      Set Variable  FAIL
     Run Command            mkdir -p test-images
@@ -131,7 +131,7 @@ Locate on screen
             IF  $type=="image"
                 ${locate_status}    ${coordinates}  Run Keyword And Ignore Error  Locate image  ${SCREENSHOT_LOCAL}  ${ICONS_DIR}/${searched_item}   ${confidence}
             ELSE IF  $type=="text"
-                ${locate_status}    ${coordinates}  Run Keyword And Ignore Error  Locate text  ${SCREENSHOT_LOCAL}  ${searched_item}
+                ${locate_status}    ${coordinates}  Run Keyword And Ignore Error  Locate text  ${SCREENSHOT_LOCAL}  ${searched_item}   scale=${scale}
             ELSE
                 FAIL              Wrong type ${type} given for image recognition
             END
@@ -163,9 +163,14 @@ Take a screenshot
     RETURN   ${screenshot_status}  ${result}
 
 Locate and click
-    [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=10
-    ${mouse_x}  ${mouse_y}  Locate on screen  ${type}  ${searched_item}  ${confidence}  ${iterations}
+    [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=10  ${timeout}=120  ${scale}=1  ${wiggle}=True
+    ${mouse_x}  ${mouse_y}  Locate on screen  ${type}  ${searched_item}  ${confidence}  ${iterations}  timeout=${timeout}  scale=${scale}
     Run ydotool command   mousemove --absolute -x ${mouse_x} -y ${mouse_y}
+    # Wiggle is sometimes needed for the window to recognize the mouse
+    IF   ${wiggle}
+        Run ydotool command   mousemove 1 1
+        Run ydotool command   mousemove -- -1 -1
+    END
     Run ydotool command   click 0xC0
 
 Move cursor to corner
