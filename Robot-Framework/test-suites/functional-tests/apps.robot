@@ -87,10 +87,10 @@ Start Microsoft 365
     [Tags]            SP-T178
     Start application in VM   "Microsoft 365"   ${BUSINESS_VM}   microsoft365
 
-Start Microsoft Outlook
-    [Documentation]   Start Microsoft Outlook and verify process started
+Start Outlook
+    [Documentation]   Start Outlook and verify process started
     [Tags]            SP-T176
-    Start application in VM   "Microsoft Outlook"   ${BUSINESS_VM}   outlook
+    Start application in VM   Outlook   ${BUSINESS_VM}   outlook
 
 Start PDF Viewer
     [Documentation]   Start PDF Viewer and verify process started
