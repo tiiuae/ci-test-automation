@@ -40,8 +40,14 @@ GUI Suspend and wake up
     Wake up device
     Close All Connections
     Start ydotoold
-    Switch to vm             ${GUI_VM}   user=${USER_LOGIN}
+    ${pass_status}   ${output}    Run keyword and ignore error    Switch to vm             ${GUI_VM}   user=${USER_LOGIN}
 
+    IF  $pass_status=='FAIL'
+        ${status}   ${failed_units}   Verify Systemctl status   timeout=${timeout}
+        Log    ${status}
+        Log    ${failed_units}
+        Fail    FAILED SWITCH TO GUI_VM
+    END
     # Sometimes screen wakeup has required a mouse move
     Move Cursor
 
