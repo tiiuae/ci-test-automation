@@ -91,10 +91,15 @@ Start ydotoold
     END
 
 Stop ydotoold
-    [Documentation]   Kill ydotool daemon
+    [Documentation]   Stop ydotool daemon
     [Setup]           Switch to vm    ${GUI_VM}
-    Log To Console    Stopping ydotool daemon
-    Kill process by name   ydotoold   sudo=True
+    ${ydotoold_state}=    Run Command    sh -c 'ps aux | grep ydotoold | grep -v grep'  rc_match=skip
+    IF  $ydotoold_state == '${EMPTY}'
+        Confirmed that ydotoold is not running
+    ELSE
+        Log To Console    Stopping ydotool daemon
+        Run Command       systemctl stop ydotoold-persistent.service    sudo=True
+    END
 
 Save gui icons and icon path
     [Documentation]         Save the icons that are used in multiple test cases
