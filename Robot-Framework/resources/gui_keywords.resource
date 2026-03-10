@@ -69,7 +69,7 @@ Log in via GUI
     Log To Console    Logging in
     # Make sure that password field is active by clicking on screen
     Run ydotool command   mousemove --absolute -x 50 -y 50   sudo=True
-    Run ydotool command   click 0xC0  sudo=True
+    Click   sudo=True
 
     IF  "${DEVICE_TYPE}" == "dell-7330"    Sleep  5
     Confidential password write  ${USER_PASSWORD}
@@ -162,7 +162,17 @@ Locate and click
     Run ydotool command   mousemove --absolute -x ${mouse_x} -y ${mouse_y}
     # Wiggle is sometimes needed for the window to recognize the mouse
     IF   ${wiggle}   Wiggle cursor
-    Run ydotool command   click 0xC0
+    Click
+
+Click
+    [Arguments]   ${double_click}=False  ${sudo}=False
+    IF  ${double_click}
+        Log   Double-clicking
+        Run ydotool command   click 0xC0 0xC0   sudo=${sudo}
+    ELSE
+        Log   Clicking
+        Run ydotool command   click 0xC0   sudo=${sudo}
+    END
 
 Move cursor to corner
     [Documentation]    Move the cursor to the upper left corner so that it will not block searching further gui screenshots
@@ -368,7 +378,11 @@ Save screen recording
 Kill Initial Setup
     ${status}   ${output}   Run Keyword And Ignore Error   Check file exists   .config/cosmic-initial-setup-done
     IF   $status == 'FAIL'
-        # Wait for the initial setup to start and kill the process. Initial setup window can mess with screenshot permission window.
+        # Wait for the initial setup to start
         Run Keyword and Ignore Error     Check that the application was started   cosmic-initial-setup   range=15
+        # Wait until Ghaf theme is applied, this does not happen if initial setup is killed too fast
+        Wait Until Keyword Succeeds   10s   0.5s   Check file exists   .config/cosmic/com.system76.CosmicTheme*
+        Sleep    1
+        # Kill the initial setup so that it does not interfere with tests
         Kill App By Name   cosmic-initial-setup
     END
