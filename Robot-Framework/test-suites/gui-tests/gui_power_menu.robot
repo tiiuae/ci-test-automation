@@ -43,7 +43,7 @@ GUI Suspend and wake up
     ${pass_status}   ${output}    Run keyword and ignore error    Switch to vm             ${GUI_VM}   user=${USER_LOGIN}
 
     IF  $pass_status=='FAIL'
-        ${status}   ${failed_units}   Verify Systemctl status   timeout=${timeout}
+        ${status}   ${failed_units}   Verify Systemctl status   timeout=2min
         Log    ${status}
         Log    ${failed_units}
         Fail    FAILED SWITCH TO GUI_VM
