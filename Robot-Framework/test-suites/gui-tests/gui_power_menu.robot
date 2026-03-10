@@ -140,7 +140,7 @@ Select power menu option
     ELSE IF  ${x} != 0 and ${y} != 0
         Log To Console        Clicking the coordinates of the icon {'x': ${x}, 'y': ${y}}
         Run ydotool command   mousemove --absolute -x ${x} -y ${y}
-        Run ydotool command   click 0xC0
+        Click
     ELSE
         FAIL   No type provided
     END

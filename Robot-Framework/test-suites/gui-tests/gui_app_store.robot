@@ -10,7 +10,7 @@ Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
 Test Setup          Run Keywords   Switch to vm   ${GUI_VM}  user=${USER_LOGIN}  AND   Start screen recording
-Test Teardown       Run Keywords   Switch to vm   ${GUI_VM}  user=${USER_LOGIN}  AND   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+Test Teardown       App Store Test Teardown
 Test Timeout        10 minutes
 
 
@@ -19,19 +19,32 @@ Test Timeout        10 minutes
 Install Firefox
     [Documentation]    Install and launch Firefox from App Store
     [Tags]    SP-T335
-    Launch App Store app   firefox
+    Install and Launch App Store app   firefox
 
-Install Onlyoffice
+Install Onlyoffice and save documents
     [Documentation]    Install and launch Onlyoffice from App Store
-    [Tags]    SP-T355
-    Launch App Store app   onlyoffice
+    ...                Save different types of files to Shares
+    [Tags]    SP-T355  SP-T312  SP-T313  SP-T314
+    Install and Launch App Store app   onlyoffice
+
+    Save a file from Onlyoffice   Document       test_Document.docx
+    Save a file from Onlyoffice   Spreadsheet    test_Spreadsheet.xlsx
+    Save a file from Onlyoffice   Presentation   test_Presentation.pptx
 
 *** Keywords ***
 
-Launch App Store app
-    [Documentation]   Install app from App Store, launch the app from the app menu and uninstall the app
-    [Arguments]    ${app_name}   ${process_name}=${app_name}
-    [Setup]   Verify app is not preinstalled via flatpak   ${app_name}
+App Store Test Teardown
+    ${availability}         Check variable availability   app_name
+    IF   ${availability}    Kill app and Uninstall in App Store   ${app_name}
+    Switch to vm            ${GUI_VM}  user=${USER_LOGIN}
+    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+
+Install and Launch App Store app
+    [Documentation]   Install app from App Store and launch the app from the app menu
+    [Arguments]       ${app_name}   ${process_name}=${app_name}
+    [Setup]           Verify app is not preinstalled via flatpak   ${app_name}
+
+    Set Test Variable   ${app_name}
 
     Open App Store
 
@@ -51,16 +64,9 @@ Launch App Store app
 
     # Launch app from app menu, verify and kill it
     Start app via GUI   ${FLATPAK_VM}   ${process_name}   ${app_name}
-    Switch to vm   ${FLATPAK_VM}
-    Kill process by name   ${process_name}   sudo=True
-
-    Open App Store
-    Uninstall app in App Store   ${app_name}
-    Close app via GUI   ${FLATPAK_VM}  cosmic-store  window-close-neg.png
 
     [Teardown]   Run Keywords   Switch to vm   ${FLATPAK_VM}
     ...    AND   Kill App By Name   cosmic-store   sudo=True
-    ...    AND   Kill App By Name   ${process_name}   sudo=True
 
 Verify app is not preinstalled via flatpak
     [Arguments]    ${app_name}
@@ -108,9 +114,12 @@ Open App Store
     Locate on screen   text   Editor   iterations=20
     Press Key(S)       LEFTMETA+M
 
-Uninstall app in App Store
-    [Documentation]   Uninstall app via GUI and verify
-    [Arguments]    ${app_name}
+Kill app and Uninstall in App Store
+    [Documentation]   Kill app, uninstall it via GUI and verify
+    [Arguments]       ${app_name}  ${process_name}=${app_name}
+    Switch to vm      ${FLATPAK_VM}
+    Kill process by name   ${process_name}   sudo=True
+    Open App Store
     Log     Uninstalling ${app_name}   console=True
     Locate and click   text   nstalled      scale=2   wiggle=True  #Typo intentional, "I" is sometimes not recognized by the text recognition
     Locate and click   text   ${app_name}   wiggle=True
@@ -118,7 +127,7 @@ Uninstall app in App Store
     Locate and click   text   Uninstall     scale=3   wiggle=True
     Locate and click   text   Permanently   scale=2   wiggle=True
     Run ydotool command   mousemove -x 340 -y 70
-    Run ydotool command   click 0xC0
+    Click
     Sleep  1
     Locate and click   text   Back   scale=3   wiggle=True
     # Verify uninstallation via GUI
@@ -128,3 +137,37 @@ Uninstall app in App Store
     ${flatpak_app_id}   Get flatpak app id   ${app_name}
     Should Be Empty     ${flatpak_app_id}    App ${app_name} is still installed via flatpak (${flatpak_app_id})
     Log   ${app_name} is now uninstalled   console=True
+    Close app via GUI   ${FLATPAK_VM}  cosmic-store  ./window-close-neg.png
+    [Teardown]   Run Keywords   Switch to vm   ${FLATPAK_VM}
+    ...    AND   Kill App By Name   cosmic-store   sudo=True
+    ...    AND   Kill App By Name   ${process_name}   sudo=True
+
+Save a file from Onlyoffice
+    [Documentation]   Open a file in Onlyoffice and save it to Shares
+    [Arguments]       ${type}   ${file_name}
+    [Setup]           Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
+
+    Locate and click   text   ${type}  wiggle=True
+    Type string and press enter   ${file_name}   enter=False
+
+    # Write a text to validate that document is open and can be edited
+    Wait Until Keyword Succeeds   5x   1s  Search for typed text
+
+    # Save the file
+    Press Key(s)       LEFTCTRL+S
+    Locate on screen   text   Unsafe   scale=2
+    Press Key(s)       LEFTMETA+M
+    Type string and press enter   ${file_name}   enter=False
+    Locate and click   text   Unsafe   wiggle=True
+    Click              double_click=True
+    Press Key(s)       ENTER
+
+    Wait Until Keyword Succeeds   5x   1s   Check file exists   /Shares/'Unsafe flatpak-vm share'/${file_name}
+    Locate and click    text   Onlyoffice   wiggle=True
+
+    [Teardown]   Remove file  /Shares/'Unsafe flatpak-vm share'/${file_name}
+
+Search for typed text
+    [Documentation]   Write a text and search for it with text recognition
+    Type string and press enter  testText
+    Locate on screen    text     testText   iterations=2
