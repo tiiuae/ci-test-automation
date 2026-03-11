@@ -107,7 +107,7 @@ Enable audit logging and nix-store-watch
     ELSE IF  "${DEVICE_TYPE}" == "darter-pro"
         ${target_name}      Set Variable    system76-darp11-b-debug
     ELSE
-        Skip                Test case not supporting this device type
+        FAIL                Test case does not support device type ${DEVICE_TYPE}
     END
     Set Suite Variable        ${target_name}
     Switch to vm              ${NET_VM}
