@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Update tests
-Test Tags           regression  update  lenovo-x1  darter-pro
+Test Tags           regression  update  lenovo-x1  darter-pro  excl-storeDisk  excl-secboot
 
 Library             SSHLibrary
 Resource            ../../config/variables.robot
@@ -16,5 +16,3 @@ Suite Teardown      Close All Connections
 
 Update tests setup
     Set Variables   ${DEVICE}
-    IF    "storeDisk" in "${JOB}"   SKIP    Update tests can't be executed for storeDisk image.
-    IF    "${DEVICE_TYPE}" == "x1-sec-boot"   SKIP   Updating is not supported by signed images.

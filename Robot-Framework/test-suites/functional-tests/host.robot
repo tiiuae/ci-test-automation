@@ -102,8 +102,7 @@ Check veritysetup status
 
 Check full disk encryption
     [Documentation]  Check that full disk encryption was done for images installed with "ghaf-installer -e"
-    [Tags]           SP-T348  lenovo-x1  darter-pro
-    IF    "installer" not in "${JOB}"   SKIP    Full Disk Encryption test is applicable only for installer images.
+    [Tags]           SP-T348  lenovo-x1  darter-pro  installer-only
     ${output}        Run Command    lsblk -dno FSTYPE /dev/nvme0n1p3
     Should Be Equal  ${output}      crypto_LUKS    /dev/nvme0n1p3 FSTYPE is ${output}, expected crypto_LUKS
     ${output}        Run Command    lsblk -dno TYPE /dev/mapper/crypted
@@ -112,8 +111,7 @@ Check full disk encryption
 Check Secure Boot is enabled
     [Documentation]  To be run only on Secure Boot X1
     ...              Install sbctl and check that Secure Boot is enabled
-    [Tags]           SP-T341  lenovo-x1
-    IF    "${DEVICE_TYPE}" != "x1-sec-boot"   SKIP   To be executed only on Secure Boot Laptop.
+    [Tags]           SP-T341  lenovo-x1  secboot-only
     ${sb_status}      Get Secure Boot Status
     Should Be Equal   ${sb_status}   Enabled   Secure Boot is not enabled
 

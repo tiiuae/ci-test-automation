@@ -3,13 +3,12 @@
 
 *** Settings ***
 Documentation       Testing App Store
-Force Tags          app-store  darter-pro
+Force Tags          app-store  darter-pro  storeDisk-only
 
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Suite Setup         Run Keyword If   "storeDisk" not in "${JOB}"   SKIP   App Store tests can only be executed with a storeDisk image.
 Test Setup          Run Keywords   Switch to vm   ${GUI_VM}  user=${USER_LOGIN}  AND   Start screen recording
 Test Teardown       Run Keywords   Switch to vm   ${GUI_VM}  user=${USER_LOGIN}  AND   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 Test Timeout        10 minutes
