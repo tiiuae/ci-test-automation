@@ -82,7 +82,7 @@ Log In To Ghaf OS
     Log To Console        Trying to log in via serial...
     FOR    ${i}    IN RANGE    10
         Write Data        ${\n}
-        ${output}         SerialLibrary.Read Until    terminator=${HOST} login
+        ${output}         SerialLibrary.Read Until    terminator=${HOST} login    timeout=5
         ${status}         Run Keyword And Return Status    Should contain    ${output}    ${HOST} login
         IF  ${status}
             Write Data    ${LOGIN}${\n}
@@ -178,3 +178,59 @@ Verify shutdown via serial
     ${time}           BuiltIn.Get Time   epoch
     RETURN            ${time}
     [Teardown]        Delete All Ports
+
+Run Command on VM Via Serial
+    [Arguments]        ${vm}    ${command}    ${timeout}=5
+    IF    "${SERIAL_PORT}" == "NONE"
+        FAIL    Serial port is not configured. Cannot execute ${vm} commands via serial.
+    END
+    ${status}          Connect via serial   timeout=${timeout}
+    IF    ${status} == False
+        FAIL    Failed to connect via serial. Cannot execute ${vm} commands.
+    END
+    ${marker_seed}     Generate Random String    8
+    ${marker}          Set Variable    __SERIAL_CMD_${marker_seed}__
+    ${escaped_cmd}     Replace String    ${command}    "    \\" 
+    ${ssh_command}     Set Variable    ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${vm} "${escaped_cmd}"; echo ${marker}
+    Log                Running command in ${vm}     console=True
+    Write Data         ${ssh_command}${\n}
+    # Consume echoed command line to avoid matching marker before command output
+    SerialLibrary.Read Until    terminator=${\n}
+    ${pre_output}      Set Variable    ${EMPTY}
+    ${search1}         Set Variable    (yes/no/[fingerprint])?
+    ${search2}         Set Variable    assword
+    ${status}  ${output}  Run Keyword And Ignore Error  SerialLibrary.Read Until  terminator=${search1}
+    IF  $search1 in $output
+        ${pre_output}    Catenate    SEPARATOR=    ${pre_output}    ${output}
+        Write Data       yes${\n}
+        SerialLibrary.Read Until    terminator=${\n}
+        ${status}  ${output}  Run Keyword And Ignore Error  SerialLibrary.Read Until  terminator=${search2}
+        IF  $search2 in $output
+            ${pre_output}    Catenate    SEPARATOR=    ${pre_output}    ${output}
+            Write Data    ${PASSWORD}${\n}
+        END
+    ELSE
+        IF  $search2 in $output
+            ${pre_output}    Catenate    SEPARATOR=    ${pre_output}    ${output}
+            Write Data    ${PASSWORD}${\n}
+        END
+    END
+    IF  not $marker in $output
+        ${output}          SerialLibrary.Read Until    terminator=${marker}
+    END
+    IF  not $marker in $output
+        Log    ${output}
+        FAIL   Failed to run command on ${vm} via serial
+    END
+    ${output}          Replace String    ${output}    ${marker}    ${EMPTY}
+    ${output}          Replace String    ${output}    \r    ${EMPTY}
+    ${output}          Catenate    SEPARATOR=    ${pre_output}    ${output}
+    SerialLibrary.Read Until    ghaf@${HOST}:
+    Delete All Ports
+    ${clean_output}    Strip String    ${output}
+    Log                ${clean_output}
+    ${lower_output}    Convert To Lowercase    ${clean_output}
+    IF  'permission denied' in $lower_output or 'could not resolve hostname' in $lower_output or 'no route to host' in $lower_output
+        FAIL    Failed to execute '${command}' on ${vm} via serial: ${clean_output}
+    END
+    RETURN            ${clean_output}

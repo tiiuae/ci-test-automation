@@ -288,8 +288,9 @@ Try to switch to active vm connection
     END
 
 Get VM IP
+    [Arguments]   ${if_name}=eth
     ${output}     Run Command    ifconfig
-    ${ip}         Get ip from ifconfig    ${output}   eth
+    ${ip}         Get ip from ifconfig    ${output}   ${if_name}
     RETURN        ${ip}
 
 Transfer Shell Script To DUT
@@ -321,3 +322,10 @@ Elevate to superuser
         RETURN
     END
     FAIL              Elevating to superuser failed
+
+Run Nix Shell
+    [Arguments]      ${package}
+    SSHLibrary.Read
+    Set Client Configuration  timeout=60
+    Write                     nix-shell -p ${package}
+    SSHLibrary.Read Until     [nix-shell:

@@ -196,13 +196,6 @@ Run Nixos Rebuild
     END
     Soft Reboot Device And Connect
 
-Run Nix Shell
-    [Arguments]      ${package}
-    SSHLibrary.Read
-    Set Client Configuration  timeout=60
-    Write                     nix-shell -p ${package}
-    SSHLibrary.Read Until     [nix-shell:
-
 Clone Ghaf Repository
     [Arguments]               ${repository_path}    ${commit}=${EMPTY}
     Log To Console            Cloning ghaf repository
