@@ -44,6 +44,7 @@ File sharing test
     [Documentation]    Create file in the 'Unsafe share' folder on one VM, copy in GuiVM,
     ...                and check that file is available in the another VM
     [Arguments]        ${vm1}    ${vm2}
+    Set Test Variable  ${file_name}       test_${vm1}_to_${vm2}.txt
     Set Test Variable  ${vm1_in_guivm}    /Shares/'Unsafe ${vm1} share'
     Set Test Variable  ${vm2_in_guivm}    /Shares/'Unsafe ${vm2} share'
     Switch to vm       ${vm1}
@@ -58,7 +59,6 @@ File sharing test
 
 Shares setup
     Set Suite Variable     ${path_in_vm}         /home/appuser/'Unsafe share'
-    Set Suite Variable     ${file_name}          test.txt
     Switch to vm           ${NET_VM}
 
 Remove the file in VM
