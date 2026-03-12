@@ -64,12 +64,29 @@ Get Falcon LLM Name
     Set Suite Variable  ${LLM_NAME}
 
 Wait Until Falcon Download Complete
-    FOR  ${i}  IN RANGE   100
+    [Setup]             Switch to vm    ${GUI_VM}
+    [Timeout]           10 minutes
+    ${downloaded}       Set Variable    0
+    ${stop_flag}        Set Variable    0
+    Log To Console      Logging progression of downloaded model files
+    FOR  ${i}  IN RANGE   60
         ${output}          Run Command  ollama list
         ${download_done}   Run Keyword And Return Status  Should Contain   ${output}  ${LLM_NAME}
         IF  ${download_done}  BREAK
-        Sleep  3
+        Sleep  6
+        ${downloaded_new}  Run Command    du -s /var/lib/private/ollama/models/ | awk '{print $1}'  sudo=True
+        Log                ${downloaded_new} KB    console=True
+        IF  ${downloaded_new} > ${downloaded}
+            ${stop_flag}        Set Variable    0
+            ${downloaded}       Set Variable   ${downloaded_new}
+        ELSE
+            ${stop_flag}        Evaluate       ${stop_flag}+1
+        END
+        IF  ${stop_flag} > 9
+            FAIL                Download of ollama AI model stopped for more than 100 sec without completing.
+        END
     END
+    [Teardown]          Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
 
 Ask the question
     [Arguments]      ${question}
