@@ -20,7 +20,9 @@ Start Falcon AI
     [Tags]            SP-T223  falcon_ai  lenovo-x1  darter-pro
     Get Falcon LLM Name
     Start application  "Falcon AI"
+    Switch to vm        ${GUI_VM}
     Wait Until Falcon Download Complete
+    Switch to vm        ${GUI_VM}  user=${USER_LOGIN}
     Check that the application was started    alpaca    range=20
 
     ${answer}  Ask the question     2+2=? Return just the number.
@@ -64,11 +66,25 @@ Get Falcon LLM Name
     Set Suite Variable  ${LLM_NAME}
 
 Wait Until Falcon Download Complete
+    ${downloaded}       Set Variable    0
+    ${stop_flag}        Set Variable    0
+    Log To Console      Logging progression of downloaded model files
     FOR  ${i}  IN RANGE   100
         ${output}          Run Command  ollama list
         ${download_done}   Run Keyword And Return Status  Should Contain   ${output}  ${LLM_NAME}
         IF  ${download_done}  BREAK
-        Sleep  3
+        Sleep  10
+        ${downloaded_new}  Run Command    du -s /var/lib/private/ollama/models/ | awk '{print $1}'  sudo=True
+        Log                ${downloaded_new} KB    console=True
+        IF  ${downloaded_new} > ${downloaded}
+            ${stop_flag}        Set Variable    0
+            ${downloaded}       Set Variable   ${downloaded_new}
+        ELSE
+            ${stop_flag}        Evaluate       ${stop_flag}+1
+        END
+        IF  ${stop_flag} > 9
+            FAIL                Download of ollama AI model stopped for more than 100 sec without completing.
+        END
     END
 
 Ask the question
