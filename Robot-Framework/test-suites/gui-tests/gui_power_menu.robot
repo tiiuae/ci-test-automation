@@ -13,7 +13,7 @@ Resource            ../../resources/measurement_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Test Teardown       GUI Power Test Teardown
+#Test Teardown       GUI Power Test Teardown
 
 
 *** Test Cases ***
