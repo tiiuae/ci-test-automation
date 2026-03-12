@@ -304,7 +304,8 @@ Get gui-vm user journalctl log
 
 Timestamp last screenshot
     ${current_time}  DateTime.Get Current Date  result_format=%Y%m%d_%H%M%S
-    Run Process      sh  -c  cp ${SCREENSHOT_LOCAL} ${GUI_OUTPUT_DIR}/screenshot_${current_time}.jpeg  shell=true
+    Run Process      cp  ${SCREENSHOT_LOCAL}  ${GUI_OUTPUT_DIR}/screenshot_${current_time}.jpeg
+    Run Process      magick  ${GUI_OUTPUT_DIR}/screenshot_${current_time}.jpeg  ${GUI_OUTPUT_DIR}/screenshot_${current_time}.png
 
 Press Key(s)
     [Arguments]        ${key_combination}   ${sudo}=False
