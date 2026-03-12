@@ -329,3 +329,10 @@ def get_audio_duration_in_seconds(output):
 
 def remove_colors(output):
     return re.sub(r'\033\[.*?m', '', output)   # remove colors from console output
+
+def get_source_ip_for_route(route_output):
+    # Parse `ip route get` output and return the source IP used for the route.
+    match = re.search(r'\bsrc\s+([0-9a-fA-F:.]+)', route_output)
+    if match:
+        return match.group(1)
+    raise Exception("Couldn't parse source IP from route output")
