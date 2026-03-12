@@ -119,6 +119,9 @@ GUI Power Test Teardown
     IF  $TEST_STATUS=='PASS'
         Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
     ELSE
+        ${status}   ${failed_units}   Verify Systemctl status   timeout=2min
+        Log    ${status}
+        Log    ${failed_units}
         Reboot Laptop
         Connect After Reboot
         IF    ${IS_AVAILABLE}
