@@ -137,7 +137,10 @@ Locate on screen
             END
             IF    $locate_status=='PASS'   BREAK
         ELSE
-            Log To Console       FAIL: ${result}
+            ${error}     Get Regexp Matches   ${result}   (?s)Error:\s*(.+)$
+            ${log_msg}   Set Variable If   ${error}   ${error}[0]   ${result}
+            Log     FAIL: ${log_msg}   console=True
+            Sleep   0.5
         END
     END
     IF  ${debug_screenshot} and ($locate_status != $expected_result)
@@ -182,15 +185,11 @@ Verify desktop availability
     [Documentation]    Wait for the login and check that launcher icon is available on desktop
     [Arguments]        ${logging_in}=False
 
-    ${activity}        Wait for user session to be active
-
-    # Give extra time if the service is still activating
-    IF  $activity == "activating"
-        Log To Console     User-session is ${activity}, login in process
-        ${activity}        Wait for user session to be active   iterations=60
+    FOR   ${i}   IN RANGE  60
+        ${logout_status}   Check if logged out   1
+        IF  not ${logout_status}    BREAK
     END
-
-    IF  $activity != "active"    FAIL    User-session did not activate, it is ${activity}
+    IF  ${logout_status}    FAIL    User session did not activate, user is still logged out
     IF  "${DEVICE_TYPE}" == "dell-7330"    Sleep   10
 
     IF  ${logging_in}   Kill Initial Setup
@@ -198,7 +197,7 @@ Verify desktop availability
     Log To Console         Verifying login by trying to detect the launcher icon
     # This is a workaround for launcher icon missing sometimes. If launcher icon can't be found tries to search
     # for the power menu icon. Gui-vm user log is saved to help debugging.
-    ${status}   ${output}   Run Keyword And Ignore Error   Locate on screen  image  ${APP_MENU_LAUNCHER}  0.95  20
+    ${status}   ${output}   Run Keyword And Ignore Error   Locate on screen  image  ${APP_MENU_LAUNCHER}  0.95  100
     IF   $status == 'FAIL'
         Get gui-vm user journalctl log
         Log To Console    Could not find launcher icon, checking for power menu icon
@@ -215,32 +214,16 @@ Check if logged out
     [Documentation]    Check if system is in logged out state
     [Arguments]        ${iterations}=10
     FOR   ${i}   IN RANGE  ${iterations}
-        ${activity}=       Run Command    systemctl --user is-active xdg-desktop-portal.service   rc_match=skip
-        IF  $activity == "active"
-            Log      User session is ${activity}, user is logged in  console=True
+        ${sessions}       Run Command   loginctl list-sessions | grep seat   rc_match=skip
+        IF    $USER_LOGIN in $sessions
+            Log      Found active GUI session for ${USER_LOGIN}, user is logged in  console=True
         ELSE
-            Log      User session is ${activity}, user is logged out  console=True
+            Log      No active GUI session found for ${USER_LOGIN}, user is logged out  console=True
             RETURN    ${True}
         END
         Sleep  1
     END
     RETURN    ${False}
-
-Wait for user session to be active
-    [Documentation]    Wait until the user session is in active state
-    [Arguments]        ${iterations}=30
-    Log To Console     Waiting for the user session to be active...  no_newline=true 
-    FOR   ${i}   IN RANGE   ${iterations}
-        ${activity}=       Run Command    systemctl --user is-active xdg-desktop-portal.service   rc_match=skip
-        IF  $activity == "active"
-            Log    Success  console=True
-            Log    User session is ${activity}, user is logged in  console=True
-            BREAK
-        END
-        Log To Console   ${i}.  no_newline=true
-        Sleep   0.5
-    END
-    RETURN   ${activity}
 
 Get icon
     [Documentation]    Copy icon svg file to test agent machine. Crop and convert the svg file to png.
@@ -359,8 +342,16 @@ Restore default wallpaper
 
 Start screen recording
     [Setup]          Kill App By Name   gpu-screen-recorder
+    [Timeout]        1 minute
     Log To Console   Starting screen recording
-    Press key(s)     LEFTCTRL+LEFTSHIFT+LEFTALT+R
+    ${test_name}     Replace String   ${TEST_NAME}   ${SPACE}   _
+    ${cmd}=    Catenate    SEPARATOR=${SPACE}
+    ...    systemd-run --user --collect /bin/sh -lc 'exec gpu-screen-recorder
+    ...    -w portal -c mkv -k h264 -ac opus -f 60 -cursor yes -restore-portal-session yes
+    ...    -cr limited -encoder gpu -q very_high -a device:default_output
+    ...    -o /home/${USER_LOGIN}/Videos/${test_name}.mkv
+    ...    </dev/null >/tmp/gpu-screen-recorder.log 2>&1'
+    Run Command      ${cmd}
     IF   ${SCREEN_SELECTED}==${False}
         # The window to record needs to be selected when recording first time
         # Check if selection window opened
@@ -378,22 +369,25 @@ Start screen recording
 Stop screen recording
     [Arguments]      ${test_status}   ${test_name}=""
     ${pass_status}   ${output}    Run Keyword And Ignore Error   Check that the application was started   gpu-screen-recorder
-    IF  $pass_status=='FAIL'
+    IF  $pass_status=='PASS'
+        Log To Console   Stopping screen recording
+        Press key(s)     LEFTCTRL+LEFTSHIFT+LEFTALT+R
+        Kill App By Name   gpu-screen-recorder
+    ELSE
         Log To Console  Screen recording was not running
-        RETURN
     END
-    Log To Console   Stopping screen recording
-    Press key(s)     LEFTCTRL+LEFTSHIFT+LEFTALT+R
-    Kill App By Name   gpu-screen-recorder
     # Get the name of the last recording
     ${video_file}    Run Command   ls /home/${USER_LOGIN}/Videos -Art | tail -n 1
-    # Save the video file if the test failed
-    IF  $test_status=='FAIL' or $test_status=='SKIP'
-        Log To Console        Saving video file
-        ${name}               Replace String   ${test_name}   ${SPACE}   _
-        SSHLibrary.Get File   /home/${USER_LOGIN}/Videos/${video_file}   ${GUI_OUTPUT_DIR}/${name}.mp4
+    ${test_name}          Replace String   ${test_name}   ${SPACE}   _
+    # Make sure that the last video is from the current test
+    IF   $test_name in $video_file
+        # Save the video file if the test failed
+        IF  $test_status=='FAIL' or $test_status=='SKIP'
+            Log To Console        Saving video file
+            SSHLibrary.Get File   /home/${USER_LOGIN}/Videos/${video_file}   ${GUI_OUTPUT_DIR}/${test_name}.mp4
+        END
+        Run Command   rm /home/${USER_LOGIN}/Videos/${video_file}
     END
-    Run Command   rm /home/${USER_LOGIN}/Videos/${video_file}
     [Teardown]        Kill App By Name   gpu-screen-recorder
 
 Kill Initial Setup
