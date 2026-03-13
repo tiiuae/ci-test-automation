@@ -178,3 +178,31 @@ Verify shutdown via serial
     ${time}           BuiltIn.Get Time   epoch
     RETURN            ${time}
     [Teardown]        Delete All Ports
+
+Run Command on VM Via Serial
+    [Arguments]        ${vm}    ${command}    ${timeout}=60
+    IF    "${SERIAL_PORT}" == "NONE"
+        FAIL    Serial port is not configured. Cannot execute ${vm} commands via serial.
+    END
+    ${status}          Connect via serial   timeout=${timeout}
+    IF    ${status} == False
+        FAIL    Failed to connect via serial. Cannot execute ${vm} commands.
+    END
+    ${marker_seed}     Generate Random String    8
+    ${marker}          Set Variable    __SERIAL_CMD_${marker_seed}__
+    ${escaped_cmd}     Replace String    ${command}    "    \\" 
+    ${ssh_command}     Set Variable    ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${vm} "${escaped_cmd}"; echo ${marker}
+    Write Data         ${ssh_command}${\n}
+    # Consume echoed command line to avoid matching marker before command output
+    SerialLibrary.Read Until    terminator=${\n}
+    ${output}          SerialLibrary.Read Until    terminator=${marker}
+    ${output}          Replace String    ${output}    ${marker}    ${EMPTY}
+    ${output}          Replace String    ${output}    \r    ${EMPTY}
+    SerialLibrary.Read Until    ghaf@${HOST}:
+    Delete All Ports
+    ${clean_output}    Strip String    ${output}
+    ${lower_output}    Convert To Lowercase    ${clean_output}
+    IF    'permission denied' in ${lower_output} or 'could not resolve hostname' in ${lower_output} or 'no route to host' in ${lower_output}
+        FAIL    Failed to execute '${command}' on ${vm} via serial: ${clean_output}
+    END
+    RETURN            ${clean_output}
