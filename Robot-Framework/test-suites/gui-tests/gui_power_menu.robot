@@ -13,6 +13,7 @@ Resource            ../../resources/measurement_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
+Test Setup          GUI Power Test Setup
 Test Teardown       GUI Power Test Teardown
 
 
@@ -60,14 +61,11 @@ GUI Lock and Unlock
     [Documentation]   Lock the screen via GUI power menu lock icon and check that the screen is locked.
     ...               Unlock lock screen by typing the password and check that desktop is available.
     [Tags]            SP-T75  SP-T75-1  lock  lenovo-x1  darter-pro
-    [Setup]           Start screen recording
     Select power menu option   text=Lock
     ${lock}           Check if locked
     IF  not ${lock}   FAIL    Failed to lock the screen
     Unlock
     Verify desktop availability
-    [Teardown]        Run Keywords   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}   AND
-    ...               GUI Power Test Teardown
 
 GUI Reboot
     [Documentation]   Reboot the device via GUI power menu reboot icon.
@@ -96,7 +94,6 @@ GUI Shutdown
     Turn Laptop On and Connect
     Login to laptop   enable_dnd=True
     IF   ${elapsed} > 20    SKIP   Known issue: SSRCSP-7512 (Shutdown took too long: ${elapsed} seconds (expected < 20))
-    [Teardown]        Run Keyword If   $TEST_STATUS=='FAIL'   GUI Power Test Teardown
 
 GUI Log out and log in
     [Documentation]   Logout via GUI power menu icon and verify logged out state.
@@ -109,10 +106,13 @@ GUI Log out and log in
 
 *** Keywords ***
 
+GUI Power Test Setup
+    Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
+    Start screen recording
+
 GUI Power Test Teardown
-    IF  $TEST_STATUS=='PASS'
-        Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
-    ELSE
+    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME} 
+    IF  $TEST_STATUS == 'FAIL'
         Reboot Laptop
         Connect After Reboot
         IF    ${IS_AVAILABLE}
