@@ -283,8 +283,8 @@ Get gui-vm user journalctl log
 
 Timestamp last screenshot
     ${current_time}  DateTime.Get Current Date  result_format=%Y%m%d_%H%M%S
+    Log              Saving debug screenshot screenshot_${current_time}.jpeg   console=True
     Run Process      cp  ${SCREENSHOT_LOCAL}  ${GUI_OUTPUT_DIR}/screenshot_${current_time}.jpeg
-    Run Process      magick  ${GUI_OUTPUT_DIR}/screenshot_${current_time}.jpeg  ${GUI_OUTPUT_DIR}/screenshot_${current_time}.png
 
 Press Key(s)
     [Arguments]        ${key_combination}   ${sudo}=False
@@ -367,23 +367,29 @@ Stop screen recording
     ${pass_status}   ${output}    Run Keyword And Ignore Error   Check that the application was started   gpu-screen-recorder
     IF  $pass_status=='PASS'
         Log To Console   Stopping screen recording
-        Kill App By Name   gpu-screen-recorder
+        # Stop the recorder gracefully so it can flush buffered frames and finalize the video file
+        Kill process by name   gpu-screen-recorder   sudo=False   signal=INT
+        Check that the application is not running   gpu-screen-recorder   10
     ELSE
         Log To Console  Screen recording was not running
     END
     Save screen recording   ${test_status}   ${test_name}
+    [Teardown]   Kill process by name   gpu-screen-recorder   sudo=False   require_exists=False
 
 Save screen recording
     [Arguments]    ${test_status}   ${test_name}
     # Get the name of the last recording
     ${video_file}    Run Command   ls /home/${USER_LOGIN}/Videos -Art | tail -n 1
+    # For debugging
+    Run Command      ls -la /home/${USER_LOGIN}/Videos
+
     ${test_name}     Replace String   ${test_name}   ${SPACE}   _
     # Make sure that the last video is from the current test
     IF   $test_name in $video_file
         # Save the video file if the test failed
         IF  $test_status=='FAIL' or $test_status=='SKIP'
             Log To Console        Saving video file
-            SSHLibrary.Get File   /home/${USER_LOGIN}/Videos/${video_file}   ${GUI_OUTPUT_DIR}/${test_name}.mp4
+            SSHLibrary.Get File   /home/${USER_LOGIN}/Videos/${video_file}   ${GUI_OUTPUT_DIR}/${video_file}
         END
         Run Command   rm /home/${USER_LOGIN}/Videos/${video_file}
     END
