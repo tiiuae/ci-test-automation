@@ -46,7 +46,7 @@ Check that appVM is running
 Start application
     [Arguments]      ${app_name}
     Log    Starting ${app_name}   console=True
-    Run Command  nohup sh -c 'WAYLAND_DISPLAY=wayland-1 ghaf-open ${app_name}' > ${APP_OUTPUT_FILE} 2>&1 &
+    Run Command  nohup sh -c 'ghaf-open ${app_name}' > ${APP_OUTPUT_FILE} 2>&1 &
 
 Check that the application was started
     [Arguments]    ${process_name}  ${range}=2
