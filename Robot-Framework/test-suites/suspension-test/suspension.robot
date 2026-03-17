@@ -104,8 +104,7 @@ Test setup
 
 Test teardown
     IF  $TEST_STATUS=='PASS'
-        Switch to vm   ${GUI_VM}   user=${USER_LOGIN}
-        Log out and verify
+        Log out from laptop
     ELSE
         Reboot Laptop
         Connect After Reboot
