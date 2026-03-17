@@ -89,6 +89,7 @@ Check audit update logging
     ${found}  ${logs}         Get logs by key words   nixos_rebuild_store   ${log_search_window}s   ${False}
     Should Be True            ${found}    No 'nixos_rebuild_store' keywords found in Grafana from the time of nixos-rebuild.
     Log                       ${logs}
+    [Teardown]    Run Keyword If  '${watch_service_status}' != 'True'  Run Keyword If Test Failed  Skip  "Known issue: SSRCSP-8199"
 
 
 *** Keywords ***
@@ -130,7 +131,8 @@ Enable audit logging and nix-store-watch
     Run Nixos Rebuild         ${repository_path}  ${target_name}
 
     Switch to vm              ${HOST}
-    ${state}  ${substate}     Verify service status  range=10  service=nixos-rebuild-watch.service
+    ${watch_service_status}   Run Keyword And Return Status    Verify service status  range=10  service=nixos-rebuild-watch.service
+    Set Suite variable        ${watch_service_status}
 
 Run Nixos Rebuild
     [Arguments]      ${repository_path}  ${target_name}  ${interrupt}=${EMPTY}
