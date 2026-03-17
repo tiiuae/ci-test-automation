@@ -31,8 +31,25 @@ OP-TEE xtest
        ...              (3. If everything is fixed (no more "-x"-flags), remove this comment!!)
        [Tags]  SP-T122  optee-xtest
 
-       Run Command    xtest -x 1008 -x 1033    sudo=True   timeout=300
+       Run Command    xtest -x 1006 -x 1008 -x 1033 -x 1024    sudo=True   timeout=300
 
+OP-TEE xtest 1024
+    [Documentation]   Xtest 1024
+    ...               Test will be skipped in case of failure, because this is a known issue.
+    ...               Please read OP-TEE Test suite comment
+    [Tags]  SP-T129  optee-xtest
+
+    ${status}  ${out}   Run Keyword And Ignore Error   Run Command    xtest 1024   sudo=True
+    IF   $status == 'FAIL'   SKIP   Known issue (SSRCSP-8198) encountered, skipping the test
+
+OP-TEE xtest 1006
+    [Documentation]   Xtest 1006
+    ...               Test will be skipped in case of failure, because this is a known issue.
+    ...               Please read OP-TEE Test suite comment
+    [Tags]  SP-T129  optee-xtest
+
+    ${status}  ${out}   Run Keyword And Ignore Error   Run Command    xtest 1006   sudo=True
+    IF   $status == 'FAIL'   SKIP   Known issue (SSRCSP-8198) encountered, skipping the test
 
 OP-TEE xtest 1008
     [Documentation]   Xtest 1008
