@@ -22,6 +22,7 @@ Change timezone in settings
     Type string and press enter   Dubai
     Tab and enter     tabs=1
     Wait Until Keyword Succeeds  10s  1s   Verify timezone   Asia/Dubai
+    Sleep   2   # Give time for the timezone change to finish
 
     [Teardown]   Run Keywords   Set timezone   ${ORIGINAL_TIMEZONE}
     ...          AND   Move cursor to corner
