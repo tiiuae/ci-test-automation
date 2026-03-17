@@ -12,6 +12,7 @@ Resource            ../../resources/gui-vm_keywords.resource
 Resource            ../../resources/measurement_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/serial_keywords.resource
 
 Test Setup          GUI Power Test Setup
 Test Teardown       GUI Power Test Teardown
@@ -113,6 +114,7 @@ GUI Power Test Setup
 GUI Power Test Teardown
     Stop screen recording   ${TEST_STATUS}   ${TEST_NAME} 
     IF  $TEST_STATUS == 'FAIL'
+        Run keyword and continue on failure    serial_keywords.Save log
         Reboot Laptop
         Connect After Reboot
         IF    ${IS_AVAILABLE}
