@@ -3,7 +3,8 @@
 ## Active SKIPS
 
 | DATE SET   | TEST CASE                                                                                   | TICKET / Additional Data.                                                                     |
-|------------|---------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| ---------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 18.03.2026 | Check Grafana logs                                                                          | SSRCSP-8146                                                                                   |
 | 18.03.2026 | Check audit update logging                                                                  | SSRCSP-8199                                                                                   |
 | 26.02.2026 | Check systemctl status in every VM (retry added for NX)                                     | Timeout of Executing command 'systemctl list-units --plain --no-legend --no-pager '.          |
 | 12.02.2026 | Account lockout after failed login                                                          | SSRCSP-8006                                                                                   |
@@ -21,7 +22,7 @@
 |            | OP-TEE xtest 1033 -orin-agx & orin-nx                                                       | Known issue encountered, skipping the test                                                    |
 |            | OP-TEE xtest 1008 -orin-agx & orin-nx                                                       | Known issue encountered, skipping the test                                                    |
 |            | OP-TEE xtest 1006 -orin-agx & orin-nx                                                       | Known issue SSRCSP-8198 encountered, skipping the test                                        |
-|            | OP-TEE xtest 1024 -orin-agx & orin-nx                                                       | Known issue SSRCSP-8198 encountered, skipping the test                                                   |
+|            | OP-TEE xtest 1024 -orin-agx & orin-nx                                                       | Known issue SSRCSP-8198 encountered, skipping the test                                        |
 |            | Check Camera Application -DELL                                                              | SSRCSP-6450                                                                                   |
 
 ## TAGs removed
