@@ -101,7 +101,7 @@ Test teardown
         Connect After Reboot
     END
     Switch to vm   ${GUI_VM}   user=${USER_LOGIN}
-    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME} 
+    Save screen recording   ${TEST_STATUS}   ${TEST_NAME} 
 
 Save max brightness
     ${device}     Run Command    ls /sys/class/backlight/

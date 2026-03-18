@@ -112,14 +112,17 @@ GUI Power Test Setup
     Start screen recording
 
 GUI Power Test Teardown
-    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME} 
     IF  $TEST_STATUS == 'FAIL'
         Run keyword and continue on failure    serial_keywords.Save log
         Reboot Laptop
         Connect After Reboot
         IF    ${IS_AVAILABLE}
             Login to laptop   enable_dnd=True
+            Save screen recording   ${TEST_STATUS}   ${TEST_NAME}
         END
+    ELSE
+        Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
+        Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
     END
 
 Select power menu option

@@ -371,14 +371,17 @@ Stop screen recording
     ${pass_status}   ${output}    Run Keyword And Ignore Error   Check that the application was started   gpu-screen-recorder
     IF  $pass_status=='PASS'
         Log To Console   Stopping screen recording
-        Press key(s)     LEFTCTRL+LEFTSHIFT+LEFTALT+R
         Kill App By Name   gpu-screen-recorder
     ELSE
         Log To Console  Screen recording was not running
     END
+    Save screen recording   ${test_status}   ${test_name}
+
+Save screen recording
+    [Arguments]    ${test_status}   ${test_name}
     # Get the name of the last recording
     ${video_file}    Run Command   ls /home/${USER_LOGIN}/Videos -Art | tail -n 1
-    ${test_name}          Replace String   ${test_name}   ${SPACE}   _
+    ${test_name}     Replace String   ${test_name}   ${SPACE}   _
     # Make sure that the last video is from the current test
     IF   $test_name in $video_file
         # Save the video file if the test failed
@@ -388,7 +391,6 @@ Stop screen recording
         END
         Run Command   rm /home/${USER_LOGIN}/Videos/${video_file}
     END
-    [Teardown]        Kill App By Name   gpu-screen-recorder
 
 Kill Initial Setup
     ${status}   ${output}   Run Keyword And Ignore Error   Check file exists   .config/cosmic-initial-setup-done
