@@ -4,7 +4,6 @@
 
 | DATE SET   | TEST CASE                                                                                   | TICKET / Additional Data.                                                                     |
 | ---------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| 18.03.2026 | Check Grafana logs                                                                          | SSRCSP-8146                                                                                   |
 | 18.03.2026 | Check audit update logging                                                                  | SSRCSP-8199                                                                                   |
 | 26.02.2026 | Check systemctl status in every VM (retry added for NX)                                     | Timeout of Executing command 'systemctl list-units --plain --no-legend --no-pager '.          |
 | 12.02.2026 | Account lockout after failed login                                                          | SSRCSP-8006                                                                                   |
