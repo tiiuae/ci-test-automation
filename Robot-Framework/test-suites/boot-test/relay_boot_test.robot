@@ -26,12 +26,12 @@ ${DEVICE_TYPE}           ${EMPTY}
 Verify booting after restart by power
     [Documentation]    Restart device by power and verify init service is running
     [Tags]             relayboot  orin-agx  orin-agx-64  orin-nx
-    Reboot Device Via Relay
+    Reboot Orin
     Check If Device Is Up   range=70
 
     IF      "${DEVICE_TYPE}" == "orin-nx" and ${IS_AVAILABLE} == False
             Log                     message=Orin-nx failed to start, rebooting via relay one more time...    level=WARN
-            Reboot Device Via Relay
+            Reboot Orin
             Check If Device Is Up   range=70
     END
 
@@ -86,7 +86,7 @@ Turn OFF Device
     IF  ${IS_LAPTOP}
         Press Button      ${SWITCH_BOT}-OFF
     ELSE
-        Turn Relay Off    ${RELAY_NUMBER}
+        Turn Off Power
     END
     ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  30s  2s  Check If Ping Fails
     IF  ${device_not_available} == True
@@ -102,7 +102,7 @@ Turn ON Device
     IF  ${IS_LAPTOP}
         Press Button      ${SWITCH_BOT}-ON
     ELSE
-        Turn Relay On     ${RELAY_NUMBER}
+        Turn On Power
     END
     Sleep    5
     Check If Device Is Up

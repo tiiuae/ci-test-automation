@@ -10,24 +10,38 @@ Resource            ../resources/serial_keywords.resource
 
 *** Keywords ***
 
-Reboot Device
+Reboot Orin
     [Arguments]       ${delay}=5
     [Documentation]   Turn off power of device, wait for given amount of seconds and turn on the power
     Log To Console    ${\n}Turning device off...
-    Turn Plug Off
+    Turn Off Power
     Sleep    ${delay}
     Log To Console    Turning device on...
-    Turn Plug On
+    Turn On Power
 
-Reboot Device Via Relay
-    [Arguments]       ${delay}=5
-    [Documentation]   Turn off power of device, wait for given amount of seconds and turn on the power
-    # Open Relay Serial Port    ${RELAY_SERIAL_PORT}
-    Log To Console    ${\n}Turning device off...
-    Turn Relay Off    ${RELAY_NUMBER}
-    Sleep    ${delay}
-    Log To Console    Turning device on...
-    Turn Relay On     ${RELAY_NUMBER}
+Turn On Power
+    [Documentation]   If relay number is given, turn it on
+    ...               If relay number is NONE, check smart plug IP, if given, turn it on
+    ...               If none of these is given, fail
+    IF    "${RELAY_NUMBER}" != "NONE"
+        Turn Relay On     ${RELAY_NUMBER}
+    ELSE IF    "${SOCKET_IP_ADDRESS}" != "NONE"
+        Turn Plug On
+    ELSE
+        FAIL    There is no way to turn on device, relay number: ${RELAY_NUMBER}, smart plug ip: ${SOCKET_IP_ADDRESS}
+    END
+
+Turn Off Power
+    [Documentation]   If relay number is given, turn it off
+    ...               If relay number is NONE, check smart plug IP, if given, turn it off
+    ...               If none of these is given, fail
+    IF    "${RELAY_NUMBER}" != "NONE"
+        Turn Relay Off     ${RELAY_NUMBER}
+    ELSE IF    "${SOCKET_IP_ADDRESS}" != "NONE"
+        Turn Plug Off
+    ELSE
+        FAIL    There is no way to turn on device, relay number: ${RELAY_NUMBER}, smart plug ip: ${SOCKET_IP_ADDRESS}
+    END
 
 Reboot Laptop
     [Arguments]       ${delay}=15    ${verify_shutdown}=True
@@ -173,7 +187,7 @@ Check that device is suspended
 Reboot Orin if ssh connection dropped
     ${ssh_available}  Run Keyword And Return Status    Run Command    ls  timeout=5
     IF  not ${ssh_available}
-        Reboot Device Via Relay
+        Reboot Orin
         Close All Connections
         Check If Device Is Up
         Switch to vm                ${NET_VM}   timeout=120
