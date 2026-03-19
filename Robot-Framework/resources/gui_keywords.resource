@@ -166,20 +166,22 @@ Take a screenshot
     RETURN   ${screenshot_status}  ${result}
 
 Locate and click
-    [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=10  ${timeout}=120  ${scale}=1  ${wiggle}=True
+    [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=10  ${timeout}=120  ${scale}=1  ${wiggle}=False
     ${mouse_x}  ${mouse_y}  Locate on screen  ${type}  ${searched_item}  ${confidence}  ${iterations}  timeout=${timeout}  scale=${scale}
     Run ydotool command   mousemove --absolute -x ${mouse_x} -y ${mouse_y}
     # Wiggle is sometimes needed for the window to recognize the mouse
-    IF   ${wiggle}
-        Run ydotool command   mousemove 1 1
-        Run ydotool command   mousemove -- -1 -1
-    END
+    IF   ${wiggle}   Wiggle cursor
     Run ydotool command   click 0xC0
 
 Move cursor to corner
     [Documentation]    Move the cursor to the upper left corner so that it will not block searching further gui screenshots
     Log To Console    Moving cursor to corner from blocking further image detection
     Run ydotool command   mousemove --absolute -x 50 -y 50
+
+Wiggle cursor
+    Log To Console    Moving the mouse a bit
+    Run ydotool command   mousemove 1 1
+    Run ydotool command   mousemove -- -1 -1
 
 Verify desktop availability
     [Documentation]    Wait for the login and check that launcher icon is available on desktop
@@ -203,12 +205,6 @@ Verify desktop availability
         Log To Console    Could not find launcher icon, checking for power menu icon
         Locate on screen  image  power.png  0.95  10
     END
-
-Move cursor
-    Log To Console    Moving cursor to random location
-    ${x}    Evaluate  random.randint(50, 500)  modules=random
-    ${y}    Evaluate  random.randint(50, 500)  modules=random
-    Run ydotool command   mousemove --absolute -x ${x} -y ${y}
 
 Check if logged out
     [Documentation]    Check if system is in logged out state

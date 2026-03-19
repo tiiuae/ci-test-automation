@@ -45,7 +45,7 @@ GUI Suspend and wake up
     Switch to vm             ${GUI_VM}   user=${USER_LOGIN}
 
     # Sometimes screen wakeup has required a mouse move
-    Move Cursor
+    Wiggle cursor
 
     Wait Until Keyword Succeeds   30s   2s    Check the screen state   on
 

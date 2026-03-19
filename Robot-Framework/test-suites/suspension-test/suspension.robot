@@ -55,7 +55,7 @@ Automatic suspension
     Switch to vm             ${GUI_VM}   user=${USER_LOGIN}
 
     # Sometimes screen wakeup has required a mouse move
-    Move Cursor
+    Wiggle cursor
     
     Wait Until Keyword Succeeds   30s   2s    Check the screen state   on
 
@@ -90,7 +90,7 @@ Test setup
     Enable automatic suspension
     Save max brightness
     Set display to max brightness
-    Move cursor
+    Wiggle cursor
 
 Test teardown
     IF  $TEST_STATUS=='PASS'
