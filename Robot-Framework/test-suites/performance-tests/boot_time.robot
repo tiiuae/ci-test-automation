@@ -59,12 +59,12 @@ Measure Orin Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
     [Tags]           SP-T182  SP-T182-2  orin-agx  orin-agx-64  orin-nx  lab-only
     Log To Console                Shutting down by switching the power off
-    Turn Relay Off                ${RELAY_NUMBER}
+    Turn Off Power
     Wait Until Device Is Down
     Close All Connections
     Log To Console                The device has shut down
     Log To Console                Booting the device by switching the power on
-    Turn Relay On                 ${RELAY_NUMBER}
+    Turn On Power
     Get Time To Ping              plot_name=Hard Boot Times
     [Teardown]                    Orin Boot Time Test Teardown
 
@@ -167,6 +167,6 @@ Failed Boot Time Test Teardown
     Log Journal To Debug  boot=-1
 
 Orin Boot Time Test Teardown
-    Run Keyword If Test Failed  Reboot Device Via Relay
+    Run Keyword If Test Failed  Reboot Orin
     Run Keyword If Test Failed  Check If Device Is Up
     Switch to vm                ${NET_VM}   timeout=120
