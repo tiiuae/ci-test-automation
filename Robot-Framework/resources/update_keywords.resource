@@ -27,6 +27,6 @@ Roll back to original generation
             Log To Console    New generation not found. Skipping roll back.
         END
         Log To Console        Running garbage collect
-        Run Command           nix-collect-garbage  sudo=True
+        Run Command           nix-collect-garbage  sudo=True  timeout=180
         Close All Connections
     END
