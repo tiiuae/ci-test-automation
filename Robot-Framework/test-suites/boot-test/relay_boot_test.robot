@@ -162,8 +162,9 @@ Break the system
     END
     Switch to vm      ${HOST}
     Log               Trying to remove EFI partition   console=True
+    ${efi_partition}  Run Command    lsblk -lpno NAME,MOUNTPOINT | awk '$2=="/boot"{print $1}'
     Run Command       mkdir -p /mnt                sudo=True
-    Run Command       mount /dev/nvme0n1p2 /mnt    sudo=True
+    Run Command       mount ${efi_partition} /mnt  sudo=True
     Run Command       rm -rf /mnt/EFI              sudo=True
     Run Command       sync                         sudo=True
 
