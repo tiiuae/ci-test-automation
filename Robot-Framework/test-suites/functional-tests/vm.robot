@@ -29,7 +29,7 @@ Suite Setup         VM Suite Setup
              ...    orin-agx|ghaf-host|systemd-rfkill.service|SSRCSP-6303
              ...    orin|ghaf-host|systemd-oomd.service|SSRCSP-6685
              ...    orin|admin-vm|stunnel.service|SSRCSP-8067
-             ...    orin|admin-vm|alloy.service|SSRCSP-8071
+             ...    orin|ANY|alloy.service|SSRCSP-8071
              ...    orin|admin-vm|ghaf-journal-alloy-recover.service|SSRCSP-8071
 
 # Container for test message. Keyword `Set Test Message` doesn't work properly with Templates.
