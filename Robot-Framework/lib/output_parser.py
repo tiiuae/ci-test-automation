@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+import json
 import re
 from datetime import datetime
 
@@ -336,3 +337,13 @@ def get_source_ip_for_route(route_output):
     if match:
         return match.group(1)
     raise Exception("Couldn't parse source IP from route output")
+
+def get_backing_disk_from_lsblk(lsblk_output):
+    devices = json.loads(lsblk_output).get("blockdevices", [])
+    while devices:
+        device = devices[0]
+        if device["type"] == "disk":
+            return device["name"]
+        devices = device.get("children") or []
+
+    raise Exception("Couldn't find backing disk in lsblk output")
