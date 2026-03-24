@@ -202,7 +202,7 @@ Set timestamp
 
 Get Actual Device ID
     ${device_id}     Run Command   cat /persist/common/device-id
-    Log To Console   Actual Device ID: ${device_id}
+    Log              Actual Device ID: ${device_id}    console=True
     RETURN           ${device_id}
 
 Get Timestamp of Last Boot
