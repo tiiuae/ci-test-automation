@@ -83,6 +83,43 @@ Validate Forward Secure Sealing
     END
     [Teardown]  Run Keyword If Test Failed   SKIP   Known issue: SSRCSP-7973
 
+Check logging rate
+    [Documentation]    Check that host or vms are not creating too much logs
+    [Tags]             SP-T359  log_rate  pre-merge  orin-agx  orin-agx-64  orin-nx
+    ${check_interval}  Set Variable   100
+    ${saved_entries}   Set Variable   100
+    ${entry_limit}     Set Variable   10000
+    ${byte_limit}      Set Variable   2000000
+    &{spam_metrics}    Create Dictionary
+    &{ok_metrics}      Create Dictionary
+    &{spam_logs}       Create Dictionary
+    FOR  ${vm}  IN  @{VM_LIST}
+        Switch to vm   ${vm}
+        ${byte_rate}   Run Command    journalctl --since "$(date -d '${check_interval} seconds ago' '+%Y-%m-%d %H:%M:%S')" | wc -c | awk '{print $1}'
+        ${entries}     Run Command    journalctl --since "${check_interval} seconds ago" | wc -l
+        IF  ${entries} > ${entry_limit} or ${byte_rate} > ${byte_limit}
+            ${recent_logs}       Run Command        journalctl -n ${saved_entries}
+            Set To Dictionary    ${spam_logs}       ${vm}=${recent_logs}
+            Set To Dictionary    ${spam_metrics}    ${vm}=entries:${entries}_byterate:${byte_rate}
+        ELSE
+            Set To Dictionary    ${ok_metrics}      ${vm}=entries:${entries}_byterate:${byte_rate}
+        END
+    END
+    Log                VMs with acceptable logging rates:\n${ok_metrics}       console=True
+    Log                Log spamming detected in these VMs:\n${spam_metrics}    console=True
+    ${spam_vm_count}   Get Length    ${spam_metrics}
+    ${status}          Run Keyword And Return Status    Should Be Empty  ${spam_metrics}
+    IF  not ${status}
+        Log            Sample of ${saved_entries} log entries from VMs demonstrating too high logging rates
+        FOR  ${vm}  ${logs}  IN  &{spam_logs}
+            Log        ${vm}
+            Log        ${logs}
+        END
+        FAIL           meas interval: ${check_interval}s\nentry limit: ${entry_limit}\nbyte limit: ${byte_limit}\n${spam_metrics}
+    END
+    [Teardown]         Run Keyword If  ${spam_vm_count} < 2 and "gui-vm" in ${spam_metrics}   SKIP   Known issue: SSRCSP-8245
+
+
 *** Keywords ***
 
 Logging Suite Setup

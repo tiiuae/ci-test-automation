@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                                                                   | TICKET / Additional Data.                                                                     |
 | ---------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 25.03.2026 | Check logging rate                                                                          | SSRCSP-8245                                                                                   |
 | 25.03.2026 | Check device id                                                                             | Device ID needs to be updated                                                                 |
 | 25.03.2026 | Check net-vm hostname                                                                       | Net-vm hostname needs to be updated                                                           |
 | 24.03.2026 | Check Grafana logs                                                                          | SSRCSP-8146                                                                                   |
