@@ -42,6 +42,7 @@ Check QSPI version
     [Documentation]    QSPI version should be up-to-date
     [Tags]             SP-T95  pre-merge  bat  orin-agx  orin-agx-64  orin-nx
     Check QSPI Version is up to date
+    [Teardown]   Run Keyword If Test Failed    SKIP    QSPI needs to be flashed
 
 Check all VMs are running
     [Documentation]    Check that all VMs are running.

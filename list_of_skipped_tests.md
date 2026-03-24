@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                                                                   | TICKET / Additional Data.                                                                     |
 | ---------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 24.03.2026 | Check QSPI version                                                                          | QSPI needs to be flashed                                                                      |
 | 23.03.2026 | Verify camera block persisted (Lenovo X1)                                                   | SSRCSP-8224                                                                                   |
 | 18.03.2026 | Check audit update logging                                                                  | SSRCSP-8199                                                                                   |
 | 26.02.2026 | Check systemctl status in every VM (retry added for NX)                                     | Timeout of Executing command 'systemctl list-units --plain --no-legend --no-pager '.          |
