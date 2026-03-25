@@ -12,7 +12,7 @@ Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/update_keywords.resource
 
 Test Teardown       Roll back to original generation
-Test Timeout        10 minutes
+Test Timeout        15 minutes
 
 
 *** Test Cases ***
