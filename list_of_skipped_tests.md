@@ -4,6 +4,8 @@
 
 | DATE SET   | TEST CASE                                                                                   | TICKET / Additional Data.                                                                     |
 | ---------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 25.03.2026 | Check device id                                                                             | Device ID needs to be updated                                                                 |
+| 25.03.2026 | Check net-vm hostname                                                                       | Net-vm hostname needs to be updated                                                           |
 | 24.03.2026 | Check QSPI version                                                                          | QSPI needs to be flashed                                                                      |
 | 23.03.2026 | Verify camera block persisted (Lenovo X1)                                                   | SSRCSP-8224                                                                                   |
 | 18.03.2026 | Check audit update logging                                                                  | SSRCSP-8199                                                                                   |

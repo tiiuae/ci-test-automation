@@ -194,6 +194,8 @@ Check device id failure
         ELSE
             FAIL   Actual device ID: ${actual_device_id}, Should be: ${STATIC_DEVICE_ID}, expected to fail with ${expected_wrong_id}
         END
+    ELSE
+        SKIP    Device ID needs to be updated
     END
 
 Get Secure Boot Status
