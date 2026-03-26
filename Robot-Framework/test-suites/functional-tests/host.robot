@@ -42,7 +42,6 @@ Check QSPI version
     [Documentation]    QSPI version should be up-to-date
     [Tags]             SP-T95  pre-merge  bat  orin-agx  orin-agx-64  orin-nx
     Check QSPI Version is up to date
-    [Teardown]   Run Keyword If Test Failed    SKIP    QSPI needs to be flashed
 
 Check all VMs are running
     [Documentation]    Check that all VMs are running.
@@ -207,8 +206,6 @@ Check device id failure
         ELSE
             FAIL   Actual device ID: ${actual_device_id}, Should be: ${STATIC_DEVICE_ID}, expected to fail with ${expected_wrong_id}
         END
-    ELSE
-        SKIP    Device ID needs to be updated
     END
 
 Get Secure Boot Status
