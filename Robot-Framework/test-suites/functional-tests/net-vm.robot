@@ -80,6 +80,4 @@ Check net-vm hostname failure
         ELSE
             FAIL   Actual net-vm hostname: ${NETVM_NAME}, Should be: ${STATIC_NETVM_NAME}, Expected to fail with ${expected_wrong_name}
         END
-    ELSE
-        SKIP    Net-vm hostname needs to be updated
     END
