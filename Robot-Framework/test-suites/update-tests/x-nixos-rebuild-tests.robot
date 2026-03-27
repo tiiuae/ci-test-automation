@@ -27,7 +27,7 @@ Check device-id persistence over nixos-rebuild
     [Documentation]         Verify that device-id has not changed over nixos-rebuild and reboot
     [Tags]                  SP-T351
     [Timeout]               1 minutes
-    ${device_id_check}        Run Command            cat /persist/common/device-id
+    ${device_id_check}      Get Actual Device ID
     IF  $device_id_check != '${device_id}'
         Set Suite Variable      ${device_id}   ${device_id_check}
         FAIL    Device ID has changed over nixos-rebuild and reboot
@@ -114,7 +114,7 @@ Enable audit logging and nix-store-watch
     Switch to vm              ${NET_VM}
     Set Suite Variable        ${netvm_hostname_before}    ${NETVM_NAME}
     Switch to vm              ${HOST}
-    ${device_id}              Run Command            cat /persist/common/device-id
+    ${device_id}              Get Actual Device ID
     Set Suite Variable        ${device_id}
     ${gen_before}             Get current generation
     Set Suite Variable        ${gen_before}

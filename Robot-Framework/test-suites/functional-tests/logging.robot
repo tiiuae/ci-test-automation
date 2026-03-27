@@ -46,7 +46,7 @@ Check Grafana logs
     [Tags]           SP-T172  pre-merge
     Check Network Availability    8.8.8.8   limit_freq=${False}
     Switch to vm       ${ADMIN_VM}
-    ${id}              Run Command  cat /etc/common/device-id
+    ${id}              Get Actual Device ID
     Run Keyword And Continue On Failure   Create logs in all VMs
     Sleep              5
     ${failed_vms_check_1}   Check Logs Are Available   ${id}  since=3m  word=${TEST_LOG}

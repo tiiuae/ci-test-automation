@@ -32,7 +32,7 @@ Check Grafana log forwarding after disconnected state
     [Documentation]  Check that logs are sent to Grafana from time of disconnection during previous boot
     [Tags]           SP-T283
     Switch to vm      ${ADMIN_VM}
-    ${id}             Run Command  cat /etc/common/device-id
+    ${id}             Get Actual Device ID
     Log To Console    Creating log entry and verifying forwarding to grafana
     Run Command       logger --priority=user.info "logtest0_${BUILD_ID}"    sudo=True
     Wait Until Keyword Succeeds  60s  5s  Check VM Log on Grafana  ${id}  ${ADMIN_VM}  2m  ${True}  logtest0_${BUILD_ID}
