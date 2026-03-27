@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing logging
-Test Tags           logging  pre-merge  bat  lenovo-x1  darter-pro  dell-7330
+Test Tags           logging  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
 
 Library             DateTime
 Library             OperatingSystem
@@ -76,7 +76,7 @@ Check Grafana logs
 
 Check logging rate
     [Documentation]    Check that host or vms are not creating too much logs
-    [Tags]             SP-T359  log_rate  orin-agx  orin-agx-64  orin-nx
+    [Tags]             SP-T359  log_rate
 
     ${check_interval}          Set Variable   100
     ${entry_limit}             Set Variable   500

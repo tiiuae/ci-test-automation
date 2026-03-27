@@ -19,7 +19,7 @@ Suite Setup         Logging Setup
 
 Wifi password is not revealed in Grafana
     [Documentation]  Check that logs in Grafana don't contain wifi password
-    [Tags]           SP-T328  SP-T328-1  bat  lab-only
+    [Tags]           SP-T328  SP-T328-1  bat  orin-agx  orin-agx-64  lab-only
     Configure wifi   ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Sleep   3        # Time for needed data to be logged
     Is password revealed in Grafana    ${TEST_WIFI_SSID}    ${TEST_WIFI_PSWD}
@@ -32,7 +32,7 @@ User password is not revealed in Grafana
 
 Check Grafana log forwarding after disconnected state
     [Documentation]  Check that logs are sent to Grafana from time of disconnection during previous boot
-    [Tags]           SP-T283  lab-only
+    [Tags]           SP-T283  orin-agx  orin-agx-64  orin-nx  lab-only
     Switch to vm      ${ADMIN_VM}
     ${id}             Get Actual Device ID
     Log To Console    Creating log entry and verifying forwarding to grafana
@@ -53,8 +53,12 @@ Check Grafana log forwarding after disconnected state
 
     Check VM Log on Grafana      ${id}   ${ADMIN_VM}   2m   ${False}   logtest1_${BUILD_ID}
     Log To Console               Verified that iptables rule is blocking log forwarding
-    Soft Reboot Device And Connect   vm=${GUI_VM}
-    Login to laptop
+    IF  ${IS_LAPTOP}
+        Soft Reboot Device And Connect   vm=${GUI_VM}
+        Login to laptop
+    ELSE
+        Soft Reboot Device And Connect   vm=${HOST}
+    END
     Wait Until Keyword Succeeds  60s  5s  Check VM Log on Grafana     ${id}   ${ADMIN_VM}   5m   ${True}   logtest1_${BUILD_ID}
     Log To Console               Checked that log is forwarded after clearing the iptables rule by reboot
     [Teardown]      Run Keyword If Test Failed   SKIP   Known Issue: SSRCSP-8525
