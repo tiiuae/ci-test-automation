@@ -176,6 +176,7 @@ Check that System And Boot Disk Match
 Get Backing Disk For Mountpoint
     [Documentation]    Resolve the physical disk backing the given mountpoint.
     [Arguments]        ${mountpoint}
+    Run Command        lsblk    # For debugging
     ${device}          Run Command    findmnt -no SOURCE ${mountpoint}
     ${disk_info}       Run Command    lsblk --json -s -o NAME,TYPE ${device}
     ${disk}            Get Backing Disk From Lsblk    ${disk_info}

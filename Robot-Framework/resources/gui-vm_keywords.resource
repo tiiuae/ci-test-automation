@@ -27,7 +27,7 @@ Set brightness
     [Documentation]   Set brightness to ${brightness_to_set}
     [Arguments]       ${brightness_to_set}
     [Setup]           Switch to vm    ${GUI_VM}
-    Log               Settings brightness to ${brightness_to_set}   console=True
+    Log               Setting brightness to ${brightness_to_set}   console=True
     ${path}           Search nix store   brightnessctl
     Run Command       ${path}/bin/brightnessctl s ${brightness_to_set}  sudo=True
     ${brightness}     Get screen brightness

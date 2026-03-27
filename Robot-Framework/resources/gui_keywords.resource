@@ -369,7 +369,11 @@ Stop screen recording
         Log To Console   Stopping screen recording
         # Stop the recorder gracefully so it can flush buffered frames and finalize the video file
         Kill process by name   gpu-screen-recorder   sudo=False   signal=INT
-        Check that the application is not running   gpu-screen-recorder   10
+        ${stopped}    Run Keyword And Return Status   Check that the application is not running   gpu-screen-recorder   10
+        IF  not ${stopped}
+            Log To Console   Screen recording did not stop gracefully, force killing it
+            Kill process by name   gpu-screen-recorder   sudo=False
+        END
     ELSE
         Log To Console  Screen recording was not running
     END
