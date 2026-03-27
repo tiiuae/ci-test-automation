@@ -24,7 +24,7 @@ ${TEST_LOG}           log_check_${BUILD_ID}
 
 Logging service is running in all VMs
     [Documentation]    Check that logging service is running in every VM
-    [Tags]             SP-T333  pre-merge
+    [Tags]             SP-T333  pre-merge  oring-agx  orin-agx-64  orin-nx
     ${failed_vms}      Create List
     FOR  ${vm}  IN  @{VM_LIST}
         Switch to vm   ${vm}
@@ -43,7 +43,7 @@ Logging service is running in all VMs
 
 Check Grafana logs
     [Documentation]  Check that all virtual machines are sending logs to Grafana
-    [Tags]           SP-T172  pre-merge
+    [Tags]           SP-T172  pre-merge  oring-agx  orin-agx-64  orin-nx
     Check Network Availability    8.8.8.8   limit_freq=${False}
     Switch to vm       ${ADMIN_VM}
     ${id}              Get Actual Device ID
