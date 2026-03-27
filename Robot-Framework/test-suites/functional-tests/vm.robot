@@ -85,7 +85,7 @@ Check Device ID in every VM
     ${failed_vms}      Create List
     FOR  ${vm}  IN  @{VM_LIST}
         Switch to vm   ${vm}
-        ${id}          Run Command  cat /etc/common/device-id
+        ${id}          Get Actual Device ID
         Log            Device ID in ${vm}: ${id}, expected be te same as in host: ${host_device_id}     console=True
         ${result}      Run Keyword And Return Status    Should Be Equal As Strings
         ...            ${id}    ${host_device_id}    ignore_case=True
