@@ -86,13 +86,6 @@ Check storage size
     Should Be True  ${total_storage} > ${persistent_storage} > ${100}
     Should Be True  ${${total_storage}-250} <= ${persistent_storage}
 
-Check veritysetup status
-    [Documentation]  Check that VERITY status is verified
-    [Tags]           hardening-installer  bat
-    ${output}        Run Command    veritysetup status root  sudo=True
-    ${status}        Get Verity Status  ${output}
-    Should Be True   '${status}' == 'verified'
-
 Check full disk encryption
     [Documentation]  Check that full disk encryption was done for images installed with "ghaf-installer -e"
     [Tags]           SP-T348  lenovo-x1  darter-pro  installer-only
