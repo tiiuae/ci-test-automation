@@ -85,7 +85,7 @@ GUI Shutdown
     ${start_time}     Get Time    epoch
     ${end_time}       Wait Until Device Is Down
     ${elapsed}        Evaluate    ${end_time} - ${start_time}
-    # After shutdown always wait at least for 10 seconds or more if shutdown was faster then 10 sec
+    # After shutdown always wait at least until 30 seconds and for 10 more seconds if shutdown was faster than 20 seconds
     IF    ${elapsed} <= 20
         ${wait_time}  Evaluate    30 - ${elapsed}
         Wait          ${wait_time}
@@ -94,7 +94,6 @@ GUI Shutdown
     END
     Turn Laptop On and Connect
     Login to laptop   enable_dnd=True
-    IF   ${elapsed} > 20    SKIP   Known issue: SSRCSP-7512 (Shutdown took too long: ${elapsed} seconds (expected < 20))
 
 GUI Log out and log in
     [Documentation]   Logout via GUI power menu icon and verify logged out state.
