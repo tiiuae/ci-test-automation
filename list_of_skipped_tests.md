@@ -4,7 +4,6 @@
 
 | DATE SET   | TEST CASE                                                                                   | TICKET / Additional Data.                                                                     |
 | ---------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| 25.03.2026 | Check logging rate                                                                          | SSRCSP-8245                                                                                   |
 | 23.03.2026 | Verify camera block persisted (Lenovo X1)                                                   | SSRCSP-8224                                                                                   |
 | 18.03.2026 | Check audit update logging                                                                  | SSRCSP-8199                                                                                   |
 | 26.02.2026 | Check systemctl status in every VM (retry added for NX)                                     | Timeout of Executing command 'systemctl list-units --plain --no-legend --no-pager '.          |

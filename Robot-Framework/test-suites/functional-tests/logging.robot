@@ -106,7 +106,6 @@ Check logging rate
     END
     Log                VMs with acceptable logging rates:\n${ok_metrics}       console=True
     Log                Log spamming detected in these VMs:\n${spam_metrics}    console=True
-    ${spam_vm_count}   Get Length    ${spam_metrics}
     ${status}          Run Keyword And Return Status    Should Be Empty  ${spam_metrics}
     IF  not ${status}
         Log            Sample of ${saved_entries} log entries from VMs demonstrating too high logging rates
@@ -116,7 +115,6 @@ Check logging rate
         END
         FAIL           meas interval: ${check_interval}s\nentry limit: ${entry_limit}\nbyte limit: ${byte_limit}\n${spam_metrics}
     END
-    [Teardown]         Run Keyword If  ${spam_vm_count} < 2 and "gui-vm" in ${spam_metrics}   SKIP   Known issue: SSRCSP-8245
 
 
 *** Keywords ***
