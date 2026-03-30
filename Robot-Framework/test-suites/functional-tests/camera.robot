@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing camera application
-Test Tags           video  bat  lenovo-x1  darter-pro  dell-7330
+Test Tags           camera  bat  lenovo-x1  darter-pro  dell-7330
 
 Library             Collections
 Library             OperatingSystem
@@ -16,25 +16,26 @@ Test Timeout        2 minutes
 
 
 *** Variables ***
-${VIDEO_DIR}    ${OUTPUT_DIR}/outputs/video-temp
+${VIDEO_DIR}    ${OUTPUT_DIR}/outputs/camera
 
 
 *** Test Cases ***
 
-Check Camera Application
-    [Documentation]  Check that camera application is available in business-vm and not in other vm
+Check Camera in VMs
+    [Documentation]  Check that camera is available in business-vm (for Dell in chrome-vm) and not in other VMs
     [Tags]  SP-T235
     @{vms}      Get VM list
     FOR  ${vm}  IN  @{vms}
         Switch to vm        ${vm}
-        IF  '${vm}' == '${BUSINESS_VM}'
-            ${out}   Run Command  v4l2-ctl --list-devices  sudo=True
-            Should Contain  ${out}  /dev/video
+        IF  '${vm}' == '${BUSINESS_VM}' and "${DEVICE_TYPE}" != "dell-7330"
+            Run Keyword And Continue On Failure   Run Command  ls /dev/ | grep video  sudo=True
+        ELSE IF  '${vm}' == '${CHROME_VM}' and "${DEVICE_TYPE}" == "dell-7330"
+            # Special case for Dell due to SSRCSP-8266
+            Run Keyword And Continue On Failure   Run Command  ls /dev/ | grep video  sudo=True
         ELSE
-            Run Command  v4l2-ctl --list-devices  sudo=True  rc_match=not_equal  compare_rc=0
+            Run Keyword And Continue On Failure   Run Command  ls /dev/ | grep video  sudo=True  rc_match=not_equal  compare_rc=0
         END
     END
-    [Teardown]  Run Keyword If   "${DEVICE_TYPE}" == "dell-7330"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6450"
 
 Record Video With Camera
     [Documentation]  Start Camera application and record short video
@@ -61,4 +62,5 @@ Record Video With Camera
         Verify Video File  ${id}
     END
 
-    [Teardown]    Run Keyword If  "${DEVICE_TYPE}" == "dell-7330"   Run Keyword If Test Failed   SKIP   "Known issue: SSRCSP-6694"
+    # Can't be tested on Dell because v4l2-ctl is not available in chrome-vm
+    [Teardown]    Run Keyword If  "${DEVICE_TYPE}" == "dell-7330"   Run Keyword If Test Failed   SKIP   "Known issue: SSRCSP-8266"

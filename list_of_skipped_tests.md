@@ -4,6 +4,8 @@
 
 | DATE SET   | TEST CASE                                                                                   | TICKET / Additional Data.                                                                     |
 | ---------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 30.03.2026 | Check Camera in VMs (Dell)                                                                  | SSRCSP-8266                                                                                   |
+| 30.03.2026 | Check Camera Application (Dell checked in chrome-vm)                                        | SSRCSP-8266                                                                                   |
 | 23.03.2026 | Verify camera block persisted (Lenovo X1)                                                   | SSRCSP-8224                                                                                   |
 | 18.03.2026 | Check audit update logging                                                                  | SSRCSP-8199                                                                                   |
 | 26.02.2026 | Check systemctl status in every VM (retry added for NX)                                     | Timeout of Executing command 'systemctl list-units --plain --no-legend --no-pager '.          |
@@ -16,14 +18,12 @@
 | 07.11.2025 | Measure time to launch COSMIC Settings                                                      | SSRCSP-7518                                                                                   |
 | 23.10.2025 | Save host journalctl/Verify NetVM is started                                                | SSRCSP-7453                                                                                   |
 | 16.09.2025 | Check systemctl status in every VM                                                          | [Full list of skips in the test case](/Robot-Framework/test-suites/functional-tests/vm.robot) |
-| 13.06.2025 | Record Video With Camera (Dell)                                                             | SSRCSP-6694                                                                                   |
 |            | Measure Hard Boot Time                                                                      | The searched journalctl line is sometimes (randomly) not there. Didn't find it this time      |
 |            | Measure Soft Boot Time -Dell                                                                | The searched journalctl line is sometimes (randomly) not there. Didn't find it this time.     |
 |            | OP-TEE xtest 1033 -orin-agx & orin-nx                                                       | Known issue encountered, skipping the test                                                    |
 |            | OP-TEE xtest 1008 -orin-agx & orin-nx                                                       | Known issue encountered, skipping the test                                                    |
 |            | OP-TEE xtest 1006 -orin-agx & orin-nx                                                       | Known issue SSRCSP-8198 encountered, skipping the test                                        |
 |            | OP-TEE xtest 1024 -orin-agx & orin-nx                                                       | Known issue SSRCSP-8198 encountered, skipping the test                                        |
-|            | Check Camera Application -DELL                                                              | SSRCSP-6450                                                                                   |
 
 ## TAGs removed
 
