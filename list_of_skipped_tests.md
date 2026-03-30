@@ -12,7 +12,6 @@
 | 11.02.2026 | Check device id                                                                             | SSRCSP-7997                                                                                   |
 | 11.02.2026 | Check net-vm hostname                                                                       | SSRCSP-7997                                                                                   |
 | 29.01.2026 | Check that unauthorised user has limited access to file system (Pictures folder check only) | SSRCSP-7918                                                                                   |
-| 11.12.2025 | GUI Shutdown                                                                                | SSRCSP-7512                                                                                   |
 | 07.11.2025 | Measure time to launch COSMIC Settings                                                      | SSRCSP-7518                                                                                   |
 | 23.10.2025 | Save host journalctl/Verify NetVM is started                                                | SSRCSP-7453                                                                                   |
 | 16.09.2025 | Check systemctl status in every VM                                                          | [Full list of skips in the test case](/Robot-Framework/test-suites/functional-tests/vm.robot) |

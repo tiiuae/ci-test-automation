@@ -102,7 +102,6 @@ Soft Reboot Device
 Connect After Reboot
     [Documentation]   Verify that device rebooted and connect
     [Arguments]      ${soft_reboot}=False
-    # Sleep extended from 20 to 30 due to SSRCSP-7512
     Wait   30
     IF    "${DEVICE_TYPE}" == "darter-pro" and ${soft_reboot}
         WHILE    True    limit=120 seconds
