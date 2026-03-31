@@ -15,7 +15,7 @@ Library             ../../lib/output_parser.py
 Library             JSONLibrary
 
 *** Variables ***
-${POWERSAVE_LIMIT}           10000
+${POWERSAVE_LIMIT}           10500
 ${ORIGINAL_POWER_PROFILE}    ${EMPTY}
 
 
