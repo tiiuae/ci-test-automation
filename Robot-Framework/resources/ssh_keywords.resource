@@ -35,12 +35,54 @@ Check If Ping Fails
     ${result}  Run Process  ping  ${DEVICE_IP_ADDRESS}  -c1  timeout=1s
     Should Not Be Equal   ${result.rc}  ${0}
 
+Get Ethernet Interface By Type
+    [Documentation]    Returns ethernet interface filtered by usb or non-usb.
+    [Arguments]        ${usb}=True
+    IF    ${usb}
+        ${if_name}    Run Command    for i in /sys/class/net/*; do [ "$(cat "$i/type" 2>/dev/null)" = "1" ] || continue; path=$(readlink -f "$i"); echo "$path" | grep -q usb && basename "$i"; done | head -n 1
+    ELSE
+        ${if_name}    Run Command    for i in /sys/class/net/*; do [ "$(cat "$i/type" 2>/dev/null)" = "1" ] || continue; path=$(readlink -f "$i"); echo "$path" | grep -q usb || basename "$i"; done | head -n 1
+    END
+    ${if_name}    Strip String    ${if_name}
+    RETURN        ${if_name}
+
+Get First Interface By Nmcli Type
+    [Documentation]    Returns first interface by nmcli type (wifi/ethernet).
+    [Arguments]        ${type}
+    ${if_name}    Run Command    nmcli -t -f DEVICE,TYPE device status | awk -F: '$2=="${type}" {print $1; exit}'
+    ${if_name}    Strip String    ${if_name}
+    RETURN        ${if_name}
+
 Get Interface name
-    [Documentation]    Returns system interface name for given type using nmcli
-    ...                ${interface} must be either 'wifi' or 'eth'
+    [Documentation]    Returns system interface name for given type.
+    ...                Supported values for ${interface}: wifi, eth, native-eth, usb-eth
+    ...                For 'eth', USB ethernet is preferred. If no USB ethernet is found, any ethernet is returned.
     [Arguments]    ${interface}
-    ${if_name}     Run Command    nmcli device status | grep ${interface} | head -n 1 | awk '{print $1}'
-    RETURN         ${if_name}
+
+    IF    '${interface}' == 'wifi'
+        ${if_name}    Get First Interface By Nmcli Type    wifi
+
+    ELSE IF    '${interface}' == 'eth'
+        ${usb_eth}    Get Ethernet Interface By Type    usb=True
+
+        IF    '${usb_eth}' != ''
+            ${if_name}    Set Variable    ${usb_eth}
+        ELSE
+            ${if_name}    Get First Interface By Nmcli Type    ethernet
+        END
+
+    ELSE IF    '${interface}' == 'native-eth'
+        ${if_name}    Get Ethernet Interface By Type    usb=False
+
+    ELSE IF    '${interface}' == 'usb-eth'
+        ${if_name}    Get Ethernet Interface By Type    usb=True
+
+    ELSE
+        Fail    Unsupported interface type '${interface}'
+    END
+
+    Should Not Be Empty    ${if_name}    No interface found for type '${interface}'
+    RETURN    ${if_name}
 
 Check Network Availability
     [Documentation]    Checks ${host} availability using ping
@@ -291,6 +333,7 @@ Get VM IP
     [Arguments]   ${if_name}=eth
     ${output}     Run Command    ifconfig
     ${ip}         Get ip from ifconfig    ${output}   ${if_name}
+    Should Not Be Empty    ${ip}    Couldn't get IP for the interface ${if_name}
     RETURN        ${ip}
 
 Transfer Shell Script To DUT
