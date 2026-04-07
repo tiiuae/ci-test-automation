@@ -35,7 +35,7 @@ Check device-id persistence over nixos-rebuild
 
 Check net-vm hostname persistence over nixos-rebuild
     [Documentation]         Verify that net-vm hostname has not changed over nixos-rebuild and reboot
-    [Tags]                  SP-T352
+    [Tags]                  SP-T352  SP-352-2
     [Timeout]               1 minutes
     IF  "${netvm_hostname_before}" != "${NETVM_NAME}"
         FAIL    Net-vm hostname has changed over nixos-rebuild and reboot
