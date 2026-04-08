@@ -106,18 +106,14 @@ Generate power plot
     Log                         <img src="${REL_PLOT_DIR}power_${test_name}.png" alt="Power plot" width="1200">    HTML
 
 Check power during suspension
-    [Arguments]       ${id}  ${max_power}
+    [Arguments]       ${id}
     IF  $SSH_MEASUREMENT=='${EMPTY}'
         Log To Console    No connection to power measurement device. Ignoring all power measurement related keywords.
-        RETURN  ${False}
+        RETURN
     END
     Save measurement interval   ${id}.csv  '${suspend_start}'  '${suspend_end}'  suspend_interval.csv  ${False}
     ${max_power_during_suspension}  Measured max power    suspend_interval.csv
-    IF   ${max_power_during_suspension} > ${max_power}
-        RETURN  ${max_power_during_suspension}
-        FAIL    Power consumption exceptionally high during suspension
-    END
-    RETURN  ${False}
+    RETURN  ${max_power_during_suspension}
 
 Calculate average power over interval
     [Arguments]      ${id}  ${start_time}  ${end_time}

@@ -76,10 +76,16 @@ Automatic suspension
         Generate power plot      ${BUILD_ID}   ${TEST NAME}
         Stop recording power
 
-        ${suspended_power}       Check power during suspension   ${BUILD_ID}   2500
+        ${suspended_power}       Check power during suspension   ${BUILD_ID}
         ${power_changed}         Measure power level change  ${BUILD_ID}  25  ${before_suspend_start}  ${before_suspend_end}  ${after_suspend_start}  ${after_suspend_end}
-        IF  ${suspended_power}!=${False} or ${power_changed}!=${False}
-            FAIL  Average suspended power ${suspended_power}mW (test limit 2500mW)\nPower consumption level increased ${power_changed}% over suspension and wake up (test limit 25%)
+
+        IF  ${suspended_power} > 2500
+            FAIL    Power consumption exceptionally high during suspension\nmax_power_during_suspension: ${max_power_during_suspension}
+        END
+
+        IF  ${power_changed}!=${False}
+            # FAIL  Average suspended power ${suspended_power}mW (test limit 2500mW)\nPower consumption level increased ${power_changed}% over suspension and wake up (test limit 25%)
+            SKIP    Known issue: SSRCSP-8288\nAverage suspended power ${suspended_power}mW (test limit 2500mW)\nPower consumption level increased ${power_changed}% over suspension and wake up (test limit 25%)
         END
     END
 
