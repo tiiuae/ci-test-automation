@@ -96,7 +96,6 @@ Check Device ID in every VM
     END
     IF  ${failed_vms} != []    FAIL    VMs with different Device IDs: ${failed_vms}
 
-
 *** Keywords ***
 
 Check systemctl status Template

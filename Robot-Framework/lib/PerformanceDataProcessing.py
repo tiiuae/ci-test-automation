@@ -10,6 +10,12 @@ import matplotlib.pyplot as plt
 import logging
 from robot.api.deco import keyword
 from performance_thresholds import *
+from memory_plotting import (
+    add_percentage_columns,
+    build_unique_labels,
+    plot_grouped_metric,
+    plot_grouped_metric_pair,
+)
 
 
 class PerformanceDataProcessing:
@@ -944,6 +950,146 @@ class PerformanceDataProcessing:
     def save_app_launch_time_data(self, test_name, data):
         self.write_test_data_to_csv(test_name, data)
         return self.read_applaunch_csv_and_plot(test_name)
+
+    @keyword("Save VM Memory Snapshot Data")
+    def save_vm_memory_snapshot_data(self, test_name, vm_mem_data):
+        """
+        Save a snapshot of per-VM memory usage for the current build and plot it across builds.
+
+        Expected input keys:
+          - mem_avail_mib__<vmname>: available memory in MiB
+          - mem_total_mib__<vmname>: total memory in MiB
+          - swap_free_mib__<vmname>: free swap in MiB
+          - swap_total_mib__<vmname>: total swap in MiB
+        """
+        file_path = os.path.join(self.data_dir, f"{self.device}_{test_name}.csv")
+        commit_id = self.build_number + "-" + self.commit
+
+        # Keep columns stable across builds, but allow the set of VMs to grow.
+        row = {"commit": commit_id, "device": self.device} | dict(vm_mem_data)
+        if os.path.exists(file_path):
+            df = pandas.read_csv(file_path)
+            for col in row.keys():
+                if col not in df.columns:
+                    df[col] = pandas.NA
+            for col in df.columns:
+                if col not in row:
+                    row[col] = pandas.NA
+            df = pandas.concat([df, pandas.DataFrame([row], columns=df.columns)], ignore_index=True)
+        else:
+            df = pandas.DataFrame([row])
+
+        df.to_csv(file_path, index=False)
+        self._plot_vm_memory_snapshot(test_name, df)
+        return
+
+    def _plot_vm_memory_snapshot(self, test_name, df):
+        plot_limit = 40
+        if len(df.index) > plot_limit:
+            df = df.tail(plot_limit)
+
+        build_df = df.copy()
+        build_df["build_index"] = list(range(len(build_df.index)))
+        x_labels = build_unique_labels(build_df["commit"].tolist())
+        plot_df = self._normalize_vm_memory_snapshot_df(build_df)
+        if plot_df.empty:
+            logging.warning("No VM memory snapshot data to plot for %s", test_name)
+            return
+
+        title_suffix = f"\nBuild type: {self.build_type}, Device: {self.device}"
+        plot_grouped_metric_pair(
+            plot_df,
+            "build_index",
+            "mem_avail_mib",
+            "mem_total_mib",
+            self.plot_dir + f"{self.device}_{test_name}__mem_avail.png",
+            f"{test_name} - Mem Available/Total (MiB){title_suffix}",
+            "Build Number",
+            group_col="vm",
+            value_label="avail",
+            sort_col=None,
+            x_labels=x_labels,
+            x_time_format=None,
+        )
+        plot_grouped_metric_pair(
+            plot_df,
+            "build_index",
+            "swap_free_mib",
+            "swap_total_mib",
+            self.plot_dir + f"{self.device}_{test_name}__swap_free.png",
+            f"{test_name} - Swap Free/Total (MiB){title_suffix}",
+            "Build Number",
+            group_col="vm",
+            value_label="free",
+            sort_col=None,
+            x_labels=x_labels,
+            x_time_format=None,
+        )
+        plot_grouped_metric(
+            plot_df,
+            "build_index",
+            "mem_avail_pct",
+            self.plot_dir + f"{self.device}_{test_name}__mem_avail_pct.png",
+            f"{test_name} - Mem Available (%){title_suffix}",
+            "Build Number",
+            group_col="vm",
+            sort_col=None,
+            x_labels=x_labels,
+            x_time_format=None,
+            y_limits=(0, 100),
+        )
+        plot_grouped_metric(
+            plot_df,
+            "build_index",
+            "swap_free_pct",
+            self.plot_dir + f"{self.device}_{test_name}__swap_free_pct.png",
+            f"{test_name} - Swap Free (%){title_suffix}",
+            "Build Number",
+            group_col="vm",
+            sort_col=None,
+            x_labels=x_labels,
+            x_time_format=None,
+            y_limits=(0, 100),
+        )
+        return
+
+    def _normalize_vm_memory_snapshot_df(self, df):
+        rows = []
+        avail_cols = [col for col in df.columns if col.startswith("mem_avail_mib__")]
+        for _, row in df.iterrows():
+            commit = row["commit"]
+            build_index = row["build_index"]
+            for avail_col in avail_cols:
+                vm = avail_col.split("__", 1)[1]
+                mem_total_col = f"mem_total_mib__{vm}"
+                swap_free_col = f"swap_free_mib__{vm}"
+                swap_total_col = f"swap_total_mib__{vm}"
+                if mem_total_col not in df.columns:
+                    continue
+                rows.append(
+                    {
+                        "commit": commit,
+                        "build_index": build_index,
+                        "vm": vm,
+                        "mem_avail_mib": row.get(avail_col, pandas.NA),
+                        "mem_total_mib": row.get(mem_total_col, pandas.NA),
+                        "swap_free_mib": row.get(swap_free_col, pandas.NA),
+                        "swap_total_mib": row.get(swap_total_col, pandas.NA),
+                    }
+                )
+
+        if not rows:
+            return pandas.DataFrame()
+
+        plot_df = pandas.DataFrame(rows)
+        add_percentage_columns(
+            plot_df,
+            [
+                ("mem_avail_mib", "mem_total_mib", "mem_avail_pct"),
+                ("swap_free_mib", "swap_total_mib", "swap_free_pct"),
+            ],
+        )
+        return plot_df
 
 
     # ---------------------------------------------------------------------

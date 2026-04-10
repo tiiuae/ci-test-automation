@@ -15,6 +15,7 @@ Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/measurement_keywords.resource
+Resource            ../../resources/mem_recording_keywords.resource
 
 Suite Setup         Switch to vm   ${HOST}
 
@@ -25,6 +26,57 @@ Suite Setup         Switch to vm   ${HOST}
 
 
 *** Test Cases ***
+
+Record memory usage test
+    [Documentation]      This test demonstrates usage of the memory recording keywords.
+    ...                  Records memory usage across all vms over wait_time_s.
+    [Tags]               log_mem
+    ${wait_time_s}             Set Variable    120
+    ${recording_interval_s}    Set Variable    5
+    ${recording_timeout_s}     Evaluate        ${wait_time_s} + 120
+    Start memory recording in all VMs    memrec_sudo=False    interval_s=${recording_interval_s}    timeout_s=${recording_timeout_s}    memrec_dir=/tmp/mem-recordings
+    Wait          ${wait_time_s}  silently=${False}
+    [Teardown]    Stop memory recording and collect    memrec_sudo=False
+
+VM memory usage snapshot
+    [Documentation]    Log current memory usage (available/total) and swap usage (free/total) in every VM and ghaf-host and plot it across builds.
+    [Tags]             SP-T360  memory_usage  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
+    ${low_mem_limit}  Set Variable    5.0
+    @{vms}         Get VM list    with_host=True
+    &{mem_data}    Create Dictionary
+    ${failed_mem_vms}    Create List
+    FOR    ${vm}    IN    @{vms}
+        Switch to vm    ${vm}
+        ${out}    Run Command
+        ...    awk '/MemTotal:/ {mt=$2} /MemAvailable:/ {ma=$2} /SwapTotal:/ {st=$2} /SwapFree:/ {sf=$2} END {if (mt>0 && ma>=0) printf("%d %d ", int(ma/1024), int(mt/1024)); else printf("0 0 "); if (st>0 && sf>=0) printf("%d %d", int(sf/1024), int(st/1024)); else print "0 0"}' /proc/meminfo
+        @{vals}    Split String    ${out}
+        ${mem_avail_mib}     Set Variable    ${vals}[0]
+        ${mem_total_mib}     Set Variable    ${vals}[1]
+        ${swap_free_mib}     Set Variable    ${vals}[2]
+        ${swap_total_mib}    Set Variable    ${vals}[3]
+        ${mem_avail_pct}     Evaluate    (float($mem_avail_mib) / float($mem_total_mib)) * 100 if float($mem_total_mib) > 0 else 0
+        ${pct_str}           Evaluate    f"{float($mem_avail_pct):.2f}%"
+        IF    ${mem_avail_pct} < ${low_mem_limit}
+            Append To List   ${failed_mem_vms}    ${vm}: ${pct_str}
+            ${red_msg}       Evaluate  "\\033[31m${vm} available memory is below 5% of the total memory\\033[0m"
+            Log              ${red_msg}    console=True
+        END
+        Log    Memory in ${vm}: avail ${mem_avail_mib}/${mem_total_mib} MiB, swap free ${swap_free_mib}/${swap_total_mib} MiB    console=True
+        Set To Dictionary    ${mem_data}    mem_avail_mib__${vm}=${mem_avail_mib}
+        Set To Dictionary    ${mem_data}    mem_total_mib__${vm}=${mem_total_mib}
+        Set To Dictionary    ${mem_data}    swap_free_mib__${vm}=${swap_free_mib}
+        Set To Dictionary    ${mem_data}    swap_total_mib__${vm}=${swap_total_mib}
+    END
+
+    Save VM Memory Snapshot Data    ${TEST NAME}    ${mem_data}
+    Log    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}__mem_avail.png" alt="VM Mem Available (MiB) Plot" width="1200">    HTML
+    Log    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}__swap_free.png" alt="VM Swap Free (MiB) Plot" width="1200">    HTML
+    Log    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}__mem_avail_pct.png" alt="VM Mem Available (%) Plot" width="1200">    HTML
+    Log    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}__swap_free_pct.png" alt="VM Swap Free (%) Plot" width="1200">    HTML
+    ${failed_count}    Get Length    ${failed_mem_vms}
+    IF    ${failed_count} > 0
+        FAIL    VMs with available memory < ${low_mem_limit}%: ${failed_mem_vms}
+    END
 
 nvpmodel check test
     [Documentation]     If power mode changed it would probably have an effect on performance test results.

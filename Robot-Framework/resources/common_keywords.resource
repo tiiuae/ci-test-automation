@@ -92,10 +92,23 @@ Save Time
     Set Suite Variable    ${TIME_${label}}    ${time}
 
 Wait
-    [Arguments]     ${sec}
-    ${time}         Get Time
-    Log             ${time}: waiting for ${sec} sec  console=True
-    Sleep           ${sec}
+    [Arguments]       ${sec}  ${silently}=${True}  ${log_interval}=5
+    ${time}           Get Time
+    Log               ${time}: waiting for ${sec} sec    console=True
+    IF  ${silently}
+        Sleep         ${sec}
+    ELSE
+        ${steps}        Evaluate    int(${sec}) // ${log_interval}
+        ${remainder}    Evaluate    float(${sec}) % float(${log_interval})
+        FOR    ${i}    IN RANGE    ${steps}
+            Sleep           ${log_interval}
+            ${elapsed_s}    Evaluate    (${i} + 1) * ${log_interval}
+            Log             ${elapsed_s}    console=True
+        END
+        IF  ${remainder} > 0
+            Sleep    ${remainder}
+        END
+    END
 
 Search nix store
     [Documentation]      Search a file containing string argument in the target nix store.
