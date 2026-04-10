@@ -7,6 +7,18 @@ Resource            ../resources/ssh_keywords.resource
 
 
 *** Keywords ***
+
+Service should not be failed
+    [Arguments]    ${service}
+    ${result}    Run Command    systemctl show -p Result --value ${service}    rc_match=skip
+    ${state}    Run Command    systemctl show -p ActiveState --value ${service}    rc_match=skip
+    IF    'failed' in '${result}' or 'failed' in '${state}'
+        ${service_journalctl}=    Run Command    journalctl -b -u ${service} --no-pager -n 200    rc_match=skip
+        Log                       ${service_journalctl}
+    END
+    Should Not Contain    ${result}    failed
+    Should Not Contain    ${state}    failed
+
 Verify service status
     [Documentation]   Check if service is running with given loop ${range}
     [Arguments]       ${range}=45  ${service}=${EMPTY}   ${expected_state}=active   ${expected_substate}=running  ${expected_rc}=0
