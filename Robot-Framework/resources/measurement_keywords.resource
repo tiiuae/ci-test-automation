@@ -166,7 +166,7 @@ Plot parameter log
     [Arguments]                  ${vm}  ${param_label}  ${param_unit}  ${script}=log_params  ${divider}=1
     Switch to vm                 ${vm}
     Kill process by name         ${script}   True   ${False}
-    SSHLibrary.Get file          /tmp/${script}.csv   ${LOGGED_PARAMS_DIR}/${script}.csv
+    SSHLibrary.Get file          /tmp/${script}.csv   ${LOGGED_PARAMS_DIR}${script}.csv
     ${end_timestamp}             Get current timestamp
     Save measurement interval    ${script}.csv  '${${script}_log_start}'  '${end_timestamp}'  ${script}_interval.csv  ${False}  ${divider}
     IF  ${DATA_PROCESS_ERROR}
