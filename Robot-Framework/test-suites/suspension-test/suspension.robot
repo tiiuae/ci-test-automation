@@ -26,6 +26,10 @@ Automatic suspension
     [Tags]            SP-T162  lenovo-x1  darter-pro  lab-only
     [Setup]           Test setup
     [Teardown]        Test teardown
+
+    ${suspended_power_limit}     Set Variable    2500
+    ${rel_power_change_limit}    Set Variable    25
+
     Check the screen state   on
     Check screen brightness  ${max_brightness}
 
@@ -76,16 +80,16 @@ Automatic suspension
         Generate power plot      ${BUILD_ID}   ${TEST NAME}
         Stop recording power
 
-        ${suspended_power}       Check power during suspension   ${BUILD_ID}
-        ${power_changed}         Measure power level change  ${BUILD_ID}  25  ${before_suspend_start}  ${before_suspend_end}  ${after_suspend_start}  ${after_suspend_end}
+        ${max_suspended_power}   Check max power during suspension   ${BUILD_ID}
+        ${power_changed}         Measure power level change  ${BUILD_ID}  ${rel_power_change_limit}  ${before_suspend_start}  ${before_suspend_end}  ${after_suspend_start}  ${after_suspend_end}
 
-        IF  ${suspended_power} > 2500
-            FAIL    Power consumption exceptionally high during suspension\nmax_power_during_suspension: ${max_power_during_suspension}
+        IF  ${suspended_power} > ${suspended_power_limit}
+            FAIL    Power consumption exceptionally high during suspension\nMax suspended power: ${max_suspended_power}mW\nTest limit: ${suspended_power_limit}mW
         END
 
         IF  ${power_changed}!=${False}
-            # FAIL  Average suspended power ${suspended_power}mW (test limit 2500mW)\nPower consumption level increased ${power_changed}% over suspension and wake up (test limit 25%)
-            SKIP    Known issue: SSRCSP-8288\nAverage suspended power ${suspended_power}mW (test limit 2500mW)\nPower consumption level increased ${power_changed}% over suspension and wake up (test limit 25%)
+            # FAIL  Max suspended power ${max_suspended_power}mW (test limit ${suspended_power_limit}mW)\nPower consumption level increased ${power_changed}% over suspension and wake up (test limit ${rel_power_change_limit}%)
+            SKIP    Known issue: SSRCSP-8288\nMax suspended power ${max_suspended_power}mW (test limit ${suspended_power_limit}mW)\nPower consumption level increased ${power_changed}% over suspension and wake up (test limit ${rel_power_change_limit}%)
         END
     END
 

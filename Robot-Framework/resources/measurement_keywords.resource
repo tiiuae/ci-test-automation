@@ -105,7 +105,7 @@ Generate power plot
     Generate power graph        power_interval.csv  ${test_name}
     Log                         <img src="${REL_PLOT_DIR}power_${test_name}.png" alt="Power plot" width="1200">    HTML
 
-Check power during suspension
+Check max power during suspension
     [Arguments]       ${id}
     IF  $SSH_MEASUREMENT=='${EMPTY}'
         Log To Console    No connection to power measurement device. Ignoring all power measurement related keywords.
