@@ -5,14 +5,18 @@
 Documentation       Update tests
 Test Tags           regression  update  lenovo-x1  darter-pro  excl-storeDisk  excl-secboot
 
-Library             SSHLibrary
-Resource            ../../config/variables.robot
+Resource            ../../resources/setup_keywords.resource
 
 Suite Setup         Update tests setup
-Suite Teardown      Close All Connections
+Suite Teardown      Update tests teardown
 
 
 *** Keywords ***
 
 Update tests setup
-    Set Variables   ${DEVICE}
+    [Timeout]    5 minutes
+    Prepare Test Environment
+
+Update tests teardown
+    [Timeout]    5 minutes
+    Clean Up Test Environment

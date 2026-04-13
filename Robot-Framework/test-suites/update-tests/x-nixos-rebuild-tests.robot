@@ -14,7 +14,7 @@ Resource            ../../resources/update_keywords.resource
 Resource            ../../resources/service_keywords.resource
 
 Suite Setup          Rebuild Setup
-Suite Teardown       Teardown Audit Update Logging
+Suite Teardown       Rebuild Teardown
 
 *** Variables ***
 ${repository_path}      /persist/ghaf
@@ -44,8 +44,10 @@ Check net-vm hostname persistence over nixos-rebuild
 Check file system changes are logged
     [Documentation]         Create file and verify that the operation was logged
     [Tags]                  SP-T280
+    [Setup]                 Check That Logging Is Working in VM   ${CHROME_VM}
     ${file_path}              Set Variable    /tmp/test_text.txt
 
+    Switch to vm              ${HOST}
     ${state}  ${substate}     Verify service status  range=60  service=microvm@${CHROME_VM}.service  expected_state=active  expected_substate=running
     Switch to vm              ${CHROME_VM}
     Create text file          test    ${file_path}
@@ -59,6 +61,7 @@ Check file system changes are logged
 Check that system logs privilege uses and key events
     [Documentation]         Execute check of ipset list and verify that the command was logged
     [Tags]                  SP-T281
+    [Setup]                 Check That Logging Is Working in VM   ${NET_VM}   ${NETVM_NAME}
     Switch to vm              ${NET_VM}
     Run Command               ipset list   sudo=True
     Sleep                     3
@@ -195,6 +198,7 @@ Run Nixos Rebuild
         FAIL  nixos-rebuild didn't finish successfully withing the given time
     END
     Soft Reboot Device And Connect
+    Login to laptop   enable_dnd=True
 
 Clone Ghaf Repository
     [Arguments]               ${repository_path}    ${commit}=${EMPTY}
@@ -215,15 +219,28 @@ Clone Ghaf Repository
 Remove Ghaf Repository
     Run Command     rm -r ${repository_path}   sudo=True
 
-Teardown Audit Update Logging
+Rebuild Teardown
     Set Client Configuration      timeout=10
     IF  ${setup_skipped} or '${PREV_TEST_STATUS}'=='FAIL'
         Reboot Laptop
         Close All Connections
         Connect After Reboot
+        Login to laptop   enable_dnd=True
     END
     Switch to vm    ${HOST}
     Remove Ghaf Repository
     Roll back to original generation
     Soft Reboot Device And Connect
-    Close All Connections
+    Login to laptop   enable_dnd=True
+
+Check That Logging Is Working in VM
+    [Documentation]  Check that the test log is sent to Grafana
+    [Arguments]      ${vm}   ${log_vm}=${vm}   ${since}=1m
+    Switch to vm   ${vm}
+    Run Command  logger --priority=user.info "Rebuild_test_log"
+    ${id}   Get Actual Device ID
+    ${status}  Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s
+    ...  Check VM Log on Grafana  ${id}  ${log_vm}  ${since}  ${True}  Rebuild_test_log
+    IF  not ${status}
+        FAIL    Log sent from ${vm} was not found in Grafana.\nCheck if log forwarding is broken.
+    END

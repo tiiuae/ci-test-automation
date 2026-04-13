@@ -309,13 +309,14 @@ Transfer Shell Script To VM
     Transfer Shell Script To DUT    performance-tests   ${script_name}   /tmp
 
 Elevate to superuser
+    [Arguments]    ${sleep}=0.5
     SSHLibrary.Read
     Write                 sudo su
-    Sleep                 0.5
+    Sleep                 ${sleep}
     ${out}                SSHLibrary.Read
     IF  'password for ${LOGIN}' in $out
         ${out}            Write        ${PASSWORD}
-        Sleep             0.5
+        Sleep             ${sleep}
         ${out}            SSHLibrary.Read
     END
     IF  'root@' in $out
