@@ -2,35 +2,34 @@
 
 ## Active SKIPS
 
-| DATE SET   | TEST CASE                                                                                   | TICKET / Additional Data.                                                                     |
-|------------|---------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| 08.04.2026 | Automatic suspension                                                                        | SSRCSP-8288                                                                                   |
-| 30.03.2026 | Check Camera in VMs (Dell)                                                                  | SSRCSP-8266                                                                                   |
-| 30.03.2026 | Check Camera Application (Dell checked in chrome-vm)                                        | SSRCSP-8266                                                                                   |
-| 23.03.2026 | Verify camera block persisted (Lenovo X1)                                                   | SSRCSP-8224                                                                                   |
-| 18.03.2026 | Check audit update logging                                                                  | SSRCSP-8199                                                                                   |
-| 26.02.2026 | Check systemctl status in every VM (retry added for NX)                                     | Timeout of Executing command 'systemctl list-units --plain --no-legend --no-pager '.          |
-| 12.02.2026 | Account lockout after failed login                                                          | SSRCSP-8006                                                                                   |
-| 05.02.2026 | Validate Forward Secure Sealing                                                             | SSRCSP-7973                                                                                   |
-| 11.02.2026 | Check device id                                                                             | SSRCSP-7997                                                                                   |
-| 11.02.2026 | Check net-vm hostname                                                                       | SSRCSP-7997                                                                                   |
-| 29.01.2026 | Check that unauthorised user has limited access to file system (Pictures folder check only) | SSRCSP-7918                                                                                   |
-| 07.11.2025 | Measure time to launch COSMIC Settings                                                      | SSRCSP-7518                                                                                   |
-| 23.10.2025 | Save host journalctl/Verify NetVM is started                                                | SSRCSP-7453                                                                                   |
-| 16.09.2025 | Check systemctl status in every VM                                                          | [Full list of skips in the test case](/Robot-Framework/test-suites/functional-tests/vm.robot) |
-|            | Measure Hard Boot Time                                                                      | The searched journalctl line is sometimes (randomly) not there. Didn't find it this time      |
-|            | Measure Soft Boot Time -Dell                                                                | The searched journalctl line is sometimes (randomly) not there. Didn't find it this time.     |
-|            | OP-TEE xtest 1033 -orin-agx & orin-nx                                                       | Known issue encountered, skipping the test                                                    |
-|            | OP-TEE xtest 1008 -orin-agx & orin-nx                                                       | Known issue encountered, skipping the test                                                    |
-|            | OP-TEE xtest 1006 -orin-agx & orin-nx                                                       | Known issue SSRCSP-8198 encountered, skipping the test                                        |
-|            | OP-TEE xtest 1024 -orin-agx & orin-nx                                                       | Known issue SSRCSP-8198 encountered, skipping the test                                        |
+| DATE SET   | TEST CASE                                               | TICKET / Additional Data.                                                                     |
+| ---------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 08.04.2026 | Automatic suspension                                    | SSRCSP-8288                                                                                   |
+| 30.03.2026 | Check Camera in VMs (Dell)                              | SSRCSP-8266                                                                                   |
+| 30.03.2026 | Check Camera Application (Dell checked in chrome-vm)    | SSRCSP-8266                                                                                   |
+| 23.03.2026 | Verify camera block persisted (Lenovo X1)               | SSRCSP-8224                                                                                   |
+| 18.03.2026 | Check audit update logging                              | SSRCSP-8199                                                                                   |
+| 26.02.2026 | Check systemctl status in every VM (retry added for NX) | Timeout of Executing command 'systemctl list-units --plain --no-legend --no-pager '.          |
+| 12.02.2026 | Account lockout after failed login                      | SSRCSP-8006                                                                                   |
+| 05.02.2026 | Validate Forward Secure Sealing                         | SSRCSP-7973                                                                                   |
+| 11.02.2026 | Check device id                                         | SSRCSP-7997                                                                                   |
+| 11.02.2026 | Check net-vm hostname                                   | SSRCSP-7997                                                                                   |
+| 07.11.2025 | Measure time to launch COSMIC Settings                  | SSRCSP-7518                                                                                   |
+| 23.10.2025 | Save host journalctl/Verify NetVM is started            | SSRCSP-7453                                                                                   |
+| 16.09.2025 | Check systemctl status in every VM                      | [Full list of skips in the test case](/Robot-Framework/test-suites/functional-tests/vm.robot) |
+|            | Measure Hard Boot Time                                  | The searched journalctl line is sometimes (randomly) not there. Didn't find it this time      |
+|            | Measure Soft Boot Time -Dell                            | The searched journalctl line is sometimes (randomly) not there. Didn't find it this time.     |
+|            | OP-TEE xtest 1033 -orin-agx & orin-nx                   | Known issue encountered, skipping the test                                                    |
+|            | OP-TEE xtest 1008 -orin-agx & orin-nx                   | Known issue encountered, skipping the test                                                    |
+|            | OP-TEE xtest 1006 -orin-agx & orin-nx                   | Known issue SSRCSP-8198 encountered, skipping the test                                        |
+|            | OP-TEE xtest 1024 -orin-agx & orin-nx                   | Known issue SSRCSP-8198 encountered, skipping the test                                        |
 
 ## TAGs removed
 
 | DATE SET   | TEST CASE                                         | TICKET / Additional Data.                                                              |
 | ---------- | ------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | 27.02.2026 | Measure Soft Boot Time (Darter Pro)               | Test removed because the Enter finger causes inaccuracy to the result                  |
-| 20.2.2026  | Test ballooning in chrome-vm / business-vm        | Ballooning feature was turned off in ghaf by PR#1770                                   |
-| 4.12.2025  | Start Falcon AI and verify process started (Dell) | Test stucks with circle running on screen. Not relevant case for this HW target.       |
+| 20.02.2026 | Test ballooning in chrome-vm / business-vm        | Ballooning feature was turned off in ghaf by PR#1770                                   |
+| 04.12.2025 | Start Falcon AI and verify process started (Dell) | Test stucks with circle running on screen. Not relevant case for this HW target.       |
 | 03.09.2025 | Performance/network suite (AGX)                   | SSRCSP-7160. Network-adapter usage had impact on results. Needs further investigation. |
 | 03/2025    | Performance Network.robot - ‘orin-nx’             | SSRCSP-6372 - Works locally but problems when Jenkins used, fails all..                |
