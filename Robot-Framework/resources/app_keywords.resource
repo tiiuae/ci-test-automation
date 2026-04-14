@@ -20,7 +20,7 @@ ${APP_OUTPUT_FILE}   /home/${USER_LOGIN}/output.log
 Start application in VM
     [Documentation]    Use always_check_vm=True if calling from tests other than functional
     ...                After calling for this keyword use "Kill App in VM" in the test teardown
-    [Arguments]    ${app_name}   ${app-vm}   ${process_name}   ${always_check_vm}=False
+    [Arguments]    ${app_name}   ${app-vm}   ${process_name}   ${always_check_vm}=False    ${params_string}=${EMPTY}
     Set Test Variable    ${TEST_APP-VM}         ${app-vm}
     Set Test Variable    ${TEST_PROCESS_NAME}   ${process_name}
 
@@ -29,7 +29,7 @@ Start application in VM
     Check that the application is not running   ${process_name}  1
     
     Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
-    Start application   ${app_name}
+    Start application   ${app_name}     params_string=${params_string}
     IF   '${app-vm}' != '${GUI_VM}'   Switch to vm   ${app-vm}
     Check that the application was started    ${process_name}  5
 
@@ -44,9 +44,9 @@ Check that appVM is running
     Log    ${RUNNING_VMS}
 
 Start application
-    [Arguments]      ${app_name}
+    [Arguments]      ${app_name}    ${params_string}=${EMPTY}
     Log    Starting ${app_name}   console=True
-    Run Command  nohup sh -c 'ghaf-open ${app_name}' > ${APP_OUTPUT_FILE} 2>&1 &
+    Run Command  nohup sh -c 'ghaf-open ${app_name} ${params_string}' > ${APP_OUTPUT_FILE} 2>&1 &
 
 Check that the application was started
     [Arguments]    ${process_name}  ${range}=2

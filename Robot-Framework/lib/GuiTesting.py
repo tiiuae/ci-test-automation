@@ -18,12 +18,44 @@ def locate_image(screenshot, image, confidence):
     logging.info(image_center_in_mouse_coordinates)
     return image_center_in_mouse_coordinates
 
-def locate_text(screenshot, text, scale=1):
-    logging.info("Searching " + text)
-    image = Image.open(screenshot)
+def get_data_from_image(image, scale=1):
+    image = Image.open(image)
     image = image.resize((image.width * scale, image.height * scale), Image.BICUBIC)
     data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
     logging.info(data)
+    return data
+
+def get_text(data: pytesseract.Output.DICT):
+    text_list = []
+    sentence = []
+
+    for word in data['text']:
+        if word == "":
+            if sentence:
+                text_list.append(' '.join(sentence))
+                sentence.clear()
+        else:
+            sentence.append(word)
+
+    if sentence:
+        text_list.append(' '.join(sentence))
+
+    logging.info(text_list)
+    return text_list
+
+def is_text_on_the_screen(screenshot, text, scale=1):
+    logging.info("Searching " + text)
+    data = get_data_from_image(screenshot, scale)
+
+    for sentence in get_text(data):
+        if text in sentence:
+            return True
+
+    return False
+
+def locate_text(screenshot, text, scale=1):
+    logging.info("Searching " + text)
+    data = get_data_from_image(screenshot, scale)
 
     # Loop through results to find matching text
     for i, word in enumerate(data['text']):
