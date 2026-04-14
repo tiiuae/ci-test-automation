@@ -106,6 +106,20 @@ Tab and enter
     END
     Press Key(s)       ENTER
 
+Take Remote Screenshot And Download
+    [Arguments]    ${from}=${SCREENSHOT_GHAF}     ${to}=${SCREENSHOT_LOCAL}
+    Run Command             mkdir -p test-images
+    ${_}  ${screenshot}     Take a screenshot
+    SSHLibrary.Get File     ${from}  ${to}
+
+    RETURN    ${to}
+
+Verify Text Is On The Screen
+    [Arguments]    ${text}
+    ${screenshot_path}=     Take Remote Screenshot And Download
+    ${is_visible}=          Is Text On The Screen   ${screenshot_path}   ${text}
+    Should Be True          ${is_visible}           msg=Text '${text}' was not found on the screen
+
 Locate on screen
     [Documentation]    Take a screenshot. Locate given image or text on the screenshot.
     ...                Return center coordinates of the item in mouse coordinate system.
@@ -115,7 +129,8 @@ Locate on screen
     ${locate_status}=      Set Variable  FAIL
     Run Command            mkdir -p test-images
     FOR   ${i}   IN RANGE  ${iterations}
-        ${screenshot_status}  ${result}     Take a screenshot   ${i+1}
+        Log To Console           Taking a screenshot (#${i+1})...  no_newline=True
+        ${screenshot_status}  ${result}     Take a screenshot
         IF  '${screenshot_status}' == 'PASS'
             Log To Console       Done, locating ${type} ${searched_item} on screenshot
             SSHLibrary.Get File  ${SCREENSHOT_GHAF}  ${SCREENSHOT_LOCAL}
@@ -149,8 +164,6 @@ Locate on screen
     END
 
 Take a screenshot
-    [Arguments]   ${attempt}=0
-    Log To Console           Taking a screenshot (#${attempt})...  no_newline=True
     ${screenshot_status}  ${result}   Run Keyword And Ignore Error  Run Command  WAYLAND_DISPLAY=wayland-1 grim -t jpeg -q 100 ${SCREENSHOT_GHAF}   timeout=5
     ${LAST_SCREENSHOT_TIME}  Evaluate    time.time()
     Set Global Variable      ${LAST_SCREENSHOT_TIME}
