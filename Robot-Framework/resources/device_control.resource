@@ -44,21 +44,22 @@ Turn Off Power
     END
 
 Reboot Laptop
-    [Arguments]       ${delay}=15    ${verify_shutdown}=True
+    [Arguments]       ${delay}=20    ${verify_shutdown}=True
     [Documentation]   Turn off the laptop by pressing power button for 10 sec turn on by short pressing power button
-    IF  "${DEVICE_TYPE}" == "lenovo-x1" or "${DEVICE_TYPE}" == "darter-pro" or "${DEVICE_TYPE}" == "x1-sec-boot"
-        ${delay}      Set variable    20
-    END
-    Log To Console    ${\n}Turning device off...
+    Log To Console    ${\n}Shutting down by pressing the power button
+    ${start_time}     Get Time    epoch
     Press Button      ${SWITCH_BOT}-OFF
-    Sleep             ${delay}    # needed because Pressing OFF button takes up to 15 sec
     IF  ${verify_shutdown}
-        Verify shutdown via network
+        ${stop_time}  Verify shutdown via network
+        ${wait_time}  Evaluate    int(${delay}) - int(${stop_time}) + int(${start_time})
+        Wait          ${wait_time}
+    ELSE
+        Sleep         ${delay}    # needed because Pressing OFF button takes up to 15 sec
     END
     Turn Laptop On
 
 Turn Laptop On
-    Log To Console    ${\n}Turning device on...
+    Log To Console    ${\n}Booting the device by pressing the power button
     Press Button      ${SWITCH_BOT}-ON
     IF    "${DEVICE_TYPE}" == "darter-pro"
         Wait    15
@@ -67,7 +68,7 @@ Turn Laptop On
     END
 
 Turn Laptop On and Connect
-    Log To Console    ${\n}Turning device on...
+    Log To Console    ${\n}Booting the device by pressing the power button
     Turn Laptop On
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False
