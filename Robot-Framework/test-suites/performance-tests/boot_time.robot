@@ -36,15 +36,7 @@ Measure Soft Boot Time
 Measure Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
     [Tags]           SP-T182  SP-T182-1  lenovo-x1  darter-pro  dell-7330  lab-only
-    Log To Console                Shutting down by pressing the power button
-    Press Button                  ${SWITCH_BOT}-OFF
-    Wait Until Device Is Down
-    Close All Connections
-    Log To Console                The device has shut down
-    Log To Console                Waiting for the robot finger to return
-    Sleep  20
-    Log To Console                Booting the device by pressing the power button
-    Turn Laptop On
+    Reboot Laptop
     Get Boot times                plot_name=Hard Boot Times
     [Teardown]                    Boot Time Test Teardown
 
