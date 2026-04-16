@@ -126,12 +126,13 @@ Set Variables
 
     Set Log Level       INFO
 
-    IF  $BUILD_ID != '${EMPTY}'
-        ${config}=     Read Config  ${CONFIG_PATH}/${BUILD_ID}.json
+    ${job_json_available}    Run Keyword And Return Status    OperatingSystem.File Should Exist    ${CONFIG_PATH}/${BUILD_ID}.json
+    IF  $BUILD_ID != '${EMPTY}' and ${job_json_available}
+        ${config}    Read Config  ${CONFIG_PATH}/${BUILD_ID}.json
         Set Global Variable    ${JOB}    ${config['Job']}
     ELSE
         IF  $JOB == '${EMPTY}'
-            Set Global Variable    ${JOB}    dummy_job
+            Set Global Variable    ${JOB}    ${DEVICE_TYPE}
         END
     END
 

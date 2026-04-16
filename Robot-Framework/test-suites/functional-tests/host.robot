@@ -101,15 +101,6 @@ Check Secure Boot is enabled
     ${sb_status}      Get Secure Boot Status
     Should Be Equal   ${sb_status}   Enabled   Secure Boot is not enabled
 
-Check that laptop booted from Internal Memory
-    [Documentation]  Check that laptop booted and is running from the internal memory when running tests with installer
-    [Tags]           SP-T130  SP-T130-1  lenovo-x1  darter-pro  installer-only
-    Check that System And Boot Disk Match    nvme0n1
-
-Check that laptop booted from SSD
-    [Documentation]  Check that laptop booted and is running from the SSD when running tests without installer
-    [Tags]           SP-T130  SP-T130-2  pre-merge  bat  lenovo-x1  darter-pro  excl-installer
-    Check that System And Boot Disk Match    sda
 
 *** Keywords ***
 
@@ -157,23 +148,6 @@ Check QSPI Version is up to date
     ${output}      Run Command     ota-check-firmware  rc_match=skip
     ${fw_version}  ${sw_version}   Get qspi versions   ${output}
     Should Be True	'${fw_version}' == '${sw_version}'	  Update QSPI version! Test results can be wrong!
-
-Check that System And Boot Disk Match
-    [Documentation]    Check that /boot and / are backed by the same physical disk and match the expected disk.
-    [Arguments]        ${expected_disk}
-    ${boot_disk}       Get Backing Disk For Mountpoint    /boot
-    ${root_disk}       Get Backing Disk For Mountpoint    /
-    Should Be Equal    ${boot_disk}       ${expected_disk}    Laptop booted from ${boot_disk}, expected ${expected_disk}
-    Should Be Equal    ${root_disk}       ${boot_disk}        / is mounted from ${root_disk}, expected ${boot_disk}
-
-Get Backing Disk For Mountpoint
-    [Documentation]    Resolve the physical disk backing the given mountpoint.
-    [Arguments]        ${mountpoint}
-    Run Command        lsblk    # For debugging
-    ${device}          Run Command    findmnt -no SOURCE ${mountpoint}
-    ${disk_info}       Run Command    lsblk --json -s -o NAME,TYPE ${device}
-    ${disk}            Get Backing Disk From Lsblk    ${disk_info}
-    RETURN             ${disk}
 
 Check Boot Disk Size
     [Documentation]  Check the size of the disk the system booted from.

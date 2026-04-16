@@ -54,7 +54,7 @@ CPU multiple threads test
     ...                     The benchmark records to csv CPU events per second, events per thread, and latency data.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
     [Tags]                  SP-T61  SP-T61-2  cpu  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
-    ${output}               Run Command    sysbench cpu --time=10 --threads=${threads_number} --cpu-max-prime=20000 run
+    ${output}               Run Command    sysbench cpu --time=10 --threads=${THREADS_NUMBER} --cpu-max-prime=20000 run
     &{cpu_data}             Parse Cpu Results   ${output}
     &{statistics}           Save Cpu Data       ${TEST NAME}  ${cpu_data}
     Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="CPU Plot" width="1200">    HTML
@@ -101,7 +101,7 @@ Memory Read multiple threads test
     ...                     and Latency for READ operations.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
     [Tags]                  SP-T61  SP-T61-5  memory  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
-    ${output}               Run Command    sysbench memory --time=60 --memory-oper=read --threads=${threads_number} run
+    ${output}               Run Command    sysbench memory --time=60 --memory-oper=read --threads=${THREADS_NUMBER} run
     &{mem_data}             Parse Memory Results   ${output}
     ${statistics}           Save Memory Data       ${TEST NAME}  ${mem_data}
     Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
@@ -113,7 +113,7 @@ Memory Write multiple threads test
     ...                     and Latency for WRITE operations.
     ...                     Create visual plots to represent these metrics comparing to previous tests.
     [Tags]                  SP-T61  SP-T61-6  memory  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
-    ${output}               Run Command    sysbench memory --time=60 --memory-oper=write --threads=${threads_number} run
+    ${output}               Run Command    sysbench memory --time=60 --memory-oper=write --threads=${THREADS_NUMBER} run
     &{mem_data}             Parse Memory Results   ${output}
     &{statistics}           Save Memory Data       ${TEST NAME}  ${mem_data}
     Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
@@ -136,14 +136,14 @@ FileIO test
         Elevate to superuser
         Write                 cd /persist
         Log To Console        Starting fileio test
-        Write                 /persist/fileio_test ${threads_number} /persist
+        Write                 /persist/fileio_test ${THREADS_NUMBER} /persist
         Set Client Configuration	  timeout=900
         ${out}                SSHLibrary.Read Until   Test finished.
         Set Client Configuration	  timeout=30
         Log                   ${out}
     ELSE
         Log To Console        Starting fileio test
-        Run Command           /tmp/fileio_test ${threads_number}  sudo=True   timeout=300
+        Run Command           /tmp/fileio_test ${THREADS_NUMBER}  sudo=True   timeout=300
     END
 
     ${test_info}  Run Command    cat /tmp/sysbench_results/test_info
