@@ -5,6 +5,7 @@
 Resource            ../config/variables.robot
 Resource            ../resources/gui_keywords.resource
 Resource            ../resources/ssh_keywords.resource
+Resource            ../resources/common_keywords.resource
 
 
 *** Variables ***
@@ -23,12 +24,36 @@ Prepare Test Environment
     END
     Close All Connections
     Switch to vm    ${HOST}
+
     Log versions and device unique data
     IF  ${IS_LAPTOP}
+        Verify boot from expected device
         Create test user
         Save gui icons and icon path
         Login to laptop   ${enable_dnd}
     END
+
+Verify boot from expected device
+    IF  '${JOB}' == '${DEVICE_TYPE}'
+        # Avoid blocking custom local test runs
+        RETURN
+    END
+    Log To Console    Verifying boot from expected device...
+    ${expect_internal_boot}    Run Keyword And Return Status    Should Contain    ${JOB}    installer
+    IF  ${expect_internal_boot}
+        Check that System And Boot Disk Match    nvme0n1
+    ELSE
+        Check that System And Boot Disk Match    sda
+    END
+
+Check that System And Boot Disk Match
+    [Documentation]    Check that /boot and / are backed by the same physical disk and match the expected disk.
+    [Arguments]        ${expected_disk}
+    ${boot_disk}       Get Backing Disk For Mountpoint    /boot
+    ${root_disk}       Get Backing Disk For Mountpoint    /
+    Should Be Equal    ${boot_disk}       ${expected_disk}    Laptop booted from ${boot_disk}, expected ${expected_disk}
+    Should Be Equal    ${root_disk}       ${boot_disk}        / is mounted from ${root_disk}, expected ${boot_disk}
+    Log                Correct boot device verified: ${expected_disk}    console=True
 
 Clean Up Test Environment
     [Timeout]     5 minutes

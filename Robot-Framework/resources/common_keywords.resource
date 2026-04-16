@@ -223,3 +223,12 @@ Get Time Since Last Boot
     Switch to vm        ${HOST}
     ${output}           Run Command    cat /proc/uptime | cut -d. -f1
     RETURN              ${output}
+
+Get Backing Disk For Mountpoint
+    [Documentation]    Resolve the physical disk backing the given mountpoint.
+    [Arguments]        ${mountpoint}
+    Run Command        lsblk    # For debugging
+    ${device}          Run Command    findmnt -no SOURCE ${mountpoint}
+    ${disk_info}       Run Command    lsblk --json -s -o NAME,TYPE ${device}
+    ${disk}            Get Backing Disk From Lsblk    ${disk_info}
+    RETURN             ${disk}

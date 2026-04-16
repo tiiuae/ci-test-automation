@@ -83,7 +83,7 @@ Automatic suspension
         ${max_suspended_power}   Check max power during suspension   ${BUILD_ID}
         ${power_changed}         Measure power level change  ${BUILD_ID}  ${rel_power_change_limit}  ${before_suspend_start}  ${before_suspend_end}  ${after_suspend_start}  ${after_suspend_end}
 
-        IF  ${suspended_power} > ${suspended_power_limit}
+        IF  ${max_suspended_power} > ${suspended_power_limit}
             FAIL    Power consumption exceptionally high during suspension\nMax suspended power: ${max_suspended_power}mW\nTest limit: ${suspended_power_limit}mW
         END
 
