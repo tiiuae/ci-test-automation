@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Check security in logs
-Test Tags           logging  lenovo-x1  darter-pro  lab-only
+Test Tags           logging  lenovo-x1  darter-pro  oring-agx  orin-agx-64  orin-nx  lab-only
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
 Resource            ../../resources/common_keywords.resource
