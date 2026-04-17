@@ -15,6 +15,7 @@ Suite Setup         Suite Setup
 
 *** Variables ***
 ${port}             5432
+${BLOCKED_PAGE}     www.instant-gaming.com
 
 
 *** Test Cases ***
@@ -66,6 +67,17 @@ Check that external tcp syn flooding triggers blacklisting
     Clear NetVM Blacklist Via Serial    ${ext_attacker_ip}
     [Teardown]      Run Keyword If Test Failed    Blacklist Teardown
 
+Check VM firewall policy
+    [Tags]               SP-T361  lenovo-x1  darter-pro  dell-7330
+    [Documentation]      Check that blocked pages can not be accessed, policy only applies to chrome-vm
+    ${since_last_boot}   Get Time Since Last Boot
+    Switch to vm         ${CHROME_VM}
+    # Policy can take up to 5 minutes to update
+    IF   ${since_last_boot} < 300
+        ${wait_time}     Evaluate   300 - ${since_last_boot}
+        Wait Until Keyword Succeeds   ${wait_time}   1s   Check file exists   /etc/firewall/rules/iptables.rules
+    END
+    Check Network Availability   ${BLOCKED_PAGE}   expected_result=False   range=1
 
 *** Keywords ***
 
