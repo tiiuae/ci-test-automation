@@ -65,7 +65,7 @@ Check all VMs are running on Orins
 
 Check serial connection
     [Documentation]    Check serial connection
-    [Tags]             SP-T170  SP-T51  pre-merge  bat  darter-pro  orin-agx  orin-agx-64  orin-nx  lab-only
+    [Tags]             SP-T170  SP-T51  pre-merge  bat  lenovo-x1  darter-pro  orin-agx  orin-agx-64  orin-nx  lab-only
     [Setup]            Serial setup
     Log    Reading serial console...     console=True
     FOR    ${i}    IN RANGE    30
