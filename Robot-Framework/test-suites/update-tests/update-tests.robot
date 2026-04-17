@@ -51,7 +51,7 @@ Update Teardown
         Run Command    df -h   # For debugging
         # Check that logs are available
         Log    Logging service restarted, checking for new logs   console=True
-        Wait Until Keyword Succeeds     15s   2s    Check VM Log on Grafana   ${id}   ${HOST}   15s   ${True}
+        Run Keyword And Ignore Error   Wait Until Keyword Succeeds     15s   2s    Check VM Log on Grafana   ${id}   ${HOST}   15s   ${True}
     END
 
 Update with

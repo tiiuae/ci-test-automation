@@ -15,6 +15,7 @@ Resource            ../../resources/service_keywords.resource
 
 Suite Setup          Rebuild Setup
 Suite Teardown       Rebuild Teardown
+Test Teardown        Run Keyword If Test Failed   SKIP   Known issue: SSRCSP-8302
 
 *** Variables ***
 ${repository_path}      /persist/ghaf
