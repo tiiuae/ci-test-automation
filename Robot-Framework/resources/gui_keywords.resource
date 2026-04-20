@@ -320,8 +320,9 @@ Start screen recording
         ${pass_status}  ${output}  Run Keyword And Ignore Error   Locate on screen   text   Share   iterations=5   debug_screenshot=False
         IF  $pass_status=='PASS'
             # Select the display to record
-            Tab and enter    tabs=3
-            Tab and enter    tabs=2
+            Run ydotool command   mousemove --absolute -x 500 -y 300
+            Run ydotool command   click 0xC0
+            Press Key(s)          ENTER
         END
         Set Global Variable  ${SCREEN_SELECTED}  ${True}
     END
