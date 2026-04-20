@@ -59,7 +59,7 @@ Log out and verify
     IF  not ${logout_status}
         ${lock}       Check if locked
         IF  ${lock}   Unlock
-        Log out via GUI
+        Log out with loginctl
         ${logout_status}  Check if logged out
         IF  not ${logout_status}    FAIL  Failed to log out.
     END
@@ -74,18 +74,17 @@ Log in via GUI
     IF  "${DEVICE_TYPE}" == "dell-7330"    Sleep  5
     Confidential password write  ${USER_PASSWORD}
 
-Log out via GUI
-    [Documentation]   Log out by using keyboard shortcut
+Log out with loginctl
+    [Documentation]   Log out from the laptop
     # Allow disabling logout in case of running test automation locally from ghaf-host.
     # This prevents terminal from being shutdown and allows test run to finish.
     IF  $DISABLE_LOGOUT == 'true'
         Log To Console    Log out disabled. Skipping log out procedure.
         RETURN
     END
-    Log To Console    Logging out by pressing Super+Shift+Escape 
-    Press Key(s)      LEFTMETA+LEFTSHIFT+ESC
-    IF  "${DEVICE_TYPE}" == "dell-7330"    Sleep  3
-    Tab and enter     tabs=2
+    Switch to vm   ${GUI_VM}
+    Run Command    loginctl terminate-user ${USER_LOGIN}   sudo=True
+    [Teardown]   Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
 
 Type string and press enter
     [Arguments]    ${string}=${EMPTY}  ${enter}=True   ${sudo}=False
