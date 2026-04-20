@@ -88,7 +88,7 @@ Measure time to launch COSMIC Media Player
     [Documentation]   Start COSMIC Media Player via GUI and measure time of launching
     [Tags]            SP-T285-10
     Start app via GUI   ${GUI_VM}  cosmic-player  display_name="COSMIC Media Player"
-    Close app via GUI   ${GUI_VM}  cosmic-player  window-close-neg.png
+    Close app via GUI   ${GUI_VM}  cosmic-player  ghaf-close.png
     Save launch time    cosmic-player
 
 Measure time to launch COSMIC Settings
@@ -174,16 +174,14 @@ Measure time to launch VPN
     [Documentation]   Start VPN app via GUI and measure time of launching
     [Tags]            SP-T285-22
     Start app via GUI   ${BUSINESS_VM}  gp-gui  display_name=VPN
-    # Closing is ignored because the process stays running
-    Close app via GUI   ${BUSINESS_VM}  gp-gui  ghaf-close.png  verify_is_killed=false
+    Close app via GUI   ${BUSINESS_VM}  gp-gui  ghaf-close.png
     Save launch time    gp-gui
 
 Measure time to launch App Store
     [Documentation]   Start App Store via GUI and measure time of launching
     [Tags]            SP-T285-23
     Start app via GUI   ${FLATPAK_VM}  cosmic-store  display_name="App Store"
-    # Closing is ignored because it takes a while before the window can be closed via GUI
-    Close app via GUI   ${FLATPAK_VM}  cosmic-store  window-close-neg.png  verify_is_killed=false
+    Close app via GUI   ${FLATPAK_VM}  cosmic-store  window-close-neg.png
     Save launch time    cosmic-store
 
 Measure time to launch Getting Started

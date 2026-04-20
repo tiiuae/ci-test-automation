@@ -81,7 +81,7 @@ GUI Shutdown
     [Documentation]   Shutdown the device via GUI power menu shutdown icon.
     ...               Check that it shuts down and then wakes up with a short power button press.
     [Tags]            SP-T75  SP-T75-5  lenovo-x1  darter-pro  lab-only
-    Select power menu option   x=925   y=120   confirmation=True   tabs=3
+    Select power menu option   x=925   y=120   confirmation=True
     ${start_time}     Get Time    epoch
     ${end_time}       Wait Until Device Is Down
     ${elapsed}        Evaluate    ${end_time} - ${start_time}
@@ -127,7 +127,7 @@ GUI Power Test Teardown
 Select power menu option
     [Documentation]    Open power menu by clicking the icon.
     ...                Search the correct text or click given coordinates.
-    [Arguments]        ${text}=${EMPTY}   ${x}=0   ${y}=0   ${confirmation}=False   ${tabs}=2
+    [Arguments]        ${text}=${EMPTY}   ${x}=0   ${y}=0   ${confirmation}=False   ${tabs}=1
     Log To Console     Opening power menu
     Locate and click   image  power.png  0.95  10
     IF  '${text}'
