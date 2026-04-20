@@ -28,35 +28,36 @@ GUI Suspend and wake up
     ...               Logs device power consumption during the test
     ...               if power measurement tooling is set.
     [Tags]            SP-T75  SP-T75-3  lenovo-x1  darter-pro  lab-only
-    Start power measurement       ${BUILD_ID}   timeout=180
-    # Connect back to gui-vm after power measurement has been started
-    Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
-
-    Select power menu option   x=815   y=120
-    Check that device is suspended
-
-    Log To Console                Letting the device stay suspended for 30 sec
-    Wait                          30
-    Log To Console                Waking the device up by pressing the power button for 1 sec
-
-    Wake up device
-    Close All Connections
-    Start ydotoold
-    Switch to vm             ${GUI_VM}   user=${USER_LOGIN}
-
-    # Sometimes screen wakeup has required a mouse move
-    Wiggle cursor
-
-    Wait Until Keyword Succeeds   30s   2s    Check the screen state   on
-
-    Log To Console           Checking if the screen is in locked state after wake up
-    ${locked}                Check if locked
-    Should Be True           ${locked}    Screen lock not active after wake up
-
-    Unlock
-    Verify desktop availability
-    Generate power plot           ${BUILD_ID}   ${TEST NAME}
-    Stop recording power
+    FAIL    Debug fail
+#    Start power measurement       ${BUILD_ID}   timeout=180
+#    # Connect back to gui-vm after power measurement has been started
+#    Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
+#
+#    Select power menu option   x=815   y=120
+#    Check that device is suspended
+#
+#    Log To Console                Letting the device stay suspended for 30 sec
+#    Wait                          30
+#    Log To Console                Waking the device up by pressing the power button for 1 sec
+#
+#    Wake up device
+#    Close All Connections
+#    Start ydotoold
+#    Switch to vm             ${GUI_VM}   user=${USER_LOGIN}
+#
+#    # Sometimes screen wakeup has required a mouse move
+#    Wiggle cursor
+#
+#    Wait Until Keyword Succeeds   30s   2s    Check the screen state   on
+#
+#    Log To Console           Checking if the screen is in locked state after wake up
+#    ${locked}                Check if locked
+#    Should Be True           ${locked}    Screen lock not active after wake up
+#
+#    Unlock
+#    Verify desktop availability
+#    Generate power plot           ${BUILD_ID}   ${TEST NAME}
+#    Stop recording power
 
 GUI Lock and Unlock
     [Documentation]   Lock the screen via GUI power menu lock icon and check that the screen is locked.
