@@ -64,6 +64,7 @@ Check Grafana logs
             FAIL   Failed to find any logs since last boot for one or more VMs.\nVMs missing all logs since last boot: ${failed_vms_check_2}
         END
     END
+    [Teardown]   Run Keyword If Test Failed   Run Keyword If   "storeDisk" in "${JOB}"   SKIP   Known issue: SSRCSP-8326
 
 Validate Forward Secure Sealing
     [Documentation]   Run Forward Secure Sealing tests in all VMs
