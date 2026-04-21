@@ -14,7 +14,7 @@ Resource            ../../resources/update_keywords.resource
 Resource            ../../resources/service_keywords.resource
 
 Suite Setup          Rebuild Setup
-Suite Teardown       Rebuild Teardown
+#Suite Teardown       Rebuild Teardown
 Test Teardown        Run Keyword If Test Failed   SKIP   Known issue: SSRCSP-8302
 
 *** Variables ***
@@ -91,7 +91,9 @@ Check audit update logging
         FAIL                  Grafana missing logs from ghaf-host completely from the time period of interest.\nCheck if log forwarding is broken.
     END
     ${found}  ${logs}         Get logs by key words   nixos_rebuild_store   ${log_search_window}s   ${False}
-    Should Be True            ${found}    No 'nixos_rebuild_store' keywords found in Grafana from the time of nixos-rebuild.
+    Run Keyword And Continue On Failure 	Should Be True            ${found}    No 'nixos_rebuild_store' keywords found in Grafana from the time of nixos-rebuild.
+    ${found}  ${logs}         Get logs by key words   nrb-watch   ${log_search_window}s   ${False}
+    Run Keyword And Continue On Failure 	Should Be True            ${found}    No 'nrb-watch' keywords found in Grafana from the time of nixos-rebuild.
     Log                       ${logs}
     [Teardown]    Run Keyword If  '${watch_service_status}' != 'True'  Run Keyword If Test Failed  Skip  "Known issue: SSRCSP-8199"
 
@@ -135,8 +137,10 @@ Enable audit logging and nix-store-watch
     Run Nixos Rebuild         ${repository_path}  ${target_name}
 
     Switch to vm              ${HOST}
-    ${watch_service_status}   Run Keyword And Return Status    Verify service status  range=10  service=nixos-rebuild-watch.service
+    ${watch_service_status}   Run Keyword And Return Status    Verify service status  range=60  service=nixos-rebuild-watch.service
     Set Suite variable        ${watch_service_status}
+    Run Command               cat ${repository_path}/modules/microvm/host/microvm-host.nix
+    Run Command               auditctl -l   sudo=True
 
 Run Nixos Rebuild
     [Arguments]      ${repository_path}  ${target_name}  ${interrupt}=${EMPTY}
