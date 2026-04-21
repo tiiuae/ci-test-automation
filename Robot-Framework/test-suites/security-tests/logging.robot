@@ -22,11 +22,13 @@ Wifi password is not revealed in Grafana
     [Documentation]  Check that logs in Grafana don't contain wifi password
     [Tags]           SP-T328  SP-T328-1
     Is password revealed in Grafana    ${TEST_WIFI_SSID}    ${TEST_WIFI_PSWD}
+    [Teardown]   Run Keyword If Test Failed   Run Keyword If   "storeDisk" in "${JOB}"   SKIP   Known issue: SSRCSP-8326
 
 User password is not revealed in Grafana
     [Documentation]  Check that logs in Grafana don't contain user's password
     [Tags]           SP-T328  SP-T328-2
     Is password revealed in Grafana    ${USER_LOGIN}    ${USER_PASSWORD}
+    [Teardown]   Run Keyword If Test Failed   Run Keyword If   "storeDisk" in "${JOB}"   SKIP   Known issue: SSRCSP-8326
 
 Check Grafana log forwarding after disconnected state
     [Documentation]  Check that logs are sent to Grafana from time of disconnection during previous boot
@@ -55,7 +57,7 @@ Check Grafana log forwarding after disconnected state
     Login to laptop
     Wait Until Keyword Succeeds  60s  5s  Check VM Log on Grafana     ${id}   ${ADMIN_VM}   5m   ${True}   logtest1_${BUILD_ID}
     Log To Console               Checked that log is forwarded after clearing the iptables rule by reboot
-
+    [Teardown]   Run Keyword If Test Failed   Run Keyword If   "storeDisk" in "${JOB}"   SKIP   Known issue: SSRCSP-8326
 
 *** Keywords ***
 
