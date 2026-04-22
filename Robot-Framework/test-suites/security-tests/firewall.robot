@@ -247,14 +247,10 @@ Tcp Syn Flood
         ${rc}   ${output}  Run And Return Rc And Output    ${flood_cmd}
         Should Be Equal As Integers    ${output}    1    Blacklisting not detected
     ELSE
-        ${rc}    Run Command    ${flood_cmd}
+        ${rc}              Run Command    ${flood_cmd}
         Run Keyword If     ${rc}!=0       FAIL       No responses to first ping flood, expected at least 1
-        # Skipping ghaf-host for now, it behaves differently.
-        # ghaf-host replies to some packets even after blacklisting has been triggered.
-        IF  $target_ip!="ghaf-host"
-            ${rc}    Run Command    ${flood_cmd}
-            Run Keyword If    ${rc}!=1       FAIL       Blacklisting not detected
-        END
+        ${rc}              Run Command    ${flood_cmd}
+        Run Keyword If     ${rc}!=1       FAIL       Blacklisting not detected
     END
 
 Blacklist Teardown
