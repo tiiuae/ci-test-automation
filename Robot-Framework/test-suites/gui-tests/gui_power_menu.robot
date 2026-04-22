@@ -73,9 +73,13 @@ GUI Reboot
     ...               Check that it shuts down. Check that it turns on and boots to login screen.
     [Tags]            SP-T75  SP-T75-4  lenovo-x1  darter-pro
     Select power menu option   x=870   y=120   confirmation=True
+    ${start_time}     Get Time    epoch
     Verify shutdown via network
     Connect After Reboot   soft_reboot=True
+    ${end_time}       Get Time    epoch
     Login to laptop   enable_dnd=True
+    ${elapsed}        Evaluate    ${end_time} - ${start_time}
+    IF   ${elapsed} > 90    FAIL   Reboot took too long: ${elapsed} seconds (expected < 90)
 
 GUI Shutdown
     [Documentation]   Shutdown the device via GUI power menu shutdown icon.
@@ -94,6 +98,7 @@ GUI Shutdown
     END
     Turn Laptop On and Connect
     Login to laptop   enable_dnd=True
+    IF   ${elapsed} > 20    FAIL   Shutdown took too long: ${elapsed} seconds (expected < 20)
 
 GUI Log out and log in
     [Documentation]   Logout via GUI power menu icon and verify logged out state.
