@@ -78,20 +78,26 @@ Save host journalctl
     OperatingSystem.File Should Exist    ${OUTPUT_DIR}/jrnl.txt
 
 Log versions and device unique data
-    Log                 ---- Versions ----                console=True
+    ${ghaf_commit}      Get File Content Or Default        /persist/build_commit
+    ${build_job}        Get File Content Or Default        /persist/job
+
+    Log                 ---- Versions ----                 console=True
+    Log                 Ghaf build commit file on the device: ${ghaf_commit}  console=True
+    Log                 Test run commit variable: ${COMMIT_HASH}  console=True
     ${ghaf_version}     Run Command   ghaf-version
-    Log                 Ghaf version: ${ghaf_version}     console=True
+    Log                 Ghaf version: ${ghaf_version}      console=True
     ${nixos_version}    Run Command   nixos-version
-    Log                 Nixos version: ${nixos_version}   console=True
-    Log                 NetVM hostname: ${NETVM_NAME}     console=True
+    Log                 Nixos version: ${nixos_version}    console=True
+    Log                 NetVM hostname: ${NETVM_NAME}      console=True
     Get Actual Device ID
     #Save the Robot Framework version
     ${robot_version}    Run   robot --version
     Log                 Robot version of the tests: ${robot_version}   console=True
-    Log                 Device: ${DEVICE}                 console=True
-    Log                 Device type: ${DEVICE_TYPE}       console=True
-    Log                 Job: ${JOB}                       console=True
-    Log                 --------                          console=True
+    Log                 Device: ${DEVICE}                  console=True
+    Log                 Device type: ${DEVICE_TYPE}        console=True
+    Log                 Job file on device: ${build_job}   console=True
+    Log                 Test run job variable: ${JOB}      console=True
+    Log                 --------                           console=True
 
 Create test user
     [Setup]          Switch to vm    ${GUI_VM}
@@ -163,3 +169,12 @@ Is first graphical login
     ${lines}    Count lines    ${result}
     IF  ${lines} <= 1   RETURN   True
     RETURN      False
+
+Get File Content Or Default
+    [Arguments]    ${path}    ${default}=not found
+    ${out}    ${rc}=    Run Command    cat ${path}    return=out,rc    rc_match=skip
+    IF    ${rc} == 0
+        RETURN    ${out}
+    ELSE
+        RETURN    ${default}
+    END
