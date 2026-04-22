@@ -11,6 +11,7 @@ Resource            ../../resources/device_control.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/service_keywords.resource
+Resource            ../../resources/file_keywords.resource
 
 Suite Teardown      Teardown
 
@@ -40,11 +41,12 @@ Verify booting after restart by power
     ELSE
         Log To Console  The device started
     END
-    IF  not ${IS_LAPTOP}
-        Sleep  30
-    END
+
+    Sleep  30
+
     IF  "${CONNECTION_TYPE}" == "ssh"
         Switch to vm    ${HOST}
+        Save commit hash on target device
         Verify service status   service=init.scope
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Verify init.scope status via serial
@@ -72,6 +74,7 @@ Verify booting laptop
     END
     IF  "${CONNECTION_TYPE}" == "ssh"
         Switch to vm    ${HOST}
+        Save commit hash on target device
         Verify service status   service=init.scope
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Verify init.scope status via serial
@@ -225,3 +228,23 @@ Wipe system with ghaf-installer
     ${raw}            Read Until Prompt
     ${rc}             Evaluate    [s for s in """${raw}""".splitlines() if s.strip().isdigit()][-1]
     Should Be Equal As Integers    ${rc}   0    Wiping was not successful
+
+Save commit hash on target device
+    ${commit_path}    Set Variable    /persist/build_commit
+    ${job_path}       Set Variable    /persist/job
+    ${file_found}     Run Keyword And Return Status    Check file exists    ${commit_path}    sudo=True
+    ${flashed_bool}   Convert To Boolean    ${FLASHED}
+    IF  ${file_found}
+        IF  ${flashed_bool}
+            FAIL    Expected fresh installation but found existing ${commit_path}\nProbably something has gone wrong in flashing or installing.
+        END
+        ${saved_commit}    Get File Content Or Default        /persist/build_commit
+        ${saved_job}       Get File Content Or Default        /persist/job
+        Log    Ghaf commit hash entry found on the target device: ${saved_commit}    console=True
+        Log    Job entry found on the target device: ${saved_job}                    console=True
+        RETURN
+    END
+    IF  ${flashed_bool}
+        Create text file    ${COMMIT_HASH}    ${commit_path}    sudo=True
+        Create text file    ${JOB}    ${job_path}    sudo=True
+    END
