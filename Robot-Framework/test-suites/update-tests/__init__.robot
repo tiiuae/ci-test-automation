@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Update tests
-Test Tags           regression  update  lenovo-x1  darter-pro  excl-storeDisk  excl-secboot
+Test Tags           update  lenovo-x1  darter-pro  excl-storeDisk  excl-secboot
 
 Resource            ../../resources/setup_keywords.resource
 
