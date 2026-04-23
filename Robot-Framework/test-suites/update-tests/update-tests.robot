@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Tests for update tooling
-
+Test Tags           cachix-update  regression
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/device_control.resource
 Resource            ../../resources/common_keywords.resource
@@ -12,7 +12,6 @@ Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/update_keywords.resource
 
 Test Teardown       Roll back to original generation
-Suite Teardown      Update Teardown
 Test Timeout        15 minutes
 
 
@@ -32,27 +31,6 @@ Update via givc-cli
 
 
 *** Keywords ***
-
-Update Teardown
-    # The update can leave log forwarding stuck, verify that logging to Grafana is still working
-    Switch to vm   ${ADMIN_VM}
-    ${id}          Get Actual Device ID
-    ${status}      Check VM Log on Grafana   ${id}   ${HOST}   15s
-    IF    not ${status}
-        Log    No recent logs found, recovering the logging service (Known issue: SSRCSP-8302)  console=True
-        # If no recent logs found in Grafana, restart alloy and clear its WAL
-        # The removed logs won't get forwarded to Grafana but are available on the device
-        Run Command    df -h   # For debugging
-        Run Command    systemctl stop alloy.service   sudo=True
-        Elevate to superuser   sleep=5
-        Write    rm -rf /var/lib/private/alloy/data-alloy/loki.write.remote/wal/*
-        Sleep    1
-        Run Command    systemctl start alloy.service   sudo=True
-        Run Command    df -h   # For debugging
-        # Check that logs are available
-        Log    Logging service restarted, checking for new logs   console=True
-        Run Keyword And Ignore Error   Wait Until Keyword Succeeds     15s   2s    Check VM Log on Grafana   ${id}   ${HOST}   15s   ${True}
-    END
 
 Update with
     [Arguments]           ${update_method}

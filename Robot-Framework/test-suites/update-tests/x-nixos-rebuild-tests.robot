@@ -15,7 +15,6 @@ Resource            ../../resources/service_keywords.resource
 
 Suite Setup          Rebuild Setup
 Suite Teardown       Rebuild Teardown
-Test Teardown        Run Keyword If Test Failed   SKIP   Known issue: SSRCSP-8302
 
 *** Variables ***
 ${repository_path}      /persist/ghaf
@@ -76,6 +75,7 @@ Check audit update logging
     [Tags]                  SP-T276
     [Timeout]               10 minutes
     Switch to vm              ${HOST}
+    Run Keyword And Continue On Failure    Verify service status  range=10  service=nixos-rebuild-watch.service
     Elevate to superuser
     Run Nix Shell             git
     Log To Console            Modifying modules/development/debug-tools.nix
@@ -93,7 +93,6 @@ Check audit update logging
     ${found}  ${logs}         Get logs by key words   nixos_rebuild_store   ${log_search_window}s   ${False}
     Should Be True            ${found}    No 'nixos_rebuild_store' keywords found in Grafana from the time of nixos-rebuild.
     Log                       ${logs}
-    [Teardown]    Run Keyword If  '${watch_service_status}' != 'True'  Run Keyword If Test Failed  Skip  "Known issue: SSRCSP-8199"
 
 
 *** Keywords ***
@@ -135,8 +134,6 @@ Enable audit logging and nix-store-watch
     Run Nixos Rebuild         ${repository_path}  ${target_name}
 
     Switch to vm              ${HOST}
-    ${watch_service_status}   Run Keyword And Return Status    Verify service status  range=10  service=nixos-rebuild-watch.service
-    Set Suite variable        ${watch_service_status}
 
 Run Nixos Rebuild
     [Arguments]      ${repository_path}  ${target_name}  ${interrupt}=${EMPTY}

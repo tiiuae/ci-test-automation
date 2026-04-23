@@ -5,12 +5,10 @@
 | DATE SET   | TEST CASE                                               | TICKET / Additional Data.                                                                     |
 | ---------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | 21.04.2026 | Check Grafana logs, logging tests in security tests     | SSRCSP-8326                                                                                   |
-| 17.04.2026 | Rebuild tests skipped if they fail                      | SSRCSP-8302                                                                                   |
-| 08.04.2026 | Automatic suspension                                    | SSRCSP-8288                                                                                   |
+| 08.04.2026 | Automatic suspension (high power after suspension)      | SSRCSP-8288                                                                                   |
 | 30.03.2026 | Check Camera in VMs (Dell)                              | SSRCSP-8266                                                                                   |
 | 30.03.2026 | Check Camera Application (Dell checked in chrome-vm)    | SSRCSP-8266                                                                                   |
 | 23.03.2026 | Verify camera block persisted (Lenovo X1)               | SSRCSP-8224                                                                                   |
-| 18.03.2026 | Check audit update logging                              | SSRCSP-8199                                                                                   |
 | 26.02.2026 | Check systemctl status in every VM (retry added for NX) | Timeout of Executing command 'systemctl list-units --plain --no-legend --no-pager '.          |
 | 12.02.2026 | Account lockout after failed login                      | SSRCSP-8006                                                                                   |
 | 05.02.2026 | Validate Forward Secure Sealing                         | SSRCSP-7973                                                                                   |
@@ -30,6 +28,7 @@
 
 | DATE SET   | TEST CASE                                         | TICKET / Additional Data.                                                              |
 | ---------- | ------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 24.04.2026 | Rebuild tests removed from regression             | Rebuild tests do not work properly with signed images                                  |
 | 27.02.2026 | Measure Soft Boot Time (Darter Pro)               | Test removed because the Enter finger causes inaccuracy to the result                  |
 | 20.02.2026 | Test ballooning in chrome-vm / business-vm        | Ballooning feature was turned off in ghaf by PR#1770                                   |
 | 04.12.2025 | Start Falcon AI and verify process started (Dell) | Test stucks with circle running on screen. Not relevant case for this HW target.       |
