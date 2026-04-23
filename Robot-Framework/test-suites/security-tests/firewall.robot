@@ -33,7 +33,7 @@ Check that internal ping flooding triggers blacklisting
     [Tags]            SP-T299  SP-T299-1  lenovo-x1  darter-pro  dell-7330
     [Template]        Ping Flood Test ${vm}
     FOR    ${vm}    IN    @{VM_LIST_WITH_HOST}
-        IF  '${vm}' != '${ZATHURA_VM}' and '${vm}' != '${NET_VM}'
+        IF  '${vm}' != '${MEDIA_VM}' and '${vm}' != '${NET_VM}'
             ${vm}
         END
     END
@@ -43,7 +43,7 @@ Check that internal tcp syn flooding triggers blacklisting
     [Tags]            SP-T299  SP-T299-2  lenovo-x1  darter-pro  dell-7330
     [Template]        Internal Tcp Syn Flood Test ${vm}
     FOR    ${vm}    IN    @{VM_LIST_WITH_HOST}
-        IF  '${vm}' != '${ZATHURA_VM}' and '${vm}' != '${NET_VM}'
+        IF  '${vm}' != '${MEDIA_VM}' and '${vm}' != '${NET_VM}'
             ${vm}
         END
     END
@@ -110,7 +110,7 @@ Suite Setup
     IF  $IS_LAPTOP == 'True'
         @{VM_LIST_WITH_HOST}  Get VM list    with_host=True
         Set Suite Variable    @{VM_LIST_WITH_HOST}
-        Switch to vm          ${ZATHURA_VM}
+        Switch to vm          ${MEDIA_VM}
         ${output}             Run Command    ifconfig
         ${attacker_ip}        Get ip from ifconfig    ${output}   eth
         Set Suite Variable    ${attacker_ip}
@@ -181,13 +181,13 @@ Log journalctl
 
 Ping Flood Test ${vm}
     Log                Ping flood test targeting ${vm}     console=True
-    Switch to vm       ${ZATHURA_VM}
+    Switch to vm       ${MEDIA_VM}
     Run Command        ping -i 0.1 -c 20 ${vm}    sudo=True
     Check And Clear Blacklist   ${vm}
 
 Internal Tcp Syn Flood Test ${vm}
     Log                   tcp syn flood test targeting ${vm}     console=True
-    Switch to vm          ${ZATHURA_VM}
+    Switch to vm          ${MEDIA_VM}
     Tcp Syn Flood         ${vm}    external=${False}
     Check And Clear Blacklist   ${vm}
 

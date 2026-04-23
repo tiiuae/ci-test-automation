@@ -22,8 +22,8 @@ Stopping one VM does not affect others
     [Tags]              SP-T286
     [Template]          Stopping one VM does not affect another
     ${BUSINESS_VM}  ${COMMS_VM}     Slack            slack
-    ${CHROME_VM}    ${ZATHURA_VM}   "PDF Viewer"     zathura
-    ${ZATHURA_VM}   ${BUSINESS_VM}  Gala             gala
+    ${CHROME_VM}    ${FLATPAK_VM}   "App Store"      cosmic-store
+    ${MEDIA_VM}     ${BUSINESS_VM}  Gala             gala
     ${COMMS_VM}     ${CHROME_VM}    "Google Chrome"  chrome
 
 

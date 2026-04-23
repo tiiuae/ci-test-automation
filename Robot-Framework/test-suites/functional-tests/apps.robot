@@ -22,6 +22,11 @@ Start Bluetooth Settings
     [Tags]            SP-T204  SP-T204-1  fmo
     Start application in VM   "Bluetooth Settings"   ${GUI_VM}   blueman-manager-wrapped-wrapped
 
+Start COSMIC Document Reader
+    [Documentation]   Start COSMIC Document Reader and verify process started
+    [Tags]            SP-T105
+    Start application in VM   "COSMIC Document Reader"   ${GUI_VM}   cosmic-reader
+
 Start COSMIC Files
     [Documentation]   Start Cosmic Files and verify process started
     [Tags]            SP-T206  SP-T206-1  fmo
@@ -91,11 +96,6 @@ Start Outlook
     [Documentation]   Start Outlook and verify process started
     [Tags]            SP-T176
     Start application in VM   Outlook   ${BUSINESS_VM}   outlook
-
-Start PDF Viewer
-    [Documentation]   Start PDF Viewer and verify process started
-    [Tags]            SP-T105
-    Start application in VM   "PDF Viewer"   ${ZATHURA_VM}   zathura
 
 Start Slack
     [Documentation]   Start Slack and verify process started
