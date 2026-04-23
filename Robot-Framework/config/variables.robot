@@ -74,7 +74,7 @@ Set Variables
     Set Global Variable  ${DOCKER_VM}          docker-vm
     Set Global Variable  ${FLATPAK_VM}         flatpak-vm
     Set Global Variable  ${GUI_VM}             gui-vm
-    Set Global Variable  ${ZATHURA_VM}         zathura-vm
+    Set Global Variable  ${MEDIA_VM}           media-vm
     Set Global Variable  ${PERF_LOW_LIMIT}     1
 
     # Ghaf firewall rules allow max 60 pings per minute
