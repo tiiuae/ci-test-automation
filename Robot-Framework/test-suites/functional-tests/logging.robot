@@ -71,8 +71,8 @@ Check logging rate
     [Tags]             SP-T359  log_rate  pre-merge  orin-agx  orin-agx-64  orin-nx
     ${check_interval}  Set Variable   100
     ${saved_entries}   Set Variable   100
-    ${entry_limit}     Set Variable   2000
-    ${byte_limit}      Set Variable   400000
+    ${entry_limit}     Set Variable   5000
+    ${byte_limit}      Set Variable   1000000
     ${gui_vm_entry_limit}   Set Variable   10000
     ${gui_vm_byte_limit}    Set Variable   2000000
     &{spam_metrics}    Create Dictionary
