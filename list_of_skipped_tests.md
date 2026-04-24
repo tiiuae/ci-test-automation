@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                               | TICKET / Additional Data.                                                                     |
 | ---------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 24.04.2026 | GUI Shutdown & GUI Reboot (Darter Pro)                  | SSRCSP-8341                                                                                   |
 | 21.04.2026 | Check Grafana logs, logging tests in security tests     | SSRCSP-8326                                                                                   |
 | 08.04.2026 | Automatic suspension (high power after suspension)      | SSRCSP-8288                                                                                   |
 | 30.03.2026 | Check Camera in VMs (Dell)                              | SSRCSP-8266                                                                                   |
