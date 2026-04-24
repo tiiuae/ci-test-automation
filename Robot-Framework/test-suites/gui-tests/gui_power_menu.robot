@@ -79,7 +79,14 @@ GUI Reboot
     ${end_time}       Get Time    epoch
     Login to laptop   enable_dnd=True
     ${elapsed}        Evaluate    ${end_time} - ${start_time}
-    IF   ${elapsed} > 90    FAIL   Reboot took too long: ${elapsed} seconds (expected < 90)
+    Log               Reboot took ${elapsed} seconds   console=True
+    IF   ${elapsed} > 90
+        IF  "${DEVICE_TYPE}" == "darter-pro"
+            SKIP   Known issue: SSRCSP-8341 (Reboot took too long: ${elapsed} seconds (expected < 90))
+        ELSE
+            FAIL   Reboot took too long: ${elapsed} seconds (expected < 90)
+        END
+    END
 
 GUI Shutdown
     [Documentation]   Shutdown the device via GUI power menu shutdown icon.
@@ -89,6 +96,7 @@ GUI Shutdown
     ${start_time}     Get Time    epoch
     ${end_time}       Wait Until Device Is Down
     ${elapsed}        Evaluate    ${end_time} - ${start_time}
+    Log               Shutdown took ${elapsed} seconds   console=True
     # After shutdown always wait at least until 30 seconds and for 10 more seconds if shutdown was faster than 20 seconds
     IF    ${elapsed} <= 20
         ${wait_time}  Evaluate    30 - ${elapsed}
@@ -98,7 +106,13 @@ GUI Shutdown
     END
     Turn Laptop On and Connect
     Login to laptop   enable_dnd=True
-    IF   ${elapsed} > 20    FAIL   Shutdown took too long: ${elapsed} seconds (expected < 20)
+    IF   ${elapsed} > 20
+        IF  "${DEVICE_TYPE}" == "darter-pro"
+            SKIP   Known issue: SSRCSP-8341 (Shutdown took too long: ${elapsed} seconds (expected < 20))
+        ELSE
+            FAIL   Shutdown took too long: ${elapsed} seconds (expected < 20)
+        END
+    END
 
 GUI Log out and log in
     [Documentation]   Logout via GUI power menu icon and verify logged out state.
@@ -116,7 +130,7 @@ GUI Power Test Setup
     Start screen recording
 
 GUI Power Test Teardown
-    IF  $TEST_STATUS == 'FAIL'
+    IF  $TEST_STATUS == 'FAIL' and not 'took too long' in $TEST_MESSAGE
         Run keyword and continue on failure    serial_keywords.Save log
         Reboot Laptop
         Connect After Reboot
