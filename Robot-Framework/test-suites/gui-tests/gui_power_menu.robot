@@ -148,7 +148,16 @@ Select power menu option
     ...                Search the correct text or click given coordinates.
     [Arguments]        ${text}=${EMPTY}   ${x}=0   ${y}=0   ${confirmation}=False   ${tabs}=1
     Log To Console     Opening power menu
-    Locate and click   image  power.png  0.95  10
+    ${menu_opened}     Set Variable  ${False}
+    FOR  ${attempt}  IN RANGE  1  3
+        Locate and click   image  power.png  0.95  10
+        # Wait for menu to open and stop retrying when successful
+        ${menu_opened}     Run Keyword And Return Status   Locate on screen   text   Settings   iterations=3
+        Exit For Loop If   ${menu_opened}
+    END
+    IF  not ${menu_opened}
+        FAIL   Failed to open power menu: 'Settings' not visible after 2 attempts.
+    END
     IF  '${text}'
         Locate and click   text   ${text}
     ELSE IF  ${x} != 0 and ${y} != 0
