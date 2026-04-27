@@ -149,6 +149,11 @@ Select power menu option
     [Arguments]        ${text}=${EMPTY}   ${x}=0   ${y}=0   ${confirmation}=False   ${tabs}=1
     Log To Console     Opening power menu
     Locate and click   image  power.png  0.95  10
+    # Wait for menu to open and stop retrying when successful
+    ${menu_opened}     Run Keyword And Return Status   Locate on screen   text   Settings   iterations=3
+    IF  not ${menu_opened}
+        FAIL   Failed to open power menu: 'Settings' not visible.
+    END
     IF  '${text}'
         Locate and click   text   ${text}
     ELSE IF  ${x} != 0 and ${y} != 0
