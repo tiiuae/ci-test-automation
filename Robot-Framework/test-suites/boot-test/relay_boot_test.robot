@@ -40,11 +40,12 @@ Verify booting after restart by power
     ELSE
         Log To Console  The device started
     END
-    IF  not ${IS_LAPTOP}
-        Sleep  30
-    END
+
+    Sleep  30
+
     IF  "${CONNECTION_TYPE}" == "ssh"
         Switch to vm    ${HOST}
+        Save commit hash on target device
         Verify service status   service=init.scope
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Verify init.scope status via serial
@@ -72,6 +73,7 @@ Verify booting laptop
     END
     IF  "${CONNECTION_TYPE}" == "ssh"
         Switch to vm    ${HOST}
+        Save commit hash on target device
         Verify service status   service=init.scope
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Verify init.scope status via serial
@@ -225,3 +227,20 @@ Wipe system with ghaf-installer
     ${raw}            Read Until Prompt
     ${rc}             Evaluate    [s for s in """${raw}""".splitlines() if s.strip().isdigit()][-1]
     Should Be Equal As Integers    ${rc}   0    Wiping was not successful
+
+Save commit hash on target device
+    ${commit_path}    Set Variable    /persist/build_commit
+    ${job_path}       Set Variable    /persist/job
+    ${out}  ${rc}     Run Command     test -f ${commit_path}    return=out,rc    rc_match=skip
+    ${flashed_bool}    Convert To Boolean    ${FLASHED}
+    IF  ${rc} == 0
+        IF  ${flashed_bool}
+            FAIL    Expected fresh installation but found existing ${commit_path}\nProbably something has gone wrong in flashing or installing.
+        END
+        Log    Ghaf commit hash entry found on the target device: ${out}    console=True
+        RETURN
+    END
+    IF  ${flashed_bool}
+        Run Command       sh -c 'echo ${COMMIT_HASH} > ${commit_path}'    sudo=True
+        Run Command       sh -c 'echo ${JOB} > ${job_path}'               sudo=True
+    END

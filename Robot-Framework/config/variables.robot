@@ -26,6 +26,7 @@ ${LOGGED_PARAMS_DIR}      ../../../logged_parameters/
 ${PERF_DATA_DIR}          ../../../Performance_test_results/
 ${PLOT_DIR}               ./
 ${REL_PLOT_DIR}           ./
+${FLASHED}                false
 
 
 *** Keywords ***
