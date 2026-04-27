@@ -21,12 +21,12 @@ Start and close Google Chrome via GUI
     Start app via GUI   ${CHROME_VM}  chrome  display_name="Google Chrome"
     Close app via GUI   ${CHROME_VM}  chrome  ghaf-close.png   2
 
-Start and close PDF Viewer via GUI
-    [Documentation]   Start PDF Viewer via GUI and verify related process started
-    ...               Close PDF Viewer via GUI and verify related process stopped
+Start and close COSMIC Document Reader via GUI
+    [Documentation]   Start COSMIC Document Reader via GUI and verify related process started
+    ...               Close COSMIC Document Reader via GUI and verify related process stopped
     [Tags]            SP-T70
-    Start app via GUI   ${ZATHURA_VM}  zathura   display_name="PDF Viewer"
-    Close app via GUI   ${ZATHURA_VM}  zathura  window-close.png
+    Start app via GUI   ${GUI_VM}  cosmic-reader   display_name="COSMIC Document Reader"
+    Close app via GUI   ${GUI_VM}  cosmic-reader   ghaf-close.png
 
 Start and close Sticky Notes via GUI
     [Documentation]   Start Sticky Notes via GUI and verify related process started

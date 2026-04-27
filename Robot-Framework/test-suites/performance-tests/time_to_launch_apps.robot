@@ -28,12 +28,12 @@ Measure time to launch Google Chrome
     Close app via GUI   ${CHROME_VM}  chrome  ghaf-close.png   2
     Save launch time    chrome
 
-Measure time to launch PDF Viewer
-    [Documentation]   Start PDF Viewer via GUI and measure time of launching
+Measure time to launch COSMIC Document Reader
+    [Documentation]   Start COSMIC Document Reader via GUI and measure time of launching
     [Tags]            SP-T285-2
-    Start app via GUI   ${ZATHURA_VM}  zathura   display_name="PDF Viewer"
-    Close app via GUI   ${ZATHURA_VM}  zathura
-    Save launch time    zathura
+    Start app via GUI   ${GUI_VM}  cosmic-reader   display_name="COSMIC Document Reader"
+    Close app via GUI   ${GUI_VM}  cosmic-reader   ghaf-close.png
+    Save launch time    cosmic-reader
 
 Measure time to launch Sticky Notes
     [Documentation]   Start Sticky Notes via GUI and measure time of launching

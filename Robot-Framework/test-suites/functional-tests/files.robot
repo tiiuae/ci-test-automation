@@ -16,25 +16,25 @@ ${OUTPUT_FILE}   /tmp/out.log
 *** Test Cases ***
 
 Open PDF from chrome-vm
-    [Documentation]    Open PDF file from Chrome VM and check that Zathura app is started
+    [Documentation]    Open PDF file from Chrome VM and check that Ghaf Isolated Document Viewer started
     [Tags]             SP-T131  SP-T131-1  pre-merge  bat
     Open PDF from app-vm    ${CHROME_VM}
     [Teardown]         Kill PDF Reader   ${CHROME_VM}
 
 Open PDF from comms-vm
-    [Documentation]    Open PDF file from Comms VM and check that Zathura app is started
+    [Documentation]    Open PDF file from Comms VM and check that Ghaf Isolated Document Viewer started
     [Tags]             SP-T131  SP-T131-2
     Open PDF from app-vm    ${COMMS_VM}
     [Teardown]         Kill PDF Reader   ${COMMS_VM}
 
 Open PDF from business-vm
-    [Documentation]    Open PDF file from Business VM and check that Zathura app is started
+    [Documentation]    Open PDF file from Business VM and check that Ghaf Isolated Document Viewer started
     [Tags]             SP-T131  SP-T131-3
     Open PDF from app-vm    ${BUSINESS_VM}
     [Teardown]         Kill PDF Reader   ${BUSINESS_VM}
 
 Open PDF from gui-vm
-    [Documentation]    Open PDF file from Gui VM and check that Zathura app is started
+    [Documentation]    Open PDF file from Gui VM and check that Ghaf Isolated Document Viewer started
     [Tags]             SP-T131  SP-T131-4
     Open PDF from app-vm    ${GUI_VM}
     [Teardown]         Kill PDF Reader   ${GUI_VM}
@@ -44,15 +44,13 @@ Open image with Oculante
     [Tags]             SP-T197  pre-merge  bat
     Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
 
-    Run Command        mkdir test-images   rc_match=skip
     Run Command        WAYLAND_DISPLAY=wayland-1 grim ./screenshot.png   timeout=5
-
     Open Image         ./screenshot.png
 
-    Switch to vm       ${ZATHURA_VM}
+    Switch to vm       ${MEDIA_VM}
     Check that the application was started    oculante    10
     [Teardown]  Run Keywords  Remove the file in VM       ./screenshot.png  ${GUI_VM}   ${USER_LOGIN}   AND
-    ...                       Kill App Process And Save Logs  ${GUI_VM}    ${USER_LOGIN}    ${OUTPUT_FILE}    oculante    ${ZATHURA_VM}
+    ...                       Kill App Process And Save Logs  ${GUI_VM}    ${USER_LOGIN}    ${OUTPUT_FILE}    oculante    ${MEDIA_VM}
 
 Open text file with Cosmic Text Editor
     [Documentation]    Open text file and check that Cosmic Text Editor app is started
@@ -74,15 +72,15 @@ Remove the file in VM
 
 Kill PDF Reader
     [Arguments]   ${pdf_launcher_vm}
-    Kill App Process And Save Logs   ${pdf_launcher_vm}  ${LOGIN}  ${OUTPUT_FILE}  zathura  ${ZATHURA_VM}
+    Kill App Process And Save Logs   ${pdf_launcher_vm}  ${LOGIN}  ${OUTPUT_FILE}  cosmic-reader  ${MEDIA_VM}
 
 Open PDF from app-vm
     [Arguments]        ${vm}
     Switch to vm       ${vm}
     Put File           ../test-files/test_pdf.pdf         /tmp
     Open PDF           /tmp/test_pdf.pdf
-    Switch to vm       ${ZATHURA_VM}
-    Check that the application was started    zathura    10
+    Switch to vm       ${MEDIA_VM}
+    Check that the application was started    cosmic-reader    10
     [Teardown]         Remove the file in VM    /tmp/test_pdf.pdf    ${vm}
 
 Open PDF
