@@ -70,23 +70,27 @@ Check logging rate
     [Documentation]    Check that host or vms are not creating too much logs
     [Tags]             SP-T359  log_rate  pre-merge  orin-agx  orin-agx-64  orin-nx
     ${check_interval}  Set Variable   100
-    ${saved_entries}   Set Variable   100
-    ${entry_limit}     Set Variable   5000
-    ${byte_limit}      Set Variable   1000000
+    ${saved_entries}   Set Variable   500
+
+    ${entry_limit}          Set Variable   2000
+    ${orin_entry_limit}     Set Variable   5000
     ${gui_vm_entry_limit}   Set Variable   10000
-    ${gui_vm_byte_limit}    Set Variable   2000000
+    ${bytes_per_entry}      Set Variable   200
+
     &{spam_metrics}    Create Dictionary
     &{ok_metrics}      Create Dictionary
     &{spam_logs}       Create Dictionary
     FOR  ${vm}  IN  @{VM_LIST}
         Switch to vm   ${vm}
-        IF  '${vm}' == 'gui-vm'
+        IF  "orin" in "${DEVICE_TYPE}"
+            ${vm_entry_limit}   Set Variable   ${orin_entry_limit}
+        ELSE IF  '${vm}' == 'gui-vm'
             ${vm_entry_limit}   Set Variable   ${gui_vm_entry_limit}
-            ${vm_byte_limit}    Set Variable   ${gui_vm_byte_limit}
         ELSE
             ${vm_entry_limit}   Set Variable   ${entry_limit}
-            ${vm_byte_limit}    Set Variable   ${byte_limit}
         END
+        ${vm_byte_limit}    Evaluate    ${vm_entry_limit} * ${bytes_per_entry}
+
         ${byte_rate}   Run Command    journalctl --since "$(date -d '${check_interval} seconds ago' '+%Y-%m-%d %H:%M:%S')" | wc -c | awk '{print $1}'
         ${entries}     Run Command    journalctl --since "${check_interval} seconds ago" | wc -l
         IF  ${entries} > ${vm_entry_limit} or ${byte_rate} > ${vm_byte_limit}
