@@ -52,7 +52,7 @@ Measure Orin Hard Boot Time
     [Tags]           SP-T182  SP-T182-2  orin-agx  orin-agx-64  orin-nx  lab-only
     Log To Console                Shutting down by switching the power off
     Turn Off Power
-    Wait Until Device Is Down
+    Wait Until Device Is Down     power_off=${True}
     Close All Connections
     Log To Console                The device has shut down
     Log To Console                Booting the device by switching the power on

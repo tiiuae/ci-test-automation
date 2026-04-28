@@ -136,18 +136,14 @@ Wake up device
         Log To Console   Device successfully woke up after suspend
     END
 
-Verify Laptop Shutdown
-    [Arguments]      ${timeout}=30
-    ${device_not_available}    Run Keyword And Return Status  Wait Until Keyword Succeeds  ${timeout}s  2s  Check If Ping Fails
-    IF  ${device_not_available} == True
-        Log To Console            Device is down
-    ELSE
-        FAIL                      Device didn't shut down
-    END
-
 Wait Until Device Is Down
+    [Arguments]    ${power_off}=${False}
     IF  not ${IS_LAPTOP} or "${SERIAL_PORT}" == "NONE"
-        ${time}   Verify shutdown via network
+        IF  ${power_off}
+            ${time}   Verify shutdown via network    required_down_count=1
+        ELSE
+            ${time}   Verify shutdown via network
+        END
     ELSE
         ${time}   Verify shutdown via serial
     END
@@ -156,21 +152,31 @@ Wait Until Device Is Down
 Verify shutdown via network
     [Documentation]    Check ping and port 22 until device stops responding both.
     ...                "Connection refused" is NOT considered as powered off.
-    [Arguments]        ${timeout}=60
-    ${start_time}      Get Time    epoch
-    FOR    ${i}    IN RANGE    ${timeout}
-        ${nc}     Run Process    nc    -zvw1    ${DEVICE_IP_ADDRESS}    22    stderr=STDOUT    shell=False
-        Log       rc ${nc.rc} \n${nc.stdout}
-        ${ping}   Run Process  ping  ${DEVICE_IP_ADDRESS}  -c1  -W  1  timeout=3s
-        Log       rc ${ping.rc} \n${ping.stdout}
-
-        IF    ${ping.rc} == 1 and 'Connection timed out' in '''${nc.stdout}'''
-            ${diff}   Evaluate    int(time.time()) - int(${start_time})
-            Log       Device at ${DEVICE_IP_ADDRESS} stopped responding ping in ${diff} seconds.    console=True
-            ${time}   BuiltIn.Get Time   epoch
+    [Arguments]        ${iterations}=60    ${required_down_count}=3
+    ${start_time}      Get Time        epoch
+    ${down_count}    Set Variable    0
+    FOR    ${i}    IN RANGE    ${iterations}
+        ${ping}    Run Process    ping    ${DEVICE_IP_ADDRESS}    -c1    -W    1    timeout=3s
+        Log        rc ${ping.rc} \n${ping.stdout}
+        IF    ${ping.rc} == 1
+            Sleep    ${PING_SPACING}
+            ${nc}    Run Process    nc    -zvw1    ${DEVICE_IP_ADDRESS}    22    stderr=STDOUT    shell=False
+            Log      rc ${nc.rc} \n${nc.stdout}
+            IF    'Connection timed out' in '''${nc.stdout}'''
+                ${down_count}    Evaluate    int(${down_count}) + 1
+                Log    Down count: ${down_count}    console=True
+            ELSE
+                ${down_count}    Set Variable    0
+            END
+        ELSE
+            ${down_count}    Set Variable    0
+        END
+        IF    ${down_count} >= ${required_down_count}
+            Log       Device at ${DEVICE_IP_ADDRESS} didn't respond to ${required_down_count} consecutive ping/nc cycles.    console=True
+            ${time}   BuiltIn.Get Time    epoch
             RETURN    ${time}
         END
-        Sleep    1s
+        Sleep    ${PING_SPACING}
     END
     ${diff}    Evaluate    int(time.time()) - int(${start_time})
     Fail       Device at ${DEVICE_IP_ADDRESS} still responds after ${diff} seconds.
