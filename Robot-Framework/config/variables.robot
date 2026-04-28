@@ -46,11 +46,15 @@ Set Variables
     IF  $CONFIG_PATH == 'None'
         Log To Console    No path for test_config.json given. Ignore reading the config variables.
         Set Global Variable  ${RELAY_SERIAL_PORT}   NONE
+        Set Global Variable  ${BT_SERIAL_PORT}      NONE
+        Set Global Variable  ${BT_BOARD_NAME}       NONE
         Set Global Variable  ${PLUG_TYPE}   NONE
     ELSE
         ${config}=     Read Config    ${CONFIG_PATH}/test_config.json
         Set Global Variable  ${SERIAL_PORT}        ${config['addresses']['${DEVICE}']['serial_port']}
         Set Global Variable  ${RELAY_SERIAL_PORT}  ${config['addresses']['relay_serial_port']}
+        Set Global Variable  ${BT_SERIAL_PORT}     ${config['addresses']['bluetooth_serial_port']}
+        Set Global Variable  ${BT_BOARD_NAME}      ${config['addresses']['bluetooth_name']}
         Set Global Variable  ${DEVICE_IP_ADDRESS}  ${config['addresses']['${DEVICE}']['device_ip_address']}
         Set Global Variable  ${THREADS_NUMBER}     ${config['addresses']['${DEVICE}']['threads']}
         Run Keyword And Ignore Error    Set Global Variable  ${STATIC_DEVICE_ID}   ${config['addresses']['${DEVICE}']['device_id']}
