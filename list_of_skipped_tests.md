@@ -11,7 +11,6 @@
 | 30.03.2026 | Check Camera Application (Dell checked in chrome-vm)    | SSRCSP-8266                                                                                   |
 | 23.03.2026 | Verify camera block persisted (Lenovo X1)               | SSRCSP-8224                                                                                   |
 | 26.02.2026 | Check systemctl status in every VM (retry added for NX) | Timeout of Executing command 'systemctl list-units --plain --no-legend --no-pager '.          |
-| 12.02.2026 | Account lockout after failed login                      | SSRCSP-8006                                                                                   |
 | 05.02.2026 | Validate Forward Secure Sealing                         | SSRCSP-7973                                                                                   |
 | 11.02.2026 | Check device id                                         | SSRCSP-7997                                                                                   |
 | 11.02.2026 | Check net-vm hostname                                   | SSRCSP-7997                                                                                   |

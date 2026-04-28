@@ -162,7 +162,7 @@ Verify shutdown via network
             Sleep    ${PING_SPACING}
             ${nc}    Run Process    nc    -zvw1    ${DEVICE_IP_ADDRESS}    22    stderr=STDOUT    shell=False
             Log      rc ${nc.rc} \n${nc.stdout}
-            IF    'Connection timed out' in '''${nc.stdout}'''
+            IF    ${nc.rc} == 1
                 ${down_count}    Evaluate    int(${down_count}) + 1
                 Log    Down count: ${down_count}    console=True
             ELSE

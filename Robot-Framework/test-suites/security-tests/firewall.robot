@@ -8,10 +8,11 @@ Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/serial_keywords.resource
+Resource            ../../resources/security_blacklist_keywords.resource
 Library             OperatingSystem
 
 Suite Setup         Suite Setup
-
+Suite Teardown      Blacklist Teardown
 
 *** Variables ***
 ${port}             5432
@@ -50,7 +51,7 @@ Check that internal tcp syn flooding triggers blacklisting
     [Teardown]      Run Keyword If Test Failed    Blacklist Teardown
 
 Check that external ping flooding triggers blacklisting
-    [Tags]            SP-T299  SP-T299-3  darter-pro  orin-agx  orin-nx  lab-only
+    [Tags]            SP-T299  SP-T299-3  lenovo-x1  darter-pro  orin-agx  orin-nx  lab-only
     [Documentation]   Validate that ping flooding from the test agent to net-vm triggers firewall blacklisting.
     ${ext_attacker_ip}    Get External Attacker IP
     External Ping Flood NetVM
@@ -59,7 +60,7 @@ Check that external ping flooding triggers blacklisting
     [Teardown]      Run Keyword If Test Failed    Blacklist Teardown
 
 Check that external tcp syn flooding triggers blacklisting
-    [Tags]            SP-T299  SP-T299-4  darter-pro  orin-agx  orin-nx  lab-only
+    [Tags]            SP-T299  SP-T299-4  lenovo-x1  darter-pro  orin-agx  orin-nx  lab-only
     [Documentation]   Validate that tcp syn probing from the test agent to net-vm triggers firewall blacklisting.
     ${ext_attacker_ip}    Get External Attacker IP
     Tcp Syn Flood         ${DEVICE_IP_ADDRESS}
@@ -213,30 +214,6 @@ Check And Clear Blacklist
     Check Attacker IP on Blacklist  ${vm}
     Run Command        ipset del BLACKLIST ${attacker_ip}    sudo=True
     Check Attacker IP on Blacklist  ${vm}   expect_blacklisting=${False}
-
-Verify NetVM Blacklist Contains IP Via Serial
-    [Arguments]        ${ip}
-    [Documentation]    Verify that the provided IP is found from net-vm's BLACKLIST via serial tunnel.
-    ${output}=         Run Command on VM Via Serial    ${NET_VM}    echo ${PASSWORD} | sudo -S ipset list BLACKLIST
-    Should Contain     ${output}    ${ip}
-
-Clear NetVM Blacklist Via Serial
-    [Arguments]        ${ip}
-    [Documentation]    Remove the attacker IP from net-vm BLACKLIST using serial access.
-    Run Command on VM Via Serial    ${NET_VM}    echo ${PASSWORD} | sudo -S ipset del BLACKLIST ${ip}
-    Wait Until Keyword Succeeds    5x    5s    Verify External Connectivity Restored    ${ip}
-
-Verify External Connectivity Restored
-    [Arguments]    ${ip}
-    ${output}    Run Process    sh   -c   ping -c 2 ${DEVICE_IP_ADDRESS}   shell=true
-    Should Be Equal As Integers    ${output.rc}    0     Ping to ${DEVICE_IP_ADDRESS} failed
-
-Get External Attacker IP
-    [Documentation]    Return source IP that the test agent uses to reach the target device.
-    ${output}    Run Process    sh   -c   /run/current-system/sw/bin/ip route get ${DEVICE_IP_ADDRESS}   shell=true
-    Should Be Equal As Integers    ${output.rc}    0    Failed to resolve route to ${DEVICE_IP_ADDRESS}
-    ${ext_attacker_ip}   Get Source Ip For Route    ${output.stdout}
-    RETURN    ${ext_attacker_ip}
 
 External Ping Flood NetVM
     [Documentation]    Trigger ICMP flood from the agent towards net-vm interface.
