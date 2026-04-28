@@ -1,0 +1,49 @@
+diff --git a/samples/bluetooth/peripheral/prj.conf b/samples/bluetooth/peripheral/prj.conf
+index 493660afa33..f14a7d5c445 100644
+--- a/samples/bluetooth/peripheral/prj.conf
++++ b/samples/bluetooth/peripheral/prj.conf
+@@ -13,7 +13,7 @@ CONFIG_BT_IAS=y
+ CONFIG_BT_CTS=y
+ CONFIG_BT_CTS_HELPER_API=y
+ CONFIG_BT_PRIVACY=y
+-CONFIG_BT_DEVICE_NAME="Zephyr Peripheral Sample Long Name"
++CONFIG_BT_DEVICE_NAME="Ghaf Test Bluetooth Board Release"
+ CONFIG_BT_DEVICE_APPEARANCE=833
+ CONFIG_BT_DEVICE_NAME_DYNAMIC=y
+ CONFIG_BT_DEVICE_NAME_MAX=65
+diff --git a/samples/bluetooth/peripheral/src/main.c b/samples/bluetooth/peripheral/src/main.c
+index 3f15aee100a..5a749e87667 100644
+--- a/samples/bluetooth/peripheral/src/main.c
++++ b/samples/bluetooth/peripheral/src/main.c
+@@ -221,6 +221,23 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
+ 	printk("Disconnected, reason 0x%02x %s\n", reason, bt_hci_err_to_str(reason));
+ }
+ 
++static void recycled(struct bt_conn *conn)
++{
++	int err;
++
++	ARG_UNUSED(conn);
++
++	printk("Connection object recycled\n");
++
++	err = bt_le_adv_start(BT_LE_ADV_CONN_FAST_1, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
++	if (err) {
++		printk("Advertising restart failed (err %d)\n", err);
++		return;
++	}
++
++	printk("Advertising restarted\n");
++}
++
+ static void alert_stop(void)
+ {
+ 	printk("Alert stopped\n");
+@@ -239,6 +256,7 @@ static void alert_high_start(void)
+ BT_CONN_CB_DEFINE(conn_callbacks) = {
+ 	.connected = connected,
+ 	.disconnected = disconnected,
++	.recycled = recycled,
+ };
+ 
+ BT_IAS_CB_DEFINE(ias_callbacks) = {
