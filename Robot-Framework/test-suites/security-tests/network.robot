@@ -7,20 +7,23 @@ Test Tags           network-security
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
 Resource            ../../resources/common_keywords.resource
+Resource            ../../resources/device_control.resource
+Resource            ../../resources/setup_keywords.resource
+Resource            ../../resources/security_blacklist_keywords.resource
 
 
 *** Test Cases ***
 
 Account lockout after failed login
-    [Documentation]  Try to connect from Comms-vm to Chrome-vm with a wrong password for several times, then check that
-    ...              Comms-vm's ip is blacklisted in Chrome-vm and it is not possible to connect even with correct password
-    [Tags]           SP-T268  lenovo-x1  darter-pro
-    Switch to vm     ${COMMS_VM}
-    ${ip}            Get VM IP
-    Try to connect with wrong password    ${CHROME_VM}  jumphost=${COMMS-VM_GHAF_SSH}
-    Check ip is in the blacklist  ${CHROME_VM}  ${ip}
-    [Teardown]    Run Keywords  Remove from the blacklist  ${ip}
-    ...           AND   Run Keyword If Test Failed    Skip  "Known Issue: SSRCSP-8006"
+    [Documentation]  Try to connect from the external test agent to the device with a wrong password for several times, then check that
+    ...              test agent's ip is blacklisted in net-vm and it is not possible to connect even with correct password.
+    ...              Remove IP from blacklist via serial and verify SSH connectivity is restored.
+    [Tags]           SP-T268
+    ${ip}            Get External Attacker IP
+    Try External Login With Wrong Password
+    Verify NetVM Blacklist Contains IP Via Serial    ${ip}   f2b-sshBlacklist
+    Unban IP Address Via Serial                      ${ip}
+    [Teardown]       Account lockout teardown
 
 Check OpenSSL3 is Available In Nix Store
     [Documentation]  Connect to GUI-VM and check that OpenSSL3 is available in NixStore.
@@ -31,28 +34,30 @@ Check OpenSSL3 is Available In Nix Store
 
 *** Keywords ***
 
-Try to connect with wrong password
-    [Arguments]   ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${jumphost}=None   ${timeout}=10
-    ${connection}       Open Connection    ${vm_name}    port=22    prompt=\$    timeout=${timeout}
+Try External Login With Wrong Password
+    [Arguments]     ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=10
+    ${connection}   Open Connection    ${DEVICE_IP_ADDRESS}    port=22    prompt=\$    timeout=${timeout}
     FOR    ${i}    IN RANGE     5
         TRY
-            ${status}  ${login_output}   Run Keyword And Ignore Error  Login with timeout  expected_output=${vm_name}  username=${user}  password=wrong  timeout=${timeout}  jumphost=${jumphost}
+            Log To Console    Trying to log in with the wrong password
+            ${status}  ${login_output}   Run Keyword And Ignore Error  Login with timeout  expected_output=${NET_VM}  username=${user}  password=wrong  timeout=${timeout}
         EXCEPT    Keyword timeout ${timeout} seconds exceeded.
             BREAK
         END
     END
     TRY
-        Run Keyword And Ignore Error  Login with timeout  expected_output=${vm_name}  username=${user}  password=${pw}  timeout=${timeout}  jumphost=${jumphost}
+        Log To Console    Trying to log in with the correct password
+        Run Keyword And Ignore Error  Login with timeout  expected_output=${NET_VM}  username=${user}  password=${pw}  timeout=${timeout}
     EXCEPT    Keyword timeout ${timeout} seconds exceeded.
-        Log   Failed to connect with correct password in ${timeout} seconds.
+        Log   Failed to connect with correct password in ${timeout} seconds.    console=True
     END
+    Close Connection
 
-Check ip is in the blacklist
-    [Arguments]     ${vm}  ${ip}
-    Switch to vm    ${vm}
-    ${output} 	    Run Command    ipset list f2b-sshBlacklist   sudo=True
-    Should contain  ${output}    ${ip}
-
-Remove from the blacklist
-    [Arguments]      ${ip}
-    Run Command  ipset del f2b-sshBlacklist ${ip}   sudo=True
+Account lockout teardown
+    ${status}      Verify External Connectivity Restored    SSH
+    IF    '${status}' == 'FAIL'
+        Reboot Laptop
+        Close All Connections
+        Connect After Reboot
+        Login to laptop
+    END
