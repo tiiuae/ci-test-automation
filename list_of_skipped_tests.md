@@ -30,6 +30,7 @@
 
 | DATE SET   | TEST CASE                                         | TICKET / Additional Data.                                                              |
 | ---------- | ------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 29.04.2026 | Open PDF from chrome-vm                           | Removed from pre-merge                                                                 |
 | 24.04.2026 | Rebuild tests removed from regression             | Rebuild tests do not work properly with signed images                                  |
 | 27.02.2026 | Measure Soft Boot Time (Darter Pro)               | Test removed because the Enter finger causes inaccuracy to the result                  |
 | 20.02.2026 | Test ballooning in chrome-vm / business-vm        | Ballooning feature was turned off in ghaf by PR#1770                                   |

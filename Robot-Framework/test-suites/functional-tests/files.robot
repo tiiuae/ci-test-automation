@@ -17,7 +17,7 @@ ${OUTPUT_FILE}   /tmp/out.log
 
 Open PDF from chrome-vm
     [Documentation]    Open PDF file from Chrome VM and check that Ghaf Isolated Document Viewer started
-    [Tags]             SP-T131  SP-T131-1  pre-merge  bat
+    [Tags]             SP-T131  SP-T131-1  bat  # pre-merge
     Open PDF from app-vm    ${CHROME_VM}
     [Teardown]         Kill PDF Reader   ${CHROME_VM}
 
