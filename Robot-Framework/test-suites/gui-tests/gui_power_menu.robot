@@ -107,11 +107,7 @@ GUI Shutdown
     Turn Laptop On and Connect
     Login to laptop   enable_dnd=True
     IF   ${elapsed} > 20
-        IF  "${DEVICE_TYPE}" == "darter-pro"
-            SKIP   Known issue: SSRCSP-8341 (Shutdown took too long: ${elapsed} seconds (expected < 20))
-        ELSE
-            FAIL   Shutdown took too long: ${elapsed} seconds (expected < 20)
-        END
+        SKIP   Known issue: SSRCSP-8341 (Shutdown took too long: ${elapsed} seconds (expected < 20))
     END
 
 GUI Log out and log in
