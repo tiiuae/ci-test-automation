@@ -17,7 +17,7 @@ Test Teardown       Run keywords      Switch to vm            ${GUI_VM}  user=${
 
 *** Test Cases ***
 Check Access List In Trusted Browser
-    [Tags]    SP-T362   SP-T210  SP-T209  SP-T211   lenovo-x1  darter-pro
+    [Tags]    SP-T209  SP-T210  SP-T211  SP-T362  lenovo-x1  darter-pro
     [Template]    Check Access List In Trusted Browser Template
     # Pages outside access list shouldn't be available via Trusted Browser. Http and https has different errors
     https://yle.fi                          text_to_find=This site can’t be reached

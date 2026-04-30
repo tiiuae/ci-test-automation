@@ -53,7 +53,7 @@ Check all VMs are running
 
 Check all VMs are running on Orins
     [Documentation]    Check that all VMs are running.
-    [Tags]             SP-T68  SP-T68-2  pre-merge  bat  orin-nx  orin-agx  orin-agx-64
+    [Tags]             SP-T68  SP-T68-2  pre-merge  bat  orin-agx  orin-agx-64  orin-nx
     Switch to vm    ${HOST}
     ${output}       Run Command        microvm -l
     ${output}       Replace String Using Regexp    ${output}    \x1b\\[[0-9;]*m    ${EMPTY}

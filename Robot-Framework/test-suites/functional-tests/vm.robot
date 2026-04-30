@@ -24,7 +24,7 @@ Suite Setup         VM Suite Setup
              ...    ANY|gui-vm|setup-ghaf-user.service|SSRCSP-7234
              ...    ANY|ANY|tuned.service|SSRCSP-7717
              ...    ANY|ANY|fail2ban.service|SSRCSP-7759
-             ...    ANY|ANY|journal-fss-verify.service|SSRCSP-7973
+             ...    ANY|ANY|journal-fss-verify.service|SSRCSP-8425
              ...    orin|ghaf-host|nvfancontrol.service|SSRCSP-6303
              ...    orin-agx|ghaf-host|systemd-rfkill.service|SSRCSP-6303
              ...    orin|ghaf-host|systemd-oomd.service|SSRCSP-6685
