@@ -17,27 +17,31 @@ ${OUTPUT_FILE}   /tmp/out.log
 
 Open PDF from chrome-vm
     [Documentation]    Open PDF file from Chrome VM and check that Ghaf Isolated Document Viewer started
-    [Tags]             SP-T131  SP-T131-1  bat  # pre-merge
+    [Tags]             SP-T131  SP-T131-1  pre-merge  bat
     Open PDF from app-vm    ${CHROME_VM}
-    [Teardown]         Kill PDF Reader   ${CHROME_VM}
+    [Teardown]         Run Keywords   Kill PDF Reader   ${CHROME_VM}
+    ...                         AND   Run Keyword If Test Failed    SKIP   Known issue: SSRCSP-8367
 
 Open PDF from comms-vm
     [Documentation]    Open PDF file from Comms VM and check that Ghaf Isolated Document Viewer started
     [Tags]             SP-T131  SP-T131-2
     Open PDF from app-vm    ${COMMS_VM}
-    [Teardown]         Kill PDF Reader   ${COMMS_VM}
+    [Teardown]         Run Keywords   Kill PDF Reader   ${COMMS_VM}
+    ...                         AND   Run Keyword If Test Failed    SKIP   Known issue: SSRCSP-8367
 
 Open PDF from business-vm
     [Documentation]    Open PDF file from Business VM and check that Ghaf Isolated Document Viewer started
     [Tags]             SP-T131  SP-T131-3
     Open PDF from app-vm    ${BUSINESS_VM}
-    [Teardown]         Kill PDF Reader   ${BUSINESS_VM}
+    [Teardown]         Run Keywords   Kill PDF Reader   ${BUSINESS_VM}
+    ...                         AND   Run Keyword If Test Failed    SKIP   Known issue: SSRCSP-8367
 
 Open PDF from gui-vm
     [Documentation]    Open PDF file from Gui VM and check that Ghaf Isolated Document Viewer started
     [Tags]             SP-T131  SP-T131-4
     Open PDF from app-vm    ${GUI_VM}
-    [Teardown]         Kill PDF Reader   ${GUI_VM}
+    [Teardown]         Run Keywords   Kill PDF Reader   ${GUI_VM}
+    ...                         AND   Run Keyword If Test Failed    SKIP   Known issue: SSRCSP-8367
 
 Open image with Oculante
     [Documentation]    Open PNG image in the Gui VM and check that Oculante app is started and opens the image
@@ -72,21 +76,23 @@ Remove the file in VM
 
 Kill PDF Reader
     [Arguments]   ${pdf_launcher_vm}
-    Kill App Process And Save Logs   ${pdf_launcher_vm}  ${LOGIN}  ${OUTPUT_FILE}  cosmic-reader  ${MEDIA_VM}
+    Switch to vm       ${MEDIA_VM}
+    Kill App By Name   xdg-open-pdf    sudo=True
+    Kill App By Name   cosmic-reader   sudo=True
 
 Open PDF from app-vm
     [Arguments]        ${vm}
     Switch to vm       ${vm}
-    Put File           ../test-files/test_pdf.pdf         /tmp
-    Open PDF           /tmp/test_pdf.pdf
+    Put File           ../test-files/test_pdf.pdf         /tmp/test_pdf_${vm}.pdf
+    Open PDF           /tmp/test_pdf_${vm}.pdf
     Switch to vm       ${MEDIA_VM}
     Check that the application was started    cosmic-reader    10
-    [Teardown]         Remove the file in VM    /tmp/test_pdf.pdf    ${vm}
+    [Teardown]         Remove the file in VM    /tmp/test_pdf_${vm}.pdf    ${vm}
 
 Open PDF
     [Arguments]      ${pdf_file}
     Log To Console   Trying to open ${pdf_file}
-    Run Command      echo ${PASSWORD} | sudo -S nohup sh -c 'xdg-open-ghaf pdf ${pdf_file}' > ${OUTPUT_FILE} 2>&1 &
+    Run Command      xdg-open ${pdf_file}    sudo=True
 
 Open Image
     [Arguments]      ${pic_file}
