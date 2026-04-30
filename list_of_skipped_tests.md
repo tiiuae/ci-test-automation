@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                               | TICKET / Additional Data.                                                                     |
 | ---------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 30.04.2026 | Open PDF from VM                                        | SSRCSP-8367                                                                                   |
 | 27.04.2026 | Verify brightness persisted                             | SSRCSP-8347                                                                                   |
 | 24.04.2026 | GUI Shutdown & GUI Reboot (Darter Pro)                  | SSRCSP-8341                                                                                   |
 | 21.04.2026 | Check Grafana logs, logging tests in security tests     | SSRCSP-8326                                                                                   |
@@ -30,7 +31,6 @@
 
 | DATE SET   | TEST CASE                                         | TICKET / Additional Data.                                                              |
 | ---------- | ------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| 29.04.2026 | Open PDF from chrome-vm                           | Removed from pre-merge                                                                 |
 | 24.04.2026 | Rebuild tests removed from regression             | Rebuild tests do not work properly with signed images                                  |
 | 27.02.2026 | Measure Soft Boot Time (Darter Pro)               | Test removed because the Enter finger causes inaccuracy to the result                  |
 | 20.02.2026 | Test ballooning in chrome-vm / business-vm        | Ballooning feature was turned off in ghaf by PR#1770                                   |
