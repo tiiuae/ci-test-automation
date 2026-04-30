@@ -6,12 +6,10 @@
 | ---------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | 30.04.2026 | Open PDF from VM                                        | SSRCSP-8367                                                                                   |
 | 27.04.2026 | Verify brightness persisted                             | SSRCSP-8347                                                                                   |
-| 24.04.2026 | GUI Shutdown & GUI Reboot (Darter Pro)                  | SSRCSP-8341                                                                                   |
-| 21.04.2026 | Check Grafana logs, logging tests in security tests     | SSRCSP-8326                                                                                   |
+| 24.04.2026 | GUI Shutdown & GUI Reboot                               | SSRCSP-8341                                                                                   |
 | 08.04.2026 | Automatic suspension (high power after suspension)      | SSRCSP-8288                                                                                   |
 | 30.03.2026 | Check Camera in VMs (Dell)                              | SSRCSP-8266                                                                                   |
 | 30.03.2026 | Check Camera Application (Dell checked in chrome-vm)    | SSRCSP-8266                                                                                   |
-| 23.03.2026 | Verify camera block persisted (Lenovo X1)               | SSRCSP-8224                                                                                   |
 | 26.02.2026 | Check systemctl status in every VM (retry added for NX) | Timeout of Executing command 'systemctl list-units --plain --no-legend --no-pager '.          |
 | 12.02.2026 | Account lockout after failed login                      | SSRCSP-8006                                                                                   |
 | 05.02.2026 | Validate Forward Secure Sealing                         | SSRCSP-7973                                                                                   |

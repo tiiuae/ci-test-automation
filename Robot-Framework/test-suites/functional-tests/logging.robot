@@ -64,7 +64,6 @@ Check Grafana logs
             FAIL   Failed to find any logs since last boot for one or more VMs.\nVMs missing all logs since last boot: ${failed_vms_check_2}
         END
     END
-    [Teardown]   Run Keyword If Test Failed   Run Keyword If   "storeDisk" in "${JOB}"   SKIP   Known issue: SSRCSP-8326
 
 Check logging rate
     [Documentation]    Check that host or vms are not creating too much logs
@@ -110,7 +109,7 @@ Check logging rate
             Log        ${vm}
             Log        ${logs}
         END
-        FAIL           meas interval: ${check_interval}s\ndefault entry limit: ${entry_limit}\ndefault byte limit: ${byte_limit}\ngui-vm entry limit: ${gui_vm_entry_limit}\ngui-vm byte limit: ${gui_vm_byte_limit}\n${spam_metrics}
+        FAIL           meas interval: ${check_interval}s\n${spam_metrics}
     END
 
 Validate Forward Secure Sealing
