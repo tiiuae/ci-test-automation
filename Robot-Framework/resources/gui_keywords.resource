@@ -354,13 +354,8 @@ Start screen recording
 
 Stop screen recording
     [Arguments]      ${test_status}   ${test_name}=""
-    ${pass_status}   ${output}    Run Keyword And Ignore Error   Check that the application was started   gpu-screen-recorder
-    IF  $pass_status=='PASS'
-        Log To Console   Stopping screen recording
-        Kill process by name   gpu-screen-recorder   sudo=False
-    ELSE
-        Log To Console  Screen recording was not running
-    END
+    Log To Console   Stopping screen recording
+    Kill process by name   gpu-screen-recorder   sudo=False   require_exists=False
     Save screen recording   ${test_status}   ${test_name}
 
 Save screen recording

@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                               | TICKET / Additional Data.                                                                     |
 | ---------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 13.05.2026 | Validate Forward Secure Sealing                         | SSRCSP-8425                                                                                   |
 | 11.05.2026 | GUI Shutdown & GUI Reboot (storeDisk)                   | SSRCSP-8412                                                                                   |
 | 30.04.2026 | Open PDF from VM                                        | SSRCSP-8367                                                                                   |
 | 08.04.2026 | Automatic suspension (high power after suspension)      | SSRCSP-8288                                                                                   |
@@ -11,7 +12,6 @@
 | 30.03.2026 | Check Camera Application (Dell checked in chrome-vm)    | SSRCSP-8266                                                                                   |
 | 23.03.2026 | Verify camera block persisted (Lenovo X1)               | SSRCSP-8224                                                                                   |
 | 26.02.2026 | Check systemctl status in every VM (retry added for NX) | Timeout of Executing command 'systemctl list-units --plain --no-legend --no-pager '.          |
-| 05.02.2026 | Validate Forward Secure Sealing                         | SSRCSP-7973                                                                                   |
 | 11.02.2026 | Check device id                                         | SSRCSP-7997                                                                                   |
 | 11.02.2026 | Check net-vm hostname                                   | SSRCSP-7997                                                                                   |
 | 07.11.2025 | Measure time to launch COSMIC Settings                  | SSRCSP-7518                                                                                   |
@@ -26,12 +26,11 @@
 
 ## TAGs removed
 
-| DATE SET   | TEST CASE                                         | TICKET / Additional Data.                                                                 |
-| ---------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| 24.04.2026 | Rebuild tests removed from regression             | Rebuild tests do not work properly with signed images                                     |
-| 27.02.2026 | Measure Soft Boot Time (Darter Pro)               | Test removed because the Enter finger causes inaccuracy to the result                     |
-| 20.02.2026 | Test ballooning in chrome-vm / business-vm        | Ballooning feature was turned off in ghaf by PR#1770                                      |
-| 04.12.2025 | Start Falcon AI and verify process started (Dell) | Test stucks with circle running on screen. Not relevant case for this HW target.          |
-| 04.05.2026 | Start Falcon AI and verify process started (All)  | Falcon AI fails to answer because of too low memory (gui-vm memory was decreased to 8GB.) |
-| 03.09.2025 | Performance/network suite (AGX)                   | SSRCSP-7160. Network-adapter usage had impact on results. Needs further investigation.    |
-| 03/2025    | Performance Network.robot - ‘orin-nx’             | SSRCSP-6372 - Works locally but problems when Jenkins used, fails all..                   |
+| DATE SET   | TEST CASE                                  | TICKET / Additional Data.                                                              |
+| ---------- | ------------------------------------------ | -------------------------------------------------------------------------------------- |
+| 04.05.2026 | Start Falcon AI and verify process started | Falcon is no longer included in the default image (Ghaf#1944)                          |
+| 24.04.2026 | Rebuild tests removed from regression      | Rebuild tests do not work properly with signed images                                  |
+| 27.02.2026 | Measure Soft Boot Time (Darter Pro)        | Test removed because the Enter finger causes inaccuracy to the result                  |
+| 20.02.2026 | Test ballooning in chrome-vm / business-vm | Ballooning feature was turned off in ghaf by PR#1770                                   |
+| 03.09.2025 | Performance/network suite (AGX)            | SSRCSP-7160. Network-adapter usage had impact on results. Needs further investigation. |
+| 03/2025    | Performance Network.robot - ‘orin-nx’      | SSRCSP-6372 - Works locally but problems when Jenkins used, fails all..                |
