@@ -49,6 +49,9 @@ thresholds = {
     'iperf': "40%",
     'cpu_isolation': 7,
     'fileio_isolation': 10,
+    'vm_memory_snapshot': {
+        'mem_avail_pct': 20
+    },
 
 }
 
