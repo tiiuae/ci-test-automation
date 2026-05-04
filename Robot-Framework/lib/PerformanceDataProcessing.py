@@ -12,9 +12,7 @@ from robot.api.deco import keyword
 from performance_thresholds import *
 from memory_plotting import (
     add_percentage_columns,
-    build_unique_labels,
-    plot_grouped_metric,
-    plot_grouped_metric_pair,
+    plot_vm_memory_snapshot,
 )
 
 
@@ -220,6 +218,61 @@ class PerformanceDataProcessing:
 
         return statistics_dict
 
+    def _analyze_performance_value(
+        self,
+        data_column,
+        baseline_start,
+        threshold,
+        deviation_counter,
+        deviations,
+        new_baseline_start,
+        row_index,
+    ):
+        # Update automatic baseline state and deviation counter for one measurement series.
+        statistics_block = self.detect_deviation(
+            data_column, baseline_start, threshold, deviation_counter, deviations
+        )
+
+        flag = statistics_block['flag']
+        if flag != 0:
+            deviations.append(row_index)
+            if abs(deviation_counter) < 1:
+                # If deviation counter was previously 0 this is potential start point for new baseline
+                new_baseline_start = row_index
+            elif flag * deviation_counter < 0:
+                # Reset deviation counter if sign of deviation has changed
+                deviation_counter = 0
+                new_baseline_start = row_index
+
+            deviation_counter += flag
+            statistics_block['flag'] = flag * abs(deviation_counter)
+            if flag != self.zero_result_flag:
+                if deviation_counter < self.zero_result_flag:
+                    # Reset the deviation counter to -1 in case previous result was "close to zero" (invalid)
+                    # --> baseline won't be switched
+                    deviation_counter = -1
+                    new_baseline_start = row_index
+                if abs(deviation_counter) > static_thresholds['wait_until_reset'] - 1:
+                    # Repeating deviation trend detected --> Switch to new baseline
+                    deviation_counter = 0
+                    deviations = []
+                    baseline_start = new_baseline_start
+            else:
+                # Reset the deviation counter to -1 in case current result is "close to zero" (invalid)
+                deviation_counter = -1
+                statistics_block['flag'] = self.zero_result_flag
+        else:
+            # Test result is within pass limits
+            deviation_counter = 0
+
+        # In case there are not yet valid result history (results below low_limit) and now first valid result
+        if data_column[baseline_start] < self.low_limit and data_column[-1] > self.low_limit:
+            deviation_counter = 0
+            deviations = []
+            baseline_start = row_index
+
+        return statistics_block, baseline_start, new_baseline_start, deviation_counter, deviations
+
     def calculate_statistics(self, test_name, data, monitored_value, threshold):
         # monitored_value: list of labels
         # threshold: dictionary or list of single value
@@ -274,44 +327,21 @@ class PerformanceDataProcessing:
                             select_threshold = 0
                         else:
                             select_threshold = value
-                        statistics_block = self.detect_deviation(data[value], baseline_start[value], threshold[select_threshold], deviation_counter[monitored_value_index], deviations[value])
-
-                        # Monitor deviations of monitored_value(s)
-                        flag = statistics_block['flag']
-                        if flag != 0:
-
-                            # Keep track on deviated results to be able to omit random odd result from baseline
-                            deviations[value].append(row_index)
-                            if abs(deviation_counter[monitored_value_index]) < 1:
-                                # Set potential start for new baseline
-                                new_baseline_start[value] = row_index
-                            else:
-                                # Check if new deviation is to opposite direction than previously
-                                if flag * deviation_counter[monitored_value_index] < 0:
-                                    deviation_counter[monitored_value_index] = 0
-                                    new_baseline_start[value] = row_index
-
-                            # Track of number of successive deviations
-                            deviation_counter[monitored_value_index] += flag
-                            # Save direction (+/-) and number of successive deviations to statistics
-                            statistics_block['flag'] = flag * abs(deviation_counter[monitored_value_index])
-                            # Don't change baseline for invalid (zero) results
-                            if flag != self.zero_result_flag:
-                                # If there is zero label in the deviation_counter from the previous measurements reset deviation_counter to -1
-                                if deviation_counter[monitored_value_index] < self.zero_result_flag:
-                                    deviation_counter[monitored_value_index] = -1
-                                    new_baseline_start[value] = row_index
-                                # Trigger baseline change if number of successive deviations exceeds the defined limit
-                                if abs(deviation_counter[monitored_value_index]) > static_thresholds['wait_until_reset'] - 1:
-                                    deviation_counter[monitored_value_index] = 0
-                                    deviations[value] = []
-                                    baseline_start[value] = new_baseline_start[value]
-                            else:
-                                # Keep the deviation_counter at -1 if the result is zero
-                                deviation_counter[monitored_value_index] = -1
-                                statistics_block['flag'] = self.zero_result_flag
-                        else:
-                            deviation_counter[monitored_value_index] = 0
+                        (
+                            statistics_block,
+                            baseline_start[value],
+                            new_baseline_start[value],
+                            deviation_counter[monitored_value_index],
+                            deviations[value],
+                        ) = self._analyze_performance_value(
+                            data[value],
+                            baseline_start[value],
+                            threshold[select_threshold],
+                            deviation_counter[monitored_value_index],
+                            deviations[value],
+                            new_baseline_start[value],
+                            row_index,
+                        )
 
                         new_statistics_row.update({value: statistics_block})
 
@@ -324,12 +354,6 @@ class PerformanceDataProcessing:
                                 indexed_key = key + str(monitored_value_index)
                             indexed_statistics_block.update({indexed_key: [statistics_block[key]]})
                         indexed_statistics_row.update(indexed_statistics_block)
-
-                        # Switch baseline_start index to a non-zero measurement result as soon as one is available
-                        if data[value][baseline_start[value]] < self.low_limit and data[value][-1] > self.low_limit:
-                            deviation_counter[monitored_value_index] = 0
-                            deviations[value] = []
-                            baseline_start[value] = row_index
 
                         monitored_value_index += 1
 
@@ -827,12 +851,6 @@ class PerformanceDataProcessing:
 
         return return_statistics
 
-    def extract_numeric_part(self, build_identifier):
-        parts = build_identifier.split('-')
-        base_number = int(''.join(filter(str.isdigit, parts[0])))
-        suffix = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else -1
-        return (base_number, suffix)
-
     def read_vms_data_csv_and_plot(self, test_name, vms_dict):
         tests = ['cpu_1thread', 'memory_read_1thread', 'memory_write_1thread', 'cpu', 'memory_read', 'memory_write']
         data = {test: {} for test in tests}
@@ -980,78 +998,103 @@ class PerformanceDataProcessing:
             df = pandas.DataFrame([row])
 
         df.to_csv(file_path, index=False)
-        self._plot_vm_memory_snapshot(test_name, df)
-        return
+        return self.read_vm_memory_snapshot_csv_and_plot(test_name)
 
-    def _plot_vm_memory_snapshot(self, test_name, df):
-        plot_limit = 40
-        if len(df.index) > plot_limit:
-            df = df.tail(plot_limit)
-
-        build_df = df.copy()
-        build_df["build_index"] = list(range(len(build_df.index)))
-        x_labels = build_unique_labels(build_df["commit"].tolist())
-        plot_df = self._normalize_vm_memory_snapshot_df(build_df)
+    def read_vm_memory_snapshot_csv_and_plot(self, test_name):
+        # Match other read_*_csv_and_plot methods: read CSV, analyze, plot, return last result.
+        data = pandas.read_csv(os.path.join(self.data_dir, f"{self.device}_{test_name}.csv"))
+        data["build_index"] = list(range(len(data.index)))
+        plot_df = self._normalize_vm_memory_snapshot_df(data)
         if plot_df.empty:
-            logging.warning("No VM memory snapshot data to plot for %s", test_name)
-            return
+            logging.warning("No VM memory snapshot data to process for %s", test_name)
+            plot_vm_memory_snapshot(test_name, data, plot_df, self.plot_dir, self.device, self.build_type)
+            return {}
 
-        title_suffix = f"\nBuild type: {self.build_type}, Device: {self.device}"
-        plot_grouped_metric_pair(
-            plot_df,
-            "build_index",
-            "mem_avail_mib",
-            "mem_total_mib",
-            self.plot_dir + f"{self.device}_{test_name}__mem_avail.png",
-            f"{test_name} - Mem Available/Total (MiB){title_suffix}",
-            "Build Number",
-            group_col="vm",
-            value_label="avail",
-            sort_col=None,
-            x_labels=x_labels,
-            x_time_format=None,
-        )
-        plot_grouped_metric_pair(
-            plot_df,
-            "build_index",
-            "swap_free_mib",
-            "swap_total_mib",
-            self.plot_dir + f"{self.device}_{test_name}__swap_free.png",
-            f"{test_name} - Swap Free/Total (MiB){title_suffix}",
-            "Build Number",
-            group_col="vm",
-            value_label="free",
-            sort_col=None,
-            x_labels=x_labels,
-            x_time_format=None,
-        )
-        plot_grouped_metric(
-            plot_df,
-            "build_index",
-            "mem_avail_pct",
-            self.plot_dir + f"{self.device}_{test_name}__mem_avail_pct.png",
-            f"{test_name} - Mem Available (%){title_suffix}",
-            "Build Number",
-            group_col="vm",
-            sort_col=None,
-            x_labels=x_labels,
-            x_time_format=None,
-            y_limits=(0, 100),
-        )
-        plot_grouped_metric(
-            plot_df,
-            "build_index",
-            "swap_free_pct",
-            self.plot_dir + f"{self.device}_{test_name}__swap_free_pct.png",
-            f"{test_name} - Swap Free (%){title_suffix}",
-            "Build Number",
-            group_col="vm",
-            sort_col=None,
-            x_labels=x_labels,
-            x_time_format=None,
-            y_limits=(0, 100),
-        )
-        return
+        threshold = thresholds["vm_memory_snapshot"]["mem_avail_pct"]
+        return_statistics, statistics = self._build_vm_memory_analysis(plot_df, threshold)
+        self._write_statistics_to_csv(test_name, statistics)
+        plot_vm_memory_snapshot(test_name, data, plot_df, self.plot_dir, self.device, self.build_type)
+        return return_statistics
+
+    def _build_vm_memory_analysis(self, plot_df, threshold):
+        # Aggregate per-VM mem_avail_pct analysis into Robot return data and statistics CSV rows.
+        plot_df["mem_avail_pct_flag"] = 0
+        current_build_index = plot_df["build_index"].max()
+        return_statistics = {}
+        statistics = self._init_vm_memory_stats_dict()
+
+        for vm, vm_df in plot_df.dropna(subset=["mem_avail_pct"]).groupby("vm", sort=False):
+            vm_statistics = self._analyze_vm_memory_series(vm, vm_df, threshold, plot_df)
+            for key in statistics:
+                statistics[key].extend(vm_statistics[key])
+            if vm_statistics["build_index"] and vm_statistics["build_index"][-1] == current_build_index:
+                return_statistics[vm] = vm_statistics["statistics_block"][-1]
+
+        del statistics["build_index"]
+        del statistics["statistics_block"]
+        return return_statistics, statistics
+
+    def _init_vm_memory_stats_dict(self):
+        # Initialize VM snapshot statistics dictionary layout.
+        return {
+            "commit": [],
+            "vm": [],
+            "build_index": [],
+            "statistics_block": [],
+            "flag": [],
+            "threshold": [],
+            "d_baseline_start": [],
+            "d_mean": [],
+            "baseline_start": [],
+            "baseline_mean": [],
+            "baseline_end": [],
+            "baseline_std": [],
+            "upper_marginal": [],
+            "lower_marginal": [],
+            "measurement": [],
+        }
+
+    def _analyze_vm_memory_series(self, vm, vm_df, threshold, plot_df):
+        # Analyze one VM's mem_avail_pct history and write its flags back to plot_df.
+        statistics = self._init_vm_memory_stats_dict()
+        vm_df = vm_df.sort_values("build_index")
+        baseline_start = 0
+        new_baseline_start = 0
+        deviation_counter = 0
+        deviations = []
+        data_column = []
+
+        for row_index, (df_index, row) in enumerate(vm_df.iterrows()):
+            data_column.append(float(row["mem_avail_pct"]))
+            (
+                statistics_block,
+                baseline_start,
+                new_baseline_start,
+                deviation_counter,
+                deviations,
+            ) = self._analyze_performance_value(
+                data_column,
+                baseline_start,
+                threshold,
+                deviation_counter,
+                deviations,
+                new_baseline_start,
+                row_index,
+            )
+
+            plot_df.loc[df_index, "mem_avail_pct_flag"] = statistics_block["flag"]
+            self._append_vm_memory_stat_row(statistics, row, vm, statistics_block)
+
+        return statistics
+
+    def _append_vm_memory_stat_row(self, statistics, row, vm, statistics_block):
+        # Append one analyzed VM measurement to the statistics CSV data structure.
+        statistics["commit"].append(row["commit"])
+        statistics["vm"].append(vm)
+        statistics["build_index"].append(row["build_index"])
+        statistics["statistics_block"].append(statistics_block)
+        for key in statistics_block:
+            statistics[key].append(statistics_block[key])
 
     def _normalize_vm_memory_snapshot_df(self, df):
         rows = []
@@ -1094,6 +1137,12 @@ class PerformanceDataProcessing:
 
     # ---------------------------------------------------------------------
     # Unused functions
+
+    def extract_numeric_part(self, build_identifier):
+        parts = build_identifier.split('-')
+        base_number = int(''.join(filter(str.isdigit, parts[0])))
+        suffix = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else -1
+        return (base_number, suffix)
 
     def calc_statistics(self, csv_file_name):
         build_info_size = 1 # First columns containing buildata

@@ -41,10 +41,9 @@ Record memory usage test
 VM memory usage snapshot
     [Documentation]    Log current memory usage (available/total) and swap usage (free/total) in every VM and ghaf-host and plot it across builds.
     [Tags]             SP-T360  memory_usage  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
-    ${low_mem_limit}  Set Variable    5.0
+    ${low_mem_limit}   Set variable    3.0
     @{vms}         Get VM list    with_host=True
     &{mem_data}    Create Dictionary
-    ${failed_mem_vms}    Create List
     FOR    ${vm}    IN    @{vms}
         Switch to vm    ${vm}
         ${out}    Run Command
@@ -57,9 +56,7 @@ VM memory usage snapshot
         ${mem_avail_pct}     Evaluate    (float($mem_avail_mib) / float($mem_total_mib)) * 100 if float($mem_total_mib) > 0 else 0
         ${pct_str}           Evaluate    f"{float($mem_avail_pct):.2f}%"
         IF    ${mem_avail_pct} < ${low_mem_limit}
-            Append To List   ${failed_mem_vms}    ${vm}: ${pct_str}
-            ${red_msg}       Evaluate  "\\033[31m${vm} available memory is below 5% of the total memory\\033[0m"
-            Log              ${red_msg}    console=True
+            Run Keyword And Continue On Failure    FAIL    ${vm} available memory is below ${low_mem_limit}% of the total memory
         END
         Log    Memory in ${vm}: avail ${mem_avail_mib}/${mem_total_mib} MiB, swap free ${swap_free_mib}/${swap_total_mib} MiB    console=True
         Set To Dictionary    ${mem_data}    mem_avail_mib__${vm}=${mem_avail_mib}
@@ -68,15 +65,15 @@ VM memory usage snapshot
         Set To Dictionary    ${mem_data}    swap_total_mib__${vm}=${swap_total_mib}
     END
 
-    Save VM Memory Snapshot Data    ${TEST NAME}    ${mem_data}
+    &{statistics}    Save VM Memory Snapshot Data    ${TEST NAME}    ${mem_data}
     Log    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}__mem_avail.png" alt="VM Mem Available (MiB) Plot" width="1200">    HTML
     Log    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}__swap_free.png" alt="VM Swap Free (MiB) Plot" width="1200">    HTML
     Log    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}__mem_avail_pct.png" alt="VM Mem Available (%) Plot" width="1200">    HTML
     Log    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}__swap_free_pct.png" alt="VM Swap Free (%) Plot" width="1200">    HTML
-    ${failed_count}    Get Length    ${failed_mem_vms}
-    IF    ${failed_count} > 0
-        FAIL    VMs with available memory < ${low_mem_limit}%: ${failed_mem_vms}
-    END
+    Determine Test Status    ${statistics}
+
+    [Teardown]      Run Keywords    Close All Connections
+    ...             AND             Switch to vm   ${HOST}
 
 nvpmodel check test
     [Documentation]     If power mode changed it would probably have an effect on performance test results.
