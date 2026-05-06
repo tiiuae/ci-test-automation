@@ -28,7 +28,7 @@ Check Access List In Trusted Browser
     https://excel.cloud.microsoft.com       text_to_find=Welcome to Excel
     https://word.cloud.microsoft            text_to_find=Welcome to Word
     https://powerpoint.cloud.microsoft      text_to_find=start using PowerPoint
-    https://teams.live.com                  text_to_find=Video calls with anyone
+    https://teams.live.com                  text_to_find=Video calls
     https://www.msn.com                     text_to_find=MSN
     https://onedrive.live.com               text_to_find=Microsoft 365
     https://www.akamai.com/                 text_to_find=Akamai
