@@ -31,6 +31,7 @@ Suite Setup         VM Suite Setup
              ...    orin|admin-vm|stunnel.service|SSRCSP-8067
              ...    orin|ANY|alloy.service|SSRCSP-8071
              ...    orin|admin-vm|ghaf-journal-alloy-recover.service|SSRCSP-8071
+             ...    darter-pro|ghaf-host|systemd-tpm2-setup.service|SSRCSP-8357
 
 # Container for test message. Keyword `Set Test Message` doesn't work properly with Templates.
 # Accumulates messages from tests that use 'Check systemctl status Template' to be added to the main test message in teardown
