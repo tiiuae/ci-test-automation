@@ -62,3 +62,33 @@ Start and close COSMIC Files via GUI
     [Tags]            SP-T206  SP-T206-2
     Start app via GUI   ${GUI_VM}  ^cosmic-files$  display_name="COSMIC Files"
     Close app via GUI   ${GUI_VM}  ^cosmic-files$  ghaf-close.png
+
+Create and save text file from COSMIC Text Editor via GUI
+    [Documentation]   Create a new document in COSMIC Text Editor, save it to Shares and verify the file was created
+    [Tags]            SP-T194
+    ${file_name}       Set Variable    cosmic_text_editor_save_test.txt
+    ${doc_text}        Set Variable    test_content
+    ${share_path}      Set Variable    /Shares/'Unsafe comms-vm share'/${file_name}
+
+    Start app via GUI   ${GUI_VM}  cosmic-edit  display_name="COSMIC Text Editor"
+    Locate on screen    image      ghaf-close.png
+    Type string and press enter    ${doc_text}
+    Save current document from Cosmic Text Editor to Shares   ${file_name}
+    Check file exists   ${share_path}
+    ${saved_content}    Run Command    cat ${share_path}
+    Should Contain      ${saved_content}   ${doc_text}
+    Close app via GUI   ${GUI_VM}  cosmic-edit  ghaf-close.png
+    [Teardown]   Run Keywords   Remove file by name    ${file_name}
+    ...    AND   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+
+
+*** Keywords ***
+
+Save current document from Cosmic Text Editor to Shares
+    [Arguments]      ${file_name}
+    Press Key(s)       LEFTCTRL+LEFTSHIFT+S
+    Locate on screen   text    Shares    scale=3
+    Type string and press enter   ${file_name}   enter=False
+    Locate and click   text   Shares
+    Locate and click   text   comms-vm    wiggle=True   double_click=True
+    Press Key(s)       ENTER

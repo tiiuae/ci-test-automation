@@ -170,12 +170,12 @@ Take a screenshot
     RETURN   ${screenshot_status}  ${result}
 
 Locate and click
-    [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=10  ${timeout}=120  ${scale}=1  ${wiggle}=False
+    [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=10  ${timeout}=120  ${scale}=1  ${wiggle}=False   ${double_click}=False
     ${mouse_x}  ${mouse_y}  Locate on screen  ${type}  ${searched_item}  ${confidence}  ${iterations}  timeout=${timeout}  scale=${scale}
     Run ydotool command   mousemove --absolute -x ${mouse_x} -y ${mouse_y}
     # Wiggle is sometimes needed for the window to recognize the mouse
     IF   ${wiggle}   Wiggle cursor
-    Click
+    Click    ${double_click}
 
 Click
     [Arguments]   ${double_click}=False  ${sudo}=False
