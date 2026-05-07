@@ -81,6 +81,19 @@ Create and save text file from COSMIC Text Editor via GUI
     [Teardown]   Run Keywords   Remove file by name    ${file_name}
     ...    AND   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
+Copy and paste text between VMs
+    [Documentation]   Copy text in COSMIC Text Editor (GUI VM) and paste it into Slack (COMMS VM)
+    [Tags]            SP-T72
+    ${clipboard_text}    Set Variable  COPYPASTE
+    Start app via GUI    ${GUI_VM}     cosmic-edit  display_name="COSMIC Text Editor"
+    Locate on screen     image         ghaf-close.png
+    Copy text to clipboard    ${clipboard_text}
+    Start app via GUI         ${COMMS_VM}    slack    display_name=Slack
+    Paste clipboard text to Slack and verify     ${clipboard_text}
+    [Teardown]    Run Keywords    Switch to vm    ${COMMS_VM}    AND    Kill App By Name    slack    sudo=True
+    ...           AND             Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
+    ...           AND             Kill App By Name    cosmic-edit
+    ...           AND             Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 *** Keywords ***
 
@@ -92,3 +105,17 @@ Save current document from Cosmic Text Editor to Shares
     Locate and click   text   Shares
     Locate and click   text   comms-vm    wiggle=True   double_click=True
     Press Key(s)       ENTER
+
+Copy text to clipboard
+    [Arguments]    ${text}
+    Run ydotool command  type ${text}
+    Press Key(s)         LEFTCTRL+A
+    Press Key(s)         LEFTCTRL+C
+    Press Key(s)         BACKSPACE
+
+Paste clipboard text to Slack and verify
+    [Arguments]    ${text}
+    Locate and click   text   your-workspace   wiggle=True
+    Press Key(s)       LEFTCTRL+V
+    Move cursor to corner
+    Verify Text Is On The Screen    ${text}
