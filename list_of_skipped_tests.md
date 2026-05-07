@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                               | TICKET / Additional Data.                                                                     |
 | ---------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 07.05.2026 | Check Grafana logs                                      | Known issue, rate limit exceeded. Fix under work.                                             |
 | 30.04.2026 | Open PDF from VM                                        | SSRCSP-8367                                                                                   |
 | 24.04.2026 | GUI Shutdown & GUI Reboot                               | SSRCSP-8341                                                                                   |
 | 08.04.2026 | Automatic suspension (high power after suspension)      | SSRCSP-8288                                                                                   |
@@ -27,7 +28,7 @@
 ## TAGs removed
 
 | DATE SET   | TEST CASE                                         | TICKET / Additional Data.                                                                 |
-|------------|---------------------------------------------------|-------------------------------------------------------------------------------------------|
+| ---------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | 24.04.2026 | Rebuild tests removed from regression             | Rebuild tests do not work properly with signed images                                     |
 | 27.02.2026 | Measure Soft Boot Time (Darter Pro)               | Test removed because the Enter finger causes inaccuracy to the result                     |
 | 20.02.2026 | Test ballooning in chrome-vm / business-vm        | Ballooning feature was turned off in ghaf by PR#1770                                      |
