@@ -64,7 +64,6 @@ Check Grafana logs
             FAIL   Failed to find any logs since last boot for one or more VMs.\nVMs missing all logs since last boot: ${failed_vms_check_2}
         END
     END
-    [Teardown]    Run Keyword If Test Failed    SKIP    Known issue, rate limit exceeded. Fix under work.
 
 Check logging rate
     [Documentation]    Check that host or vms are not creating too much logs
