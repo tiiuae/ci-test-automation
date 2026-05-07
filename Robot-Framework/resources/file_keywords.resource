@@ -27,6 +27,19 @@ Remove file
     Log                Removing file ${file_name}    console=True
     Run Command        rm ${file_name}  sudo=${sudo}  rc_match=${rc_match}
 
+Remove file by name
+    [Documentation]    Find file(s) by exact name under given directory and remove all matches.
+    ...                Useful in teardown if file was saved to an unexpected folder.
+    [Arguments]        ${file_name}   ${search_dir}=/Shares   ${sudo}=False
+    Log                Searching and removing files named '${file_name}' under ${search_dir}    console=True
+    ${matches}         Run Command    find ${search_dir} -type f -name '${file_name}'  rc_match=skip  sudo=${sudo}
+    IF    $matches == ''
+        Log            No files named '${file_name}' were found under ${search_dir}    console=True
+        RETURN
+    END
+    Log                Found files:\n${matches}    console=True
+    Run Command        find ${search_dir} -type f -name '${file_name}' -exec rm -f {} +   sudo=${sudo}
+
 Copy file
     [Documentation]    Copy file, requires existing ssh connection
     [Arguments]        ${file_1}    ${file_2}
