@@ -147,6 +147,7 @@ Save gui icons and icon path
     Get icon                ${ICONS}/Papirus/24x24/actions  system-shutdown.svg  crop=0  background=black  output_filename=power.png
     Get icon                ${ICONS}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
     OperatingSystem.Copy File    ../test-files/ghaf-close.png    ${ICONS_DIR}/
+    OperatingSystem.Copy File    ../test-files/ghaf-minimize.png  ${ICONS_DIR}/
 
 Login to laptop
     [Documentation]   Log in to the laptop

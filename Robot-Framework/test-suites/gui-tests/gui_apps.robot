@@ -94,6 +94,17 @@ Copy and paste text between VMs
     ...           AND             Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
     ...           AND             Kill App By Name    cosmic-edit
     ...           AND             Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+Open an app from the dock
+    [Documentation]   Open Slack, minimize its window, verify it is hidden, then restore it from dock.
+    [Tags]            SP-T79
+    Start app via GUI   ${COMMS_VM}   slack    display_name="Slack"
+    Save Slack window baseline coordinates
+    Locate and click minimize window button
+    Verify app window is minimized
+    Locate and click app in dock
+    Verify Slack window restored to baseline
+    [Teardown]   Run Keywords   Kill App By Name    slack
+    ...    AND   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 *** Keywords ***
 
@@ -119,3 +130,44 @@ Paste clipboard text to Slack and verify
     Press Key(s)       LEFTCTRL+V
     Move cursor to corner
     Verify Text Is On The Screen    ${text}
+
+Locate and click minimize window button
+    ${mouse_x}  ${mouse_y}  Locate on screen  image  ghaf-close.png  0.99  10  timeout=120  scale=2
+    ${target_x}    Evaluate    ${mouse_x} - 40
+    Run ydotool command   mousemove --absolute -x ${target_x} -y ${mouse_y}
+    Click
+
+Locate and click app in dock
+    ${mouse_x}  ${mouse_y}  Locate on screen  image    ${APP_MENU_LAUNCHER}    0.95    10
+    ${target_x}    Evaluate    ${mouse_x} + 190
+    Run ydotool command   mousemove --absolute -x ${target_x} -y ${mouse_y}
+    Click
+
+Verify app window is minimized
+    Sleep    1
+    ${status}   ${output}    Run Keyword And Ignore Error    Locate on screen    image    ghaf-close.png    0.99    5    timeout=120    scale=2
+    IF    '${status}' == 'PASS'
+        FAIL    App window close button is still visible, window was not minimized.
+    END
+
+Verify app window restored near coordinates
+    [Arguments]    ${expected_x}   ${expected_y}   ${searched_type}=image   ${searched_item}=ghaf-close.png   ${tolerance}=35
+    Sleep    1
+    ${actual_x}   ${actual_y}    Locate on screen   ${searched_type}   ${searched_item}   0.99   10   timeout=120   scale=2
+    ${x_in_range}    Evaluate    abs(${actual_x} - ${expected_x}) <= ${tolerance}
+    ${y_in_range}    Evaluate    abs(${actual_y} - ${expected_y}) <= ${tolerance}
+    IF    not ${x_in_range} or not ${y_in_range}
+        FAIL    Window anchor '${searched_item}' was restored at unexpected location: expected around (${expected_x}, ${expected_y}), got (${actual_x}, ${actual_y}).
+    END
+
+Save Slack window baseline coordinates
+    ${window_x}   ${window_y}    Locate on screen   image   ghaf-close.png   0.99   10   timeout=120   scale=2
+    ${anchor_x}   ${anchor_y}    Locate on screen   text    your-workspace   0.99   10   timeout=120   scale=2
+    Set Test Variable    ${SLACK_WINDOW_X}    ${window_x}
+    Set Test Variable    ${SLACK_WINDOW_Y}    ${window_y}
+    Set Test Variable    ${SLACK_ANCHOR_X}    ${anchor_x}
+    Set Test Variable    ${SLACK_ANCHOR_Y}    ${anchor_y}
+
+Verify Slack window restored to baseline
+    Verify app window restored near coordinates    ${SLACK_WINDOW_X}   ${SLACK_WINDOW_Y}
+    Verify app window restored near coordinates    ${SLACK_ANCHOR_X}   ${SLACK_ANCHOR_Y}   searched_type=text   searched_item=your-workspace   tolerance=35
