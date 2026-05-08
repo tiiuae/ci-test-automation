@@ -145,6 +145,7 @@ Save gui icons and icon path
     Get icon                ${ICONS}/Cosmic/scalable/actions  system-search-symbolic.svg  crop=0  background=white  output_filename=search.png
     Negate app icon         ${ICONS_DIR}/search.png  ${ICONS_DIR}/search-neg.png
     Get icon                ${ICONS}/Papirus/24x24/actions  system-shutdown.svg  crop=0  background=black  output_filename=power.png
+    Get icon                ${ICONS}/Papirus/48x48/apps  Zoom.svg  crop=0  background=black  output_filename=Zoom.png
     Get icon                ${ICONS}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
     OperatingSystem.Copy File    ../test-files/ghaf-close.png    ${ICONS_DIR}/
 

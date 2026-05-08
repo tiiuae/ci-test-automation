@@ -53,6 +53,10 @@ def is_text_on_the_screen(screenshot, text, scale=1):
 
     return False
 
+def is_image_on_the_screen(screenshot, image, confidence=0.99):
+    logging.info("Searching " + image)
+    return locate(image, screenshot, confidence=confidence) is not None
+
 def locate_text(screenshot, text, scale=1):
     logging.info("Searching " + text)
     data = get_data_from_image(screenshot, scale)

@@ -115,10 +115,18 @@ Take Remote Screenshot And Download
     RETURN    ${to}
 
 Verify Text Is On The Screen
-    [Arguments]    ${text}
-    ${screenshot_path}=     Take Remote Screenshot And Download
-    ${is_visible}=          Is Text On The Screen   ${screenshot_path}   ${text}
-    Should Be True          ${is_visible}           msg=Text '${text}' was not found on the screen
+    [Arguments]    ${text}    ${expected}=${True}
+    ${screenshot_path}      Take Remote Screenshot And Download
+    ${is_visible}           Is Text On The Screen   ${screenshot_path}   ${text}
+    Should Be Equal         ${is_visible}    ${expected}
+    ...                     msg=Text '${text}' is on the screen: ${is_visible}, expected: ${expected}
+
+Verify Image On The Screen
+    [Arguments]    ${image}    ${expected}=${True}    ${confidence}=0.99
+    ${screenshot_path}      Take Remote Screenshot And Download
+    ${is_visible}           Is Image On The Screen   ${screenshot_path}   ${ICONS_DIR}/${image}   ${confidence}
+    Should Be Equal         ${is_visible}    ${expected}
+    ...                     msg=Image '${image}' is on the screen: ${is_visible}, expected: ${expected}
 
 Locate on screen
     [Documentation]    Take a screenshot. Locate given image or text on the screenshot.

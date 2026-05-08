@@ -95,6 +95,18 @@ Copy and paste text between VMs
     ...           AND             Kill App By Name    cosmic-edit
     ...           AND             Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
+Open an app from the dock
+    [Documentation]   Open Zoom, minimize its window, verify it is hidden, then restore it from dock and compare coordinates.
+    [Tags]            SP-T79
+    Start app via GUI   ${COMMS_VM}   zoom    display_name="Zoom"
+    ${zoom_window_coords}    ${zoom_anchor_coords}    Save Zoom window baseline coordinates
+    Locate and click minimize window button
+    Verify app window is minimized
+    Locate and click   image   Zoom.png   confidence=0.90  scale=2
+    Verify Zoom window restored to baseline    ${zoom_window_coords}    ${zoom_anchor_coords}
+    [Teardown]   Run Keywords   Switch to vm    ${COMMS_VM}    AND    Kill App By Name   zoom   sudo=True
+    ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+
 *** Keywords ***
 
 Save current document from Cosmic Text Editor to Shares
@@ -119,3 +131,46 @@ Paste clipboard text and verify
     Press Key(s)       LEFTCTRL+V
     Move cursor to corner
     Verify Text Is On The Screen    ${text}
+
+Locate and click minimize window button
+    ${mouse_x}  ${mouse_y}  Locate on screen  image  ghaf-close.png  0.99  10  timeout=120  scale=2
+    ${target_x}    Evaluate    ${mouse_x} - 40
+    Run ydotool command   mousemove --absolute -x ${target_x} -y ${mouse_y}
+    Click
+
+Verify app window is minimized
+    [Documentation]    Wait until Window disappear from the screen by checking close button
+    Wait Until Keyword Succeeds    3x    1s    Verify Image On The Screen    ghaf-close.png    ${False}
+
+Verify app window restored near coordinates
+    [Arguments]    ${expected_x}   ${expected_y}   ${searched_type}=image   ${searched_item}=ghaf-close.png   ${tolerance}=5
+    ${actual_x}   ${actual_y}    Locate on screen   ${searched_type}   ${searched_item}   0.99   10   timeout=120   scale=2
+    ${x_in_range}    Evaluate    abs(${actual_x} - ${expected_x}) <= ${tolerance}
+    ${y_in_range}    Evaluate    abs(${actual_y} - ${expected_y}) <= ${tolerance}
+    IF    not ${x_in_range} or not ${y_in_range}
+        FAIL    Window anchor '${searched_item}' was restored at unexpected location: expected around (${expected_x}, ${expected_y}), got (${actual_x}, ${actual_y}).
+    END
+
+Save Zoom window baseline coordinates
+    ${status}   Run Keyword And Return Status   Locate on screen   image   ghaf-close.png   0.99   10   timeout=120   scale=2
+    Run Keyword If    not ${status}    Focus Zoom window
+    ${window_x}   ${window_y}    Locate on screen   image   ghaf-close.png   0.99   10   timeout=120   scale=2
+    Focus Zoom window
+    ${anchor_x}   ${anchor_y}    Locate on screen   text    Workplace        0.99   10   timeout=120   scale=2
+    ${window_coords}    Create List    ${window_x}    ${window_y}
+    ${anchor_coords}    Create List    ${anchor_x}    ${anchor_y}
+    RETURN    ${window_coords}    ${anchor_coords}
+
+Verify Zoom window restored to baseline
+    [Arguments]    ${window_coords}    ${anchor_coords}
+    Focus Zoom window
+    Run Keyword And Ignore Error   Verify Image Is On The Screen    ghaf-close.png
+    Run Keyword And Continue On Failure    Verify app window restored near coordinates
+    ...    ${anchor_coords}[0]   ${anchor_coords}[1]   searched_type=text   searched_item=Workplace   tolerance=3
+    Verify app window restored near coordinates    ${window_coords}[0]   ${window_coords}[1]
+
+Focus Zoom window
+    [Documentation]    Move the mouse on the top of the window,coordinates are hardcoded,
+    ...                because App name is not always recognizable, when the text is grey
+    Run ydotool command   mousemove --absolute -x 470 -y 100
+    Wiggle cursor
