@@ -69,12 +69,11 @@ Check logging rate
     [Documentation]    Check that host or vms are not creating too much logs
     [Tags]             SP-T359  log_rate  pre-merge  orin-agx  orin-agx-64  orin-nx
     ${check_interval}  Set Variable   100
-    ${saved_entries}   Set Variable   500
+    ${saved_entries}   Set Variable   2000
 
-    ${entry_limit}          Set Variable   2000
-    ${orin_entry_limit}     Set Variable   5000
-    ${gui_vm_entry_limit}   Set Variable   10000
-    ${bytes_per_entry}      Set Variable   200
+    ${entry_limit}            Set Variable   500
+    ${orin_entry_limit}       Set Variable   1000
+    ${bytes_per_entry}        Set Variable   200
 
     &{spam_metrics}    Create Dictionary
     &{ok_metrics}      Create Dictionary
@@ -83,8 +82,6 @@ Check logging rate
         Switch to vm   ${vm}
         IF  "orin" in "${DEVICE_TYPE}"
             ${vm_entry_limit}   Set Variable   ${orin_entry_limit}
-        ELSE IF  '${vm}' == 'gui-vm'
-            ${vm_entry_limit}   Set Variable   ${gui_vm_entry_limit}
         ELSE
             ${vm_entry_limit}   Set Variable   ${entry_limit}
         END
@@ -95,13 +92,15 @@ Check logging rate
         IF  ${entries} > ${vm_entry_limit} or ${byte_rate} > ${vm_byte_limit}
             ${recent_logs}       Run Command        journalctl -n ${saved_entries}
             Set To Dictionary    ${spam_logs}       ${vm}=${recent_logs}
-            Set To Dictionary    ${spam_metrics}    ${vm}=entries:${entries}_byterate:${byte_rate}_limits:${vm_entry_limit}/${vm_byte_limit}
+            Set To Dictionary    ${spam_metrics}    ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${vm_entry_limit}/${vm_byte_limit}
         ELSE
-            Set To Dictionary    ${ok_metrics}      ${vm}=entries:${entries}_byterate:${byte_rate}_limits:${vm_entry_limit}/${vm_byte_limit}
+            Set To Dictionary    ${ok_metrics}      ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${vm_entry_limit}/${vm_byte_limit}
         END
     END
-    Log                VMs with acceptable logging rates:\n${ok_metrics}       console=True
-    Log                Log spamming detected in these VMs:\n${spam_metrics}    console=True
+    ${ok_metrics_report}      Evaluate    '\\n'.join([f'{k}: {v}' for k, v in $ok_metrics.items()]) if $ok_metrics else 'None'
+    ${spam_metrics_report}    Evaluate    '\\n'.join([f'{k}: {v}' for k, v in $spam_metrics.items()]) if $spam_metrics else 'None'
+    Log                       VMs with acceptable logging rates:\n${ok_metrics_report}       console=True
+    Log                       Log spamming detected in these VMs:\n${spam_metrics_report}    console=True
     ${status}          Run Keyword And Return Status    Should Be Empty  ${spam_metrics}
     IF  not ${status}
         Log            Sample of ${saved_entries} log entries from VMs demonstrating too high logging rates
@@ -109,7 +108,7 @@ Check logging rate
             Log        ${vm}
             Log        ${logs}
         END
-        FAIL           meas interval: ${check_interval}s\n${spam_metrics}
+        FAIL           Too high logging rate detected\nmeas interval: ${check_interval}s\n${spam_metrics_report}
     END
 
 Validate Forward Secure Sealing

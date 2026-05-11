@@ -76,12 +76,22 @@ Check if process is running
     RETURN   '${status}' == 'PASS'
 
 Kill process by name
-    [Arguments]   ${process_name}   ${sudo}=True   ${require_exists}=${True}   ${signal}=9
-    Log   Killing process ${process_name}   console=True
+    [Arguments]   ${process_name}   ${sudo}=True   ${require_exists}=${True}   ${signal}=TERM   ${fallback_signal}=KILL
+    IF    ${require_exists}
+        ${was_running}   Check if process is running   ${process_name}
+        IF    not ${was_running}   FAIL   Process ${process_name} is not running
+    END
+    Log   Killing process ${process_name} with signal ${signal} (fallback: ${fallback_signal})   console=True
     # A = ignore pkill process (ancestor), e = display what is killed, f = use full process name to kill
-    ${output}   Run Command    pkill -${signal} -Aef "${process_name}"  sudo=${sudo}  return=rc  rc_match=skip  timeout=15
-    IF  ${require_exists}
-        Should Be Equal As Integers   ${output}[0]   0
+    Run Command    pkill -${signal} -Aef "${process_name}"  sudo=${sudo}  return=rc  rc_match=skip  timeout=15
+    ${still_running}   Wait Until Keyword Succeeds   5x   1s   Check if process is running   ${process_name}
+    IF  ${still_running}
+        Log   Process ${process_name} still running after signal ${signal}, retrying with ${fallback_signal}   console=True
+        Run Command    pkill -${fallback_signal} -Aef "${process_name}"  sudo=${sudo}  return=rc  rc_match=skip  timeout=15
+        ${still_running}   Wait Until Keyword Succeeds   5x   1s   Check if process is running   ${process_name}
+        IF  ${still_running}
+            FAIL   Process ${process_name} is still running after ${signal} and ${fallback_signal}
+        END
     END
 
 Save Time
