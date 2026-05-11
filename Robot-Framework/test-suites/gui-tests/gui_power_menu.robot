@@ -79,12 +79,13 @@ GUI Reboot
     ${end_time}       Get Time    epoch
     Login to laptop   enable_dnd=True
     ${elapsed}        Evaluate    ${end_time} - ${start_time}
+    ${reboot_limit}   Set Variable If    "${DEVICE_TYPE}" == "darter-pro"    100    90
     Log               Reboot took ${elapsed} seconds   console=True
-    IF   ${elapsed} > 90
-        IF  "${DEVICE_TYPE}" == "darter-pro"
-            SKIP   Known issue: SSRCSP-8341 (Reboot took too long: ${elapsed} seconds (expected < 90))
+    IF   ${elapsed} > ${reboot_limit}
+        IF  "system76-darp11-b-storeDisk" in "${JOB}"
+            SKIP   Known issue: SSRCSP-8412 (Reboot took too long: ${elapsed} seconds (expected < ${reboot_limit}))
         ELSE
-            FAIL   Reboot took too long: ${elapsed} seconds (expected < 90)
+            FAIL   Reboot took too long: ${elapsed} seconds (expected < ${reboot_limit})
         END
     END
 
@@ -107,7 +108,11 @@ GUI Shutdown
     Turn Laptop On and Connect
     Login to laptop   enable_dnd=True
     IF   ${elapsed} > 20
-        SKIP   Known issue: SSRCSP-8341 (Shutdown took too long: ${elapsed} seconds (expected < 20))
+        IF  "system76-darp11-b-storeDisk" in "${JOB}"
+            SKIP   Known issue: SSRCSP-8412 (Shutdown took too long: ${elapsed} seconds (expected < 20))
+        ELSE
+            FAIL   Shutdown took too long: ${elapsed} seconds (expected < 20)
+        END
     END
 
 GUI Log out and log in

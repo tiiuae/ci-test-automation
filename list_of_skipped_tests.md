@@ -4,8 +4,8 @@
 
 | DATE SET   | TEST CASE                                               | TICKET / Additional Data.                                                                     |
 | ---------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 11.05.2026 | GUI Shutdown & GUI Reboot (storeDisk)                   | SSRCSP-8412                                                                                   |
 | 30.04.2026 | Open PDF from VM                                        | SSRCSP-8367                                                                                   |
-| 24.04.2026 | GUI Shutdown & GUI Reboot                               | SSRCSP-8341                                                                                   |
 | 08.04.2026 | Automatic suspension (high power after suspension)      | SSRCSP-8288                                                                                   |
 | 30.03.2026 | Check Camera in VMs (Dell)                              | SSRCSP-8266                                                                                   |
 | 30.03.2026 | Check Camera Application (Dell checked in chrome-vm)    | SSRCSP-8266                                                                                   |
