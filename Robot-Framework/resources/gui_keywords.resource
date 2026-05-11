@@ -357,18 +357,11 @@ Stop screen recording
     ${pass_status}   ${output}    Run Keyword And Ignore Error   Check that the application was started   gpu-screen-recorder
     IF  $pass_status=='PASS'
         Log To Console   Stopping screen recording
-        # Stop the recorder gracefully so it can flush buffered frames and finalize the video file
-        Kill process by name   gpu-screen-recorder   sudo=False   signal=INT
-        ${stopped}    Run Keyword And Return Status   Check that the application is not running   gpu-screen-recorder   10
-        IF  not ${stopped}
-            Log To Console   Screen recording did not stop gracefully, force killing it
-            Kill process by name   gpu-screen-recorder   sudo=False
-        END
+        Kill process by name   gpu-screen-recorder   sudo=False
     ELSE
         Log To Console  Screen recording was not running
     END
     Save screen recording   ${test_status}   ${test_name}
-    [Teardown]   Kill process by name   gpu-screen-recorder   sudo=False   require_exists=False
 
 Save screen recording
     [Arguments]    ${test_status}   ${test_name}
