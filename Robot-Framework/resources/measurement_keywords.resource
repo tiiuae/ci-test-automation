@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
+Resource            ../config/variables.robot
 Library             ../lib/ParseMeasurementData.py    ${LOGGED_PARAMS_DIR}    ${PLOT_DIR}
 Library             DateTime
 Library             SSHLibrary
@@ -175,3 +176,11 @@ Plot parameter log
     END
     Generate param graph         ${script}_interval.csv  ${param_label}  ${param_unit}  ${BUILD_ID}
     Log                          <img src="${PLOT_DIR}${param_label}_${BUILD_ID}.png" alt="Stats plot" width="1200">    HTML
+
+Save measurement history data
+    [Documentation]    Save one build worth of measurement series values and plot the accumulated history.
+    [Arguments]        ${test_name}    ${metric_name}    ${unit}    &{measurements}
+    ${build_id}    Set Variable    ${BUILD_ID}-${COMMIT_HASH}
+    Append measurement history result    ${test_name}    ${metric_name}    ${unit}    ${build_id}    ${DEVICE}    ${measurements}
+    Generate measurement history graph    ${test_name}    ${metric_name}    ${DEVICE}
+    Log    <img src="${REL_PLOT_DIR}${DEVICE}_${test_name}__${metric_name}.png" alt="${metric_name} history" width="1200">    HTML

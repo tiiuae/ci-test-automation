@@ -139,3 +139,79 @@ class ParseMeasurementData:
 
         plt.savefig(self.plot_dir + f'{param_label}_{build_id}.png')
         return
+
+    def append_measurement_history_result(self, test_name, metric_name, unit, build_id, device, measurements):
+        file_path = os.path.join(self.csv_dir, f"{device}_{test_name}__{metric_name}.csv")
+        row = {"build_id": build_id, "unit": unit}
+        for column, value in measurements.items():
+            row[str(column)] = value
+
+        if os.path.exists(file_path):
+            data = pd.read_csv(file_path)
+            columns = list(data.columns)
+            for column in row:
+                if column not in columns:
+                    columns.append(column)
+            for column in columns:
+                if column not in row:
+                    row[column] = pd.NA
+            data = pd.concat(
+                [data.reindex(columns=columns), pd.DataFrame([row], columns=columns)],
+                ignore_index=True,
+            )
+        else:
+            columns = ["build_id", "unit"] + [str(column) for column in measurements.keys()]
+            for column in columns:
+                if column not in row:
+                    row[column] = pd.NA
+            data = pd.DataFrame([row], columns=columns)
+        data.to_csv(file_path, index=False)
+        return file_path
+
+    def generate_measurement_history_graph(self, test_name, metric_name, device):
+        file_path = os.path.join(self.csv_dir, f"{device}_{test_name}__{metric_name}.csv")
+        data = pd.read_csv(file_path)
+        if data.empty:
+            logging.warning("No measurement history data to plot for %s/%s", test_name, metric_name)
+            return
+
+        value_columns = [column for column in data.columns if column not in {"build_id", "unit"}]
+        if not value_columns:
+            logging.warning("No measurement columns found to plot for %s/%s", test_name, metric_name)
+            return
+
+        build_labels = data["build_id"].astype(str).tolist()
+        build_indices = list(range(len(build_labels)))
+
+        fig, ax = plt.subplots(figsize=(20, 10))
+        plt.set_loglevel('WARNING')
+        ax.ticklabel_format(axis='y', style='plain')
+        ax.tick_params(axis='y', labelsize=14)
+
+        has_numeric_values = False
+        for column in value_columns:
+            values = pd.to_numeric(data[column], errors="coerce")
+            if values.notna().any():
+                has_numeric_values = True
+                ax.plot(
+                    build_indices,
+                    values,
+                    marker="o",
+                    linestyle="-",
+                    label=str(column),
+                    linewidth=2.5,
+                )
+
+        unit = data["unit"].dropna().iloc[0] if "unit" in data.columns and not data["unit"].dropna().empty else metric_name
+        ax.set_title(f'{device} - {test_name} - {metric_name}', loc='center', fontweight="bold", fontsize=16)
+        ax.set_xlabel('Build', fontsize=16)
+        ax.set_ylabel(unit, fontsize=16)
+        ax.grid(True)
+        ax.set_xticks(build_indices)
+        ax.set_xticklabels(build_labels, rotation=90, fontsize=10)
+        if has_numeric_values:
+            ax.legend(loc='upper left', fontsize=12)
+        fig.tight_layout()
+        fig.savefig(self.plot_dir + f'{device}_{test_name}__{metric_name}.png')
+        plt.close(fig)
+        return

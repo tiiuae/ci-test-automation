@@ -141,7 +141,7 @@ Check If Device Is Up
 
     ${diff}=    Evaluate    int(time.time()) - int(${start_time})
 
-    IF  ${IS_AVAILABLE}    Log To Console    Device woke up after ${diff} sec.
+    IF  ${IS_AVAILABLE}    Log    Device woke up after ${diff} sec.    console=True
 
     IF  ${IS_AVAILABLE} == False
         Log To Console    Device is not available via SSH, waited for ${diff} sec!

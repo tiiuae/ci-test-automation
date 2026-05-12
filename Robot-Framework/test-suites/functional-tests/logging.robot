@@ -12,6 +12,7 @@ Library             ../../lib/helper_functions.py
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/service_keywords.resource
+Resource            ../../resources/measurement_keywords.resource
 
 Suite Setup         Logging Suite Setup
 
@@ -68,39 +69,77 @@ Check Grafana logs
 Check logging rate
     [Documentation]    Check that host or vms are not creating too much logs
     [Tags]             SP-T359  log_rate  pre-merge  orin-agx  orin-agx-64  orin-nx
-    ${check_interval}  Set Variable   100
-    ${saved_entries}   Set Variable   2000
 
-    ${entry_limit}            Set Variable   500
-    ${orin_entry_limit}       Set Variable   2000
-    ${bytes_per_entry}        Set Variable   200
+    ${check_interval}     Set Variable   100
+    ${saved_entries}      Set Variable   2000
+    ${entry_limit}        Set Variable   500
+    ${orin_entry_limit}   Set Variable   2000
+    ${bytes_per_entry}    Set Variable   200
 
-    &{spam_metrics}    Create Dictionary
-    &{ok_metrics}      Create Dictionary
-    &{spam_logs}       Create Dictionary
+    &{spam_metrics}       Create Dictionary
+    &{ok_metrics}         Create Dictionary
+    &{spam_logs}          Create Dictionary
+    &{unavailable_vms}    Create Dictionary
+    &{entry_history}      Create Dictionary
+    &{byte_history}       Create Dictionary
+
     FOR  ${vm}  IN  @{VM_LIST}
-        Switch to vm   ${vm}
-        IF  "orin" in "${DEVICE_TYPE}"
-            ${vm_entry_limit}   Set Variable   ${orin_entry_limit}
-        ELSE
-            ${vm_entry_limit}   Set Variable   ${entry_limit}
+        Set To Dictionary    ${entry_history}    ${vm}=${EMPTY}
+        Set To Dictionary    ${byte_history}     ${vm}=${EMPTY}
+    END
+    FOR  ${vm}  IN  @{VM_LIST}
+        ${vm_is_ready}    Run Keyword And Return Status    Check if ssh is ready on vm    ${vm}    timeout=5
+        IF  not ${vm_is_ready}
+            Log    Skipping ${vm}: ssh is not ready    console=True
+            Set To Dictionary    ${unavailable_vms}    ${vm}=ssh not ready
+            CONTINUE
         END
-        ${vm_byte_limit}    Evaluate    ${vm_entry_limit} * ${bytes_per_entry}
+        ${switch_status}    ${switch_output}    Run Keyword And Ignore Error    Switch to vm    ${vm}    timeout=10
+        IF  '${switch_status}' == 'FAIL'
+            Log    Skipping ${vm}: ${switch_output}    console=True
+            Set To Dictionary    ${unavailable_vms}    ${vm}=${switch_output}
+            Switch to vm    ${HOST}    timeout=10
+            CONTINUE
+        END
+        IF  '${switch_status}' == 'PASS'
+            IF  "orin" in "${DEVICE_TYPE}"
+                ${vm_entry_limit}   Set Variable   ${orin_entry_limit}
+            ELSE
+                ${vm_entry_limit}   Set Variable   ${entry_limit}
+            END
+            ${vm_byte_limit}    Evaluate    ${vm_entry_limit} * ${bytes_per_entry}
 
-        ${byte_rate}   Run Command    journalctl --since "$(date -d '${check_interval} seconds ago' '+%Y-%m-%d %H:%M:%S')" | wc -c | awk '{print $1}'
-        ${entries}     Run Command    journalctl --since "${check_interval} seconds ago" | wc -l
-        IF  ${entries} > ${vm_entry_limit} or ${byte_rate} > ${vm_byte_limit}
-            ${recent_logs}       Run Command        journalctl -n ${saved_entries}
-            Set To Dictionary    ${spam_logs}       ${vm}=${recent_logs}
-            Set To Dictionary    ${spam_metrics}    ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${vm_entry_limit}/${vm_byte_limit}
-        ELSE
-            Set To Dictionary    ${ok_metrics}      ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${vm_entry_limit}/${vm_byte_limit}
+            ${byte_status}    ${byte_rate}    Run Keyword And Ignore Error
+            ...    Run Command    journalctl --since "$(date -d '${check_interval} seconds ago' '+%Y-%m-%d %H:%M:%S')" | wc -c | awk '{print $1}'
+            ${entries_status}    ${entries}    Run Keyword And Ignore Error
+            ...    Run Command    journalctl --since "${check_interval} seconds ago" | wc -l
+            IF  '${byte_status}' == 'PASS'
+                Set To Dictionary    ${byte_history}    ${vm}=${byte_rate}
+            END
+            IF  '${entries_status}' == 'PASS'
+                Set To Dictionary    ${entry_history}    ${vm}=${entries}
+            END
+            IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS' and (${entries} > ${vm_entry_limit} or ${byte_rate} > ${vm_byte_limit})
+                ${recent_logs}       Run Command        journalctl -n ${saved_entries}
+                Set To Dictionary    ${spam_logs}       ${vm}=${recent_logs}
+                Set To Dictionary    ${spam_metrics}    ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${vm_entry_limit}/${vm_byte_limit}
+            ELSE IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS'
+                Set To Dictionary    ${ok_metrics}      ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${vm_entry_limit}/${vm_byte_limit}
+            END
         END
     END
+
     ${ok_metrics_report}      Evaluate    '\\n'.join([f'{k}: {v}' for k, v in $ok_metrics.items()]) if $ok_metrics else 'None'
     ${spam_metrics_report}    Evaluate    '\\n'.join([f'{k}: {v}' for k, v in $spam_metrics.items()]) if $spam_metrics else 'None'
     Log                       VMs with acceptable logging rates:\n${ok_metrics_report}       console=True
     Log                       Log spamming detected in these VMs:\n${spam_metrics_report}    console=True
+
+    ${has_unavailable_vms}    Run Keyword And Return Status    Should Not Be Empty    ${unavailable_vms}
+    IF  ${has_unavailable_vms}
+        Log                VMs not accessible during logging check:\n${unavailable_vms}    console=True
+    END
+    Save measurement history data    ${TEST NAME}    log_entries    entries/100s    &{entry_history}
+    Save measurement history data    ${TEST NAME}    log_byte_rate    bytes/100s    &{byte_history}
     ${status}          Run Keyword And Return Status    Should Be Empty  ${spam_metrics}
     IF  not ${status}
         Log            Sample of ${saved_entries} log entries from VMs demonstrating too high logging rates
