@@ -22,8 +22,9 @@ Account lockout after failed login
     ${ip}            Get External Attacker IP
     Try External Login With Wrong Password
     Verify NetVM Blacklist Contains IP Via Serial    ${ip}   f2b-sshBlacklist
+    ${blacklisted_at}    Get Time    epoch
     Unban IP Address Via Serial                      ${ip}
-    [Teardown]       Account lockout teardown
+    [Teardown]       Account lockout teardown    ${blacklisted_at}
 
 Check OpenSSL3 is Available In Nix Store
     [Documentation]  Connect to GUI-VM and check that OpenSSL3 is available in NixStore.
@@ -54,9 +55,21 @@ Try External Login With Wrong Password
     Close Connection
 
 Account lockout teardown
+    [Arguments]     ${blacklisted_at}
     Close All Connections
-    # findTime for fail2ban service is 60 sec, wait to avoid being banned again
-    Reboot Laptop      delay=60  verify_shutdown=False
-    Check If Device Is Up
+    # findtime for fail2ban is 60s; count it from the moment IP was added to blacklist
+    ${now}            Get Time    epoch
+    ${elapsed}        Evaluate    int(${now}) - int(${blacklisted_at})
+    ${remaining_wait}    Evaluate    max(0, 60 - int(${elapsed}))
+    IF    ${remaining_wait} > 0
+        Log To Console    Waiting ${remaining_wait}s before reboot to satisfy fail2ban findtime window
+        Wait    ${remaining_wait}
+    END
+    ${soft_reboot_ok}    Run Keyword And Return Status    Soft Reboot Device And Connect
+    IF    not ${soft_reboot_ok}
+        Log    Soft reboot did not recover device access, falling back to hard reboot.    console=True
+        Reboot Laptop      verify_shutdown=False
+        Check If Device Is Up
+    END
     Verify External Connectivity Restored    SSH
     Login to laptop
