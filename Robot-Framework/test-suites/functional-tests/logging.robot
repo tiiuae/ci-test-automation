@@ -72,7 +72,7 @@ Check logging rate
     ${saved_entries}   Set Variable   2000
 
     ${entry_limit}            Set Variable   500
-    ${orin_entry_limit}       Set Variable   1000
+    ${orin_entry_limit}       Set Variable   2000
     ${bytes_per_entry}        Set Variable   200
 
     &{spam_metrics}    Create Dictionary
