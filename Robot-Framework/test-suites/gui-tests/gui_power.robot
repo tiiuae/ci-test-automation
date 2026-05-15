@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Documentation       Testing taskbar power widget options
-Test Tags           gui-power-menu
+Documentation       Testing power options
+Test Tags           gui-power
 
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/device_control.resource
@@ -20,11 +20,8 @@ Test Teardown       GUI Power Test Teardown
 
 *** Test Cases ***
 
-GUI Suspend and wake up
-    [Documentation]   Suspend the device via GUI taskbar suspend icon.
-    ...               Check that the device is suspended.
-    ...               Wake up by pressing the power button for 1 sec.
-    ...               Check that the device is awake.
+Suspend and wake up from power menu
+    [Documentation]   Suspend the device via GUI taskbar suspend icon and wake up.
     ...               Logs device power consumption during the test
     ...               if power measurement tooling is set.
     [Tags]            SP-T75  SP-T75-3  lenovo-x1  darter-pro  lab-only
@@ -33,32 +30,12 @@ GUI Suspend and wake up
     Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
 
     Select power menu option   x=815   y=120
-    Check that device is suspended
+    Confirm suspension and wake up the device
 
-    Log To Console                Letting the device stay suspended for 30 sec
-    Wait                          30
-    Log To Console                Waking the device up by pressing the power button for 1 sec
-
-    Wake up device
-    Close All Connections
-    Start ydotoold
-    Switch to vm             ${GUI_VM}   user=${USER_LOGIN}
-
-    # Sometimes screen wakeup has required a mouse move
-    Wiggle cursor
-
-    Wait Until Keyword Succeeds   30s   2s    Check the screen state   on
-
-    Log To Console           Checking if the screen is in locked state after wake up
-    ${locked}                Check if locked
-    Should Be True           ${locked}    Screen lock not active after wake up
-
-    Unlock
-    Verify desktop availability
     Generate power plot           ${BUILD_ID}   ${TEST NAME}
     Stop recording power
 
-GUI Lock and Unlock
+Lock and Unlock from power menu
     [Documentation]   Lock the screen via GUI power menu lock icon and check that the screen is locked.
     ...               Unlock lock screen by typing the password and check that desktop is available.
     [Tags]            SP-T75  SP-T75-1  lock  lenovo-x1  darter-pro
@@ -68,7 +45,7 @@ GUI Lock and Unlock
     Unlock
     Verify desktop availability
 
-GUI Reboot
+Reboot from power menu
     [Documentation]   Reboot the device via GUI power menu reboot icon.
     ...               Check that it shuts down. Check that it turns on and boots to login screen.
     [Tags]            SP-T75  SP-T75-4  lenovo-x1  darter-pro
@@ -89,7 +66,7 @@ GUI Reboot
         END
     END
 
-GUI Shutdown
+Shutdown from power menu
     [Documentation]   Shutdown the device via GUI power menu shutdown icon.
     ...               Check that it shuts down and then wakes up with a short power button press.
     [Tags]            SP-T75  SP-T75-5  lenovo-x1  darter-pro  lab-only
@@ -115,14 +92,33 @@ GUI Shutdown
         END
     END
 
-GUI Log out and log in
+Log out and log in from power menu
     [Documentation]   Logout via GUI power menu icon and verify logged out state.
     ...               Login and verify that desktop is available.
     [Tags]            SP-T75  SP-T75-2  logoutlogin  lenovo-x1  darter-pro
     Select power menu option   text=LogOut   confirmation=True
     ${logout_status}            Check if logged out
-    IF  not ${logout_status}    FAIL  Logout failed.
+    Should Be True              ${logout_status}    Logout failed
     Log in, unlock and verify
+
+Log out and log in with shortcut
+    [Documentation]   Logout via logout shortcut and verify logged out state.
+    ...               Login and verify that desktop is available.
+    [Tags]            SP-T186  lenovo-x1  darter-pro
+    Press Key(s)                LEFTMETA+LEFTSHIFT+ESC
+    Tab and enter               tabs=1
+    ${logout_status}            Check if logged out
+    Should Be True              ${logout_status}    Logout failed
+    Log in, unlock and verify
+
+Suspend and wake up from lock screen
+    [Documentation]   Suspend the device from lock screen suspend icon and wake up.
+    [Tags]            SP-T245  lenovo-x1  darter-pro
+    Press Key(s)          LEFTMETA+ESC
+    Locate on screen      image  ${LOCK_ICON}   0.95  10
+    Run ydotool command   mousemove --absolute -x 320 -y 275
+    Run ydotool command   click 0xC0
+    Confirm suspension and wake up the device
 
 *** Keywords ***
 
@@ -169,3 +165,29 @@ Select power menu option
     # Error is ignored because the connection is sometimes lost before the last Enter returns a value.
     IF  ${confirmation}   Run Keyword And Ignore Error   Tab and enter   tabs=${tabs}
     Sleep   1
+
+Confirm suspension and wake up the device
+    [Documentation]   Check that the device is suspended.
+    ...               Wake up by pressing the power button for 1 sec.
+    ...               Check that the device is awake and unlock.
+    Check that device is suspended
+
+    Log To Console      Letting the device stay suspended for 30 sec
+    Wait                30
+    Log To Console      Waking the device up by pressing the power button for 1 sec
+    Wake up device
+
+    Close All Connections
+    Start ydotoold
+    Switch to vm        ${GUI_VM}   user=${USER_LOGIN}
+
+    # Sometimes screen wakeup has required a mouse move
+    Wiggle cursor
+    Wait Until Keyword Succeeds   30s   2s    Check the screen state   on
+
+    Log To Console      Checking if the screen is in locked state after wake up
+    ${locked}           Check if locked
+    Should Be True      ${locked}    Screen lock not active after wake up
+
+    Unlock
+    Verify desktop availability
