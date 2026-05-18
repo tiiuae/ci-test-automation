@@ -27,6 +27,7 @@ ${PERF_DATA_DIR}          ../../../Performance_test_results/
 ${PLOT_DIR}               ./
 ${REL_PLOT_DIR}           ./
 ${FLASHED}                false
+${UART_CAPTURE_ACTIVE}    ${False}
 
 
 *** Keywords ***

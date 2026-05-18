@@ -14,14 +14,14 @@ Verify NetVM Blacklist Contains IP Via Serial
     [Documentation]    Verify that the provided IP is found from net-vm's ${blacklist} via serial tunnel.
     [Arguments]        ${ip}  ${blacklist}=BLACKLIST
     Log                Checking via serial that ${blacklist} contains the attacker IP    console=True
-    ${output}          Run Command on VM Via Serial    ${NET_VM}    echo ${PASSWORD} | sudo -S ipset list ${blacklist}
+    ${output}          Run Command on VM Via Serial    ${NET_VM}    ipset list ${blacklist}    sudo=${True}
     Should Contain     ${output}    ${ip}     Blacklist doesn't contain the attacker's IP.
 
 Clear NetVM Blacklist Via Serial
     [Documentation]    Remove the attacker IP from net-vm ${blacklist} using serial access.
     [Arguments]        ${ip}  ${blacklist}=BLACKLIST   ${proto}=ICMP
     Log                Trying to remove the attacker IP from ${blacklist} via serial     console=True
-    Run Command on VM Via Serial   ${NET_VM}   echo ${PASSWORD} | sudo -S ipset del ${blacklist} ${ip}
+    Run Command on VM Via Serial   ${NET_VM}   ipset del ${blacklist} ${ip}    sudo=${True}
     IF    $proto == 'SSH'
         Unban IP Address Via Serial    ${ip}
     END
@@ -30,14 +30,14 @@ Clear NetVM Blacklist Via Serial
 Unban IP Address Via Serial
     [Arguments]        ${ip}
     Log                Trying to unban the attacker IP via serial     console=True
-    Run Command on VM Via Serial   ${NET_VM}   echo ${PASSWORD} | sudo -S fail2ban-client set sshd unbanip ${ip}
+    Run Command on VM Via Serial   ${NET_VM}   fail2ban-client set sshd unbanip ${ip}    sudo=${True}
     Verify IP Is Not Banned In Fail2ban Jail Via Serial    ${ip}
     Verify External Connectivity Restored    SSH
 
 Verify IP Is Not Banned In Fail2ban Jail Via Serial
     [Documentation]    Verify that the IP is not listed in fail2ban sshd jail banned IP list.
     [Arguments]        ${ip}  ${jail}=sshd
-    ${output}          Run Command on VM Via Serial    ${NET_VM}    echo ${PASSWORD} | sudo -S fail2ban-client status ${jail}
+    ${output}          Run Command on VM Via Serial    ${NET_VM}    fail2ban-client status ${jail}    sudo=${True}
     Should Contain     ${output}    Banned IP list:
     Should Not Match Regexp    ${output}    (?m)^\\s*`- Banned IP list:\\s*.*\\b${ip}\\b
 

@@ -118,9 +118,13 @@ Check Network Availability
 Check If Device Is Up
     [Arguments]    ${range}=50
     Set Global Variable    ${IS_AVAILABLE}       False
+    ${uart_capture_active}    Get Variable Value    ${UART_CAPTURE_ACTIVE}    ${False}
     ${start_time}=    Get Time	epoch
     FOR    ${i}    IN RANGE    ${range}
         Log         Ping ${DEVICE_IP_ADDRESS}...    console=True
+        IF    ${uart_capture_active}
+            Drain UART Output
+        END
         ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
         Sleep       ${PING_SPACING}
         IF    ${ping}
@@ -145,7 +149,9 @@ Check If Device Is Up
 
     IF  ${IS_AVAILABLE} == False
         Log To Console    Device is not available via SSH, waited for ${diff} sec!
-        IF  "${SERIAL_PORT}" == "NONE"
+        IF  ${uart_capture_active}
+            Log To Console    UART capture is active, leaving serial recovery for teardown.
+        ELSE IF  "${SERIAL_PORT}" == "NONE"
             Log To Console    There is no address for serial connection
         ELSE
             Check Serial Connection
