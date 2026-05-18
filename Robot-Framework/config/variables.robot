@@ -27,6 +27,8 @@ ${PERF_DATA_DIR}          ../../../Performance_test_results/
 ${PLOT_DIR}               ./
 ${REL_PLOT_DIR}           ./
 ${FLASHED}                false
+${UART_CAPTURE_ACTIVE}    ${False}
+${BOOT_DIAGNOSTICS_DIR}   ./    # Later ./boot_diagnostics when move of the dir implemented in ghaf-infra
 
 
 *** Keywords ***

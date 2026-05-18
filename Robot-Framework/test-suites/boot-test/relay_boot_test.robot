@@ -17,9 +17,10 @@ Suite Teardown      Teardown
 
 
 *** Variables ***
-${CONNECTION_TYPE}       ssh
-${IS_AVAILABLE}          False
-${DEVICE_TYPE}           ${EMPTY}
+${CONNECTION_TYPE}           ssh
+${IS_AVAILABLE}              False
+${DEVICE_TYPE}               ${EMPTY}
+${SAVE_BOOT_LOGS_ON_PASS}    ${True}
 
 
 *** Test Cases ***
@@ -28,12 +29,13 @@ Verify booting after restart by power
     [Documentation]    Restart device by power and verify init service is running
     [Tags]             relayboot  orin-agx  orin-agx-64  orin-nx
     Reboot Orin
-    Check If Device Is Up   range=70
+    Start UART Log Capture
 
+    Check If Device Is Up   timeout=140
     IF      "${DEVICE_TYPE}" == "orin-nx" and ${IS_AVAILABLE} == False
             Log                     message=Orin-nx failed to start, rebooting via relay one more time...    level=WARN
             Reboot Orin
-            Check If Device Is Up   range=70
+            Check If Device Is Up   timeout=140
     END
 
     IF    ${IS_AVAILABLE} == False
@@ -51,6 +53,7 @@ Verify booting after restart by power
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Verify init.scope status via serial
     END
+
     [Teardown]   Test Teardown
 
 Verify booting laptop
@@ -58,14 +61,14 @@ Verify booting laptop
     [Tags]             SP-T287  SP-T290  relayboot  lenovo-x1  darter-pro  dell-7330
     Reboot Laptop      verify_shutdown=False
     IF    "installer" in "${JOB}"
-        Check If Device Is Up    range=240
+        Check If Device Is Up    range=240    timeout=490
     ELSE
-        Check If Device Is Up
+        Check If Device Is Up    timeout=110
     END
     IF    ${IS_AVAILABLE} == False
         Log To Console    Turning device on again...
         Turn Laptop On
-        Check If Device Is Up
+        Check If Device Is Up    timeout=110
     END
     IF    ${IS_AVAILABLE} == False
         FAIL    The device did not start
@@ -177,10 +180,16 @@ Break the system
 Test Teardown
     IF  ${IS_AVAILABLE}
         IF  "${CONNECTION_TYPE}" == "ssh"
-            Run Keyword If Test Failed    ssh_keywords.Save log
+            Run Keyword If Test Failed    Run Keyword And Ignore Error    ssh_keywords.Save log
         ELSE IF  "${CONNECTION_TYPE}" == "serial"
-            Run Keyword If Test Failed    serial_keywords.Save log
+            Run Keyword If Test Failed    Run Keyword And Ignore Error    ssh_keywords.Save log
         END
+    END
+    IF  not ${IS_LAPTOP}
+        Run Keyword If Test Failed    Collect Failure Diagnostics Via Serial
+    END
+    IF    ${UART_CAPTURE_ACTIVE} and not ${SAVE_BOOT_LOGS_ON_PASS}
+        Run Keyword If Test Passed    OperatingSystem.Remove File    ${UART_CAPTURE_FILE}
     END
 
 Teardown
@@ -235,13 +244,13 @@ Save commit hash on target device
     ${file_found}     Run Keyword And Return Status    Check file exists    ${commit_path}    sudo=True
     ${flashed_bool}   Convert To Boolean    ${FLASHED}
     IF  ${file_found}
-        IF  ${flashed_bool}
-            FAIL    Expected fresh installation but found existing ${commit_path}\nProbably something has gone wrong in flashing or installing.
-        END
         ${saved_commit}    Get File Content Or Default        /persist/build_commit
         ${saved_job}       Get File Content Or Default        /persist/job
         Log    Ghaf commit hash entry found on the target device: ${saved_commit}    console=True
         Log    Job entry found on the target device: ${saved_job}                    console=True
+        IF  ${flashed_bool}
+            FAIL    Expected fresh installation but found existing ${commit_path}\nProbably something has gone wrong in flashing or installing.
+        END
         RETURN
     END
     IF  ${flashed_bool}
