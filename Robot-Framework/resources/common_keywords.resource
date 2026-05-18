@@ -36,7 +36,7 @@ Run Command
     ELSE IF    '${rc_match}' == 'not_equal'
         Should Not Be Equal As Integers    ${rc}  ${compare_rc}   Error with command: ${cmd} \nReturn code: ${rc}, expected not to be equal with: ${compare_rc} \nError: ${err} \n
     ELSE IF    '${rc_match}' != 'skip'
-        ERROR   Wrong rc_match type: ${rc_match}
+        Fatal Error   Wrong rc_match type: ${rc_match}
     END
 
     IF  'err' in '${return}' or 'rc' in '${return}'
