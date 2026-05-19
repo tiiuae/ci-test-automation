@@ -225,10 +225,14 @@ Connect to VM
     RETURN   ${connection}
 
 Save log
-    Switch to vm  ${HOST}
-    Run Command   journalctl > jrnl.txt${\n}
-    Run Command   cat jrnl.txt${\n}
-    Close All Connections
+    [Arguments]       ${host}=${HOST}  ${since}=${EMPTY}
+    Switch to vm  ${host}
+    ${journalctl_cmd}    Set Variable    journalctl
+    IF    '${since}' != '${EMPTY}'
+        ${journalctl_cmd}    Set Variable    journalctl --since "@${since}"
+    END
+    Run Command   ${journalctl_cmd} > /tmp/jrnl.txt${\n}
+    Run Command   cat /tmp/jrnl.txt${\n}
 
 Check if ssh is ready on vm
     [Arguments]    ${vm}  ${timeout}=40
