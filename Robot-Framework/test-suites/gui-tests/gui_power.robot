@@ -48,7 +48,7 @@ Lock and Unlock from power menu
 Reboot from power menu
     [Documentation]   Reboot the device via GUI power menu reboot icon.
     ...               Check that it shuts down. Check that it turns on and boots to login screen.
-    [Tags]            SP-T75  SP-T75-4  lenovo-x1  darter-pro
+    [Tags]            SP-T75  SP-T75-4  lenovo-x1  darter-pro  lab-only
     Select power menu option   x=870   y=120   confirmation=True
     ${start_time}     Get Time    epoch
     Verify shutdown via network
@@ -106,6 +106,7 @@ Log out and log in with shortcut
     ...               Login and verify that desktop is available.
     [Tags]            SP-T186  lenovo-x1  darter-pro
     Press Key(s)                LEFTMETA+LEFTSHIFT+ESC
+    Locate on screen            text  Quit  10
     Tab and enter               tabs=1
     ${logout_status}            Check if logged out
     Should Be True              ${logout_status}    Logout failed
@@ -113,7 +114,7 @@ Log out and log in with shortcut
 
 Suspend and wake up from lock screen
     [Documentation]   Suspend the device from lock screen suspend icon and wake up.
-    [Tags]            SP-T245  lenovo-x1  darter-pro
+    [Tags]            SP-T245  lenovo-x1  darter-pro  lab-only
     Press Key(s)          LEFTMETA+ESC
     Locate on screen      image  ${LOCK_ICON}   0.95  10
     Run ydotool command   mousemove --absolute -x 320 -y 275
