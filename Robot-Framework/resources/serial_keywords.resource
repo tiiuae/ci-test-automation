@@ -134,11 +134,16 @@ Connect via serial
     RETURN    ${status}
 
 Save log
+    [Arguments]         ${since}=${EMPTY}
     ${status}            Connect via serial   timeout=60.0
     IF    ${status}==False
         Log    Failed to connect via serial, journalctl logs will be not saved.
     ELSE
-        Write Data           sh -c 'journalctl | tee jrnl.txt | cat'${\n}
+        ${journalctl_cmd}    Set Variable    journalctl
+        IF    '${since}' != '${EMPTY}'
+            ${journalctl_cmd}    Set Variable    journalctl --since "@${since}"
+        END
+        Write Data           sh -c '${journalctl_cmd} | tee /tmp/jrnl.txt | cat'${\n}
         ${output}            SerialLibrary.Read Until    ghaf@${HOST}:
         Write Advanced Testlog    journalctl.txt     ${output}
         Log  ${output}

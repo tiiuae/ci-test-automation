@@ -83,8 +83,29 @@ Turn Laptop On and Connect
 Soft Reboot Device And Connect
     [Documentation]  Reboot device from ${vm} and connect after the reboot
     [Arguments]      ${vm}=${HOST}
-    Soft Reboot Device   ${vm}
-    Connect After Reboot   soft_reboot=True
+    ${reboot_log_since}    Get Time    epoch
+    ${soft_reboot_ok}      Run Keyword And Return Status
+    ...    Run Keywords
+    ...    Soft Reboot Device   ${vm}
+    ...    AND
+    ...    Connect After Reboot   soft_reboot=True
+    IF    not ${soft_reboot_ok}
+        Collect Logs After Failed Soft Reboot    ${reboot_log_since}
+        FAIL    Soft reboot failed.
+    END
+
+Collect Logs After Failed Soft Reboot
+    [Arguments]    ${since}
+    ${device_is_up}    Run Keyword And Return Status    Ping Host    ${DEVICE_IP_ADDRESS}
+    IF    ${device_is_up}
+        ${ssh_is_ready}    Run Keyword And Return Status    ssh_keywords.Check if ssh is ready on device
+        IF    ${ssh_is_ready}
+            Run Keyword And Continue On Failure    ssh_keywords.Save log   ${HOST}    ${since}
+            Run Keyword And Continue On Failure    ssh_keywords.Save log   ${GUI_VM}  ${since}
+        ELSE
+            Run Keyword And Continue On Failure    serial_keywords.Save log    ${since}
+        END
+    END
 
 Soft Reboot Device
     [Documentation]  Reboot device from ${vm}
