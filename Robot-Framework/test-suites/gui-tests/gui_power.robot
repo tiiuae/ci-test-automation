@@ -124,12 +124,14 @@ Suspend and wake up from lock screen
 *** Keywords ***
 
 GUI Power Test Setup
+    ${gui_power_log_since}    BuiltIn.Get Time   epoch
+    Set Test Variable         ${gui_power_log_since}
     Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
     Start screen recording
 
 GUI Power Test Teardown
     IF  $TEST_STATUS == 'FAIL' and not 'took too long' in $TEST_MESSAGE
-        Run keyword and continue on failure    serial_keywords.Save log
+        Run keyword and continue on failure    serial_keywords.Save log    ${gui_power_log_since}
         Reboot Laptop
         Connect After Reboot
         IF    ${IS_AVAILABLE}

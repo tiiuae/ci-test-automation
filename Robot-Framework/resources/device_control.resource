@@ -83,8 +83,16 @@ Turn Laptop On and Connect
 Soft Reboot Device And Connect
     [Documentation]  Reboot device from ${vm} and connect after the reboot
     [Arguments]      ${vm}=${HOST}
-    Soft Reboot Device   ${vm}
-    Connect After Reboot   soft_reboot=True
+    ${reboot_log_since}    Get Time    epoch
+    ${soft_reboot_ok}      Run Keyword And Return Status
+    ...    Run Keywords
+    ...    Soft Reboot Device   ${vm}
+    ...    AND
+    ...    Connect After Reboot   soft_reboot=True
+    IF    not ${soft_reboot_ok}
+        Run Keyword And Continue On Failure    serial_keywords.Save log    ${reboot_log_since}
+        FAIL    Soft reboot failed.
+    END
 
 Soft Reboot Device
     [Documentation]  Reboot device from ${vm}
