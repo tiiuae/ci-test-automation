@@ -22,5 +22,5 @@ GUI Tests Setup
 GUI Tests Teardown
     [Timeout]    5 minutes
     # In case the screen recording was not stopped
-    Kill App By Name        gpu-screen-recorder
+    Stop screen recording service
     Clean Up Test Environment   disable_dnd=True

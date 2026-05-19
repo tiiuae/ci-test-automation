@@ -145,7 +145,7 @@ Locate on screen
         ELSE
             ${error}     Get Regexp Matches   ${result}   (?s)Error:\s*(.+)$
             ${log_msg}   Set Variable If   ${error}   ${error}[0]   ${result}
-            Log     FAIL: ${log_msg}   console=True
+            Log     Screenshot failed: ${log_msg}   console=True
             Sleep   0.5
         END
     END
@@ -326,12 +326,13 @@ Run ydotool command
     Sleep   0.2
 
 Start screen recording
-    [Setup]          Kill App By Name   gpu-screen-recorder
+    [Setup]          Stop screen recording service
     [Timeout]        1 minute
     Log To Console   Starting screen recording
     ${test_name}     Replace String   ${TEST_NAME}   ${SPACE}   _
     ${cmd}=    Catenate    SEPARATOR=${SPACE}
-    ...    systemd-run --user --collect /bin/sh -lc 'exec gpu-screen-recorder
+    ...    systemd-run --user --collect --no-block --unit=robot-screen-recording --property=PartOf=graphical-session.target --property=KillMode=control-group
+    ...    /bin/sh -lc 'WAYLAND_DISPLAY=wayland-1 exec gpu-screen-recorder
     ...    -w portal -c mkv -k h264 -ac opus -f 60 -cursor yes -restore-portal-session yes
     ...    -cr limited -encoder gpu -q very_high -a device:default_output
     ...    -o /home/${USER_LOGIN}/Videos/${test_name}.mkv
@@ -349,14 +350,22 @@ Start screen recording
         END
         Set Global Variable  ${SCREEN_SELECTED}  ${True}
     END
-    Check that the application was started   gpu-screen-recorder
+    Wait Until Keyword Succeeds    5x    1s    Run Command    ls -la /home/${USER_LOGIN}/Videos/${test_name}.mkv
     [Teardown]       Run Keyword If   '${KEYWORD_STATUS}' == 'FAIL'   Timestamp last screenshot
 
 Stop screen recording
     [Arguments]      ${test_status}   ${test_name}=""
     Log To Console   Stopping screen recording
-    Kill process by name   gpu-screen-recorder   sudo=False   require_exists=False
+    Stop screen recording service
     Save screen recording   ${test_status}   ${test_name}
+
+Stop screen recording service
+    ${service_state}    Run Command    systemctl --user is-active robot-screen-recording.service    rc_match=skip
+    IF   '${service_state}' == 'active'
+        Log           Screen recorder is running, stopping it                     console=True
+        Run Command   systemctl --user stop robot-screen-recording.service        rc_match=skip
+        Run Command   systemctl --user is-active robot-screen-recording.service   rc_match=not_equal   compare_rc=0
+    END
 
 Save screen recording
     [Arguments]    ${test_status}   ${test_name}
