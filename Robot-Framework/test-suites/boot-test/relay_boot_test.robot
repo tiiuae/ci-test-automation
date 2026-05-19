@@ -17,9 +17,10 @@ Suite Teardown      Teardown
 
 
 *** Variables ***
-${CONNECTION_TYPE}       ssh
-${IS_AVAILABLE}          False
-${DEVICE_TYPE}           ${EMPTY}
+${CONNECTION_TYPE}           ssh
+${IS_AVAILABLE}              False
+${DEVICE_TYPE}               ${EMPTY}
+${SAVE_BOOT_LOGS_ON_PASS}    ${False}
 
 
 *** Test Cases ***
@@ -28,8 +29,8 @@ Verify booting after restart by power
     [Documentation]    Restart device by power and verify init service is running
     [Tags]             relayboot  orin-agx  orin-agx-64  orin-nx
     Reboot Orin
+    Start UART Log Capture
     Check If Device Is Up   range=70
-
     IF      "${DEVICE_TYPE}" == "orin-nx" and ${IS_AVAILABLE} == False
             Log                     message=Orin-nx failed to start, rebooting via relay one more time...    level=WARN
             Reboot Orin
@@ -181,6 +182,11 @@ Test Teardown
         ELSE IF  "${CONNECTION_TYPE}" == "serial"
             Run Keyword If Test Failed    serial_keywords.Save log
         END
+    END
+    Run Keyword If Test Failed    Collect UART Failure Diagnostics
+    ${uart_capture_active}    Get Variable Value    ${UART_CAPTURE_ACTIVE}    ${False}
+    IF    ${uart_capture_active} and not ${SAVE_BOOT_LOGS_ON_PASS}
+        Run Keyword If Test Passed    OperatingSystem.Remove File    ${UART_CAPTURE_FILE}
     END
 
 Teardown
