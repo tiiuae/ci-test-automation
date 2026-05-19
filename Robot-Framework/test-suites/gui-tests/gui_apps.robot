@@ -82,15 +82,15 @@ Create and save text file from COSMIC Text Editor via GUI
     ...    AND   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 Copy and paste text between VMs
-    [Documentation]   Copy text in COSMIC Text Editor (GUI VM) and paste it into Slack (COMMS VM)
+    [Documentation]   Copy text in COSMIC Text Editor (GUI VM) and paste it into Trusted Browser (BUSINESS VM)
     [Tags]            SP-T72
     ${clipboard_text}    Set Variable  COPYPASTE
     Start app via GUI    ${GUI_VM}     cosmic-edit  display_name="COSMIC Text Editor"
     Locate on screen     image         ghaf-close.png
     Copy text to clipboard    ${clipboard_text}
-    Start app via GUI         ${COMMS_VM}    slack    display_name=Slack
-    Paste clipboard text to Slack and verify     ${clipboard_text}
-    [Teardown]    Run Keywords    Switch to vm    ${COMMS_VM}    AND    Kill App By Name    slack    sudo=True
+    Start app via GUI   ${BUSINESS_VM}  google-chrome  display_name="Trusted Browser"
+    Paste clipboard text and verify     ${clipboard_text}
+    [Teardown]    Run Keywords    Switch to vm    ${BUSINESS_VM}    AND    Kill App By Name   google-chrome   sudo=True
     ...           AND             Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
     ...           AND             Kill App By Name    cosmic-edit
     ...           AND             Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
@@ -113,9 +113,9 @@ Copy text to clipboard
     Press Key(s)         LEFTCTRL+C
     Press Key(s)         BACKSPACE
 
-Paste clipboard text to Slack and verify
+Paste clipboard text and verify
     [Arguments]    ${text}
-    Locate and click   text   your-workspace   wiggle=True
+    Locate on screen   text    Search    scale=3
     Press Key(s)       LEFTCTRL+V
     Move cursor to corner
     Verify Text Is On The Screen    ${text}
