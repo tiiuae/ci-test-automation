@@ -25,22 +25,30 @@ ${TEST_LOG}           log_check_${BUILD_ID}
 
 Logging service is running in all VMs
     [Documentation]    Check that logging service is running in every VM
-    [Tags]             SP-T333  pre-merge
+    [Tags]             SP-T333  SP-T333-1  pre-merge
     ${failed_vms}      Create List
     FOR  ${vm}  IN  @{VM_LIST}
         Switch to vm   ${vm}
         IF   '${vm}' == '${ADMIN_VM}'
-            ${status}  ${output}   Run Keyword And Ignore Error   Verify service status  range=15   service=stunnel.service  expected_state=active  expected_substate=running
+            ${service}    Set Variable    systemd-journal-remote.service
         ELSE
-            ${status}  ${output}   Run Keyword And Ignore Error   Verify service status  range=15   service=alloy.service  expected_state=active  expected_substate=running
+            ${service}    Set Variable    systemd-journal-upload.service
         END
+        ${status}  ${output}   Run Keyword And Ignore Error   Verify service status  range=5  service=${service}  expected_state=active  expected_substate=running
         Log   ${output}
         IF    '${status}' == 'FAIL'
             Log    FAIL: Logging service not running in ${vm}   console=True
             Append To List    ${failed_vms}    ${vm}
         END
     END
-    IF  ${failed_vms} != []    FAIL    VMs with alloy.service not running: ${failed_vms}
+    IF  ${failed_vms} != []    FAIL    VMs with logging service not running: ${failed_vms}
+
+Alloy and stunnel services are running in admin-vm
+    [Documentation]    Verify that admin-vm runs alloy and stunnel services required for log collection and forwarding
+    [Tags]             SP-T333  SP-T333-2  pre-merge
+    Switch to vm   ${ADMIN_VM}
+    Run Keyword And Continue On Failure   Verify service status  range=5  service=alloy.service    expected_state=active  expected_substate=running
+    Run Keyword And Continue On Failure   Verify service status  range=5  service=stunnel.service  expected_state=active  expected_substate=running
 
 Check Grafana logs
     [Documentation]  Check that all virtual machines are sending logs to Grafana
