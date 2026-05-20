@@ -26,7 +26,7 @@ Change timezone in settings
 
     [Teardown]   Run Keywords   Set timezone   ${ORIGINAL_TIMEZONE}
     ...          AND   Move cursor to corner
-    ...          AND   Kill process by name    cosmic-settings-wrapped   sudo=False
+    ...          AND   Kill process by name    cosmic-settings$   sudo=False
     ...          AND   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 *** Keywords ***
