@@ -21,18 +21,15 @@ Log retention policies
     Check journald configuration
     Check Disk Usage Under 500M
     Check Boot Entries    minimum=1
-    Run Keyword And Continue On Failure
-    ...    Verify service status   range=2   service=alloy  expected_state=active  expected_substate=running
-    Check Loki Journal Directory Activity    /var/lib/alloy/data-alloy/loki.source.journal.journal  positions.yml
 
     Switch to vm   ${ADMIN_VM}
     Check journald configuration
-    Check Loki Journal Directory Activity    /var/lib/alloy/data-alloy/loki.source.journal.journal
+    Check Journal Directory Activity    /var/log/journal/remote
 
 
 *** Keywords ***
 
-Check Loki Journal Directory Activity
+Check Journal Directory Activity
     [Documentation]     Looking for files in the given directory changed recently (period given in minutes).
     ...                 If file name is given, check it presents in the directory and also was changed in given period.
     [Arguments]         ${dir}    ${file}=None    ${period}=3
