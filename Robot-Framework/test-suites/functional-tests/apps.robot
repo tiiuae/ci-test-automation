@@ -14,7 +14,7 @@ Test Teardown       Kill App in VM   ${TEST_APP-VM}   ${TEST_PROCESS_NAME}
 
 Start App Store
     [Documentation]   Start App Store and verify process started
-    [Tags]            SP-T334
+    [Tags]            SP-T334  SP-T334-1
     Start application in VM   "App Store"   ${FLATPAK_VM}   cosmic-store
 
 Start Bluetooth Settings
@@ -24,7 +24,7 @@ Start Bluetooth Settings
 
 Start COSMIC Document Reader
     [Documentation]   Start COSMIC Document Reader and verify process started
-    [Tags]            SP-T105
+    [Tags]            SP-T105  SP-T105-1
     Start application in VM   "COSMIC Document Reader"   ${GUI_VM}   cosmic-reader
 
 Start COSMIC Files
@@ -34,22 +34,22 @@ Start COSMIC Files
 
 Start COSMIC Media Player
     [Documentation]   Start Cosmic Media Player and verify process started
-    [Tags]            SP-T294
+    [Tags]            SP-T294  SP-T294-1
     Start application in VM   "COSMIC Media Player"   ${GUI_VM}   cosmic-player
 
 Start COSMIC Settings
     [Documentation]   Start Cosmic Settings and verify process started
-    [Tags]            SP-T254  fmo
+    [Tags]            SP-T254  SP-T254-1  fmo
     Start application in VM   "COSMIC Settings"   ${GUI_VM}   cosmic-settings$
 
 Start COSMIC Terminal
     [Documentation]   Start Cosmic Terminal and verify process started
-    [Tags]            SP-T263  fmo
+    [Tags]            SP-T263  SP-T263-1  fmo
     Start application in VM   "COSMIC Terminal"   ${GUI_VM}   cosmic-term
 
 Start COSMIC Text Editor
     [Documentation]   Start Cosmic Text Editor and verify process started
-    [Tags]            SP-T243  fmo
+    [Tags]            SP-T243  SP-T243-1  fmo
     Start application in VM   "COSMIC Text Editor"   ${GUI_VM}   cosmic-edit
 
 Start Calculator
@@ -59,22 +59,22 @@ Start Calculator
 
 Start Element
     [Documentation]   Start Element and verify process started
-    [Tags]            SP-T52
+    [Tags]            SP-T52  SP-T52-1
     Start application in VM   Element   ${COMMS_VM}   element
 
 Start GPU Screen Recorder
     [Documentation]   Start GPU Screen Recorder and verify process started
-    [Tags]            SP-T293
+    [Tags]            SP-T293  SP-T293-1
     Start application in VM   "GPU Screen Recorder"   ${GUI_VM}   gpu-screen-recorder
 
 Start Gala
     [Documentation]   Start Gala and verify process started
-    [Tags]            SP-T104
+    [Tags]            SP-T104  SP-T104-1
     Start application in VM   Gala   ${BUSINESS_VM}   gala
 
 Start Getting Started
     [Documentation]   Start 'Getting Started' and verify process started
-    [Tags]            SP-T354
+    [Tags]            SP-T354  SP-T354-1
     Start application in VM   "Getting Started"  ${CHROME_VM}   ghaf-intro
 
 Start Ghaf Control Panel
@@ -84,22 +84,22 @@ Start Ghaf Control Panel
 
 Start Google Chrome
     [Documentation]   Start Google Chrome and verify process started
-    [Tags]            SP-T92
+    [Tags]            SP-T92  SP-T92-1
     Start application in VM   "Google Chrome"   ${CHROME_VM}   chrome
 
 Start Microsoft 365
     [Documentation]   Start Microsoft 365 and verify process started
-    [Tags]            SP-T178
+    [Tags]            SP-T178  SP-T178-1
     Start application in VM   "Microsoft 365"   ${BUSINESS_VM}   microsoft365
 
 Start Outlook
     [Documentation]   Start Outlook and verify process started
-    [Tags]            SP-T176
+    [Tags]            SP-T176  SP-T176-1
     Start application in VM   Outlook   ${BUSINESS_VM}   outlook
 
 Start Slack
     [Documentation]   Start Slack and verify process started
-    [Tags]            SP-T181
+    [Tags]            SP-T181  SP-T181-1
     Start application in VM   Slack   ${COMMS_VM}   slack
 
 Start Sticky Notes
@@ -109,25 +109,25 @@ Start Sticky Notes
 
 Start Teams
     [Documentation]   Start Teams and verify process started
-    [Tags]            SP-T177
+    [Tags]            SP-T177  SP-T177-1
     Start application in VM   Teams   ${BUSINESS_VM}   teams
 
 Start Trusted Browser
     [Documentation]   Start Trusted Browser and verify process started
-    [Tags]            SP-T179
+    [Tags]            SP-T179  SP-T179-1
     Start application in VM   "Trusted Browser"  ${BUSINESS_VM}   google-chrome
 
 Start Volume Control
     [Documentation]   Start Volume Control and verify process started
-    [Tags]            SP-T349
+    [Tags]            SP-T349  SP-T349-1
     Start application in VM   "Volume Control"  ${GUI_VM}   pavucontrol
 
 Start VPN
     [Documentation]   Start VPN app and verify process started
-    [Tags]            SP-T200
+    [Tags]            SP-T200  SP-T200-1
     Start application in VM   VPN  ${BUSINESS_VM}   gp-gui
 
 Start Zoom
     [Documentation]   Start Zoom and verify process started
-    [Tags]            SP-T237
+    [Tags]            SP-T237  SP-T237-1
     Start application in VM   Zoom  ${COMMS_VM}   zoom
