@@ -762,8 +762,8 @@ class PerformanceDataProcessing:
         return return_statistics
 
     @keyword("Read AppLaunch CSV and Plot")
-    def read_applaunch_csv_and_plot(self, test_name):
-        threshold = static_thresholds['app_launch_time']
+    def read_applaunch_csv_and_plot(self, test_name, threshold):
+        threshold = float(threshold)
 
         with open(f"{self.data_dir}{self.device}_{test_name}.csv", 'r') as csvfile:
             lines = csv.reader(csvfile)
@@ -805,6 +805,7 @@ class PerformanceDataProcessing:
         plt.xticks(range(len(data['commit'])), data['commit'], rotation=90, fontsize=10)
         plt.tight_layout()
         plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
+        plt.close()
 
         return False if data['launch_time'][-1] > threshold else True
 
@@ -965,9 +966,9 @@ class PerformanceDataProcessing:
         return self.read_isolation_test_csv_and_plot(test_name)
 
     @keyword
-    def save_app_launch_time_data(self, test_name, data):
+    def save_app_launch_time_data(self, test_name, data, threshold):
         self.write_test_data_to_csv(test_name, data)
-        return self.read_applaunch_csv_and_plot(test_name)
+        return self.read_applaunch_csv_and_plot(test_name, threshold)
 
     @keyword("Save VM Memory Snapshot Data")
     def save_vm_memory_snapshot_data(self, test_name, vm_mem_data):

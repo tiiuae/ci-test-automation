@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Documentation       Testing launching applications via GUI
+Documentation       Testing applications via GUI
 Test Tags           gui-apps  lenovo-x1  darter-pro
 
 Resource            ../../resources/app_keywords.resource
@@ -13,55 +13,6 @@ Test Teardown       Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 
 *** Test Cases ***
-
-Start and close Google Chrome via GUI
-    [Documentation]   Start Google Chrome via GUI and verify related process started
-    ...               Close Google Chrome via GUI and verify related process stopped
-    [Tags]            SP-T41
-    Start app via GUI   ${CHROME_VM}  chrome  display_name="Google Chrome"
-    Close app via GUI   ${CHROME_VM}  chrome  ghaf-close.png   2
-
-Start and close COSMIC Document Reader via GUI
-    [Documentation]   Start COSMIC Document Reader via GUI and verify related process started
-    ...               Close COSMIC Document Reader via GUI and verify related process stopped
-    [Tags]            SP-T70
-    Start app via GUI   ${GUI_VM}  cosmic-reader   display_name="COSMIC Document Reader"
-    Close app via GUI   ${GUI_VM}  cosmic-reader   ghaf-close.png
-
-Start and close Sticky Notes via GUI
-    [Documentation]   Start Sticky Notes via GUI and verify related process started
-    ...               Close Sticky Notes via GUI and verify related process stopped
-    [Tags]            SP-T201  SP-T201-2
-    Start app via GUI   ${GUI_VM}  sticky-wrapped  display_name="Sticky Notes"
-    Close app via GUI   ${GUI_VM}  sticky-wrapped  window-close-neg.png
-
-Start and close Calculator via GUI
-    [Documentation]   Start Calculator via GUI and verify related process started
-    ...               Close Calculator via GUI and verify related process stopped
-    [Tags]            SP-T202  SP-T202-2
-    Start app via GUI   ${GUI_VM}  gnome-calculator  display_name=Calculator
-    Close app via GUI   ${GUI_VM}  gnome-calculator  window-close-neg.png
-
-Start and close Bluetooth Settings via GUI
-    [Documentation]   Start Bluetooth Settings via GUI and verify related process started
-    ...               Close Bluetooth Settings via GUI and verify related process stopped
-    [Tags]            SP-T204  SP-T204-2
-    Start app via GUI   ${GUI_VM}  blueman-manager-wrapped-wrapped  display_name="Bluetooth Settings"
-    Close app via GUI   ${GUI_VM}  blueman-manager-wrapped-wrapped  window-close.png
-
-Start and close Ghaf Control Panel via GUI
-    [Documentation]   Start Ghaf Control Panel via GUI and verify related process started
-    ...               Close Ghaf Control Panel via GUI and verify related process stopped
-    [Tags]            SP-T205  SP-T205-2
-    Start app via GUI   ${GUI_VM}  ctrl-panel  display_name="Ghaf Control Panel"
-    Close app via GUI   ${GUI_VM}  ctrl-panel  window-close-neg.png
-    
-Start and close COSMIC Files via GUI
-    [Documentation]   Start COSMIC Files via GUI and verify related process started
-    ...               Close COSMIC Files via GUI and verify related process stopped
-    [Tags]            SP-T206  SP-T206-2
-    Start app via GUI   ${GUI_VM}  ^cosmic-files$  display_name="COSMIC Files"
-    Close app via GUI   ${GUI_VM}  ^cosmic-files$  ghaf-close.png
 
 Create and save text file from COSMIC Text Editor via GUI
     [Documentation]   Create a new document in COSMIC Text Editor, save it to Shares and verify the file was created
