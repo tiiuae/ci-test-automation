@@ -108,6 +108,19 @@ Open an app from the dock
     [Teardown]   Run Keywords   Switch to vm    ${COMMS_VM}    AND    Kill App By Name   zoom   sudo=True
     ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
+Maximize and restore window
+    [Documentation]   Open Zoom, maximize its window, verify it, then restore it and compare coordinates.
+    [Tags]            SP-T78
+    Start app via GUI   ${COMMS_VM}   zoom    display_name="Zoom"
+    ${zoom_window_coords}    ${zoom_anchor_coords}    Save Zoom window baseline coordinates
+    Locate and click maximize/restore window button
+    Verify app window is maximized
+    Locate and click maximize/restore window button
+    Verify Zoom window restored to baseline    ${zoom_window_coords}    ${zoom_anchor_coords}
+    [Teardown]   Run Keywords   Switch to vm    ${COMMS_VM}    AND    Kill App By Name   zoom   sudo=True
+    ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+
+
 *** Keywords ***
 
 Save current document from Cosmic Text Editor to Shares
@@ -191,3 +204,15 @@ Wait for Zoom icon coordinates to change and restore window
         END
     END
     FAIL    An additional minimized Zoom session icon hasn't appeared.
+
+Locate and click maximize/restore window button
+    ${mouse_x}  ${mouse_y}  Locate on screen  image  ghaf-close.png  0.99  10  timeout=120  scale=2
+    ${target_x}    Evaluate    ${mouse_x} - 20
+    Run ydotool command   mousemove --absolute -x ${target_x} -y ${mouse_y}
+    Click
+
+Verify app window is maximized
+    [Arguments]    ${tolerance}=3
+    ${window_x}   ${window_y}    Locate on screen   image   ghaf-close.png   0.99   10   timeout=120   scale=2
+    ${x_in_range}    Evaluate    abs(${window_x} - 947) <= ${tolerance}
+    ${y_in_range}    Evaluate    abs(${window_y} - 25) <= ${tolerance}
