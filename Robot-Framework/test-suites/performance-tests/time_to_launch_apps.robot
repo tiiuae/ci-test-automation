@@ -94,11 +94,10 @@ Measure time to launch COSMIC Media Player
 Measure time to launch COSMIC Settings
     [Documentation]   Start COSMIC Settings via GUI and measure time of launching
     [Tags]            SP-T285-11
-    Start app via GUI   ${GUI_VM}  cosmic-settings-wrapped  display_name="COSMIC Settings"
-    Close app via GUI   ${GUI_VM}  cosmic-settings-wrapped  ghaf-close.png
-    Save launch time    cosmic-settings-wrapped
-    [Teardown]    Run Keyword If Test Failed    Run Keywords  Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
-    ...                                                 AND   Skip  "Known Issue: SSRCSP-7518"
+    Start app via GUI   ${GUI_VM}  cosmic-settings$  display_name="COSMIC Settings"
+    Close app via GUI   ${GUI_VM}  cosmic-settings$  ghaf-close.png
+    ${status}    ${message}    Run Keyword And Ignore Error    Save launch time    cosmic-settings$
+    Run Keyword If    '${status}' == 'FAIL'    SKIP    Known Issue: SSRCSP-7518 (${message})
 
 Measure time to launch COSMIC Terminal
     [Documentation]   Start COSMIC Terminal via GUI and measure time of launching
