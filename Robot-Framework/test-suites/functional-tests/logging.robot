@@ -70,11 +70,12 @@ Check logging rate
     [Documentation]    Check that host or vms are not creating too much logs
     [Tags]             SP-T359  log_rate  pre-merge  orin-agx  orin-agx-64  orin-nx
 
-    ${check_interval}     Set Variable   100
-    ${saved_entries}      Set Variable   2000
-    ${entry_limit}        Set Variable   500
-    ${orin_entry_limit}   Set Variable   2000
-    ${bytes_per_entry}    Set Variable   200
+    ${check_interval}          Set Variable   100
+    ${saved_entries}           Set Variable   2000
+    ${entry_limit}             Set Variable   500
+    ${dell_host_entry_limit}   Set Variable   1000   # Known Issue: SSRCSP-8481
+    ${orin_entry_limit}        Set Variable   2000
+    ${bytes_per_entry}         Set Variable   200
 
     &{spam_metrics}       Create Dictionary
     &{ok_metrics}         Create Dictionary
@@ -104,6 +105,8 @@ Check logging rate
         IF  '${switch_status}' == 'PASS'
             IF  "orin" in "${DEVICE_TYPE}"
                 ${vm_entry_limit}   Set Variable   ${orin_entry_limit}
+            ELSE IF  "${DEVICE_TYPE}" == "dell-7330" and '${vm}' == '${HOST}'
+                ${vm_entry_limit}   Set Variable   ${dell_host_entry_limit}  # Known Issue: SSRCSP-8481
             ELSE
                 ${vm_entry_limit}   Set Variable   ${entry_limit}
             END

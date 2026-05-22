@@ -31,7 +31,7 @@ Verify camera block persisted
     ${cam_state}      Get device state   cam
     Should Be Equal   ${EXPECTED_CAM_STATE}  ${cam_state}
     [Teardown]   Run Keyword If Test Failed   Run Keywords   Log persistence setup errors
-    ...    AND   Run Keyword If   "${DEVICE_TYPE}" == "lenovo-x1"   SKIP   Known issue: SSRCSP-8224
+    ...    AND   Run Keyword If   "${DEVICE_TYPE}" == "lenovo-x1" or "${DEVICE_TYPE}" == "x1-sec-boot"   SKIP   Known issue: SSRCSP-8224
 
 Verify microphone block persisted
     [Tags]    SP-T305  SP-T305-2
@@ -52,6 +52,8 @@ Verify brightness persisted
     [Tags]    SP-T326  SP-T326-1
     ${brightness}     Get screen brightness
     Should Be Equal   ${EXPECTED_BRIGHTNESS}  ${brightness}
+    [Teardown]   Run Keyword If Test Failed   Run Keywords   Log persistence setup errors
+    ...                                                AND   SKIP   Known issue: SSRCSP-8482
 
 Verify volume persisted
     [Tags]    SP-T326  SP-T326-2
