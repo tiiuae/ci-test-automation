@@ -54,9 +54,9 @@ Check device on fleetdm
     Set Log Level       INFO
     Log                 ${output.stdout}
     IF  ${expected_online}
-        Should Contain      ${output.stdout}  "status": "online",
+        Should Match Regexp    ${output.stdout}    "status"\\s*:\\s*"online",
     ELSE
-        Should Contain      ${output.stdout}  "status": "offline",
+        Should Match Regexp    ${output.stdout}    "status"\\s*:\\s*"offline",
     END
     RETURN              ${output}
 
