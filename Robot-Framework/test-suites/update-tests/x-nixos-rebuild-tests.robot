@@ -196,7 +196,7 @@ Run Nixos Rebuild
         FAIL  nixos-rebuild didn't finish successfully withing the given time
     END
     Soft Reboot Device And Connect
-    Login to laptop   enable_dnd=True
+    Login to laptop
 
 Clone Ghaf Repository
     [Arguments]               ${repository_path}    ${commit}=${EMPTY}
@@ -223,13 +223,13 @@ Rebuild Teardown
         Reboot Laptop
         Close All Connections
         Connect After Reboot
-        Login to laptop   enable_dnd=True
+        Login to laptop
     END
     Switch to vm    ${HOST}
     Remove Ghaf Repository
     Roll back to original generation
     Soft Reboot Device And Connect
-    Login to laptop   enable_dnd=True
+    Login to laptop
 
 Check That Logging Is Working in VM
     [Documentation]  Check that the test log is sent to Grafana

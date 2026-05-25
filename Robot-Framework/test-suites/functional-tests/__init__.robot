@@ -7,17 +7,6 @@ Test Tags           regression
 
 Resource            ../../resources/setup_keywords.resource
 
-Suite Setup         Functional tests setup
-Suite Teardown      Functional tests teardown
+Suite Setup         Prepare Test Environment
+Suite Teardown      Clean Up Test Environment
 Test Timeout        10 minutes
-
-
-*** Keywords ***
-
-Functional tests setup
-    [Timeout]    5 minutes
-    Prepare Test Environment
-
-Functional tests teardown
-    [Timeout]    5 minutes
-    Clean Up Test Environment

@@ -150,7 +150,7 @@ Log Journal To Debug
 
 Boot Time Test Teardown
     Run Keyword If Test Failed   Failed Boot Time Test Teardown
-    Login to laptop              enable_dnd=True
+    Login to laptop
 
 Failed Boot Time Test Teardown
     Reboot Laptop

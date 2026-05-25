@@ -183,7 +183,7 @@ Procedure After Timeout
     Reboot Laptop
     ${rebooted}     Set Variable  True
     Check If Device Is Up
-    Login to laptop    enable_dnd=True
+    Login to laptop
 
 Clean Test Files
     Run Command   rm /dev/shm/test/*      sudo=True   rc_match=skip
