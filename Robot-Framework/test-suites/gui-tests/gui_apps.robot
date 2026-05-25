@@ -100,9 +100,10 @@ Open an app from the dock
     [Tags]            SP-T79
     Start app via GUI   ${COMMS_VM}   zoom    display_name="Zoom"
     ${zoom_window_coords}    ${zoom_anchor_coords}    Save Zoom window baseline coordinates
+    ${zoom_before_x}   ${zoom_before_y}    Save Zoom icon coordinates
     Locate and click minimize window button
     Verify app window is minimized
-    Locate and click   image   Zoom.png   confidence=0.90  scale=2
+    Wait for Zoom icon coordinates to change and restore window    ${zoom_before_x}    ${zoom_before_y}
     Verify Zoom window restored to baseline    ${zoom_window_coords}    ${zoom_anchor_coords}
     [Teardown]   Run Keywords   Switch to vm    ${COMMS_VM}    AND    Kill App By Name   zoom   sudo=True
     ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
@@ -174,3 +175,19 @@ Focus Zoom window
     ...                because App name is not always recognizable, when the text is grey
     Run ydotool command   mousemove --absolute -x 470 -y 100
     Wiggle cursor
+
+Save Zoom icon coordinates
+    ${zoom_x}   ${zoom_y}    Locate on screen   image   Zoom.png   0.80   10   timeout=120   scale=2
+    RETURN    ${zoom_x}    ${zoom_y}
+
+Wait for Zoom icon coordinates to change and restore window
+    [Arguments]    ${old_x}    ${old_y}
+    FOR    ${i}    IN RANGE    5
+        ${new_x}   ${new_y}    Locate on screen   image   Zoom.png   0.90   10   timeout=10   scale=2
+        ${changed}    Evaluate    abs(${new_x} - ${old_x}) > 2 or abs(${new_y} - ${old_y}) > 2
+        IF    ${changed}
+            Locate and click   image   Zoom.png   confidence=0.90  scale=2
+            RETURN
+        END
+    END
+    FAIL    An additional minimized Zoom session icon hasn't appeared.
