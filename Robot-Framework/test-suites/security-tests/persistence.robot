@@ -73,17 +73,17 @@ Persistence Suite Setup
     ${PERSISTENCE_SETUP_ERRORS}    Create List
     Set Suite Variable             ${PERSISTENCE_SETUP_ERRORS}
     Switch to vm      ${NET_VM}
-    Login to laptop   enable_dnd=True
+    Login to laptop
     Save original values
     Set values        EXPECTED
     Soft Reboot Device And Connect   vm=${GUI_VM}
-    Login to laptop   enable_dnd=True
+    Login to laptop
 
 Persistence Suite Teardown
     IF  $SUITE_STATUS=='FAIL'
         Reboot Laptop
         Connect After Reboot
-        Login to laptop   enable_dnd=True
+        Login to laptop
     END
     Set values   ORIGINAL
 

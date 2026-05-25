@@ -17,6 +17,7 @@ ${CONNECTION_TYPE}       ssh
 
 Prepare Test Environment
     [Arguments]   ${enable_dnd}=False
+    [Timeout]     5 minutes
     Check If Device Is Up    range=5
     IF    ${IS_AVAILABLE} == False
         FAIL    The device is not available via SSH or serial.
@@ -24,13 +25,15 @@ Prepare Test Environment
         FAIL    The device is available only via serial, but tests require SSH.
     END
     Close All Connections
-    Switch to vm    ${HOST}
+    Switch to vm          ${HOST}
+    ${timestamp}          Run Command    date '+%Y-%m-%d %H:%M:%S'
+    Set Suite Variable    ${SUITE_START_TIME}   ${timestamp}
 
     Log versions and device unique data
     IF  ${IS_LAPTOP}
         Verify boot from expected device
         Create test user
-        Save gui icons and icon path
+        Save login and logout icons
         Login to laptop   ${enable_dnd}
     END
 
@@ -61,22 +64,18 @@ Clean Up Test Environment
     [Arguments]   ${disable_dnd}=False
     IF    ${IS_AVAILABLE} == True and "${CONNECTION_TYPE}" == "ssh"
         # Temporarily taking journal log taking our from Orin-NX [SSRCSP-7453]
-        IF  "${DEVICE_TYPE}" != "orin-nx"
-            Switch to vm   ${HOST}
-            Save host journalctl
-        END
-        IF  ${IS_LAPTOP}
-            Log out from laptop
-        END
+        Run Keyword If   "${SUITE STATUS}" != "PASS" and "${DEVICE_TYPE}" != "orin-nx"    Save host journalctl
+        Run Keyword If   ${IS_LAPTOP}    Log out from laptop
     END
     Close All Connections
 
 Save host journalctl
-    Run Command    journalctl -b 0 > /tmp/jrnl.txt
+    [Setup]        Switch to vm   ${HOST}
+    Run Command    journalctl --since "${SUITE_START_TIME}" > /tmp/jrnl.txt
     Run Command    ls -lh /tmp/jrnl.txt
     # Copy journal log file to Robot outputs
-    SSHLibrary.Get file  /tmp/jrnl.txt   ${OUTPUT_DIR}/jrnl.txt
-    OperatingSystem.File Should Exist    ${OUTPUT_DIR}/jrnl.txt
+    SSHLibrary.Get file  /tmp/jrnl.txt   ${OUTPUT_DIR}/journal_${SUITE_NAME}.txt
+    OperatingSystem.File Should Exist    ${OUTPUT_DIR}/journal_${SUITE_NAME}.txt
 
 Log versions and device unique data
     ${ghaf_commit}      Get File Content Or Default        /persist/build_commit
@@ -133,21 +132,14 @@ Stop ydotoold
         Run Command       systemctl stop ydotoold-persistent.service    sudo=True
     END
 
-Save gui icons and icon path
-    [Documentation]         Save the icons that are used in multiple test cases
+Save login and logout icons
+    [Documentation]         Save the icons that are used in login and logout
     ...                     Save path to icons
-    Log To Console          Saving commonly used test icons
-    ${ICONS}                Run Command   find $(echo $XDG_DATA_DIRS | tr ':' ' ') -type d -name "icons" 2>/dev/null   rc_match=skip
-    Set Global Variable     ${ICONS}
-    Get icon                ${ICONS}/hicolor/scalable/apps  com.system76.CosmicAppLibrary.svg  crop=0  background=black  output_filename=launcher.png
-    Get icon                ${ICONS}/Cosmic/scalable/actions  window-close-symbolic.svg  crop=0  background=white  output_filename=window-close.png
-    Negate app icon         ${ICONS_DIR}/window-close.png  ${ICONS_DIR}/window-close-neg.png
-    Get icon                ${ICONS}/Cosmic/scalable/actions  system-search-symbolic.svg  crop=0  background=white  output_filename=search.png
-    Negate app icon         ${ICONS_DIR}/search.png  ${ICONS_DIR}/search-neg.png
-    Get icon                ${ICONS}/Papirus/24x24/actions  system-shutdown.svg  crop=0  background=black  output_filename=power.png
-    Get icon                ${ICONS}/Papirus/48x48/apps  Zoom.svg  crop=0  background=black  output_filename=Zoom.png
-    Get icon                ${ICONS}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
-    OperatingSystem.Copy File    ../test-files/ghaf-close.png    ${ICONS_DIR}/
+    [Setup]                 Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
+    Log To Console          Saving login and logout icons
+    ${icons}                Run Command   find $(echo $XDG_DATA_DIRS | tr ':' ' ') -type d -name "icons" 2>/dev/null   rc_match=skip
+    Get icon                ${icons}/hicolor/scalable/apps  com.system76.CosmicAppLibrary.svg  crop=0  background=black  output_filename=launcher.png
+    Get icon                ${icons}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
 
 Login to laptop
     [Documentation]   Log in to the laptop

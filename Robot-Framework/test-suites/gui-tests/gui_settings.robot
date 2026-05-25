@@ -33,7 +33,6 @@ Change timezone in settings
 
 Search in Cosmic Settings
     [Arguments]     ${search_term}
-    Get icon        ${ICONS}/hicolor/48x48/apps  com.system76.CosmicSettings.svg  background=black  output_filename=settings.png
     Move cursor to corner
     Locate and click  image  settings.png  0.95
     # Wait for settings to open

@@ -7,16 +7,5 @@ Test Tags           update  lenovo-x1  darter-pro  excl-storeDisk  excl-secboot
 
 Resource            ../../resources/setup_keywords.resource
 
-Suite Setup         Update tests setup
-Suite Teardown      Update tests teardown
-
-
-*** Keywords ***
-
-Update tests setup
-    [Timeout]    5 minutes
-    Prepare Test Environment
-
-Update tests teardown
-    [Timeout]    5 minutes
-    Clean Up Test Environment
+Suite Setup         Prepare Test Environment
+Suite Teardown      Clean Up Test Environment
