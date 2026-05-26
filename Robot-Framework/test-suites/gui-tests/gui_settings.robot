@@ -19,7 +19,7 @@ Change timezone in settings
     Search in Cosmic Settings   zone
     Tab and enter     tabs=5
     Tab and enter     tabs=9
-    Type string and press enter   Dubai
+    Type string       Dubai    enter_at_end=True
     Tab and enter     tabs=1
     Wait Until Keyword Succeeds  10s  1s   Verify timezone   Asia/Dubai
     Sleep   2   # Give time for the timezone change to finish
@@ -40,7 +40,7 @@ Search in Cosmic Settings
     Locate on screen  text   Network   iterations=20
     Tab and enter     tabs=1
     Tab and enter     tabs=1
-    Type string and press enter   ${search_term}
+    Type string       ${search_term}   enter_at_end=True
 
 Save original timezone
     ${timezone}           Get timezone

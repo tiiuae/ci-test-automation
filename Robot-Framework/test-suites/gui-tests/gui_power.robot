@@ -40,7 +40,7 @@ Lock and Unlock from power menu
     ...               Unlock lock screen by typing the password and check that desktop is available.
     [Tags]            SP-T75  SP-T75-1  lock  lenovo-x1  darter-pro
     Select power menu option   text=Lock
-    ${lock}           Check if locked
+    ${lock}           Check if locked   iterations=3   debug_screenshot=True
     IF  not ${lock}   FAIL    Failed to lock the screen
     Unlock
     Verify desktop availability
@@ -200,7 +200,7 @@ Confirm suspension and wake up the device
     Wait Until Keyword Succeeds   30s   2s    Check the screen state   on
 
     Log To Console      Checking if the screen is in locked state after wake up
-    ${locked}           Check if locked
+    ${locked}           Check if locked   iterations=3   debug_screenshot=True
     Should Be True      ${locked}    Screen lock not active after wake up
 
     Unlock

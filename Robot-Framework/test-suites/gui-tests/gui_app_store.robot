@@ -49,7 +49,7 @@ Install and Launch App Store app
     Open App Store
 
     # Search for app page and open it
-    Type string and press enter   ${app_name}[:-1]   enter=False  # Last letter removed to not disturb text recognition
+    Type string        ${app_name}[:-1]  # Last letter removed to not disturb text recognition
     Sleep   1
     Locate and click   text   ${app_name}   wiggle=True
     Tab and enter      tabs=1    # Close the sidebar
@@ -148,7 +148,7 @@ Save a file from Onlyoffice
     [Setup]           Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
 
     Locate and click   text   ${type}  wiggle=True
-    Type string and press enter   ${file_name}   enter=False
+    Type string        ${file_name}
 
     # Write a text to validate that document is open and can be edited
     Wait Until Keyword Succeeds   5x   1s  Search for typed text
@@ -157,7 +157,7 @@ Save a file from Onlyoffice
     Press Key(s)       LEFTCTRL+S
     Locate on screen   text   Unsafe   scale=2
     Press Key(s)       LEFTMETA+M
-    Type string and press enter   ${file_name}   enter=False
+    Type string        ${file_name}
     Locate and click   text   Unsafe   wiggle=True
     Click              double_click=True
     Press Key(s)       ENTER
@@ -169,5 +169,5 @@ Save a file from Onlyoffice
 
 Search for typed text
     [Documentation]   Write a text and search for it with text recognition
-    Type string and press enter  testText
+    Type string         testText    enter_at_end=True
     Locate on screen    text     testText   iterations=2

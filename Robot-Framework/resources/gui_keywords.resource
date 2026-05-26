@@ -86,17 +86,13 @@ Log out with loginctl
     Run Command    loginctl terminate-user ${USER_LOGIN}   sudo=True
     [Teardown]   Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
 
-Type string and press enter
-    [Arguments]    ${string}=${EMPTY}  ${enter}=True   ${sudo}=False
+Type string
+    [Arguments]    ${string}=${EMPTY}  ${enter_at_end}=False   ${sudo}=False
     Log To Console    Typing "${string}"
     IF  $string != '${EMPTY}'
         Run ydotool command   type ${string}  ${sudo}
     END
-    IF  ${enter}
-        Press Key(s)      ENTER   ${sudo}
-    ELSE
-        Log To Console    Skipping Enter
-    END
+    Run Keyword If  ${enter_at_end}    Press Key(s)   ENTER   ${sudo}
 
 Tab and enter
     [Arguments]    ${tabs}=1
@@ -136,11 +132,11 @@ Locate on screen
     ${coordinates}=        Set Variable  ${EMPTY}
     ${locate_status}=      Set Variable  FAIL
     Run Command            mkdir -p test-images
-    FOR   ${i}   IN RANGE  ${iterations}
-        Log To Console           Taking a screenshot (#${i+1})...  no_newline=True
+    Log To Console         Taking a screenshot to locate ${type} ${searched_item}   console=True   no_newline=True
+    FOR   ${i}   IN RANGE   1   ${iterations}+1
         ${screenshot_status}  ${result}     Take a screenshot
+        Log To Console        ${SPACE}${i}   no_newline=True
         IF  '${screenshot_status}' == 'PASS'
-            Log To Console       Done, locating ${type} ${searched_item} on screenshot
             SSHLibrary.Get File  ${SCREENSHOT_GHAF}  ${SCREENSHOT_LOCAL}
             IF  $type=="image"
                 ${locate_status}    ${coordinates}  Run Keyword And Ignore Error  Locate image  ${SCREENSHOT_LOCAL}  ${ICONS_DIR}/${searched_item}   ${confidence}
@@ -157,6 +153,7 @@ Locate on screen
             Sleep   0.5
         END
     END
+    Log To Console    ${EMPTY}
     IF  ${debug_screenshot} and ($locate_status != $expected_result)
         Log    Image recognition status ${locate_status} but expected_result=${expected_result}    console=True
         Timestamp last screenshot
@@ -167,8 +164,8 @@ Locate on screen
         ${mouse_y}  Get From Dictionary   ${coordinates}  y
         RETURN  ${mouse_x}  ${mouse_y}
     ELSE
-        Log    Could not find ${type}: ${searched_item}  console=True
-        FAIL   Could not find ${type}: ${searched_item}
+        Log    Could not find ${type} ${searched_item} after ${iterations} attempts   console=True
+        FAIL   Could not find ${type} ${searched_item} after ${iterations} attempts
     END
 
 Take a screenshot
@@ -244,7 +241,8 @@ Get icon
 
 Check if locked
     [Documentation]    Check if the screen lock is active
-    ${status}   ${output}      Run Keyword And Ignore Error   Locate on screen  image  ${LOCK_ICON}  0.95  1  debug_screenshot=False
+    [Arguments]        ${iterations}=1    ${debug_screenshot}=False
+    ${status}   ${output}      Run Keyword And Ignore Error   Locate on screen  image  ${LOCK_ICON}  0.95  ${iterations}  debug_screenshot=${debug_screenshot}
     IF  '${status}' == 'PASS'
         Log To Console    Screen is locked
         RETURN    ${True}
