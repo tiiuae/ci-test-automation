@@ -23,7 +23,7 @@ Create and save text file from COSMIC Text Editor via GUI
 
     Start app via GUI   ${GUI_VM}  cosmic-edit  display_name="COSMIC Text Editor"
     Locate on screen    image      ghaf-close.png
-    Type string and press enter    ${doc_text}
+    Type string         ${doc_text}   enter_at_end=True
     Save current document from Cosmic Text Editor to Shares   ${file_name}
     Check file exists   ${share_path}
     ${saved_content}    Run Command    cat ${share_path}
@@ -78,7 +78,7 @@ Save current document from Cosmic Text Editor to Shares
     [Arguments]      ${file_name}
     Press Key(s)       LEFTCTRL+LEFTSHIFT+S
     Locate on screen   text    Shares    scale=3
-    Type string and press enter   ${file_name}   enter=False
+    Type string        ${file_name}
     Locate and click   text   Shares
     Locate and click   text   comms-vm    wiggle=True   double_click=True
     Press Key(s)       ENTER

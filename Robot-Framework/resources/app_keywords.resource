@@ -124,7 +124,7 @@ Start app via GUI
     Switch to vm                   ${GUI_VM}  user=${USER_LOGIN}
 
     Open app menu
-    Type string and press enter  ${display_name}
+    Type string     ${display_name}  enter_at_end=True
     Save time       ${process_name}_start
 
     Switch to vm    ${app-vm}

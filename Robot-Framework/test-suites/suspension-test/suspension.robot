@@ -64,7 +64,7 @@ Automatic suspension
     Wait Until Keyword Succeeds   30s   2s    Check the screen state   on
 
     Log To Console           Checking if the screen is in locked state after wake up
-    ${locked}                Check if locked
+    ${locked}                Check if locked   iterations=3   debug_screenshot=True
     Should Be True           ${locked}    Screen lock not active after wake up
 
     # Power level comparison in the same login gui state as in the beginning
