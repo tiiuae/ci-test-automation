@@ -119,6 +119,7 @@ Check If Device Is Up
     [Arguments]    ${range}=50    ${timeout}=500
     ${start_time}=    Get Time	epoch
     ${ping}    Set Variable    ${False}
+    Set Global Variable        ${IS_AVAILABLE}       False
     FOR    ${i}    IN RANGE    ${range}
         ${elapsed}    Evaluate    int(time.time()) - int(${start_time})
         IF    ${elapsed} >= ${timeout}

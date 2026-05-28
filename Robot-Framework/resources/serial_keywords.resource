@@ -427,18 +427,18 @@ Collect Failure Diagnostics Via Serial
 Run Diagnostic Commands Via Serial
     [Documentation]    Run each diagnostic command, store its output on the host, and copy it to the local output directory.
     [Arguments]    ${vm}    @{commands}
-    Log    Collecting diagnostics from ${vm}    console=True
+    Log               Collecting diagnostics from ${vm}    console=True
+    ${output_file}    Set Variable    ${BOOT_DIAGNOSTICS_DIR}/${vm}-diagnostics.txt
+    OperatingSystem.Create File       ${output_file}
     FOR    ${command}    IN    @{commands}
         ${output_name}    Replace String    ${command}    ${SPACE}    _
         IF  $vm != '${HOST}'
-            ${dmesg_output}    Run Command on VM Via Serial    ${vm}    sh -c '${command}'    pre_flush=${True}    logging=${False}
-            OperatingSystem.Create File        ${BOOT_DIAGNOSTICS_DIR}/${vm}_${output_name}.txt    ${dmesg_output}
-            Log    Saved "${command}" output from ${vm} to ${BOOT_DIAGNOSTICS_DIR}/${vm}_${output_name}.txt    console=True
+            ${cmd_output}    Run Command on VM Via Serial    ${vm}    sh -c '${command}'    pre_flush=${True}    logging=${False}
         ELSE
-            ${dmesg_output}    Run Command On Serial    sh -c '${command}'    pre_flush=${True}
-            OperatingSystem.Create File        ${BOOT_DIAGNOSTICS_DIR}/${HOST}_${output_name}.txt    ${dmesg_output}
-            Log    Saved "${command}" output from ${HOST} to ${BOOT_DIAGNOSTICS_DIR}/${HOST}_${output_name}.txt    console=True
+            ${cmd_output}    Run Command On Serial    sh -c '${command}'    pre_flush=${True}
         END
+        OperatingSystem.Append To File     ${output_file}    ${command}\n$${cmd_output}\n\n
+        Log    Saved "${command}" output from ${vm} to ${output_file}    console=True
     END
 
 Save Serial File Output To File
