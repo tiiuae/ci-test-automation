@@ -3,12 +3,13 @@
 
 *** Settings ***
 Documentation       Functional tests
+Resource            ../../resources/teardown_keywords.resource
 Test Tags           regression
 
 Resource            ../../resources/setup_keywords.resource
 
 Suite Setup         Functional tests setup
-Suite Teardown      Functional tests teardown
+Suite Teardown      Run Teardown Safely    Functional tests teardown
 Test Timeout        10 minutes
 
 
@@ -21,3 +22,4 @@ Functional tests setup
 Functional tests teardown
     [Timeout]    5 minutes
     Clean Up Test Environment
+    FAIL
