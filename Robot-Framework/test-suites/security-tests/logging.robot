@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Check security in logs
-Test Tags           logging  lenovo-x1  darter-pro  lab-only
+Test Tags           logging  lenovo-x1  darter-pro
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
 Resource            ../../resources/common_keywords.resource
@@ -12,16 +12,18 @@ Resource            ../../resources/setup_keywords.resource
 Library             DateTime
 Library             String
 
-Suite Setup         Setup logs
-Suite Teardown      Remove Wifi configuration  ${TEST_WIFI_SSID}
+Suite Setup         Logging Setup
 
 
 *** Test Cases ***
 
 Wifi password is not revealed in Grafana
     [Documentation]  Check that logs in Grafana don't contain wifi password
-    [Tags]           SP-T328  SP-T328-1
+    [Tags]           SP-T328  SP-T328-1  lab-only
+    Configure wifi   ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
+    Sleep   3        # Time for needed data to be logged
     Is password revealed in Grafana    ${TEST_WIFI_SSID}    ${TEST_WIFI_PSWD}
+    [Teardown]       Remove Wifi configuration  ${TEST_WIFI_SSID}
 
 User password is not revealed in Grafana
     [Documentation]  Check that logs in Grafana don't contain user's password
@@ -30,7 +32,7 @@ User password is not revealed in Grafana
 
 Check Grafana log forwarding after disconnected state
     [Documentation]  Check that logs are sent to Grafana from time of disconnection during previous boot
-    [Tags]           SP-T283
+    [Tags]           SP-T283  lab-only
     Switch to vm      ${ADMIN_VM}
     ${id}             Get Actual Device ID
     Log To Console    Creating log entry and verifying forwarding to grafana
@@ -40,10 +42,10 @@ Check Grafana log forwarding after disconnected state
 
     Log To Console    Blocking log forwarding from admin-vm
     ${rule}           Set Variable   OUTPUT -p tcp --dport 443 -m owner --uid-owner "$(systemctl show alloy -p UID --value)" -j REJECT
-    Run Command   iptables -I ${rule}    sudo=True
+    Run Command       iptables -I ${rule}    sudo=True
     Sleep             3
     Log To Console    Creating log entry and waiting 50 sec      no_newline=true
-    Run Command   logger --priority=user.info "logtest1_${BUILD_ID}"    sudo=True
+    Run Command       logger --priority=user.info "logtest1_${BUILD_ID}"    sudo=True
     FOR   ${i}   IN RANGE   50
         Log To Console   .  no_newline=true
         Sleep            1
@@ -58,9 +60,7 @@ Check Grafana log forwarding after disconnected state
 
 *** Keywords ***
 
-Setup logs
-    Configure wifi      ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
-    Sleep   3           # Time for needed data to be logged
+Logging Setup
     Switch to vm        ${HOST}
     ${device_id}        Get Actual Device ID
     Set Suite Variable  ${device_id}
