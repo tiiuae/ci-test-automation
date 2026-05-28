@@ -28,7 +28,7 @@ ${PLOT_DIR}               ./
 ${REL_PLOT_DIR}           ./
 ${FLASHED}                false
 ${UART_CAPTURE_ACTIVE}    ${False}
-${BOOT_DIAGNOSTICS_DIR}   ./    # Later ./boot_diagnostics when move of the dir implemented in ghaf-infra
+${BOOT_DIAGNOSTICS_DIR}   ./boot_diagnostics
 
 
 *** Keywords ***

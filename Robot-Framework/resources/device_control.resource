@@ -68,7 +68,7 @@ Turn Laptop On
     END
 
 Turn Laptop On and Connect
-    Log To Console    ${\n}Booting the device by pressing the power button
+    Log To Console     ${\n}Booting the device by pressing the power button
     Turn Laptop On
     Check If Device Is Up
     IF    ${IS_AVAILABLE} == False
