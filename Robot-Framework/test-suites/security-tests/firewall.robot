@@ -12,7 +12,6 @@ Resource            ../../resources/security_blacklist_keywords.resource
 Library             OperatingSystem
 
 Suite Setup         Suite Setup
-Suite Teardown      Blacklist Teardown
 
 *** Variables ***
 ${port}             5432

@@ -12,9 +12,9 @@ class KMTronicLibrary:
 
     def __init__(self, port):
         """Initialize the serial connection"""
-        if port == 'NONE':
+        if not port or port == 'NONE':
             self.ser = None
-            print("No serial connection initialized (port set to 'NONE').")
+            print("No serial connection initialized (relay serial port is empty or set to 'NONE').")
         else:
             self.ser = serial.Serial(
                 port=port,  # Port to which the device is connected
