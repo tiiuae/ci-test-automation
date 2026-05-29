@@ -67,7 +67,7 @@ Reboot from power menu
     ${reboot_limit}   Set Variable If    "${DEVICE_TYPE}" == "darter-pro"    100    90
     Log               Reboot took ${elapsed} seconds   console=True
     IF   ${elapsed} > ${reboot_limit}
-        IF  "system76-darp11-b-storeDisk" in "${JOB}"
+        IF  "storeDisk" in "${JOB}" and "${DEVICE_TYPE}" == "darter-pro"
             SKIP   Known issue: SSRCSP-8412 (Reboot took too long: ${elapsed} seconds (expected < ${reboot_limit}))
         ELSE
             FAIL   Reboot took too long: ${elapsed} seconds (expected < ${reboot_limit})
@@ -93,7 +93,7 @@ Shutdown from power menu
     Turn Laptop On and Connect
     Login to laptop   enable_dnd=True
     IF   ${elapsed} > 20
-        IF  "system76-darp11-b-storeDisk" in "${JOB}"
+        IF  "storeDisk" in "${JOB}" and "${DEVICE_TYPE}" == "darter-pro"
             SKIP   Known issue: SSRCSP-8412 (Shutdown took too long: ${elapsed} seconds (expected < 20))
         ELSE
             FAIL   Shutdown took too long: ${elapsed} seconds (expected < 20)
