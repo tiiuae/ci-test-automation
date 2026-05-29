@@ -12,6 +12,7 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/service_keywords.resource
 
 Suite Setup         Switch to vm   ${NET_VM}
+Suite Teardown      Ensure Robot sudoers is installed in all VMs   skip_boot_check=True
 
 
 *** Test Cases ***
@@ -37,7 +38,8 @@ Stopping one VM does not affect another
     ${state}  ${substate}   Verify service status  service=microvm@${another_vm}.service  expected_state=active  expected_substate=running
     Switch to vm   ${another_vm}
     Check that the application was started    ${process_name}
-    [Teardown]    Run Keywords   Start VM   ${one_vm}   AND   Kill App in VM   ${another_vm}   ${process_name}   PASS
+    [Teardown]    Run Keywords   Restart VM   ${one_vm}   start_only=True   restore_sudoers=False
+    ...                    AND   Kill App in VM   ${another_vm}   ${process_name}   PASS
 
 Stop VM
     [Documentation]         Try to stop VM and verify it stopped
@@ -48,13 +50,3 @@ Stop VM
     Sleep    3
     ${state}  ${substate}   Verify service status  service=microvm@${vm}.service  expected_state=inactive  expected_substate=dead
     Log                     ${vm} is ${substate}    console=True
-
-Start VM
-    [Documentation]         Try to start VM and verify it started
-    [Arguments]             ${vm}
-    Switch to vm            ${HOST}
-    Log                     Going to start ${vm}    console=True
-    Run Command             systemctl start microvm@${vm}.service  sudo=True  timeout=120
-    ${state}  ${substate}   Verify service status  service=microvm@${vm}.service  expected_state=active  expected_substate=running
-    Log                     ${vm} is ${substate}    console=True
-

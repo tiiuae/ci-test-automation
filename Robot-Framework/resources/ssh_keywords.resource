@@ -252,10 +252,10 @@ Check if ssh is ready on vm
     ${start_time}                   Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
         ${status}  ${out}   Run Keyword And Ignore Error   Run Command    timeout 4 nc -zvw3 ${vm} 22  timeout=5
-        Sleep        ${PING_SPACING}
         IF   '${status}' == 'PASS'
             BREAK
         END
+        Sleep        ${PING_SPACING}
         ${diff}=    Evaluate    int(time.time()) - int(${start_time})
         IF   ${diff} > ${timeout}
             BREAK

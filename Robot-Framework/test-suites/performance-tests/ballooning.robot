@@ -28,6 +28,8 @@ ${rebooted}               False
 # Tags removed:  lenovo-x1  darter-pro
 # Ballooning feature was turned off in ghaf by PR#1770
 
+# NOTE: "Run Command  -b <command>" does not work anymore. If this test is taken back to use that has to be fixed.
+
 Test ballooning in chrome-vm
     [Tags]                  SP-T255  ballooning_chrome_vm
     Test ballooning in VM   vm=chrome-vm   mem_quota=6144   max_inflate_ratio=3

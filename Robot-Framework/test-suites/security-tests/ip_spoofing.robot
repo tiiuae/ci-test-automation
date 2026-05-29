@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
+Resource            ../../resources/service_keywords.resource
+Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Test Tags           ip-spoofing
 Test Timeout        3 minutes
@@ -43,7 +45,8 @@ Test IP spoofing
         Sleep       5
     END
     Check the result files
-    [Teardown]                      Spoofing Test Teardown
+    # Switching of IP address can make stealer VM inaccessible for further tests. Restart the stealer vm.
+    [Teardown]   Restart VM   ${stealer_vm}
 
 Prepare netcat server script
     Switch to vm                      ${server_vm}
@@ -73,7 +76,7 @@ Prepare netcat stealer script
 Launch netcat test script
     [Arguments]                       ${vm}  ${script_name}
     Switch to vm                      ${vm}
-    Run Keyword And Ignore Error      Run Command  -b ${file_path}/${script_name} ${file_path}  sudo=True  timeout=2
+    Run Keyword And Ignore Error      Run Command  sh -c "nohup ${file_path}/${script_name} ${file_path} >/tmp/${script_name}.out 2>&1 < /dev/null &"  sudo=True  timeout=2
 
 Check the result files
     Switch to vm                      ${GUI_VM}
@@ -104,11 +107,3 @@ Get Virtual Network Interface IP
         Sleep    1
     END
     FAIL    IP address not found.
-
-
-Spoofing Test Teardown
-    [Documentation]   Switching of IP address can make stealer VM inaccessible for further tests.
-    ...               Restart the stealer vm.
-    Switch to vm      ${HOST}
-    Run Command       systemctl restart microvm@${stealer_vm}.service  sudo=True
-    Close All Connections

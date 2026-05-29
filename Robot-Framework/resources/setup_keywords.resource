@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
+Library             SSHLibrary
 Resource            ../config/variables.robot
 Resource            ../resources/gui_keywords.resource
 Resource            ../resources/ssh_keywords.resource
@@ -10,7 +11,8 @@ Resource            ../resources/file_keywords.resource
 
 
 *** Variables ***
-${CONNECTION_TYPE}       ssh
+${CONNECTION_TYPE}           ssh
+${ROBOT_SUDOERS_BOOT_ID}     ${EMPTY}
 
 
 *** Keywords ***
@@ -38,6 +40,7 @@ Prepare Test Environment
     END
 
 Verify boot from expected device
+    [Setup]   Switch to vm    ${HOST}
     IF  '${JOB}' == '${DEVICE_TYPE}'
         # Avoid blocking custom local test runs
         RETURN
@@ -78,6 +81,7 @@ Save host journalctl
     OperatingSystem.File Should Exist    ${OUTPUT_DIR}/journal_${SUITE_NAME}.txt
 
 Log versions and device unique data
+    [Setup]             Switch to vm    ${HOST}
     ${ghaf_commit}      Get File Content Or Default        /persist/build_commit
     ${build_job}        Get File Content Or Default        /persist/job
 
@@ -144,7 +148,7 @@ Save login and logout icons
 Login to laptop
     [Documentation]   Log in to the laptop
     [Arguments]       ${enable_dnd}=False
-    Check if ssh is ready on vm   ${GUI_VM}    timeout=60
+    Ensure Robot sudoers is installed in all VMs
     Start ydotoold
     Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
     Log in, unlock and verify   ${enable_dnd}
@@ -163,3 +167,44 @@ Is first graphical login
     ${lines}    Count lines    ${result}
     IF  ${lines} <= 1   RETURN   True
     RETURN      False
+
+Ensure Robot sudoers is installed in all VMs
+    [Arguments]     ${skip_boot_check}=False
+    Switch to vm    ${HOST}
+    ${current_boot_id}    Run Command    cat /proc/sys/kernel/random/boot_id
+    IF    '${ROBOT_SUDOERS_BOOT_ID}' == '${current_boot_id}' and not ${skip_boot_check}
+        Log    Robot sudoers already installed in this boot, skipping    console=True
+        RETURN
+    END
+
+    @{vm_list_with_host}    Get VM list    with_host=True
+    ${robot_sudoers_install_script_remote}   Set Variable   /tmp/install_robot_sudoers.sh
+    ${skipped_vms}    Create List
+
+    # Start an installation in all reachable VMs and on host.
+    FOR    ${vm}    IN    @{vm_list_with_host}
+        TRY
+            Switch to vm    ${vm}
+        EXCEPT    AS    ${switch_error}
+            Log               Skipping sudoers install in ${vm}: ${switch_error}   console=True
+            Append To List    ${skipped_vms}    ${vm}
+            CONTINUE
+        END
+        Log            Starting sudoers install in ${vm}    console=True
+        Put File       ../test-files/install_robot_sudoers.sh    ${robot_sudoers_install_script_remote}
+        Run Command    chmod 755 ${robot_sudoers_install_script_remote}
+        Start Command  ${robot_sudoers_install_script_remote}    sudo=True    sudo_password=${PASSWORD}
+    END
+    IF    $skipped_vms    Run Command  logger --priority=user.info "ROBOT_LOG: Sudoers not installed to ${skipped_vms} on ${DEVICE_TYPE}, job ${JOB}"
+    # Check that installation has finished everywhere
+    FOR    ${vm}    IN    @{vm_list_with_host}
+        IF    $vm in $skipped_vms
+            Log          Skipping sudoers install verification in ${vm} because install was skipped   console=True
+            CONTINUE
+        END
+        Switch to vm    ${vm}
+        ${install_out}    Read Command Output
+        Should Contain    ${install_out}    __ROBOT_SUDOERS_INSTALL_DONE__    Sudoers install failed in ${vm}, output: ${install_out}
+        Log               Sudoers install completed in ${vm}    console=True
+    END
+    Set Global Variable    ${ROBOT_SUDOERS_BOOT_ID}    ${current_boot_id}
