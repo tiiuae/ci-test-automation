@@ -85,7 +85,7 @@ Interfaces Should Be In Same Network
     Should Be Equal    ${ip1_net}    ${ip2_net}
 
 Check net-vm hostname failure
-    IF    "system76-darp11-b-storeDisk-debug-installer" in "${JOB}"
+    IF    "storeDisk-debug-installer" in "${JOB}" and "${DEVICE_TYPE}" == "darter-pro"
         &{ids}    Create Dictionary
         ...    DarterPRO-prod=ghaf-3225688438
         ...    DarterPRO-rel=ghaf-2302431837

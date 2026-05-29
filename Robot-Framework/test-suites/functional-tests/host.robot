@@ -163,7 +163,7 @@ Check Persistent Storage Size
 
 Check device id failure
     [Arguments]    ${actual_device_id}
-    IF    "system76-darp11-b-storeDisk-debug-installer" in "${JOB}"
+    IF    "storeDisk-debug-installer" in "${JOB}" and "${DEVICE_TYPE}" == "darter-pro"
         &{ids}    Create Dictionary
         ...    DarterPRO-prod=00-c0-44-19-76
         ...    DarterPRO-rel=00-89-3c-52-5d
