@@ -146,11 +146,12 @@ Validate Forward Secure Sealing
             ${msg}              Catenate   SEPARATOR=\n   Fss test failed in ${vm}:
             ...    @{failed_tests}
             Run Keyword And Continue On Failure   FAIL   ${msg}
+            Run Keyword And Continue On Failure   Run Command   fss-triage   sudo=True
         END
     END
     ${failed_vm_msg}   Catenate   SEPARATOR=,    @{failed_vms}
     [Teardown]  Run Keyword If Test Failed   Run Keywords    Log Error    FSS test failed    FSS test failed in VMs: ${failed_vm_msg}
-    ...                                               AND    SKIP   Known issue: SSRCSP-8425
+    ...                                               AND    SKIP   Known issue: SSRCSP-8820
 
 Check Grafana logs
     [Documentation]  Check that all virtual machines are sending logs to Grafana

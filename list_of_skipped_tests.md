@@ -12,7 +12,7 @@
 | 17.07.2026 | Shutdown from power menu (Lenovo X1)                       | SSRCSP-8714                                                             | Slow shutdown      |
 | 06.07.2026 | Open video with COSMIC Media Player                        | SSRCSP-8367                                                             | Crash in media-vm  |
 | 01.07.2026 | Account lockout after failed GUI login                     | Test under development                                                  | Account lockout    |
-| 13.05.2026 | Validate Forward Secure Sealing                            | SSRCSP-8425                                                             | FSS test failed    |
+| 13.05.2026 | Validate Forward Secure Sealing                            | SSRCSP-8820                                                             | FSS test failed    |
 | 30.04.2026 | Open PDF from VM                                           | SSRCSP-8367                                                             | Crash in media-vm  |
 | 17.03.2026 | OP-TEE xtest 1006, OP-TEE xtest 1024 (Orins)               | SSRCSP-8198                                                             | (Fails every time) |
 | 11.02.2026 | Check device id (storeDisk)                                | SSRCSP-7997                                                             | (Fails every time) |
