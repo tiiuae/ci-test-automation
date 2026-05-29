@@ -9,8 +9,10 @@ Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/service_keywords.resource
+Resource            ../../resources/setup_keywords.resource
 
 Suite Setup         Suite Setup
+Suite Teardown      Ensure Robot sudoers is installed in all VMs   skip_boot_check=True
 
 
 *** Test Cases ***
@@ -39,19 +41,9 @@ ${vm} is wiped after restarting
     Create file         /etc/test.txt    sudo=True
     Close Connection
     Switch to vm        ${HOST}
-    Restart VM          ${vm}
+    Restart VM          ${vm}   restore_sudoers=False
     Check Network Availability      ${vm}    expected_result=True    range=15
     Switch to vm        ${vm}
     Log To Console      Check if created file still exists
     Check file doesn't exist    /etc/test.txt    sudo=True
-    [Teardown]  Run Keyword If  "${KEYWORD STATUS}" == 'FAIL'   Start VM   ${vm}
-
-Start VM
-    [Documentation]         Try to start VM and verify it started
-    [Arguments]             ${vm}
-    Switch to vm            ${HOST}
-    Log                     Going to start ${vm}    console=True
-    Run Command             systemctl start microvm@${vm}.service  sudo=True  timeout=120
-    ${state}  ${substate}   Verify service status  service=microvm@${vm}.service  expected_state=active  expected_substate=running
-    Log                     ${vm} is ${substate}    console=True
-    Check if ssh is ready on vm   ${vm}
+    [Teardown]  Run Keyword If  "${KEYWORD STATUS}" == 'FAIL'   Restart VM   ${vm}   start_only=True   restore_sudoers=False

@@ -164,14 +164,18 @@ Get device state
     RETURN          ${state}
 
 Restart VM
-    [Documentation]         Try to restart VM service and verify it started
-    [Arguments]             ${vm}
+    [Documentation]         Start or restart a VM service and verify it is running.
+    ...                     Reinstall Robot sudoers after the VM is back by default.
+    ...                     Pass `${restore_sudoers}=False` only if you will re-enable sudoers yourself afterward.
+    [Arguments]             ${vm}    ${start_only}=False    ${restore_sudoers}=True
     [Setup]                 Switch to vm   ${HOST}
     Log                     Going to start ${vm}    console=True
-    Run Command             systemctl restart microvm@${vm}.service  sudo=True  timeout=120
+    ${start_commnad}        Set Variable If   ${start_only}   start   restart
+    Run Command             systemctl ${start_commnad} microvm@${vm}.service  sudo=True  timeout=120
     ${state}  ${substate}   Verify service status  service=microvm@${vm}.service  expected_state=active  expected_substate=running
     Log                     ${vm} is ${substate}    console=True
     Check if ssh is ready on vm   ${vm}
+    [Teardown]   Run Keyword If   ${restore_sudoers}   Ensure Robot sudoers is installed in all VMs    skip_boot_check=True
 
 Check VM Log on Grafana
     [Documentation]  Check that specific log entry (log line contains) from a VM is available in Grafana

@@ -94,6 +94,7 @@ Wait until flatpak app is installed
             RETURN
         END
         Log To Console   ${i}.  no_newline=true
+        Sleep   3
     END
     FAIL    App ${app_name} is not installed via flatpak.
     [Teardown]   Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
