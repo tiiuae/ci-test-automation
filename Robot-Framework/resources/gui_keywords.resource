@@ -82,8 +82,11 @@ Log out with loginctl
         Log To Console    Log out disabled. Skipping log out procedure.
         RETURN
     END
-    Switch to vm   ${GUI_VM}
-    Run Command    loginctl terminate-user ${USER_LOGIN}   sudo=True
+    Switch to vm          ${GUI_VM}
+    ${session_id}         Run Command      loginctl list-sessions --no-legend | grep seat0 | awk '{print $1}'
+    Run Command           loginctl         # For debugging
+    Should Not Be Empty   ${session_id}    No active session found for ${USER_LOGIN}
+    Run Command           loginctl terminate-session ${session_id}   sudo=True
     [Teardown]   Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
 
 Type string

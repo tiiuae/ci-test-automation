@@ -116,9 +116,7 @@ Kill App By Name
 
 Start app via GUI
     [Documentation]    Start Application via GUI and verify related process started
-    [Arguments]        ${app-vm}
-    ...                ${process_name}
-    ...                ${display_name}=""
+    [Arguments]        ${app-vm}   ${process_name}   ${display_name}
     Check that appVM is running   ${app-vm}
     Check that the application is not running   ${process_name}  1
     Switch to vm                   ${GUI_VM}  user=${USER_LOGIN}
@@ -148,34 +146,17 @@ Open app menu
 
 Close app via GUI
     [Documentation]    Close Application via GUI and verify related process stopped
-    [Arguments]        ${app-vm}
-    ...                ${process_name}
-    ...                ${close_button}=window-close.png
-    ...                ${windows_to_close}=1
-    ...                ${verify_is_killed}=true
+    [Arguments]        ${app-vm}   ${process_name}   ${close_button}   ${verify_is_killed}=True
     Switch to vm       ${app-vm}
     Check that the application was started    ${process_name}
     Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
     Log To Console     Clicking the close button of the application window
     Locate and click   image  ${close_button}  0.9  iterations=25  wiggle=True
     Save Time          ${process_name}_launched    ${LAST_SCREENSHOT_TIME}
-    IF  $verify_is_killed=='true'
+    IF  ${verify_is_killed}
         Switch to vm       ${app-vm}
         ${status}          Run Keyword And Return Status  Check that the application is not running  ${process_name}  5
-        IF  "${windows_to_close}" != "1"
-            # At first launch chrome opens window for selecting account.
-            # If this window is closed the actual browser window still opens.
-            # So need to prepare to close another window in chrome test case.
-            IF  '${status}' != 'True'
-                Switch to vm        ${GUI_VM}  user=${USER_LOGIN}
-                Locate and click    image  ${close_button}  0.9  iterations=10  wiggle=True
-                Switch to vm        ${app-vm}
-                ${status}           Run Keyword And Return Status  Check that the application is not running  ${process_name}  5
-            END
-        END
-        IF  '${status}' != 'True'
-            FAIL  Failed to close the application
-        END
+        Should Be True     ${status}   Failed to close the application
     END
     # In case closing the app via GUI failed
     [Teardown]     Run Keywords   Switch to vm   ${app-vm}   AND   Kill App By Name   ${process_name}  sudo=True
