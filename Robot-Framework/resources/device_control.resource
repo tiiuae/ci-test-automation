@@ -118,18 +118,7 @@ Soft Reboot Device
     ELSE
         FAIL    Device expected to be available but not responding.
     END
-    ${shutdown_ok}    Run Keyword And Return Status    Verify shutdown via network
-    IF    not ${shutdown_ok}
-        IF    "${vm}" == "${GUI_VM}"
-            Log To Console    GUI-VM reboot did not shut down the full device. Retrying reboot from host.
-            Switch to vm   ${HOST}
-            Run Command  reboot  sudo=True   rc_match=skip
-            Log To Console  Rebooting device from host as fallback
-            Verify shutdown via network
-        ELSE
-            FAIL    Device still responds after reboot initiated from ${vm}.
-        END
-    END
+    Verify shutdown via network
     Close All Connections
 
 Connect After Reboot

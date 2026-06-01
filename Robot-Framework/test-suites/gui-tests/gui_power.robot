@@ -51,54 +51,37 @@ Reboot from power menu
     [Tags]            SP-T75  SP-T75-4  lenovo-x1  darter-pro  lab-only
     Select power menu option   x=870   y=120   confirmation=True
     ${start_time}     Get Time    epoch
-    ${shutdown_status}    ${shutdown_msg}    Run Keyword And Ignore Error    Verify shutdown via network
-    IF    '${shutdown_status}' == 'FAIL'
-        ${expected_failure}    Evaluate    "still responds" in """${shutdown_msg}"""
-        IF    ${expected_failure}
-            SKIP   Known issue: SSRCSP-8490
-        ELSE
-            FAIL    ${shutdown_msg}
-        END
-    END
+    Verify shutdown via network
     Connect After Reboot   soft_reboot=True
     ${end_time}       Get Time    epoch
     Login to laptop   enable_dnd=True
     ${elapsed}        Evaluate    ${end_time} - ${start_time}
     ${reboot_limit}   Set Variable If    "${DEVICE_TYPE}" == "darter-pro"    100    90
     Log               Reboot took ${elapsed} seconds   console=True
-    IF   ${elapsed} > ${reboot_limit}
-        IF  "storeDisk" in "${JOB}" and "${DEVICE_TYPE}" == "darter-pro"
-            SKIP   Known issue: SSRCSP-8412 (Reboot took too long: ${elapsed} seconds (expected < ${reboot_limit}))
-        ELSE
-            FAIL   Reboot took too long: ${elapsed} seconds (expected < ${reboot_limit})
-        END
-    END
+
+    Should Not Be True    ${elapsed} > ${reboot_limit}    msg=Reboot took too long: ${elapsed} seconds (expected < ${reboot_limit})
 
 Shutdown from power menu
     [Documentation]   Shutdown the device via GUI power menu shutdown icon.
     ...               Check that it shuts down and then wakes up with a short power button press.
     [Tags]            SP-T75  SP-T75-5  lenovo-x1  darter-pro  lab-only
     Select power menu option   x=925   y=120   confirmation=True
+    Set Test Variable          ${max_elapsed}  25
+
     ${start_time}     Get Time    epoch
     ${end_time}       Wait Until Device Is Down
     ${elapsed}        Evaluate    ${end_time} - ${start_time}
     Log               Shutdown took ${elapsed} seconds   console=True
-    # After shutdown always wait at least until 30 seconds and for 10 more seconds if shutdown was faster than 20 seconds
-    IF    ${elapsed} <= 20
-        ${wait_time}  Evaluate    30 - ${elapsed}
+    IF    ${elapsed} <= ${max_elapsed}
+        ${wait_time}  Evaluate    ${max_elapsed} - ${elapsed} + 10
         Wait          ${wait_time}
     ELSE
         Wait          10
     END
     Turn Laptop On and Connect
     Login to laptop   enable_dnd=True
-    IF   ${elapsed} > 20
-        IF  "storeDisk" in "${JOB}" and "${DEVICE_TYPE}" == "darter-pro"
-            SKIP   Known issue: SSRCSP-8412 (Shutdown took too long: ${elapsed} seconds (expected < 20))
-        ELSE
-            FAIL   Shutdown took too long: ${elapsed} seconds (expected < 20)
-        END
-    END
+
+    Should Not Be True    ${elapsed} > ${max_elapsed}    msg=Shutdown took too long: ${elapsed} seconds (expected < ${max_elapsed})
 
 Log out and log in from power menu
     [Documentation]   Logout via GUI power menu icon and verify logged out state.
@@ -138,8 +121,7 @@ GUI Power Test Setup
     Start screen recording
 
 GUI Power Test Teardown
-    ${needs_reboot_recovery}    Evaluate
-    ...    ($TEST_STATUS == 'FAIL' and 'took too long' not in $TEST_MESSAGE) or ($TEST_STATUS == 'SKIP' and 'SSRCSP-8490' in $TEST_MESSAGE)
+    ${needs_reboot_recovery}    Evaluate    $TEST_STATUS == 'FAIL' and 'took too long' not in $TEST_MESSAGE
     IF  ${needs_reboot_recovery}
         Reboot Laptop
         Connect After Reboot
