@@ -137,7 +137,7 @@ Kill app and Uninstall in App Store
     ${flatpak_app_id}   Get flatpak app id   ${app_name}
     Should Be Empty     ${flatpak_app_id}    App ${app_name} is still installed via flatpak (${flatpak_app_id})
     Log   ${app_name} is now uninstalled   console=True
-    Close app via GUI   ${FLATPAK_VM}  cosmic-store  ./window-close-neg.png
+    Close app via GUI   ${FLATPAK_VM}  cosmic-store  window-close-neg.png
     [Teardown]   Run Keywords   Switch to vm   ${FLATPAK_VM}
     ...    AND   Kill App By Name   cosmic-store   sudo=True
     ...    AND   Kill App By Name   ${process_name}   sudo=True

@@ -21,7 +21,7 @@ Create and save text file from COSMIC Text Editor via GUI
     ${doc_text}        Set Variable    test_content
     ${share_path}      Set Variable    /Shares/'Unsafe comms-vm share'/${file_name}
 
-    Start app via GUI   ${GUI_VM}  cosmic-edit  display_name="COSMIC Text Editor"
+    Start app via GUI   ${GUI_VM}  cosmic-edit  "COSMIC Text Editor"
     Locate on screen    image      ghaf-close.png
     Type string         ${doc_text}   enter_at_end=True
     Save current document from Cosmic Text Editor to Shares   ${file_name}
@@ -36,10 +36,10 @@ Copy and paste text between VMs
     [Documentation]   Copy text in COSMIC Text Editor (GUI VM) and paste it into Trusted Browser (BUSINESS VM)
     [Tags]            SP-T72
     ${clipboard_text}    Set Variable  COPYPASTE
-    Start app via GUI    ${GUI_VM}     cosmic-edit  display_name="COSMIC Text Editor"
+    Start app via GUI    ${GUI_VM}     cosmic-edit  "COSMIC Text Editor"
     Locate on screen     image         ghaf-close.png
     Copy text to clipboard    ${clipboard_text}
-    Start app via GUI   ${BUSINESS_VM}  google-chrome  display_name="Trusted Browser"
+    Start app via GUI   ${BUSINESS_VM}  google-chrome  "Trusted Browser"
     Paste clipboard text and verify     ${clipboard_text}
     [Teardown]    Run Keywords    Switch to vm    ${BUSINESS_VM}    AND    Kill App By Name   google-chrome   sudo=True
     ...           AND             Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
@@ -49,7 +49,7 @@ Copy and paste text between VMs
 Open an app from the dock
     [Documentation]   Open Zoom, minimize its window, verify it is hidden, then restore it from dock and compare coordinates.
     [Tags]            SP-T79
-    Start app via GUI   ${COMMS_VM}   zoom    display_name="Zoom"
+    Start app via GUI   ${COMMS_VM}   zoom    "Zoom"
     ${zoom_window_coords}    ${zoom_anchor_coords}    Save Zoom window baseline coordinates
     ${zoom_before_x}   ${zoom_before_y}    Save Zoom icon coordinates
     Locate and click minimize window button
@@ -62,7 +62,7 @@ Open an app from the dock
 Maximize and restore window
     [Documentation]   Open Zoom, maximize its window, verify it, then restore it and compare coordinates.
     [Tags]            SP-T78
-    Start app via GUI   ${COMMS_VM}   zoom    display_name="Zoom"
+    Start app via GUI   ${COMMS_VM}   zoom    "Zoom"
     ${zoom_window_coords}    ${zoom_anchor_coords}    Save Zoom window baseline coordinates
     Locate and click maximize/restore window button
     Verify app window is maximized
