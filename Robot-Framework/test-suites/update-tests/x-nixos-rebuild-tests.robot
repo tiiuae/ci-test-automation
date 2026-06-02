@@ -25,6 +25,7 @@ ${setup_skipped}        ${False}
 
 Check device-id persistence over nixos-rebuild
     [Documentation]         Verify that device-id has not changed over nixos-rebuild and reboot
+    # Add tags orin-agx, orin-agx-64, orin-nx once rebuild is fixed on Orins
     [Tags]                  SP-T351
     [Timeout]               1 minutes
     ${device_id_check}      Get Actual Device ID
@@ -35,6 +36,7 @@ Check device-id persistence over nixos-rebuild
 
 Check net-vm hostname persistence over nixos-rebuild
     [Documentation]         Verify that net-vm hostname has not changed over nixos-rebuild and reboot
+    # Add tags orin-agx, orin-agx-64, orin-nx once rebuild is fixed on Orins
     [Tags]                  SP-T352  SP-352-2
     [Timeout]               1 minutes
     IF  "${netvm_hostname_before}" != "${NETVM_NAME}"
@@ -82,20 +84,29 @@ Check audit update logging
 *** Keywords ***
 
 Rebuild Setup
-    ${setup_ok}    Run Keyword And Return Status    Enable audit logging and nix-store-watch
+    ${setup_ok}    Run Keyword And Return Status    Rebuild from modified ghaf repo
+    # If rebuild fails skip for laptops, fail for Orin
     IF  not ${setup_ok}
-        Set Suite Variable    ${setup_skipped}    ${True}
-        Skip                  Something went wrong in 'Enable audit logging and nix-store-watch'. Skipping the suite.
+        IF  ${IS_LAPTOP}
+            Set Suite Variable    ${setup_skipped}    ${True}
+            Skip                  Something went wrong in 'Rebuild from modified ghaf repo'. Skipping the suite.
+        ELSE
+            FAIL                  Failure in Setup / Rebuild from modified ghaf repo
+        END
     END
 
-Enable audit logging and nix-store-watch
+Rebuild from modified ghaf repo
     [Timeout]               50 minutes
-    IF  "${DEVICE_TYPE}" == "lenovo-x1"
-        ${target_name}      Set Variable    lenovo-x1-carbon-gen11-debug
-    ELSE IF  "${DEVICE_TYPE}" == "darter-pro"
-        ${target_name}      Set Variable    system76-darp11-b-debug
+    IF  ${IS_LAPTOP}
+        ${target_name}      Set Variable    intel-laptop-debug
+    ELSE IF  "orin" in "${DEVICE_TYPE}"
+        IF  "${DEVICE_TYPE}" == "orin-agx-64"
+            ${target_name}    Set Variable    nvidia-jetson-orin-agx64-debug
+        ELSE
+            ${target_name}    Set Variable    nvidia-jetson-${DEVICE_TYPE}-debug
+        END
     ELSE
-        FAIL                Test case does not support device type ${DEVICE_TYPE}
+        FAIL                  Test case does not support device type ${DEVICE_TYPE}
     END
     Set Suite Variable        ${target_name}
     Switch to vm              ${NET_VM}
@@ -107,18 +118,24 @@ Enable audit logging and nix-store-watch
     Set Suite Variable        ${gen_before}
     Elevate to superuser
     Run Nix Shell             git
-
     Clone Ghaf Repository     ${repository_path}    ${COMMIT_HASH}
-    Log To Console            Making changes to the local ghaf repository
-    Edit file                 ${repository_path}/modules/reference/profiles/mvp-user-trial.nix  security.audit.enable = false;  security.audit.enable = true;
-    Edit file                 ${repository_path}/modules/common/security/audit/default.nix  ghaf.security.audit.enableOspp  ghaf.security.audit.enableVerboseRebuild = true;  ${False}
-    Edit file                 ${repository_path}/modules/common/security/audit/default.nix  ghaf.security.audit.enableOspp  ghaf.security.audit.enableVerboseOspp = true;  ${False}
-    Edit file                 ${repository_path}/modules/common/security/audit/default.nix  ghaf.security.audit.enableOspp = mkIf cfg.enableVerboseOspp true;  ghaf.security.audit.enableOspp = true;
-    Edit file                 ${repository_path}/modules/microvm/host/microvm-host.nix  storeWatcher.enable = false;  storeWatcher.enable = true;
-    Log To Console            Switching to audit mode
+    Edit ghaf repo
     Run Nixos Rebuild         ${repository_path}  ${target_name}
-
     Switch to vm              ${HOST}
+
+Edit ghaf repo
+    Log To Console        Making changes to the local ghaf repository
+    IF  ${IS_LAPTOP}
+        Log To Console    Switching to audit mode
+        Edit File         ${repository_path}/modules/reference/profiles/mvp-user-trial.nix  security.audit.enable = false;  security.audit.enable = true;
+        Edit File         ${repository_path}/modules/common/security/audit/default.nix  ghaf.security.audit.enableOspp  ghaf.security.audit.enableVerboseRebuild = true;  ${False}
+        Edit file         ${repository_path}/modules/common/security/audit/default.nix  ghaf.security.audit.enableOspp  ghaf.security.audit.enableVerboseOspp = true;  ${False}
+        Edit file         ${repository_path}/modules/common/security/audit/default.nix  ghaf.security.audit.enableOspp = mkIf cfg.enableVerboseOspp true;  ghaf.security.audit.enableOspp = true;
+        Edit File         ${repository_path}/modules/microvm/host/microvm-host.nix  storeWatcher.enable = false;  storeWatcher.enable = true;
+    ELSE
+        # Ensure rebuild by minor change
+        Edit File         ${repository_path}/modules/development/debug-tools.nix  pkgs.file  ''  ${True}
+    END
 
 Run Nixos Rebuild
     [Arguments]      ${repository_path}  ${target_name}  ${interrupt}=${EMPTY}
@@ -129,6 +146,7 @@ Run Nixos Rebuild
     Write            cd ${repository_path}
     Sleep            0.5
     ${output}        SSHLibrary.Read
+    Log To Console   Starting nixos-rebuild and monitoring build output
     Write            nixos-rebuild --flake .#${target_name} boot
     ${rebuild_ok}    Set Variable  ${False}
     FOR   ${i}  IN RANGE  300
@@ -181,15 +199,17 @@ Run Nixos Rebuild
         FAIL  nixos-rebuild didn't finish successfully withing the given time
     END
     Soft Reboot Device And Connect
-    Login to laptop
+    Run Keyword If    ${IS_LAPTOP}    Login to laptop
 
 Clone Ghaf Repository
     [Arguments]               ${repository_path}    ${commit}=${EMPTY}
     Log To Console            Cloning ghaf repository
+    # In case repository already exists (from earlier test runs) remove it
+    Run Keyword And Ignore Error    Remove Ghaf Repository
     SSHLibrary.Read
     Write                     git clone https://github.com/tiiuae/ghaf.git ${repository_path}
     SSHLibrary.Read Until     Cloning
-    SSHLibrary.Read Until     [nix-shell:
+    Wait Until Keyword Succeeds    120s    1s    SSHLibrary.Read Until     [nix-shell:
     Sleep                     0.5
     Write                     cd ${repository_path}
     IF  $commit != '${EMPTY}' and $commit != 'NONE'
@@ -205,16 +225,24 @@ Remove Ghaf Repository
 Rebuild Teardown
     Set Client Configuration      timeout=10
     IF  ${setup_skipped} or '${PREV_TEST_STATUS}'=='FAIL'
-        Reboot Laptop
+        IF  ${IS_LAPTOP}
+            Reboot Laptop
+        ELSE
+            Reboot Orin
+        END
         Close All Connections
         Connect After Reboot
-        Login to laptop
+        IF  not ${IS_AVAILABLE}
+            Log To Console    Connecting the device after boot failed. Rebuild may have left ghaf unbootable.\nStopping Teardown execution.
+            RETURN
+        END
+        Run Keyword If    ${IS_LAPTOP}    Login to laptop
     END
     Switch to vm    ${HOST}
     Remove Ghaf Repository
     Roll back to original generation
     Soft Reboot Device And Connect
-    Login to laptop
+    Run Keyword If    ${IS_LAPTOP}    Login to laptop
 
 Check That Logging Is Working in VM
     [Documentation]  Check that the test log is sent to Grafana
