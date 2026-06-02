@@ -34,13 +34,7 @@ Update via givc-cli
 
 Update with
     [Arguments]           ${update_method}
-    IF  "${DEVICE_TYPE}" == "lenovo-x1"
-        ${release_name}   Set Variable  lenovo-x1-carbon-gen11-debug
-    ELSE IF  "${DEVICE_TYPE}" == "darter-pro"
-        ${release_name}   Set Variable  system76-darp11-b-debug
-    ELSE
-        Log               DEVICE_TYPE: ${DEVICE_TYPE} not allowed in update tests   console=True
-    END
+    ${release_name}       Set Variable    intel-laptop-debug
     Switch to vm          ${HOST}
     Compare current with cachix revision    ${release_name}
     # Get bootloader generations
