@@ -52,8 +52,6 @@ Verify brightness persisted
     [Tags]    SP-T326  SP-T326-1
     ${brightness}     Get screen brightness
     Should Be Equal   ${EXPECTED_BRIGHTNESS}  ${brightness}
-    [Teardown]   Run Keyword If Test Failed   Run Keywords   Log persistence setup errors
-    ...                                                AND   SKIP   Known issue: SSRCSP-8482
 
 Verify volume persisted
     [Tags]    SP-T326  SP-T326-2
