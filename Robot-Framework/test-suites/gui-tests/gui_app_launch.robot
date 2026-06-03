@@ -171,7 +171,7 @@ Start Volume Control via GUI
     [Documentation]   Start Volume Control via GUI and measure launch time
     [Tags]            SP-T349  SP-T349-2
     Start app via GUI   ${GUI_VM}  pavucontrol  "Volume Control"
-    Close app via GUI   ${GUI_VM}  pavucontrol  window-close-neg.png
+    Close app via GUI   ${GUI_VM}  pavucontrol  window-close.png
     Save launch time    pavucontrol
 
 Start VPN via GUI
