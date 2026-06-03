@@ -32,8 +32,16 @@ Log in, unlock and verify
     [Arguments]       ${enable_dnd}=False
     ${logout_status}    Check if logged out   1
     IF  ${logout_status}
+        Run Command       logger --priority=user.info "ROBOT_LOG: Logging in on ${DEVICE_TYPE}, job ${JOB}"
         Log in via GUI
-        Wait Until Keyword Succeeds    60s    1s    Verify user login session
+        ${status}    ${output}    Run Keyword And Ignore Error    Wait Until Keyword Succeeds    60s    1s    Verify user login session
+        IF    '${status}' == 'FAIL'
+            Log To Console    Login session verification failed, retrying GUI login
+            Run Command       logger --priority=user.info "ROBOT_LOG: Login failed on ${DEVICE_TYPE}, job ${JOB}"
+            Log in via GUI
+            Wait Until Keyword Succeeds    60s    1s    Verify user login session
+        END
+        Run Command       logger --priority=user.info "ROBOT_LOG: Login passed on ${DEVICE_TYPE}, job ${JOB}"
     ELSE
         ${lock}       Check if locked
         IF  ${lock}   Unlock
