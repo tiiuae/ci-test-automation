@@ -5,6 +5,7 @@
 | DATE SET   | TEST CASE                                               | TICKET / Additional Data.                                                                     |
 | ---------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | 29.05.2026 | Check Grafana log forwarding after disconnected state   | SSRCSP-8525                                                                                   |
+| 25.05.2026 | Reboot from power menu                                  | SSRCSP-8490                                                                                   |
 | 22.05.2026 | Check logging rate (Dell)                               | SSRCSP-8481                                                                                   |
 | 13.05.2026 | Validate Forward Secure Sealing                         | SSRCSP-8425                                                                                   |
 | 30.04.2026 | Open PDF from VM                                        | SSRCSP-8367                                                                                   |
