@@ -21,7 +21,6 @@ Suite Setup         VM Suite Setup
              ...    dell-7330|ghaf-host|autovt@ttyUSB0.service|SSRCSP-6667
              ...    ANY|gui-vm|plymouth-start.service|SSRCSP-7306
              ...    ANY|gui-vm|plymouth-quit.service|SSRCSP-7306
-             ...    ANY|gui-vm|setup-ghaf-user.service|SSRCSP-7234
              ...    ANY|ANY|tuned.service|SSRCSP-7717
              ...    ANY|ANY|fail2ban.service|SSRCSP-7759
              ...    ANY|ANY|journal-fss-verify.service|SSRCSP-8425
@@ -88,7 +87,7 @@ Check Device ID in every VM
     FOR  ${vm}  IN  @{VM_LIST}
         Switch to vm   ${vm}
         ${id}          Get Actual Device ID
-        Log            Device ID in ${vm}: ${id}, expected be te same as in host: ${host_device_id}     console=True
+        Log            Device ID in ${vm}: ${id}, expected to be the same as in host: ${host_device_id}     console=True
         ${result}      Run Keyword And Return Status    Should Be Equal As Strings
         ...            ${id}    ${host_device_id}    ignore_case=True
         IF    not ${result}

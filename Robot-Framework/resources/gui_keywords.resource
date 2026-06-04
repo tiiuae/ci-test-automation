@@ -372,7 +372,8 @@ Start screen recording
         Set Global Variable  ${SCREEN_SELECTED}  ${True}
     END
     Wait Until Keyword Succeeds    5x    1s    Run Command    ls -la /home/${USER_LOGIN}/Videos/${test_name}.mkv
-    [Teardown]       Run Keyword If   '${KEYWORD_STATUS}' == 'FAIL'   Timestamp last screenshot
+    [Teardown]       Run Keyword If   '${KEYWORD_STATUS}' == 'FAIL'   Run Keywords   Timestamp last screenshot
+    ...              AND   Run Command   cat /tmp/gpu-screen-recorder.log
 
 Stop screen recording
     [Arguments]      ${test_status}   ${test_name}=""
