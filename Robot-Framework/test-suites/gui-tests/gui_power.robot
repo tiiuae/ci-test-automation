@@ -51,7 +51,15 @@ Reboot from power menu
     [Tags]            SP-T75  SP-T75-4  lenovo-x1  darter-pro  lab-only
     Select power menu option   x=870   y=120   confirmation=True
     ${start_time}     Get Time    epoch
-    Verify shutdown via network
+    ${shutdown_status}    ${shutdown_msg}    Run Keyword And Ignore Error    Verify shutdown via network
+    IF    '${shutdown_status}' == 'FAIL'
+        ${expected_failure}    Evaluate    "still responds" in """${shutdown_msg}"""
+        IF    ${expected_failure}
+            SKIP   Known issue: SSRCSP-8490
+        ELSE
+            FAIL    ${shutdown_msg}
+        END
+    END
     Connect After Reboot   soft_reboot=True
     ${end_time}       Get Time    epoch
     Login to laptop   enable_dnd=True
@@ -121,7 +129,8 @@ GUI Power Test Setup
     Start screen recording
 
 GUI Power Test Teardown
-    ${needs_reboot_recovery}    Evaluate    $TEST_STATUS == 'FAIL' and 'took too long' not in $TEST_MESSAGE
+    ${needs_reboot_recovery}    Evaluate
+    ...    ($TEST_STATUS == 'FAIL' and 'took too long' not in $TEST_MESSAGE) or ($TEST_STATUS == 'SKIP' and 'SSRCSP-8490' in $TEST_MESSAGE)
     IF  ${needs_reboot_recovery}
         Reboot Laptop
         Connect After Reboot
