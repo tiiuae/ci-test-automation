@@ -187,6 +187,136 @@ def parse_fileio_write_results(output):
     return fileio_write_data
 
 
+def _parse_cyclictest_summary_line(output, label):
+    # Summary lines look like: "# Max Latencies: 00026 00031 ..."
+    match = re.search(rf'^# {label}:\s+(.+)$', output, re.MULTILINE)
+    if not match:
+        return None
+    values = [int(value) for value in re.findall(r'\d+', match.group(1))]
+    if not values:
+        raise Exception(f"Couldn't parse cyclictest {label.lower()}")
+    return values
+
+
+def parse_cyclictest_results(output):
+    # Return cyclictest latencies in milliseconds from the final summary:
+    # - absolute minimum across threads
+    # - mean of per-thread averages
+    # - absolute maximum across threads
+    output = re.sub(r'\033\[.*?m', '', output)
+
+    min_values = _parse_cyclictest_summary_line(output, 'Min Latencies')
+    avg_values = _parse_cyclictest_summary_line(output, 'Avg Latencies')
+    max_values = _parse_cyclictest_summary_line(output, 'Max Latencies')
+
+    if not (min_values and avg_values and max_values):
+        raise Exception("Couldn't parse cyclictest results")
+
+    return {
+        'min_latency_ms': min(min_values) / 1000.0,
+        'avg_latency_ms': sum(avg_values) / len(avg_values) / 1000.0,
+        'max_latency_ms': max(max_values) / 1000.0,
+    }
+
+
+def parse_cyclictest_histogram(output):
+    output = re.sub(r'\033\[.*?m', '', output)
+    histogram_started = False
+    buckets_us = []
+    counts = []
+
+    for line in output.splitlines():
+        stripped = line.strip()
+        if stripped == '# Histogram':
+            histogram_started = True
+            continue
+        if not histogram_started:
+            continue
+        if stripped.startswith('# Total:'):
+            break
+        if not stripped or stripped.startswith('#'):
+            continue
+
+        parts = stripped.split()
+        if len(parts) < 2 or not all(part.isdigit() for part in parts):
+            continue
+
+        buckets_us.append(int(parts[0]))
+        counts.append(sum(int(part) for part in parts[1:]))
+
+    if not buckets_us:
+        raise Exception("Couldn't parse cyclictest histogram")
+
+    return {
+        'buckets_us': buckets_us,
+        'counts': counts,
+    }
+
+
+def parse_cyclictest_histogram_overflows(output):
+    output = re.sub(r'\033\[.*?m', '', output)
+    overflow_counts = []
+    overflow_cycles = {}
+
+    # Example: "# Histogram Overflows: 00000 00002 00001"
+    match = re.search(r'^# Histogram Overflows:\s+(.+)$', output, re.MULTILINE)
+    if match:
+        overflow_counts = [int(value) for value in re.findall(r'\d+', match.group(1))]
+
+    in_cycle_section = False
+    for line in output.splitlines():
+        stripped = line.strip()
+        if stripped == '# Histogram Overflow at cycle number:':
+            in_cycle_section = True
+            continue
+        if not in_cycle_section:
+            continue
+
+        # Example: "# Thread 2: 12345 23456"
+        thread_match = re.match(r'^# Thread\s+(\d+):\s*(.*)$', stripped)
+        if not thread_match:
+            continue
+
+        thread_id = int(thread_match.group(1))
+        overflow_cycles[thread_id] = [
+            int(value) for value in re.findall(r'\d+', thread_match.group(2))
+        ]
+
+    return {
+        'counts_per_thread': overflow_counts,
+        'total_count': sum(overflow_counts),
+        'cycles_per_thread': overflow_cycles,
+    }
+
+
+def parse_cyclictest_spikes(output):
+    output = re.sub(r'\033\[.*?m', '', output)
+    spikes = []
+    # Example: "T: 5 Spike:     424: TS:   6433102503"
+    spike_pattern = re.compile(
+        r'^T:\s*(\d+)\s+Spike:\s*(\d+):\s+TS:\s*(\d+)$',
+        re.MULTILINE,
+    )
+
+    for match in spike_pattern.finditer(output):
+        spikes.append({
+            'thread': int(match.group(1)),
+            'latency_us': int(match.group(2)),
+            'timestamp': int(match.group(3)),
+        })
+
+    return spikes
+
+
+def parse_cyclictest_spike_count(output):
+    output = re.sub(r'\033\[.*?m', '', output)
+    # Prefer the explicit summary count when available: "spikes = 9"
+    match = re.search(r'^spikes\s*=\s*(\d+)$', output, re.MULTILINE)
+    if match:
+        return int(match.group(1))
+    return len(parse_cyclictest_spikes(output))
+
+
 def parse_iperf_output(output):
     tx_pattern = r'\s(\d+(\.\d+)?) MBytes\/sec.*sender'
     rx_pattern = r'\s(\d+(\.\d+)?) MBytes\/sec.*receiver'
