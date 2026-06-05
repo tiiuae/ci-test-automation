@@ -7,9 +7,17 @@ import shutil
 import pandas
 import json
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 import logging
 from robot.api.deco import keyword
 from performance_thresholds import *
+from output_parser import (
+    parse_cyclictest_histogram,
+    parse_cyclictest_histogram_overflows,
+    parse_cyclictest_results,
+    parse_cyclictest_spike_count,
+    parse_cyclictest_spikes,
+)
 from memory_plotting import (
     add_percentage_columns,
     plot_vm_memory_snapshot,
@@ -33,6 +41,34 @@ class PerformanceDataProcessing:
         self.zero_result_flag = -100
         self.low_limit = float(low_limit)
         self.default_low_limit = float(low_limit)
+
+    @staticmethod
+    def _format_latency_us(value_us):
+        if value_us >= 1000:
+            return f"{value_us / 1000.0:.3f} ms"
+        return f"{value_us} us"
+
+    @staticmethod
+    def _format_thread_counts(counts_per_thread):
+        if not counts_per_thread:
+            return "none"
+        return ', '.join(
+            f"t{thread_id}={count}"
+            for thread_id, count in enumerate(counts_per_thread)
+        )
+
+    @staticmethod
+    def _format_thread_cycles(cycles_per_thread, max_cycles_per_thread=5):
+        cycle_chunks = []
+        for thread_id in sorted(cycles_per_thread):
+            cycles = cycles_per_thread[thread_id]
+            if not cycles:
+                continue
+            shown_cycles = ','.join(str(cycle) for cycle in cycles[:max_cycles_per_thread])
+            if len(cycles) > max_cycles_per_thread:
+                shown_cycles += ',...'
+            cycle_chunks.append(f"t{thread_id}=[{shown_cycles}]")
+        return ', '.join(cycle_chunks) if cycle_chunks else "none"
 
     @keyword
     def set_custom_low_limit(self, new_value):
@@ -101,7 +137,15 @@ class PerformanceDataProcessing:
             truncated_list.append(float(f'{item:.{significant_figures}g}'))
         return truncated_list
 
-    def detect_deviation(self, data_column, baseline_start, threshold, deviations_in_row, deviations=[]):
+    def detect_deviation(
+        self,
+        data_column,
+        baseline_start,
+        threshold,
+        deviations_in_row,
+        deviations=[],
+        low_limit=None,
+    ):
         # Calculate mean and population standard deviation of the results
         # Check if last value changes more than threshold from
         #   last "normal" measurement result
@@ -111,6 +155,8 @@ class PerformanceDataProcessing:
         flag = 0
         baseline_end = 0
         last_measurement = data_column[-1]
+        if low_limit is None:
+            low_limit = self.low_limit
 
         if deviations_in_row < self.zero_result_flag + 1:
             deviations_in_row = 0
@@ -186,8 +232,8 @@ class PerformanceDataProcessing:
             upper_marginal = mean + threshold
             lower_marginal = mean - threshold
 
-            if lower_marginal < self.low_limit:
-                lower_marginal = self.low_limit
+            if lower_marginal < low_limit:
+                lower_marginal = low_limit
 
             stats = self.truncate([mean, pstd] + d + [data_column[baseline_end], data_column[baseline_start], upper_marginal, lower_marginal], 5)
 
@@ -196,10 +242,10 @@ class PerformanceDataProcessing:
             stats[0] = last_measurement
             stats[4] = last_measurement
             stats[5] = last_measurement
-            stats[6] = self.low_limit
-            stats[7] = self.low_limit
+            stats[6] = low_limit
+            stats[7] = low_limit
 
-        if last_measurement < self.low_limit:
+        if last_measurement < low_limit:
             flag = self.zero_result_flag
 
         statistics_dict = {
@@ -227,10 +273,16 @@ class PerformanceDataProcessing:
         deviations,
         new_baseline_start,
         row_index,
+        low_limit=None,
     ):
         # Update automatic baseline state and deviation counter for one measurement series.
         statistics_block = self.detect_deviation(
-            data_column, baseline_start, threshold, deviation_counter, deviations
+            data_column,
+            baseline_start,
+            threshold,
+            deviation_counter,
+            deviations,
+            low_limit,
         )
 
         flag = statistics_block['flag']
@@ -266,14 +318,24 @@ class PerformanceDataProcessing:
             deviation_counter = 0
 
         # In case there are not yet valid result history (results below low_limit) and now first valid result
-        if data_column[baseline_start] < self.low_limit and data_column[-1] > self.low_limit:
+        if low_limit is None:
+            low_limit = self.low_limit
+
+        if data_column[baseline_start] < low_limit and data_column[-1] > low_limit:
             deviation_counter = 0
             deviations = []
             baseline_start = row_index
 
         return statistics_block, baseline_start, new_baseline_start, deviation_counter, deviations
 
-    def calculate_statistics(self, test_name, data, monitored_value, threshold):
+    def calculate_statistics(
+        self,
+        test_name,
+        data,
+        monitored_value,
+        threshold,
+        low_limit_overrides=None,
+    ):
         # monitored_value: list of labels
         # threshold: dictionary or list of single value
 
@@ -322,6 +384,9 @@ class PerformanceDataProcessing:
                     indexed_statistics_row = {}
                     monitored_value_index = 0
                     for value in monitored_value:
+                        low_limit = self.low_limit
+                        if low_limit_overrides and value in low_limit_overrides:
+                            low_limit = low_limit_overrides[value]
                         # Select threshold by value name only if there are multiple thresholds
                         if len(threshold) < 2:
                             select_threshold = 0
@@ -341,6 +406,7 @@ class PerformanceDataProcessing:
                             deviations[value],
                             new_baseline_start[value],
                             row_index,
+                            low_limit,
                         )
 
                         new_statistics_row.update({value: statistics_block})
@@ -936,6 +1002,330 @@ class PerformanceDataProcessing:
         return
 
     @keyword
+    def parse_cyclictest_results_file(self, file_path):
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return parse_cyclictest_results(file.read())
+
+    @keyword
+    def get_failed_cyclictest_variants(self, statistics_dict):
+        failed_variants = []
+        suffixes = (
+            '_avg_latency_ms',
+            '_overflow_count',
+        )
+
+        for key, value in statistics_dict.items():
+            if value['flag'] <= 0:
+                continue
+            variant_name = key
+            for suffix in suffixes:
+                if key.endswith(suffix):
+                    variant_name = key[:-len(suffix)]
+                    break
+            if variant_name not in failed_variants:
+                failed_variants.append(variant_name)
+
+        return failed_variants
+
+    @keyword
+    def get_cyclictest_histogram_limit(self, target, variant_name):
+        return thresholds['cyclictest'][target][f'latency_threshold_us_{variant_name}']
+
+    @keyword
+    def generate_cyclictest_histogram_plot(
+        self,
+        source_file,
+        plot_name,
+        plot_title,
+        overflow_start_us,
+    ):
+        with open(source_file, 'r', encoding='utf-8') as file:
+            output = file.read()
+
+        histogram = parse_cyclictest_histogram(output)
+        overflow_data = parse_cyclictest_histogram_overflows(output)
+        summary = parse_cyclictest_results(output)
+        bucket_width_us = 50
+        aggregated_counts = {}
+
+        for bucket_us, count in zip(histogram['buckets_us'], histogram['counts']):
+            if bucket_us < 0:
+                continue
+            range_start_us = (bucket_us // bucket_width_us) * bucket_width_us
+            aggregated_counts[range_start_us] = (
+                aggregated_counts.get(range_start_us, 0) + count
+            )
+
+        overflow_count = overflow_data['total_count']
+        if overflow_count > 0:
+            aggregated_counts[int(overflow_start_us)] = (
+                aggregated_counts.get(int(overflow_start_us), 0) + overflow_count
+            )
+
+        x_values = [bucket / 1000.0 for bucket in sorted(aggregated_counts.keys())]
+        y_values = [aggregated_counts[bucket] for bucket in sorted(aggregated_counts.keys())]
+
+        plt.figure(figsize=(20, 8))
+        plt.set_loglevel('WARNING')
+        plt.bar(x_values, y_values, width=bucket_width_us / 1000.0, align='edge', color='b')
+        plt.xlabel('Latency bucket start (ms)', fontsize=16)
+        plt.ylabel('Samples', fontsize=16)
+        plt.title(plot_title, fontsize=18, fontweight='bold')
+        plt.yscale('log', base=10)
+        plt.xlim(left=0)
+        if overflow_count > 0:
+            overflow_start_ms = int(overflow_start_us) / 1000.0
+            bucket_width_ms = bucket_width_us / 1000.0
+            overflow_end_ms = overflow_start_ms + bucket_width_ms
+            tick_positions = [
+                tick for tick in plt.xticks()[0]
+                if tick < overflow_start_ms
+            ]
+            tick_positions.extend([overflow_start_ms, overflow_end_ms])
+            tick_labels = [f"{tick:g}" for tick in tick_positions[:-2]]
+            tick_labels.extend([f">={int(overflow_start_us)} us", ""])
+            plt.xlim(left=0, right=overflow_end_ms)
+            plt.xticks(tick_positions, tick_labels)
+        plt.grid(True)
+        plt.figtext(
+            0.99,
+            0.01,
+            (
+                f"Min {summary['min_latency_ms']:.6f} ms, "
+                f"Avg {summary['avg_latency_ms']:.6f} ms, "
+                f"Max {summary['max_latency_ms']:.6f} ms, "
+                f"Overflows > {self._format_latency_us(int(overflow_start_us))}: {overflow_count}"
+            ),
+            ha='right',
+            fontsize=12,
+        )
+        plt.tight_layout()
+        plt.savefig(self.plot_dir + f'{plot_name}.png')
+        plt.close()
+
+    @keyword
+    def generate_cyclictest_spike_plot(
+        self,
+        spike_file,
+        plot_name,
+        plot_title,
+        histogram_limit_us=50000,
+    ):
+        with open(spike_file, 'r', encoding='utf-8') as file:
+            output = file.read()
+
+        spikes = parse_cyclictest_spikes(output)
+        if not spikes:
+            return False
+
+        bucket_width_us = 50
+        aggregated_counts = {}
+        for spike in spikes:
+            latency_us = spike['latency_us']
+            range_start_us = max(
+                int(histogram_limit_us),
+                (latency_us // bucket_width_us) * bucket_width_us,
+            )
+            aggregated_counts[range_start_us] = (
+                aggregated_counts.get(range_start_us, 0) + 1
+            )
+
+        x_values = [bucket / 1000.0 for bucket in sorted(aggregated_counts.keys())]
+        y_values = [aggregated_counts[bucket] for bucket in sorted(aggregated_counts.keys())]
+        histogram_limit_ms = int(histogram_limit_us) / 1000.0
+        bucket_width_ms = bucket_width_us / 1000.0
+        min_spike_us = min(spike['latency_us'] for spike in spikes)
+        max_spike_us = max(spike['latency_us'] for spike in spikes)
+        max_spike_bucket_us = max(aggregated_counts.keys())
+        # Keep the spike plot readable even when only one or a few spikes were recorded near the threshold.
+        min_plot_end_ms = histogram_limit_ms + bucket_width_ms * 10
+        max_spike_end_ms = max_spike_bucket_us / 1000.0 + bucket_width_ms
+        plot_end_ms = max(min_plot_end_ms, max_spike_end_ms)
+
+        plt.figure(figsize=(20, 8))
+        plt.set_loglevel('WARNING')
+        plt.bar(x_values, y_values, width=bucket_width_us / 1000.0, align='edge', color='darkred')
+        plt.xlabel('Spike latency bucket start (ms)', fontsize=16)
+        plt.ylabel('Samples', fontsize=16)
+        plt.title(plot_title, fontsize=18, fontweight='bold')
+        plt.yscale('log', base=10)
+        plt.xlim(left=histogram_limit_ms, right=plot_end_ms)
+        plt.grid(True)
+        plt.figtext(
+            0.99,
+            0.01,
+            (
+                f"Spike samples {len(spikes)}, "
+                f"Min spike {self._format_latency_us(min_spike_us)}, "
+                f"Max spike {self._format_latency_us(max_spike_us)}"
+            ),
+            ha='right',
+            fontsize=12,
+        )
+        plt.tight_layout()
+        plt.savefig(self.plot_dir + f'{plot_name}.png')
+        plt.close()
+        return True
+
+    @keyword
+    def get_cyclictest_histogram_overflow_count(self, histogram_file):
+        with open(histogram_file, 'r', encoding='utf-8') as file:
+            overflow_data = parse_cyclictest_histogram_overflows(file.read())
+
+        return overflow_data['total_count']
+
+    @keyword
+    def get_cyclictest_histogram_overflow_report(
+        self,
+        histogram_file,
+        overflow_start_us,
+        max_cycles_per_thread=5,
+    ):
+        with open(histogram_file, 'r', encoding='utf-8') as file:
+            overflow_data = parse_cyclictest_histogram_overflows(file.read())
+
+        limit_us = int(overflow_start_us)
+        return (
+            f"Histogram overflows > {self._format_latency_us(limit_us)}: "
+            f"{overflow_data['total_count']}"
+            f" | Per-thread: {self._format_thread_counts(overflow_data['counts_per_thread'])}"
+            f" | Cycles: {self._format_thread_cycles(overflow_data['cycles_per_thread'], int(max_cycles_per_thread))}"
+        )
+
+    @keyword
+    def get_cyclictest_spike_report(
+        self,
+        spike_file,
+        overflow_start_us,
+        max_spikes_to_show=20,
+    ):
+        with open(spike_file, 'r', encoding='utf-8') as file:
+            output = file.read()
+
+        spikes = parse_cyclictest_spikes(output)
+        count = parse_cyclictest_spike_count(output)
+
+        limit_us = int(overflow_start_us)
+        if count == 0:
+            return (
+                "Debug spike run did not report per-spike durations "
+                f"above {self._format_latency_us(limit_us)}"
+            )
+
+        durations = ', '.join(
+            self._format_latency_us(spike['latency_us'])
+            for spike in spikes[:int(max_spikes_to_show)]
+        )
+        if count > int(max_spikes_to_show):
+            durations += ', ...'
+
+        return (
+            f"Debug spike run reported {count} spike samples"
+            f" | Durations: {durations}"
+        )
+
+    @keyword
+    def read_cyclictest_latency_csv_and_plot(self, test_name):
+        data = {'commit': []}
+        metrics = ['min_latency_ms', 'avg_latency_ms', 'max_latency_ms', 'overflow_count']
+        variants = ['t1_p80', 't1_p95', 'tnproc_p80', 'tnproc_p95']
+        target = test_name.rsplit(' on ', 1)[-1]
+        monitored_values = []
+
+        for variant in variants:
+            for metric in metrics:
+                key = f'{variant}_{metric}'
+                data[key] = []
+                if metric in ('avg_latency_ms', 'overflow_count'):
+                    monitored_values.append(key)
+
+        threshold = {}
+        low_limit_overrides = {}
+        for variant in variants:
+            threshold[f'{variant}_avg_latency_ms'] = thresholds['cyclictest'][target][
+                f'latency_threshold_us_{variant}'
+            ] / 1000.0
+            threshold[f'{variant}_overflow_count'] = thresholds['cyclictest']['latency_overflow_count']
+            low_limit_overrides[f'{variant}_overflow_count'] = 0
+        return_statistics, _statistics = self.calculate_statistics(
+            test_name,
+            data,
+            monitored_values,
+            threshold,
+            low_limit_overrides,
+        )
+        for variant in variants:
+            return_statistics[f'{variant}_avg_latency_ms']['low_limit'] = self.low_limit
+            return_statistics[f'{variant}_overflow_count']['low_limit'] = 0
+
+        for key in data.keys():
+            data[key] = data[key][-40:]
+
+        plot_defs = [
+            ('min_latency_ms', 'Min latency (ms)', 'Min latency'),
+            ('avg_latency_ms', 'Avg latency (ms)', 'Avg latency'),
+            ('max_latency_ms', 'Max latency (ms)', 'Max latency'),
+            ('overflow_count', 'Overflow samples', 'Histogram overflows'),
+        ]
+        labels = {
+            't1_p80': 't1 p80',
+            't1_p95': 't1 p95',
+            'tnproc_p80': 't$(nproc) p80',
+            'tnproc_p95': 't$(nproc) p95',
+        }
+
+        for metric_key, axis_label, title in plot_defs:
+            plt.figure(figsize=(20, 10))
+            plt.set_loglevel('WARNING')
+            for variant in variants:
+                key = f'{variant}_{metric_key}'
+                plt.plot(
+                    data['commit'],
+                    data[key],
+                    marker='o',
+                    linestyle='-',
+                    label=labels[variant],
+                )
+            plt.ylabel(axis_label, fontsize=16)
+            plt.xlabel('Build Number', fontsize=16)
+            ax = plt.gca()
+            ax.tick_params(axis='y', labelsize=14)
+            plt.xticks(data['commit'], rotation=90, fontsize=10)
+            plt.grid(True)
+            plt.legend(loc='upper left')
+            if metric_key == 'overflow_count':
+                title_threshold = thresholds['cyclictest']['latency_overflow_count']
+                ax.yaxis.set_major_locator(mticker.MaxNLocator(integer=True))
+                plt.axhline(
+                    y=thresholds['cyclictest']['latency_overflow_count'],
+                    color='k',
+                    linestyle='-.',
+                    linewidth=1.5,
+                )
+            elif metric_key == 'avg_latency_ms':
+                title_threshold = 'variant specific latency_threshold_us_*'
+            elif metric_key == 'min_latency_ms':
+                title_threshold = 'not monitored'
+            else:
+                title_threshold = 'not monitored'
+            plt.title(
+                f'{title} / Threshold: {title_threshold}',
+                loc='right',
+                fontweight='bold',
+                fontsize=16,
+            )
+            plt.suptitle(
+                f'{test_name}\nBuild type: {self.build_type}, Device: {self.device}',
+                fontsize=18,
+                fontweight='bold',
+            )
+            plt.tight_layout()
+            plt.savefig(self.plot_dir + f'{self.device}_{test_name}_{metric_key}.png')
+            plt.close()
+
+        return return_statistics
+
+    @keyword
     def save_cpu_data(self, test_name, cpu_data):
         self.write_test_data_to_csv(test_name, cpu_data)
         return self.read_cpu_csv_and_plot(test_name)
@@ -1000,6 +1390,11 @@ class PerformanceDataProcessing:
 
         df.to_csv(file_path, index=False)
         return self.read_vm_memory_snapshot_csv_and_plot(test_name)
+
+    @keyword
+    def save_cyclictest_latency_data(self, test_name, latency_data):
+        self.write_test_data_to_csv(test_name, latency_data)
+        return self.read_cyclictest_latency_csv_and_plot(test_name)
 
     def read_vm_memory_snapshot_csv_and_plot(self, test_name):
         # Match other read_*_csv_and_plot methods: read CSV, analyze, plot, return last result.

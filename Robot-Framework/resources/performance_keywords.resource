@@ -3,6 +3,7 @@
 
 *** Settings ***
 Library             Collections
+Library             String
 
 
 *** Keywords ***
@@ -32,7 +33,9 @@ Determine Test Status
     ${msg}=                 Set Variable  ${EMPTY}
     FOR   ${i}  IN  @{keys}
         ${statistics}       Get From Dictionary      ${statistics_dict}    ${i}
-        IF  ${statistics}[measurement] < ${PERF_LOW_LIMIT}
+        ${low_limit_present}    Run Keyword And Return Status    Dictionary Should Contain Key    ${statistics}    low_limit
+        ${measurement_low_limit}    Set Variable If    ${low_limit_present}    ${statistics}[low_limit]    ${PERF_LOW_LIMIT}
+        IF  ${statistics}[measurement] < ${measurement_low_limit}
             FAIL            Measurement result is zero or too close to zero.\n\n${statistics}
         END
         IF  ${statistics}[flag] != 0
@@ -100,3 +103,20 @@ Initial Memory Check
         ${duration}       Evaluate    int(${iterations} * ${sleep_between})
         FAIL    High initial total memory not deflating within ${duration} sec.\nghaf-mem-manager service of the vm has probably failed.
     END
+
+Set power profile
+    [Documentation]     Set power profile to ${profile}
+    [Arguments]         ${profile}
+    [Setup]             Switch to vm   ${GUI_VM}
+    Log                 Setting power profile to ${profile}   console=True
+    Run Command         tuned-adm profile ${profile}   sudo=True
+    ${active_profile}   Get active power profile
+    Should Contain      ${active_profile}   ${profile}
+
+Get active power profile
+    [Documentation]     Return active power profile
+    ${output}           Run Command   tuned-adm active
+    ${parts}            Split String    ${output}    : 
+    ${active_profile}   Strip String    ${parts}[1]
+    Log                 Active power profile is ${active_profile}   console=True
+    RETURN              ${active_profile}
