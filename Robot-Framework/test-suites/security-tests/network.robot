@@ -21,8 +21,8 @@ Account lockout after failed login
     [Tags]           SP-T268  lenovo-x1  darter-pro  lab-only
     ${ip}            Get External Attacker IP
     Try External Login With Wrong Password
-    Verify NetVM Blacklist Contains IP Via Serial    ${ip}   f2b-sshBlacklist
     ${blacklisted_at}    Get Time    epoch
+    Verify NetVM Blacklist Contains IP Via Serial    ${ip}   f2b-sshBlacklist
     Unban IP Address Via Serial                      ${ip}
     [Teardown]       Account lockout teardown    ${blacklisted_at}
 
