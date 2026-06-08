@@ -81,6 +81,7 @@ Check logging rate
     ${check_interval}          Set Variable   100
     ${saved_entries}           Set Variable   2000
     ${entry_limit}             Set Variable   500
+    ${gui-vm_entry_limit}      Set Variable   700    # Higher limit due to ssh connection logs
     ${dell_host_entry_limit}   Set Variable   1000   # Known Issue: SSRCSP-8481
     ${orin_entry_limit}        Set Variable   2000
     ${bytes_per_entry}         Set Variable   200
@@ -113,6 +114,8 @@ Check logging rate
         IF  '${switch_status}' == 'PASS'
             IF  "orin" in "${DEVICE_TYPE}"
                 ${vm_entry_limit}   Set Variable   ${orin_entry_limit}
+            ELSE IF  '${vm}' == '${GUI_VM}'
+                ${vm_entry_limit}   Set Variable   ${gui-vm_entry_limit}     # Higher limit due to ssh connection logs
             ELSE IF  "${DEVICE_TYPE}" == "dell-7330" and '${vm}' == '${HOST}'
                 ${vm_entry_limit}   Set Variable   ${dell_host_entry_limit}  # Known Issue: SSRCSP-8481
             ELSE
