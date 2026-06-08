@@ -79,9 +79,7 @@ Check logging rate
     [Tags]             SP-T359  log_rate  pre-merge  orin-agx  orin-agx-64  orin-nx
 
     ${check_interval}          Set Variable   100
-    ${saved_entries}           Set Variable   2000
     ${entry_limit}             Set Variable   500
-    ${gui-vm_entry_limit}      Set Variable   700    # Higher limit due to ssh connection logs
     ${dell_host_entry_limit}   Set Variable   1000   # Known Issue: SSRCSP-8481
     ${orin_entry_limit}        Set Variable   2000
     ${bytes_per_entry}         Set Variable   200
@@ -98,48 +96,38 @@ Check logging rate
         Set To Dictionary    ${byte_history}     ${vm}=${EMPTY}
     END
     FOR  ${vm}  IN  @{VM_LIST}
-        ${vm_is_ready}    Run Keyword And Return Status    Check if ssh is ready on vm    ${vm}    timeout=5
-        IF  not ${vm_is_ready}
-            Log    Skipping ${vm}: ssh is not ready    console=True
-            Set To Dictionary    ${unavailable_vms}    ${vm}=ssh not ready
-            CONTINUE
-        END
         ${switch_status}    ${switch_output}    Run Keyword And Ignore Error    Switch to vm    ${vm}    timeout=10
         IF  '${switch_status}' == 'FAIL'
             Log    Skipping ${vm}: ${switch_output}    console=True
             Set To Dictionary    ${unavailable_vms}    ${vm}=${switch_output}
-            Switch to vm    ${HOST}    timeout=10
             CONTINUE
         END
-        IF  '${switch_status}' == 'PASS'
-            IF  "orin" in "${DEVICE_TYPE}"
-                ${vm_entry_limit}   Set Variable   ${orin_entry_limit}
-            ELSE IF  '${vm}' == '${GUI_VM}'
-                ${vm_entry_limit}   Set Variable   ${gui-vm_entry_limit}     # Higher limit due to ssh connection logs
-            ELSE IF  "${DEVICE_TYPE}" == "dell-7330" and '${vm}' == '${HOST}'
-                ${vm_entry_limit}   Set Variable   ${dell_host_entry_limit}  # Known Issue: SSRCSP-8481
-            ELSE
-                ${vm_entry_limit}   Set Variable   ${entry_limit}
-            END
-            ${vm_byte_limit}    Evaluate    ${vm_entry_limit} * ${bytes_per_entry}
+        IF  "orin" in "${DEVICE_TYPE}"
+            ${vm_entry_limit}   Set Variable   ${orin_entry_limit}
+        ELSE IF  "${DEVICE_TYPE}" == "dell-7330" and '${vm}' == '${HOST}'
+            ${vm_entry_limit}   Set Variable   ${dell_host_entry_limit}  # Known Issue: SSRCSP-8481
+        ELSE
+            ${vm_entry_limit}   Set Variable   ${entry_limit}
+        END
+        ${vm_byte_limit}    Evaluate    ${vm_entry_limit} * ${bytes_per_entry}
 
-            ${byte_status}    ${byte_rate}    Run Keyword And Ignore Error
-            ...    Run Command    journalctl --since "$(date -d '${check_interval} seconds ago' '+%Y-%m-%d %H:%M:%S')" | wc -c | awk '{print $1}'
-            ${entries_status}    ${entries}    Run Keyword And Ignore Error
-            ...    Run Command    journalctl --since "${check_interval} seconds ago" | wc -l
-            IF  '${byte_status}' == 'PASS'
-                Set To Dictionary    ${byte_history}    ${vm}=${byte_rate}
-            END
-            IF  '${entries_status}' == 'PASS'
-                Set To Dictionary    ${entry_history}    ${vm}=${entries}
-            END
-            IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS' and (${entries} > ${vm_entry_limit} or ${byte_rate} > ${vm_byte_limit})
-                ${recent_logs}       Run Command        journalctl -n ${saved_entries}
-                Set To Dictionary    ${spam_logs}       ${vm}=${recent_logs}
-                Set To Dictionary    ${spam_metrics}    ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${vm_entry_limit}/${vm_byte_limit}
-            ELSE IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS'
-                Set To Dictionary    ${ok_metrics}      ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${vm_entry_limit}/${vm_byte_limit}
-            END
+        # Logs from sshd-session are excluded, they are created by the ssh connections in tests
+        ${byte_status}    ${byte_rate}    Run Keyword And Ignore Error
+        ...    Run Command    journalctl --since "$(date -d '${check_interval} seconds ago' '+%Y-%m-%d %H:%M:%S')" | grep -v "sshd-session" | wc -c | awk '{print $1}'
+        ${entries_status}    ${entries}    Run Keyword And Ignore Error
+        ...    Run Command    journalctl --since "${check_interval} seconds ago" | grep -v "sshd-session" | wc -l
+        IF  '${byte_status}' == 'PASS'
+            Set To Dictionary    ${byte_history}    ${vm}=${byte_rate}
+        END
+        IF  '${entries_status}' == 'PASS'
+            Set To Dictionary    ${entry_history}    ${vm}=${entries}
+        END
+        IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS' and (${entries} > ${vm_entry_limit} or ${byte_rate} > ${vm_byte_limit})
+            ${recent_logs}       Run Command        journalctl --since "${check_interval} seconds ago" | grep -v "sshd-session"
+            Set To Dictionary    ${spam_logs}       ${vm}=${recent_logs}
+            Set To Dictionary    ${spam_metrics}    ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${vm_entry_limit}/${vm_byte_limit}
+        ELSE IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS'
+            Set To Dictionary    ${ok_metrics}      ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${vm_entry_limit}/${vm_byte_limit}
         END
     END
 
@@ -156,7 +144,7 @@ Check logging rate
     Save measurement history data    ${TEST NAME}    log_byte_rate    bytes/100s    &{byte_history}
     ${status}          Run Keyword And Return Status    Should Be Empty  ${spam_metrics}
     IF  not ${status}
-        Log            Sample of ${saved_entries} log entries from VMs demonstrating too high logging rates
+        Log            Logs from the VMs demonstrating too high logging rates
         FOR  ${vm}  ${logs}  IN  &{spam_logs}
             Log        ${vm}
             Log        ${logs}
