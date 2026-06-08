@@ -141,7 +141,7 @@ Open app menu
     ELSE
         Log To Console    Opening app menu
         Locate and click  image  ${APP_MENU_LAUNCHER}  0.95  10
-        Locate on screen  image  search-neg.png  0.90  5
+        Locate on screen  image  search-neg.png  0.90  10
     END
 
 Close app via GUI
