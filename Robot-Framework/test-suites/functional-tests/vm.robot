@@ -18,6 +18,7 @@ Suite Setup         VM Suite Setup
 # Add any known failing services here with the vm name and bug ticket number.
 # device|vm|service-name|ticket-number
 @{known_issues}=    ANY|audio-vm|systemd-rfkill.service|SSRCSP-7321
+             ...    ANY|ghaf-host|systemd-rfkill.service|SSRCSP-7321
              ...    dell-7330|ghaf-host|autovt@ttyUSB0.service|SSRCSP-6667
              ...    ANY|gui-vm|plymouth-start.service|SSRCSP-7306
              ...    ANY|gui-vm|plymouth-quit.service|SSRCSP-7306

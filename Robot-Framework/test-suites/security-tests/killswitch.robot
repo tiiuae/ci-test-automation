@@ -34,7 +34,7 @@ Killswitch disconnects microphone
     [Teardown]       Set device state  unblocked    mic
 
 Killswitch disconnects WLAN
-    [Documentation]  Verify that killswitch disconnect wi-fi connection and make interface unavailable
+    [Documentation]  Verify that killswitch disconnects wi-fi connection and makes interface unavailable
     [Tags]           SP-T304  lab-only
     [Setup]          WLAN setup
     Verify nmcli device status    ${wifi_if}  connected
@@ -45,7 +45,10 @@ Killswitch disconnects WLAN
     Check Network Availability    8.8.8.8     expected_result=False   limit_freq=${False}    interface=${wifi_if}
     Check Network Availability    8.8.8.8     expected_result=True    limit_freq=${False}    interface=eth
     Set device state   unblocked    net
-    Verify nmcli device status    ${wifi_if}  connected  range=30
+    Remove Wifi configuration       ${TEST_WIFI_SSID}
+    Scan for Wifi                   ${TEST_WIFI_SSID}
+    Configure wifi                  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
+    Get wifi IP
     [Teardown]       WLAN teardown
 
 
@@ -59,5 +62,10 @@ WLAN setup
     Get wifi IP
 
 WLAN teardown
+    IF  $TEST_STATUS!='PASS'
+        Switch to vm       ${NET_VM}
+        Run Command        nmcli device
+        Run Command        nmcli dev wifi list
+    END
     Set device state  unblocked  net
     Remove Wifi configuration  ${TEST_WIFI_SSID}

@@ -36,6 +36,13 @@ Turn ON WiFi
     Log To Console      Turning on Wifi
     Run Command         nmcli con up id ${SSID}    sudo=True
 
+Scan for Wifi
+    [Arguments]         ${SSID}
+    Switch to vm        ${NET_VM}
+    Log                 Scanning for ${SSID}
+    ${output}           Run Command   nmcli dev wifi list --rescan yes   sudo=True
+    Should Contain      ${output}   ${SSID}
+
 Get wifi IP
     [Documentation]     Parse ifconfig output and looks for wifi IP
     ${if_name}     Get Interface name    wifi
