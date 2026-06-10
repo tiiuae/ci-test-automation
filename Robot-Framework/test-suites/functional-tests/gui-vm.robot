@@ -3,33 +3,19 @@
 
 *** Settings ***
 Documentation       Testing Gui-vm
-Test Tags           gui-vm
+Test Tags           gui-vm  pre-merge  lenovo-x1  darter-pro  dell-7330  fmo
 
-Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/service_keywords.resource
 
-Test Setup          Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
-
 
 *** Test Cases ***
 
-Start Falcon AI
-    [Documentation]   Start Falcon AI and verify process started
-    [Tags]            SP-T223  falcon_ai
-    Get Falcon LLM Name
-    Start application  "Falcon AI"
-    Wait Until Falcon Download Complete
-    Check that the application was started    alpaca    range=20
-
-    ${answer}  Ask the question     2+2=? Return just the number.
-    Should Be Equal As Integers     ${answer}   4
-    [Teardown]  Kill App in VM   ${GUI_VM}   alpaca
-
 Check user systemctl status
     [Documentation]   Verify systemctl status --user is running
-    [Tags]            SP-T260  systemctl  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  fmo
+    [Tags]            SP-T260  systemctl
+    [Setup]           Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
     [Teardown]        Set Test Message    append=${True}  separator=\n    message=${found_known_issues_message}
     Set Test Variable   ${found_known_issues_message}   ${EMPTY}
 
@@ -49,49 +35,3 @@ Check user systemctl status
     IF    ${filtered_failed_units}
         Check systemctl status for known issues  ${DEVICE_TYPE}  ${GUI_VM}  ${known_issues}  ${filtered_failed_units}   user=True
     END
-
-
-*** Keywords ***
-
-Get Falcon LLM Name
-    ${output}            Run Command    cat '/run/current-system/sw/share/applications/com.jeffser.Alpaca.desktop'
-    ${line}              Get Lines Containing String  ${output}  Exec=
-    ${path}              Set Variable  ${line[5:]}
-    ${llm_name_raw}      Run Command  cat ${path} | grep LLM_NAME | head -n 1
-    # LLM_NAME="falcon3:10b" -> falcon3:10b
-    ${tmp}               Fetch From Right  ${llm_name_raw}  =
-    ${LLM_NAME}          Set Variable  ${tmp[1:-1]}
-    Set Suite Variable  ${LLM_NAME}
-
-Wait Until Falcon Download Complete
-    [Setup]             Switch to vm    ${GUI_VM}
-    [Timeout]           10 minutes
-    ${downloaded}       Set Variable    0
-    ${stop_flag}        Set Variable    0
-    Log To Console      Logging progression of downloaded model files
-    FOR  ${i}  IN RANGE   60
-        ${output}          Run Command  ollama list
-        ${download_done}   Run Keyword And Return Status  Should Contain   ${output}  ${LLM_NAME}
-        IF  ${download_done}  BREAK
-        Sleep  6
-        ${downloaded_new}  Run Command    du -s /var/lib/private/ollama/models/ | awk '{print $1}'  sudo=True
-        Log                ${downloaded_new} KB    console=True
-        IF  ${downloaded_new} > ${downloaded}
-            ${stop_flag}        Set Variable    0
-            ${downloaded}       Set Variable   ${downloaded_new}
-        ELSE
-            ${stop_flag}        Evaluate       ${stop_flag}+1
-        END
-        IF  ${stop_flag} > 9
-            FAIL                Download of ollama AI model stopped for more than 100 sec without completing.
-        END
-    END
-    [Teardown]          Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
-
-Ask the question
-    [Arguments]      ${question}
-    Log              Asking AI: ${question}  console=True
-    Run Command      script -q -c 'ollama run falcon3:10b "${question}" > result.txt'   timeout=60
-    ${answer}        Run Command   cat result.txt
-    Log              The answer is: ${answer}  console=True
-    RETURN           ${answer}

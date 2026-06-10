@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing camera application
-Test Tags           camera  bat  lenovo-x1  darter-pro  dell-7330
+Test Tags           camera  pre-merge  bat  lenovo-x1  darter-pro  dell-7330
 
 Library             Collections
 Library             OperatingSystem

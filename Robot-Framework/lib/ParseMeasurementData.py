@@ -175,6 +175,9 @@ class ParseMeasurementData:
             logging.warning("No measurement history data to plot for %s/%s", test_name, metric_name)
             return
 
+        # Keep the history file intact, but only plot the most recent samples.
+        data = data.tail(100)
+
         value_columns = [column for column in data.columns if column not in {"build_id", "unit"}]
         if not value_columns:
             logging.warning("No measurement columns found to plot for %s/%s", test_name, metric_name)

@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing launching files
-Test Tags           files  lenovo-x1  darter-pro  dell-7330
+Test Tags           files  bat  lenovo-x1  darter-pro  dell-7330
 
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/file_keywords.resource
@@ -17,7 +17,7 @@ ${OUTPUT_FILE}   /tmp/out.log
 
 Open PDF from chrome-vm
     [Documentation]    Open PDF file from Chrome VM and check that Ghaf Isolated Document Viewer started
-    [Tags]             SP-T131  SP-T131-1  pre-merge  bat
+    [Tags]             SP-T131  SP-T131-1  pre-merge
     Open PDF from app-vm    ${CHROME_VM}
 
 Open PDF from comms-vm
@@ -37,7 +37,7 @@ Open PDF from gui-vm
 
 Open image with Oculante
     [Documentation]    Open PNG image in the Gui VM and check that Oculante app is started and opens the image
-    [Tags]             SP-T197  pre-merge  bat
+    [Tags]             SP-T197  pre-merge
     Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
 
     Run Command        WAYLAND_DISPLAY=wayland-1 grim ./screenshot.png   timeout=5
@@ -50,7 +50,7 @@ Open image with Oculante
 
 Open text file with Cosmic Text Editor
     [Documentation]    Open text file and check that Cosmic Text Editor app is started
-    [Tags]             SP-T262  pre-merge  bat
+    [Tags]             SP-T262  pre-merge
     Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
     Create text file   test    /tmp/test_text.txt
     Open file to gui-vm with XDG handler    /tmp/test_text.txt

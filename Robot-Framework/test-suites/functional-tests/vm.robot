@@ -43,7 +43,7 @@ ${found_known_issues_message}=
 
 Check internet connection in every VM
     [Documentation]    Pings google from every vm.
-    [Tags]             SP-T257   orin-agx  orin-agx-64  orin-nx
+    [Tags]             SP-T257  orin-agx  orin-agx-64  orin-nx
     ${failed_vms}=    Create List
     FOR  ${vm}  IN  @{VM_LIST_WITH_HOST}
         Switch to vm     ${vm}

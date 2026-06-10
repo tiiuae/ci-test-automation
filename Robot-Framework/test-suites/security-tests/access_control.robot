@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Verify access rights and isolation across memory zones, virtual machines, and system resources
-Test Tags           access-control  lenovo-x1  darter-pro  dell-7330
+Test Tags           access-control  bat  lenovo-x1  darter-pro  dell-7330
 
 Resource            ../../resources/ssh_keywords.resource
 

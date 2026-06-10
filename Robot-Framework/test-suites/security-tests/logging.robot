@@ -19,7 +19,7 @@ Suite Setup         Logging Setup
 
 Wifi password is not revealed in Grafana
     [Documentation]  Check that logs in Grafana don't contain wifi password
-    [Tags]           SP-T328  SP-T328-1  lab-only
+    [Tags]           SP-T328  SP-T328-1  bat  lab-only
     Configure wifi   ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Sleep   3        # Time for needed data to be logged
     Is password revealed in Grafana    ${TEST_WIFI_SSID}    ${TEST_WIFI_PSWD}
@@ -27,7 +27,7 @@ Wifi password is not revealed in Grafana
 
 User password is not revealed in Grafana
     [Documentation]  Check that logs in Grafana don't contain user's password
-    [Tags]           SP-T328  SP-T328-2
+    [Tags]           SP-T328  SP-T328-2  bat
     Is password revealed in Grafana    ${USER_LOGIN}    ${USER_PASSWORD}
 
 Check Grafana log forwarding after disconnected state
