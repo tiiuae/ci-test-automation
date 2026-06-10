@@ -4,7 +4,7 @@ import re
 TAGS_RE = re.compile(r"^(\s*(?:\[Tags\]|Test Tags)\s+)(.+)$")
 
 TAG_PRIORITY = ["pre-merge", "bat", "regression",   # Test set tags from smallest to biggest
-                "gui", "performance", "security", "suspension", "update",  # Test suite tags in an alphabetical order (there should be only one of these for each test)
+                "functional", "gui", "performance", "security", "suspension", "update",  # Test suite tags in an alphabetical order (there should be only one of these for each test)
                 "lenovo-x1", "darter-pro", "dell-7330", "orin-agx", "orin-agx-64", "orin-nx", # Device tags
                 "installer-only", "excl-installer", "storeDisk-only", "excl-storeDisk", "secboot-only", "excl-secboot",  # Image type tags
                 "lab-only", "fmo"]  # Other important tags
@@ -37,9 +37,10 @@ def process_file(path):
         prefix, tag_str = match.groups()
         tags = tag_str.split()
         ordered = sorted(tags, key=tag_priority)
+        normalized = prefix + "  ".join(ordered)
 
-        if tags != ordered:
-            lines[i] = prefix + "  ".join(ordered)
+        if line != normalized:
+            lines[i] = normalized
             changed = True
 
     if changed:

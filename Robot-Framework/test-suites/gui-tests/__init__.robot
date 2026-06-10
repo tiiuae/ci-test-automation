@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       GUI tests
-Test Tags           regression    gui
+Test Tags           regression  gui
 
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/setup_keywords.resource

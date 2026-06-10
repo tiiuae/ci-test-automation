@@ -50,8 +50,8 @@ Check that internal tcp syn flooding triggers blacklisting
     [Teardown]      Run Keyword If Test Failed    Blacklist Teardown
 
 Check that external ping flooding triggers blacklisting
-    [Tags]            SP-T299  SP-T299-3  lenovo-x1  darter-pro  orin-agx  orin-nx  lab-only
     [Documentation]   Validate that ping flooding from the test agent to net-vm triggers firewall blacklisting.
+    [Tags]            SP-T299  SP-T299-3  lenovo-x1  darter-pro  orin-agx  orin-nx  lab-only
     [Setup]           Run Keyword If   "${SERIAL_PORT}" == "NONE"   SKIP   No serial address, skipping test
     ${ext_attacker_ip}    Get External Attacker IP
     External Ping Flood NetVM
@@ -60,8 +60,8 @@ Check that external ping flooding triggers blacklisting
     [Teardown]      Run Keyword If Test Failed    Blacklist Teardown
 
 Check that external tcp syn flooding triggers blacklisting
-    [Tags]            SP-T299  SP-T299-4  lenovo-x1  darter-pro  orin-agx  orin-nx  lab-only
     [Documentation]   Validate that tcp syn probing from the test agent to net-vm triggers firewall blacklisting.
+    [Tags]            SP-T299  SP-T299-4  lenovo-x1  darter-pro  orin-agx  orin-nx  lab-only
     [Setup]           Run Keyword If   "${SERIAL_PORT}" == "NONE"   SKIP   No serial address, skipping test
     ${ext_attacker_ip}    Get External Attacker IP
     Tcp Syn Flood         ${DEVICE_IP_ADDRESS}
@@ -70,8 +70,8 @@ Check that external tcp syn flooding triggers blacklisting
     [Teardown]      Run Keyword If Test Failed    Blacklist Teardown
 
 Check VM firewall policy
-    [Tags]               SP-T361  lenovo-x1  darter-pro  dell-7330
     [Documentation]      Check that blocked pages can not be accessed, policy only applies to chrome-vm
+    [Tags]               SP-T361  bat  lenovo-x1  darter-pro  dell-7330
     ${since_last_boot}   Get Time Since Last Boot
     Switch to vm         ${CHROME_VM}
     # Policy can take up to 5 minutes to update

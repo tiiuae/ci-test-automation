@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing logging
-Test Tags           logging  bat  lenovo-x1  darter-pro  dell-7330
+Test Tags           logging  pre-merge  bat  lenovo-x1  darter-pro  dell-7330
 
 Library             DateTime
 Library             OperatingSystem
@@ -25,7 +25,7 @@ ${TEST_LOG}           log_check_${BUILD_ID}
 
 Logging service is running in all VMs
     [Documentation]    Check that logging service is running in every VM
-    [Tags]             SP-T333  SP-T333-1  pre-merge
+    [Tags]             SP-T333  SP-T333-1
     ${failed_vms}      Create List
     FOR  ${vm}  IN  @{VM_LIST}
         Switch to vm   ${vm}
@@ -45,14 +45,14 @@ Logging service is running in all VMs
 
 Alloy and stunnel services are running in admin-vm
     [Documentation]    Verify that admin-vm runs alloy and stunnel services required for log collection and forwarding
-    [Tags]             SP-T333  SP-T333-2  pre-merge
+    [Tags]             SP-T333  SP-T333-2
     Switch to vm   ${ADMIN_VM}
     Run Keyword And Continue On Failure   Verify service status  range=5  service=alloy.service    expected_state=active  expected_substate=running
     Run Keyword And Continue On Failure   Verify service status  range=5  service=stunnel.service  expected_state=active  expected_substate=running
 
 Check Grafana logs
     [Documentation]  Check that all virtual machines are sending logs to Grafana
-    [Tags]           SP-T172  pre-merge
+    [Tags]           SP-T172
     Check Network Availability    8.8.8.8   limit_freq=${False}
     Switch to vm       ${ADMIN_VM}
     ${id}              Get Actual Device ID
@@ -76,7 +76,7 @@ Check Grafana logs
 
 Check logging rate
     [Documentation]    Check that host or vms are not creating too much logs
-    [Tags]             SP-T359  log_rate  pre-merge  orin-agx  orin-agx-64  orin-nx
+    [Tags]             SP-T359  log_rate  orin-agx  orin-agx-64  orin-nx
 
     ${check_interval}          Set Variable   100
     ${entry_limit}             Set Variable   500

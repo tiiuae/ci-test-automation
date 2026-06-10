@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing files sharing among VMs
-Test Tags           SP-T198  shares  lenovo-x1  darter-pro  dell-7330
+Test Tags           SP-T198  shares  bat  lenovo-x1  darter-pro  dell-7330
 
 Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
@@ -19,7 +19,7 @@ File sharing from Chrome-VM to Business-VM
     ${CHROME_VM}    ${BUSINESS_VM}
 
 File sharing from Chrome-VM to Comms-VM
-    [Tags]          SP-T198-2  pre-merge  bat
+    [Tags]          SP-T198-2  pre-merge
     ${CHROME_VM}    ${COMMS_VM}
 
 File sharing from Comms-VM to Business-VM
