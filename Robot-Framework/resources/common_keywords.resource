@@ -70,28 +70,31 @@ Get VM list
     IF    ${with_host}    Append To List   ${vm_list}   ${HOST}
     RETURN    @{vm_list}
 
-Check if process is running
+Is process running
     [Arguments]    ${process_name}
-    ${status}  ${output}   Run Keyword And Ignore Error   Run Command    pgrep -f "${process_name}" -a
-    RETURN   '${status}' == 'PASS'
+    ${running}   Run Keyword And Return Status   Run Command    pgrep -f "${process_name}" -a
+    RETURN   ${running}
+
+Check that process is not running
+    [Arguments]    ${process_name}
+    ${is_running}   Is process running   ${process_name}
+    Should Not Be True   ${is_running}   Process ${process_name} is still running
 
 Kill process by name
     [Arguments]   ${process_name}   ${sudo}=True   ${require_exists}=${True}   ${signal}=TERM   ${fallback_signal}=KILL
     IF    ${require_exists}
-        ${was_running}   Check if process is running   ${process_name}
-        IF    not ${was_running}   FAIL   Process ${process_name} is not running
+        ${is_running}   Is process running   ${process_name}
+        Should Be True   ${is_running}   Process ${process_name} is not running
     END
     Log   Killing process ${process_name} with signal ${signal} (fallback: ${fallback_signal})   console=True
     # A = ignore pkill process (ancestor), e = display what is killed, f = use full process name to kill
     Run Command    pkill -${signal} -Aef "${process_name}"  sudo=${sudo}  return=rc  rc_match=skip  timeout=15
-    ${still_running}   Wait Until Keyword Succeeds   5x   1s   Check if process is running   ${process_name}
-    IF  ${still_running}
+    ${stopped}   Run Keyword And Return Status   Wait Until Keyword Succeeds   5x   1s   Check that process is not running   ${process_name}
+    IF  not ${stopped}
         Log   Process ${process_name} still running after signal ${signal}, retrying with ${fallback_signal}   console=True
         Run Command    pkill -${fallback_signal} -Aef "${process_name}"  sudo=${sudo}  return=rc  rc_match=skip  timeout=15
-        ${still_running}   Wait Until Keyword Succeeds   5x   1s   Check if process is running   ${process_name}
-        IF  ${still_running}
-            FAIL   Process ${process_name} is still running after ${signal} and ${fallback_signal}
-        END
+        ${stopped}   Run Keyword And Return Status   Wait Until Keyword Succeeds   5x   1s   Check that process is not running   ${process_name}
+        Should Be True   ${stopped}   Process ${process_name} is still running after ${signal} and ${fallback_signal}
     END
 
 Save Time

@@ -90,6 +90,13 @@ Start Element via GUI
     Close app via GUI   ${COMMS_VM}  element  ghaf-close.png
     Save launch time    element
 
+Start Fingerprints via GUI
+    [Documentation]   Start Fingerprints via GUI and measure launch time
+    [Tags]            SP-T364  SP-T364-2
+    Start app via GUI   ${GUI_VM}  fingwit  Fingerprints
+    Close app via GUI   ${GUI_VM}  fingwit  window-close.png
+    Save launch time    fingwit
+
 Start GPU Screen Recorder via GUI
     [Documentation]   Start GPU Screen Recorder via GUI and measure launch time
     [Tags]            SP-T293  SP-T293-2
