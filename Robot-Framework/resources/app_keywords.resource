@@ -26,7 +26,7 @@ Start application in VM
 
     IF    '${app-vm}' not in ${RUNNING_VMS} or ${always_check_vm}   Check that appVM is running   ${app-vm}
     Switch to vm   ${app-vm}
-    Check that the application is not running   ${process_name}  1
+    Check that the application is not running   ${process_name}  1   before_launch_check=True
     
     Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
     Start application   ${app_name}     params_string=${params_string}
@@ -51,8 +51,8 @@ Start application
 Check that the application was started
     [Arguments]    ${process_name}  ${range}=2
     FOR   ${i}   IN RANGE  ${range}
-        ${status}  Check if process is running   ${process_name}
-        IF    ${status}
+        ${is_running}  Is process running   ${process_name}
+        IF    ${is_running}
             Log    ${process_name} is running    console=True
             RETURN
         END
@@ -61,14 +61,17 @@ Check that the application was started
     FAIL   ${process_name} is not running after ${range} seconds
 
 Check that the application is not running
-    [Arguments]    ${process_name}  ${range}=2
+    [Arguments]    ${process_name}  ${range}=2   ${before_launch_check}=False
     FOR   ${i}   IN RANGE  ${range}
-        ${status}  Check if process is running   ${process_name}
-        IF    not ${status}
+        ${is_running}  Is process running   ${process_name}
+        IF    not ${is_running}
             Log    ${process_name} is not running    console=True
             RETURN
         END
         Sleep   1
+    END
+    IF    ${before_launch_check}
+        FAIL   ${process_name} is already running before it was launched
     END
     FAIL   ${process_name} is still running after ${range} seconds
 
@@ -118,7 +121,7 @@ Start app via GUI
     [Documentation]    Start Application via GUI and verify related process started
     [Arguments]        ${app-vm}   ${process_name}   ${display_name}
     Check that appVM is running   ${app-vm}
-    Check that the application is not running   ${process_name}  1
+    Check that the application is not running   ${process_name}  1  before_launch_check=True
     Switch to vm                   ${GUI_VM}  user=${USER_LOGIN}
 
     Open app menu

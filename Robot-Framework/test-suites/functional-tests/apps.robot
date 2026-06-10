@@ -62,6 +62,11 @@ Start Element
     [Tags]            SP-T52  SP-T52-1
     Start application in VM   Element   ${COMMS_VM}   element
 
+Start Fingerprints
+    [Documentation]   Start Fingerprints and verify process started
+    [Tags]            SP-T364  SP-T364-1
+    Start application in VM   Fingerprints   ${GUI_VM}   fingwit
+
 Start GPU Screen Recorder
     [Documentation]   Start GPU Screen Recorder and verify process started
     [Tags]            SP-T293  SP-T293-1
