@@ -31,11 +31,11 @@ Verify booting after restart by power
     Reboot Orin
     Start UART Log Capture
 
-    Check If Device Is Up   timeout=140
+    Check If Device Is Up   retry=140s
     IF      "${DEVICE_TYPE}" == "orin-nx" and ${IS_AVAILABLE} == False
             Log                     message=Orin-nx failed to start, rebooting via relay one more time...    level=WARN
             Reboot Orin
-            Check If Device Is Up   timeout=140
+            Check If Device Is Up   retry=140s
     END
 
     IF    ${IS_AVAILABLE} == False
@@ -62,14 +62,14 @@ Verify booting laptop
     Reboot Laptop      verify_shutdown=False
     Start UART Log Capture
     IF    "installer" in "${JOB}"
-        Check If Device Is Up    range=240    timeout=490
+        Check If Device Is Up    retry=490s
     ELSE
-        Check If Device Is Up    timeout=110
+        Check If Device Is Up    retry=110s
     END
     IF    ${IS_AVAILABLE} == False
         Log To Console    Turning device on again...
         Turn Laptop On
-        Check If Device Is Up    timeout=110
+        Check If Device Is Up    retry=110s
     END
     IF    ${IS_AVAILABLE} == False
         FAIL    The device did not start
@@ -96,12 +96,8 @@ Turn OFF Device
     ELSE
         Turn Off Power
     END
-    ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  30s  2s  Check If Ping Fails
-    IF  ${device_not_available} == True
-        Log To Console    Device is down
-    ELSE
-        Log To Console    Device is UP after the end of the test.
-    END
+
+    Wait For Device Going Offline    hostname=${DEVICE_IP_ADDRESS}    timeout=30s
 
 Turn ON Device
     [Documentation]   Turn on device
@@ -147,7 +143,7 @@ Wipe installed Ghaf from internal memory
     [Tags]            wiping  lenovo-x1  darter-pro
     Log To Console    ${\n}Turning device on...
     Turn Laptop On
-    Check If Device Is Up   range=60
+    Check If Device Is Up   retry=60x
     Run Keyword If    ${IS_AVAILABLE} == False   FAIL    The device did not start
 
     IF  "${CONNECTION_TYPE}" == "ssh"
@@ -160,10 +156,10 @@ Wipe installed Ghaf from internal memory
 Break the system
     [Documentation]   Wipe boot partition
     [Tags]            break  darter-pro
-    Check If Device Is Up    range=5
+    Check If Device Is Up    retry=5x
     IF    ${IS_AVAILABLE} == False
         Turn Laptop On
-        Check If Device Is Up    range=240
+        Check If Device Is Up    retry=240x
         IF    ${IS_AVAILABLE} == False
             FAIL    Darter is not available, Wiping is not possible, requires manual maintenance.
         END

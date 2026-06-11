@@ -141,11 +141,11 @@ Connect After Reboot
         WHILE    True    limit=120 seconds
             Log              Pressing Enter    console=True
             Press Button     ${SWITCH_BOT}-Enter
-            Run Keyword And Ignore Error    Check If Device Is Up    range=5
+            Check If Device Is Up   retry=5x
             IF   ${IS_AVAILABLE} == True and "${CONNECTION_TYPE}" == "ssh"   BREAK
         END
     ELSE
-        Check If Device Is Up         range=60
+        Check If Device Is Up         retry=60x
     END
     
     IF    ${IS_AVAILABLE} == False
@@ -160,7 +160,7 @@ Connect After Reboot
 Wake up device
     Log To Console    Pressing the power button...
     Press Button      ${SWITCH_BOT}-ON
-    Check If Device Is Up    range=30
+    Check If Device Is Up    retry=30x
     IF    ${IS_AVAILABLE} == False
         FAIL             The device did suspend but failed to wake up
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
@@ -213,15 +213,6 @@ Verify shutdown via network
     END
     ${diff}    Evaluate    int(time.time()) - int(${start_time})
     Fail       Device at ${DEVICE_IP_ADDRESS} still responds after ${diff} seconds.
-
-Check that device is suspended
-    ${device_not_available}  Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s  Check If Ping Fails
-    IF  ${device_not_available} == True
-        Log To Console  Device is suspended
-    ELSE
-        Log To Console  Device is available
-        FAIL    Device failed to suspend.
-    END
 
 Reboot Orin if ssh connection dropped
     ${ssh_available}  Run Keyword And Return Status    Run Command    ls  timeout=5
