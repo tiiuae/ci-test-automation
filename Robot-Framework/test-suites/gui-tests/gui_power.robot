@@ -179,7 +179,7 @@ Confirm suspension and wake up the device
     [Documentation]   Check that the device is suspended.
     ...               Wake up by pressing the power button for 1 sec.
     ...               Check that the device is awake and unlock.
-    Check that device is suspended
+    Wait For Device Going Offline    ${DEVICE_IP_ADDRESS}
 
     Log To Console      Letting the device stay suspended for 30 sec
     Wait                30

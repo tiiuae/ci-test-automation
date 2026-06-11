@@ -57,29 +57,33 @@ Turn Relay On
 
 Check Serial Connection
     [Documentation]    Check if device is available by serial
-    [Arguments]        ${range}=30
+    [Arguments]        ${range}=30x
     Log To Console     Trying to connect via serial...
-    ${serial_status}   Open Serial Port
-    IF   ${serial_status}==False
-        Log       Serial port is not available      console=True
-        RETURN    False
-    END
-    FOR    ${i}    IN RANGE    ${range}
-        Write Data     ${\n}
-        ${output}      SerialLibrary.Read Until
-        ${status}      Run Keyword And Return Status    Should contain    ${output}    ghaf
-        IF    ${status}    BREAK
-        Sleep   1
-    END
+    Should Not Be True     ${UART_CAPTURE_ACTIVE}       msg=UART capture is active, can't check serial, data on the port could be lost.
+    Should Not Be Equal    ${SERIAL_PORT}      NONE     msg=There is no address for serial connection
+
+    ${serial_status}=   Open Serial Port
+    Should Not Be Equal    ${serial_status}    False    msg=Serial port is not available
+    Wait Until Keyword Succeeds    ${range}    1s    Check For Text Is In Serial Port    text=ghaf
     Delete All Ports
-    Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
-    IF  ${status}
-        Log To Console       Device is available via serial
-        Set Global Variable  ${CONNECTION_TYPE}    serial
-        Set Global Variable  ${IS_AVAILABLE}       True
-    ELSE
-        Log To Console       Device is not available via serial
+
+Check For Text Is In Serial Port
+    [Arguments]    ${text}
+    Write Data     ${\n}
+    ${output}      SerialLibrary.Read Until
+    Should contain    ${output}    ${text}
+
+Try To Check Serial On Device
+    [Arguments]    ${range}=30x
+    ${serial_status}=      Set variable    ${False}
+    TRY
+        Check Serial Connection     range=${range}
+        ${serial_status}=    Set Variable   ${True}
+        Log    Device is available via Serial Port.     console=True
+    EXCEPT   AS    ${exc}
+        Log    Device is not available via serial, failed with an exception:\n ${exc}!      console=True
     END
+    RETURN    ${serial_status}
 
 Log In To Ghaf OS
     [Documentation]       Log in with ${LOGIN} and ${PASSWORD}
