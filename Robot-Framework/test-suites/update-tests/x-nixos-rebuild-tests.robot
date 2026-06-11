@@ -44,19 +44,16 @@ Check net-vm hostname persistence over nixos-rebuild
 Check file system changes are logged
     [Documentation]         Create file and verify that the operation was logged
     [Tags]                  SP-T280
-    [Setup]                 Check That Logging Is Working in VM   ${CHROME_VM}
-    ${file_path}              Set Variable    /tmp/test_text.txt
-
-    Switch to vm              ${HOST}
-    ${state}  ${substate}     Verify service status  range=60  service=microvm@${CHROME_VM}.service  expected_state=active  expected_substate=running
-    Switch to vm              ${CHROME_VM}
+    [Setup]                 Prepare File Audit Test
+    ${file_path}              Set Variable    /tmp/test_text_${BUILD_ID}.txt
+    ${audit_start}            Get Audit Search Timestamp
     Create text file          test    ${file_path}
-    ${file_owner_id}          Get file owner id    ${file_path}
-    Sleep                     3
-    ${found}  ${logs}         Get logs by key words   ${file_path}   15s   ${False}
-    Should Be True            ${found}    No log entry for ${file_path} found in Grafana during the last 15 seconds
+    ${file_owner}             Run Command    stat -c "%U" ${file_path}
+    ${logs}                   Wait Until Keyword Succeeds    10s    1s
+    ...                       Find Audit Logs   since=${audit_start}   file=${file_path}
     Run Keyword And Continue On Failure   Should Contain    ${logs}    nametype=CREATE
-    Run Keyword And Continue On Failure   Should Contain    ${logs}    ouid=${file_owner_id}
+    Run Keyword And Continue On Failure   Should Contain    ${logs}    ouid=${file_owner}
+    Run Keyword And Continue On Failure   Should Contain    ${logs}    key=successful-modification
 
 Check that system logs privilege uses and key events
     [Documentation]         Execute check of ipset list and verify that the command was logged
@@ -73,26 +70,13 @@ Check that system logs privilege uses and key events
 Check audit update logging
     [Documentation]         Verify that interrupted nixos-rebuild (system update) is properly logged
     [Tags]                  SP-T276
+    [Setup]                 Prepare Rebuild Audit Test
     [Timeout]               10 minutes
-    Switch to vm              ${HOST}
-    Run Keyword And Continue On Failure    Verify service status  range=10  service=nixos-rebuild-watch.service
-    Elevate to superuser
-    Run Nix Shell             git
-    Log To Console            Modifying modules/development/debug-tools.nix
-    Edit file                 ${repository_path}/modules/development/debug-tools.nix  pkgs.file  pkgs.xdiskusage  ${False}
-    ${before_rebuild}         Get current timestamp
+    ${audit_start}            Get Audit Search Timestamp
     Log To Console            Starting nixos-rebuild and interrupting when copying started
     Run Nixos Rebuild         ${repository_path}  ${target_name}  copied
-    ${after_rebuild}          Get current timestamp
-    ${log_search_window}      DateTime.Subtract Date From Date   ${after_rebuild}  ${before_rebuild}   exclude_millis=True
-    Sleep                     5
-    ${any_logs_found}         Check VM Log on Grafana   ${device_id}  ${HOST}  ${log_search_window}s
-    IF  not ${any_logs_found}
-        FAIL                  Grafana missing logs from ghaf-host completely from the time period of interest.\nCheck if log forwarding is broken.
-    END
-    ${found}  ${logs}         Get logs by key words   nixos_rebuild_store   ${log_search_window}s   ${False}
-    Should Be True            ${found}    No 'nixos_rebuild_store' keywords found in Grafana from the time of nixos-rebuild.
-    Log                       ${logs}
+    Wait Until Keyword Succeeds    10s    1s
+    ...                       Find Audit Logs   since=${audit_start}   key=nixos_rebuild_store
 
 
 *** Keywords ***
@@ -128,6 +112,7 @@ Enable audit logging and nix-store-watch
     Log To Console            Making changes to the local ghaf repository
     Edit file                 ${repository_path}/modules/reference/profiles/mvp-user-trial.nix  security.audit.enable = false;  security.audit.enable = true;
     Edit file                 ${repository_path}/modules/common/security/audit/default.nix  ghaf.security.audit.enableOspp  ghaf.security.audit.enableVerboseRebuild = true;  ${False}
+    Edit file                 ${repository_path}/modules/common/security/audit/default.nix  ghaf.security.audit.enableOspp  ghaf.security.audit.enableVerboseOspp = true;  ${False}
     Edit file                 ${repository_path}/modules/common/security/audit/default.nix  ghaf.security.audit.enableOspp = mkIf cfg.enableVerboseOspp true;  ghaf.security.audit.enableOspp = true;
     Edit file                 ${repository_path}/modules/microvm/host/microvm-host.nix  storeWatcher.enable = false;  storeWatcher.enable = true;
     Log To Console            Switching to audit mode
@@ -242,3 +227,52 @@ Check That Logging Is Working in VM
     IF  not ${status}
         FAIL    Log sent from ${vm} was not found in Grafana.\nCheck if log forwarding is broken.
     END
+
+Prepare File Audit Test
+    Switch to vm              ${HOST}
+    Verify service status     range=60  service=microvm@${CHROME_VM}.service  expected_state=active  expected_substate=running
+    Switch to vm              ${CHROME_VM}
+    Verify Audit Rule Is Loaded    successful-modification
+
+Prepare Rebuild Audit Test
+    Switch to vm              ${HOST}
+    Verify service status     range=10  service=nixos-rebuild-watch.service
+    Verify Audit Rule Is Loaded    nixos_rebuild_store
+    Prepare Rebuild Audit Event
+
+Prepare Rebuild Audit Event
+    [Documentation]  Add a harmless package to make nixos-rebuild copy store paths and emit audit logs.
+    Elevate to superuser
+    Log To Console   Adding package to trigger nixos-rebuild audit event
+    Edit file        ${repository_path}/modules/development/debug-tools.nix  pkgs.file  pkgs.xdiskusage  ${False}
+
+Get Audit Search Timestamp
+    [Documentation]  Return timestamp in a format accepted by ausearch -ts.
+    ${timestamp}     Run Command    date '+%m/%d/%Y %H:%M:%S'
+    RETURN           ${timestamp}
+
+Find Audit Logs
+    [Documentation]  Find a matching local audit log entry by file or key since the given timestamp.
+    ...              Pass either file or key; but if both are set, file is preferred.
+    ...              Key searches use --just-one because rebuild audit logs can be large and the test only needs one matching event.
+    [Arguments]      ${since}   ${key}=${EMPTY}   ${file}=${EMPTY}
+    ${filter}        Set Variable If    $file    -f ${file}    -k ${key} --just-one
+    ${expected}      Set Variable If    $file    ${file}    ${key}
+    Should Not Be Empty    ${expected}  Provide either file or key to search audit logs.
+    ${cmd}           Set Variable       ausearch -if /var/log/audit/audit.log -ts ${since} ${filter} -i
+    ${logs}  ${err}  ${rc}    Run Command    ${cmd}    return=out,err,rc    sudo=True    rc_match=skip
+    Should Be True   ${rc} in [0, 1]    ausearch failed with unexpected return code ${rc}:\n${err}
+    Should Contain   ${logs}    ${expected}    No log entry for '${expected}' found in local audit logs.
+    RETURN           ${logs}
+
+Verify Audit Rule Is Loaded
+    [Documentation]  Ensure audit is enabled and the expected rule is loaded on the current VM.
+    [Arguments]      ${expected_rule}
+    ${status}        Run Command    auditctl -s    sudo=True
+    IF  'enabled 0' in $status
+        Run Command    auditctl -e 1    sudo=True
+        ${status}      Run Command    auditctl -s    sudo=True
+    END
+    Should Match Regexp    ${status}    (?m)^enabled\\s+[12]    Audit is not enabled:\n${status}
+    ${rules}         Run Command    auditctl -l    sudo=True
+    Should Contain   ${rules}    ${expected_rule}    Audit rule '${expected_rule}' is not loaded on the current VM.\nLoaded rules:\n${rules}
