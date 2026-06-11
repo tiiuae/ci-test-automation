@@ -57,13 +57,14 @@ Turn Relay On
 
 Check Serial Connection
     [Documentation]    Check if device is available by serial
+    [Arguments]        ${range}=30
     Log To Console     Trying to connect via serial...
     ${serial_status}   Open Serial Port
     IF   ${serial_status}==False
         Log       Serial port is not available      console=True
         RETURN    False
     END
-    FOR    ${i}    IN RANGE    30
+    FOR    ${i}    IN RANGE    ${range}
         Write Data     ${\n}
         ${output}      SerialLibrary.Read Until
         ${status}      Run Keyword And Return Status    Should contain    ${output}    ghaf

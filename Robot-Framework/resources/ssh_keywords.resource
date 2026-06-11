@@ -156,7 +156,7 @@ Check If Device Is Up
         ELSE IF  "${SERIAL_PORT}" == "NONE"
             Log To Console    There is no address for serial connection
         ELSE
-            Check Serial Connection
+            Check Serial Connection    range=3
         END
     END
 
