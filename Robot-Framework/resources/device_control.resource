@@ -86,7 +86,7 @@ Soft Reboot Device And Connect
     ${reboot_log_since}    Get Time    epoch
     ${soft_reboot_ok}      Run Keyword And Return Status
     ...    Run Keywords
-    ...    Soft Reboot Device   ${vm}
+    ...    Soft Reboot Device   ${vm}    ${reboot_log_since}
     ...    AND
     ...    Connect After Reboot   soft_reboot=True
     IF    not ${soft_reboot_ok}
@@ -109,7 +109,10 @@ Collect Logs After Failed Soft Reboot
 
 Soft Reboot Device
     [Documentation]  Reboot device from ${vm}
-    [Arguments]      ${vm}=${HOST}
+    [Arguments]      ${vm}=${HOST}    ${reboot_log_since}=${EMPTY}
+    IF    '${reboot_log_since}' == '${EMPTY}'
+        ${reboot_log_since}    Get Time    epoch
+    END
     ${device_is_available}   Ping Host   ${DEVICE_IP_ADDRESS}
     IF  ${device_is_available}
         Switch to vm   ${vm}
@@ -122,6 +125,7 @@ Soft Reboot Device
     IF    not ${shutdown_ok}
         IF    "${vm}" == "${GUI_VM}"
             Log To Console    GUI-VM reboot did not shut down the full device. Retrying reboot from host.
+            Collect Logs After Failed Soft Reboot    ${reboot_log_since}
             Switch to vm   ${HOST}
             Run Command  logger --priority=user.info "ROBOT_LOG: Soft reboot failed on ${DEVICE_TYPE}, job ${JOB}"
             Run Command  reboot  sudo=True   rc_match=skip

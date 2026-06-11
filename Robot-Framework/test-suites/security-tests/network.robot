@@ -65,9 +65,11 @@ Account lockout teardown
         Log To Console    Waiting ${remaining_wait}s before reboot to satisfy fail2ban findtime window
         Wait    ${remaining_wait}
     END
+    ${reboot_log_since}    Get Time    epoch
     ${soft_reboot_ok}    Run Keyword And Return Status    Soft Reboot Device And Connect
     IF    not ${soft_reboot_ok}
         Log    Soft reboot did not recover device access, falling back to hard reboot.    console=True
+        Run Keyword And Continue On Failure    Collect Logs After Failed Soft Reboot    ${reboot_log_since}
         Reboot Laptop      verify_shutdown=False
         Check If Device Is Up
     END
