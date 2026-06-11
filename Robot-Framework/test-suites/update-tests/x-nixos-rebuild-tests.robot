@@ -44,17 +44,17 @@ Check net-vm hostname persistence over nixos-rebuild
 Check file system changes are logged
     [Documentation]         Create file and verify that the operation was logged
     [Tags]                  SP-T280
-    [Setup]                 Check That Logging Is Working in VM   ${CHROME_VM}
-    ${file_path}              Set Variable    /tmp/test_text.txt
+    ${file_path}              Set Variable    /tmp/test_text_${BUILD_ID}.txt
 
     Switch to vm              ${HOST}
     ${state}  ${substate}     Verify service status  range=60  service=microvm@${CHROME_VM}.service  expected_state=active  expected_substate=running
     Switch to vm              ${CHROME_VM}
+    ${audit_start}            Get Audit Search Timestamp
     Create text file          test    ${file_path}
     ${file_owner_id}          Get file owner id    ${file_path}
     Sleep                     3
-    ${found}  ${logs}         Get logs by key words   ${file_path}   15s   ${False}
-    Should Be True            ${found}    No log entry for ${file_path} found in Grafana during the last 15 seconds
+    ${found}  ${logs}         Get Audit Logs By Keyword   ${file_path}   ${audit_start}
+    Should Be True            ${found}    No log entry for ${file_path} found in local audit logs
     Run Keyword And Continue On Failure   Should Contain    ${logs}    nametype=CREATE
     Run Keyword And Continue On Failure   Should Contain    ${logs}    ouid=${file_owner_id}
 
@@ -80,18 +80,12 @@ Check audit update logging
     Run Nix Shell             git
     Log To Console            Modifying modules/development/debug-tools.nix
     Edit file                 ${repository_path}/modules/development/debug-tools.nix  pkgs.file  pkgs.xdiskusage  ${False}
-    ${before_rebuild}         Get current timestamp
+    ${audit_start}            Get Audit Search Timestamp
     Log To Console            Starting nixos-rebuild and interrupting when copying started
     Run Nixos Rebuild         ${repository_path}  ${target_name}  copied
-    ${after_rebuild}          Get current timestamp
-    ${log_search_window}      DateTime.Subtract Date From Date   ${after_rebuild}  ${before_rebuild}   exclude_millis=True
     Sleep                     5
-    ${any_logs_found}         Check VM Log on Grafana   ${device_id}  ${HOST}  ${log_search_window}s
-    IF  not ${any_logs_found}
-        FAIL                  Grafana missing logs from ghaf-host completely from the time period of interest.\nCheck if log forwarding is broken.
-    END
-    ${found}  ${logs}         Get logs by key words   nixos_rebuild_store   ${log_search_window}s   ${False}
-    Should Be True            ${found}    No 'nixos_rebuild_store' keywords found in Grafana from the time of nixos-rebuild.
+    ${found}  ${logs}         Get Audit Logs By Keyword   nixos_rebuild_store   ${audit_start}   nixos_rebuild_store
+    Should Be True            ${found}    No 'nixos_rebuild_store' keywords found in local audit logs from the time of nixos-rebuild.
     Log                       ${logs}
 
 
@@ -242,3 +236,21 @@ Check That Logging Is Working in VM
     IF  not ${status}
         FAIL    Log sent from ${vm} was not found in Grafana.\nCheck if log forwarding is broken.
     END
+
+Get Audit Search Timestamp
+    [Documentation]  Return timestamp in a format accepted by ausearch -ts.
+    ${timestamp}    Run Command    date '+%m/%d/%Y %H:%M:%S'
+    RETURN          ${timestamp}
+
+Get Audit Logs By Keyword
+    [Documentation]  Search local audit logs for a keyword since the given timestamp.
+    [Arguments]      ${word}   ${since}   ${key}=${EMPTY}
+    IF  '${key}' == '${EMPTY}'
+        ${cmd}    Set Variable    ausearch -ts '${since}' -i
+    ELSE
+        ${cmd}    Set Variable    ausearch -ts '${since}' -k ${key} -i
+    END
+    ${logs}  ${rc}    Run Command    ${cmd}    return=out,rc    sudo=True    rc_match=skip
+    Log              ${logs}
+    ${found}         Run Keyword And Return Status    Should Contain    ${logs}    ${word}
+    RETURN           ${found}    ${logs}
