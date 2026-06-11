@@ -16,6 +16,7 @@ ${TEST_WIFI_SSID}         ${EMPTY}
 ${TEST_WIFI_PSWD}         ${EMPTY}
 ${DEVICE_TYPE}            ${EMPTY}
 ${JOB}                    ${EMPTY}
+${NATIVE_BUILD}           ${True}
 ${FLEETDM_ENROLL_SECRET}  ${EMPTY}
 ${FLEETDM_API_TOKEN}      ${EMPTY}
 ${USER_LOGIN}             ${EMPTY}
@@ -138,8 +139,17 @@ Set Variables
             Set Global Variable    ${JOB}    ${DEVICE_TYPE}
         END
     END
+    Set Native Build Variable
 
     Set Global Variable  ${GRAFANA_LOGS}    https://loki.ghaflogs.vedenemo.dev
+
+Set Native Build Variable
+    ${cross_compiled}    Run Keyword And Return Status    Should Contain    ${JOB}    from-x86
+    IF    ${cross_compiled}
+        Set Global Variable    ${NATIVE_BUILD}    ${False}
+    ELSE
+        Set Global Variable    ${NATIVE_BUILD}    ${True}
+    END
 
 Read Config
     [Arguments]  ${file_path}

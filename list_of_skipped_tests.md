@@ -3,7 +3,9 @@
 ## Active SKIPS
 
 | DATE SET   | TEST CASE                                               | TICKET / Additional Data.                                                                     |
-| ---------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+|------------|---------------------------------------------------------| --------------------------------------------------------------------------------------------- |
+| 11.06.2026 | Verify booting after restart by power (orin-nx)         | SSRCSP-8585                                                                                   |
+| 11.06.2026 | functional-tests (orin-nx)                              | SSRCSP-8585                                                                                   |
 | 29.05.2026 | Check Grafana log forwarding after disconnected state   | SSRCSP-8525                                                                                   |
 | 25.05.2026 | Reboot from power menu                                  | SSRCSP-8490                                                                                   |
 | 22.05.2026 | Check logging rate (Dell)                               | SSRCSP-8481                                                                                   |
