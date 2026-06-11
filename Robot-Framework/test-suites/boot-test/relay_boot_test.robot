@@ -178,6 +178,8 @@ Break the system
 *** Keywords ***
 
 Test Teardown
+    Run Keyword If    "${DEVICE_TYPE}" == "orin-nx"
+    ...    Run Keyword If Test Failed    Skip    Known issue: SSRCSP-8585, orin-nx fails ssh on some boots
     IF  ${IS_AVAILABLE}
         IF  "${CONNECTION_TYPE}" == "ssh"
             Run Keyword If Test Failed    Run Keyword And Ignore Error    ssh_keywords.Save log
