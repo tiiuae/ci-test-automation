@@ -174,7 +174,7 @@ Run Nixos Rebuild
                 END
             END
             # Ensure that the device is still alive
-            Wait Until Keyword Succeeds  15s  3s  Ping Host  ${DEVICE_IP_ADDRESS}  allow_fail=${True}
+            Wait Until Keyword Succeeds  15s  3s  Verify Ping Host  ${DEVICE_IP_ADDRESS}  host_reached=${True}
             Sleep                   10
             Log To Console          .   no_newline=true
         ELSE

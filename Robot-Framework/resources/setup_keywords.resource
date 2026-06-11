@@ -20,7 +20,7 @@ ${ROBOT_SUDOERS_BOOT_ID}     ${EMPTY}
 Prepare Test Environment
     [Arguments]   ${enable_dnd}=False
     [Timeout]     5 minutes
-    Check If Device Is Up    range=5
+    Check If Device Is Up    retry=5x
     IF    ${IS_AVAILABLE} == False
         FAIL    The device is not available via SSH or serial.
     ELSE IF  "${CONNECTION_TYPE}" == "serial"

@@ -46,7 +46,7 @@ Automatic suspension
 
     Wait                     610
 
-    Check that device is suspended
+    Wait For Device Going Offline   ${DEVICE_IP_ADDRESS}
 
     Wait                     60
     Set timestamp            suspend_start

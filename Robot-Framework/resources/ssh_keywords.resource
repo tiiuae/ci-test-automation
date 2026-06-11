@@ -19,21 +19,24 @@ ${NETVM_SYNTAX}     ghaf-[0-9]{10}
 
 
 *** Keywords ***
-
 Ping Host
-    [Arguments]        ${hostname}  ${timeout}=${PING_SPACING}  ${allow_fail}=${False}
-    [Documentation]    Ping the given hostname once and return boolean result
+    [Arguments]        ${hostname}  ${timeout}=${PING_SPACING}
     ${ping_output}=    Run Process   ping ${hostname} -c 1 -W ${timeout}   shell=True
-    ${ping_success}    Run Keyword And Return Status    Should Contain    ${ping_output.stdout}    1 received
-    IF  ${allow_fail} and not ${ping_success}
-        FAIL
-    END
-    Return From Keyword    ${ping_success}
+    ${received}=       Evaluate    '1 received' in $ping_output.stdout
+    RETURN    ${received}
 
-Check If Ping Fails
-    [Documentation]  Check that ping is not getting response from host
-    ${result}  Run Process  ping  ${DEVICE_IP_ADDRESS}  -c1  timeout=1s
-    Should Not Be Equal   ${result.rc}  ${0}
+Verify Ping Host
+    [Arguments]    ${hostname}    ${host_reached}=${True}   ${timeout}=${PING_SPACING}    ${console_log}=${False}
+    ${received_status}=    Ping Host            hostname=${hostname}    timeout=${timeout}
+    Run Keyword If         ${console_log}       Log To Console          Ping ${hostname}... Status: ${received_status}
+    Should Be Equal        ${received_status}   ${host_reached}
+
+Wait For Device Going Offline
+    [Arguments]    ${hostname}   ${timeout}=15s     ${ping_timeout}=${PING_SPACING}
+    ${log_message}=     Set Variable      Device failed to go offline: still pingable after ${timeout}.
+    Wait Until Keyword Succeeds    ${timeout}  2s  Verify Ping Host     hostname=${hostname}    host_reached=${False}    timeout=${ping_timeout}
+    ${log_message}=     Set Variable      Device is not pingable: offline.
+    [Teardown]    Log To Console     ${log_message}
 
 Get Ethernet Interface By Type
     [Documentation]    Returns ethernet interface filtered by usb or non-usb.
@@ -116,48 +119,42 @@ Check Network Availability
     FAIL    Expected availability of ${host}: ${expected_result}, in fact: ${availability}
 
 Check If Device Is Up
-    [Arguments]    ${range}=50    ${timeout}=500
-    ${start_time}=    Get Time	epoch
-    ${ping}    Set Variable    ${False}
-    Set Global Variable        ${IS_AVAILABLE}       False
-    FOR    ${i}    IN RANGE    ${range}
-        ${elapsed}    Evaluate    int(time.time()) - int(${start_time})
-        IF    ${elapsed} >= ${timeout}
-            BREAK
-        END
-        Log         Ping ${DEVICE_IP_ADDRESS}...    console=True
-        Run Keyword If    ${UART_CAPTURE_ACTIVE}    Drain Serial Output    save_output=${True}
-        ${ping}=    Ping Host   ${DEVICE_IP_ADDRESS}
-        Sleep       ${PING_SPACING}
-        IF    ${ping}
-            Log To Console    Ping ${DEVICE_IP_ADDRESS} successful
-            BREAK
-        END
+    [Arguments]    ${retry}=500s
+    ${ssh_status}=       Try To Check Ssh On Device  retry=${retry}  interval=${PING_SPACING}s
+    ${serial_status}=    Run Keyword If   not ${ssh_status}    Try To Check Serial On Device
+
+    Set Up Global Variables If Device Is Up     ${ssh_status}   ${serial_status}
+
+Try To Check Ssh On Device
+    [Arguments]    ${retry}   ${interval}
+    ${ssh_status}=      Set variable    ${False}
+    TRY
+        Wait Until Keyword Succeeds     ${retry}    ${interval}
+        ...      Run keywords
+        ...         Run Keyword If      ${UART_CAPTURE_ACTIVE}           Drain Serial Output    save_output=${True}  AND
+        ...         Verify Ping Host    ${DEVICE_IP_ADDRESS}             console_log=${True}
+
+        Wait Until Ssh Is Ready On Device   ${DEVICE_IP_ADDRESS}
+        ${ssh_status}=      Set Variable    ${True}
+        Log To Console    Device is available via SSH
+    EXCEPT   AS    ${exc}
+        Log To Console    Device is not available via SSH, failed with an exception:\n ${exc}!
     END
+    RETURN    ${ssh_status}
 
-    IF    ${ping}
-        ${port_22_is_available}     Check if ssh is ready on device
-        IF  ${port_22_is_available}
-            Set Global Variable    ${CONNECTION_TYPE}    ssh
-            Set Global Variable    ${IS_AVAILABLE}       True
-        ELSE
-            Set Global Variable    ${IS_AVAILABLE}       False
-        END
-    END
+Set Up Global Variables If Device Is Up
+    [Arguments]    ${ssh_status}    ${serial_status}
+    IF    ${ssh_status}
+        Set Global Variable        ${IS_AVAILABLE}       True
+        Set Global Variable        ${CONNECTION_TYPE}    ssh
+    ELSE IF    ${serial_status}
+        Set Global Variable        ${IS_AVAILABLE}       True
+        Set Global Variable        ${CONNECTION_TYPE}    serial
+    ELSE
+        Set Global Variable        ${IS_AVAILABLE}       False
+        Set Global Variable        ${CONNECTION_TYPE}    ${None}
 
-    ${diff}=    Evaluate    int(time.time()) - int(${start_time})
-
-    IF  ${IS_AVAILABLE}    Log    Device woke up after ${diff} sec.    console=True
-
-    IF  ${IS_AVAILABLE} == False
-        Log To Console    Device is not available via SSH, waited for ${diff} sec!
-        IF  ${UART_CAPTURE_ACTIVE}
-            Log To Console    UART capture is active, leaving serial recovery for teardown.
-        ELSE IF  "${SERIAL_PORT}" == "NONE"
-            Log To Console    There is no address for serial connection
-        ELSE
-            Check Serial Connection
-        END
+        Log    Device is not available neither via ssh nor serial    console=True
     END
 
 Login with timeout
@@ -263,30 +260,30 @@ Check if ssh is ready on vm
     END
     IF   '${status}' == 'FAIL'    FAIL    Port 22 of ${vm} is not ready after ${timeout}
 
-Check if ssh is ready on device
-    [Arguments]    ${timeout}=50
-    ${is_ready}    Set Variable    False
-    ${start_time}  Get Time	epoch
-    FOR    ${i}    IN RANGE    ${timeout}
-        ${rc}  	${output}	 Run And Return Rc And Output   nc -zvw3 ${DEVICE_IP_ADDRESS} 22
-        ${status}    Run Keyword And Return Status
-        ...          Should Be Equal As Integers	${rc}	0
-        Sleep        ${PING_SPACING}
-        IF  ${status}
-            Log To Console   ${output}
-            ${is_ready} =  Set Variable    True
-            BREAK
-        END
-        ${diff}=    Evaluate    int(time.time()) - int(${start_time})
-        IF   ${diff} > ${timeout}
-            BREAK
-        END
-    END
-    IF   ${is_ready} == False
-        Log To Console  Port 22 (ssh) of ${DEVICE} is not ready after ${timeout}
+Get Ssh Status
+    [Arguments]    ${ip_address}
+    ${rc}  	${output}	 Run And Return Rc And Output   nc -zvw3 ${ip_address} 22
+    IF    ${rc} == 0
+        RETURN    ${True}   ${output}
+    ELSE
+        RETURN    ${False}  ${output}
     END
 
-    RETURN  ${is_ready}
+Check Ssh Status
+    [Arguments]    ${ip_address}    ${connection_succeeded}=${True}
+    ${status}    ${output}=         Get Ssh Status    ip_address=${ip_address}
+    Should Be Equal    ${status}         ${connection_succeeded}
+    RETURN    ${output}
+
+Wait Until Ssh Is Ready On Device
+    [Arguments]    ${ip_address}    ${timeout}=50s
+    [Timeout]    ${timeout}
+    ${is_ready}    Set Variable    ${False}
+    ${output}=    Wait Until Keyword Succeeds    ${timeout}   ${PING_SPACING}    Check Ssh Status    ip_address=${ip_address}
+    ${is_ready}    Set Variable    ${True}
+    Log To Console   ${output}
+    [Teardown]    Run Keyword If    not ${is_ready}
+    ...                             Log To Console  Port 22 (ssh) of ${ip_address} is not ready after ${timeout}
 
 Switch to vm
     [Arguments]         ${hostname}   ${user}=ghaf   ${timeout}=60
