@@ -10,6 +10,8 @@ Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_I
 ...                 ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}  ${PERF_LOW_LIMIT}
 Library             Collections
 Library             DateTime
+Library             OperatingSystem
+Library             String
 Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
@@ -23,6 +25,11 @@ Suite Setup         Switch to vm   ${HOST}
 *** Variables ***
 @{FAILED_VM_TESTS}
 @{IMPROVED_VM_TESTS}
+${SAVE_CYCLICTEST_HISTOGRAMS_ON_PASS}    ${True}
+${CYCLICTEST_USE_NIX_SHELL}              ${True}
+# If this limit of overflows above variant specific threshold is exceeded it triggers
+# an addittional debug cyclictest measuring more in detail the spikes over the histogram threshold.
+${CYCLICTEST_SPIKE_THRESHOLD}            5
 
 
 *** Test Cases ***
@@ -86,6 +93,28 @@ nvpmodel check test
     IF  not ("Power mode check ok: ${ExpectedNVPmode}" in $output)
         FAIL  ${output}\n\nExpected: ${ExpectedNVPmode}
     END
+
+Cyclictest latency on ghaf-host
+    [Documentation]    Run four cyclictest latency measurements on ghaf-host and track min/avg/max
+    ...                latency history across builds.
+    [Tags]             SP-T363  SP-T363-1  latency  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  excl-secboot
+    [Setup]           Ensure balanced power profile
+    Measure cyclictest latency on target    ${HOST}
+    [Teardown]        Run Keywords    Set default low limit
+    ...               AND             Set Global Variable    ${PERF_LOW_LIMIT}    1
+    ...               AND             Close All Connections
+    ...               AND             Switch to vm   ${HOST}
+
+Cyclictest latency on gui-vm
+    [Documentation]    Run four cyclictest latency measurements on gui-vm and track min/avg/max
+    ...                latency history across builds.
+    [Tags]             SP-T363  SP-T363-2  latency  lenovo-x1  darter-pro  dell-7330  excl-storeDisk  excl-secboot
+    [Setup]           Ensure balanced power profile
+    Measure cyclictest latency on target    ${GUI_VM}
+    [Teardown]        Run Keywords    Set default low limit
+    ...               AND             Set Global Variable    ${PERF_LOW_LIMIT}    1
+    ...               AND             Close All Connections
+    ...               AND             Switch to vm   ${HOST}
 
 CPU One thread test
     [Documentation]         Run a CPU benchmark using Sysbench with a duration of 10 seconds and a SINGLE thread.
@@ -415,6 +444,175 @@ Sysbench test in VMs
 
 
 *** Keywords ***
+
+Ensure balanced power profile
+    IF    ${IS_LAPTOP}
+        Set power profile    gui-balanced
+    END
+
+Measure cyclictest latency on target
+    [Arguments]         ${target}
+    Set custom low limit   0.000001
+    Set Global Variable    ${PERF_LOW_LIMIT}    0.000001
+    ${data_dir}         Get Data Dir
+    ${raw_dir}          Set Variable    ${data_dir}cyclictest_raw/
+    Create Directory    ${raw_dir}
+    @{variants}         Create List    t1_p80    t1_p95    tnproc_p80    tnproc_p95
+    Switch to vm        ${target}
+    &{latency_data}     Create Dictionary
+    &{cyclictest_debug_data}    Create Dictionary
+    &{cyclictest_spike_plot_data}    Create Dictionary
+
+    Run cyclictest latency variant
+    ...    ${target}
+    ...    t1_p80
+    ...    cyclictest -q -t1 -p80 -i1000 -l30000
+    ...    ${raw_dir}
+    ...    ${latency_data}
+    ...    ${cyclictest_debug_data}
+    ...    ${cyclictest_spike_plot_data}
+    Run cyclictest latency variant
+    ...    ${target}
+    ...    t1_p95
+    ...    cyclictest -q -t1 -p95 -m -i1000 -l30000
+    ...    ${raw_dir}
+    ...    ${latency_data}
+    ...    ${cyclictest_debug_data}
+    ...    ${cyclictest_spike_plot_data}
+    Run cyclictest latency variant
+    ...    ${target}
+    ...    tnproc_p80
+    ...    cyclictest -q -t$(nproc) -p80 -i1000 -l30000
+    ...    ${raw_dir}
+    ...    ${latency_data}
+    ...    ${cyclictest_debug_data}
+    ...    ${cyclictest_spike_plot_data}
+    Run cyclictest latency variant
+    ...    ${target}
+    ...    tnproc_p95
+    ...    cyclictest -q -t$(nproc) -p95 -m -i1000 -l30000
+    ...    ${raw_dir}
+    ...    ${latency_data}
+    ...    ${cyclictest_debug_data}
+    ...    ${cyclictest_spike_plot_data}
+
+    &{statistics}       Save Cyclictest Latency Data    ${TEST NAME}    ${latency_data}
+    @{failed_variants}  Get Failed Cyclictest Variants    ${statistics}
+    @{histogram_plot_names}    Create List
+    @{spike_plot_names}    Create List
+    FOR    ${variant}    IN    @{variants}
+        Log    ${variant}: ${cyclictest_debug_data}[${variant}]    console=True
+        ${save_plot}     Evaluate    ${SAVE_CYCLICTEST_HISTOGRAMS_ON_PASS} or $variant in $failed_variants
+        IF    ${save_plot}
+            ${plot_name}    Set Variable    ${DEVICE}_${TEST NAME}_${variant}_histogram
+            ${histogram_limit}    Get Cyclictest Histogram Limit    ${target}    ${variant}
+            Generate Cyclictest Histogram Plot
+            ...    ${raw_dir}${DEVICE}_${TEST NAME}_${variant}.txt
+            ...    ${plot_name}
+            ...    ${TEST NAME} ${variant} histogram
+            ...    ${histogram_limit}
+            Append To List    ${histogram_plot_names}    ${plot_name}
+        END
+        ${spike_plot_generated}    Get From Dictionary    ${cyclictest_spike_plot_data}    ${variant}
+        IF    ${spike_plot_generated}
+            ${spike_plot_name}    Set Variable    ${DEVICE}_${TEST NAME}_${variant}_spike_histogram
+            Append To List    ${spike_plot_names}    ${spike_plot_name}
+        END
+    END
+
+    Log
+    ...    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}_min_latency_ms.png" alt="Min latency plot" width="1200">
+    ...    HTML
+    Log
+    ...    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}_avg_latency_ms.png" alt="Avg latency plot" width="1200">
+    ...    HTML
+    Log
+    ...    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}_max_latency_ms.png" alt="Max latency plot" width="1200">
+    ...    HTML
+    Log
+    ...    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}_overflow_count.png" alt="Overflow count plot" width="1200">
+    ...    HTML
+    FOR    ${plot_name}    IN    @{histogram_plot_names}
+        Log
+        ...    <img src="${REL_PLOT_DIR}${plot_name}.png" alt="${plot_name}" width="1200">
+        ...    HTML
+    END
+    FOR    ${plot_name}    IN    @{spike_plot_names}
+        Log
+        ...    <img src="${REL_PLOT_DIR}${plot_name}.png" alt="${plot_name}" width="1200">
+        ...    HTML
+    END
+    Determine Test Status    ${statistics}  inverted=1
+
+Run cyclictest latency variant
+    [Arguments]         ${target}    ${variant_name}    ${command}    ${raw_dir}    ${latency_data}    ${cyclictest_debug_data}    ${cyclictest_spike_plot_data}
+    ${remote_output}    Set Variable    /tmp/cyclictest_${target}_${variant_name}.txt
+    ${local_output}     Set Variable    ${raw_dir}${DEVICE}_${TEST NAME}_${variant_name}.txt
+    ${histogram_limit}    Get Cyclictest Histogram Limit    ${target}    ${variant_name}
+    IF    ${CYCLICTEST_USE_NIX_SHELL}
+        ${histogram_command}    Set Variable
+        ...    nix-shell -p rt-tests --run "${command} --histogram=${histogram_limit}"
+    ELSE
+        ${histogram_command}    Set Variable    ${command} --histogram=${histogram_limit}
+    END
+    Log To Console      Running cyclictest variant ${variant_name} on ${target}
+    Run Command
+    ...    sh -lc '${histogram_command} > ${remote_output} 2>&1'
+    ...    sudo=True
+    ...    timeout=300
+    Run Command         chmod 644 ${remote_output}    sudo=True
+    SSHLibrary.Get File    ${remote_output}    ${local_output}
+    &{result}           Parse Cyclictest Results File    ${local_output}
+    Set To Dictionary   ${latency_data}    ${variant_name}_min_latency_ms=${result}[min_latency_ms]
+    Set To Dictionary   ${latency_data}    ${variant_name}_avg_latency_ms=${result}[avg_latency_ms]
+    Set To Dictionary   ${latency_data}    ${variant_name}_max_latency_ms=${result}[max_latency_ms]
+    ${overflow_count}    Get Cyclictest Histogram Overflow Count    ${local_output}
+    Set To Dictionary   ${latency_data}    ${variant_name}_overflow_count=${overflow_count}
+    ${debug_report}    Get Cyclictest Histogram Overflow Report
+    ...    ${local_output}
+    ...    ${histogram_limit}
+    Set To Dictionary    ${cyclictest_spike_plot_data}    ${variant_name}=${False}
+    # Histogram can save latency values only up to histogram limit, the rest are logged as number of overflows
+    # Here further measurement for studying overflows is triggered in case the overflow is significant
+    IF    ${overflow_count} > ${CYCLICTEST_SPIKE_THRESHOLD}
+        ${remote_spike_output}    Set Variable    /tmp/cyclictest_${target}_${variant_name}_spike.txt
+        ${local_spike_output}     Set Variable    ${raw_dir}${DEVICE}_${TEST NAME}_${variant_name}_spike.txt
+        IF    ${CYCLICTEST_USE_NIX_SHELL}
+            ${spike_command}    Set Variable
+            ...    nix-shell -p rt-tests --run "${command} --spike=${histogram_limit}"
+        ELSE
+            ${spike_command}    Set Variable    ${command} --spike=${histogram_limit}
+        END
+        Log To Console      Running cyclictest spike debug for ${variant_name} on ${target}
+        Run Command
+        ...    sh -lc '${spike_command} > ${remote_spike_output} 2>&1'
+        ...    sudo=True
+        ...    timeout=300
+        Run Command         chmod 644 ${remote_spike_output}    sudo=True
+        SSHLibrary.Get File    ${remote_spike_output}    ${local_spike_output}
+        ${spike_report}    Get Cyclictest Spike Report
+        ...    ${local_spike_output}
+        ...    ${histogram_limit}
+        ${spike_plot_name}    Set Variable    ${DEVICE}_${TEST NAME}_${variant_name}_spike_histogram
+        ${spike_plot_generated}    Generate Cyclictest Spike Plot
+        ...    ${local_spike_output}
+        ...    ${spike_plot_name}
+        ...    ${TEST NAME} ${variant_name} spike histogram
+        ...    ${histogram_limit}
+        Set To Dictionary    ${cyclictest_spike_plot_data}    ${variant_name}=${spike_plot_generated}
+        ${debug_report}    Catenate
+        ...    SEPARATOR= | 
+        ...    ${debug_report}
+        ...    ${spike_report}
+        Run Command         rm -f ${remote_spike_output}    sudo=True
+    ELSE
+        ${debug_report}    Catenate
+        ...    SEPARATOR= | 
+        ...    ${debug_report}
+        ...    Spike debug skipped; threshold is > ${CYCLICTEST_SPIKE_THRESHOLD} overflows.
+    END
+    Set To Dictionary    ${cyclictest_debug_data}    ${variant_name}=${debug_report}
+    Run Command         rm -f ${remote_output}    sudo=True
 
 Save cpu results
     [Arguments]        ${test}=cpu  ${host}=ghaf_host

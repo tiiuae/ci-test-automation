@@ -52,6 +52,24 @@ thresholds = {
     'vm_memory_snapshot': {
         'mem_avail_pct': 20
     },
+    'cyclictest': {
+        # Same value is used both as the absolute pass/fail limit for avg latency measurement of the variant
+        # and as the cyclictest histogram limit that defines overflow counting.
+        'ghaf-host': {
+            'latency_threshold_us_t1_p80': 300,
+            'latency_threshold_us_t1_p95': 300,
+            'latency_threshold_us_tnproc_p80': 1000,
+            'latency_threshold_us_tnproc_p95': 1000,
+        },
+        'gui-vm': {
+            'latency_threshold_us_t1_p80': 4000,
+            'latency_threshold_us_t1_p95': 4000,
+            'latency_threshold_us_tnproc_p80': 8000,
+            'latency_threshold_us_tnproc_p95': 8000,
+        },
+        # The number of allowed overflows above latency_threshold_us_<variant>
+        'latency_overflow_count': 10,
+    },
 
 }
 

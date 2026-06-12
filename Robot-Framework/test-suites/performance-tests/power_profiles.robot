@@ -8,6 +8,7 @@ Test Tags           power-profiles  lenovo-x1  lab-only
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/gui-vm_keywords.resource
 Resource            ../../resources/measurement_keywords.resource
+Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/common_keywords.resource
@@ -75,20 +76,3 @@ Measure power consumption of a power profile
     ${average_power}     Calculate average power over interval   ${BUILD_ID}   ${starttime}   ${endtime}
     Log                  Average power with ${profile} was ${average_power}   console=True
     RETURN               ${average_power}
-
-Set power profile
-    [Documentation]     Set power profile to ${profile}
-    [Arguments]         ${profile}
-    [Setup]             Switch to vm   ${GUI_VM}
-    Log                 Setting power profile to ${profile}   console=True
-    Run Command         tuned-adm profile ${profile}   sudo=True
-    ${active_profile}   Get active power profile
-    Should Contain      ${active_profile}   ${profile}
-
-Get active power profile
-    [Documentation]     Return active power profile
-    ${output}           Run Command   tuned-adm active
-    ${parts}            Split String    ${output}    : 
-    ${active_profile}   Strip String    ${parts}[1]
-    Log                 Active power profile is ${active_profile}   console=True
-    RETURN              ${active_profile}
