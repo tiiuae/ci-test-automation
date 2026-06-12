@@ -60,6 +60,7 @@ Verify booting laptop
     [Documentation]    Restart the laptop by power and verify init service is running
     [Tags]             SP-T287  SP-T290  relayboot  lenovo-x1  darter-pro  dell-7330
     Reboot Laptop      verify_shutdown=False
+    Start UART Log Capture
     IF    "installer" in "${JOB}"
         Check If Device Is Up    range=240    timeout=490
     ELSE
