@@ -28,9 +28,6 @@ Suite Setup         VM Suite Setup
              ...    orin|ghaf-host|nvfancontrol.service|SSRCSP-6303
              ...    orin-agx|ghaf-host|systemd-rfkill.service|SSRCSP-6303
              ...    orin|ghaf-host|systemd-oomd.service|SSRCSP-6685
-             ...    orin|admin-vm|stunnel.service|SSRCSP-8067
-             ...    orin|ANY|alloy.service|SSRCSP-8071
-             ...    orin|ANY|ghaf-journal-alloy-recover.service|SSRCSP-8071
              ...    darter-pro|ghaf-host|systemd-tpm2-setup.service|SSRCSP-8357
              ...    orin-agx|ghaf-host|ghaf-provision-ek-certs.service|SSRCSP-8535
 

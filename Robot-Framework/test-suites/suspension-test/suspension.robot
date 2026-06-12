@@ -88,8 +88,7 @@ Automatic suspension
         END
 
         IF  ${power_changed}!=${False}
-            # FAIL  Max suspended power ${max_suspended_power}mW (test limit ${suspended_power_limit}mW)\nPower consumption level increased ${power_changed}% over suspension and wake up (test limit ${rel_power_change_limit}%)
-            SKIP    Known issue: SSRCSP-8288\nMax suspended power ${max_suspended_power}mW (test limit ${suspended_power_limit}mW)\nPower consumption level increased ${power_changed}% over suspension and wake up (test limit ${rel_power_change_limit}%)
+            FAIL  Max suspended power ${max_suspended_power}mW (test limit ${suspended_power_limit}mW)\nPower consumption level increased ${power_changed}% over suspension and wake up (test limit ${rel_power_change_limit}%)
         END
     END
 

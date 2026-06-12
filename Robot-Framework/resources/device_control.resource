@@ -121,6 +121,7 @@ Soft Reboot Device
     ${shutdown_ok}    Run Keyword And Return Status    Verify shutdown via network
     IF    not ${shutdown_ok}
         IF    "${vm}" == "${GUI_VM}"
+            # Known issue SSRCSP-8490
             Log To Console    GUI-VM reboot did not shut down the full device. Retrying reboot from host.
             Switch to vm   ${HOST}
             Run Command  logger --priority=user.info "ROBOT_LOG: Soft reboot failed on ${DEVICE_TYPE}, job ${JOB}"
