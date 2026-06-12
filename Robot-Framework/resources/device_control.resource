@@ -96,10 +96,9 @@ Soft Reboot Device And Connect
 
 Collect Logs After Failed Soft Reboot
     [Arguments]    ${since}
-    ${device_is_up}    Run Keyword And Return Status    Ping Host    ${DEVICE_IP_ADDRESS}
-    IF    ${device_is_up}
-        ${ssh_is_ready}    Run Keyword And Return Status    ssh_keywords.Check if ssh is ready on device
-        IF    ${ssh_is_ready}
+    Check If Device Is Up
+    IF    ${IS_AVAILABLE}
+        IF  "${CONNECTION_TYPE}" == "ssh"
             Run Keyword And Continue On Failure    ssh_keywords.Save log   ${HOST}    ${since}
             Run Keyword And Continue On Failure    ssh_keywords.Save log   ${GUI_VM}  ${since}
         ELSE
