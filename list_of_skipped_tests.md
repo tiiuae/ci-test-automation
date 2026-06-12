@@ -11,7 +11,6 @@
 | 22.05.2026 | Check logging rate (Dell)                               | SSRCSP-8481                                                                                   |
 | 13.05.2026 | Validate Forward Secure Sealing                         | SSRCSP-8425                                                                                   |
 | 30.04.2026 | Open PDF from VM                                        | SSRCSP-8367                                                                                   |
-| 08.04.2026 | Automatic suspension (high power after suspension)      | SSRCSP-8288                                                                                   |
 | 30.03.2026 | Check Camera in VMs (Dell)                              | SSRCSP-8266                                                                                   |
 | 30.03.2026 | Check Camera Application (Dell checked in chrome-vm)    | SSRCSP-8266                                                                                   |
 | 23.03.2026 | Verify camera block persisted (Lenovo X1)               | SSRCSP-8224                                                                                   |
