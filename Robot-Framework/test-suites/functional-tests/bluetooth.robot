@@ -7,10 +7,11 @@ Test Tags           bluetooth  lab-only  lenovo-x1  darter-pro
 
 Library             SerialLibrary    encoding=ascii
 Library             Process
+Library             OperatingSystem
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Suite Setup         Acquire Bluetooth Board Lock
+Suite Setup         Wait Until Keyword Succeeds    180s    5s    Try Acquire Bluetooth Board Lock
 Suite Teardown      Release Bluetooth Board Lock
 
 *** Variables ***
@@ -32,34 +33,19 @@ Connect and disconnect Bluetooth Board
 
 *** Keywords ***
 
-Acquire Bluetooth Board Lock
-    [Documentation]    Lock the shared Bluetooth board, wait up to 3 minutes if board is busy
-    [Arguments]        ${timeout}=180    ${interval}=5
-    ${start_time}      Get Time    epoch
-    WHILE    True
-        ${acquired}    Try Acquire Bluetooth Board Lock
-        IF    ${acquired}
-            Log    Bluetooth board lock acquired: ${BT_BOARD_LOCK_PATH}    console=True
-            Set Suite Variable    ${BT_BOARD_LOCK_ACQUIRED}    ${True}
-            RETURN
-        END
-        ${owner}       Get Bluetooth Board Lock Owner
-        ${elapsed}     Evaluate    int(time.time()) - int(${start_time})
-        IF    ${elapsed} >= ${timeout}
-            FAIL    Bluetooth board stayed busy for ${timeout} seconds. Lock: ${BT_BOARD_LOCK_PATH}, owner: ${owner}
-        END
-        Log    Bluetooth board is busy, waiting ${interval} seconds. Lock: ${BT_BOARD_LOCK_PATH}, owner: ${owner}    console=True
-        Sleep    ${interval}
-    END
-
 Try Acquire Bluetooth Board Lock
     [Documentation]    Create the lock file using shell noclobber; fails if it already exists.
     ${timestamp}       Get Time
     ${lock_command}    Set Variable
     ...    ( set -C; { echo "device=${DEVICE}; created_at=${timestamp}"; } > "${BT_BOARD_LOCK_PATH}" ) 2>/dev/null
     ${result}          Run Process    sh    -c    ${lock_command}    stderr=STDOUT
-    ${acquired}        Evaluate    ${result.rc} == 0
-    RETURN             ${acquired}
+    ${owner}           Get Bluetooth Board Lock Owner
+    IF    ${result.rc} != 0
+        Log    Bluetooth board is busy. Lock: ${BT_BOARD_LOCK_PATH}, owner: ${owner}    console=True
+        FAIL   Bluetooth board is busy. Lock: ${BT_BOARD_LOCK_PATH}, owner: ${owner}
+    END
+    Log                Bluetooth board lock acquired: ${BT_BOARD_LOCK_PATH}    console=True
+    Set Suite Variable    ${BT_BOARD_LOCK_ACQUIRED}    ${True}
 
 Get Bluetooth Board Lock Owner
     [Documentation]    Return the first line from the Bluetooth board lock file.
@@ -72,7 +58,7 @@ Get Bluetooth Board Lock Owner
 Release Bluetooth Board Lock
     [Documentation]    Remove the Bluetooth board lock only if current testrun acquired it.
     IF    ${BT_BOARD_LOCK_ACQUIRED}
-        Run Process    rm    -f    ${BT_BOARD_LOCK_PATH}
+        Remove File    ${BT_BOARD_LOCK_PATH}
         Set Suite Variable    ${BT_BOARD_LOCK_ACQUIRED}    ${False}
         Log    Bluetooth board lock removed: ${BT_BOARD_LOCK_PATH}    console=True
     END
@@ -124,7 +110,7 @@ Connect bluetooth device
     Log                ${output}
     Should Contain     ${output}    Connection successful    Couldn't connect Bluetooth Board (didn't find 'Connection successful')
     Log                Bluetooth Board is connected     console=True
-    Read Bluetooth Board Serial Until    Connected
+    Wait Until Keyword Succeeds    30s    1s    Read BT Serial Until    Connected
 
 Disconnect bluetooth device
     [Documentation]    Disconnect target device and verify disconnected state.
@@ -133,8 +119,8 @@ Disconnect bluetooth device
     ${output}          Run Command  { echo "disconnect ${mac}"; sleep 3; echo "quit"; } | bluetoothctl  return=out  rc_match=skip
     Log                ${output}
     Should Contain     ${output}    Disconnection successful   Couldn't disconnect Bluetooth Board (didn't find 'Disconnection successful')
-    Read Bluetooth Board Serial Until    Disconnected
-    Read Bluetooth Board Serial Until    Advertising restarted
+    Wait Until Keyword Succeeds    30s    1s    Read BT Serial Until    Disconnected
+    Wait Until Keyword Succeeds    30s    1s    Read BT Serial Until    Advertising restarted
     Log                Bluetooth Board is disconnected     console=True
 
 Remove bluetooth device
@@ -161,30 +147,16 @@ Open Bluetooth Board Serial Port
 
 Close Bluetooth Board Serial Port
     [Documentation]    Close all SerialLibrary ports opened by this test.
-    Run Keyword And Ignore Error    Delete All Ports
+    TRY
+        Delete All Ports
+    EXCEPT
+        Log    Bluetooth board serial ports were already closed.    DEBUG
+    END
 
-Read Bluetooth Board Serial Until
-    [Documentation]    Read realtime output from BT_SERIAL_PORT until expected text appears.
-    [Arguments]        ${expected}    ${timeout}=30
-    ${logs}            Set Variable    ${EMPTY}
-    ${found}           Set Variable    ${False}
-    ${start_time}      Get Time    epoch
-    WHILE    not ${found}
-        ${elapsed}    Evaluate    int(time.time()) - int(${start_time})
-        IF    ${elapsed} >= ${timeout}
-            BREAK
-        END
-        ${status}    ${output}    Run Keyword And Ignore Error    SerialLibrary.Read Until    terminator=${\n}
-        IF    '${status}' != 'PASS'
-            CONTINUE
-        END
-        ${logs}      Catenate    SEPARATOR=    ${logs}    ${output}
-        IF    $expected in $logs
-            ${found}    Set Variable    ${True}
-        END
-    END
-    Log    Bluetooth board serial output while waiting for "${expected}":\n${logs}
-    IF     not ${found}
-        FAIL    Bluetooth board serial output did not contain "${expected}" on ${BT_SERIAL_PORT} in ${timeout}s. Output:\n${logs}
-    END
-    RETURN    ${logs}
+Read BT Serial Until
+    [Documentation]    Read one line from the Bluetooth board serial output and verify expected text.
+    [Arguments]        ${expected}
+    ${output}          SerialLibrary.Read Until    terminator=${\n}
+    Log                Bluetooth board serial output: ${output}
+    Should Contain     ${output}    ${expected}    Bluetooth board serial output did not contain "${expected}" on ${BT_SERIAL_PORT}. Output:\n${output}
+    RETURN             ${output}
