@@ -39,7 +39,7 @@ Turn ON WiFi
 Scan for Wifi
     [Arguments]         ${SSID}
     Switch to vm        ${NET_VM}
-    Log                 Scanning for ${SSID}
+    Log                 Scanning for ${SSID}   console=True
     ${output}           Run Command   nmcli dev wifi list --rescan yes   sudo=True
     Should Contain      ${output}   ${SSID}
 
