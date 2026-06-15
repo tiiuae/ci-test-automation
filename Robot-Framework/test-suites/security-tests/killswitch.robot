@@ -46,7 +46,7 @@ Killswitch disconnects WLAN
     Check Network Availability    8.8.8.8     expected_result=True    limit_freq=${False}    interface=eth
     Set device state   unblocked    net
     Remove Wifi configuration       ${TEST_WIFI_SSID}
-    Scan for Wifi                   ${TEST_WIFI_SSID}
+    Wait Until Keyword Succeeds     10x   1s   Scan for Wifi   ${TEST_WIFI_SSID}
     Configure wifi                  ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
     [Teardown]       WLAN teardown

@@ -3,7 +3,8 @@
 ## Active SKIPS
 
 | DATE SET   | TEST CASE                                               | TICKET / Additional Data.                                                                     |
-|------------|---------------------------------------------------------| --------------------------------------------------------------------------------------------- |
+| ---------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 15.06.2026 | VM memory usage snapshot (Dell)                         | Dell has less memory than other targets                                                       |
 | 11.06.2026 | Verify booting after restart by power (orin-nx)         | SSRCSP-8585                                                                                   |
 | 11.06.2026 | functional-tests (orin-nx)                              | SSRCSP-8585                                                                                   |
 | 29.05.2026 | Check Grafana log forwarding after disconnected state   | SSRCSP-8525                                                                                   |

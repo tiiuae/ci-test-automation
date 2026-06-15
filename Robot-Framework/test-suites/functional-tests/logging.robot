@@ -46,15 +46,17 @@ Logging service is running in all VMs
 Alloy and stunnel services are running in admin-vm
     [Documentation]    Verify that admin-vm runs alloy and stunnel services required for log collection and forwarding
     [Tags]             SP-T333  SP-T333-2
+    [Timeout]          2 minutes
     Switch to vm   ${ADMIN_VM}
     Run Keyword And Continue On Failure   Verify service status  range=5  service=alloy.service    expected_state=active  expected_substate=running
     Run Keyword And Continue On Failure   Verify service status  range=5  service=stunnel.service  expected_state=active  expected_substate=running
+    [Teardown]         Reboot Orin if ssh connection dropped
 
 Check Grafana logs
     [Documentation]  Check that all virtual machines are sending logs to Grafana
     [Tags]           SP-T172
-    Check Network Availability    8.8.8.8   limit_freq=${False}
     Switch to vm       ${ADMIN_VM}
+    Check Network Availability    8.8.8.8   limit_freq=${False}
     ${id}              Get Actual Device ID
     Run Keyword And Continue On Failure   Create logs in all VMs
     Sleep              5
@@ -79,9 +81,9 @@ Check logging rate
     [Tags]             SP-T359  log_rate
 
     ${check_interval}          Set Variable   100
-    ${entry_limit}             Set Variable   500
+    ${entry_limit}             Set Variable   400
     ${dell_host_entry_limit}   Set Variable   1000   # Known Issue: SSRCSP-8481
-    ${orin_entry_limit}        Set Variable   2000
+    ${orin_entry_limit}        Set Variable   1000
     ${bytes_per_entry}         Set Variable   200
 
     &{spam_metrics}       Create Dictionary

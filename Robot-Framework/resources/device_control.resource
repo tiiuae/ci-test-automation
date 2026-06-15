@@ -225,7 +225,7 @@ Check that device is suspended
 
 Reboot Orin if ssh connection dropped
     ${ssh_available}  Run Keyword And Return Status    Run Command    ls  timeout=5
-    IF  not ${ssh_available}
+    IF  not ${ssh_available} and "orin" in "${DEVICE_TYPE}"
         Reboot Orin
         Close All Connections
         Check If Device Is Up
