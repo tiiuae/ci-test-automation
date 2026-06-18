@@ -22,23 +22,23 @@ Stopping one VM does not affect others
     ...                 that it doesn't affect the first VM and app running
     [Tags]              SP-T286
     [Template]          Stopping one VM does not affect another
-    ${BUSINESS_VM}  ${COMMS_VM}     Slack            slack
-    ${CHROME_VM}    ${FLATPAK_VM}   "App Store"      cosmic-store
-    ${MEDIA_VM}     ${BUSINESS_VM}  Gala             gala
-    ${COMMS_VM}     ${CHROME_VM}    "Google Chrome"  chrome
+    ${Slack}            ${BUSINESS_VM}
+    ${App Store}        ${CHROME_VM}
+    ${Gala}             ${MEDIA_VM}
+    ${Google Chrome}    ${COMMS_VM}
 
 
 *** Keywords ***
 
 Stopping one VM does not affect another
-    [Arguments]     ${one_vm}    ${another_vm}    ${app_name}    ${process_name}
-    Switch to vm   ${another_vm}
-    Start application in VM   ${app_name}   ${another_vm}    ${process_name}   always_check_vm=True
-    Stop VM        ${one_vm}
-    ${state}  ${substate}   Verify service status  service=microvm@${another_vm}.service  expected_state=active  expected_substate=running
-    Check that App is running in VM   ${another_vm}   ${process_name}   range=5
-    [Teardown]    Run Keywords   Restart VM   ${one_vm}   start_only=True   restore_sudoers=False
-    ...                    AND   Kill App in VM   ${another_vm}   ${process_name}   log_file=${APP_OUTPUT_FILE}   status=${KEYWORD_STATUS}
+    [Arguments]     ${app_key}   ${another_vm}
+    Should Not Be Equal       ${app_key}[VM]    ${another_vm}    App is running in the VM that is going to be stopped
+    Start App in VM           ${app_key}   always_check_vm=True
+    Stop VM                   ${another_vm}
+    ${state}  ${substate}     Verify service status  service=microvm@${app_key}[VM].service  expected_state=active  expected_substate=running
+    Check that App is running in VM     ${app_key}   range=5
+    [Teardown]    Run Keywords   Restart VM   ${another_vm}   start_only=True   restore_sudoers=False
+    ...                    AND   Kill App in VM   ${app_key}   log_file=${APP_OUTPUT_FILE}   status=${KEYWORD_STATUS}
 
 Stop VM
     [Documentation]         Try to stop VM and verify it stopped

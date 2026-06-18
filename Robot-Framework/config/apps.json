@@ -1,0 +1,217 @@
+{
+  "Advanced Network Configuration": {
+    "display_name": "Advanced Network Configuration",
+    "VM": "gui-vm",
+    "process_name": "nm-connection-editor",
+    "close_button": "window-close.png"
+  },
+  "App Store": {
+    "display_name": "App Store",
+    "VM": "flatpak-vm",
+    "process_name": "cosmic-store",
+    "close_button": "window-close-neg.png"
+  },
+  "Bluetooth Settings": {
+    "display_name": "Bluetooth Settings",
+    "VM": "gui-vm",
+    "process_name": "blueman-manager-wrapped-wrapped",
+    "close_button": "window-close.png"
+  },
+  "Calculator": {
+    "display_name": "Calculator",
+    "VM": "gui-vm",
+    "process_name": "gnome-calculator",
+    "close_button": "window-close-neg.png"
+  },
+  "COSMIC Document Reader": {
+    "display_name": "COSMIC Document Reader",
+    "VM": "gui-vm",
+    "process_name": "cosmic-reader",
+    "close_button": "ghaf-close.png"
+  },
+  "COSMIC Files": {
+    "display_name": "COSMIC Files",
+    "VM": "gui-vm",
+    "process_name": "^cosmic-files$",
+    "close_button": "ghaf-close.png"
+  },
+  "Cosmic Initial Setup": {
+    "display_name": "Cosmic Initial Setup",
+    "VM": "gui-vm",
+    "process_name": "cosmic-initial-setup"
+  },
+  "COSMIC Media Player": {
+    "display_name": "COSMIC Media Player",
+    "VM": "gui-vm",
+    "process_name": "cosmic-player",
+    "close_button": "ghaf-close.png"
+  },
+  "COSMIC Settings": {
+    "display_name": "COSMIC Settings",
+    "VM": "gui-vm",
+    "process_name": "cosmic-settings$",
+    "close_button": "ghaf-close.png",
+    "icon": "settings.png"
+  },
+  "COSMIC Terminal": {
+    "display_name": "COSMIC Terminal",
+    "VM": "gui-vm",
+    "process_name": "cosmic-term",
+    "close_button": "ghaf-close.png"
+  },
+  "COSMIC Text Editor": {
+    "display_name": "COSMIC Text Editor",
+    "VM": "gui-vm",
+    "process_name": "cosmic-edit",
+    "close_button": "ghaf-close.png"
+  },
+  "Display Settings": {
+    "display_name": "Display Settings",
+    "VM": "gui-vm",
+    "process_name": "wdisplays",
+    "close_button": "ghaf-close.png"
+  },
+  "Element": {
+    "display_name": "Element",
+    "VM": "comms-vm",
+    "process_name": "element",
+    "close_button": "ghaf-close.png"
+  },
+  "Firefox": {
+    "display_name": "Firefox",
+    "VM": "flatpak-vm",
+    "process_name": "firefox"
+  },
+  "Firefox GPU": {
+    "display_name": "Firefox GPU",
+    "VM": "gui-vm",
+    "process_name": "firefox"
+  },
+  "Fingerprints": {
+    "display_name": "Fingerprints",
+    "VM": "gui-vm",
+    "process_name": "fingwit",
+    "close_button": "window-close.png"
+  },
+  "FMO Offboarding": {
+    "display_name": "FMO Offboarding",
+    "VM": "docker-vm",
+    "process_name": "fmo-offboarding"
+  },
+  "FMO Onboarding Agent": {
+    "display_name": "FMO Onboarding Agent",
+    "VM": "docker-vm",
+    "process_name": "fmo-onboarding"
+  },
+  "Gala": {
+    "display_name": "Gala",
+    "VM": "business-vm",
+    "process_name": "gala",
+    "close_button": "ghaf-close.png"
+  },
+  "Getting Started": {
+    "display_name": "Getting Started",
+    "VM": "chrome-vm",
+    "process_name": "ghaf-intro",
+    "close_button": "ghaf-close.png"
+  },
+  "Ghaf Control Panel": {
+    "display_name": "Ghaf Control Panel",
+    "VM": "gui-vm",
+    "process_name": "ctrl-panel",
+    "close_button": "window-close-neg.png"
+  },
+  "Ghaf Isolated Document Viewer": {
+    "display_name": "Ghaf Isolated Document Viewer",
+    "VM": "media-vm",
+    "process_name": "cosmic-reader"
+  },
+  "Ghaf Isolated Image Viewer": {
+    "display_name": "Ghaf Isolated Image Viewer",
+    "VM": "media-vm",
+    "process_name": "oculante"
+  },
+  "Ghaf Isolated Media Player": {
+    "display_name": "Ghaf Isolated Media Player",
+    "VM": "media-vm",
+    "process_name": "cosmic-player"
+  },
+  "Google Chrome": {
+    "display_name": "Google Chrome",
+    "VM": "chrome-vm",
+    "process_name": "chrome",
+    "close_button": "ghaf-close.png"
+  },
+  "Google Chrome GPU": {
+    "display_name": "Google Chrome GPU",
+    "VM": "gui-vm",
+    "process_name": "chrome",
+    "close_button": "ghaf-close.png"
+  },
+  "GPU Screen Recorder": {
+    "display_name": "GPU Screen Recorder",
+    "VM": "gui-vm",
+    "process_name": "gpu-screen-recorder-gtk",
+    "close_button": "window-close.png"
+  },
+  "Microsoft 365": {
+    "display_name": "Microsoft 365",
+    "VM": "business-vm",
+    "process_name": "microsoft365",
+    "close_button": "ghaf-close.png"
+  },
+  "Onlyoffice": {
+    "display_name": "Onlyoffice",
+    "VM": "flatpak-vm",
+    "process_name": "onlyoffice"
+  },
+  "Outlook": {
+    "display_name": "Outlook",
+    "VM": "business-vm",
+    "process_name": "outlook",
+    "close_button": "ghaf-close.png"
+  },
+  "Slack": {
+    "display_name": "Slack",
+    "VM": "comms-vm",
+    "process_name": "slack",
+    "close_button": "ghaf-close.png"
+  },
+  "Sticky Notes": {
+    "display_name": "Sticky Notes",
+    "VM": "gui-vm",
+    "process_name": "sticky-wrapped",
+    "close_button": "window-close-neg.png"
+  },
+  "Teams": {
+    "display_name": "Teams",
+    "VM": "business-vm",
+    "process_name": "teams",
+    "close_button": "ghaf-close.png"
+  },
+  "Trusted Browser": {
+    "display_name": "Trusted Browser",
+    "VM": "business-vm",
+    "process_name": "google-chrome",
+    "close_button": "ghaf-close.png"
+  },
+  "Volume Control": {
+    "display_name": "Volume Control",
+    "VM": "gui-vm",
+    "process_name": "pavucontrol",
+    "close_button": "window-close.png"
+  },
+  "VPN": {
+    "display_name": "VPN",
+    "VM": "business-vm",
+    "process_name": "gp-gui",
+    "close_button": "ghaf-close.png"
+  },
+  "Zoom": {
+    "display_name": "Zoom",
+    "VM": "comms-vm",
+    "process_name": "zoom",
+    "close_button": "ghaf-close.png",
+    "icon": "Zoom.png"
+  }
+}

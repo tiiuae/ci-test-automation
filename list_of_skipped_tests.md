@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                               | TICKET / Additional Data.                                                                     |
 | ---------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 06.07.2026 | Open text file with COSMIC Text Editor                  | SSRCSP-8367                                                                                   |
 | 01.07.2026 | Account lockout after failed GUI login                  | Test under development                                                                        |
 | 15.06.2026 | VM memory usage snapshot (Dell)                         | Dell has less memory than other targets                                                       |
 | 11.06.2026 | Verify booting after restart by power (orin-nx)         | SSRCSP-8585                                                                                   |
