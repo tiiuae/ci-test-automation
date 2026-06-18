@@ -16,7 +16,7 @@ Change timezone in settings
     [Tags]            SP-T136
     [Setup]           Run Keywords   Start screen recording   AND  Save original timezone
     Set timezone      UTC
-    Search in Cosmic Settings   zone
+    Search in COSMIC Settings   zone
     Tab and enter     tabs=5
     Tab and enter     tabs=9
     Type string       Dubai    enter_at_end=True
@@ -26,15 +26,15 @@ Change timezone in settings
 
     [Teardown]   Run Keywords   Set timezone   ${ORIGINAL_TIMEZONE}
     ...          AND   Move cursor to corner
-    ...          AND   Kill process by name    cosmic-settings$   sudo=False
+    ...          AND   Kill App in VM          ${COSMIC Settings}
     ...          AND   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 *** Keywords ***
 
-Search in Cosmic Settings
+Search in COSMIC Settings
     [Arguments]     ${search_term}
     Move cursor to corner
-    Locate and click  image  settings.png  0.95
+    Locate and click  image  ${COSMIC Settings}[icon]  0.95
     # Wait for settings to open
     Locate on screen  text   Network   iterations=20
     Tab and enter     tabs=1
