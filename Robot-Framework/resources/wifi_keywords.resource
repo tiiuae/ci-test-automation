@@ -8,9 +8,13 @@ Resource            ../resources/ssh_keywords.resource
 
 Configure wifi
     [Arguments]         ${SSID}  ${passw}
-    [Timeout]    2min
     Switch to vm        ${NET_VM}
     Log To Console      Configuring Wifi
+    Wait Until Keyword Succeeds   3x   1s   Try to connect wifi   ${SSID}  ${passw}
+
+Try to connect wifi
+    [Arguments]         ${SSID}  ${passw}
+    [Timeout]    2min
     Set Log Level       NONE
     ${output}           Run Command    nmcli dev wifi connect ${SSID} password ${passw}   return=out,err,rc   sudo=True   rc_match=skip
     Set Log Level       INFO
