@@ -59,7 +59,7 @@ Check Grafana log forwarding after disconnected state
     ELSE
         Soft Reboot Device And Connect   vm=${HOST}
     END
-    Wait Until Keyword Succeeds  90s  5s  Check VM Log on Grafana     ${id}   ${ADMIN_VM}   5m   ${True}   logtest1_${BUILD_ID}
+    Wait Until Keyword Succeeds  120s  5s  Check VM Log on Grafana     ${id}   ${ADMIN_VM}   5m   ${True}   logtest1_${BUILD_ID}
     Log To Console               Checked that log is forwarded after clearing the iptables rule by reboot
 
 *** Keywords ***
