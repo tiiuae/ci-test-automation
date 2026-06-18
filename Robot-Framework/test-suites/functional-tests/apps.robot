@@ -7,132 +7,111 @@ Test Tags           apps  pre-merge  bat  lenovo-x1  darter-pro  dell-7330
 
 Resource            ../../resources/app_keywords.resource
 
-Test Teardown       Kill App in VM   ${TEST_APP-VM}   ${TEST_PROCESS_NAME}   ${APP_OUTPUT_FILE}
+Test Template       App Launch Test Template
 
 
 *** Test Cases ***
 
+Start Advanced Network Configuration
+    [Tags]           # TODO: LISÄÄ TAGIT
+    ${Advanced Network Configuration}
+
 Start App Store
-    [Documentation]   Start App Store and verify process started
     [Tags]            SP-T334  SP-T334-1
-    Start application in VM   "App Store"   ${FLATPAK_VM}   cosmic-store
+    ${App Store}
 
 Start Bluetooth Settings
-    [Documentation]   Start Bluetooth Settings and verify process started
     [Tags]            SP-T204  SP-T204-1  fmo
-    Start application in VM   "Bluetooth Settings"   ${GUI_VM}   blueman-manager-wrapped-wrapped
+    ${Bluetooth Settings}
 
 Start COSMIC Document Reader
-    [Documentation]   Start COSMIC Document Reader and verify process started
     [Tags]            SP-T105  SP-T105-1
-    Start application in VM   "COSMIC Document Reader"   ${GUI_VM}   cosmic-reader
+    ${COSMIC Document Reader}
 
 Start COSMIC Files
-    [Documentation]   Start Cosmic Files and verify process started
     [Tags]            SP-T206  SP-T206-1  fmo
-    Start application in VM   "COSMIC Files"   ${GUI_VM}   ^cosmic-files$
+    ${COSMIC Files}
 
 Start COSMIC Media Player
-    [Documentation]   Start Cosmic Media Player and verify process started
     [Tags]            SP-T294  SP-T294-1
-    Start application in VM   "COSMIC Media Player"   ${GUI_VM}   cosmic-player
+    ${COSMIC Media Player}
 
 Start COSMIC Settings
-    [Documentation]   Start Cosmic Settings and verify process started
     [Tags]            SP-T254  SP-T254-1  fmo
-    Start application in VM   "COSMIC Settings"   ${GUI_VM}   cosmic-settings$
+    ${COSMIC Settings}
 
 Start COSMIC Terminal
-    [Documentation]   Start Cosmic Terminal and verify process started
     [Tags]            SP-T263  SP-T263-1  fmo
-    Start application in VM   "COSMIC Terminal"   ${GUI_VM}   cosmic-term
+    ${COSMIC Terminal}
 
 Start COSMIC Text Editor
-    [Documentation]   Start Cosmic Text Editor and verify process started
     [Tags]            SP-T243  SP-T243-1  fmo
-    Start application in VM   "COSMIC Text Editor"   ${GUI_VM}   cosmic-edit
+    ${COSMIC Text Editor}
 
 Start Calculator
-    [Documentation]   Start Calculator and verify process started
     [Tags]            SP-T202  SP-T202-1  fmo
-    Start application in VM   Calculator   ${GUI_VM}   calculator
+    ${Calculator}
 
 Start Element
-    [Documentation]   Start Element and verify process started
     [Tags]            SP-T52  SP-T52-1
-    Start application in VM   Element   ${COMMS_VM}   element
+    ${Element}
 
 Start Fingerprints
-    [Documentation]   Start Fingerprints and verify process started
     [Tags]            SP-T364  SP-T364-1
-    Start application in VM   Fingerprints   ${GUI_VM}   fingwit
-
-Start GPU Screen Recorder
-    [Documentation]   Start GPU Screen Recorder and verify process started
-    [Tags]            SP-T293  SP-T293-1
-    Start application in VM   "GPU Screen Recorder"   ${GUI_VM}   gpu-screen-recorder
+    ${Fingerprints}
 
 Start Gala
-    [Documentation]   Start Gala and verify process started
     [Tags]            SP-T104  SP-T104-1
-    Start application in VM   Gala   ${BUSINESS_VM}   gala
+    ${Gala}
 
 Start Getting Started
-    [Documentation]   Start 'Getting Started' and verify process started
     [Tags]            SP-T354  SP-T354-1
-    Start application in VM   "Getting Started"  ${CHROME_VM}   ghaf-intro
+    ${Getting Started}
 
 Start Ghaf Control Panel
-    [Documentation]   Start Ghaf Control Panel and verify process started
     [Tags]            SP-T205  SP-T205-1  fmo
-    Start application in VM   "Ghaf Control Panel"   ${GUI_VM}   ctrl-panel
+    ${Ghaf Control Panel}
 
 Start Google Chrome
-    [Documentation]   Start Google Chrome and verify process started
     [Tags]            SP-T92  SP-T92-1
-    Start application in VM   "Google Chrome"   ${CHROME_VM}   chrome
+    ${Google Chrome}
+
+Start GPU Screen Recorder
+    [Tags]            SP-T293  SP-T293-1
+    ${GPU Screen Recorder}
 
 Start Microsoft 365
-    [Documentation]   Start Microsoft 365 and verify process started
     [Tags]            SP-T178  SP-T178-1
-    Start application in VM   "Microsoft 365"   ${BUSINESS_VM}   microsoft365
+    ${Microsoft 365}
 
 Start Outlook
-    [Documentation]   Start Outlook and verify process started
     [Tags]            SP-T176  SP-T176-1
-    Start application in VM   Outlook   ${BUSINESS_VM}   outlook
+    ${Outlook}
 
 Start Slack
-    [Documentation]   Start Slack and verify process started
     [Tags]            SP-T181  SP-T181-1
-    Start application in VM   Slack   ${COMMS_VM}   slack
+    ${Slack}
 
 Start Sticky Notes
-    [Documentation]   Start Sticky Notes and verify process started
     [Tags]            SP-T201  SP-T201-1  fmo
-    Start application in VM   "Sticky Notes"   ${GUI_VM}   sticky-wrapped
+    ${Sticky Notes}
 
 Start Teams
-    [Documentation]   Start Teams and verify process started
     [Tags]            SP-T177  SP-T177-1
-    Start application in VM   Teams   ${BUSINESS_VM}   teams
+    ${Teams}
 
 Start Trusted Browser
-    [Documentation]   Start Trusted Browser and verify process started
     [Tags]            SP-T179  SP-T179-1
-    Start application in VM   "Trusted Browser"  ${BUSINESS_VM}   google-chrome
+    ${Trusted Browser}
 
 Start Volume Control
-    [Documentation]   Start Volume Control and verify process started
     [Tags]            SP-T349  SP-T349-1
-    Start application in VM   "Volume Control"  ${GUI_VM}   pavucontrol
+    ${Volume Control}
 
 Start VPN
-    [Documentation]   Start VPN app and verify process started
     [Tags]            SP-T200  SP-T200-1
-    Start application in VM   VPN  ${BUSINESS_VM}   gp-gui
+    ${VPN}
 
 Start Zoom
-    [Documentation]   Start Zoom and verify process started
     [Tags]            SP-T237  SP-T237-1
-    Start application in VM   Zoom  ${COMMS_VM}   zoom
+    ${Zoom}

@@ -19,7 +19,7 @@ Test Teardown       Run keywords      Switch to vm            ${GUI_VM}  user=${
 Check Access List In Trusted Browser
     [Tags]    SP-T209  SP-T210  SP-T211  SP-T362  lenovo-x1  darter-pro
     [Template]    Check Access List In Trusted Browser Template
-    # Pages outside access list shouldn't be available via Trusted Browser. Http and https has different errors
+    # Pages outside access list shouldn't be available via Trusted Browser. Http and https have different errors
     https://yle.fi                          text_to_find=This site can’t be reached
     http://yle.fi                           text_to_find=Access Denied
 
@@ -66,14 +66,13 @@ Check Access List In Trusted Browser Template
     ...                   https: 'This site can’t be reached'
     ...                   http:  'Access Denied'
     [Arguments]    ${url}   ${text_to_find}
-    Start application in VM   "Trusted Browser"   ${BUSINESS_VM}   google-chrome    params_string=-- ${url}    always_check_vm=True
-    Switch to vm              ${GUI_VM}    user=${USER_LOGIN}
+    Start App in VM    ${Trusted Browser}    params_string=-- ${url}    always_check_vm=True
+    Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
 
     Wait Until Keyword Succeeds     10x                        1s
     ...                             Verify Text Is On The Screen    ${text_to_find}
 
-    [Teardown]    Run keywords      Switch to vm           ${BUSINESS_VM}    AND
-    ...                             Kill process by name   google-chrome
+    [Teardown]    Kill App in VM   ${Trusted Browser}   status=${KEYWORD_STATUS}
 
 Unlock account and login
     [Documentation]  Unlock the user account and log back in
