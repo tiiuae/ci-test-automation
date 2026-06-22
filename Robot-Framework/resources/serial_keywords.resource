@@ -360,7 +360,7 @@ Drain Serial Output
         IF    ${elapsed} >= ${max_seconds}
             BREAK
         END
-        ${status}    ${output}    Run Keyword And Ignore Error    SerialLibrary.Read Until    terminator=${\n}
+        ${status}    ${output}    Run Keyword And Ignore Error    SerialLibrary.Read All Data
         IF    '${status}' != 'PASS'
             BREAK
         END

@@ -68,8 +68,7 @@ Account lockout teardown
     ${soft_reboot_ok}    Run Keyword And Return Status    Soft Reboot Device And Connect
     IF    not ${soft_reboot_ok}
         Log    Soft reboot did not recover device access, falling back to hard reboot.    console=True
-        Reboot Laptop      verify_shutdown=False
-        Check If Device Is Up
+        Hard Reboot Device And Connect   verify_shutdown=False
     END
     Verify External Connectivity Restored    SSH
     Login to laptop

@@ -120,11 +120,24 @@ Check Network Availability
     FAIL    Expected availability of ${host}: ${expected_result}, in fact: ${availability}
 
 Check If Device Is Up
-    [Arguments]    ${retry}=500s
+    [Arguments]    ${retry}=100s
     ${ssh_status}=       Try To Check Ssh On Device  retry=${retry}  interval=${PING_SPACING}s
     ${serial_status}=    Run Keyword If   not ${ssh_status}    Try To Check Serial On Device    range=3x
 
     Set Global Device Availability Variables     ${ssh_status}   ${serial_status}
+
+Check If Device Is Available
+    [Arguments]     ${retry}=5x   ${action}=${EMPTY}
+    Check If Device Is Up    retry=${retry}
+    ${extra_log}    Set Variable If   '${action}'!='${EMPTY}'   after ${action}    for tests
+    IF    ${IS_AVAILABLE} == False
+        FAIL    The device is not available via SSH or serial ${extra_log}.
+    ELSE IF  "${CONNECTION_TYPE}" == "serial"
+        FAIL    The device is available only via serial ${extra_log}, but SSH is required.
+    ELSE
+        Log To Console   Device is available ${extra_log}.
+    END
+    Switch to vm     ${NET_VM}
 
 Try To Check Ssh On Device
     [Arguments]    ${retry}   ${interval}

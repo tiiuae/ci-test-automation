@@ -18,6 +18,7 @@ Resource            ../../resources/ssh_keywords.resource
 Variables           ../../lib/performance_thresholds.py
 
 Suite Teardown      Close All Connections
+Test Teardown       Boot Time Test Teardown
 
 *** Variables ***
 ${PING_TIMEOUT}     180
@@ -31,21 +32,18 @@ Measure Soft Boot Time
     [Tags]           SP-T187  SP-T187-1  lenovo-x1  dell-7330
     Soft Reboot Device
     Get Boot times
-    [Teardown]                    Boot Time Test Teardown
 
 Measure Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
     [Tags]           SP-T182  SP-T182-1  lenovo-x1  darter-pro  dell-7330  lab-only
     Reboot Laptop
     Get Boot times                plot_name=Hard Boot Times
-    [Teardown]                    Boot Time Test Teardown
 
 Measure Orin Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
     [Tags]           SP-T187  SP-T187-2  orin-agx  orin-agx-64  orin-nx
     Soft Reboot Device
     Get Time To Ping
-    [Teardown]                    Orin Boot Time Test Teardown
 
 Measure Orin Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
@@ -58,7 +56,6 @@ Measure Orin Hard Boot Time
     Log To Console                Booting the device by switching the power on
     Turn On Power
     Get Time To Ping              plot_name=Hard Boot Times
-    [Teardown]                    Orin Boot Time Test Teardown
 
 
 *** Keywords ***
@@ -150,15 +147,12 @@ Log Journal To Debug
 
 Boot Time Test Teardown
     Run Keyword If Test Failed   Failed Boot Time Test Teardown
-    Login to laptop
+    IF   ${IS_LAPTOP}    Login to laptop
 
 Failed Boot Time Test Teardown
-    Reboot Laptop
-    Connect After Reboot
-    Switch to vm          ${HOST}
-    Log Journal To Debug  boot=-1
+    Hard Reboot Device And Connect
+    IF   ${IS_LAPTOP}
+        Switch to vm          ${HOST}
+        Log Journal To Debug  boot=-1
+    END
 
-Orin Boot Time Test Teardown
-    Run Keyword If Test Failed  Reboot Orin
-    Run Keyword If Test Failed  Check If Device Is Up
-    Switch to vm                ${NET_VM}   timeout=120

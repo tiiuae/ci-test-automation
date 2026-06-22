@@ -67,19 +67,6 @@ Turn Laptop On
         Press Button      ${SWITCH_BOT}-Enter
     END
 
-Turn Laptop On and Connect
-    Log To Console     ${\n}Booting the device by pressing the power button
-    Turn Laptop On
-    Check If Device Is Up
-    IF    ${IS_AVAILABLE} == False
-        FAIL    The device did not start
-    ELSE IF  "${CONNECTION_TYPE}" == "serial"
-        FAIL    The device is available only via serial, but tests require SSH.
-    ELSE
-        Log To Console  The device started
-    END
-    Switch to vm    ${NET_VM}
-
 Soft Reboot Device And Connect
     [Documentation]  Reboot device from ${vm} and connect after the reboot
     [Arguments]      ${vm}=${HOST}
@@ -94,9 +81,18 @@ Soft Reboot Device And Connect
         FAIL    Soft reboot failed.
     END
 
+Hard Reboot Device And Connect
+    [Arguments]     ${verify_shutdown}=True
+    IF  ${IS_LAPTOP}
+        Reboot Laptop    verify_shutdown=${verify_shutdown}
+    ELSE
+        Reboot Orin
+    END
+    Connect After Reboot
+
 Collect Logs After Failed Soft Reboot
     [Arguments]    ${since}
-    Check If Device Is Up
+    Check If Device Is Up   retry=5x
     IF    ${IS_AVAILABLE}
         IF  "${CONNECTION_TYPE}" == "ssh"
             Run Keyword And Continue On Failure    ssh_keywords.Save log   ${HOST}    ${since}
@@ -144,30 +140,16 @@ Connect After Reboot
             Check If Device Is Up   retry=5x
             IF   ${IS_AVAILABLE} == True and "${CONNECTION_TYPE}" == "ssh"   BREAK
         END
+        Check If Device Is Available   retry=5x    action=reboot
     ELSE
-        Check If Device Is Up         retry=60x
-    END
-    
-    IF    ${IS_AVAILABLE} == False
-        FAIL                      The device did shut down but didn't start in reboot.
-    ELSE IF  "${CONNECTION_TYPE}" == "serial"
-        FAIL    The device is available only via serial, but tests require SSH.
-    ELSE
-        Log To Console            Device started
-        Switch to vm    ${NET_VM}
+        Check If Device Is Available   retry=60s   action=reboot
     END
 
 Wake up device
+    [Documentation]   Wake up a laptop that was suspended
     Log To Console    Pressing the power button...
     Press Button      ${SWITCH_BOT}-ON
-    Check If Device Is Up    retry=30x
-    IF    ${IS_AVAILABLE} == False
-        FAIL             The device did suspend but failed to wake up
-    ELSE IF  "${CONNECTION_TYPE}" == "serial"
-        FAIL    The device is available only via serial, but tests require SSH.
-    ELSE
-        Log To Console   Device successfully woke up after suspend
-    END
+    Check If Device Is Available    retry=30s   action=suspend
 
 Wait Until Device Is Down
     [Arguments]    ${power_off}=${False}
@@ -217,8 +199,5 @@ Verify shutdown via network
 Reboot Orin if ssh connection dropped
     ${ssh_available}  Run Keyword And Return Status    Run Command    ls  timeout=5
     IF  not ${ssh_available} and "orin" in "${DEVICE_TYPE}"
-        Reboot Orin
-        Close All Connections
-        Check If Device Is Up
-        Switch to vm                ${NET_VM}   timeout=120
+        Hard Reboot Device And Connect
     END
