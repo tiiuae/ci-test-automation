@@ -225,13 +225,7 @@ Remove Ghaf Repository
 Rebuild Teardown
     Set Client Configuration      timeout=10
     IF  ${setup_skipped} or '${PREV_TEST_STATUS}'=='FAIL'
-        IF  ${IS_LAPTOP}
-            Reboot Laptop
-        ELSE
-            Reboot Orin
-        END
-        Close All Connections
-        Connect After Reboot
+        Hard Reboot Device And Connect
         IF  not ${IS_AVAILABLE}
             Log To Console    Connecting the device after boot failed. Rebuild may have left ghaf unbootable.\nStopping Teardown execution.
             RETURN

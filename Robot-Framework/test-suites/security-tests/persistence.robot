@@ -81,8 +81,7 @@ Persistence Suite Setup
 
 Persistence Suite Teardown
     IF  $SUITE_STATUS=='FAIL'
-        Reboot Laptop
-        Connect After Reboot
+        Hard Reboot Device And Connect
         Login to laptop
     END
     Set values   ORIGINAL

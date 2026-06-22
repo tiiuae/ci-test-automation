@@ -244,11 +244,5 @@ Tcp Syn Flood
     END
 
 Blacklist Teardown
-    IF  $IS_LAPTOP == 'True'
-        Reboot Laptop
-    ELSE
-        Reboot Orin
-    END
-    Close All Connections
-    Connect After Reboot
+    Hard Reboot Device And Connect
     Run Keyword If    $IS_LAPTOP == 'True'    Login to laptop

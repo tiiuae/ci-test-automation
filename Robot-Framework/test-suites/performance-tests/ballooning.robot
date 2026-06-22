@@ -182,9 +182,8 @@ Plot ballooning
     Log   <img src="${REL_PLOT_DIR}mem_ballooning_${id}.png" alt="Power plot" width="1200">    HTML
 
 Procedure After Timeout
-    Reboot Laptop
     ${rebooted}     Set Variable  True
-    Check If Device Is Up
+    Hard Reboot Device And Connect
     Login to laptop
 
 Clean Test Files

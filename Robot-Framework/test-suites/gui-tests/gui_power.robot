@@ -88,7 +88,8 @@ Shutdown from power menu
     ELSE
         Wait          10
     END
-    Turn Laptop On and Connect
+    Turn Laptop On
+    Connect After Reboot
     Login to laptop   enable_dnd=True
 
     Should Not Be True    ${elapsed} > ${max_elapsed}    msg=Shutdown took too long: ${elapsed} seconds (expected < ${max_elapsed})
@@ -136,8 +137,7 @@ GUI Power Test Teardown
     ${needs_reboot_recovery}    Evaluate
     ...    ($TEST_STATUS == 'FAIL' and 'took too long' not in $TEST_MESSAGE) or ($TEST_STATUS == 'SKIP' and 'SSRCSP-8490' in $TEST_MESSAGE)
     IF  ${needs_reboot_recovery}
-        Reboot Laptop
-        Connect After Reboot
+        Hard Reboot Device And Connect
         IF    ${IS_AVAILABLE}
             ssh_keywords.Save log   ${GUI_VM}  ${gui_power_log_since}
             ssh_keywords.Save log   ${HOST}    ${gui_power_log_since}

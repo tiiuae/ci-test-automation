@@ -122,11 +122,11 @@ Run installer
     [Documentation]   Reboot laptop and run installer, will not turn off after test, boot test is required after this
     [Tags]            installer  lenovo-x1  darter-pro
     Reboot Laptop     verify_shutdown=False
-    Check If Device Is Up
+    Check If Device Is Up   retry=100s
     IF    ${IS_AVAILABLE} == False
         Log To Console    Turning device on again...
         Turn Laptop On
-        Check If Device Is Up
+        Check If Device Is Up   retry=100s
     END
     Run Keyword If    ${IS_AVAILABLE} == False   FAIL    The device did not start
 
@@ -143,7 +143,7 @@ Wipe installed Ghaf from internal memory
     [Tags]            wiping  lenovo-x1  darter-pro
     Log To Console    ${\n}Turning device on...
     Turn Laptop On
-    Check If Device Is Up   retry=60x
+    Check If Device Is Up   retry=60s
     Run Keyword If    ${IS_AVAILABLE} == False   FAIL    The device did not start
 
     IF  "${CONNECTION_TYPE}" == "ssh"
@@ -159,7 +159,7 @@ Break the system
     Check If Device Is Up    retry=5x
     IF    ${IS_AVAILABLE} == False
         Turn Laptop On
-        Check If Device Is Up    retry=240x
+        Check If Device Is Up    retry=240s
         IF    ${IS_AVAILABLE} == False
             FAIL    Darter is not available, Wiping is not possible, requires manual maintenance.
         END
