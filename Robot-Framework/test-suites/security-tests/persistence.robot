@@ -52,6 +52,8 @@ Verify brightness persisted
     [Tags]    SP-T326  SP-T326-1
     ${brightness}     Get screen brightness
     Should Be Equal   ${EXPECTED_BRIGHTNESS}  ${brightness}
+    [Teardown]    Run Keyword If Test Failed    Run Keywords    Log persistence setup errors
+    ...    AND    Run Keyword If    "storeDisk" in "${JOB}"     SKIP   Known Issue: SSRCSP-8623
 
 Verify volume persisted
     [Tags]    SP-T326  SP-T326-2

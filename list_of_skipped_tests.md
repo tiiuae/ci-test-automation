@@ -4,6 +4,8 @@
 
 | DATE SET   | TEST CASE                                               | TICKET / Additional Data.                                                                     |
 | ---------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 22.06.2026 | Verify brightness persisted (storeDisk)                 | SSRCSP-8623                                                                                   |
+| 22.06.2026 | Shutdown & Reboot from power menu (storeDisk)           | SSRCSP-8621                                                                                   |
 | 18.06.2026 | Shutdown from power menu (25-35 seconds)                | SSRCSP-8613                                                                                   |
 | 15.06.2026 | VM memory usage snapshot (Dell)                         | Dell has less memory than other targets                                                       |
 | 11.06.2026 | Verify booting after restart by power (orin-nx)         | SSRCSP-8585                                                                                   |
