@@ -114,9 +114,11 @@ Set RTC time
     ${original_time}      Get Time	epoch
     Set Test Variable     ${original_time}  ${original_time}
     Log To Console        Setting time ${time}
-    Run Command     hwclock --set --date="${time}"  sudo=True
+    Run Command     hwclock --set --date="${time}" --verbose  sudo=True
     Sleep    3
-    Run Command     hwclock -s  sudo=True
+    # Workaround for SSRCSP-8622
+    ${extra_flag}   Set Variable If   "${DEVICE_TYPE}" == "lenovo-x1" or "${DEVICE_TYPE}" == "x1-sec-boot"   -f /dev/rtc1   ${EMPTY}
+    Run Command     hwclock -s --verbose ${extra_flag}  sudo=True
     Run Command     timedatectl -a
 
 Check time was changed
@@ -151,7 +153,7 @@ Compare local and universal time
 
 Set RTC from system clock
     [Documentation]   Set the Hardware Clock from the System Clock
-    Run Command       hwclock -w  sudo=True
+    Run Command       hwclock -w --verbose  sudo=True
     Run Command       timedatectl -a
 
 Set system time
