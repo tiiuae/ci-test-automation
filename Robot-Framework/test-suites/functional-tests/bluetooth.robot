@@ -84,6 +84,14 @@ Discover bluetooth device by name
     [Documentation]    Scan and return target MAC by advertised name using bluetoothctl.
     [Arguments]        ${device_name}=${BT_BOARD_NAME}    ${scan_delay}=10
     Switch to vm       ${AUDIO_VM}
+    ${mac}             Wait Until Keyword Succeeds    3x    1s    Scan bluetooth device by name    ${device_name}    ${scan_delay}
+    RETURN             ${mac}
+
+Scan bluetooth device by name
+    [Documentation]    Run one bluetoothctl scan and return target MAC by advertised name.
+    [Arguments]        ${device_name}=${BT_BOARD_NAME}    ${scan_delay}=10
+    Log                Scanning for Bluetooth device "${device_name}".    console=True
+    Run Command        bluetoothctl power off
     Run Command        bluetoothctl power on
     ${scan_out}        Run Command
     ...                { echo "scan on"; sleep ${scan_delay}; echo "scan off"; echo "devices"; echo "quit"; } | bluetoothctl
@@ -106,7 +114,7 @@ Connect bluetooth device
     [Arguments]        ${mac}
     Switch to vm       ${AUDIO_VM}
     Run Command        bluetoothctl power on
-    ${output}          Run Command  { echo "connect ${mac}"; sleep 1; echo "quit"; } | bluetoothctl  return=out  rc_match=skip
+    ${output}          Run Command  { echo "connect ${mac}"; sleep 2; echo "quit"; } | bluetoothctl  return=out  rc_match=skip
     Log                ${output}
     Should Contain     ${output}    Connection successful    Couldn't connect Bluetooth Board (didn't find 'Connection successful')
     Log                Bluetooth Board is connected     console=True
