@@ -65,8 +65,7 @@ Install and Launch App Store app
     # Launch app from app menu, verify and kill it
     Start app via GUI   ${FLATPAK_VM}   ${process_name}   ${app_name}
 
-    [Teardown]   Run Keywords   Switch to vm   ${FLATPAK_VM}
-    ...    AND   Kill App By Name   cosmic-store   sudo=True
+    [Teardown]   Kill App in VM   ${FLATPAK_VM}   cosmic-store   status=${KEYWORD_STATUS}   require_exists=False
 
 Verify app is not preinstalled via flatpak
     [Arguments]    ${app_name}
@@ -139,9 +138,8 @@ Kill app and Uninstall in App Store
     Should Be Empty     ${flatpak_app_id}    App ${app_name} is still installed via flatpak (${flatpak_app_id})
     Log   ${app_name} is now uninstalled   console=True
     Close app via GUI   ${FLATPAK_VM}  cosmic-store  window-close-neg.png
-    [Teardown]   Run Keywords   Switch to vm   ${FLATPAK_VM}
-    ...    AND   Kill App By Name   cosmic-store   sudo=True
-    ...    AND   Kill App By Name   ${process_name}   sudo=True
+    [Teardown]   Run Keywords   Kill App in VM   ${FLATPAK_VM}   cosmic-store      status=${KEYWORD_STATUS}   require_exists=False
+    ...                   AND   Kill App in VM   ${FLATPAK_VM}   ${process_name}   status=${KEYWORD_STATUS}   require_exists=False
 
 Save a file from Onlyoffice
     [Documentation]   Open a file in Onlyoffice and save it to Shares

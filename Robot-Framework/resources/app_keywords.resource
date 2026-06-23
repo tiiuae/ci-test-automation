@@ -25,13 +25,10 @@ Start application in VM
     Set Test Variable    ${TEST_PROCESS_NAME}   ${process_name}
 
     IF    '${app-vm}' not in ${RUNNING_VMS} or ${always_check_vm}   Check that appVM is running   ${app-vm}
-    Switch to vm   ${app-vm}
-    Check that the application is not running   ${process_name}  1   before_launch_check=True
-    
-    Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
-    Start application   ${app_name}     params_string=${params_string}
-    IF   '${app-vm}' != '${GUI_VM}'   Switch to vm   ${app-vm}
-    Check that the application was started    ${process_name}  5
+    Check that App is not running in VM    ${app-vm}   ${process_name}   range=1   before_launch_check=True
+
+    Start application   ${app_name}    params_string=${params_string}
+    Check that App is running in VM    ${app-vm}   ${process_name}   range=5
 
 Check that appVM is running
     [Arguments]    ${app-vm}
@@ -45,122 +42,90 @@ Check that appVM is running
 
 Start application
     [Arguments]      ${app_name}    ${params_string}=${EMPTY}
+    [Setup]    Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
     Log    Starting ${app_name}   console=True
     Run Command  nohup sh -c 'ghaf-open ${app_name} ${params_string}' > ${APP_OUTPUT_FILE} 2>&1 &
 
-Check that the application was started
-    [Arguments]    ${process_name}  ${range}=2
-    FOR   ${i}   IN RANGE  ${range}
-        ${is_running}  Is process running   ${process_name}
-        IF    ${is_running}
-            Log    ${process_name} is running    console=True
-            RETURN
-        END
-        Sleep   1
-    END
-    FAIL   ${process_name} is not running after ${range} seconds
+Check that App is running in VM
+    [Arguments]    ${app-vm}   ${process_name}   ${range}=2
+    ${user}        Set Variable If   '${app-vm}' == '${GUI_VM}'   ${USER_LOGIN}   ghaf
+    Switch to vm   ${app-vm}   user=${user}
+    Wait Until Keyword Succeeds    ${range}x    1s   Check that process is running   ${process_name}
 
-Check that the application is not running
-    [Arguments]    ${process_name}  ${range}=2   ${before_launch_check}=False
-    FOR   ${i}   IN RANGE  ${range}
-        ${is_running}  Is process running   ${process_name}
-        IF    not ${is_running}
-            Log    ${process_name} is not running    console=True
-            RETURN
-        END
-        Sleep   1
-    END
-    IF    ${before_launch_check}
-        FAIL   ${process_name} is already running before it was launched
-    END
-    FAIL   ${process_name} is still running after ${range} seconds
+Check that App is not running in VM
+    [Arguments]   ${app-vm}   ${process_name}   ${range}=2   ${before_launch_check}=False
+    ${user}              Set Variable If   '${app-vm}' == '${GUI_VM}'   ${USER_LOGIN}   ghaf
+    Switch to vm         ${app-vm}   user=${user}
+    ${error_message}     Set Variable If      ${before_launch_check}   already running    still running
+    Wait Until Keyword Succeeds    ${range}x    1s    Check that process is not running    ${process_name}    ${error_message}
 
 Log and remove app output
-    [Documentation]    Specify the VM from which the app was started and the user (the owner of the file)
-    [Arguments]   ${file}    ${app-vm}    ${user}=ghaf
-    Switch to vm  ${app-vm}    ${user}
+    [Documentation]    Save app output from ${GUI_VM} and remove the output file.
+    [Arguments]   ${file}
+    Switch to vm  ${GUI_VM}  user=${USER_LOGIN}
     Run Command   cat ${file}
     Remove file   ${file}
 
 Log app vm journalctl
-    [Documentation]    Specify the VM where the App is actually running
+    [Documentation]    Log journalctl from ${app-vm}, specify the VM where the App is actually running.
     [Arguments]   ${app-vm}
     Switch to vm  ${app-vm}
     Run Command   journalctl -b
 
-Kill App Process And Save Logs
-    [Documentation]    Kill all running process and log apps output and journalctl
-    ...                app_start_vm - the VM from which the app was started
-    ...                user - by what user the app was started
-    ...                log_file - the name of the file which was defined in the app's starting command
-    ...                process_name - the name of the app process that will be killed
-    ...                app_running_vm - the VM where the App is actually running
-    ...                status - the status of the test executed
-    [Arguments]        ${app_start_vm}   ${user}   ${log_file}  ${process_name}  ${app_running_vm}  ${status}=${TEST_STATUS}
-    IF   '${app_running_vm}' == '${GUI_VM}'
-        Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
-        Kill process by name    ${process_name}   sudo=False
-    ELSE
-        Switch to vm            ${app_running_vm}
-        Kill process by name    ${process_name}
-    END
-    Log and remove app output   ${log_file}  ${app_start_vm}   user=${user}
-    IF  '${status}'=='FAIL'   Log app vm journalctl  ${app_running_vm}
-
 Kill App in VM
-    [Documentation]   Use after "Start application in VM", call this keyword from the test teardown.
-    [Arguments]   ${app-vm}   ${process_name}   ${status}=${TEST_STATUS}
-    Kill App Process And Save Logs    ${GUI_VM}  ${USER_LOGIN}  ${APP_OUTPUT_FILE}  ${process_name}  ${app-vm}  ${status}
+    [Documentation]   Connects to ${app-vm} and kills process ${process_name}.
+    ...    Use after "Start application in VM", call this keyword from the test teardown.
+    [Arguments]   ${app-vm}   ${process_name}   ${log_file}=None   ${status}=${TEST_STATUS}   ${require_exists}=True
+    ${user}      Set Variable If      '${app-vm}' == '${GUI_VM}'     ${USER_LOGIN}   ghaf
+    ${sudo}      Set Variable If      '${user}' == '${USER_LOGIN}'   False           True
 
-Kill App By Name
-    [Arguments]     ${process_name}   ${sudo}=False
-    ${pass_status}   ${output}    Run Keyword And Ignore Error   Check that the application was started   ${process_name}   1
-    IF  $pass_status=='PASS'      Kill process by name   ${process_name}   ${sudo}
+    Switch to vm            ${app-vm}         user=${user}
+    Kill process by name    ${process_name}   sudo=${sudo}   require_exists=${require_exists}
+
+    IF  '${log_file}' != 'None'   Log and remove app output   ${log_file}
+    IF  '${status}'=='FAIL'       Log app vm journalctl       ${app-vm}
 
 Start app via GUI
     [Documentation]    Start Application via GUI and verify related process started
     [Arguments]        ${app-vm}   ${process_name}   ${display_name}
-    Check that appVM is running   ${app-vm}
-    Check that the application is not running   ${process_name}  1  before_launch_check=True
-    Switch to vm                   ${GUI_VM}  user=${USER_LOGIN}
+    Check that appVM is running           ${app-vm}
+    Check that App is not running in VM   ${app-vm}   ${process_name}   range=1   before_launch_check=True
 
     Open app menu
     Type string     ${display_name}  enter_at_end=True
     Save time       ${process_name}_start
 
-    Switch to vm    ${app-vm}
-    Check that the application was started    ${process_name}  10
+    Check that App is running in VM   ${app-vm}   ${process_name}   range=10
 
     [Teardown]    Run Keywords    Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
     ...           AND             Move cursor to corner
 
 Open app menu
-    [Documentation]    Check if app menu is open and if not open it
-    # Searches for app menu magnifying glass to identify if app menu is open
-    Log To Console     Checking that app menu is not already open
-    ${status}   ${output}      Run Keyword And Ignore Error   Locate on screen  image  search-neg.png  0.90  1  expected_result=FAIL
-    IF  '${status}' == 'PASS'
-        Log To Console    App menu is already open
-    ELSE
-        Log To Console    Opening app menu
+    [Documentation]   Open app menu from the app menu icon
+    [Setup]           Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
+    Log To Console    Opening app menu
+    Locate and click  image  ${APP_MENU_LAUNCHER}  0.95  10
+    TRY
+        # Search for app menu magnifying glass to identify that the app menu is open
+        Wait Until Keyword Succeeds    5x    1s    Verify Image On The Screen   search-neg.png  confidence=0.90
+    EXCEPT
+        Log To Console    App menu did not open, trying again (it might have already been open)
         Locate and click  image  ${APP_MENU_LAUNCHER}  0.95  10
-        Locate on screen  image  search-neg.png  0.90  10
+        Wait Until Keyword Succeeds    5x    1s    Verify Image On The Screen   search-neg.png  confidence=0.90
     END
 
 Close app via GUI
     [Documentation]    Close Application via GUI and verify related process stopped
     [Arguments]        ${app-vm}   ${process_name}   ${close_button}   ${verify_is_killed}=True
-    Switch to vm       ${app-vm}
-    Check that the application was started    ${process_name}
+    Check that App is running in VM    ${app-vm}   ${process_name}   range=5
     Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
     Log To Console     Clicking the close button of the application window
     Locate and click   image  ${close_button}  0.9  iterations=25  wiggle=True
     Save Time          ${process_name}_launched    ${LAST_SCREENSHOT_TIME}
     IF  ${verify_is_killed}
-        Switch to vm       ${app-vm}
-        ${status}          Run Keyword And Return Status  Check that the application is not running  ${process_name}  5
+        ${status}          Run Keyword And Return Status  Check that App is not running in VM    ${app-vm}   ${process_name}   range=5
         Should Be True     ${status}   Failed to close the application
     END
     # In case closing the app via GUI failed
-    [Teardown]     Run Keywords   Switch to vm   ${app-vm}   AND   Kill App By Name   ${process_name}  sudo=True
+    [Teardown]     Run Keywords   Kill App in VM   ${app-vm}   ${process_name}   status=${KEYWORD_STATUS}   require_exists=False
     ...            AND   Switch to vm   ${GUI_VM}  user=${USER_LOGIN}   AND   Move cursor to corner

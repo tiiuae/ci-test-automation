@@ -7,7 +7,7 @@ Test Tags           fmo-apps  bat  fmo
 
 Resource            ../../resources/app_keywords.resource
 
-Test Teardown       Kill App in VM   ${TEST_APP-VM}   ${TEST_PROCESS_NAME}
+Test Teardown       Kill App in VM   ${TEST_APP-VM}   ${TEST_PROCESS_NAME}   ${APP_OUTPUT_FILE}
 
 
 *** Test Cases ***

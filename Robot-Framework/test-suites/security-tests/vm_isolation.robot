@@ -36,10 +36,9 @@ Stopping one VM does not affect another
     Start application in VM   ${app_name}   ${another_vm}    ${process_name}   always_check_vm=True
     Stop VM        ${one_vm}
     ${state}  ${substate}   Verify service status  service=microvm@${another_vm}.service  expected_state=active  expected_substate=running
-    Switch to vm   ${another_vm}
-    Check that the application was started    ${process_name}
+    Check that App is running in VM   ${another_vm}   ${process_name}   range=5
     [Teardown]    Run Keywords   Restart VM   ${one_vm}   start_only=True   restore_sudoers=False
-    ...                    AND   Kill App in VM   ${another_vm}   ${process_name}   PASS
+    ...                    AND   Kill App in VM   ${another_vm}   ${process_name}   log_file=${APP_OUTPUT_FILE}   status=${KEYWORD_STATUS}
 
 Stop VM
     [Documentation]         Try to stop VM and verify it stopped

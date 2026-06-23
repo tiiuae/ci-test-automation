@@ -75,17 +75,21 @@ Is process running
     ${running}   Run Keyword And Return Status   Run Command    pgrep -f "${process_name}" -a
     RETURN   ${running}
 
+Check that process is running
+    [Arguments]      ${process_name}
+    ${is_running}    Is process running   ${process_name}
+    Should Be True   ${is_running}    Process ${process_name} is not running
+    Log              Process ${process_name} is running    console=True
+
 Check that process is not running
-    [Arguments]    ${process_name}
-    ${is_running}   Is process running   ${process_name}
-    Should Not Be True   ${is_running}   Process ${process_name} is still running
+    [Arguments]          ${process_name}   ${error_message}=still running
+    ${is_running}        Is process running   ${process_name}
+    Should Not Be True   ${is_running}        Process ${process_name} is ${error_message}
+    Log                  Process ${process_name} is not running    console=True
 
 Kill process by name
     [Arguments]   ${process_name}   ${sudo}=True   ${require_exists}=${True}   ${signal}=TERM   ${fallback_signal}=KILL
-    IF    ${require_exists}
-        ${is_running}   Is process running   ${process_name}
-        Should Be True   ${is_running}   Process ${process_name} is not running
-    END
+    IF    ${require_exists}   Check that process is running   ${process_name}
     Log   Killing process ${process_name} with signal ${signal} (fallback: ${fallback_signal})   console=True
     # A = ignore pkill process (ancestor), e = display what is killed, f = use full process name to kill
     Run Command    pkill -${signal} -Aef "${process_name}"  sudo=${sudo}  return=rc  rc_match=skip  timeout=15

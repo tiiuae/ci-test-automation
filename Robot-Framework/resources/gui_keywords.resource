@@ -364,7 +364,7 @@ Start screen recording
         END
         Set Global Variable  ${SCREEN_SELECTED}  ${True}
     END
-    Wait Until Keyword Succeeds    5x    1s    Run Command    ls -la /home/${USER_LOGIN}/Videos/${test_name}.mkv
+    Wait Until Keyword Succeeds    10x    0.5s    Run Command    ls -la /home/${USER_LOGIN}/Videos/${test_name}.mkv
     [Teardown]       Run Keyword If   '${KEYWORD_STATUS}' == 'FAIL'   Run Keywords   Timestamp last screenshot
     ...              AND   Run Command   cat /tmp/gpu-screen-recorder.log
 
@@ -401,13 +401,14 @@ Save screen recording
     END
 
 Kill Initial Setup
-    ${status}   ${output}   Run Keyword And Ignore Error   Check file exists   .config/cosmic-initial-setup-done
-    IF   $status == 'FAIL'
+    TRY
+        Check file exists   .config/cosmic-initial-setup-done
+    EXCEPT
         # Wait for the initial setup to start
-        Run Keyword and Ignore Error     Check that the application was started   cosmic-initial-setup   range=5
+        Run Keyword and Ignore Error     Check that App is running in VM   ${GUI_VM}   cosmic-initial-setup   range=5
         # Wait until Ghaf theme is applied, this does not happen if initial setup is killed too fast
         Wait Until Keyword Succeeds   10s   0.5s   Check file exists   .config/cosmic/com.system76.CosmicTheme*
         Sleep    1
         # Kill the initial setup so that it does not interfere with tests
-        Kill App By Name   cosmic-initial-setup
+        Kill process by name   cosmic-initial-setup   sudo=False   require_exists=False
     END
