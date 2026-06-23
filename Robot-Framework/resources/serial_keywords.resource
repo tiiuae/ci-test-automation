@@ -72,6 +72,7 @@ Check Serial Connection
         Sleep   1
     END
     Delete All Ports
+    Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
     IF  ${status}
         Log To Console       Device is available via serial
         Set Global Variable  ${CONNECTION_TYPE}    serial
@@ -126,11 +127,16 @@ Verify init.scope status via serial
     END
     ${diff}=    Evaluate    int(time.time()) - int(${start_time})
     FAIL    init.scope is not running after ${diff} sec! Status is ${status}
-    [Teardown]       Delete All Ports
+    [Teardown]    Run Keywords    Delete All Ports    AND
+    ...           Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
 
 Connect via serial
     [Arguments]         ${timeout}=1.0
-    ${status}           Open Serial Port    timeout=${timeout}
+    IF  not ${UART_CAPTURE_ACTIVE}
+        ${status}           Open Serial Port    timeout=${timeout}
+    ELSE
+        ${status}    Set Variable    ${True}
+    END
     IF    ${status}
         ${status}   Run Keyword And Return Status    Log In To Ghaf OS
     END
@@ -151,7 +157,8 @@ Save log
         Write Advanced Testlog    journalctl.txt     ${output}
         Log  ${output}
     END
-    [Teardown]           Delete All Ports
+    [Teardown]    Run Keywords    Delete All Ports    AND
+    ...           Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
 
 Get ethernet IP address
     ${status}            Connect via serial
@@ -163,7 +170,8 @@ Get ethernet IP address
     ELSE
         FAIL     There is no serial connection. Couldn't get IP address.
     END
-    [Teardown]           Delete All Ports
+    [Teardown]    Run Keywords    Delete All Ports    AND
+    ...           Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
 
 Verify shutdown via serial
     [Documentation]   Reading serial port and expects 'System Power Off' text.
@@ -185,7 +193,8 @@ Verify shutdown via serial
     END
     ${time}           BuiltIn.Get Time   epoch
     RETURN            ${time}
-    [Teardown]        Delete All Ports
+    [Teardown]    Run Keywords    Delete All Ports    AND
+    ...           Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
 
 Run Command On Serial
     [Documentation]    Run a host command on the serial console and wait for the shell prompt.
@@ -217,6 +226,7 @@ Run Command On Serial
     ${output}    SerialLibrary.Read Until    terminator=ghaf@${HOST}:
     IF    ${opened_here}
         Delete All Ports
+        Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
     END
     ${clean_output}    Normalize Serial Output    ${output}
     ${lower_output}    Convert To Lowercase    ${clean_output}
@@ -295,6 +305,7 @@ Run Command on VM Via Serial
     END
     IF    ${opened_here}
         Delete All Ports
+        Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
     END
     ${clean_output}    Normalize Serial Output    ${prompt_output}
     Log                ${clean_output}

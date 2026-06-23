@@ -76,7 +76,8 @@ Check serial connection
         Sleep   1
     END
     IF    ${status} == False   Fail  Device is not available via serial port, used port: ${SERIAL_PORT}
-    [Teardown]  Delete All Ports
+    [Teardown]    Run Keywords    Delete All Ports    AND
+    ...           Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
 
 Check storage size
     [Documentation]  Check that there is enough persistent storage available

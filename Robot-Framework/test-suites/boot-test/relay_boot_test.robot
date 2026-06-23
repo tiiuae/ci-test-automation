@@ -83,6 +83,7 @@ Verify booting laptop
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Verify init.scope status via serial
     END
+
     [Teardown]   Test Teardown
 
 Turn OFF Device
@@ -179,18 +180,18 @@ Break the system
 *** Keywords ***
 
 Test Teardown
-    Run Keyword If    "${DEVICE_TYPE}" == "orin-nx"
-    ...    Run Keyword If Test Failed    Skip    Known issue: SSRCSP-8585, orin-nx fails ssh on some boots
-    IF  ${IS_AVAILABLE}
+    IF  ${IS_AVAILABLE} and ${IS_LAPTOP}
         IF  "${CONNECTION_TYPE}" == "ssh"
             Run Keyword If Test Failed    Run Keyword And Ignore Error    ssh_keywords.Save log
         ELSE IF  "${CONNECTION_TYPE}" == "serial"
-            Run Keyword If Test Failed    Run Keyword And Ignore Error    ssh_keywords.Save log
+            Run Keyword If Test Failed    Run Keyword And Ignore Error    serial_keywords.Save log
         END
     END
     IF  not ${IS_LAPTOP}
-        Run Keyword If Test Failed    Collect Failure Diagnostics Via Serial
+        Run Keyword If Test Failed    Run Keyword And Ignore Error    Collect Failure Diagnostics Via Serial
     END
+    Run Keyword If    "${DEVICE_TYPE}" == "orin-nx"
+    ...    Run Keyword If Test Failed    Skip    Known issue: SSRCSP-8585, orin-nx fails ssh on some boots
     IF    ${UART_CAPTURE_ACTIVE} and not ${SAVE_BOOT_LOGS_ON_PASS}
         Run Keyword If Test Passed    OperatingSystem.Remove File    ${UART_CAPTURE_FILE}
     END
@@ -198,6 +199,7 @@ Test Teardown
 Teardown
     Close All Connections
     Delete All Ports
+    Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
     Close Relay Board Connection
 
 Run ghaf-installer
