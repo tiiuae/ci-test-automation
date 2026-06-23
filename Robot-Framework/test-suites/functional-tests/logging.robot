@@ -63,6 +63,7 @@ Check Grafana logs
     ${failed_vms_check_1}   Check Logs Are Available   ${id}  since=3m  word=${TEST_LOG}
     ${check_status}         Run Keyword And Return Status    Should Be Empty   ${failed_vms_check_1}
     IF  not ${check_status}
+        Run Keyword And Ignore Error   Save logging logs from VMs    ${failed_vms_check_1}
         ${since_boot}  Get Time Since Last Boot
         ${failed_vms_check_2}   Check Logs Are available   ${id}   since=${since_boot}s
         ${check_status}         Run Keyword And Return Status    Should Be Empty   ${failed_vms_check_2}
@@ -200,11 +201,24 @@ Check Logs Are Available
     RETURN  ${failed_vms}
 
 Create logs in all VMs
-    [Documentation]    Create new SSH connection to all VMs to make sure there are recent logs
-    Close All Connections
+    [Documentation]    Create a logger log in all VMs
     FOR  ${vm}  IN  @{VM_LIST}
         Switch to vm   ${vm}
         Run Command  logger --priority=user.info "${TEST_LOG}"
         ${out}   Run Command    journalctl --since "1 minute ago" | grep "${TEST_LOG}"
         Run Keyword And Continue On Failure   Should Contain  ${out}   ${TEST_LOG}   Log was not created in ${vm}
+    END
+
+Save logging logs from VMs
+    [Arguments]    ${failed_vms}
+    FOR    ${vm}    IN    @{failed_vms}
+        Switch to vm    ${vm}
+        IF    '${vm}' == '${ADMIN_VM}'
+            ${service}    Set Variable    systemd-journal-remote.service
+        ELSE
+            ${service}    Set Variable    systemd-journal-upload.service
+        END
+        Log    Collecting journalctl output from ${vm}    console=True
+        Run Command    journalctl -b -u ${service}
+        Run Command    journalctl -b
     END
