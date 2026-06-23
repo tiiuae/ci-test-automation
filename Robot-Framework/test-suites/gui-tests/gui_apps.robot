@@ -41,9 +41,9 @@ Copy and paste text between VMs
     Copy text to clipboard    ${clipboard_text}
     Start app via GUI   ${BUSINESS_VM}  google-chrome  "Trusted Browser"
     Paste clipboard text and verify     ${clipboard_text}
-    [Teardown]    Run Keywords    Switch to vm    ${BUSINESS_VM}    AND    Kill App By Name   google-chrome   sudo=True
-    ...           AND             Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
-    ...           AND             Kill App By Name    cosmic-edit
+    [Teardown]    Run Keywords    Kill App in VM   ${BUSINESS_VM}   google-chrome
+    ...           AND             Kill App in VM   ${GUI_VM}        cosmic-edit
+    ...           AND             Switch to vm     ${GUI_VM}        user=${USER_LOGIN}
     ...           AND             Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 Open an app from the dock
@@ -56,7 +56,7 @@ Open an app from the dock
     Verify app window is minimized
     Wait for Zoom icon coordinates to change and restore window    ${zoom_before_x}    ${zoom_before_y}
     Verify Zoom window restored to baseline    ${zoom_window_coords}    ${zoom_anchor_coords}
-    [Teardown]   Run Keywords   Switch to vm    ${COMMS_VM}    AND    Kill App By Name   zoom   sudo=True
+    [Teardown]   Run Keywords    Kill App in VM    ${COMMS_VM}    zoom
     ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 Maximize and restore window
@@ -68,7 +68,7 @@ Maximize and restore window
     Verify app window is maximized
     Locate and click maximize/restore window button
     Verify Zoom window restored to baseline    ${zoom_window_coords}    ${zoom_anchor_coords}
-    [Teardown]   Run Keywords   Switch to vm    ${COMMS_VM}    AND    Kill App By Name   zoom   sudo=True
+    [Teardown]   Run Keywords    Kill App in VM    ${COMMS_VM}    zoom
     ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 

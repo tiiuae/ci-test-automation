@@ -39,12 +39,9 @@ Open image with Oculante
     [Documentation]    Open PNG image in the Gui VM and check that Oculante app is started and opens the image
     [Tags]             SP-T197  pre-merge
     Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
-
     Run Command        WAYLAND_DISPLAY=wayland-1 grim ./screenshot.png   timeout=5
     Open file with XDG handler   ./screenshot.png   sudo=False
-
-    Switch to vm       ${MEDIA_VM}
-    Check that the application was started    oculante    10
+    Check that App is running in VM    ${MEDIA_VM}   oculante   range=10
     [Teardown]  Run Keywords  Remove the file in VM       ./screenshot.png  ${GUI_VM}   ${USER_LOGIN}   AND
     ...                       Kill app and XDG process    oculante
 
@@ -54,9 +51,9 @@ Open text file with Cosmic Text Editor
     Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
     Create text file   test    /tmp/test_text.txt
     Open file to gui-vm with XDG handler    /tmp/test_text.txt
-    Check that the application was started    cosmic-edit    10
+    Check that App is running in VM         ${GUI_VM}   cosmic-edit   range=10
     [Teardown]  Run Keywords  Remove the file in VM    /tmp/test_text.txt    ${GUI_VM}    ${USER_LOGIN}    AND
-    ...                       Kill App Process And Save Logs    ${GUI_VM}    ${USER_LOGIN}    ${OUTPUT_FILE}    cosmic-edit    ${GUI_VM}
+    ...                       Kill App in VM    ${GUI_VM}    cosmic-edit    log_file=${OUTPUT_FILE}
 
 
 *** Keywords ***
@@ -68,9 +65,9 @@ Remove the file in VM
 
 Kill app and XDG process
     [Arguments]        ${app}
-    Switch to vm       ${MEDIA_VM}
-    Log                Killing ${app} and xdg-open process in ${MEDIA_VM}    console=true
-    Kill App By Name   ${app}|xdg-open        sudo=True
+    Switch to vm           ${MEDIA_VM}
+    Log                    Killing ${app} and xdg-open process in ${MEDIA_VM}    console=true
+    Kill process by name   ${app}|xdg-open   sudo=True   require_exists=False
 
 Open PDF from app-vm
     [Arguments]       ${vm}   ${user}=ghaf   ${sudo}=True
@@ -78,8 +75,7 @@ Open PDF from app-vm
     Put File                     ../test-files/test_pdf.pdf   /tmp/test_pdf_${vm}.pdf
     ${open_timestamp}            Run Command    date +%s
     Open file with XDG handler   /tmp/test_pdf_${vm}.pdf   sudo=${sudo}
-    Switch to vm                 ${MEDIA_VM}
-    Check that the application was started    cosmic-reader   10
+    Check that App is running in VM    ${MEDIA_VM}   cosmic-reader   range=10
     [Teardown]    Run Keywords   Remove the file in VM        /tmp/test_pdf_${vm}.pdf   ${vm}  ${user}
     ...                    AND   Kill app and XDG process     cosmic-reader
     ...                    AND   Run Keyword If   '${KEYWORD_STATUS}' == 'FAIL'   Check for cosmic-reader crash   ${open_timestamp}   ${vm}
