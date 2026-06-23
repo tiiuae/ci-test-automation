@@ -196,6 +196,7 @@ Check systemctl status for known issues
             Append To List    ${new_issues}    ${failing_service}
         END
     END
+    Run Command  logger --priority=user.info "ROBOT_LOG (systemctl status): Known failed services ${old_issues} failed on ${DEVICE_TYPE}, job ${JOB}"
     IF   ${new_issues} != []
         Fail    Unexpected failed services in ${vm}: ${new_issues}, known failed services: ${old_issues}
     ELSE

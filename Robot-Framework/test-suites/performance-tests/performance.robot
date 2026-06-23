@@ -60,8 +60,10 @@ VM memory usage snapshot
         IF    ${mem_avail_pct} < ${low_mem_limit}
             Run Keyword And Continue On Failure    FAIL    ${vm} available memory is below ${low_mem_limit}% of the total memory
         END
-        IF    ${swap_free_pct} < ${low_swap_limit}
+        IF    ${swap_free_pct} < ${low_swap_limit} and not ("orin" in "${DEVICE_TYPE}" and "${vm}" == "${HOST}")
             Run Keyword And Continue On Failure    FAIL    ${vm} swap free is below ${low_swap_limit}% of the total swap
+        ELSE IF    "orin" in "${DEVICE_TYPE}" and "${vm}" == "${HOST}"
+            Log    Skipping swap threshold check for ${HOST} because it has no swap on Orin targets    console=True
         END
         Log    Memory in ${vm}: avail ${mem_avail_mib}/${mem_total_mib} MiB, swap free ${swap_free_mib}/${swap_total_mib} MiB    console=True
         Set To Dictionary    ${mem_data}    mem_avail_mib__${vm}=${mem_avail_mib}
