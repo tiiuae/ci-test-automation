@@ -114,9 +114,13 @@ Connect bluetooth device
     [Arguments]        ${mac}
     Switch to vm       ${AUDIO_VM}
     Run Command        bluetoothctl power on
-    ${output}          Run Command  { echo "connect ${mac}"; sleep 2; echo "quit"; } | bluetoothctl  return=out  rc_match=skip
+    ${output}          Run Command  { echo "connect ${mac}"; sleep 3; echo "quit"; } | bluetoothctl  return=out  rc_match=skip
     Log                ${output}
-    Should Contain     ${output}    Connection successful    Couldn't connect Bluetooth Board (didn't find 'Connection successful')
+    ${connected}       Run Keyword And Return Status    Should Contain    ${output}    Connection successful
+    IF    not ${connected}
+        Log Bluetooth Board Serial Output
+        FAIL    Couldn't connect Bluetooth Board (didn't find 'Connection successful'). bluetoothctl output:\n${output}
+    END
     Log                Bluetooth Board is connected     console=True
     Wait Until Keyword Succeeds    30s    1s    Read BT Serial Until    Connected
 
@@ -126,7 +130,11 @@ Disconnect bluetooth device
     Switch to vm       ${AUDIO_VM}
     ${output}          Run Command  { echo "disconnect ${mac}"; sleep 3; echo "quit"; } | bluetoothctl  return=out  rc_match=skip
     Log                ${output}
-    Should Contain     ${output}    Disconnection successful   Couldn't disconnect Bluetooth Board (didn't find 'Disconnection successful')
+    ${disconnected}    Run Keyword And Return Status    Should Contain    ${output}    Disconnection successful
+    IF    not ${disconnected}
+        Log Bluetooth Board Serial Output
+        FAIL    Couldn't disconnect Bluetooth Board (didn't find 'Disconnection successful'). bluetoothctl output:\n${output}
+    END
     Wait Until Keyword Succeeds    30s    1s    Read BT Serial Until    Disconnected
     Wait Until Keyword Succeeds    30s    1s    Read BT Serial Until    Advertising restarted
     Log                Bluetooth Board is disconnected     console=True
@@ -168,3 +176,10 @@ Read BT Serial Until
     Log                Bluetooth board serial output: ${output}
     Should Contain     ${output}    ${expected}    Bluetooth board serial output did not contain "${expected}" on ${BT_SERIAL_PORT}. Output:\n${output}
     RETURN             ${output}
+
+Log Bluetooth Board Serial Output
+    [Documentation]    Log available Bluetooth board serial output
+    [Arguments]        ${wait_seconds}=5
+    Sleep              ${wait_seconds}
+    ${output}          SerialLibrary.Read All Data
+    Log                ${output}
