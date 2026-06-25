@@ -64,6 +64,18 @@ Get wifi IP
     END
     IF   ${status} == False    FAIL    NetVM hasn't gotten an IP
 
+Get gateway
+    [Documentation]     Parse route table and return gateway for the default route of selected interface type
+    [Arguments]         ${interface}=wifi
+    ${if_name}          Get Interface name   ${interface}
+    ${output}           Run Command          route -n
+    ${pattern}          Set Variable         (?m)^0\\.0\\.0\\.0\\s+(\\S+)\\s+.*\\s${if_name}\\s*$
+    @{matches}          Get Regexp Matches   ${output}    ${pattern}    1
+    Should Not Be Empty    ${matches}    Could not find gateway for interface ${if_name} in route table
+    ${gateway}          Get From List        ${matches}    0
+    Log                 ${interface} gateway is ${gateway}    console=True
+    RETURN              ${gateway}
+
 Verify nmcli device status
     [Documentation]    Check state of the interface in the output of `nmcli device status`
     ...                and compare with expected: connected | disconnected | absent

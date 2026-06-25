@@ -38,12 +38,13 @@ Killswitch disconnects WLAN
     [Tags]           SP-T304  lab-only
     [Setup]          WLAN setup
     Verify nmcli device status    ${wifi_if}  connected
-    Check Network Availability    8.8.8.8     expected_result=True    limit_freq=${False}    interface=${wifi_if}
+    ${gateway}     Get gateway    wifi
+    Check Network Availability    ${gateway}     expected_result=True    limit_freq=${False}    interface=${wifi_if}
     Set device state   blocked    net
     Switch to vm       ${NET_VM}
     Verify nmcli device status    ${wifi_if}  absent
-    Check Network Availability    8.8.8.8     expected_result=False   limit_freq=${False}    interface=${wifi_if}
-    Check Network Availability    8.8.8.8     expected_result=True    limit_freq=${False}    interface=eth
+    Check Network Availability    ${gateway}     expected_result=False   limit_freq=${False}
+    Check Network Availability    8.8.8.8        expected_result=True    limit_freq=${False}    interface=eth
     Set device state   unblocked    net
     Remove Wifi configuration       ${TEST_WIFI_SSID}
     Wait Until Keyword Succeeds     10x   1s   Scan for Wifi   ${TEST_WIFI_SSID}
