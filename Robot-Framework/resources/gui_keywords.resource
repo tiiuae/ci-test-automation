@@ -33,13 +33,7 @@ Log in, unlock and verify
     ${logout_status}    Check if logged out   1
     IF  ${logout_status}
         Log in via GUI
-        ${status}    ${output}    Run Keyword And Ignore Error    Wait Until Keyword Succeeds    60s    1s    Verify login session
-        IF    '${status}' == 'FAIL'
-            Log To Console    Login session verification failed, retrying GUI login
-            Run Command       logger --priority=user.info "ROBOT_LOG: Login failed on ${DEVICE_TYPE}, job ${JOB}"
-            Log in via GUI
-            Wait Until Keyword Succeeds    60s    1s    Verify login session
-        END
+        Wait Until Keyword Succeeds    10s    1s    Verify login session
     ELSE
         ${lock}       Check if locked
         IF  ${lock}   Unlock
@@ -73,16 +67,17 @@ Log out and verify
 
 Log in via GUI
     [Documentation]   Log in by typing password
+    [Arguments]       ${password}=${USER_PASSWORD}   ${sleep_seconds}=5
     Log To Console    Logging in
     Wait Until Keyword Succeeds    60s    1s    Verify login session    greeter
     # Sleep is needed to make sure that greeter is ready, screenshots can't be used because greeter has control of the screen
-    Sleep    5
+    Sleep    ${sleep_seconds}
     # Make sure that password field is active by clicking on screen
     Run ydotool command   mousemove --absolute -x 50 -y 50   sudo=True
     Click   sudo=True
 
     IF  "${DEVICE_TYPE}" == "dell-7330"    Sleep  5
-    Confidential password write  ${USER_PASSWORD}
+    Confidential password write  ${password}
 
 Log out with loginctl
     [Documentation]   Log out from the laptop
@@ -326,9 +321,7 @@ Confidential password write
     Sleep            0.5
     ${output} 	     SSHLibrary.Read
     Write            printf '%s' "$PASSWD" | YDOTOOL_SOCKET=${YDOTOOL_SOCKET} ydotool type -f -
-    Sleep            3
-    ${output} 	     SSHLibrary.Read
-    Should Contain 	 ${output}    ${LOGIN}@
+    ${output}        SSHLibrary.Read Until    ${LOGIN}@
     Write            unset PASSWD
     Set Log Level    INFO
     Press Key(s)     ENTER   True
@@ -411,7 +404,7 @@ Kill Initial Setup
     ${status}   ${output}   Run Keyword And Ignore Error   Check file exists   .config/cosmic-initial-setup-done
     IF   $status == 'FAIL'
         # Wait for the initial setup to start
-        Run Keyword and Ignore Error     Check that the application was started   cosmic-initial-setup   range=15
+        Run Keyword and Ignore Error     Check that the application was started   cosmic-initial-setup   range=5
         # Wait until Ghaf theme is applied, this does not happen if initial setup is killed too fast
         Wait Until Keyword Succeeds   10s   0.5s   Check file exists   .config/cosmic/com.system76.CosmicTheme*
         Sleep    1

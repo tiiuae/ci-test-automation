@@ -14,7 +14,7 @@ Resource            ../../resources/security_blacklist_keywords.resource
 
 *** Test Cases ***
 
-Account lockout after failed login
+Account lockout after failed SSH login
     [Documentation]  Try to connect from the external test agent to the device with a wrong password for several times, then check that
     ...              test agent's ip is blacklisted in net-vm and it is not possible to connect even with correct password.
     ...              Remove IP from blacklist via serial and verify SSH connectivity is restored.

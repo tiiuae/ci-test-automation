@@ -39,6 +39,23 @@ Check Access List In Trusted Browser
     https://hcm22.sapsf.com                 text_to_find=SAP SuccessFactors
     https://jira.atlassian.com              text_to_find=Jira Software
 
+Account lockout after failed GUI login
+    [Documentation]     Try to login to the device with a wrong password for several times, then check that user account is locked.
+    ...                 Remove account from the lock list and log back in with the correct password.
+    [Tags]              SP-T267  lenovo-x1  darter-pro
+    Log out and verify
+    Check faillock entry count    0
+    # Account is locked after wrong password is given 5 times
+    FOR   ${i}   IN RANGE   1   6
+        Log              Typing wrong password (iteration #${i})   console=True
+        Log in via GUI   password=wrong_password   sleep_seconds=1
+        Wait Until Keyword Succeeds    10x    1s    Check faillock entry count    ${i}
+    END
+    Log     Trying to login with correct password   console=True
+    Run Keyword And Expect Error     *    Log in, unlock and verify
+    [Teardown]       Run keywords    Unlock account and login
+    ...                       AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+
 *** Keywords ***
 
 Check Access List In Trusted Browser Template
@@ -55,3 +72,21 @@ Check Access List In Trusted Browser Template
 
     [Teardown]    Run keywords      Switch to vm           ${BUSINESS_VM}    AND
     ...                             Kill process by name   google-chrome
+
+Unlock account and login
+    [Documentation]  Unlock the user account and log back in
+    [Setup]          Switch to vm     ${GUI_VM}
+    Run Command      faillock --user ${USER_LOGIN} --reset   sudo=True
+    Switch to vm     ${GUI_VM}  user=${USER_LOGIN}
+    # First login after unlocking the account fails
+    Log in via GUI   password=reset_login   sleep_seconds=1
+    Log in, unlock and verify
+
+Check faillock entry count
+    [Documentation]    Verify that the current faillock entry count matches ${expected_count}
+    [Arguments]        ${expected_count}
+    [Setup]       Switch to vm    ${GUI_VM}
+    ${count}      Run Command    faillock --user ${USER_LOGIN} | grep -c '^[0-9]'    sudo=True    rc_match=skip
+    Should Be Equal As Integers    ${count}    ${expected_count}
+    Log           Wrong password detected ${expected_count} times    console=True
+    [Teardown]    Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
