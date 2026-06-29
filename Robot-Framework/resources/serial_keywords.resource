@@ -64,10 +64,10 @@ Check Serial Connection
 
     ${serial_status}=   Open Serial Port
     Should Not Be Equal    ${serial_status}    False    msg=Serial port is not available
-    Wait Until Keyword Succeeds    ${range}    1s    Check For Text Is In Serial Port    text=ghaf
+    Wait Until Keyword Succeeds    ${range}    1s    Check For Text In Serial Port    text=ghaf
     Delete All Ports
 
-Check For Text Is In Serial Port
+Check For Text In Serial Port
     [Arguments]    ${text}
     Write Data     ${\n}
     ${output}      SerialLibrary.Read Until
