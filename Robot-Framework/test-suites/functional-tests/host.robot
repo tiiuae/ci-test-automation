@@ -106,11 +106,9 @@ Check Secure Boot is enabled
 *** Keywords ***
 
 Serial setup
-    IF  "${SERIAL_PORT}" == "NONE"
-        Skip    There is no address for serial connection
-    ELSE
-        ${status}   Open Serial Port
-        IF    ${status}==False    SKIP    Serial Port is not available
+    ${status}   Open Serial Port
+    IF  ${status}==False
+        SKIP    Serial Port is not available
     END
 
 Verify Ghaf Version Format

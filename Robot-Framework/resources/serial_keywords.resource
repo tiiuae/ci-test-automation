@@ -14,18 +14,31 @@ Resource            ../resources/device_control.resource
 
 *** Keywords ***
 
+Add Configured Serial Port
+    [Arguments]   ${timeout}=2.0
+    Add Port      ${SERIAL_PORT}
+    ...           baudrate=115200
+    ...           bytesize=8
+    ...           parity=N
+    ...           stopbits=1
+    ...           timeout=${timeout}
+
 Open Serial Port
     [Arguments]   ${timeout}=2.0
+    IF  "${SERIAL_PORT}" == "NONE"
+        RETURN  False
+    END
     TRY
-        Add Port      ${SERIAL_PORT}
-        ...           baudrate=115200
-        ...           bytesize=8
-        ...           parity=N
-        ...           stopbits=1
-        ...           timeout=${timeout}
-        Log           Opened serial port ${SERIAL_PORT}     console=True
+        Add Configured Serial Port    ${timeout}
+        Log       Opened serial port ${SERIAL_PORT}     console=True
         RETURN    True
-    EXCEPT   	SerialException: [Errno 2] could not open port ${SERIAL_PORT}: [Errno 2] No such file or directory: '${SERIAL_PORT}'
+    EXCEPT    *Port already*    type=GLOB
+        Log       Serial port ${SERIAL_PORT} was left open by an earlier step. Resetting serial ports and retrying.    console=True
+        Delete All Ports
+        Add Configured Serial Port    ${timeout}
+        Log       Opened serial port ${SERIAL_PORT} after resetting stale serial state     console=True
+        RETURN    True
+    EXCEPT    *No such file or directory*    type=GLOB
         RETURN    False
     END
 
@@ -65,7 +78,8 @@ Check Serial Connection
     ${serial_status}=   Open Serial Port
     Should Not Be Equal    ${serial_status}    False    msg=Serial port is not available
     Wait Until Keyword Succeeds    ${range}    1s    Check For Text In Serial Port    text=ghaf
-    Delete All Ports
+    [Teardown]    Run Keywords    Delete All Ports    AND
+    ...           Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
 
 Check For Text In Serial Port
     [Arguments]    ${text}
