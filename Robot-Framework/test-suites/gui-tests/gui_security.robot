@@ -45,6 +45,7 @@ Account lockout after failed GUI login
     [Tags]              SP-T267  lenovo-x1  darter-pro
     Log out and verify
     Check faillock entry count    0
+    Sleep   4   # Give extra time before first login to make sure that password field is ready
     # Account is locked after wrong password is given 5 times
     FOR   ${i}   IN RANGE   1   6
         Log              Typing wrong password (iteration #${i})   console=True
@@ -55,6 +56,7 @@ Account lockout after failed GUI login
     Run Keyword And Expect Error     *    Log in, unlock and verify
     [Teardown]       Run keywords    Unlock account and login
     ...                       AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+    ...                       AND    Run Keyword If Test Failed   SKIP    Test under development
 
 *** Keywords ***
 
@@ -77,15 +79,19 @@ Unlock account and login
     [Documentation]  Unlock the user account and log back in
     [Setup]          Switch to vm     ${GUI_VM}
     Run Command      faillock --user ${USER_LOGIN} --reset   sudo=True
+    Run Command      journalctl -b -u greetd.service -u systemd-homed.service   # For debugging
+    Run Command      journalctl -b -u greetd.service -u systemd-homed.service | grep ${USER_LOGIN}   # For debugging
     Switch to vm     ${GUI_VM}  user=${USER_LOGIN}
     # First login after unlocking the account fails
     Log in via GUI   password=reset_login   sleep_seconds=1
     Log in, unlock and verify
+    Run Keyword If Test Failed   Run Command  logger --priority=user.info "ROBOT_LOG: Account lockout after failed GUI login failed on ${DEVICE_TYPE}, job ${JOB}"
 
 Check faillock entry count
     [Documentation]    Verify that the current faillock entry count matches ${expected_count}
     [Arguments]        ${expected_count}
     [Setup]       Switch to vm    ${GUI_VM}
+    Run Command    faillock --user ${USER_LOGIN}    sudo=True    rc_match=skip   # For debugging
     ${count}      Run Command    faillock --user ${USER_LOGIN} | grep -c '^[0-9]'    sudo=True    rc_match=skip
     Should Be Equal As Integers    ${count}    ${expected_count}
     Log           Wrong password detected ${expected_count} times    console=True

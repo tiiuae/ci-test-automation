@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                               | TICKET / Additional Data.                                                                     |
 | ---------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| 01.07.2026 | Account lockout after failed GUI login                  | Test under development                                                                        |
 | 22.06.2026 | Verify brightness persisted (storeDisk)                 | SSRCSP-8623                                                                                   |
 | 22.06.2026 | Shutdown & Reboot from power menu (storeDisk)           | SSRCSP-8621                                                                                   |
 | 15.06.2026 | VM memory usage snapshot (Dell)                         | Dell has less memory than other targets                                                       |
