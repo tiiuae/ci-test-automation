@@ -42,6 +42,7 @@ thresholds = {
         'rd': "5std",
         'rd_lenovo-x1': "5std"
     },
+    'shutdown_time': 10,
     'boot_time': {
         'response_to_ping': 10,
         'time_to_desktop': 12
