@@ -30,7 +30,7 @@ Check Access List In Trusted Browser
     https://powerpoint.cloud.microsoft      text_to_find=start using PowerPoint
     https://teams.live.com                  text_to_find=Video calls
     https://www.msn.com                     text_to_find=MSN
-    https://onedrive.live.com               text_to_find=Microsoft 365
+    https://onedrive.live.com               text_to_find=OneDrive
     https://www.akamai.com/                 text_to_find=Akamai
     https://ghaflogs.vedenemo.dev           text_to_find=Welcome to Grafana
     https://www.google.com                  text_to_find=Google
