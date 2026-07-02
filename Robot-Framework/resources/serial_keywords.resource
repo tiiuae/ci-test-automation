@@ -192,25 +192,65 @@ Get ethernet IP address
     ...           Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
 
 Verify shutdown via serial
-    [Documentation]   Reading serial port and expects 'System Power Off' text.
+    [Documentation]   Reads serial output and expects specific shutdown indicator text.
     ...               Works only in case of Shutdown (not reboot)
-    ...               And only for LAPTOPS
+    ...               If indicator text is not found fallback to Verify shutdown via network
+    [Arguments]       ${open_serial_port}=${True}  ${empty_output_timeout}=10  ${loop_timeout}=180
+    ${verified_via_serial}    Set Variable    ${False}
     Log               Wait until shutdown via serial    console=True
-    ${status}         Open Serial Port  timeout=60
+    IF  ${open_serial_port}
+        ${status}         Open Serial Port
+    ELSE
+        ${status}         Set Variable    ${True}
+    END
     IF    ${status}
-        ${output}         SerialLibrary.Read Until    System Power Off
-        Log               ${output}
-        IF  "System Power Off" in $output
-            Log    Found "System Power Off" in serial logs    console=True
+        IF  ${IS_LAPTOP}
+            ${shutdown_indicator}    Set Variable    System Power Off
         ELSE
-            Log    Can't find "System Power Off" in serial logs of ${DEVICE}
+            ${shutdown_indicator}    Set Variable    Shutting dow
+        END
+        ${empty_output}    Set Variable    ${False}
+        ${serial_output_log}    Set Variable    ${EMPTY}
+        ${loop_start}      Get Time        epoch
+        WHILE  True
+            ${output}    SerialLibrary.Read All Data
+            IF  $output != '${EMPTY}'
+                ${empty_output}     Set Variable    ${False}
+                ${clean_output}     Normalize Serial Output    ${output}
+                ${serial_output_log}    Catenate    SEPARATOR=
+                ...    ${serial_output_log}
+                ...    ${clean_output}
+            ELSE
+                IF  not ${empty_output}
+                    ${empty_output}    Set Variable    ${True}
+                    ${serial_empty_since}    Get Time  epoch
+                END
+                ${diff}=    Evaluate    int(time.time()) - int(${serial_empty_since})
+                IF  ${diff} > ${empty_output_timeout}
+                    BREAK
+                END
+            END
+            IF  "${shutdown_indicator}" in $serial_output_log
+                Log    Found "${shutdown_indicator}" in serial output    console=True
+                ${verified_via_serial}    Set Variable    ${True}
+                BREAK
+            END
+            ${diff}=    Evaluate    int(time.time()) - int(${loop_start})
+            IF  ${diff} > ${loop_timeout}
+                BREAK
+            END
+            Sleep  0.3
+        END
+        Log    ${serial_output_log}
+        IF  not ${verified_via_serial}
+            Log    Could not find "${shutdown_indicator}" in serial output of ${DEVICE}    console=True
             Verify shutdown via network
         END
     ELSE
         Verify shutdown via network
     END
     ${time}           BuiltIn.Get Time   epoch
-    RETURN            ${time}
+    RETURN            ${time}    ${verified_via_serial}
     [Teardown]    Run Keywords    Delete All Ports    AND
     ...           Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
 
