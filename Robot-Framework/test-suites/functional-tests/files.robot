@@ -45,6 +45,22 @@ Open image with Oculante
     [Teardown]  Run Keywords  Remove the file in VM       ./screenshot.png  ${GUI_VM}   ${USER_LOGIN}   AND
     ...                       Kill app and XDG process    oculante
 
+Open video with COSMIC Media Player
+    [Documentation]    Record a video in the Gui VM and check that xdg-open opens it with COSMIC Media Player
+    [Tags]             SP-T367
+    Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
+    ${test_name}       Replace String   ${TEST_NAME}   ${SPACE}   _
+    ${video_file}      Set Variable     /home/${USER_LOGIN}/Videos/${test_name}.mkv
+    Start screen recording   unit_name=robot-video-file-test-recording   video_file=${video_file}   log_file=/tmp/gpu-screen-recorder-video-file-test.log
+    Sleep              3s
+    Stop screen recording service   robot-video-file-test-recording
+    Wait Until Keyword Succeeds    10x    0.5s    Check file exists    ${video_file}
+    Open file with XDG handler     ${video_file}   sudo=False
+    Check that App is running in VM    ${MEDIA_VM}   cosmic-player   range=10
+    [Teardown]  Run Keywords  Stop screen recording service   robot-video-file-test-recording   AND
+    ...                       Remove the file in VM       ${video_file}  ${GUI_VM}   ${USER_LOGIN}   skip   AND
+    ...                       Kill app and XDG process    cosmic-player
+
 Open text file with Cosmic Text Editor
     [Documentation]    Open text file and check that Cosmic Text Editor app is started
     [Tags]             SP-T262  pre-merge
@@ -59,15 +75,17 @@ Open text file with Cosmic Text Editor
 *** Keywords ***
 
 Remove the file in VM
-    [Arguments]        ${file_name}    ${vm}   ${user}=ghaf
+    [Arguments]        ${file_name}    ${vm}   ${user}=ghaf   ${rc_match}=equal
     Switch to vm       ${vm}   user=${user}
-    Remove file        ${file_name}
+    Remove file        ${file_name}   rc_match=${rc_match}
 
 Kill app and XDG process
-    [Arguments]        ${app}
-    Switch to vm           ${MEDIA_VM}
-    Log                    Killing ${app} and xdg-open process in ${MEDIA_VM}    console=true
-    Kill process by name   ${app}|xdg-open   sudo=True   require_exists=False
+    [Arguments]        ${app}   ${vm}=${MEDIA_VM}
+    ${user}            Set Variable If   '${vm}' == '${GUI_VM}'   ${USER_LOGIN}   ghaf
+    ${sudo}            Set Variable If   '${user}' == '${USER_LOGIN}'   False   True
+    Switch to vm           ${vm}   user=${user}
+    Log                    Killing ${app} and xdg-open process in ${vm}    console=true
+    Kill process by name   ${app}|xdg-open   sudo=${sudo}   require_exists=False
 
 Open PDF from app-vm
     [Arguments]       ${vm}   ${user}=ghaf   ${sudo}=True
