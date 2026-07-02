@@ -45,6 +45,23 @@ Open image with Oculante
     [Teardown]  Run Keywords  Remove the file in VM       ./screenshot.png  ${GUI_VM}   ${USER_LOGIN}   AND
     ...                       Kill app and XDG process    oculante
 
+Open video with COSMIC Media Player
+    [Documentation]    Record a video in the Gui VM and check that xdg-open opens it with COSMIC Media Player
+    [Tags]             SP-T367
+    Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
+    ${test_name}       Replace String   ${TEST_NAME}   ${SPACE}   _
+    ${video_file}      Set Variable     /home/${USER_LOGIN}/Videos/${test_name}.mkv
+    Start screen recording   unit_name=robot-video-file-test-recording   video_file=${video_file}   log_file=/tmp/gpu-screen-recorder-video-file-test.log
+    Sleep              3s
+    Stop screen recording service   robot-video-file-test-recording
+    Check file exists              ${video_file}
+    Open file with XDG handler     ${video_file}   sudo=False
+    Check that App is running in VM    ${MEDIA_VM}   cosmic-player   range=10
+    [Teardown]  Run Keywords  Switch to vm    ${GUI_VM}  user=${USER_LOGIN}   AND
+    ...                       Stop screen recording service   robot-video-file-test-recording   AND
+    ...                       Remove the file in VM       ${video_file}  ${GUI_VM}   ${USER_LOGIN}   AND
+    ...                       Kill app and XDG process    cosmic-player
+
 Open text file with Cosmic Text Editor
     [Documentation]    Open text file and check that Cosmic Text Editor app is started
     [Tags]             SP-T262  pre-merge
