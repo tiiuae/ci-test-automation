@@ -98,7 +98,7 @@ Type string
     [Arguments]    ${string}=${EMPTY}  ${enter_at_end}=False   ${sudo}=False
     Log To Console    Typing "${string}"
     IF  $string != '${EMPTY}'
-        Run ydotool command   type ${string}  ${sudo}
+        Run ydotool command   type "${string}"  ${sudo}
     END
     Run Keyword If  ${enter_at_end}    Press Key(s)   ENTER   ${sudo}
 
@@ -405,10 +405,10 @@ Kill Initial Setup
         Check file exists   .config/cosmic-initial-setup-done
     EXCEPT
         # Wait for the initial setup to start
-        Run Keyword and Ignore Error     Check that App is running in VM   ${GUI_VM}   cosmic-initial-setup   range=5
+        Run Keyword and Ignore Error     Check that App is running in VM   ${Cosmic Initial Setup}   range=5
         # Wait until Ghaf theme is applied, this does not happen if initial setup is killed too fast
         Wait Until Keyword Succeeds   10s   0.5s   Check file exists   .config/cosmic/com.system76.CosmicTheme*
         Sleep    1
         # Kill the initial setup so that it does not interfere with tests
-        Kill process by name   cosmic-initial-setup   sudo=False   require_exists=False
+        Kill process by name   ${Cosmic Initial Setup}[process_name]   sudo=False   require_exists=False
     END

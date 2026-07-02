@@ -39,5 +39,5 @@ Save gui icons and icon path
     Negate app icon         ${ICONS_DIR}/search.png  ${ICONS_DIR}/search-neg.png
     Get icon                ${icons}/Papirus/24x24/actions  system-shutdown.svg  crop=0  background=black  output_filename=power.png
     # App icons
-    Get icon                ${icons}/Papirus/48x48/apps  Zoom.svg  crop=0  background=black  output_filename=Zoom.png
-    Get icon                ${icons}/hicolor/48x48/apps  com.system76.CosmicSettings.svg  background=black  output_filename=settings.png
+    Get icon                ${icons}/Papirus/48x48/apps  Zoom.svg  crop=0  background=black  output_filename=${Zoom}[icon]
+    Get icon                ${icons}/hicolor/48x48/apps  com.system76.CosmicSettings.svg  background=black  output_filename=${COSMIC Settings}[icon]

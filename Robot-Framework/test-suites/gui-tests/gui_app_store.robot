@@ -19,13 +19,13 @@ Test Timeout        10 minutes
 Install Firefox
     [Documentation]    Install and launch Firefox from App Store
     [Tags]    SP-T335
-    Install and Launch App Store app   firefox
+    Install and Launch App Store app   ${Firefox}
 
 Install Onlyoffice and save documents
     [Documentation]    Install and launch Onlyoffice from App Store
     ...                Save different types of files to Shares
     [Tags]    SP-T312  SP-T313  SP-T314  SP-T355
-    Install and Launch App Store app   onlyoffice
+    Install and Launch App Store app   ${Onlyoffice}
 
     Save a file from Onlyoffice   Document       test_Document.docx
     Save a file from Onlyoffice   Spreadsheet    test_Spreadsheet.xlsx
@@ -34,38 +34,38 @@ Install Onlyoffice and save documents
 *** Keywords ***
 
 App Store Test Teardown
-    ${availability}         Check variable availability   app_name
-    IF   ${availability}    Kill app and Uninstall in App Store   ${app_name}
+    ${availability}         Check variable availability   app_key
+    IF   ${availability}    Kill app and Uninstall in App Store   ${app_key}
     Switch to vm            ${GUI_VM}  user=${USER_LOGIN}
     Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 Install and Launch App Store app
-    [Documentation]   Install app from App Store and launch the app from the app menu
-    [Arguments]       ${app_name}   ${process_name}=${app_name}
-    [Setup]           Verify app is not preinstalled via flatpak   ${app_name}
+    [Documentation]   Install app from App Store and launch it from the app menu
+    [Arguments]       ${app_key}
+    [Setup]           Verify app is not preinstalled via flatpak   ${app_key}[process_name]
 
-    Set Test Variable   ${app_name}
+    Set Test Variable   ${app_key}
 
     Open App Store
 
     # Search for app page and open it
-    Type string        ${app_name}[:-1]  # Last letter removed to not disturb text recognition
+    Type string        ${app_key}[display_name][:-1]  # Last letter removed to not disturb text recognition
     Sleep   1
-    Locate and click   text   ${app_name}   wiggle=True
+    Locate and click   text   ${app_key}[display_name]   wiggle=True
     Tab and enter      tabs=1    # Close the sidebar
 
     # Install app
     Locate and click   text   nstall   scale=3   wiggle=True   #Typo intentional, "I" is sometimes not recognized by the text recognition
     Move cursor to corner
-    Wait until flatpak app is installed    ${app_name}
+    Wait until flatpak app is installed    ${app_key}[process_name]
 
     # Close App Store
-    Close app via GUI   ${FLATPAK_VM}  cosmic-store  window-close-neg.png
+    Close app via GUI   ${App Store}
 
     # Launch app from app menu, verify and kill it
-    Start app via GUI   ${FLATPAK_VM}   ${process_name}   ${app_name}
+    Start app via GUI   ${app_key}
 
-    [Teardown]   Kill App in VM   ${FLATPAK_VM}   cosmic-store   status=${KEYWORD_STATUS}   require_exists=False
+    [Teardown]   Kill App in VM   ${App Store}   status=${KEYWORD_STATUS}   require_exists=False
 
 Verify app is not preinstalled via flatpak
     [Arguments]    ${app_name}
@@ -108,7 +108,7 @@ Get flatpak app id
     [Teardown]    Run Keyword if   ${switch_to_vm}   Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
 
 Open App Store
-    Start application in VM   "App Store"   ${FLATPAK_VM}   cosmic-store   always_check_vm=True
+    Start app via GUI    ${App Store}
     Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
     # Wait for the window to be active and fullscreen it
     Locate on screen   text   Editor   iterations=20
@@ -116,13 +116,12 @@ Open App Store
 
 Kill app and Uninstall in App Store
     [Documentation]   Kill app, uninstall it via GUI and verify
-    [Arguments]       ${app_name}  ${process_name}=${app_name}
-    Switch to vm      ${FLATPAK_VM}
-    Kill process by name   ${process_name}   sudo=True
+    [Arguments]       ${app_key}
+    Kill App in VM    ${app_key}
     Open App Store
-    Log     Uninstalling ${app_name}   console=True
+    Log     Uninstalling ${app_key}[display_name]   console=True
     Locate and click   text   nstalled      scale=2   wiggle=True  #Typo intentional, "I" is sometimes not recognized by the text recognition
-    Locate and click   text   ${app_name}   wiggle=True
+    Locate and click   text   ${app_key}[display_name]   wiggle=True
     # Uninstall app
     Locate and click   text   Uninstall     scale=3   wiggle=True
     Locate and click   text   Permanently   scale=2   wiggle=True
@@ -131,15 +130,15 @@ Kill app and Uninstall in App Store
     Sleep  1
     Locate and click   text   Back   scale=3   wiggle=True
     # Verify uninstallation via GUI
-    ${is_installed}    Run Keyword And Return Status   Locate on screen   text   ${app_name}   iterations=3   expected_result=FAIL
-    IF   ${is_installed}   FAIL   App ${app_name} is still shown as installed in App Store
+    ${is_installed}    Run Keyword And Return Status   Locate on screen   text   ${app_key}[display_name]   iterations=3   expected_result=FAIL
+    Should Not Be True   ${is_installed}     App ${app_key}[display_name] is still shown as installed in ${App Store}[display_name]
     # Verify uninstallation via flatpak
-    ${flatpak_app_id}   Get flatpak app id   ${app_name}
-    Should Be Empty     ${flatpak_app_id}    App ${app_name} is still installed via flatpak (${flatpak_app_id})
-    Log   ${app_name} is now uninstalled   console=True
-    Close app via GUI   ${FLATPAK_VM}  cosmic-store  window-close-neg.png
-    [Teardown]   Run Keywords   Kill App in VM   ${FLATPAK_VM}   cosmic-store      status=${KEYWORD_STATUS}   require_exists=False
-    ...                   AND   Kill App in VM   ${FLATPAK_VM}   ${process_name}   status=${KEYWORD_STATUS}   require_exists=False
+    ${flatpak_app_id}   Get flatpak app id   ${app_key}[process_name]
+    Should Be Empty     ${flatpak_app_id}    App ${app_key}[display_name] is still installed via flatpak (${flatpak_app_id})
+    Log   ${app_key}[display_name] is now uninstalled   console=True
+    Close app via GUI    ${App Store}
+    [Teardown]   Run Keywords   Kill App in VM  ${App Store}   status=${KEYWORD_STATUS}   require_exists=False
+    ...                   AND   Kill App in VM  ${app_key}     status=${KEYWORD_STATUS}   require_exists=False
 
 Save a file from Onlyoffice
     [Documentation]   Open a file in Onlyoffice and save it to Shares
@@ -162,7 +161,7 @@ Save a file from Onlyoffice
     Press Key(s)       ENTER
 
     Wait Until Keyword Succeeds   5x   1s   Check file exists   /Shares/'Unsafe flatpak-vm share'/${file_name}
-    Locate and click    text   Onlyoffice   wiggle=True
+    Locate and click    text   ${Onlyoffice}[display_name]   wiggle=True
 
     [Teardown]   Remove file  /Shares/'Unsafe flatpak-vm share'/${file_name}
 
