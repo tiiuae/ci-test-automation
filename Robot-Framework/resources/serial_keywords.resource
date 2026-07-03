@@ -366,7 +366,7 @@ Start UART Log Capture
 
 Drain Serial Output
     [Documentation]    Drain pending serial output until idle or timeout, optionally appending normalized output to the UART log file.
-    [Arguments]    ${save_output}=${False}    ${max_seconds}=3
+    [Arguments]    ${save_output}=${False}    ${max_seconds}=3    ${recover_with_ctrl_c}=${False}
     ${empty_reads}    Set Variable    0
     ${start_time}    Get Time    epoch
     WHILE    True
@@ -382,6 +382,16 @@ Drain Serial Output
         IF    $clean_output == '${EMPTY}'
             ${empty_reads}    Evaluate    ${empty_reads} + 1
             IF    ${empty_reads} > 2
+                IF    ${recover_with_ctrl_c}
+                    Write Data    ${recovery_char}    \x03
+                ELSE
+                    Write Data    ${\n}
+                END
+                ${status}    ${prompt_output}    Run Keyword And Ignore Error
+                ...    SerialLibrary.Read Until    terminator=ghaf@${HOST}:
+                IF    '${status}' == 'PASS' and ${save_output}
+                    Append Normalized UART Capture    ${prompt_output}
+                END
                 BREAK
             END
             CONTINUE
@@ -423,10 +433,10 @@ Collect Failure Diagnostics Via Serial
     @{diagnostic_commands}    Create List
     ...    uname -r
     ...    uptime
-    ...    systemd-analyze
+    ...    systemd-analyze --no-pager
     ...    ip -br a
     ...    ss -tlnp
-    ...    systemctl --failed --no-legend
+    ...    systemctl --failed --no-legend --no-pager
 
     ${dmesg_command}   Set Variable   dmesg | tail -200
 
@@ -444,11 +454,12 @@ Collect Failure Diagnostics Via Serial
     Sleep    1
     Save Serial File Output To File    /tmp/ghaf-host-microvm-net-vm-journal.txt    ${BOOT_DIAGNOSTICS_DIR}/ghaf-host-microvm-net-vm-journal.txt
 
-    Drain Serial Output
+    Drain Serial Output    recover_with_ctrl_c=${True}
     ${vm_list_output}    Run Command On Serial    command ls --color=never -1 /var/lib/microvms/
     @{vm_list}    Get Regexp Matches    ${vm_list_output}    (?m)^[A-Za-z0-9_.-]+$
     Should Not Be Empty    ${vm_list}    VM list is empty
     FOR    ${vm}    IN    @{vm_list}
+        Should End With    ${vm}    -vm
         Run Diagnostic Commands Via Serial    ${vm}    @{diagnostic_commands}
 
         ${dmesg_output}    Run Command on VM Via Serial    ${vm}    sh -c '${dmesg_command}'    sudo=${True}    pre_flush=${False}    logging=${False}
