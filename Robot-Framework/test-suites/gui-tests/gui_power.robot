@@ -93,8 +93,6 @@ Shutdown from power menu
     Login to laptop   enable_dnd=True
 
     Should Not Be True    ${elapsed} > ${max_elapsed}    msg=Shutdown took too long: ${elapsed} seconds (expected < ${max_elapsed})
-    [Teardown]    Run Keywords   GUI Power Test Teardown   AND
-    ...           Run Keyword If Test Failed    Run Keyword If   "storeDisk" in "${JOB}" and "took too long" in $TEST_MESSAGE   SKIP    Known Issue: SSRCSP-8621
 
 Log out and log in from power menu
     [Documentation]   Logout via GUI power menu icon and verify logged out state.
