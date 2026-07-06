@@ -186,8 +186,6 @@ Test Teardown
     IF  not ${IS_LAPTOP}
         Run Keyword If Test Failed    Run Keyword And Ignore Error    Collect Failure Diagnostics Via Serial
     END
-    Run Keyword If    "${DEVICE_TYPE}" == "orin-nx"
-    ...    Run Keyword If Test Failed    Skip    Known issue: SSRCSP-8585, orin-nx fails ssh on some boots
     IF    ${UART_CAPTURE_ACTIVE} and not ${SAVE_BOOT_LOGS_ON_PASS}
         Run Keyword If Test Passed    OperatingSystem.Remove File    ${UART_CAPTURE_FILE}
     END
