@@ -55,12 +55,14 @@ Open video with COSMIC Media Player
     Sleep              3s
     Stop screen recording service   robot-video-file-test-recording
     Check file exists              ${video_file}
+    ${open_timestamp}            Run Command    date +%s
     Open file with XDG handler     ${video_file}   sudo=False
     Check that App is running in VM    ${MEDIA_VM}   cosmic-player   range=10
     [Teardown]  Run Keywords  Switch to vm    ${GUI_VM}  user=${USER_LOGIN}   AND
     ...                       Stop screen recording service   robot-video-file-test-recording   AND
     ...                       Remove the file in VM       ${video_file}  ${GUI_VM}   ${USER_LOGIN}   AND
-    ...                       Kill app and XDG process    cosmic-player
+    ...                       Kill app and XDG process    cosmic-player   AND
+    ...                       Run Keyword If   '${TEST_STATUS}' == 'FAIL'   Check for cosmic app crash   ${open_timestamp}   cosmic-player   ${test_name}.mkv
 
 Open text file with Cosmic Text Editor
     [Documentation]    Open text file and check that Cosmic Text Editor app is started
@@ -95,7 +97,7 @@ Open PDF from app-vm
     Check that App is running in VM    ${MEDIA_VM}   cosmic-reader   range=10
     [Teardown]    Run Keywords   Remove the file in VM        /tmp/test_pdf_${vm}.pdf   ${vm}  ${user}
     ...                    AND   Kill app and XDG process     cosmic-reader
-    ...                    AND   Run Keyword If   '${KEYWORD_STATUS}' == 'FAIL'   Check for cosmic-reader crash   ${open_timestamp}   ${vm}
+    ...                    AND   Run Keyword If   '${KEYWORD_STATUS}' == 'FAIL'   Check for cosmic app crash   ${open_timestamp}   cosmic-reader   test_pdf_${vm}.pdf
 
 Open file with XDG handler
     [Arguments]      ${file}  ${sudo}=True
@@ -107,10 +109,10 @@ Open file to gui-vm with XDG handler
     Log To Console   Trying to open ${text_file}
     Run Command      WAYLAND_DISPLAY=wayland-1 nohup sh -c 'xdg-open ${text_file}' > ${OUTPUT_FILE} 2>&1 &
 
-Check for cosmic-reader crash
-    [Documentation]     Cosmic-reader crashes sometimes before it opens the file (SSRCSP-8367). Check if process started and skip the test if it did.
-    [Arguments]         ${journal_since}  ${vm}
+Check for cosmic app crash
+    [Documentation]     COSMIC app crashes sometimes before it opens the file (SSRCSP-8367). Check if process started and skip the test if it did.
+    [Arguments]         ${journal_since}  ${app}  ${file_name}
     Switch to vm        ${MEDIA_VM}
-    ${reader_started}   Run Keyword And Return Status   Run Command    journalctl -b --since @${journal_since} | grep -E "Started \\[systemd-run\\].*cosmic-reader.*/run/xdg/pdf/${vm}/test_pdf_${vm}\\.pdf\\."
+    ${app_started}      Run Keyword And Return Status   Run Command    journalctl -b --since @${journal_since} | grep -E "Started \\[systemd-run\\].*${app}.*${file_name}"
     Run Command         journalctl -b --since @${journal_since}   # All logs for debugging
-    IF  ${reader_started}   SKIP   Known Issue: SSRCSP-8367
+    IF  ${app_started}   SKIP   Known Issue: SSRCSP-8367
