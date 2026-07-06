@@ -162,11 +162,12 @@ Check Persistent Storage Size
 
 Check device id failure
     [Arguments]    ${actual_device_id}
-    IF    "storeDisk-debug-installer" in "${JOB}" and "${DEVICE_TYPE}" == "darter-pro"
+    IF    ("storeDisk-debug-installer" in "${JOB}" and "${DEVICE_TYPE}" == "darter-pro") or ("intel-laptop-debug-installer" in "${JOB}" and "${DEVICE_TYPE}" == "x1-sec-boot")
         &{ids}    Create Dictionary
         ...    DarterPRO-prod=00-c0-44-19-76
         ...    DarterPRO-rel=00-89-3c-52-5d
         ...    DarterPRO-dev=00-e7-04-ed-e3
+        ...    LenovoSecBoot=00-40-76-6d-36
         ${expected_wrong_id}    Get From Dictionary    ${ids}    ${SWITCH_BOT}
         IF    "${actual_device_id}" == "${expected_wrong_id}"
             SKIP   Known issue: SSRCSP-7997
