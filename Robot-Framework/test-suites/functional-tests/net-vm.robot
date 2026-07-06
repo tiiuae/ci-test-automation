@@ -87,11 +87,12 @@ Interfaces Should Be In Same Network
     Should Be Equal    ${ip1_net}    ${ip2_net}
 
 Check net-vm hostname failure
-    IF    "storeDisk-debug-installer" in "${JOB}" and "${DEVICE_TYPE}" == "darter-pro"
+    IF    ("storeDisk-debug-installer" in "${JOB}" and "${DEVICE_TYPE}" == "darter-pro") or ("intel-laptop-debug-installer" in "${JOB}" and "${DEVICE_TYPE}" == "x1-sec-boot")
         &{ids}    Create Dictionary
         ...    DarterPRO-prod=ghaf-3225688438
         ...    DarterPRO-rel=ghaf-2302431837
         ...    DarterPRO-dev=ghaf-3875859939
+        ...    LenovoSecBoot=ghaf-1081503030
         ${expected_wrong_name}    Get From Dictionary    ${ids}    ${SWITCH_BOT}
         IF    "${NETVM_NAME}" == "${expected_wrong_name}"
             SKIP   Known issue: SSRCSP-7997
