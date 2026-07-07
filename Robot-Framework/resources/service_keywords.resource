@@ -37,7 +37,7 @@ Verify service status
         # 'Welcome to NixOS' is not got if 'non-vm service' or if service is expected to be inactive/dead.
         IF  ${vmservice} and '${expected_substate}' == 'running' and ${state_status} and ${substate_status} and ${welcome_check}
             ${logs}        Run Command   journalctl -b -u ${service} --no-pager -n 200
-#            Check of "Welcome message" is temporary disabled because sometimes logs of VMs are not saved due to the rotation (probably a bug)
+#            Check of "Welcome message" is temporary disabled because sometimes logs of VMs are not saved due to the rotation (SSRCSP-8662)
 #            ${finished}    Run Keyword And Return Status    Should Contain    ${logs}    Welcome to NixOS
             ${logs}        Run Command   systemctl status ${service} --no-pager
             ${finished}    Set Variable  True
