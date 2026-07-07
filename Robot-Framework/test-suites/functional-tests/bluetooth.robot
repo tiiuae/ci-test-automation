@@ -110,16 +110,37 @@ Scan bluetooth device by name
     RETURN             ${mac}
 
 Connect bluetooth device
+    [Documentation]    Connect target device and retry known board-side aborts.
+    [Arguments]        ${mac}
+    FOR    ${i}    IN RANGE    3
+        TRY
+            Try to connect bluetooth device    ${mac}
+        EXCEPT    Connection was aborted by ${BT_BOARD_NAME}.
+            Log    Connection was aborted by ${BT_BOARD_NAME}.    console=True
+        EXCEPT    AS    ${error}
+            FAIL    ${error}
+        ELSE
+            RETURN
+        END
+    END
+    FAIL    Connection was aborted by ${BT_BOARD_NAME}.
+
+Try to connect bluetooth device
     [Documentation]    Connect target device and verify success.
     [Arguments]        ${mac}
     Switch to vm       ${AUDIO_VM}
     Run Command        bluetoothctl power on
-    ${output}          Run Command  { echo "connect ${mac}"; sleep 3; echo "quit"; } | bluetoothctl  return=out  rc_match=skip
+    ${output}          Run Command  { echo "connect ${mac}"; sleep 5; echo "quit"; } | bluetoothctl  return=out  rc_match=skip
     Log                ${output}
     ${connected}       Run Keyword And Return Status    Should Contain    ${output}    Connection successful
     IF    not ${connected}
         Log Bluetooth Board Serial Output
-        FAIL    Couldn't connect Bluetooth Board (didn't find 'Connection successful'). bluetoothctl output:\n${output}
+        ${blame_btb}   Run Keyword And Return Status    Should Contain    ${output}    le-connection-abort-by-local
+        IF      ${blame_btb}
+            FAIL    Connection was aborted by ${BT_BOARD_NAME}.
+        ELSE
+            FAIL    Couldn't connect Bluetooth Board (didn't find 'Connection successful').
+        END
     END
     Log                Bluetooth Board is connected     console=True
     Wait Until Keyword Succeeds    30s    1s    Read BT Serial Until    Connected
@@ -128,7 +149,7 @@ Disconnect bluetooth device
     [Documentation]    Disconnect target device and verify disconnected state.
     [Arguments]        ${mac}
     Switch to vm       ${AUDIO_VM}
-    ${output}          Run Command  { echo "disconnect ${mac}"; sleep 3; echo "quit"; } | bluetoothctl  return=out  rc_match=skip
+    ${output}          Run Command  { echo "disconnect ${mac}"; sleep 5; echo "quit"; } | bluetoothctl  return=out  rc_match=skip
     Log                ${output}
     ${disconnected}    Run Keyword And Return Status    Should Contain    ${output}    Disconnection successful
     IF    not ${disconnected}
