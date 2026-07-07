@@ -22,7 +22,6 @@ ${ICONS_DIR}           ${OUTPUT_DIR}/outputs/icons
 ${SCREENSHOT_GHAF}     /home/${USER_LOGIN}/test-images/screenshot.jpeg
 ${SCREENSHOT_LOCAL}    ${GUI_OUTPUT_DIR}/screenshot.jpeg
 ${YDOTOOL_SOCKET}      /tmp/.ydotool_socket
-${SCREEN_SELECTED}     ${False}
 
 
 *** Keywords ***
@@ -264,8 +263,6 @@ Unlock
     [Documentation]    Unlock the screen be typing password
     # Make sure that password field is active by clicking it
     Locate and click   image  ${LOCK_ICON}   0.95  10
-    # Can't explain the second click but does not work without
-    Locate and click   image  ${LOCK_ICON}   0.95  10
     Confidential password write  ${USER_PASSWORD}
     Sleep   2
 
@@ -356,19 +353,17 @@ Start screen recording
     ...    -o ${video_file}
     ...    </dev/null >${log_file} 2>&1'
     Run Command      ${cmd}
-    IF   ${SCREEN_SELECTED}==${False}
-        # The window to record needs to be selected when recording first time
-        # Check if selection window opened
-        ${pass_status}  ${output}  Run Keyword And Ignore Error   Locate on screen   text   Share   iterations=5   debug_screenshot=False
-        IF  $pass_status=='PASS'
-            # Select the display to record
-            Run ydotool command   mousemove --absolute -x 500 -y 300
-            Run ydotool command   click 0xC0
-            Press Key(s)          ENTER
-        END
-        Set Global Variable  ${SCREEN_SELECTED}  ${True}
+    TRY
+        Wait Until Keyword Succeeds    10x    0.5s    Run Command    ls -la ${video_file}
+    EXCEPT
+        # Try to allow screen capture if recording file was not created
+        Locate on screen   text   Share   iterations=5   debug_screenshot=False
+        # Select the display to record
+        Run ydotool command   mousemove --absolute -x 500 -y 300
+        Run ydotool command   click 0xC0
+        Press Key(s)          ENTER
+        Wait Until Keyword Succeeds    10x    0.5s    Run Command    ls -la ${video_file}
     END
-    Wait Until Keyword Succeeds    10x    0.5s    Run Command    ls -la ${video_file}
     [Teardown]       Run Keyword If   '${KEYWORD_STATUS}' == 'FAIL'   Run Keywords   Timestamp last screenshot
     ...              AND   Run Command   cat ${log_file}
 

@@ -13,12 +13,11 @@ Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/update_keywords.resource
 Resource            ../../resources/service_keywords.resource
 
-Suite Setup          Rebuild Setup
+Suite Setup          Rebuild from modified ghaf repo
 Suite Teardown       Rebuild Teardown
 
 *** Variables ***
 ${repository_path}      /persist/ghaf
-${setup_skipped}        ${False}
 
 
 *** Test Cases ***
@@ -82,18 +81,6 @@ Check audit update logging
 
 
 *** Keywords ***
-
-Rebuild Setup
-    ${setup_ok}    Run Keyword And Return Status    Rebuild from modified ghaf repo
-    # If rebuild fails skip for laptops, fail for Orin
-    IF  not ${setup_ok}
-        IF  ${IS_LAPTOP}
-            Set Suite Variable    ${setup_skipped}    ${True}
-            Skip                  Something went wrong in 'Rebuild from modified ghaf repo'. Skipping the suite.
-        ELSE
-            FAIL                  Failure in Setup / Rebuild from modified ghaf repo
-        END
-    END
 
 Rebuild from modified ghaf repo
     [Timeout]               50 minutes
@@ -223,13 +210,8 @@ Remove Ghaf Repository
     Run Command     rm -r ${repository_path}   sudo=True
 
 Rebuild Teardown
-    Set Client Configuration      timeout=10
-    IF  ${setup_skipped} or '${PREV_TEST_STATUS}'=='FAIL'
+    IF  '${SUITE_STATUS}'=='FAIL'
         Hard Reboot Device And Connect
-        IF  not ${IS_AVAILABLE}
-            Log To Console    Connecting the device after boot failed. Rebuild may have left ghaf unbootable.\nStopping Teardown execution.
-            RETURN
-        END
         Run Keyword If    ${IS_LAPTOP}    Login to laptop
     END
     Switch to vm    ${HOST}

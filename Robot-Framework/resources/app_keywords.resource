@@ -71,9 +71,10 @@ Log and remove app output
     Remove file   ${file}
 
 Log app vm journalctl
-    [Documentation]    Log journalctl from ${app-vm}, specify the VM where the App is actually running.
-    [Arguments]   ${app-vm}
-    Switch to vm  ${app-vm}
+    [Documentation]    Log journalctl from ${app_key}[VM]
+    [Arguments]   ${app_key}
+    ${user}       Set Variable If   '${app_key}[VM]' == '${GUI_VM}'   ${USER_LOGIN}   ghaf
+    Switch to vm  ${app_key}[VM]  user=${user}
     Run Command   journalctl -b
 
 Kill App in VM
@@ -87,7 +88,7 @@ Kill App in VM
     Kill process by name    ${app_key}[process_name]   sudo=${sudo}   require_exists=${require_exists}
 
     IF  '${log_file}' != 'None'   Log and remove app output   ${log_file}
-    IF  '${status}'=='FAIL'       Log app vm journalctl       ${app_key}[VM]
+    IF  '${status}'=='FAIL'       Log app vm journalctl       ${app_key}
 
 Start app via GUI
     [Documentation]    Start Application via GUI and verify related process started

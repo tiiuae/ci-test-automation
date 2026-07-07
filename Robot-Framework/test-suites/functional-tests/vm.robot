@@ -19,17 +19,10 @@ Suite Setup         VM Suite Setup
 # device|vm|service-name|ticket-number
 @{known_issues}=    ANY|audio-vm|systemd-rfkill.service|SSRCSP-7321
              ...    ANY|ghaf-host|systemd-rfkill.service|SSRCSP-7321
-             ...    dell-7330|ghaf-host|autovt@ttyUSB0.service|SSRCSP-6667
              ...    ANY|gui-vm|plymouth-start.service|SSRCSP-7306
              ...    ANY|gui-vm|plymouth-quit.service|SSRCSP-7306
-             ...    ANY|ANY|tuned.service|SSRCSP-7717
-             ...    ANY|ANY|fail2ban.service|SSRCSP-7759
              ...    ANY|ANY|journal-fss-verify.service|SSRCSP-8425
-             ...    orin|ghaf-host|nvfancontrol.service|SSRCSP-6303
-             ...    orin-agx|ghaf-host|systemd-rfkill.service|SSRCSP-6303
-             ...    orin|ghaf-host|systemd-oomd.service|SSRCSP-6685
              ...    darter-pro|ghaf-host|systemd-tpm2-setup.service|SSRCSP-8357
-             ...    orin-agx|ghaf-host|ghaf-provision-ek-certs.service|SSRCSP-8535
 
 # Container for test message. Keyword `Set Test Message` doesn't work properly with Templates.
 # Accumulates messages from tests that use 'Check systemctl status Template' to be added to the main test message in teardown
