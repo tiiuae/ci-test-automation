@@ -252,7 +252,7 @@ Prepare Rebuild Audit Event
 
 Get Audit Search Timestamp
     [Documentation]  Return timestamp in a format accepted by ausearch -ts.
-    ${timestamp}     Run Command    date '+%m/%d/%Y %H:%M:%S'
+    ${timestamp}     Run Command    env LC_ALL=C date '+%x %T'
     RETURN           ${timestamp}
 
 Find Audit Logs
@@ -263,7 +263,7 @@ Find Audit Logs
     ${filter}        Set Variable If    $file    -f ${file}    -k ${key} --just-one
     ${expected}      Set Variable If    $file    ${file}    ${key}
     Should Not Be Empty    ${expected}  Provide either file or key to search audit logs.
-    ${cmd}           Set Variable       ausearch -if /var/log/audit/audit.log -ts ${since} ${filter} -i
+    ${cmd}           Set Variable       env LC_ALL=C ausearch -if /var/log/audit/audit.log -ts ${since} ${filter} -i
     ${logs}  ${err}  ${rc}    Run Command    ${cmd}    return=out,err,rc    sudo=True    rc_match=skip
     Should Be True   ${rc} in [0, 1]    ausearch failed with unexpected return code ${rc}:\n${err}
     Should Contain   ${logs}    ${expected}    No log entry for '${expected}' found in local audit logs.
