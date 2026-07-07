@@ -121,6 +121,7 @@ Check Network Availability
 
 Check If Device Is Up
     [Arguments]    ${retry}=100s
+    [Tags]    robot:recursive-stop-on-failure
     ${ssh_status}=       Try To Check Ssh On Device  retry=${retry}  interval=${PING_SPACING}s
     ${serial_status}=    Run Keyword If   not ${ssh_status}    Try To Check Serial On Device    range=3x
 
