@@ -3,19 +3,20 @@
 
 *** Settings ***
 Documentation       Testing Gui-vm
-Test Tags           gui-vm  pre-merge  lenovo-x1  darter-pro  dell-7330  fmo
+Test Tags           gui-vm  pre-merge
 
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/service_keywords.resource
+
+Suite Setup         Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
 
 
 *** Test Cases ***
 
 Check user systemctl status
     [Documentation]   Verify systemctl status --user is running
-    [Tags]            SP-T260  systemctl
-    [Setup]           Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
+    [Tags]            SP-T260  systemctl  darter-pro  lenovo-x1  dell-7330  fmo
     [Teardown]        Set Test Message    append=${True}  separator=\n    message=${found_known_issues_message}
     Set Test Variable   ${found_known_issues_message}   ${EMPTY}
 
@@ -35,3 +36,42 @@ Check user systemctl status
     IF    ${filtered_failed_units}
         Check systemctl status for known issues  ${DEVICE_TYPE}  ${GUI_VM}  ${known_issues}  ${filtered_failed_units}   user=True
     END
+
+Givc-cli shows Ghaf version
+    [Documentation]    Verify that givc-cli sysinfo shows current Ghaf version.
+    [Tags]             SP-T369  SP-T369-1  darter-pro  lenovo-x1
+    ${version}         Get Ghaf Version
+    Verify givc-cli sysinfo field    Ghaf Version    ${version}
+
+Givc-cli shows Secure Boot enabled
+    [Documentation]    Verify that givc-cli sysinfo shows Secure Boot enabled on Secure Boot devices.
+    [Tags]             SP-T369  SP-T369-2  lenovo-x1  secboot-only
+    Verify givc-cli sysinfo field    Secure Boot    enabled
+
+Givc-cli shows Secure Boot disabled
+    [Documentation]    Verify that givc-cli sysinfo shows Secure Boot disabled on non-Secure Boot devices.
+    [Tags]             SP-T369  SP-T369-3  darter-pro  lenovo-x1  excl-secboot
+    Verify givc-cli sysinfo field    Secure Boot    disabled
+
+Givc-cli shows Disk Encryption
+    [Documentation]    Verify that givc-cli sysinfo shows Disk Encryption enabled on installer images and disabled on non-installers.
+    [Tags]             SP-T369  SP-T369-4  darter-pro  lenovo-x1
+    IF    "installer" in "${JOB}"
+        Verify givc-cli sysinfo field    Disk Encryption    enabled
+    ELSE
+        Verify givc-cli sysinfo field    Disk Encryption    disabled
+    END
+
+*** Keywords ***
+
+Verify givc-cli sysinfo field
+    [Arguments]    ${field}    ${expected}
+    ${output}      Run Command    givc-cli sysinfo
+    ${actual}      Get givc-cli sysinfo field    ${output}    ${field}
+    Should Be Equal As Strings    ${actual}    ${expected}    ignore_case=True    msg=${field} value in givc-cli sysinfo is ${actual}, expected ${expected}.
+
+Get givc-cli sysinfo field
+    [Arguments]    ${output}    ${field}
+    ${matches}     Get Regexp Matches    ${output}    (?m)^${field}:\\s*(\\S(?:.*\\S)?)\\s*$    1
+    Should Not Be Empty    ${matches}    Could not find ${field} in givc-cli sysinfo output:\n${output}
+    RETURN         ${matches}[0]

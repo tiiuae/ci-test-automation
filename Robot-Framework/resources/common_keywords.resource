@@ -60,6 +60,12 @@ Check variable availability
         RETURN  ${False}
     END
 
+Get Ghaf Version
+    [Documentation]    Get version of Ghaf system
+    ${output}   Run Command   ghaf-version
+    Log To Console    ghaf-version: ${output}
+    RETURN    ${output}
+
 
 Get VM list
     [Arguments]    ${with_host}=False

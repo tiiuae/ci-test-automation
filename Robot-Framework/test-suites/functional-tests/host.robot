@@ -128,13 +128,6 @@ Verify Nixos Version Format
         FAIL    Expected NixOS version name, but there is None
     END
 
-Get Ghaf Version
-    [Documentation]    Get version of Ghaf system, Example:
-    ...     "ghaf-version"    output: 23.05   parse result: 23.05
-    ${output}   Run Command   ghaf-version
-    Log To Console    ghaf-version: ${output}
-    RETURN    ${output}
-
 Get Nixos Version
     [Documentation]    Get version of NixOS, Example:
     ...     "nixos-version"   output: 23.05.20230625.35130d4 (Stoat)    parse result: 23.05, 20230625, 35130d4, Stoat
