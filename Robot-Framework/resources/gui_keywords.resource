@@ -393,7 +393,7 @@ Save screen recording
     # Make sure that the last video is from the current test
     IF   $test_name in $video_file
         # Save the video file if the test failed
-        IF  $test_status=='FAIL' or $test_status=='SKIP'
+        IF  $test_status=='FAIL' or $test_status=='SKIP' or $test_status=='PASS'
             Log To Console        Saving video file
             SSHLibrary.Get File   /home/${USER_LOGIN}/Videos/${video_file}   ${GUI_OUTPUT_DIR}/${video_file}
         END

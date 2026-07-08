@@ -71,8 +71,52 @@ Maximize and restore window
     [Teardown]   Run Keywords    Kill App in VM   ${Zoom}
     ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
+Take a screenshot via Print Screen
+    [Documentation]   Open screenshot tool with PrtSc, take a screenshot with Enter, and verify the image was saved to Pictures
+    [Tags]            SP-T171
+    ${before_count}    Get Picture Image Count
+    Press Key(s)       PRINT
+    Sleep              1
+    Press Key(s)       ENTER
+    ${screenshot}      Wait Until New Picture Image Is Saved    ${before_count}
+    Verify Picture Image File    ${screenshot}
+    [Teardown]   Run Keywords   Remove Quoted File   ${screenshot}
+    ...    AND   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 *** Keywords ***
+
+Get Picture Image Count
+    [Setup]    Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+    ${count}   Run Command    find /home/${USER_LOGIN}/Pictures -maxdepth 1 -type f \\( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \\) | wc -l
+    RETURN     ${count}
+
+Get Newest Picture Image
+    [Setup]    Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+    ${file}    Run Command    find /home/${USER_LOGIN}/Pictures -maxdepth 1 -type f \\( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \\) -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-
+    Should Not Be Empty    ${file}    No image files found in Pictures.
+    RETURN     ${file}
+
+Wait Until New Picture Image Is Saved
+    [Arguments]    ${before_count}
+    Wait Until Keyword Succeeds    10x    1s    Verify Picture Image Count Increased    ${before_count}
+    ${file}    Get Newest Picture Image
+    RETURN     ${file}
+
+Verify Picture Image Count Increased
+    [Arguments]    ${before_count}
+    ${after_count}    Get Picture Image Count
+    Should Be True    ${after_count} > ${before_count}
+    ...    New image file was not created in /home/${USER_LOGIN}/Pictures.
+
+Verify Picture Image File
+    [Arguments]    ${file}
+    Run Command     test -f '${file}'
+    ${file_type}    Run Command    file --mime-type '${file}'
+    Should Contain    ${file_type}    image/
+
+Remove Quoted File
+    [Arguments]    ${file}
+    Run Command     rm -f '${file}'    rc_match=skip
 
 Save current document from COSMIC Text Editor to Shares
     [Arguments]      ${file_name}
