@@ -33,6 +33,15 @@ Killswitch disconnects microphone
     Record Audio And Verify   ${BUSINESS_VM}    expected_duration=0
     [Teardown]       Set device state  unblocked    mic
 
+Killswitch blocks all devices at once
+    [Documentation]  Verify that ghaf-killswitch block --all and unblock --all change all device states
+    [Tags]           SP-T368    bat
+    Set all devices state      blocked
+    Verify all devices state   blocked
+    Set all devices state      unblocked
+    Verify all devices state   unblocked
+    [Teardown]       Set all devices state   unblocked
+
 Killswitch disconnects WLAN
     [Documentation]  Verify that killswitch disconnects wi-fi connection and makes interface unavailable
     [Tags]           SP-T304  lab-only
@@ -59,6 +68,7 @@ WLAN setup
     Switch to vm       ${NET_VM}
     ${wifi_if}         Get Interface name    wifi
     Set Test Variable  ${wifi_if}
+    Wait Until Keyword Succeeds     30x   2s   Scan for Wifi   ${TEST_WIFI_SSID}
     Configure wifi     ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
 
