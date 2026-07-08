@@ -158,6 +158,7 @@ Check logging rate
 Validate Forward Secure Sealing
     [Documentation]   Run Forward Secure Sealing tests in all VMs
     [Tags]            SP-T353
+    ${failed_vms}   Create List
     FOR  ${vm}  IN  @{VM_LIST}
         Switch to vm   ${vm}
         ${output}   Run Command   fss-test   sudo=True   return=out,rc   rc_match=skip
@@ -165,12 +166,15 @@ Validate Forward Secure Sealing
             ${cleaned_output}   Remove Colors   ${output}[0]
             Log  ${cleaned_output}
             ${failed_tests}     Get Matching Lines   ${cleaned_output}   FAIL
+            Append To List      ${failed_vms}   ${vm}
             ${msg}              Catenate   SEPARATOR=\n   Fss test failed in ${vm}:
             ...    @{failed_tests}
             Run Keyword And Continue On Failure   FAIL   ${msg}
         END
     END
-    [Teardown]  Run Keyword If Test Failed   SKIP   Known issue: SSRCSP-8425
+    ${failed_vm_msg}   Catenate   SEPARATOR=,    @{failed_vms}
+    [Teardown]  Run Keyword If Test Failed   Run Keywords    Log Error    FSS test failed    FSS test failed in VMs: ${failed_vm_msg}
+    ...                                               AND    SKIP   Known issue: SSRCSP-8425
 
 *** Keywords ***
 

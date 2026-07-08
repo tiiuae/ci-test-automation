@@ -68,8 +68,6 @@ Reboot from power menu
     Log               Reboot took ${elapsed} seconds   console=True
 
     Should Not Be True    ${elapsed} > ${reboot_limit}    msg=Reboot took too long: ${elapsed} seconds (expected < ${reboot_limit})
-    [Teardown]    Run Keywords   GUI Power Test Teardown   AND
-    ...           Run Keyword If Test Failed    Run Keyword If   "storeDisk" in "${JOB}" and "took too long" in $TEST_MESSAGE   SKIP    Known Issue: SSRCSP-8621
 
 Shutdown from power menu
     [Documentation]   Shutdown the device via GUI power menu shutdown icon.

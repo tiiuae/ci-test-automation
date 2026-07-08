@@ -59,9 +59,8 @@ Clean Up Test Environment
     [Timeout]     5 minutes
     [Arguments]   ${disable_dnd}=False
     IF    ${IS_AVAILABLE} == True and "${CONNECTION_TYPE}" == "ssh"
-        # Temporarily taking journal log taking our from Orin-NX [SSRCSP-7453]
-        Run Keyword If   "${SUITE STATUS}" != "PASS" and "${DEVICE_TYPE}" != "orin-nx"    Save host journalctl
-        Run Keyword If   ${IS_LAPTOP}    Log out from laptop
+        IF   "${SUITE STATUS}" != "PASS"    Save host journalctl
+        IF   ${IS_LAPTOP}                   Log out from laptop
     END
     Close All Connections
 
@@ -72,6 +71,7 @@ Save host journalctl
     # Copy journal log file to Robot outputs
     SSHLibrary.Get file  /tmp/jrnl.txt   ${OUTPUT_DIR}/journal_${SUITE_NAME}.txt
     OperatingSystem.File Should Exist    ${OUTPUT_DIR}/journal_${SUITE_NAME}.txt
+    [Teardown]         Reboot Orin if ssh connection dropped    Save host journalctl
 
 Log versions and device unique data
     [Setup]             Switch to vm    ${HOST}
@@ -188,7 +188,9 @@ Ensure Robot sudoers is installed in all VMs
         Run Command    chmod 755 ${robot_sudoers_install_script_remote}
         Start Command  ${robot_sudoers_install_script_remote}    sudo=True    sudo_password=${PASSWORD}
     END
-    IF    $skipped_vms    Run Command  logger --priority=user.info "ROBOT_LOG: Sudoers not installed to ${skipped_vms} on ${DEVICE_TYPE}, job ${JOB}"
+    FOR    ${vm}    IN    @{skipped_vms}
+        Log Error    Sudoers installation failed    Sudoers not installed to ${vm}
+    END
     # Check that installation has finished everywhere
     FOR    ${vm}    IN    @{vm_list_with_host}
         IF    $vm in $skipped_vms

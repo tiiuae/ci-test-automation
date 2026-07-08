@@ -66,6 +66,10 @@ Get Ghaf Version
     Log To Console    ghaf-version: ${output}
     RETURN    ${output}
 
+Log Error
+    [Documentation]   Send a log about an error to Grafana
+    [Arguments]    ${context}    ${message}
+    Run Command    logger --priority=user.info "ROBOT_LOG (${context}): ${message} | device=${DEVICE_TYPE}, job=${JOB}"
 
 Get VM list
     [Arguments]    ${with_host}=False
