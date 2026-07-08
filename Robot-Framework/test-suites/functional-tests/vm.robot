@@ -101,13 +101,13 @@ Check systemctl status Template
             ${status}   ${failed_units}   Verify Systemctl status   timeout=${timeout}
         EXCEPT    AS    ${error_message}
             Log    ${error_message}   console=True
-            Reboot Orin if ssh connection dropped
+            Reboot Orin if ssh connection dropped    Check systemctl status
             Switch to vm     ${vm}
             TRY
                 ${status}   ${failed_units}   Verify Systemctl status   timeout=${timeout}
             EXCEPT    AS    ${error_message}
                 Log    ${error_message}   console=True
-                Reboot Orin if ssh connection dropped
+                Reboot Orin if ssh connection dropped    Check systemctl status
                 Switch to vm     ${vm}
                 FAIL    Systemctl check failed twice in ${vm}
             END

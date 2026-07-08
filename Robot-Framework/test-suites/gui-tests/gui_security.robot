@@ -84,7 +84,7 @@ Unlock account and login
     # First login after unlocking the account fails
     Log in via GUI   password=reset_login   sleep_seconds=1
     Log in, unlock and verify
-    Run Keyword If Test Failed   Run Command  logger --priority=user.info "ROBOT_LOG: Account lockout after failed GUI login failed on ${DEVICE_TYPE}, job ${JOB}"
+    Run Keyword If Test Failed   Log Error    Account lockout    Account lockout after failed GUI login failed
 
 Check faillock entry count
     [Documentation]    Verify that the current faillock entry count matches ${expected_count}

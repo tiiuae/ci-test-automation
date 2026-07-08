@@ -6,6 +6,7 @@ Documentation       Testing launching files
 Test Tags           files  bat  lenovo-x1  darter-pro  dell-7330
 
 Resource            ../../resources/app_keywords.resource
+Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
@@ -115,4 +116,7 @@ Check for cosmic app crash
     Switch to vm        ${MEDIA_VM}
     ${app_started}      Run Keyword And Return Status   Run Command    journalctl -b --since @${journal_since} | grep -E "Started \\[systemd-run\\].*${app}.*${file_name}"
     Run Command         journalctl -b --since @${journal_since}   # All logs for debugging
-    IF  ${app_started}   SKIP   Known Issue: SSRCSP-8367
+    IF  ${app_started}
+        Log Error    Crash in media-vm    ${app} crashed in ${MEDIA_VM}
+        SKIP         Known Issue: SSRCSP-8367
+    END

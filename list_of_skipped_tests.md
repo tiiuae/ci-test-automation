@@ -45,4 +45,3 @@
 | 17.02.2026 | Verify booting after restart by power | Try to boot Orin NX second time if first time did not work                                                 |
 | 29.01.2026 | Reboot Orin if ssh connection dropped | This keyword is a workaround for the SSH connection dropping on Orin, reboots and connect again            |
 | 27.01.2026 | Verify shutdown via serial            | Shutdown is checked via network if shutdown log was not found in serial output                             |
-| 23.10.2025 | Clean Up Test Environment             | SSRCSP-7453, Journalctl check removed from Orin NX because it kept getting stuck                           |

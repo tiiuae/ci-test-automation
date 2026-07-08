@@ -119,7 +119,7 @@ Soft Reboot Device
             # Known issue SSRCSP-8490
             Log To Console    GUI-VM reboot did not shut down the full device. Retrying reboot from host.
             Switch to vm   ${HOST}
-            Run Command  logger --priority=user.info "ROBOT_LOG: Soft reboot failed on ${DEVICE_TYPE}, job ${JOB}"
+            Log Error    Soft reboot failed    Soft reboot from ${GUI_VM} failed
             Run Command  reboot  sudo=True   rc_match=skip
             Log To Console  Rebooting device from host as fallback
             Verify shutdown via network
@@ -197,7 +197,12 @@ Verify shutdown via network
     Fail       Device at ${DEVICE_IP_ADDRESS} still responds after ${diff} seconds.
 
 Reboot Orin if ssh connection dropped
+    [Arguments]    ${context_name}=${EMPTY}
     ${ssh_available}  Run Keyword And Return Status    Run Command    ls  timeout=5
     IF  not ${ssh_available} and "orin" in "${DEVICE_TYPE}"
         Hard Reboot Device And Connect
+        IF    '${context_name}' == ''
+            ${context_name}    Get Variable Value    ${TEST NAME}    UNKNOWN_TEST
+        END
+        Log Error    Orin connection dropped    Connection dropped during ${context_name}
     END
