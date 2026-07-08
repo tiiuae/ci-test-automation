@@ -163,6 +163,29 @@ Set device state
     Should Be Equal   ${device_state}   ${expected_state}
     Log To Console    ${device} is ${device_state}
 
+Set all devices state
+    [Documentation]   Change all killswitch devices state to ${expected_state} (blocked, unblocked)
+    [Arguments]       ${expected_state}
+    [Setup]           Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
+    Should Be True    '${expected_state}' in ['blocked', 'unblocked']   Wrong state
+    IF   '${expected_state}' == 'blocked'
+        ${state_to_set}   Set Variable   block
+    ELSE
+        ${state_to_set}   Set Variable   unblock
+    END
+    Run Command       ghaf-killswitch ${state_to_set} --all
+    Log               Set all devices to ${expected_state}    console=True
+
+Verify all devices state
+    [Arguments]       ${expected_state}
+    [Setup]           Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
+    ${output}         Run Command   ghaf-killswitch status
+    FOR    ${device}    IN    cam    mic    bluetooth    net
+        ${device_state}    Get kill switch status   ${output}   ${device}
+        Run Keyword And Continue On Failure
+        ...    Should Be Equal    ${device_state}   ${expected_state}   ${device} is ${device_state}, expected ${expected_state}.
+    END
+
 Get device state
     [Arguments]     ${device}
     [Setup]         Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
