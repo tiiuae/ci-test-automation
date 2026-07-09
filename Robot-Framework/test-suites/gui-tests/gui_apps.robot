@@ -71,6 +71,14 @@ Maximize and restore window
     [Teardown]   Run Keywords    Kill App in VM   ${Zoom}
     ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
+Verify Gala is loaded
+    [Documentation]   Open Gala and wait the window to be loaded
+    [Tags]            SP-T108
+    Start app via GUI   ${Gala}
+    Locate on screen    text    Welcome   iterations=10   scale=2
+    Close app via GUI   ${Gala}
+    [Teardown]   Run Keywords    Kill App in VM   ${Gala}   require_exists=False
+    ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 *** Keywords ***
 
