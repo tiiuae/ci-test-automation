@@ -129,6 +129,15 @@ Soft Reboot Device
     END
     Close All Connections
 
+Soft Shutdown Device
+    IF  ${IS_LAPTOP}
+        Switch to vm          ${GUI_VM}
+    ELSE
+        Switch to vm          ${HOST}
+    END
+    Log To Console        Shutting down device from command line
+    Run Command           shutdown now    sudo=True    rc_match=skip
+
 Connect After Reboot
     [Documentation]   Verify that device rebooted and connect
     [Arguments]      ${soft_reboot}=False
@@ -153,14 +162,14 @@ Wake up device
 
 Wait Until Device Is Down
     [Arguments]    ${power_off}=${False}
-    IF  not ${IS_LAPTOP} or "${SERIAL_PORT}" == "NONE"
+    IF  "${SERIAL_PORT}" == "NONE"
         IF  ${power_off}
             ${time}   Verify shutdown via network    required_down_count=1
         ELSE
             ${time}   Verify shutdown via network
         END
     ELSE
-        ${time}   Verify shutdown via serial
+        ${time}  ${verified_via_network}   Verify shutdown via serial
     END
     RETURN    ${time}
 

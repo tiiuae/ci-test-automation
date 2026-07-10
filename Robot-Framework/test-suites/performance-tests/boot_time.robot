@@ -11,6 +11,7 @@ Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_I
 Library             DateTime
 Library             Collections
 Resource            ../../resources/device_control.resource
+Resource            ../../resources/measurement_keywords.resource
 Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
@@ -21,8 +22,9 @@ Suite Teardown      Close All Connections
 Test Teardown       Boot Time Test Teardown
 
 *** Variables ***
-${PING_TIMEOUT}     180
-${SEARCH_TIMEOUT}   60
+${PING_TIMEOUT}            180
+${SEARCH_TIMEOUT}          60
+${SHUTDOWN_POWER_LIMIT}    1500
 
 
 *** Test Cases ***
@@ -32,6 +34,18 @@ Measure Soft Boot Time
     [Tags]           SP-T187  SP-T187-1  lenovo-x1  dell-7330
     Soft Reboot Device
     Get Boot times
+
+Measure Shutdown Time
+    [Documentation]  Measure how long it takes to device to shut down with software shutdown
+    [Tags]           SP-T83  SP-T83-1  lenovo-x1  dell-7330  lab-only
+    Get Shutdown Time
+    [Teardown]       Shutdown Time Teardown
+
+Measure Shutdown Time By Power
+    [Documentation]  Measure Lenovo-X1 shutdown time until power drops below ${SHUTDOWN_POWER_LIMIT}mW
+    [Tags]           SP-T83  SP-T83-2  lenovo-x1  lab-only
+    Get Shutdown Time By Power
+    [Teardown]       Shutdown Time Teardown
 
 Measure Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
@@ -44,6 +58,12 @@ Measure Orin Soft Boot Time
     [Tags]           SP-T187  SP-T187-2  orin-agx  orin-agx-64  orin-nx
     Soft Reboot Device
     Get Time To Ping
+
+Measure Orin Shutdown Time
+    [Documentation]  Measure how long it takes to device to shut down with software shutdown
+    [Tags]           SP-T83  SP-T83-1  orin-agx  orin-agx-64  orin-nx  lab-only
+    Get Shutdown Time
+    [Teardown]       Shutdown Time Teardown
 
 Measure Orin Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
@@ -89,6 +109,52 @@ Get Time To Ping
     Set To Dictionary             ${final_results}  response_to_ping  ${ping_response_seconds}
     Check Result Validity         ${final_results}
     &{statistics}                 Save Boot time Data   ${TEST NAME}  ${final_results}
+    Log  <img src="${DEVICE}_${TEST NAME}.png" alt="${plot_name}" width="1200">    HTML
+    Determine Test Status         ${statistics}  inverted=1
+
+Get Shutdown Time
+    [Arguments]  ${plot_name}=Shutdown Times
+    ${status}                     Open Serial Port    timeout=10
+    IF  not ${status}
+        Skip    Failed to connect via serial
+    END
+    Soft Shutdown Device
+    ${start_time_epoch}           DateTime.Get Current Date   result_format=epoch
+    ${shutdown_time_epoch}  ${verified_via_serial}    Verify shutdown via serial    open_serial_port=${False}
+    ${shutdown_time}              Evaluate    int(${shutdown_time_epoch}) - int(${start_time_epoch})
+    Log                           Shutdown time measured: ${shutdown_time}   console=True
+    IF  not ${verified_via_serial}
+        SKIP    Shutdown time verification via serial failed, fell back to 'Verify shutdown via network' which is not accurate.\nSkipping the test.
+    END
+    &{final_results}              Create Dictionary
+    Set To Dictionary             ${final_results}  shutdown_time  ${shutdown_time}
+    Check Result Validity         ${final_results}
+    &{statistics}                 Save Boot time Data   ${TEST NAME}  ${final_results}
+    Log  <img src="${DEVICE}_${TEST NAME}.png" alt="${plot_name}" width="1200">    HTML
+    Determine Test Status         ${statistics}  inverted=1
+
+Get Shutdown Time By Power
+    [Arguments]  ${plot_name}=Shutdown Times
+    ${availability}              Check variable availability  RPI_IP_ADDRESS
+    IF  ${availability}==False
+        SKIP    Power measurement agent IP address not defined. Skipping the test
+    END
+    Start power measurement       ${BUILD_ID}_shutdown   timeout=300
+    IF  $SSH_MEASUREMENT=='${EMPTY}'
+        SKIP    Failed to connect to power measurement agent. Skipping the test
+    END
+    Soft Shutdown Device
+    ${start_time_epoch}           DateTime.Get Current Date   result_format=epoch
+    ${shutdown_time_epoch}        Wait Until Power Is Low     ${BUILD_ID}_shutdown
+    ${shutdown_time}              Evaluate
+    ...                           int(${shutdown_time_epoch}) - int(${start_time_epoch})
+    Log                           Shutdown time measured: ${shutdown_time}   console=True
+    &{final_results}              Create Dictionary
+    Set To Dictionary             ${final_results}  shutdown_time  ${shutdown_time}
+    Check Result Validity         ${final_results}
+    &{statistics}                 Save Boot time Data   ${TEST NAME}  ${final_results}
+    Generate power plot           ${BUILD_ID}_shutdown   ${TEST NAME}
+    Stop recording power
     Log  <img src="${DEVICE}_${TEST NAME}.png" alt="${plot_name}" width="1200">    HTML
     Determine Test Status         ${statistics}  inverted=1
 
@@ -145,9 +211,34 @@ Log Journal To Debug
     [Arguments]           ${boot}=0
     ${journal_output}     Run Command   journalctl -b ${boot}
 
+Wait Until Power Is Low
+    [Arguments]           ${measurement_id}
+    ${retro_interval}     Set Variable    3
+    # Give some time for measurement results to accumulate before starting to iterate retrospective time intervals
+    Sleep                 ${retro_interval}
+    WHILE  True   limit=180 seconds
+        ${end_time}        Get current timestamp
+        ${end_time_epoch}  Get Time    epoch
+        Get power record   ${measurement_id}.csv    use_switch=${True}
+        ${start_time}      DateTime.Add Time To Date   ${end_time}   -${retro_interval} seconds
+        ...                exclude_millis=yes
+        TRY
+            ${mean_power}     Calculate average power over interval
+            ...               ${measurement_id}  ${start_time}  ${end_time}
+            Log               Measured power: ${mean_power}mW   console=True
+            IF  ${mean_power} < ${SHUTDOWN_POWER_LIMIT}
+                RETURN        ${end_time_epoch}
+            END
+        EXCEPT
+            Log    Ignoring invalid measured power sample    console=True
+        END
+        Sleep  0.5
+    END
+
 Boot Time Test Teardown
     Run Keyword If Test Failed   Failed Boot Time Test Teardown
     IF   ${IS_LAPTOP}    Login to laptop
+    Prepare Test Environment
 
 Failed Boot Time Test Teardown
     Hard Reboot Device And Connect
@@ -155,4 +246,12 @@ Failed Boot Time Test Teardown
         Switch to vm          ${HOST}
         Log Journal To Debug  boot=-1
     END
+    Prepare Test Environment
 
+Shutdown Time Teardown
+    Close All Connections
+    Delete All Ports
+    Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
+    Sleep  10
+    Hard Reboot Device And Connect
+    Prepare Test Environment

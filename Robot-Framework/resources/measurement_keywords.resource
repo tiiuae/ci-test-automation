@@ -66,12 +66,16 @@ Stop recording power
     Run Keyword And Ignore Error  Run Command   pkill python  timeout=3
 
 Get power record
-    [Arguments]       ${file_name}=power_data.csv
+    [Arguments]       ${file_name}=power_data.csv  ${use_switch}=${False}
     IF  $SSH_MEASUREMENT=='${EMPTY}'
         Log To Console            No connection to power measurement device. Ignoring all power measurement related keywords.
         RETURN
     END
-    Run Keyword And Ignore Error  Connect to measurement agent
+    IF  ${use_switch}
+        Switch Connection   ${SSH_MEASUREMENT}
+    ELSE
+        Run Keyword And Ignore Error  Connect to measurement agent
+    END
     Run Keyword And Ignore Error  SSHLibrary.Get File           /home/ghaf/ghaf/power_data/${file_name}  ${LOGGED_PARAMS_DIR}
 
 Save measurement interval
