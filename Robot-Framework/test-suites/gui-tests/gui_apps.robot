@@ -75,7 +75,7 @@ Verify Gala is loaded
     [Documentation]   Open Gala and wait the window to be loaded
     [Tags]            SP-T108
     Start app via GUI   ${Gala}
-    Locate on screen    text    Welcome   iterations=10   scale=2
+    Locate on screen    text    Welcome   confidence=0.8   iterations=10   scale=4
     Close app via GUI   ${Gala}
     [Teardown]   Run Keywords    Kill App in VM   ${Gala}   require_exists=False
     ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
