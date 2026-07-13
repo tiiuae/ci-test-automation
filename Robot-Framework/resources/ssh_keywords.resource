@@ -136,7 +136,7 @@ Check If Device Is Available
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         FAIL    The device is available only via serial ${extra_log}, but SSH is required.
     ELSE
-        Log To Console   Device is available ${extra_log}.
+        Log     Device is available ${extra_log}.   console=True
     END
     Switch to vm     ${NET_VM}
 
@@ -309,7 +309,7 @@ Wait Until Ssh Is Ready On Device
 
 Switch to vm
     [Arguments]         ${hostname}   ${user}=ghaf   ${timeout}=60
-
+    Log    Switching to vm ${hostname} as ${user}, timeout ${timeout}
     Set Log Level           NONE
     IF  $user=='ghaf'
         ${pw}   Set Variable    ${PASSWORD}
