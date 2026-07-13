@@ -72,8 +72,6 @@ Verify timezone persisted
 Persistence Suite Setup
     ${PERSISTENCE_SETUP_ERRORS}    Create List
     Set Suite Variable             ${PERSISTENCE_SETUP_ERRORS}
-    Switch to vm      ${NET_VM}
-    Login to laptop
     Save original values
     Set values        EXPECTED
     Soft Reboot Device And Connect   vm=${GUI_VM}

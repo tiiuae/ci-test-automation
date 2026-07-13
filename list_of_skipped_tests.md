@@ -35,6 +35,7 @@
 
 | DATE SET   | TEST CASE / KEYWORD                   | TICKET / Additional Data                                                                                   |
 | ---------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 14.07.2026 | Connect After Reboot                  | SSRCSP-8701, extra 30 seconds added for Orins                                                              |
 | 30.06.2026 | Unlock account and login              | Try to login twice after unlocking, first login after unlocking the account fails                          |
 | 22.06.2026 | Set RTC time                          | SSRCSP-8622, separate command for Lenovo X1                                                                |
 | 17.06.2026 | Verify service status                 | SSRCSP-8662, welcome check disabled                                                                        |

@@ -29,7 +29,9 @@ Create and save text file from COSMIC Text Editor via GUI
     ${saved_content}    Run Command    cat ${share_path}
     Should Contain      ${saved_content}   ${doc_text}
     Close app via GUI   ${COSMIC Text Editor}
-    [Teardown]   Run Keywords   Remove file by name    ${file_name}
+    [Teardown]   Run Keywords   Kill App in VM   ${COSMIC Text Editor}   require_exists=False
+    ...    AND   Switch to vm            ${GUI_VM}        user=${USER_LOGIN}
+    ...    AND   Remove file by name     ${file_name}
     ...    AND   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 Copy and paste text between VMs
