@@ -49,6 +49,10 @@ Start COSMIC Settings via GUI
     [Tags]            SP-T254  SP-T254-2
     ${COSMIC Settings}
 
+Start COSMIC System Monitor via GUI
+    [Tags]            SP-T372  SP-T372-2
+    ${COSMIC System Monitor}
+
 Start COSMIC Terminal via GUI
     [Tags]            SP-T263  SP-T263-2
     ${COSMIC Terminal}

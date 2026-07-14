@@ -53,6 +53,12 @@
     "close_button": "ghaf-close.png",
     "icon": "settings.png"
   },
+  "COSMIC System Monitor": {
+    "display_name": "COSMIC System Monitor",
+    "VM": "gui-vm",
+    "process_name": "cosmic-monitor",
+    "close_button": "ghaf-close.png"
+  },
   "COSMIC Terminal": {
     "display_name": "COSMIC Terminal",
     "VM": "gui-vm",

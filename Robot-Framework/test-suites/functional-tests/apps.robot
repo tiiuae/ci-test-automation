@@ -40,6 +40,10 @@ Start COSMIC Settings
     [Tags]            SP-T254  SP-T254-1  fmo
     ${COSMIC Settings}
 
+Start COSMIC System Monitor
+    [Tags]            SP-T372  SP-T372-1
+    ${COSMIC System Monitor}
+
 Start COSMIC Terminal
     [Tags]            SP-T263  SP-T263-1  fmo
     ${COSMIC Terminal}
