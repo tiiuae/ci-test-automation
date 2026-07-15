@@ -99,6 +99,4 @@ Check net-vm hostname failure
         ELSE
             FAIL   Actual net-vm hostname: ${NETVM_NAME}, Should be: ${STATIC_NETVM_NAME}, Expected to fail with ${expected_wrong_name}
         END
-    ELSE IF   "${DEVICE_TYPE}" == "orin-agx"
-        SKIP    Known issue: Hostname needs to be updated in ghaf-infra
     END
