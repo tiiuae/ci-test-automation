@@ -101,6 +101,7 @@ nvpmodel check test
     IF  not ("Power mode check ok: ${ExpectedNVPmode}" in $output)
         FAIL  ${output}\n\nExpected: ${ExpectedNVPmode}
     END
+    [Teardown]     Run Keyword If Test Failed    SKIP     Known issue: SSRCSP-8712
 
 Cyclictest latency on ghaf-host
     [Documentation]    Run four cyclictest latency measurements on ghaf-host and track min/avg/max
