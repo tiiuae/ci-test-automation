@@ -39,12 +39,6 @@ Verify booting after restart by power
             Check If Device Is Up   retry=140s
     END
 
-    IF  "orin-agx" in "${DEVICE_TYPE}" and ${IS_AVAILABLE} == False
-        # Known issue SSRCSP-8704
-        Log   Device did not boot in 140 seconds, giving it some extra time due to SSRCSP-8704   console=True
-        Check If Device Is Up   retry=100s
-    END
-
     IF    ${IS_AVAILABLE} == False
         FAIL    The device did not start
     ELSE
