@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                            | TICKET / Additional Data                                                |
 | ---------- | ---------------------------------------------------- | ----------------------------------------------------------------------- |
+| 20.07.2026 | nvpmodel check test                                  | SSRCSP-8712                                                             |
 | 17.07.2026 | Shutdown from power menu (Lenovo X1)                 | SSRCSP-8714                                                             |
 | 06.07.2026 | Open video with COSMIC Media Player                  | SSRCSP-8367                                                             |
 | 01.07.2026 | Account lockout after failed GUI login               | Test under development                                                  |
