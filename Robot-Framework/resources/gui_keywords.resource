@@ -87,10 +87,13 @@ Log out with loginctl
         RETURN
     END
     Switch to vm          ${GUI_VM}
-    ${session_id}         Run Command      loginctl list-sessions --no-legend | grep seat0 | awk '{print $1}'
+    ${session_ids}        Run Command      loginctl list-sessions --no-legend | awk '$3 == "${USER_LOGIN}" && $4 == "seat0" {print $1}'
     Run Command           loginctl         # For debugging
-    Should Not Be Empty   ${session_id}    No active session found for ${USER_LOGIN}
-    Run Command           loginctl terminate-session ${session_id}   sudo=True
+    @{session_ids}        Split To Lines    ${session_ids}
+    Should Not Be Empty   ${session_ids}    No active session found for ${USER_LOGIN}
+    FOR    ${session_id}    IN    @{session_ids}
+        Run Command       loginctl terminate-session ${session_id}   sudo=True
+    END
     [Teardown]   Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
 
 Type string
@@ -231,12 +234,12 @@ Check if logged out
     [Documentation]    Check if system is in logged out state
     [Arguments]        ${iterations}=10
     FOR   ${i}   IN RANGE  ${iterations}
-        ${status}    ${output}    Run Keyword And Ignore Error    Verify login session
+        ${status}    ${output}    Run Keyword And Ignore Error    Verify login session    greeter
         IF    '${status}' == 'PASS'
-            Log      Found active GUI session for ${USER_LOGIN}, user is logged in  console=True
-        ELSE
-            Log      No active GUI session found for ${USER_LOGIN}, user is logged out  console=True
+            Log      Found active greeter session, user is logged out  console=True
             RETURN    ${True}
+        ELSE
+            Log      No active greeter session found, user is logged in  console=True
         END
         Sleep  1
     END
