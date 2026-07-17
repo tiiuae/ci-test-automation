@@ -35,6 +35,8 @@
 
 | DATE SET   | TEST CASE / KEYWORD                   | TICKET / Additional Data                                                                                   |
 | ---------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 17.07.2026 | Log out with loginctl                 | Log out all testuser sessions if the are many on seat (controlling the screen) (probably a Cosmic bug)     |
+| 15.07.2026 | Verify booting after restart by power | SSRCSP-8704, extra 90 seconds added for AGX boot                                                           |
 | 14.07.2026 | Connect After Reboot                  | SSRCSP-8701, extra 30 seconds added for Orins                                                              |
 | 30.06.2026 | Unlock account and login              | Try to login twice after unlocking, first login after unlocking the account fails                          |
 | 22.06.2026 | Set RTC time                          | SSRCSP-8622, separate command for Lenovo X1                                                                |

@@ -31,7 +31,12 @@ Verify booting after restart by power
     Reboot Orin
     Start UART Log Capture
 
-    Check If Device Is Up   retry=140s
+    IF  "orin-agx" in "${DEVICE_TYPE}"
+        # Known issue SSRCSP-8704
+        Check If Device Is Up   retry=230s
+    ELSE
+        Check If Device Is Up   retry=140s
+    END
 
     IF      "${DEVICE_TYPE}" == "orin-nx" and ${IS_AVAILABLE} == False
             Log                     message=Orin-nx failed to start, rebooting via relay one more time...    level=WARN

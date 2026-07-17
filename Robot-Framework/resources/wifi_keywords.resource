@@ -9,6 +9,7 @@ Resource            ../resources/ssh_keywords.resource
 Configure wifi
     [Arguments]         ${SSID}  ${passw}
     Switch to vm        ${NET_VM}
+    Wait Until Keyword Succeeds     10x   1s   Scan for Wifi   ${SSID}
     Log To Console      Configuring Wifi
     Wait Until Keyword Succeeds   3x   1s   Try to connect wifi   ${SSID}  ${passw}
 
