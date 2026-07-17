@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                            | TICKET / Additional Data                                                |
 | ---------- | ---------------------------------------------------- | ----------------------------------------------------------------------- |
+| 17.07.2026 | Shutdown from power menu (Lenovo X1)                 | SSRCSP-8714                                                             |
 | 06.07.2026 | Open video with COSMIC Media Player                  | SSRCSP-8367                                                             |
 | 01.07.2026 | Account lockout after failed GUI login               | Test under development                                                  |
 | 15.06.2026 | VM memory usage snapshot (Dell 7330)                 | Dell has less memory than other targets                                 |

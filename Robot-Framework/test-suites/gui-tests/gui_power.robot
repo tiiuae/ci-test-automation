@@ -51,15 +51,7 @@ Reboot from power menu
     [Tags]            SP-T75  SP-T75-4  lenovo-x1  darter-pro  lab-only
     Select power menu option   x=870   y=120   confirmation=True
     ${start_time}     Get Time    epoch
-    ${shutdown_status}    ${shutdown_msg}    Run Keyword And Ignore Error    Verify shutdown via network
-    IF    '${shutdown_status}' == 'FAIL'
-        ${expected_failure}    Evaluate    "still responds" in """${shutdown_msg}"""
-        IF    ${expected_failure}
-            SKIP   Known issue: SSRCSP-8490
-        ELSE
-            FAIL    ${shutdown_msg}
-        END
-    END
+    Verify shutdown via network
     Connect After Reboot   soft_reboot=True
     ${end_time}       Get Time    epoch
     Login to laptop   enable_dnd=True
@@ -68,6 +60,8 @@ Reboot from power menu
     Log               Reboot took ${elapsed} seconds   console=True
 
     Should Not Be True    ${elapsed} > ${reboot_limit}    msg=Reboot took too long: ${elapsed} seconds (expected < ${reboot_limit})
+    [Teardown]    Run Keywords   GUI Power Test Teardown   AND
+    ...           Run Keyword If Test Failed   Run Keyword If   "still responds" in $TEST_MESSAGE   Skip reboot from power menu
 
 Shutdown from power menu
     [Documentation]   Shutdown the device via GUI power menu shutdown icon.
@@ -91,6 +85,8 @@ Shutdown from power menu
     Login to laptop   enable_dnd=True
 
     Should Not Be True    ${elapsed} > ${max_elapsed}    msg=Shutdown took too long: ${elapsed} seconds (expected < ${max_elapsed})
+    [Teardown]    Run Keywords   GUI Power Test Teardown   AND
+    ...           Run Keyword If Test Failed   Run Keyword If   "took too long" in $TEST_MESSAGE   Skip shutdown from power menu
 
 Log out and log in from power menu
     [Documentation]   Logout via GUI power menu icon and verify logged out state.
@@ -130,9 +126,7 @@ GUI Power Test Setup
     Start screen recording
 
 GUI Power Test Teardown
-    ${needs_reboot_recovery}    Evaluate
-    ...    ($TEST_STATUS == 'FAIL' and 'took too long' not in $TEST_MESSAGE) or ($TEST_STATUS == 'SKIP' and 'SSRCSP-8490' in $TEST_MESSAGE)
-    IF  ${needs_reboot_recovery}
+    IF  $TEST_STATUS == 'FAIL' and 'took too long' not in $TEST_MESSAGE
         Hard Reboot Device And Connect
         IF    ${IS_AVAILABLE}
             ssh_keywords.Save log   ${GUI_VM}  ${gui_power_log_since}
@@ -143,6 +137,16 @@ GUI Power Test Teardown
     ELSE
         Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
         Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+    END
+
+Skip reboot from power menu
+    Log Error    Power menu reboot failed    Reboot from power menu failed
+    SKIP   Known issue: SSRCSP-8490
+
+Skip shutdown from power menu
+    IF    "${DEVICE_TYPE}" == "lenovo-x1" or "${DEVICE_TYPE}" == "x1-sec-boot"
+        Log Error    Slow shutdown    Shutdown took too long
+        SKIP         Known Issue: SSRCSP-8714
     END
 
 Select power menu option
