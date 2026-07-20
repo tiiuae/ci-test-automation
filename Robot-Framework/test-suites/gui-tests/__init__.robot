@@ -34,6 +34,7 @@ Save gui icons and icon path
     Get icon                ${icons}/Cosmic/scalable/actions  window-close-symbolic.svg  crop=0  background=white  output_filename=window-close.png
     Negate app icon         ${ICONS_DIR}/window-close.png  ${ICONS_DIR}/window-close-neg.png
     OperatingSystem.Copy File    ../test-files/ghaf-close.png    ${ICONS_DIR}/
+    OperatingSystem.Copy File    ../test-files/gala_signin_arrow.png    ${ICONS_DIR}/
     # Desktop
     Get icon                ${icons}/Cosmic/scalable/actions  system-search-symbolic.svg  crop=0  background=white  output_filename=search.png
     Negate app icon         ${ICONS_DIR}/search.png  ${ICONS_DIR}/search-neg.png
