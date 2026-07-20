@@ -95,26 +95,8 @@ Check systemctl status Template
     ${failed_new_services}=    Create List
     ${failed_old_services}=    Create List
     Switch to vm    ${vm}
+    ${status}   ${failed_units}   Verify Systemctl status
 
-    IF   "${DEVICE_TYPE}" == "orin-nx"
-        TRY
-            ${status}   ${failed_units}   Verify Systemctl status   timeout=${timeout}
-        EXCEPT    AS    ${error_message}
-            Log    ${error_message}   console=True
-            Reboot Orin if ssh connection dropped    Check systemctl status
-            Switch to vm     ${vm}
-            TRY
-                ${status}   ${failed_units}   Verify Systemctl status   timeout=${timeout}
-            EXCEPT    AS    ${error_message}
-                Log    ${error_message}   console=True
-                Reboot Orin if ssh connection dropped    Check systemctl status
-                Switch to vm     ${vm}
-                FAIL    Systemctl check failed twice in ${vm}
-            END
-        END
-    ELSE
-        ${status}   ${failed_units}   Verify Systemctl status
-    END
     Should Not Be True    '${status}' == 'starting'      msg=Current systemctl status is ${status}. Failed processes?: ${failed_units}
 
     # Filter out interactive user provisioning service (we use the non-interactive version in tests)
@@ -124,6 +106,7 @@ Check systemctl status Template
     IF     ${filtered_failed_units}
         Check systemctl status for known issues    ${DEVICE_TYPE}   ${vm}   ${known_issues}   ${filtered_failed_units}
     END
+    [Teardown]   Reboot Orin if ssh connection dropped
 
 VM Suite Setup
     @{VM_LIST_WITH_HOST}    Get VM list    with_host=True
