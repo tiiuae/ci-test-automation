@@ -270,16 +270,9 @@ Set timestamp
 Get Actual Device ID
     ${hostname}    Run Command   hostname
     ${dir}         Set Variable If   '${HOST}' in '${hostname}'   persist   etc
-    ${status}   ${device_id}   Run Keyword And Ignore Error   Run Command   cat /${dir}/common/device-id
-
-    # Temporary workaround to enable running tests for https://github.com/tiiuae/ghaf/pull/1421
-    # Once that PR is merged, device ID will be in /etc/ghaf-identity/device-id
-    IF  '${status}' != 'PASS'
-        ${device_id}   Run Command   cat /etc/ghaf-identity/device-id
-    END
-
-    Log       Actual Device ID: ${device_id}    console=True
-    RETURN    ${device_id}
+    ${device_id}   Run Command       cat /${dir}/common/device-id
+    Log            Actual Device ID: ${device_id}    console=True
+    RETURN         ${device_id}
 
 Get Timestamp of Last Boot
     Switch to vm        ${HOST}

@@ -38,12 +38,6 @@ Verify booting after restart by power
         Check If Device Is Up   retry=140s
     END
 
-    IF      "${DEVICE_TYPE}" == "orin-nx" and ${IS_AVAILABLE} == False
-            Log                     message=Orin-nx failed to start, rebooting via relay one more time...    level=WARN
-            Reboot Orin
-            Check If Device Is Up   retry=140s
-    END
-
     IF    ${IS_AVAILABLE} == False
         FAIL    The device did not start
     ELSE

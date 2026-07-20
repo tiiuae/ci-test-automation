@@ -22,9 +22,7 @@ Verify NetVM is started
     [Setup]                 Switch to vm   ${HOST}
     Verify service status   service=${netvm_service}
     Check Network Availability      ${NET_VM}    expected_result=True    range=5
-
-    [Teardown]              Run Keywords  Reboot Orin if ssh connection dropped
-    ...                     AND           Run Keyword If  "${DEVICE_TYPE}" == "orin-nx"  Run Keyword If Test Failed  Skip  "Under investigation: SSRCSP-7453"
+    [Teardown]              Reboot Orin if ssh connection dropped
 
 Wifi passthrough into NetVM
     [Documentation]     Verify that wifi works inside netvm and internet is available
