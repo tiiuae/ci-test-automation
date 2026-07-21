@@ -45,6 +45,16 @@ Lock and Unlock from power menu
     Unlock
     Verify desktop availability
 
+Lock screen with shortcut
+    [Documentation]   Lock the screen via shortcut and verify locked state.
+    ...               Unlock lock screen by typing the password and check that desktop is available.
+    [Tags]            SP-T186  SP-T186-2  lock  lenovo-x1  darter-pro
+    Press Key(s)      LEFTMETA+ESC
+    ${lock}           Check if locked   iterations=3   debug_screenshot=True
+    IF  not ${lock}   FAIL    Failed to lock the screen
+    Unlock
+    Verify desktop availability
+
 Reboot from power menu
     [Documentation]   Reboot the device via GUI power menu reboot icon.
     ...               Check that it shuts down. Check that it turns on and boots to login screen.
@@ -100,7 +110,7 @@ Log out and log in from power menu
 Log out and log in with shortcut
     [Documentation]   Logout via logout shortcut and verify logged out state.
     ...               Login and verify that desktop is available.
-    [Tags]            SP-T186  lenovo-x1  darter-pro
+    [Tags]            SP-T186  SP-T186-1  lenovo-x1  darter-pro
     Press Key(s)                LEFTMETA+LEFTSHIFT+ESC
     Locate on screen            text  Quit  10
     Tab and enter               tabs=1
