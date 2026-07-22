@@ -82,6 +82,17 @@ Verify Gala is loaded
     [Teardown]   Run Keywords    Kill App in VM   ${Gala}   require_exists=False
     ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
+Trusted Browser opens blocked page in normal browser
+    [Documentation]    Open blocked Yle in ${Trusted Browser}[display_name], then open it in ${Google Chrome}[display_name].
+    [Tags]             SP-T220
+    Open restricted page in Trusted Browser
+    Verify page is blocked in Trusted Browser
+    Forward page to normal browser
+    Verify page opened in normal browser
+    [Teardown]   Run Keywords    Kill App in VM   ${Google Chrome}   require_exists=False
+    ...    AND   Kill App in VM   ${Trusted Browser}   require_exists=False
+    ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+
 *** Keywords ***
 
 Save current document from COSMIC Text Editor to Shares
@@ -106,6 +117,28 @@ Paste clipboard text and verify
     Press Key(s)       LEFTCTRL+V
     Move cursor to corner
     Verify Text Is On The Screen    ${text}
+
+Open restricted page in Trusted Browser
+    Start App in VM    ${Trusted Browser}    params_string=-- https://yle.fi    always_check_vm=True
+
+Verify page is blocked in Trusted Browser
+    Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
+    Wait Until Keyword Succeeds    10x    1s    Verify Text Is On The Screen    This site can’t be reached
+    Verify Text Is On The Screen    Uutiset    expected=${False}    scale=2
+
+Forward page to normal browser
+    Locate and click   image   open-normal-browser.png   confidence=0.80   iterations=20   scale=2
+
+Verify page opened in normal browser
+    Check that App is running in VM    ${Google Chrome}    range=10
+    Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
+    Skip Chrome sign-in prompt if shown
+    Wait Until Keyword Succeeds    10x    1s    Verify Text Is On The Screen    Uutiset    scale=2
+
+Skip Chrome sign-in prompt if shown
+    [Documentation]    Chrome sign-in prompt is shown not every time
+    ${status}    Run Keyword And Return Status      Locate on screen    text    Stay    0.9    10    scale=2
+    Run Keyword If    ${status}    Locate and click    text    Stay    iterations=3    timeout=15    scale=2
 
 Locate and click minimize window button
     ${mouse_x}  ${mouse_y}  Locate on screen  image  ${Zoom}[close_button]  0.99  10  timeout=120  scale=2
