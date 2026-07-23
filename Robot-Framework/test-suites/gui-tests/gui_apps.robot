@@ -93,7 +93,55 @@ Trusted Browser opens blocked page in normal browser
     ...    AND   Kill App in VM   ${Trusted Browser}   require_exists=False
     ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
+Ghaf Control Panel shows device information
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    Navigate To Device Information Page
+    Verify Device Information
+
+
 *** Keywords ***
+
+Navigate To Device Information Page
+    [Documentation]   Open the 'About' page from the initial Services view.
+    Open Ghaf Control Panel Settings
+    Locate and click   text   About
+
+Open Ghaf Control Panel Settings
+    [Documentation]   Click Settings by offset from the close button because OCR does not reliably detect the tab text.
+    ...               Offsets are in ydotool mouse coordinates: Settings center is about 33 px left and 30 px down
+    ...               from the Ghaf Control Panel close button center.
+    ${close_x}   ${close_y}   Locate on screen   image   ${Ghaf Control Panel}[close_button]   0.90
+    ${settings_x}   Evaluate   ${close_x} - 33
+    ${settings_y}   Evaluate   ${close_y} + 30
+    Run ydotool command   mousemove --absolute -x ${settings_x} -y ${settings_y}
+    Click
+
+Verify Device Information
+    ${ghaf_version}     Get Ghaf Version
+    ${device_id}        Get Actual Device ID
+    ${sysinfo}          Run Command   givc-cli sysinfo
+    ${secure_boot}      Get givc-cli sysinfo field   ${sysinfo}   Secure Boot
+    ${disk_encryption}  Get givc-cli sysinfo field   ${sysinfo}   Disk Encryption
+
+    Verify Device Information Field   Ghaf Version       ${ghaf_version}
+    Verify Device Information Field   Device ID          ${device_id}
+    Verify Device Information Field   Secure Boot        ${secure_boot}
+    Verify Device Information Field   Disk Encryption    ${disk_encryption}
+
+Verify Device Information Field
+    [Arguments]    ${field}    ${expected}
+    ${screenshot_path}  Take Remote Screenshot And Download
+    ${actual}           Get Text Field From Image   ${screenshot_path}   ${field}   scale=2
+    Should Be Equal As Strings    ${actual}    ${expected}    ignore_case=True
+    ...                         msg=${field} value in Ghaf Control Panel is ${actual}, expected ${expected}.
+
+Get givc-cli sysinfo field
+    [Arguments]    ${output}    ${field}
+    ${matches}     Get Regexp Matches    ${output}    (?m)^${field}:\\s*(\\S(?:.*\\S)?)\\s*$    1
+    Should Not Be Empty    ${matches}    Could not find ${field} in givc-cli sysinfo output:\n${output}
+    RETURN         ${matches}[0]
 
 Save current document from COSMIC Text Editor to Shares
     [Arguments]      ${file_name}
