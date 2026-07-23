@@ -6,6 +6,7 @@ from PIL import Image
 from pyscreeze import locate, center
 import logging
 import pytesseract
+import re
 import subprocess
 
 def locate_image(screenshot, image, confidence):
@@ -42,6 +43,66 @@ def get_text(data: pytesseract.Output.DICT):
 
     logging.info(text_list)
     return text_list
+
+def _normalize_ocr_text(text):
+    # OCR can add punctuation or split words oddly. Normalize labels before matching.
+    return re.sub(r"[^a-z0-9]+", "", text.lower())
+
+def _get_ocr_words(data):
+    # Keep each recognized word together with its position so field values can be read by layout.
+    words = []
+    for i, text in enumerate(data['text']):
+        text = text.strip()
+        if not text:
+            continue
+
+        words.append({
+            'text': text,
+            'normalized': _normalize_ocr_text(text),
+            'left': data['left'][i],
+            'top': data['top'][i],
+            'width': data['width'][i],
+            'height': data['height'][i],
+        })
+
+    return words
+
+def get_text_field_from_image(image, field, scale=1):
+    # Read table-like UI rows where the label is on the left and the value is on the same row to the right.
+    logging.info(f"Reading field '{field}' from {image}")
+    data = get_data_from_image(image, scale)
+    words = _get_ocr_words(data)
+    expected_words = [_normalize_ocr_text(word) for word in field.split()]
+
+    for i in range(len(words)):
+        label_words = words[i:i + len(expected_words)]
+        if len(label_words) != len(expected_words):
+            continue
+
+        label_text = [word['normalized'] for word in label_words]
+        if label_text != expected_words:
+            continue
+
+        label_right = max(word['left'] + word['width'] for word in label_words)
+        label_center_y = sum(word['top'] + word['height'] / 2 for word in label_words) / len(label_words)
+        label_height = max(word['height'] for word in label_words)
+        row_tolerance = max(20, label_height)
+
+        # The value is expected to be horizontally after the label and vertically aligned with it.
+        value_words = [
+            word for word in words
+            if word['left'] > label_right
+            and abs((word['top'] + word['height'] / 2) - label_center_y) <= row_tolerance
+        ]
+        value_words.sort(key=lambda word: word['left'])
+
+        if value_words:
+            value = ' '.join(word['text'] for word in value_words)
+            logging.info(f"Field '{field}' value: {value}")
+            return value
+
+    recognized_text = get_text(data)
+    raise AssertionError(f"Field '{field}' not found in image. Recognized text: {recognized_text}")
 
 def is_text_on_the_screen(screenshot, text, scale=1):
     logging.info("Searching " + text)
