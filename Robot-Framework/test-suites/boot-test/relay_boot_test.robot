@@ -58,7 +58,7 @@ Verify booting after restart by power
 
 Verify booting laptop
     [Documentation]    Restart the laptop by power and verify init service is running
-    [Tags]             SP-T287  SP-T290  relayboot  lenovo-x1  darter-pro  dell-7330
+    [Tags]             SP-T287  SP-T290  relayboot  lenovo-x1  darter-pro  dell-7330    darter-sec-boot
     Reboot Laptop      verify_shutdown=False
     Start UART Log Capture
     IF    "installer" in "${JOB}"
@@ -120,7 +120,7 @@ Turn ON Device
 
 Run installer
     [Documentation]   Reboot laptop and run installer, will not turn off after test, boot test is required after this
-    [Tags]            installer  lenovo-x1  darter-pro
+    [Tags]            installer  lenovo-x1  darter-pro  darter-sec-boot
     Reboot Laptop     verify_shutdown=False
     Check If Device Is Up   retry=100s
     IF    ${IS_AVAILABLE} == False
@@ -140,7 +140,7 @@ Run installer
 
 Wipe installed Ghaf from internal memory
     [Documentation]   Turn on device and wipe internal memory using ghaf-installer
-    [Tags]            wiping  lenovo-x1  darter-pro
+    [Tags]            wiping  lenovo-x1  darter-pro    darter-sec-boot
     Log To Console    ${\n}Turning device on...
     Turn Laptop On
     Check If Device Is Up   retry=60s
@@ -155,7 +155,7 @@ Wipe installed Ghaf from internal memory
 
 Break the system
     [Documentation]   Wipe boot partition
-    [Tags]            break  darter-pro
+    [Tags]            break  darter-pro     darter-sec-boot
     Check If Device Is Up    retry=5x
     IF    ${IS_AVAILABLE} == False
         Turn Laptop On
