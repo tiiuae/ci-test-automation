@@ -61,7 +61,7 @@ Reboot Laptop
 Turn Laptop On
     Log To Console    ${\n}Booting the device by pressing the power button
     Press Button      ${SWITCH_BOT}-ON
-    IF    "${DEVICE_TYPE}" == "darter-pro"
+    IF    "${DEVICE_TYPE}" == "darter-pro" or "${DEVICE_TYPE}" == "darter-sec-boot"
         Wait    15
         Log     Pressing Enter    console=True
         Press Button      ${SWITCH_BOT}-Enter
@@ -133,7 +133,7 @@ Connect After Reboot
     [Documentation]   Verify that device rebooted and connect
     [Arguments]      ${soft_reboot}=False
     Wait   30
-    IF    "${DEVICE_TYPE}" == "darter-pro" and ${soft_reboot}
+    IF    ("${DEVICE_TYPE}" == "darter-pro" or "${DEVICE_TYPE}" == "darter-sec-boot") and ${soft_reboot}
         WHILE    True    limit=120 seconds
             Log              Pressing Enter    console=True
             Press Button     ${SWITCH_BOT}-Enter
