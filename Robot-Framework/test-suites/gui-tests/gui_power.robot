@@ -66,7 +66,7 @@ Reboot from power menu
     ${end_time}       Get Time    epoch
     Login to laptop   enable_dnd=True
     ${elapsed}        Evaluate    ${end_time} - ${start_time}
-    ${reboot_limit}   Set Variable If    "${DEVICE_TYPE}" == "darter-pro"    100    90
+    ${reboot_limit}   Set Variable If    "${DEVICE_TYPE}" == "darter-pro" or "${DEVICE_TYPE}" == "darter-sec-boot"     100    90
     Log               Reboot took ${elapsed} seconds   console=True
 
     Should Not Be True    ${elapsed} > ${reboot_limit}    msg=Reboot took too long: ${elapsed} seconds (expected < ${reboot_limit})
