@@ -35,9 +35,6 @@ Save gui icons and icon path
     Negate app icon         ${ICONS_DIR}/window-close.png  ${ICONS_DIR}/window-close-neg.png
     OperatingSystem.Copy File    ../test-files/ghaf-close.png    ${ICONS_DIR}/
     OperatingSystem.Copy File    ../test-files/gala_signin_arrow.png    ${ICONS_DIR}/
-    ${open_normal_icon}     Run Command   ls -d /nix/store/*-open-normal/ghaf-logo-512px.png
-    SSHLibrary.Get File     ${open_normal_icon}    ${ICONS_DIR}/open-normal-browser.png
-    OperatingSystem.Run     magick ${ICONS_DIR}/open-normal-browser.png -resize 16x16 -background white -alpha remove ${ICONS_DIR}/open-normal-browser.png
     # Desktop
     Get icon                ${icons}/Cosmic/scalable/actions  system-search-symbolic.svg  crop=0  background=white  output_filename=search.png
     Negate app icon         ${ICONS_DIR}/search.png  ${ICONS_DIR}/search-neg.png
@@ -45,3 +42,8 @@ Save gui icons and icon path
     # App icons
     Get icon                ${icons}/Papirus/48x48/apps  Zoom.svg  crop=0  background=black  output_filename=${Zoom}[icon]
     Get icon                ${icons}/hicolor/48x48/apps  com.system76.CosmicSettings.svg  background=black  output_filename=${COSMIC Settings}[icon]
+    Switch to vm            ${Trusted Browser}[VM]
+    ${open_normal_icon}     Run Command   ls -d /nix/store/*-open-normal/ghaf-logo-512px.png
+    SSHLibrary.Get File     ${open_normal_icon}    ${ICONS_DIR}/open-normal-browser.png
+    OperatingSystem.Run     magick ${ICONS_DIR}/open-normal-browser.png -resize 16x16 -background white -alpha remove ${ICONS_DIR}/open-normal-browser.png
+    Switch to vm            ${GUI_VM}    user=${USER_LOGIN}
