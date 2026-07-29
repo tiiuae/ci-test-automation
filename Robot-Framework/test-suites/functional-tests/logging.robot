@@ -58,6 +58,8 @@ Check Grafana logs
     Switch to vm       ${ADMIN_VM}
     Check Network Availability    8.8.8.8   limit_freq=${False}
     ${id}              Get Actual Device ID
+    Set Suite Variable  ${device_id}    ${id}
+    Skip If Grafana Unreachable
     Run Keyword And Continue On Failure   Create logs in all VMs
     Sleep              5
     ${failed_vms_check_1}   Check Logs Are Available   ${id}  since=3m  word=${TEST_LOG}
