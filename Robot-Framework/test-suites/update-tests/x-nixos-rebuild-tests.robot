@@ -60,6 +60,7 @@ Check that system logs privilege uses and key events
     [Documentation]         Execute check of ipset list and verify that the command was logged
     [Tags]                  SP-T281
     [Setup]                 Check That Logging Is Working in VM   ${NET_VM}   ${NETVM_NAME}
+    Skip If Grafana Unreachable
     Switch to vm              ${NET_VM}
     Run Command               ipset list   sudo=True
     Sleep                     3
@@ -226,6 +227,8 @@ Check That Logging Is Working in VM
     Switch to vm   ${vm}
     Run Command  logger --priority=user.info "Rebuild_test_log"
     ${id}   Get Actual Device ID
+    Set Suite Variable  ${device_id}    ${id}
+    Skip If Grafana Unreachable
     ${status}  Run Keyword And Return Status  Wait Until Keyword Succeeds  15s  2s
     ...  Check VM Log on Grafana  ${id}  ${log_vm}  ${since}  ${True}  Rebuild_test_log
     IF  not ${status}

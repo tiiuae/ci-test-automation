@@ -6,6 +6,7 @@ Library             ../lib/output_parser.py
 Library             Collections
 Library             OperatingSystem
 Library             DateTime
+Library             Process
 Library             String
 
 
@@ -222,15 +223,15 @@ Check VM Log on Grafana
     ...              If expected=nofail, test will not fail in any case but just return the status
     ...              If expected is True or False, test will compare expected and actual result and Fail if not equal
     [Arguments]      ${id}   ${vm}  ${since}=10m  ${expected}=nofail  ${log_entry}=${EMPTY}
-    Set Log Level  NONE
     IF  $log_entry == '${EMPTY}'
-        ${out}    Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --since="${since}" --limit=10 '{machine="${id}", host="${vm}"}' | grep -v ${GRAFANA_LOGS}
+        ${query}      Set Variable    {machine="${id}", host="${vm}"}
     ELSE
-        ${out}    Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --since="${since}" --limit=0 '{machine="${id}", host="${vm}"}' | grep ${log_entry}
+        ${query}      Set Variable    {machine="${id}", host="${vm}"} |= `${log_entry}`
     END
-    Set Log Level  INFO
+    ${out}         Run Grafana Query    ${query}    ${since}
     Log            ${out}
-    ${lines}       Count lines    ${out}
+    ${out}         Strip String    ${out}
+    ${lines}       Get Line Count    ${out}
     ${status}      Run Keyword And Return Status   Should Be True   ${lines} > 0   ${vm} query does not contain logs
     IF  $expected != 'nofail' and $expected != $status
         FAIL    Logs check status is ${status}, but expected ${expected}
@@ -245,17 +246,57 @@ Get logs by key words
     ...                - period - sets a period of time for searching to limit lines, 1 day by default
     ...                - hide_found_data - replace found pattern with a placeholder to hid it robot logs in case of sensitive data
     Set Log Level    NONE
-    ${logs}          Run   logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --since="${period}" --limit="100" '{machine="${device_id}"} |= `${word}`'
-    IF    ${hide_found_data}
-        ${logs}          Replace String    string=${logs}        search_for=${word}        replace_with=<***HIDDEN_SENSITIVE_DATA***>
-    END
-    ${lines}         Split To Lines    ${logs}
-    Remove From List    ${lines}    0    # contains full query including potentially sensitive searched word
-    Set Log Level    INFO
-    ${length}        Get Length   ${lines}
+    ${query}         Set Variable    {machine="${device_id}"} |= `${word}`
+    ${logs}          Run Grafana Query    ${query}    ${period}    hide_found_data=${hide_found_data}    sensitive_word=${word}
+    ${logs}          Strip String    ${logs}
+    ${length}        Get Line Count   ${logs}
     ${status}        Run Keyword And Return Status  Should Be True  ${length} > 0   Logs do not contain searched word
     Log              ${logs}
     RETURN           ${status}    ${logs}
+
+Run Grafana Query
+    [Arguments]      ${query}    ${since}    ${hide_found_data}=${False}    ${sensitive_word}=${EMPTY}
+    Set Log Level    NONE
+    ${stdout}    ${stderr}    ${rc}    Run Raw Grafana Query    ${query}    ${since}
+    IF    ${hide_found_data} and '${sensitive_word}' != '${EMPTY}'
+        ${stdout}        Replace String    string=${stdout}    search_for=${sensitive_word}    replace_with=<***HIDDEN_SENSITIVE_DATA***>
+        ${stderr}        Replace String    string=${stderr}    search_for=${sensitive_word}    replace_with=<***HIDDEN_SENSITIVE_DATA***>
+    END
+    Should Be Equal As Integers    ${rc}    0    Grafana/Loki query failed: ${stderr}
+    ${stdout}        Filter Grafana Query Output    ${stdout}
+    Set Log Level    INFO
+    RETURN           ${stdout}
+
+Run Raw Grafana Query
+    [Arguments]      ${query}    ${since}
+    ${cmd}           Set Variable    logcli query --addr="${GRAFANA_LOGS}" --password="${PASSWORD}" --username="${LOGIN}" --since="${since}" --limit=100 '${query}'
+    ${result}        Run Process    sh    -c    ${cmd}    stdout=PIPE    stderr=PIPE
+    RETURN           ${result.stdout}    ${result.stderr}    ${result.rc}
+
+Skip If Grafana Unreachable
+    [Arguments]      ${since}=5m
+    ${query}         Set Variable    {machine="${device_id}"}
+    ${stdout}    ${stderr}    ${rc}    Run Raw Grafana Query    ${query}    ${since}
+    ${grafana_available}    Evaluate    $rc == 0
+    Skip If          not ${grafana_available}    Grafana/Loki unreachable: ${stderr}
+    Log To Console   Checked grafana server is available
+
+Filter Grafana Query Output
+    [Arguments]      ${output}
+    ${lines}         Split To Lines    ${output}
+    @{filtered}      Create List
+    FOR    ${line}    IN    @{lines}
+        ${line}      Strip String    ${line}
+        IF    '$line' == ''
+            CONTINUE
+        END
+        ${is_query_line}    Run Keyword And Return Status    Should Contain    ${line}    /loki/api/v1/
+        IF    not ${is_query_line}
+            Append To List    ${filtered}    ${line}
+        END
+    END
+    ${cleaned}       Catenate    SEPARATOR=\n    @{filtered}
+    RETURN           ${cleaned}
 
 Get current timestamp
     ${current_time}   DateTime.Get Current Date  UTC  exclude_millis=yes

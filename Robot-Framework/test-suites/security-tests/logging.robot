@@ -71,10 +71,11 @@ Logging Setup
     Switch to vm        ${HOST}
     ${device_id}        Get Actual Device ID
     Set Suite Variable  ${device_id}
+    Skip If Grafana Unreachable
 
 Is password revealed in Grafana
     [Arguments]          ${id}    ${pw}
-    ${data_available}    ${logs}    Get logs by key words   ${id}   hide_found_data=${False}
+    ${data_available}    ${logs}    Get logs by key words   ${id}
     IF  not ${data_available}
         FAIL    Not enough logs for the test.\nCheck if log forwarding is broken.
     END
