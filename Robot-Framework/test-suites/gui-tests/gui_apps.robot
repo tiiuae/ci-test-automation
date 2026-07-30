@@ -125,10 +125,10 @@ Verify Device Information
     ${secure_boot}      Get givc-cli sysinfo field   ${sysinfo}   Secure Boot
     ${disk_encryption}  Get givc-cli sysinfo field   ${sysinfo}   Disk Encryption
 
-    Verify Device Information Field   Ghaf Version       ${ghaf_version}
-    Verify Device Information Field   Device ID          ${device_id}
-    Verify Device Information Field   Secure Boot        ${secure_boot}
-    Verify Device Information Field   Disk Encryption    ${disk_encryption}
+    Run Keyword And Continue On Failure   Verify Device Information Field   Ghaf Version       ${ghaf_version}
+    Run Keyword And Continue On Failure   Verify Device Information Field   Device ID          ${device_id}
+    Run Keyword And Continue On Failure   Verify Device Information Field   Secure Boot        ${secure_boot}
+    Run Keyword And Continue On Failure   Verify Device Information Field   Disk Encryption    ${disk_encryption}
 
 Verify Device Information Field
     [Arguments]    ${field}    ${expected}
