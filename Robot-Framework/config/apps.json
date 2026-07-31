@@ -14,7 +14,7 @@
   "Bluetooth Settings": {
     "display_name": "Bluetooth Settings",
     "VM": "gui-vm",
-    "process_name": "blueman-manager-wrapped-wrapped",
+    "process_name": "blueman-manager-wrapped",
     "close_button": "window-close.png"
   },
   "Calculator": {
