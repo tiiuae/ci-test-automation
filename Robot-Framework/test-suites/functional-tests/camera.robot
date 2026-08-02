@@ -22,15 +22,12 @@ ${VIDEO_DIR}    ${OUTPUT_DIR}/outputs/camera
 *** Test Cases ***
 
 Check Camera in VMs
-    [Documentation]  Check that camera is available in business-vm (for Dell in chrome-vm) and not in other VMs
+    [Documentation]  Check that camera is available in business-vm and not in other VMs
     [Tags]  SP-T235
     @{vms}      Get VM list
     FOR  ${vm}  IN  @{vms}
         Switch to vm        ${vm}
-        IF  '${vm}' == '${BUSINESS_VM}' and "${DEVICE_TYPE}" != "dell-7330"
-            Run Keyword And Continue On Failure   Run Command  ls /dev/ | grep video  sudo=True
-        ELSE IF  '${vm}' == '${CHROME_VM}' and "${DEVICE_TYPE}" == "dell-7330"
-            # Special case for Dell due to SSRCSP-8266
+        IF  '${vm}' == '${BUSINESS_VM}'
             Run Keyword And Continue On Failure   Run Command  ls /dev/ | grep video  sudo=True
         ELSE
             Run Keyword And Continue On Failure   Run Command  ls /dev/ | grep video  sudo=True  rc_match=not_equal  compare_rc=0
@@ -61,6 +58,3 @@ Record Video With Camera
     FOR  ${id}  IN  @{recorded_video_ids}
         Verify Video File  ${id}
     END
-
-    # Can't be tested on Dell because v4l2-ctl is not available in chrome-vm
-    [Teardown]    Run Keyword If  "${DEVICE_TYPE}" == "dell-7330"   Run Keyword If Test Failed   SKIP   "Known issue: SSRCSP-8266"
