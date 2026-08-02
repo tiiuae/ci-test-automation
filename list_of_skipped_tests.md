@@ -24,8 +24,6 @@
 | ---------- | ---------------------------------------------------- | --------------------------------------- |
 | 15.06.2026 | VM memory usage snapshot (Dell 7330)                 | Dell has less memory than other targets |
 | 22.05.2026 | Check logging rate (Dell)                            | SSRCSP-8481                             |
-| 30.03.2026 | Check Camera in VMs (Dell)                           | SSRCSP-8266                             |
-| 30.03.2026 | Check Camera Application (Dell checked in chrome-vm) | SSRCSP-8266                             |
 
 ## TAGs removed
 
