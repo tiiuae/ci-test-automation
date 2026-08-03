@@ -16,6 +16,11 @@ Suite Setup         Suite Setup
 *** Variables ***
 ${port}             5432
 ${BLOCKED_PAGE}     www.instant-gaming.com
+${PING_FLOOD_ATTACK_COUNT}     200
+${PING_FLOOD_INTERVAL}         0.01
+${TCP_SYN_FLOOD_ATTACK_COUNT}  200
+${TCP_SYN_FLOOD_INTERVAL}      0.05
+${TCP_SYN_FLOOD_TIMEOUT}       0.1
 
 
 *** Test Cases ***
@@ -184,7 +189,9 @@ Log journalctl
 Ping Flood Test ${vm}
     Log                Ping flood test targeting ${vm}     console=True
     Switch to vm       ${MEDIA_VM}
-    Run Command        ping -i 0.1 -c 20 ${vm}    sudo=True
+    Run Command
+    ...    ping -i ${PING_FLOOD_INTERVAL} -c ${PING_FLOOD_ATTACK_COUNT} ${vm}
+    ...    sudo=True
     Check And Clear Blacklist   ${vm}
 
 Internal Tcp Syn Flood Test ${vm}
@@ -218,11 +225,19 @@ Check And Clear Blacklist
 
 External Ping Flood NetVM
     [Documentation]    Trigger ICMP flood from the agent towards net-vm interface.
-    ${first_burst}    Run Process    sh   -c   ping -i 0.1 -c 20 ${DEVICE_IP_ADDRESS}   shell=true
+    ${first_burst}    Run Process
+    ...    sh
+    ...    -c
+    ...    ping -i ${PING_FLOOD_INTERVAL} -c ${PING_FLOOD_ATTACK_COUNT} ${DEVICE_IP_ADDRESS}
+    ...    shell=true
     Log               ${first_burst.stdout}
     Should Be Equal As Integers    ${first_burst.rc}    0     No responses to first ping flood, expected at least 1
     Should Contain    ${first_burst.stdout}    bytes from
-    ${second_burst}   Run Process    sh   -c   ping -i 0.1 -c 20 ${DEVICE_IP_ADDRESS}   shell=true
+    ${second_burst}   Run Process
+    ...    sh
+    ...    -c
+    ...    ping -i ${PING_FLOOD_INTERVAL} -c ${PING_FLOOD_ATTACK_COUNT} ${DEVICE_IP_ADDRESS}
+    ...    shell=true
     Log               ${second_burst.stdout}
     Should Contain    ${second_burst.stdout}    0 received    Blacklisting not detected
     Log To Console    Blacklisting triggered successfully by ping flooding
@@ -230,7 +245,7 @@ External Ping Flood NetVM
 Tcp Syn Flood
     [Arguments]        ${target_ip}  ${external}=${True}
     [Documentation]    Flood the target with TCP SYN packets
-    ${flood_cmd}       Set Variable    rc=1; for i in $(seq 1 20); do timeout 0.5s nc -z -w 1 ${target_ip} 22 >/dev/null 2>&1 && rc=0; sleep 0.1; done; echo $rc
+    ${flood_cmd}       Set Variable    rc=1; for i in $(seq 1 ${TCP_SYN_FLOOD_ATTACK_COUNT}); do timeout ${TCP_SYN_FLOOD_TIMEOUT}s nc -z -w 1 ${target_ip} 22 >/dev/null 2>&1 && rc=0; sleep ${TCP_SYN_FLOOD_INTERVAL}; done; echo $rc
     IF  ${external}
         ${rc}   ${output}  Run And Return Rc And Output    ${flood_cmd}
         Should Be Equal As Integers    ${output}    0    No responses to first ping flood, expected at least 1

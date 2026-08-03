@@ -84,8 +84,7 @@ Set Variables
     Set Global Variable  ${MEDIA_VM}           media-vm
     Set Global Variable  ${PERF_LOW_LIMIT}     1
 
-    # Ghaf firewall rules allow max 60 pings per minute
-    Set Global Variable  ${PING_SPACING}   1
+    Set Global Variable  ${PING_SPACING}       1
 
     Set Log Level       NONE
 
