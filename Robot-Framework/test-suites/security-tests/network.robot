@@ -11,6 +11,9 @@ Resource            ../../resources/device_control.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/security_blacklist_keywords.resource
 
+*** Variables ***
+${FAILED_SSH_LOGIN_ATTACK_COUNT}    11
+
 
 *** Test Cases ***
 
@@ -38,7 +41,7 @@ Check OpenSSL3 is Available In Nix Store
 Try External Login With Wrong Password
     [Arguments]     ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=10
     ${connection}   Open Connection    ${DEVICE_IP_ADDRESS}    port=22    prompt=\$    timeout=${timeout}
-    FOR    ${i}    IN RANGE     5
+    FOR    ${i}    IN RANGE     ${FAILED_SSH_LOGIN_ATTACK_COUNT}
         TRY
             Log To Console    Trying to log in with the wrong password
             ${status}  ${login_output}   Run Keyword And Ignore Error  Login with timeout  expected_output=${NET_VM}  username=${user}  password=wrong  timeout=${timeout}
