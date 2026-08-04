@@ -16,11 +16,11 @@ Suite Setup         Suite Setup
 *** Variables ***
 ${port}             5432
 ${BLOCKED_PAGE}     www.instant-gaming.com
-${PING_FLOOD_ATTACK_COUNT}     200
-${PING_FLOOD_INTERVAL}         0.01
-${TCP_SYN_FLOOD_ATTACK_COUNT}  200
-${TCP_SYN_FLOOD_INTERVAL}      0.05
-${TCP_SYN_FLOOD_TIMEOUT}       0.1
+${PING_FLOOD_ATTACK_COUNT}     300
+${PING_FLOOD_INTERVAL}         0.005
+${TCP_SYN_FLOOD_ATTACK_COUNT}  1100
+${TCP_SYN_FLOOD_INTERVAL}      0.0001
+${TCP_SYN_FLOOD_TIMEOUT}       0.005
 
 
 *** Test Cases ***
