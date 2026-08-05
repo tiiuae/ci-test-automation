@@ -66,12 +66,15 @@ Update system time from internet in ${vm}
     Switch to vm              ${vm}
     Block internet traffic
     Set system time           ${wrong_time}
-    Restart timesync daemon
+    IF    "${vm}" != "${NET_VM}"
+        Restart timesync daemon
+    ELSE
+        Restart timesync daemon    chronyd.service
+    END
     Check time was changed    expected_time=None
     Unblock internet traffic
     Check that time is correct
-    [Teardown]  Run Keyword If  "${KEYWORD STATUS}" == 'FAIL'   Unblock internet traffic
-
+    [Teardown]  Run Keyword If  "${KEYWORD STATUS}" == 'FAIL'   Run Keyword  Unblock internet traffic
 
 Stop timesync daemon
     Run Command            systemctl stop systemd-timesyncd.service  sudo=True
@@ -83,8 +86,9 @@ Start timesync daemon
     Run Command            timedatectl -a
 
 Restart timesync daemon
-    Run Command            systemctl restart systemd-timesyncd.service  sudo=True
-    Verify service status  service=systemd-timesyncd.service  expected_state=active  expected_substate=running
+    [Arguments]            ${service_name}=systemd-timesyncd.service
+    Run Command            systemctl restart ${service_name}  sudo=True
+    Verify service status  service=${service_name}  expected_state=active  expected_substate=running
     Run Command            timedatectl -a
 
 Check that time is correct
