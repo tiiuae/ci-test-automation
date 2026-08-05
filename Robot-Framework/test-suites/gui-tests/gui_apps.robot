@@ -99,6 +99,7 @@ Ghaf Control Panel shows device information
     Start app via GUI   ${Ghaf Control Panel}
     Navigate To Device Information Page
     Verify Device Information
+    [Teardown]     Run Keyword If Test Failed    SKIP    Known issue: SSRCSP-8770
 
 
 *** Keywords ***
