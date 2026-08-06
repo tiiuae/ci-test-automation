@@ -25,6 +25,7 @@ Test Teardown       Boot Time Test Teardown
 ${PING_TIMEOUT}            180
 ${SEARCH_TIMEOUT}          60
 ${SHUTDOWN_POWER_LIMIT}    1500
+${SHUTDOWN_VERIFIED}       ${False}
 
 
 *** Test Cases ***
@@ -123,11 +124,12 @@ Get Shutdown Time
     Soft Shutdown Device
     ${start_time_epoch}           DateTime.Get Current Date   result_format=epoch
     ${shutdown_time_epoch}  ${verified_via_serial}    Verify shutdown via serial    open_serial_port=${False}
-    ${shutdown_time}              Evaluate    int(${shutdown_time_epoch}) - int(${start_time_epoch})
-    Log                           Shutdown time measured: ${shutdown_time}   console=True
     IF  not ${verified_via_serial}
         SKIP    Shutdown time verification via serial failed, fell back to 'Verify shutdown via network' which is not accurate.\nSkipping the test.
     END
+    ${shutdown_time}              Evaluate    int(${shutdown_time_epoch}) - int(${start_time_epoch})
+    Log                           Shutdown time measured via Serial output: ${shutdown_time}   console=True
+    Set Suite Variable            ${SHUTDOWN_VERIFIED}    ${True}
     &{final_results}              Create Dictionary
     Set To Dictionary             ${final_results}  shutdown_time  ${shutdown_time}
     IF  ${use_power_measurement}
@@ -246,14 +248,25 @@ Shutdown Time Teardown
     Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
     Sleep  10
     IF  ${IS_LAPTOP}
-        Reboot Laptop
+        IF  not ${SHUTDOWN_VERIFIED}
+            Reboot Laptop
+            Check If Device Is Up    retry=110s
+            IF  ${IS_AVAILABLE} == False
+                Log To Console    Turning device on again...
+                Turn Laptop On
+                Check If Device Is Up    retry=110s
+            END
+        ELSE
+            Turn Laptop On
+            Check If Device Is Up    retry=110s
+        END
     ELSE
         Reboot Orin
-    END
-    Check If Device Is Up    retry=110s
-    IF  ${IS_AVAILABLE} == False
-        Log To Console    Turning device on again...
-        Turn Laptop On
-        Check If Device Is Up    retry=110s
+        IF  "orin-agx" in "${DEVICE_TYPE}"
+            # Known issue SSRCSP-8704
+            Check If Device Is Up   retry=230s
+        ELSE
+            Check If Device Is Up   retry=140s
+        END
     END
     Connect After Reboot
