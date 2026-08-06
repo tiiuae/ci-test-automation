@@ -41,12 +41,6 @@ Measure Shutdown Time
     Get Shutdown Time
     [Teardown]       Shutdown Time Teardown
 
-Measure Shutdown Time By Power
-    [Documentation]  Measure Lenovo-X1 shutdown time until power drops below ${SHUTDOWN_POWER_LIMIT}mW
-    [Tags]           SP-T83  SP-T83-2  lenovo-x1  lab-only
-    Get Shutdown Time By Power
-    [Teardown]       Shutdown Time Teardown
-
 Measure Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
     [Tags]           SP-T182  SP-T182-1  lenovo-x1  darter-pro  dell-7330  lab-only
@@ -118,6 +112,14 @@ Get Shutdown Time
     IF  not ${status}
         Skip    Failed to connect via serial
     END
+    ${use_power_measurement}      Set Variable    ${False}
+    ${availability}               Check variable availability  RPI_IP_ADDRESS
+    IF  ${availability}
+        Start power measurement   ${BUILD_ID}_shutdown   timeout=300
+        IF  $SSH_MEASUREMENT!='${EMPTY}'
+            ${use_power_measurement}    Set Variable    ${True}
+        END
+    END
     Soft Shutdown Device
     ${start_time_epoch}           DateTime.Get Current Date   result_format=epoch
     ${shutdown_time_epoch}  ${verified_via_serial}    Verify shutdown via serial    open_serial_port=${False}
@@ -128,35 +130,27 @@ Get Shutdown Time
     END
     &{final_results}              Create Dictionary
     Set To Dictionary             ${final_results}  shutdown_time  ${shutdown_time}
+    IF  ${use_power_measurement}
+        ${shutdown_time_power_epoch}    Wait Until Power Is Low     ${BUILD_ID}_shutdown
+        ${shutdown_time_power}          Evaluate
+        ...                             int(${shutdown_time_power_epoch}) - int(${start_time_epoch})
+        Log                             Shutdown time by power measured: ${shutdown_time_power}   console=True
+        Set To Dictionary               ${final_results}  shutdown_time_power  ${shutdown_time_power}
+    END
     Check Result Validity         ${final_results}
     &{statistics}                 Save Boot time Data   ${TEST NAME}  ${final_results}
+    IF  ${use_power_measurement}
+        Sleep                     5
+        Generate power plot       ${BUILD_ID}_shutdown   ${TEST NAME}
+        Stop recording power
+    END
     Log  <img src="${DEVICE}_${TEST NAME}.png" alt="${plot_name}" width="1200">    HTML
     Determine Test Status         ${statistics}  inverted=1
-
-Get Shutdown Time By Power
-    [Arguments]  ${plot_name}=Shutdown Times
-    ${availability}              Check variable availability  RPI_IP_ADDRESS
-    IF  ${availability}==False
-        SKIP    Power measurement agent IP address not defined. Skipping the test
+    IF  ${use_power_measurement}
+        ${measurement_diff}      Evaluate    abs(${shutdown_time_power} - ${shutdown_time})
+        Should Be True           ${measurement_diff} <= 10
+        ...                      msg=Shutdown time by power differs ${measurement_diff} sec from serial, expected <= 10 sec
     END
-    Start power measurement       ${BUILD_ID}_shutdown   timeout=300
-    IF  $SSH_MEASUREMENT=='${EMPTY}'
-        SKIP    Failed to connect to power measurement agent. Skipping the test
-    END
-    Soft Shutdown Device
-    ${start_time_epoch}           DateTime.Get Current Date   result_format=epoch
-    ${shutdown_time_epoch}        Wait Until Power Is Low     ${BUILD_ID}_shutdown
-    ${shutdown_time}              Evaluate
-    ...                           int(${shutdown_time_epoch}) - int(${start_time_epoch})
-    Log                           Shutdown time measured: ${shutdown_time}   console=True
-    &{final_results}              Create Dictionary
-    Set To Dictionary             ${final_results}  shutdown_time  ${shutdown_time}
-    Check Result Validity         ${final_results}
-    &{statistics}                 Save Boot time Data   ${TEST NAME}  ${final_results}
-    Generate power plot           ${BUILD_ID}_shutdown   ${TEST NAME}
-    Stop recording power
-    Log  <img src="${DEVICE}_${TEST NAME}.png" alt="${plot_name}" width="1200">    HTML
-    Determine Test Status         ${statistics}  inverted=1
 
 Get Boot times
     [Documentation]  Collect boot times from device

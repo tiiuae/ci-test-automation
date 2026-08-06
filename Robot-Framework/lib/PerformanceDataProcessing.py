@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import csv
+import math
 import os
 import shutil
 import pandas
@@ -773,6 +774,7 @@ class PerformanceDataProcessing:
             data = {
                     'commit': [],
                     'shutdown_time': [],
+                    'shutdown_time_power': [],
                     }
         # Omit time_to_desktop for Orin boot tests
         elif 'Orin' in test_name:
@@ -801,14 +803,26 @@ class PerformanceDataProcessing:
         plt.set_loglevel('WARNING')
 
         if 'Shutdown' in test_name:
+            while len(data['shutdown_time_power']) < len(data['commit']):
+                data['shutdown_time_power'].append(float('nan'))
             plt.ticklabel_format(axis='y', style='plain')
-            plt.plot(data['commit'], data['shutdown_time'], marker='o', linestyle='-', color='b')
+            plt.plot(data['commit'], data['shutdown_time'], marker='o', linestyle='-', color='b', label='Serial')
             self.plot_marginals_and_deviations(data['commit'], statistics, 40)
+            if any(not math.isnan(value) for value in data['shutdown_time_power']):
+                plt.plot(
+                    data['commit'],
+                    data['shutdown_time_power'],
+                    marker='o',
+                    linestyle='-',
+                    color='g',
+                    label='Power'
+                )
             plt.yticks(fontsize=14)
             plt.title('Shutdown time', loc='right', fontweight="bold", fontsize=16)
             plt.ylabel('seconds', fontsize=12)
             plt.grid(True)
             plt.xticks(data['commit'], rotation=90, fontsize=10)
+            plt.legend()
             plt.suptitle(
                 f'{test_name}\nBuild type: {self.build_type}, Device: {self.device}\nThreshold {threshold}',
                 fontsize=18,
