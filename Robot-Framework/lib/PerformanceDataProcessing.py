@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import csv
+import math
 import os
 import shutil
 import pandas
@@ -767,11 +768,16 @@ class PerformanceDataProcessing:
     @keyword("Read Bootime CSV and Plot")
     def read_bootime_csv_and_plot(self, test_name):
 
+        if 'Shutdown' in test_name:
+            threshold = [thresholds['shutdown_time']]
+            monitored_values = ['shutdown_time']
+            data = {
+                    'commit': [],
+                    'shutdown_time': [],
+                    'shutdown_time_power': [],
+                    }
         # Omit time_to_desktop for Orin boot tests
-        threshold = {'time_to_desktop': thresholds['boot_time']['time_to_desktop'],
-                     'response_to_ping': thresholds['boot_time']['response_to_ping']}
-        monitored_values = ['time_to_desktop', 'response_to_ping']
-        if 'Orin' in test_name:
+        elif 'Orin' in test_name:
             threshold = [thresholds['boot_time']['response_to_ping']]
             monitored_values = ['response_to_ping']
             data = {
@@ -779,6 +785,9 @@ class PerformanceDataProcessing:
                     'response_to_ping':[],
                     }
         else:
+            threshold = {'time_to_desktop': thresholds['boot_time']['time_to_desktop'],
+                         'response_to_ping': thresholds['boot_time']['response_to_ping']}
+            monitored_values = ['time_to_desktop', 'response_to_ping']
             data = {
                 'commit': [],
                 'time_to_desktop': [],
@@ -792,6 +801,36 @@ class PerformanceDataProcessing:
 
         plt.figure(figsize=(20, 10))
         plt.set_loglevel('WARNING')
+
+        if 'Shutdown' in test_name:
+            while len(data['shutdown_time_power']) < len(data['commit']):
+                data['shutdown_time_power'].append(float('nan'))
+            plt.ticklabel_format(axis='y', style='plain')
+            plt.plot(data['commit'], data['shutdown_time'], marker='o', linestyle='-', color='b', label='Serial')
+            self.plot_marginals_and_deviations(data['commit'], statistics, 40)
+            if any(not math.isnan(value) for value in data['shutdown_time_power']):
+                plt.plot(
+                    data['commit'],
+                    data['shutdown_time_power'],
+                    marker='o',
+                    linestyle='-',
+                    color='g',
+                    label='Power'
+                )
+            plt.yticks(fontsize=14)
+            plt.title('Shutdown time', loc='right', fontweight="bold", fontsize=16)
+            plt.ylabel('seconds', fontsize=12)
+            plt.grid(True)
+            plt.xticks(data['commit'], rotation=90, fontsize=10)
+            plt.legend()
+            plt.suptitle(
+                f'{test_name}\nBuild type: {self.build_type}, Device: {self.device}\nThreshold {threshold}',
+                fontsize=18,
+                fontweight='bold'
+            )
+            plt.tight_layout()
+            plt.savefig(self.plot_dir + f'{self.device}_{test_name}.png')
+            return return_statistics
 
         plt.subplot(2, 1, 1)
         plt.ticklabel_format(axis='y', style='plain')
