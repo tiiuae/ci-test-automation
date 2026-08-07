@@ -132,6 +132,7 @@ Get Shutdown Time
     Set Suite Variable            ${SHUTDOWN_VERIFIED}    ${True}
     &{final_results}              Create Dictionary
     Set To Dictionary             ${final_results}  shutdown_time  ${shutdown_time}
+    Set To Dictionary             ${final_results}  shutdown_time_power  ${nan}
     IF  ${use_power_measurement}
         ${shutdown_time_power_epoch}    Wait Until Power Is Low     ${BUILD_ID}_shutdown
         ${shutdown_time_power}          Evaluate
