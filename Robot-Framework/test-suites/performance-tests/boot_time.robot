@@ -134,7 +134,7 @@ Get Shutdown Time
     Set To Dictionary             ${final_results}  shutdown_time  ${shutdown_time}
     Set To Dictionary             ${final_results}  shutdown_time_power  ${nan}
     IF  ${use_power_measurement}
-        ${shutdown_time_power_epoch}    Wait Until Power Is Low     ${BUILD_ID}_shutdown
+        ${shutdown_time_power_epoch}    Detect when power went low   ${BUILD_ID}_shutdown
         ${shutdown_time_power}          Evaluate
         ...                             int(${shutdown_time_power_epoch}) - int(${start_time_epoch})
         Log                             Shutdown time by power measured: ${shutdown_time_power}   console=True
@@ -201,6 +201,9 @@ Check Time To Notification
 Check Result Validity
     [Arguments]      ${captured_results}
     FOR  ${key}  ${value}  IN  &{captured_results}
+         IF  '${value}' == 'nan'
+             CONTINUE
+         END
          Should Be True  ${value} > 0
     END
 
@@ -224,12 +227,43 @@ Wait Until Power Is Low
             ...               ${measurement_id}  ${start_time}  ${end_time}
             Log               Measured power: ${mean_power}mW   console=True
             IF  ${mean_power} < ${SHUTDOWN_POWER_LIMIT}
-                RETURN        ${end_time_epoch}
+                RETURN        ${end_time}    ${end_time_epoch}
             END
         EXCEPT
             Log    Ignoring invalid measured power sample    console=True
         END
         Sleep  0.5
+    END
+
+Detect when power went low
+    [Documentation]       Detect the moment of power off more accurately by iterating backwards
+    [Arguments]           ${measurement_id}
+    ${coarse_end_time}    ${coarse_end_epoch}    Wait Until Power Is Low    ${measurement_id}
+    ${scan_interval}      Set Variable    2
+    ${step_back}          Set Variable    1
+    ${last_low_power_time}   Set Variable    ${coarse_end_time}
+    ${last_low_power_epoch}  Set Variable    ${coarse_end_epoch}
+    ${scan_end_time}      Set Variable    ${coarse_end_time}
+    ${scan_end_epoch}     Set Variable    ${coarse_end_epoch}
+    WHILE  True   limit=60 seconds
+        ${scan_start_time}    DateTime.Add Time To Date   ${scan_end_time}   -${scan_interval} seconds
+        ...                   exclude_millis=yes
+        TRY
+            ${mean_power}     Calculate average power over interval
+            ...               ${measurement_id}  ${scan_start_time}  ${scan_end_time}
+            Log               Backward scan power: ${mean_power}mW   console=True
+            IF  ${mean_power} < ${SHUTDOWN_POWER_LIMIT}
+                ${last_low_power_time}   Set Variable    ${scan_end_time}
+                ${last_low_power_epoch}  Set Variable    ${scan_end_epoch}
+                ${scan_end_time}      DateTime.Add Time To Date   ${scan_end_time}   -${step_back} seconds
+                ...                   exclude_millis=yes
+                ${scan_end_epoch}     Evaluate    int(${scan_end_epoch}) - int(${step_back})
+            ELSE
+                RETURN                 ${last_low_power_epoch}
+            END
+        EXCEPT
+            RETURN                     ${last_low_power_epoch}
+        END
     END
 
 Boot Time Test Teardown
