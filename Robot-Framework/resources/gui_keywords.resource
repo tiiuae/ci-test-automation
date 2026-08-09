@@ -224,10 +224,25 @@ Wiggle cursor
     Run ydotool command   mousemove -- -1 -1
 
 Verify desktop availability
-    [Documentation]   Check that launcher icon is available on desktop
+    [Documentation]   Check that the app library button is available on the desktop.
+    ...
+    ...               Accepts either the label or the icon, because which one exists
+    ...               depends on the COSMIC version. From epoch 1.5 the top panel draws
+    ...               CosmicPanelAppButton as the text "Applications", and the only place
+    ...               the app-library icon still appears is the dock -- which autohides,
+    ...               so it is absent from most screenshots.
+    ...
+    ...               The label is tried first and the icon kept as a fallback, so this
+    ...               still works on COSMIC 1.2 and on any rig whose dock is pinned open.
     [Arguments]       ${iterations}=30
-    Log To Console    Verifying login by trying to detect the launcher icon
-    Locate on screen  image  ${APP_MENU_LAUNCHER}  0.95  ${iterations}
+    Log To Console    Verifying login by trying to detect the app library button
+    ${label_found}    Run Keyword And Return Status
+    ...               Locate on screen   type=text   searched_item=Applications
+    ...               iterations=${iterations}   debug_screenshot=False
+    IF  not ${label_found}
+        Log To Console    App library label not found, falling back to the icon
+        Locate on screen  image  ${APP_MENU_LAUNCHER}  0.95  ${iterations}
+    END
 
 Verify login session
     [Documentation]   Confirm that the given user has an active login session on a seat
