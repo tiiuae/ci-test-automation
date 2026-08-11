@@ -11,6 +11,7 @@ Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/update_keywords.resource
 
+Suite Setup         Update Setup
 Test Teardown       Roll back to original generation
 Test Timeout        15 minutes
 
@@ -32,22 +33,25 @@ Update via givc-cli
 
 *** Keywords ***
 
+Update Setup
+    Set Suite Variable    ${RELEASE_NAME}    intel-laptop-debug
+    Switch to vm          ${HOST}
+    Compare current with cachix revision
+
 Update with
     [Arguments]           ${update_method}
-    ${release_name}       Set Variable    intel-laptop-debug
     Switch to vm          ${HOST}
-    Compare current with cachix revision    ${release_name}
     # Get bootloader generations
     ${gen_before}         Get current generation
     Log                   Generation before update: ${gen_before}    console=True
     Set Suite Variable    ${gen_before}
     Log To Console        Updating...
     IF  "${update_method}"=="ota-update"
-        ${output}             Run Command  ota-update cachix --cache ghaf-release ${release_name}  sudo=True   timeout=600
+        ${output}             Run Command  ota-update cachix --cache ghaf-release ${RELEASE_NAME}  sudo=True   timeout=600
         Should Not Contain    ${output}  Error
     ELSE IF  "${update_method}"=="givc-cli"
         Switch to vm          ${GUI_VM}
-        ${output}             Run Command  givc-cli update cachix --cache ghaf-release ${release_name}  sudo=True   timeout=600
+        ${output}             Run Command  givc-cli update cachix --cache ghaf-release ${RELEASE_NAME}  sudo=True   timeout=600
         Should Not Contain    ${output}  Error
         Switch to vm          ${HOST}
     ELSE
@@ -62,9 +66,8 @@ Update with
 
 Compare current with cachix revision
     [Documentation]  Make sure that pinned cachix revision differs from current running ghaf version.
-    [Arguments]      ${release_name}
     ${current_rev}  Run Command  readlink -f /run/current-system
-    ${cachix_rev}   Run Command  nix-shell -p jq --run "curl -sL https://cachix.org/api/v1/cache/ghaf-release/pin | jq -r '.[] | select(.name==\\"${release_name}\\") | .lastRevision.storePath'"
+    ${cachix_rev}   Run Command  nix-shell -p jq --run "curl -sL https://cachix.org/api/v1/cache/ghaf-release/pin | jq -r '.[] | select(.name==\\"${RELEASE_NAME}\\") | .lastRevision.storePath'"
     IF  $current_rev == $cachix_rev
         SKIP    Identical ghaf revision pinned in cachix. Nothing to update.
     END
