@@ -275,9 +275,11 @@ Run Raw Grafana Query
 
 Skip If Grafana Unreachable
     [Arguments]      ${since}=5m
+    Set Log Level    NONE
     ${query}         Set Variable    {machine="${device_id}"}
     ${stdout}    ${stderr}    ${rc}    Run Raw Grafana Query    ${query}    ${since}
     ${grafana_available}    Evaluate    $rc == 0
+    Set Log Level    INFO
     Skip If          not ${grafana_available}    Grafana/Loki unreachable: ${stderr}
     Log To Console   Checked grafana server is available
 
