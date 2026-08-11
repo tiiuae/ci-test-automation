@@ -172,7 +172,7 @@ Wait Until Device Is Down
             ${time}   Verify shutdown via network
         END
     ELSE
-        ${time}  ${verified_via_network}   Verify shutdown via serial
+        ${time}  ${verified_via_serial}   Verify shutdown via serial
     END
     RETURN    ${time}
 

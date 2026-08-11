@@ -196,63 +196,79 @@ Verify shutdown via serial
     ...               Works only in case of Shutdown (not reboot)
     ...               If indicator text is not found fallback to Verify shutdown via network
     [Arguments]       ${open_serial_port}=${True}  ${empty_output_timeout}=10  ${loop_timeout}=180
+    ${status}         Open serial connection for shutdown monitoring    ${open_serial_port}
     ${verified_via_serial}    Set Variable    ${False}
-    Log               Wait until shutdown via serial    console=True
-    IF  ${open_serial_port}
-        ${status}         Open Serial Port
-    ELSE
-        ${status}         Set Variable    ${True}
-    END
     IF    ${status}
-        IF  ${IS_LAPTOP}
-            ${shutdown_indicator}    Set Variable    System Power Off
-        ELSE
-            ${shutdown_indicator}    Set Variable    Shutting dow
-        END
-        ${empty_output}    Set Variable    ${False}
-        ${serial_output_log}    Set Variable    ${EMPTY}
-        ${loop_start}      Get Time        epoch
-        WHILE  True
-            ${output}    SerialLibrary.Read All Data
-            IF  $output != '${EMPTY}'
-                ${empty_output}     Set Variable    ${False}
-                ${clean_output}     Normalize Serial Output    ${output}
-                ${serial_output_log}    Catenate    SEPARATOR=
-                ...    ${serial_output_log}
-                ...    ${clean_output}
-            ELSE
-                IF  not ${empty_output}
-                    ${empty_output}    Set Variable    ${True}
-                    ${serial_empty_since}    Get Time  epoch
-                END
-                ${diff}=    Evaluate    int(time.time()) - int(${serial_empty_since})
-                IF  ${diff} > ${empty_output_timeout}
-                    BREAK
-                END
-            END
-            IF  "${shutdown_indicator}" in $serial_output_log
-                Log    Found "${shutdown_indicator}" in serial output    console=True
-                ${verified_via_serial}    Set Variable    ${True}
-                BREAK
-            END
-            ${diff}=    Evaluate    int(time.time()) - int(${loop_start})
-            IF  ${diff} > ${loop_timeout}
-                BREAK
-            END
-            Sleep  0.3
-        END
-        Log    ${serial_output_log}
+        ${shutdown_indicator}    Get shutdown indicator
+        ${verified_via_serial}   Wait for shutdown via serial  ${shutdown_indicator}  ${empty_output_timeout}  ${loop_timeout}
         IF  not ${verified_via_serial}
             Log    Could not find "${shutdown_indicator}" in serial output of ${DEVICE}    console=True
+            Log To Console    Fallback verifying shutdown via network
             Verify shutdown via network
         END
     ELSE
+        Log To Console    No serial connection. Verifying shutdown via network.
         Verify shutdown via network
     END
     ${time}           BuiltIn.Get Time   epoch
     RETURN            ${time}    ${verified_via_serial}
     [Teardown]    Run Keywords    Delete All Ports    AND
     ...           Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
+
+Open serial connection for shutdown monitoring
+    [Arguments]    ${open_serial_port}
+    IF  ${open_serial_port}
+        ${status}    Open Serial Port
+    ELSE
+        ${status}    Set Variable    ${True}
+    END
+    RETURN    ${status}
+
+Get shutdown indicator
+    IF  ${IS_LAPTOP}
+        ${shutdown_indicator}    Set Variable    System Power Off
+    ELSE
+        ${shutdown_indicator}    Set Variable    Shutting dow
+    END
+    RETURN    ${shutdown_indicator}
+
+Wait for shutdown via serial
+    [Arguments]    ${shutdown_indicator}    ${empty_output_timeout}    ${loop_timeout}
+    ${empty_output}    Set Variable    ${False}
+    ${serial_output_log}    Set Variable    ${EMPTY}
+    ${loop_start}      Get Time        epoch
+    Log                Wait until detecting shutdown indicator via serial    console=True
+    WHILE  True
+        ${output}    SerialLibrary.Read All Data
+        IF  $output != '${EMPTY}'
+            ${empty_output}     Set Variable    ${False}
+            ${clean_output}     Normalize Serial Output    ${output}
+            ${serial_output_log}    Catenate    SEPARATOR=
+            ...    ${serial_output_log}
+            ...    ${clean_output}
+        ELSE
+            IF  not ${empty_output}
+                ${empty_output}    Set Variable    ${True}
+                ${serial_empty_since}    Get Time  epoch
+            END
+            ${diff}=    Evaluate    int(time.time()) - int(${serial_empty_since})
+            IF  ${diff} > ${empty_output_timeout}
+                BREAK
+            END
+        END
+        IF  "${shutdown_indicator}" in $serial_output_log
+            Log    Found "${shutdown_indicator}" in serial output    console=True
+            Log    ${serial_output_log}
+            RETURN    ${True}
+        END
+        ${diff}=    Evaluate    int(time.time()) - int(${loop_start})
+        IF  ${diff} > ${loop_timeout}
+            BREAK
+        END
+        Sleep  0.3
+    END
+    Log    ${serial_output_log}
+    RETURN    ${False}
 
 Run Command On Serial
     [Documentation]    Run a host command on the serial console and wait for the shell prompt.
