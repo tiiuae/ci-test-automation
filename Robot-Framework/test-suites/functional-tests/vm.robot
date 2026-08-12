@@ -27,6 +27,7 @@ Suite Setup         VM Suite Setup
              ...    ANY|ANY|journal-fss-setup.service|SSRCSP-8775
              ...    ANY|net-vm|nw-packet-forwarder.service|SSRCSP-8791
              ...    ANY|net-vm|smcroute.service|SSRCSP-8791
+             ...    orin-nx|gpu-vm|gpu-partition-manager.service|SSRCSP-8792
 
 # Container for test message. Keyword `Set Test Message` doesn't work properly with Templates.
 # Accumulates messages from tests that use 'Check systemctl status Template' to be added to the main test message in teardown
