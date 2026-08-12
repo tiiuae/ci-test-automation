@@ -99,7 +99,7 @@ Ghaf Control Panel shows device information
     Start app via GUI   ${Ghaf Control Panel}
     Navigate To Device Information Page
     Verify Device Information
-    [Teardown]     Run Keyword If Test Failed    SKIP    Known issue: SSRCSP-8770
+    [Teardown]     Ghaf Control Panel Test Teardown
 
 
 *** Keywords ***
@@ -130,6 +130,12 @@ Verify Device Information
     Run Keyword And Continue On Failure   Verify Device Information Field   Device ID          ${device_id}
     Run Keyword And Continue On Failure   Verify Device Information Field   Secure Boot        ${secure_boot}
     Run Keyword And Continue On Failure   Verify Device Information Field   Disk Encryption    ${disk_encryption}
+
+Ghaf Control Panel Test Teardown
+    Kill App in VM                 ${Ghaf Control Panel}    require_exists=False
+    Switch to vm                   ${GUI_VM}    user=${USER_LOGIN}
+    Stop screen recording          ${TEST_STATUS}   ${TEST_NAME}
+    Run Keyword If Test Failed     SKIP    Known issue: SSRCSP-8770
 
 Verify Device Information Field
     [Arguments]    ${field}    ${expected}
