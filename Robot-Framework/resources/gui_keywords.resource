@@ -422,7 +422,11 @@ Kill Initial Setup
         Run Keyword and Ignore Error     Check that App is running in VM   ${Cosmic Initial Setup}   range=5
         # Wait until Ghaf theme is applied, this does not happen if initial setup is killed too fast
         Wait Until Keyword Succeeds   10s   0.5s   Check file exists   .config/cosmic/com.system76.CosmicTheme*
-        Sleep    1
+        IF    "storeDisk-debug-installer" in "${JOB}"
+            Sleep    3
+        ELSE
+            Sleep    1
+        END
         # Kill the initial setup so that it does not interfere with tests
         Kill process by name   ${Cosmic Initial Setup}[process_name]   sudo=False   require_exists=False
     END
