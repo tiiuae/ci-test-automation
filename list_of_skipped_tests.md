@@ -3,7 +3,7 @@
 ## Active SKIPS
 
 | DATE SET   | TEST CASE                                                  | TICKET / Additional Data                                                | Error Log Context        |
-|------------|------------------------------------------------------------|-------------------------------------------------------------------------|--------------------------|
+| ---------- | ---------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------ |
 | 06.08.2026 | Alloy and stunnel services are running in admin-vm (Orins) | SSRCSP-8773                                                             | (fails often)            |
 | 05.08.2026 | Check Grafana log forwarding after disconnected state      | SSRCSP-7612                                                             | (fails often)            |
 | 05.08.2026 | Ghaf Control Panel shows device information                | SSRCSP-8770 (GUI shows "unknown")                                       | (fails most of the time) |
@@ -23,10 +23,10 @@
 
 ## Old Dell 7330 skips
 
-| DATE SET   | TEST CASE                                            | TICKET / Additional Data                |
-| ---------- | ---------------------------------------------------- | --------------------------------------- |
-| 15.06.2026 | VM memory usage snapshot (Dell 7330)                 | Dell has less memory than other targets |
-| 22.05.2026 | Check logging rate (Dell)                            | SSRCSP-8481                             |
+| DATE SET   | TEST CASE                            | TICKET / Additional Data                |
+| ---------- | ------------------------------------ | --------------------------------------- |
+| 15.06.2026 | VM memory usage snapshot (Dell 7330) | Dell has less memory than other targets |
+| 22.05.2026 | Check logging rate (Dell)            | SSRCSP-8481                             |
 
 ## TAGs removed
 
@@ -40,11 +40,10 @@
 ## Workarounds
 
 | DATE SET   | TEST CASE / KEYWORD                   | TICKET / Additional Data                                                                               | Error Log Context       |
-|------------|---------------------------------------|--------------------------------------------------------------------------------------------------------| ----------------------- |
+| ---------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------- |
 | 13.08.2026 | Kill Initial Setup                    | Additional time for storeDisk because probably Ghaf Theme had not enough time to be applied            |                         |
 | 17.07.2026 | Log out with loginctl                 | Log out all testuser sessions if the are many on seat (controlling the screen) (probably a Cosmic bug) |                         |
 | 15.07.2026 | Verify booting after restart by power | SSRCSP-8704, extra 90 seconds added for AGX boot                                                       |                         |
-| 14.07.2026 | Connect After Reboot                  | SSRCSP-8701, extra 30 seconds added for Orins                                                          |                         |
 | 30.06.2026 | Unlock account and login              | Try to login twice after unlocking, first login after unlocking the account fails                      |                         |
 | 22.06.2026 | Set RTC time                          | SSRCSP-8622, separate command for Lenovo X1                                                            |                         |
 | 17.06.2026 | Verify service status                 | SSRCSP-8662, welcome check disabled                                                                    | (Failing part skipped)  |

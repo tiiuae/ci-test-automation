@@ -150,9 +150,6 @@ Connect After Reboot
             IF   ${IS_AVAILABLE} == True and "${CONNECTION_TYPE}" == "ssh"   BREAK
         END
         Check If Device Is Available   retry=5x    action=reboot
-    ELSE IF   "orin" in "${DEVICE_TYPE}"
-        # Workaround for SSRCSP-8701
-        Check If Device Is Available   retry=120s   action=reboot
     ELSE
         Check If Device Is Available   retry=60s   action=reboot
     END
