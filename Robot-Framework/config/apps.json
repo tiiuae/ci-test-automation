@@ -32,7 +32,7 @@
   "COSMIC Files": {
     "display_name": "COSMIC Files",
     "VM": "gui-vm",
-    "process_name": "^cosmic-files$",
+    "process_name": "^cosmic-files( |$)",
     "close_button": "ghaf-close.png"
   },
   "Cosmic Initial Setup": {

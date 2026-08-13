@@ -101,6 +101,18 @@ Ghaf Control Panel shows device information
     Verify Device Information
     [Teardown]     Ghaf Control Panel Test Teardown
 
+Take a screenshot via Print Screen
+    [Documentation]   Open screenshot tool with PrtSc, take a screenshot with Enter, and verify the image was saved to Pictures
+    [Tags]            SP-T171
+    Set Test Variable   ${screenshots_dir}    /home/${USER_LOGIN}/Pictures/Screenshots
+    Open Screenshots Folder In COSMIC Files
+    ${expected_screenshot_pattern}    Take Screenshot With Print Screen
+    ${screenshot}    Wait Until Keyword Succeeds    5x    1s    Get Saved Screenshot    ${expected_screenshot_pattern}
+    Verify Saved Screenshot Contains Text    ${screenshot}    Screenshots
+    [Teardown]   Run Keywords   Remove file    ${screenshot}
+    ...    AND   Kill App in VM   ${COSMIC Files}
+    ...    AND   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+
 
 *** Keywords ***
 
@@ -149,6 +161,33 @@ Get givc-cli sysinfo field
     ${matches}     Get Regexp Matches    ${output}    (?m)^${field}:\\s*(\\S(?:.*\\S)?)\\s*$    1
     Should Not Be Empty    ${matches}    Could not find ${field} in givc-cli sysinfo output:\n${output}
     RETURN         ${matches}[0]
+
+Open Screenshots Folder In COSMIC Files
+    Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+    Run Command     mkdir -p ${screenshots_dir}
+    Start App in VM    ${COSMIC Files}    always_check_vm=True    params_string=-- ${screenshots_dir}
+    Locate on screen   text    Screenshots    iterations=10    scale=2
+    Move cursor to corner
+
+Take Screenshot With Print Screen
+    Press Key(s)       PRINT
+    Sleep              1
+    ${expected_screenshot_pattern}    Run Command    date '+Screenshot_%F_%H-%M-[0-9][0-9].png'
+    Press Key(s)       ENTER
+    RETURN             ${expected_screenshot_pattern}
+
+Get Saved Screenshot
+    [Arguments]    ${expected_screenshot_pattern}
+    ${screenshot}    Run Command    ls -t ${screenshots_dir}/${expected_screenshot_pattern} | head -n 1
+    Should Not Be Empty    ${screenshot}
+    ...    New screenshot matching ${expected_screenshot_pattern} was not created under ${screenshots_dir}.
+    RETURN    ${screenshot}
+
+Verify Saved Screenshot Contains Text
+    [Arguments]    ${screenshot}    ${text}
+    ${local_screenshot}    Set Variable    ${GUI_OUTPUT_DIR}/saved_screenshot.png
+    SSHLibrary.Get File    ${screenshot}    ${local_screenshot}
+    Locate text    ${local_screenshot}    ${text}    scale=2
 
 Save current document from COSMIC Text Editor to Shares
     [Arguments]      ${file_name}
