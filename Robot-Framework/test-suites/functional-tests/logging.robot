@@ -53,33 +53,6 @@ Alloy and stunnel services are running in admin-vm
     [Teardown]    Run Keywords    Reboot Orin if ssh connection dropped
     ...           AND             Run Keyword If Test Failed    Skip If    "alloy.service: inactive" in $TEST_MESSAGE    Known issue: SSRCSP-8773
 
-Check Grafana logs
-    [Documentation]  Check that all virtual machines are sending logs to Grafana
-    [Tags]           SP-T172
-    Switch to vm       ${ADMIN_VM}
-    Check Network Availability    8.8.8.8   limit_freq=${False}
-    ${id}              Get Actual Device ID
-    Set Suite Variable  ${device_id}    ${id}
-    Skip If Grafana Unreachable
-    Run Keyword And Continue On Failure   Create logs in all VMs
-    Sleep              5
-    ${failed_vms_check_1}   Check Logs Are Available   ${id}  since=3m  word=${TEST_LOG}
-    ${check_status}         Run Keyword And Return Status    Should Be Empty   ${failed_vms_check_1}
-    IF  not ${check_status}
-        Run Keyword And Ignore Error   Save logging logs from VMs    ${failed_vms_check_1}
-        ${since_boot}  Get Time Since Last Boot
-        ${failed_vms_check_2}   Check Logs Are available   ${id}   since=${since_boot}s
-        ${check_status}         Run Keyword And Return Status    Should Be Empty   ${failed_vms_check_2}
-        IF  ${check_status}
-            ${fail_msg}=    Catenate    SEPARATOR=\n
-            ...    Log forwarding stopped for these VMs: ${failed_vms_check_1}
-            ...    Verified that log forwarding was working some time after boot for all VMs
-            FAIL   ${fail_msg}
-        ELSE
-            FAIL   Failed to find any logs since last boot for one or more VMs.\nVMs missing all logs since last boot: ${failed_vms_check_2}
-        END
-    END
-
 Check logging rate
     [Documentation]    Check that host or vms are not creating too much logs
     [Tags]             SP-T359  log_rate
@@ -178,6 +151,33 @@ Validate Forward Secure Sealing
     ${failed_vm_msg}   Catenate   SEPARATOR=,    @{failed_vms}
     [Teardown]  Run Keyword If Test Failed   Run Keywords    Log Error    FSS test failed    FSS test failed in VMs: ${failed_vm_msg}
     ...                                               AND    SKIP   Known issue: SSRCSP-8425
+
+Check Grafana logs
+    [Documentation]  Check that all virtual machines are sending logs to Grafana
+    [Tags]           SP-T172
+    Switch to vm       ${ADMIN_VM}
+    Check Network Availability    8.8.8.8   limit_freq=${False}
+    ${id}              Get Actual Device ID
+    Set Suite Variable  ${device_id}    ${id}
+    Skip If Grafana Unreachable
+    Run Keyword And Continue On Failure   Create logs in all VMs
+    Sleep              5
+    ${failed_vms_check_1}   Check Logs Are Available   ${id}  since=3m  word=${TEST_LOG}
+    ${check_status}         Run Keyword And Return Status    Should Be Empty   ${failed_vms_check_1}
+    IF  not ${check_status}
+        Run Keyword And Ignore Error   Save logging logs from VMs    ${failed_vms_check_1}
+        ${since_boot}  Get Time Since Last Boot
+        ${failed_vms_check_2}   Check Logs Are available   ${id}   since=${since_boot}s
+        ${check_status}         Run Keyword And Return Status    Should Be Empty   ${failed_vms_check_2}
+        IF  ${check_status}
+            ${fail_msg}=    Catenate    SEPARATOR=\n
+            ...    Log forwarding stopped for these VMs: ${failed_vms_check_1}
+            ...    Verified that log forwarding was working some time after boot for all VMs
+            FAIL   ${fail_msg}
+        ELSE
+            FAIL   Failed to find any logs since last boot for one or more VMs.\nVMs missing all logs since last boot: ${failed_vms_check_2}
+        END
+    END
 
 *** Keywords ***
 
