@@ -46,7 +46,7 @@ Measure TCP Throughput Small Packets
     ${bps_rx}               Get Throughput Values  ${output2.stdout}  direction=receiver
     Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
     Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Small Packets" width="1200">    HTML
-    ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
+    ${statistics}           Save Networking Speed Data   ${TEST NAME}  ${speed_data}
     # Measurement result based PASS/FAIL criteria disabled for this test case
     # Determine Test Status   ${statistics}
 
@@ -61,7 +61,7 @@ Measure TCP Bidir Throughput Small Packets
     ${bps_rx}               Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
     Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
     Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Bidir Transfer Small Packets" width="1200">    HTML
-    ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
+    ${statistics}           Save Networking Speed Data   ${TEST NAME}  ${speed_data}
     # Measurement result based PASS/FAIL criteria disabled for this test case
     # Determine Test Status   ${statistics}
 
@@ -77,7 +77,7 @@ Measure TCP Throughput Big Packets
     ${bps_rx}               Get Throughput Values  ${output2.stdout}  direction=receiver
     Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
     Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Transfer Big Packets" width="1200">    HTML
-    ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
+    ${statistics}           Save Networking Speed Data   ${TEST NAME}  ${speed_data}
     # Measurement result based PASS/FAIL criteria disabled for this test case
     # Determine Test Status   ${statistics}
 
@@ -92,7 +92,7 @@ Measure TCP Bidir Throughput Big Packets
     ${bps_rx}               Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
     Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
     Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="TCP Bidir Transfer Big Packets" width="1200">    HTML
-    ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
+    ${statistics}           Save Networking Speed Data   ${TEST NAME}  ${speed_data}
     # Measurement result based PASS/FAIL criteria disabled for this test case
     # Determine Test Status   ${statistics}
 
@@ -109,7 +109,7 @@ Measure UDP TX Throughput Small Packets
     ${bps_rx}               Get Throughput Values  ${output2.stdout}  direction=receiver
     Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
     Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="UDP Transfer Small Packets" width="1200">    HTML
-    ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
+    ${statistics}           Save Networking Speed Data   ${TEST NAME}  ${speed_data}
     # Measurement result based PASS/FAIL criteria disabled for this test case
     # Determine Test Status   ${statistics}
 
@@ -124,7 +124,7 @@ Measure UDP Bidir Throughput Small Packets
     ${bps_rx}               Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
     Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
     Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="UDP" Bidir Transfer Small Packets" width="1200">    HTML
-    ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
+    ${statistics}           Save Networking Speed Data   ${TEST NAME}  ${speed_data}
     # Measurement result based PASS/FAIL criteria disabled for this test case
     # Determine Test Status   ${statistics}
     # [Teardown]  Run Keyword If   "${DEVICE_TYPE}" == "dell-7330"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6774"
@@ -142,7 +142,7 @@ Measure UDP Throughput Big Packets
     ${bps_rx}               Get Throughput Values  ${output2.stdout}  direction=receiver
     Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
     Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="UDP Transfer Big Packets" width="1200">    HTML
-    ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
+    ${statistics}           Save Networking Speed Data   ${TEST NAME}  ${speed_data}
     # Measurement result based PASS/FAIL criteria disabled for this test case
     # Determine Test Status   ${statistics}
 
@@ -157,7 +157,7 @@ Measure UDP Bidir Throughput Big Packets
     ${bps_rx}               Get Throughput Values  ${output.stdout}  direction=receiver  bidir=True
     Set To Dictionary       ${speed_data}  tx  ${bps_tx}  rx  ${bps_rx}
     Log                     <img src="${DEVICE}_${TEST NAME}.png" alt="UDP Bidir Transfer Big Packets" width="1200">    HTML
-    ${statistics}           Save Speed Data   ${TEST NAME}  ${speed_data}
+    ${statistics}           Save Networking Speed Data   ${TEST NAME}  ${speed_data}
     # Measurement result based PASS/FAIL criteria disabled for this test case
     # Determine Test Status   ${statistics}
     # [Teardown]   Run Keyword If   "AGX" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6623 (AGX)"
