@@ -30,7 +30,6 @@ Verify camera block persisted
     [Tags]    SP-T305  SP-T305-1
     ${cam_state}      Get device state   cam
     Should Be Equal   ${EXPECTED_CAM_STATE}  ${cam_state}
-    [Teardown]   Run Keyword If Test Failed    Verify camera block persisted teardown
 
 Verify microphone block persisted
     [Tags]    SP-T305  SP-T305-2
@@ -80,13 +79,6 @@ Persistence Suite Teardown
         Login to laptop
     END
     Set values   ORIGINAL
-
-Verify camera block persisted teardown
-    Log persistence setup errors
-    IF    "${DEVICE_TYPE}" == "lenovo-x1" or "${DEVICE_TYPE}" == "x1-sec-boot"
-        Log Error    Camera persistence    Verify camera block persisted failed
-        SKIP         Known issue: SSRCSP-8224
-    END
 
 Save original values
     Save original value    ORIGINAL_BRIGHTNESS   Get screen brightness  False

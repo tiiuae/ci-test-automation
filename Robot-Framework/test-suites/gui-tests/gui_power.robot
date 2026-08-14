@@ -70,8 +70,6 @@ Reboot from power menu
     Log               Reboot took ${elapsed} seconds   console=True
 
     Should Not Be True    ${elapsed} > ${reboot_limit}    msg=Reboot took too long: ${elapsed} seconds (expected < ${reboot_limit})
-    [Teardown]    Run Keywords   GUI Power Test Teardown   AND
-    ...           Run Keyword If Test Failed   Run Keyword If   "still responds" in $TEST_MESSAGE   Skip reboot from power menu
 
 Shutdown from power menu
     [Documentation]   Shutdown the device via GUI power menu shutdown icon.
@@ -148,10 +146,6 @@ GUI Power Test Teardown
         Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
         Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
     END
-
-Skip reboot from power menu
-    Log Error    Power menu reboot failed    Reboot from power menu failed
-    SKIP   Known issue: SSRCSP-8490
 
 Skip shutdown from power menu
     IF    "${DEVICE_TYPE}" == "lenovo-x1" or "${DEVICE_TYPE}" == "x1-sec-boot"

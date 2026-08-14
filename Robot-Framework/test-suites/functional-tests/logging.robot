@@ -51,7 +51,7 @@ Alloy and stunnel services are running in admin-vm
     Run Keyword And Continue On Failure   Verify service status  range=5  service=alloy.service    expected_state=active  expected_substate=running
     Run Keyword And Continue On Failure   Verify service status  range=5  service=stunnel.service  expected_state=active  expected_substate=running
     [Teardown]    Run Keywords    Reboot Orin if ssh connection dropped
-    ...           AND             Run Keyword If Test Failed    Skip If    "alloy.service: inactive" in $TEST_MESSAGE    Known issue: SSRCSP-8773
+    ...           AND             Run Keyword If Test Failed    Skip Alloy Check On Orin
 
 Check logging rate
     [Documentation]    Check that host or vms are not creating too much logs
@@ -188,6 +188,13 @@ Logging Suite Setup
     Remove Values From List  ${HOSTNAME_LIST}   ${NET_VM}
     Set Suite Variable       @{VM_LIST}
     Set Suite Variable       @{HOSTNAME_LIST}
+
+
+Skip Alloy Check On Orin
+    IF    "orin" in "${DEVICE_TYPE}" and "alloy.service: inactive" in $TEST_MESSAGE
+        Log Error    Alloy not running   alloy.service is inactive
+        SKIP         Known issue: SSRCSP-8773
+    END
 
 Check Logs Are Available
     [Documentation]  Check if logs are available from each VM in Grafana

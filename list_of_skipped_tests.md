@@ -2,25 +2,23 @@
 
 ## Active SKIPS
 
-| DATE SET   | TEST CASE                                                  | TICKET / Additional Data                                                | Error Log Context        |
-| ---------- | ---------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------ |
-| 14.08.2026 | Check Grafana logs                                         | SSRCSP-8202                                                             |                          |
-| 06.08.2026 | Alloy and stunnel services are running in admin-vm (Orins) | SSRCSP-8773                                                             | (fails often)            |
-| 05.08.2026 | Check Grafana log forwarding after disconnected state      | SSRCSP-7612                                                             | (fails often)            |
-| 05.08.2026 | Ghaf Control Panel shows device information                | SSRCSP-8770 (GUI shows "unknown")                                       | (fails most of the time) |
-| 20.07.2026 | nvpmodel check test (Orin AGX)                             | SSRCSP-8712                                                             | (Fails every time)       |
-| 17.07.2026 | Shutdown from power menu (Lenovo X1)                       | SSRCSP-8714                                                             | Slow shutdown            |
-| 06.07.2026 | Open video with COSMIC Media Player                        | SSRCSP-8367                                                             | Crash in media-vm        |
-| 01.07.2026 | Account lockout after failed GUI login                     | Test under development                                                  | Account lockout          |
-| 25.05.2026 | Reboot from power menu                                     | SSRCSP-8490                                                             | Power menu reboot failed |
-| 13.05.2026 | Validate Forward Secure Sealing                            | SSRCSP-8425                                                             | FSS test failed          |
-| 30.04.2026 | Open PDF from VM                                           | SSRCSP-8367                                                             | Crash in media-vm        |
-| 23.03.2026 | Verify camera block persisted (Lenovo X1)                  | SSRCSP-8224                                                             | Camera persistence       |
-| 17.03.2026 | OP-TEE xtest 1006, OP-TEE xtest 1024 (Orins)               | SSRCSP-8198                                                             | (Fails every time)       |
-| 11.02.2026 | Check device id (storeDisk)                                | SSRCSP-7997                                                             | (Fails every time)       |
-| 11.02.2026 | Check net-vm hostname (storeDisk)                          | SSRCSP-7997                                                             | (Fails every time)       |
-| 16.09.2025 | Check systemctl status in every VM                         | [List of skips](/Robot-Framework/test-suites/functional-tests/vm.robot) | Systemctl status         |
-| 21.12.2023 | OP-TEE xtest 1033, OP-TEE xtest 1008 (Orins)               | These tests have never passed                                           | (Fails every time)       |
+| DATE SET   | TEST CASE                                                  | TICKET / Additional Data                                                | Error Log Context  |
+| ---------- | ---------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------ |
+| 14.08.2026 | Check Grafana logs                                         | SSRCSP-8202                                                             |                    |
+| 06.08.2026 | Alloy and stunnel services are running in admin-vm (Orins) | SSRCSP-8773                                                             | Alloy not running  |
+| 05.08.2026 | Check Grafana log forwarding after disconnected state      | SSRCSP-7612                                                             |                    |
+| 05.08.2026 | Ghaf Control Panel shows device information                | SSRCSP-8770 (GUI shows "unknown")                                       | Ghaf Control Panel |
+| 20.07.2026 | nvpmodel check test (Orin AGX)                             | SSRCSP-8712                                                             | (Fails every time) |
+| 17.07.2026 | Shutdown from power menu (Lenovo X1)                       | SSRCSP-8714                                                             | Slow shutdown      |
+| 06.07.2026 | Open video with COSMIC Media Player                        | SSRCSP-8367                                                             | Crash in media-vm  |
+| 01.07.2026 | Account lockout after failed GUI login                     | Test under development                                                  | Account lockout    |
+| 13.05.2026 | Validate Forward Secure Sealing                            | SSRCSP-8425                                                             | FSS test failed    |
+| 30.04.2026 | Open PDF from VM                                           | SSRCSP-8367                                                             | Crash in media-vm  |
+| 17.03.2026 | OP-TEE xtest 1006, OP-TEE xtest 1024 (Orins)               | SSRCSP-8198                                                             | (Fails every time) |
+| 11.02.2026 | Check device id (storeDisk)                                | SSRCSP-7997                                                             | (Fails every time) |
+| 11.02.2026 | Check net-vm hostname (storeDisk)                          | SSRCSP-7997                                                             | (Fails every time) |
+| 16.09.2025 | Check systemctl status in every VM                         | [List of skips](/Robot-Framework/test-suites/functional-tests/vm.robot) | Systemctl status   |
+| 21.12.2023 | OP-TEE xtest 1033, OP-TEE xtest 1008 (Orins)               | These tests have never passed                                           | (Fails every time) |
 
 ## Old Dell 7330 skips
 
@@ -50,6 +48,5 @@
 | 22.06.2026 | Set RTC time                          | SSRCSP-8622, separate command for Lenovo X1                                                            |                         |
 | 17.06.2026 | Verify service status                 | SSRCSP-8662, welcome check disabled                                                                    | (Failing part skipped)  |
 | 15.06.2026 | VM memory usage snapshot              | Orin host check is skipped, swap is not enabled                                                        | (Failing part skipped)  |
-| 08.06.2026 | Soft Reboot Device                    | SSRCSP-8490, reboot from host if reboot from gui-vm failed                                             | Soft reboot failed      |
 | 29.01.2026 | Reboot Orin if ssh connection dropped | This keyword is a workaround for the SSH connection dropping on Orin, reboots and connect again        | Orin connection dropped |
 | 27.01.2026 | Verify shutdown via serial            | Shutdown is checked via network if shutdown log was not found in serial output                         |                         |
