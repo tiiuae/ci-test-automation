@@ -114,19 +114,7 @@ Soft Reboot Device
         FAIL    Device expected to be available but not responding.
     END
     ${shutdown_ok}    Run Keyword And Return Status    Verify shutdown via network
-    IF    not ${shutdown_ok}
-        IF    "${vm}" == "${GUI_VM}"
-            # Known issue SSRCSP-8490
-            Log To Console    GUI-VM reboot did not shut down the full device. Retrying reboot from host.
-            Switch to vm   ${HOST}
-            Log Error    Soft reboot failed    Soft reboot from ${GUI_VM} failed
-            Run Command  reboot  sudo=True   rc_match=skip
-            Log To Console  Rebooting device from host as fallback
-            Verify shutdown via network
-        ELSE
-            FAIL    Device still responds after reboot initiated from ${vm}.
-        END
-    END
+    IF    not ${shutdown_ok}   FAIL    Device still responds after reboot initiated from ${vm}.
     Close All Connections
 
 Soft Shutdown Device

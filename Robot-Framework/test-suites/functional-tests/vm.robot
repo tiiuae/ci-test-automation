@@ -23,7 +23,7 @@ Suite Setup         VM Suite Setup
              ...    ANY|gui-vm|plymouth-quit.service|SSRCSP-7306
              ...    ANY|ANY|journal-fss-verify.service|SSRCSP-8425
              ...    darter-pro|ghaf-host|systemd-tpm2-setup.service|SSRCSP-8357
-             ...    ANY|ghaf-host|systemd-pcrlogin@901.service|SSRCSP-8776
+             ...    darter-pro|ghaf-host|systemd-pcrlogin@901.service|SSRCSP-8776
              ...    ANY|ANY|journal-fss-setup.service|SSRCSP-8775
              ...    ANY|net-vm|nw-packet-forwarder.service|SSRCSP-8791
              ...    ANY|net-vm|smcroute.service|SSRCSP-8791
