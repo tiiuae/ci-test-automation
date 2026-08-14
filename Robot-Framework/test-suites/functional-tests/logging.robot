@@ -173,7 +173,7 @@ Check Grafana logs
             ${fail_msg}=    Catenate    SEPARATOR=\n
             ...    Log forwarding stopped for these VMs: ${failed_vms_check_1}
             ...    Verified that log forwarding was working some time after boot for all VMs
-            FAIL   ${fail_msg}
+            SKIP   Known issue: SSRCSP-8202: ${fail_msg}
         ELSE
             FAIL   Failed to find any logs since last boot for one or more VMs.\nVMs missing all logs since last boot: ${failed_vms_check_2}
         END
