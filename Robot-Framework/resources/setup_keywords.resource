@@ -97,11 +97,18 @@ Log versions and device unique data
     Log                 --------                           console=True
 
 Create test user
-    [Setup]          Switch to vm    ${GUI_VM}
-    Log To Console   Creating test user
-    Run Command      systemctl start user-provision-test.service   sudo=True
-    ${out}           Run Command    homectl
-    Should Contain   ${out}  ${USER_LOGIN}   User not created
+    [Setup]              Switch to vm    ${GUI_VM}
+    [Documentation]      Check if ${USER_LOGIN} already exists and if not create testuser
+    TRY
+        Run Command      id -u ${USER_LOGIN}
+    EXCEPT
+        Should Be Equal  ${USER_LOGIN}   testuser   Create user ${USER_LOGIN} manually before running tests or use default username and password
+        Log To Console   Creating testuser
+        Run Command      systemctl start user-provision-test.service   sudo=True
+        Run Command      id -u ${USER_LOGIN}
+    ELSE
+        Log              User ${USER_LOGIN} already exists   console=True
+    END
 
 Start ydotoold
     [Documentation]    Start ydotool daemon if it is not already running.
