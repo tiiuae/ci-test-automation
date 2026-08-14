@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                                  | TICKET / Additional Data                                                | Error Log Context        |
 | ---------- | ---------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------ |
+| 14.08.2026 | Check Grafana logs                                         | SSRCSP-8202                                                             |                          |
 | 06.08.2026 | Alloy and stunnel services are running in admin-vm (Orins) | SSRCSP-8773                                                             | (fails often)            |
 | 05.08.2026 | Check Grafana log forwarding after disconnected state      | SSRCSP-7612                                                             | (fails often)            |
 | 05.08.2026 | Ghaf Control Panel shows device information                | SSRCSP-8770 (GUI shows "unknown")                                       | (fails most of the time) |
