@@ -171,7 +171,7 @@ Open Screenshots Folder In COSMIC Files
 
 Take Screenshot With Print Screen
     Press Key(s)       PRINT
-    Sleep              1
+    Wait Until Keyword Succeeds    5x    0.5s    Check that process is running    ${COSMIC Screenshot}[process_name]
     ${expected_screenshot_pattern}    Run Command    date '+Screenshot_%F_%H-%M-[0-9][0-9].png'
     Press Key(s)       ENTER
     RETURN             ${expected_screenshot_pattern}
