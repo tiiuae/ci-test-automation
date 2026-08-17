@@ -105,13 +105,26 @@ Take a screenshot via Print Screen
     [Documentation]   Open screenshot tool with PrtSc, take a screenshot with Enter, and verify the image was saved to Pictures
     [Tags]            SP-T171
     Set Test Variable   ${screenshots_dir}    /home/${USER_LOGIN}/Pictures/Screenshots
-    Open Screenshots Folder In COSMIC Files
+    Run Command         mkdir -p ${screenshots_dir}
+    Open Folder In COSMIC Files    ${screenshots_dir}    Screenshots
     ${expected_screenshot_pattern}    Take Screenshot With Print Screen
     ${screenshot}    Wait Until Keyword Succeeds    5x    1s    Get Saved Screenshot    ${expected_screenshot_pattern}
     Verify Saved Screenshot Contains Text    ${screenshot}    Screenshots
     [Teardown]   Run Keywords   Remove file    ${screenshot}
     ...    AND   Kill App in VM   ${COSMIC Files}
     ...    AND   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+
+Record screen with keyboard shortcut
+    [Documentation]   Start and stop screen recording with Ctrl+Shift+Alt+R, then verify the recorded video is visible in Videos
+    [Tags]            SP-T296
+    [Setup]           Screen Recording Test Setup
+    Open Folder In COSMIC Files    ${videos_dir}    Videos
+    ${videos_before}    Get Videos Folder Recording List
+    Start Screen Recording With Shortcut
+    Stop Screen Recording With Shortcut
+    ${recorded_video}   Wait Until Keyword Succeeds    10x    1s    Get New Saved Screen Recording    ${videos_before}
+    Verify Video Is Visible In COSMIC Files    ${recorded_video}
+    [Teardown]        Screen Recording Test Teardown
 
 
 *** Keywords ***
@@ -163,11 +176,11 @@ Get givc-cli sysinfo field
     Should Not Be Empty    ${matches}    Could not find ${field} in givc-cli sysinfo output:\n${output}
     RETURN         ${matches}[0]
 
-Open Screenshots Folder In COSMIC Files
+Open Folder In COSMIC Files
+    [Arguments]    ${folder}    ${folder_name}
     Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
-    Run Command     mkdir -p ${screenshots_dir}
-    Start App in VM    ${COSMIC Files}    always_check_vm=True    params_string=-- ${screenshots_dir}
-    Locate on screen   text    Screenshots    iterations=10    scale=2
+    Start App in VM    ${COSMIC Files}    always_check_vm=True    params_string=-- ${folder}
+    Locate on screen   text    ${folder_name}    iterations=10    scale=2
     Move cursor to corner
 
 Take Screenshot With Print Screen
@@ -189,6 +202,55 @@ Verify Saved Screenshot Contains Text
     ${local_screenshot}    Set Variable    ${GUI_OUTPUT_DIR}/saved_screenshot.png
     SSHLibrary.Get File    ${screenshot}    ${local_screenshot}
     Locate text    ${local_screenshot}    ${text}    scale=2
+
+Screen Recording Test Setup
+    Set Test Variable   ${videos_dir}        /home/${USER_LOGIN}/Videos
+    Set Test Variable   ${recorded_video}    ${EMPTY}
+
+Start Screen Recording With Shortcut
+    Press Key(s)    LEFTCTRL+LEFTSHIFT+LEFTALT+R
+    Locate on screen    text    Share    iterations=10    debug_screenshot=False    scale=2
+    # Click the screen preview in the portal, then confirm sharing
+    Run ydotool command    mousemove --absolute -x 500 -y 300
+    Click
+    Locate and click       text    Share    iterations=10    scale=2
+    Wait Until Keyword Succeeds    10x    0.5s    Check that process is running    ${GPU Screen Recorder}[recording_process_name]
+
+Stop Screen Recording With Shortcut
+    Press Key(s)    LEFTCTRL+LEFTSHIFT+LEFTALT+R
+    Wait Until Keyword Succeeds    10x    0.5s    Check that process is not running    ${GPU Screen Recorder}[recording_process_name]
+
+Get Videos Folder Recording List
+    ${videos}    Run Command    ls -1 ${videos_dir}/*.mp4    rc_match=skip
+    RETURN       ${videos}
+
+Get New Saved Screen Recording
+    [Arguments]    ${videos_before}
+    ${videos_after}    Get Videos Folder Recording List
+    @{videos_before}   Split To Lines    ${videos_before}
+    @{videos_after}    Split To Lines    ${videos_after}
+    Remove Values From List    ${videos_after}    @{videos_before}
+    Should Not Be Empty    ${videos_after}    New screen recording was not created under ${videos_dir}.
+    ${recorded_video}      Set Variable    ${videos_after}[0]
+    Run Command            test -s '${recorded_video}'
+    RETURN                 ${recorded_video}
+
+Verify Video Is Visible In COSMIC Files
+    [Arguments]    ${recorded_video}
+    ${recorded_video_name}    Run Command    basename ${recorded_video}
+    Locate on screen   text    Videos    iterations=10    scale=2
+    Locate on screen   text    ${recorded_video_name}    iterations=15    scale=2
+
+Screen Recording Test Teardown
+    Kill process by name    ${GPU Screen Recorder}[recording_process_name]    sudo=False    require_exists=False
+    Kill App in VM     ${COSMIC Files}
+    Run Keyword If    '${recorded_video}' != '${EMPTY}' and '${TEST_STATUS}' != 'PASS'    Save Recorded Shortcut Video    ${recorded_video}
+    Run Keyword If    '${recorded_video}' != '${EMPTY}'    Remove file    ${recorded_video}
+
+Save Recorded Shortcut Video
+    [Arguments]    ${recorded_video}
+    ${recorded_video_name}    Run Command    basename ${recorded_video}
+    SSHLibrary.Get File    ${recorded_video}    ${GUI_OUTPUT_DIR}/${recorded_video_name}
 
 Save current document from COSMIC Text Editor to Shares
     [Arguments]      ${file_name}

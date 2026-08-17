@@ -163,6 +163,7 @@
     "display_name": "GPU Screen Recorder",
     "VM": "gui-vm",
     "process_name": "gpu-screen-recorder-gtk",
+    "recording_process_name": "gpu-screen-recorder",
     "close_button": "window-close.png"
   },
   "Microsoft 365": {
