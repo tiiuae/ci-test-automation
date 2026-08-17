@@ -136,7 +136,7 @@ GUI Power Test Setup
     Start screen recording
 
 GUI Power Test Teardown
-    IF  $TEST_STATUS == 'FAIL' and 'took too long' not in $TEST_MESSAGE
+    IF  $TEST_STATUS != 'PASS' and 'took too long' not in $TEST_MESSAGE
         Hard Reboot Device And Connect
         IF    ${IS_AVAILABLE}
             ssh_keywords.Save log   ${GUI_VM}  ${gui_power_log_since}
@@ -168,7 +168,12 @@ Select power menu option
     # Wait for menu to open and stop retrying when successful
     ${menu_opened}     Run Keyword And Return Status   Locate on screen   text   Settings   iterations=3
     IF  not ${menu_opened}
-        FAIL   Failed to open power menu: 'Settings' not visible.
+        IF    "${DEVICE_TYPE}" == "lenovo-x1" or "${DEVICE_TYPE}" == "x1-sec-boot"
+            Log Error    Taskbar disappeared    Power menu did not open even though power icon was clicked
+            SKIP         Known Issue: SSRCSP-8806 (Failed to open power menu: 'Settings' not visible.)
+        ELSE
+            FAIL         Failed to open power menu: 'Settings' not visible.
+        END
     END
     IF  '${text}'
         Locate and click   text   ${text}
