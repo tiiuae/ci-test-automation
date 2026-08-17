@@ -46,6 +46,11 @@
     "process_name": "cosmic-player",
     "close_button": "ghaf-close.png"
   },
+  "COSMIC Screenshot": {
+    "display_name": "COSMIC Screenshot",
+    "VM": "gui-vm",
+    "process_name": "(^|/)cosmic-screenshot( |$)"
+  },
   "COSMIC Settings": {
     "display_name": "COSMIC Settings",
     "VM": "gui-vm",
