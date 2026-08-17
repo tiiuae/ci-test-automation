@@ -50,6 +50,7 @@ Verify Wi-Fi block persisted
 Verify brightness persisted
     [Tags]    SP-T326  SP-T326-1
     ${brightness}     Get screen brightness
+    FAIL    Test fail
     Should Be Equal   ${EXPECTED_BRIGHTNESS}  ${brightness}
 
 Verify volume persisted
