@@ -72,19 +72,29 @@ Check Serial Connection
     [Documentation]    Check if device is available by serial
     [Arguments]        ${range}=30x
     Log To Console     Trying to connect via serial...
-    Should Not Be True     ${UART_CAPTURE_ACTIVE}       msg=UART capture is active, can't check serial, data on the port could be lost.
     Should Not Be Equal    ${SERIAL_PORT}      NONE     msg=There is no address for serial connection
 
-    ${serial_status}=   Open Serial Port
-    Should Not Be Equal    ${serial_status}    False    msg=Serial port is not available
+    ${opened_here}    Set Variable    ${False}
+    IF    not ${UART_CAPTURE_ACTIVE}
+        ${serial_status}=   Open Serial Port
+        Should Not Be Equal    ${serial_status}    False    msg=Serial port is not available
+        ${opened_here}    Set Variable    ${True}
+    END
     Wait Until Keyword Succeeds    ${range}    1s    Check For Text In Serial Port    text=ghaf
-    [Teardown]    Run Keywords    Delete All Ports    AND
-    ...           Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
+    [Teardown]    Check Serial Connection Teardown    ${opened_here}
+
+Check Serial Connection Teardown
+    [Arguments]    ${opened_here}
+    IF    ${opened_here}
+        Delete All Ports
+        Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
+    END
 
 Check For Text In Serial Port
     [Arguments]    ${text}
     Write Data     ${\n}
     ${output}      SerialLibrary.Read Until
+    Append Normalized UART Capture    ${output}
     Should contain    ${output}    ${text}
 
 Try To Check Serial On Device
@@ -101,7 +111,7 @@ Try To Check Serial On Device
 
 Log In To Ghaf OS
     [Documentation]       Log in with ${LOGIN} and ${PASSWORD}
-    [Arguments]           ${attempts}=10
+    [Arguments]           ${attempts}=4
     Log To Console        Trying to log in via serial...
     FOR    ${i}    IN RANGE    ${attempts}
         Write Data        ${\n}
