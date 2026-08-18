@@ -43,6 +43,7 @@ Account lockout after failed GUI login
     [Documentation]     Try to login to the device with a wrong password for several times, then check that user account is locked.
     ...                 Remove account from the lock list and log back in with the correct password.
     [Tags]              SP-T267  lenovo-x1  darter-pro
+    Skip If    ${DISABLE_LOGOUT}    This test can't run when logging out is disabled
     Log out and verify
     Check faillock entry count    0
     Sleep   4   # Give extra time before first login to make sure that password field is ready
@@ -52,6 +53,9 @@ Account lockout after failed GUI login
         Log in via GUI   password=wrong_password   sleep_seconds=1
         Wait Until Keyword Succeeds    10x    1s    Check faillock entry count    ${i}
     END
+    # One more wrong attempt to make sure that greeter has updated
+    Log in via GUI   password=wrong_password   sleep_seconds=1
+    Save account lockout state
     Log     Trying to login with correct password   console=True
     Run Keyword And Expect Error     *    Log in, unlock and verify
     [Teardown]       Run keywords    Unlock account and login
@@ -78,9 +82,8 @@ Unlock account and login
     [Documentation]  Unlock the user account and log back in
     [Setup]          Switch to vm     ${GUI_VM}
     Run Command      faillock --user ${USER_LOGIN} --reset   sudo=True
-    Run Command      journalctl -b -u greetd.service -u systemd-homed.service   # For debugging
-    Run Command      journalctl -b -u greetd.service -u systemd-homed.service | grep ${USER_LOGIN}   # For debugging
     Switch to vm     ${GUI_VM}  user=${USER_LOGIN}
+    Save account lockout state
     # First login after unlocking the account fails
     Log in via GUI   password=reset_login   sleep_seconds=1
     Log in, unlock and verify
@@ -95,3 +98,15 @@ Check faillock entry count
     Should Be Equal As Integers    ${count}    ${expected_count}
     Log           Wrong password detected ${expected_count} times    console=True
     [Teardown]    Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+
+Save account lockout state
+    [Documentation]   Print the current lockout state
+    [Setup]           Switch to vm    ${GUI_VM}
+    Log To Console    Saving account lockout state
+    Run Command       faillock --user ${USER_LOGIN}   sudo=True   rc_match=skip
+    Run Command       cat /etc/pam.d/greetd           sudo=True   rc_match=skip
+    Run Command       cat /etc/pam.d/login            sudo=True   rc_match=skip
+    Run Command       journalctl -b -u greetd.service -u systemd-homed.service --no-pager   rc_match=skip
+    Run Command       journalctl -b -u greetd.service -u systemd-homed.service --no-pager | grep ${USER_LOGIN}   rc_match=skip
+    Run Command       homectl inspect ${USER_LOGIN}   sudo=True   rc_match=skip
+    [Teardown]        Switch to vm    ${GUI_VM}    user=${USER_LOGIN}

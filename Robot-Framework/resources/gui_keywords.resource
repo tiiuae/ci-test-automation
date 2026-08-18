@@ -16,7 +16,7 @@ Resource            ../resources/ssh_keywords.resource
 *** Variables ***
 ${APP_MENU_LAUNCHER}   launcher.png
 ${LOCK_ICON}           lock.png
-${DISABLE_LOGOUT}      ${EMPTY}
+${DISABLE_LOGOUT}      ${False}
 ${GUI_OUTPUT_DIR}      ${OUTPUT_DIR}/outputs/gui
 ${ICONS_DIR}           ${OUTPUT_DIR}/outputs/icons
 ${SCREENSHOT_GHAF}     /home/${USER_LOGIN}/test-images/screenshot.jpeg
@@ -61,7 +61,7 @@ Log out and verify
     [Arguments]       ${disable_dnd}=True
     # Allow disabling logout in case of running test automation locally from ghaf-host.
     # This prevents terminal from being shutdown and allows test run to finish.
-    IF  $DISABLE_LOGOUT == 'true'
+    IF  ${DISABLE_LOGOUT}
         Log To Console    Log out disabled. Skipping log out procedure.
         RETURN
     END
@@ -93,7 +93,7 @@ Log out with loginctl
     [Documentation]   Log out from the laptop
     # Allow disabling logout in case of running test automation locally from ghaf-host.
     # This prevents terminal from being shutdown and allows test run to finish.
-    IF  $DISABLE_LOGOUT == 'true'
+    IF  ${DISABLE_LOGOUT}
         Log To Console    Log out disabled. Skipping log out procedure.
         RETURN
     END
