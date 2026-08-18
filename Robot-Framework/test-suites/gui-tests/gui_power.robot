@@ -102,6 +102,7 @@ Log out and log in from power menu
     [Documentation]   Logout via GUI power menu icon and verify logged out state.
     ...               Login and verify that desktop is available.
     [Tags]            SP-T75  SP-T75-2  logoutlogin  lenovo-x1  darter-pro
+    Skip If    ${DISABLE_LOGOUT}    This test can't run when logging out is disabled
     Select power menu option   text=LogOut   confirmation=True
     ${logout_status}            Check if logged out
     Should Be True              ${logout_status}    Logout failed
@@ -111,6 +112,7 @@ Log out and log in with shortcut
     [Documentation]   Logout via logout shortcut and verify logged out state.
     ...               Login and verify that desktop is available.
     [Tags]            SP-T186  SP-T186-1  lenovo-x1  darter-pro
+    Skip If    ${DISABLE_LOGOUT}    This test can't run when logging out is disabled
     Press Key(s)                LEFTMETA+LEFTSHIFT+ESC
     Locate on screen            text  Quit  10
     Tab and enter               tabs=1
