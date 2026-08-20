@@ -1,3 +1,5 @@
+import csv
+
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 
@@ -8,7 +10,7 @@ from output_parser import (
     parse_cyclictest_spike_count,
     parse_cyclictest_spikes,
 )
-from performance_thresholds import thresholds
+from performance_thresholds import static_thresholds
 
 
 class CyclictestProcessor:
@@ -66,8 +68,19 @@ class CyclictestProcessor:
 
         return failed_variants
 
+    def get_cyclictest_threshold_target(self, target):
+        if "orin" in self.processing.device.lower():
+            return f"orin-{target}"
+        return target
+
+    def get_cyclictest_latency_threshold_us(self, target, variant_name):
+        threshold_target = self.get_cyclictest_threshold_target(target)
+        return static_thresholds["cyclictest"][threshold_target][
+            f"latency_threshold_us_{variant_name}"
+        ]
+
     def get_cyclictest_histogram_limit(self, target, variant_name):
-        return thresholds["cyclictest"][target][f"latency_threshold_us_{variant_name}"]
+        return self.get_cyclictest_latency_threshold_us(target, variant_name)
 
     def generate_cyclictest_histogram_plot(
         self,
@@ -265,6 +278,31 @@ class CyclictestProcessor:
 
         return f"Debug spike run reported {count} spike samples | Durations: {durations}"
 
+    def read_cyclictest_latency_csv(self, test_name, data):
+        data_key_list = list(data.keys())
+        build_counter = {}
+
+        with open(
+            f"{self.processing.data_dir}{self.processing.device}_{test_name}.csv",
+            "r",
+        ) as csvfile:
+            csvreader = csv.reader(csvfile)
+            for row in csvreader:
+                if row[-1] != self.processing.device:
+                    continue
+
+                build = str(row[0])
+                if build in build_counter:
+                    build_counter[build] += 1
+                    modified_build = f"{build}-{build_counter[build]}"
+                else:
+                    build_counter[build] = 0
+                    modified_build = build
+                data["commit"].append(modified_build)
+
+                for key_index in range(1, len(row) - 1):
+                    data[data_key_list[key_index]].append(float(row[key_index]))
+
     def read_cyclictest_latency_csv_and_plot(self, test_name):
         data = {"commit": []}
         metrics = [
@@ -275,35 +313,30 @@ class CyclictestProcessor:
         ]
         variants = ["t1_p80", "t1_p95", "tnproc_p80", "tnproc_p95"]
         target = test_name.rsplit(" on ", 1)[-1]
-        monitored_values = []
 
         for variant in variants:
             for metric in metrics:
                 key = f"{variant}_{metric}"
                 data[key] = []
-                if metric in ("avg_latency_ms", "overflow_count"):
-                    monitored_values.append(key)
 
-        threshold = {}
-        low_limit_overrides = {}
+        self.read_cyclictest_latency_csv(test_name, data)
+
+        limit_checks = {}
         for variant in variants:
-            threshold[f"{variant}_avg_latency_ms"] = (
-                thresholds["cyclictest"][target][f"latency_threshold_us_{variant}"] / 1000.0
+            avg_latency_key = f"{variant}_avg_latency_ms"
+            overflow_count_key = f"{variant}_overflow_count"
+            avg_latency_limit = self.get_cyclictest_latency_threshold_us(target, variant) / 1000.0
+            overflow_count_limit = static_thresholds["cyclictest"]["latency_overflow_count"]
+            limit_checks[avg_latency_key] = self.processing.stats.build_static_limit_check(
+                data[avg_latency_key][-1],
+                avg_latency_limit,
+                self.processing.low_limit,
             )
-            threshold[f"{variant}_overflow_count"] = thresholds["cyclictest"][
-                "latency_overflow_count"
-            ]
-            low_limit_overrides[f"{variant}_overflow_count"] = 0
-        return_statistics, _statistics = self.processing.stats.calculate_statistics(
-            test_name,
-            data,
-            monitored_values,
-            threshold,
-            low_limit_overrides,
-        )
-        for variant in variants:
-            return_statistics[f"{variant}_avg_latency_ms"]["low_limit"] = self.processing.low_limit
-            return_statistics[f"{variant}_overflow_count"]["low_limit"] = 0
+            limit_checks[overflow_count_key] = self.processing.stats.build_static_limit_check(
+                data[overflow_count_key][-1],
+                overflow_count_limit,
+                0,
+            )
 
         for key in data.keys():
             data[key] = data[key][-40:]
@@ -341,10 +374,10 @@ class CyclictestProcessor:
             plt.grid(True)
             plt.legend(loc="upper left")
             if metric_key == "overflow_count":
-                title_threshold = thresholds["cyclictest"]["latency_overflow_count"]
+                title_threshold = static_thresholds["cyclictest"]["latency_overflow_count"]
                 ax.yaxis.set_major_locator(mticker.MaxNLocator(integer=True))
                 plt.axhline(
-                    y=thresholds["cyclictest"]["latency_overflow_count"],
+                    y=static_thresholds["cyclictest"]["latency_overflow_count"],
                     color="k",
                     linestyle="-.",
                     linewidth=1.5,
@@ -372,4 +405,4 @@ class CyclictestProcessor:
             )
             plt.close()
 
-        return return_statistics
+        return limit_checks

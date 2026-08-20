@@ -505,8 +505,8 @@ Measure cyclictest latency on target
     ...    ${cyclictest_debug_data}
     ...    ${cyclictest_spike_plot_data}
 
-    &{statistics}       Save Cyclictest Latency Data    ${TEST NAME}    ${latency_data}
-    @{failed_variants}  Get Failed Cyclictest Variants    ${statistics}
+    &{cyclictest_checks}    Save Cyclictest Latency Data    ${TEST NAME}    ${latency_data}
+    @{failed_variants}      Get Failed Cyclictest Variants    ${cyclictest_checks}
     @{histogram_plot_names}    Create List
     @{spike_plot_names}    Create List
     FOR    ${variant}    IN    @{variants}
@@ -551,7 +551,7 @@ Measure cyclictest latency on target
         ...    <img src="${REL_PLOT_DIR}${plot_name}.png" alt="${plot_name}" width="1200">
         ...    HTML
     END
-    Determine Test Status    ${statistics}  inverted=1
+    Determine Test Status    ${cyclictest_checks}  inverted=1
 
 Run cyclictest latency variant
     [Arguments]         ${target}    ${variant_name}    ${command}    ${raw_dir}    ${latency_data}    ${cyclictest_debug_data}    ${cyclictest_spike_plot_data}
