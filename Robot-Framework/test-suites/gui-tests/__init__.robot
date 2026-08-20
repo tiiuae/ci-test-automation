@@ -43,7 +43,7 @@ Save gui icons and icon path
     Get icon                ${icons}/Papirus/48x48/apps  Zoom.svg  crop=0  background=black  output_filename=${Zoom}[icon]
     Get icon                ${icons}/hicolor/48x48/apps  com.system76.CosmicSettings.svg  background=black  output_filename=${COSMIC Settings}[icon]
     Switch to vm            ${Trusted Browser}[VM]
-    ${open_normal_icon}     Run Command   ls -d /nix/store/*-open-normal/ghaf-logo-512px.png
-    SSHLibrary.Get File     ${open_normal_icon}    ${ICONS_DIR}/open-normal-browser.png
+    ${open_normal_path}     Search nix store    open-normal
+    SSHLibrary.Get File     ${open_normal_path}/ghaf-logo-512px.png    ${ICONS_DIR}/open-normal-browser.png
     OperatingSystem.Run     magick ${ICONS_DIR}/open-normal-browser.png -resize 16x16 -background white -alpha remove ${ICONS_DIR}/open-normal-browser.png
-    Switch to vm            ${GUI_VM}    user=${USER_LOGIN}
+    [Teardown]              Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
