@@ -156,8 +156,8 @@ Save a file from Onlyoffice
     Locate on screen   text   Unsafe   scale=2
     Press Key(s)       LEFTMETA+M
     Type string        ${file_name}
-    Locate and click   text   Unsafe   wiggle=True
-    Click              double_click=True
+    Locate and click   text   Unsafe   wiggle=True   double_click=True
+    Sleep              1
     Press Key(s)       ENTER
 
     Wait Until Keyword Succeeds   5x   1s   Check file exists   /Shares/'Unsafe flatpak-vm share'/${file_name}

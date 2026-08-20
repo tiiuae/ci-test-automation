@@ -7,6 +7,8 @@ from performance_data.plotting_helpers import save_plot, start_plot
 
 
 class AppLaunchProcessor:
+    MAX_PLOT_DATA_POINTS = 100
+
     def __init__(self, processing):
         self.processing = processing
 
@@ -41,6 +43,7 @@ class AppLaunchProcessor:
     def read_applaunch_csv_and_plot(self, test_name, threshold):
         threshold = float(threshold)
         raw_data = self._read_indexed_metric_csv(test_name, 1)
+        self.processing.stats.trim_plot_data(raw_data, self.MAX_PLOT_DATA_POINTS)
         data = {
             'commit': raw_data['commit'],
             'launch_time': raw_data['metric'],
