@@ -21,6 +21,23 @@ class PerformanceStatistics:
             truncated_list.append(float(f"{item:.{significant_figures}g}"))
         return truncated_list
 
+    # Determine if a measurement with static pass/fail limit passed or failed
+    @staticmethod
+    def build_static_limit_check(measurement, limit, low_limit, fail_when="above"):
+        if fail_when == "above":
+            flag = 1 if measurement > limit else 0
+        elif fail_when == "below":
+            flag = -1 if measurement < limit else 0
+        else:
+            raise ValueError(f"Unsupported static limit direction: {fail_when}")
+
+        return {
+            "flag": flag,
+            "threshold": limit,
+            "measurement": measurement,
+            "low_limit": low_limit,
+        }
+
     def prepare_plot_statistics(
         self,
         test_name,
