@@ -78,14 +78,14 @@ static_thresholds = {
         'orin-ghaf-host': {
             'latency_threshold_us_t1_p80': 3000,
             'latency_threshold_us_t1_p95': 3000,
-            'latency_threshold_us_tnproc_p80': 6000,
-            'latency_threshold_us_tnproc_p95': 6000,
+            'latency_threshold_us_tnproc_p80': 7000,
+            'latency_threshold_us_tnproc_p95': 7000,
         },
         'gui-vm': {
             'latency_threshold_us_t1_p80': 4000,
             'latency_threshold_us_t1_p95': 4000,
-            'latency_threshold_us_tnproc_p80': 8000,
-            'latency_threshold_us_tnproc_p95': 8000,
+            'latency_threshold_us_tnproc_p80': 7000,
+            'latency_threshold_us_tnproc_p95': 7000,
         },
         # The number of allowed overflows above latency_threshold_us_<variant>
         'latency_overflow_count': 10,

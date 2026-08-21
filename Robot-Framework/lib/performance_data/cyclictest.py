@@ -14,6 +14,26 @@ from performance_thresholds import static_thresholds
 
 
 class CyclictestProcessor:
+    CYCLICTEST_VARIANTS = ["t1_p80", "t1_p95", "tnproc_p80", "tnproc_p95"]
+    CYCLICTEST_METRICS = [
+        "min_latency_ms",
+        "avg_latency_ms",
+        "max_latency_ms",
+        "overflow_count",
+    ]
+    CYCLICTEST_LABELS = {
+        "t1_p80": "t1 p80",
+        "t1_p95": "t1 p95",
+        "tnproc_p80": "t$(nproc) p80",
+        "tnproc_p95": "t$(nproc) p95",
+    }
+    CYCLICTEST_PLOT_DEFS = [
+        ("min_latency_ms", "Min latency (ms)", "Min latency"),
+        ("avg_latency_ms", "Avg latency (ms)", "Avg latency"),
+        ("max_latency_ms", "Max latency (ms)", "Max latency"),
+        ("overflow_count", "Overflow samples", "Histogram overflows"),
+    ]
+
     def __init__(self, processing):
         self.processing = processing
 
@@ -300,33 +320,66 @@ class CyclictestProcessor:
                     modified_build = build
                 data["commit"].append(modified_build)
 
-                for key_index in range(1, len(row) - 1):
+                # Maintain reader backward compatibility with data rows which don't include threshold values
+                value_count = min(len(row) - 1, len(data_key_list))
+                for key_index in range(1, value_count):
                     data[data_key_list[key_index]].append(float(row[key_index]))
+                for key in data_key_list[value_count:]:
+                    data[key].append(None)
 
-    def read_cyclictest_latency_csv_and_plot(self, test_name):
+    @staticmethod
+    def find_cyclictest_threshold_change_indexes(data, variants):
+        change_indexes = []
+        result_count = len(data["commit"])
+
+        for result_index in range(1, result_count):
+            for variant in variants:
+                threshold_key = f"{variant}_latency_threshold_us"
+                previous_threshold = data[threshold_key][result_index - 1]
+                current_threshold = data[threshold_key][result_index]
+                if previous_threshold is None or current_threshold is None:
+                    continue
+                if previous_threshold != current_threshold:
+                    change_indexes.append(result_index)
+                    break
+
+        return change_indexes
+
+    @staticmethod
+    def get_saved_cyclictest_latency_threshold_us(data, variant):
+        threshold_key = f"{variant}_latency_threshold_us"
+        threshold = data[threshold_key][-1]
+        if threshold is None:
+            raise ValueError(f"Missing {threshold_key} from latest cyclictest result")
+        return threshold
+
+    @classmethod
+    def init_cyclictest_latency_data(cls):
         data = {"commit": []}
-        metrics = [
-            "min_latency_ms",
-            "avg_latency_ms",
-            "max_latency_ms",
-            "overflow_count",
-        ]
-        variants = ["t1_p80", "t1_p95", "tnproc_p80", "tnproc_p95"]
-        target = test_name.rsplit(" on ", 1)[-1]
 
-        for variant in variants:
-            for metric in metrics:
-                key = f"{variant}_{metric}"
-                data[key] = []
+        for variant in cls.CYCLICTEST_VARIANTS:
+            for metric in cls.CYCLICTEST_METRICS:
+                data[f"{variant}_{metric}"] = []
 
-        self.read_cyclictest_latency_csv(test_name, data)
+        for variant in cls.CYCLICTEST_VARIANTS:
+            data[f"{variant}_latency_threshold_us"] = []
 
+        return data
+
+    def build_cyclictest_limit_checks(self, data):
         limit_checks = {}
-        for variant in variants:
+        overflow_count_limit = static_thresholds["cyclictest"]["latency_overflow_count"]
+
+        for variant in self.CYCLICTEST_VARIANTS:
             avg_latency_key = f"{variant}_avg_latency_ms"
             overflow_count_key = f"{variant}_overflow_count"
-            avg_latency_limit = self.get_cyclictest_latency_threshold_us(target, variant) / 1000.0
-            overflow_count_limit = static_thresholds["cyclictest"]["latency_overflow_count"]
+            avg_latency_limit = (
+                self.get_saved_cyclictest_latency_threshold_us(
+                    data,
+                    variant,
+                )
+                / 1000.0
+            )
             limit_checks[avg_latency_key] = self.processing.stats.build_static_limit_check(
                 data[avg_latency_key][-1],
                 avg_latency_limit,
@@ -338,71 +391,99 @@ class CyclictestProcessor:
                 0,
             )
 
-        for key in data.keys():
-            data[key] = data[key][-40:]
+        return limit_checks
 
-        plot_defs = [
-            ("min_latency_ms", "Min latency (ms)", "Min latency"),
-            ("avg_latency_ms", "Avg latency (ms)", "Avg latency"),
-            ("max_latency_ms", "Max latency (ms)", "Max latency"),
-            ("overflow_count", "Overflow samples", "Histogram overflows"),
-        ]
-        labels = {
-            "t1_p80": "t1 p80",
-            "t1_p95": "t1 p95",
-            "tnproc_p80": "t$(nproc) p80",
-            "tnproc_p95": "t$(nproc) p95",
-        }
+    @staticmethod
+    def draw_cyclictest_threshold_change_lines(threshold_change_indexes):
+        for change_index in threshold_change_indexes:
+            plt.axvline(
+                x=change_index - 0.5,
+                color="k",
+                linestyle="-.",
+                linewidth=3,
+            )
 
-        for metric_key, axis_label, title in plot_defs:
-            plt.figure(figsize=(20, 10))
-            plt.set_loglevel("WARNING")
-            for variant in variants:
-                key = f"{variant}_{metric_key}"
-                plt.plot(
-                    data["commit"],
-                    data[key],
-                    marker="o",
-                    linestyle="-",
-                    label=labels[variant],
-                )
-            plt.ylabel(axis_label, fontsize=16)
-            plt.xlabel("Build Number", fontsize=16)
-            ax = plt.gca()
-            ax.tick_params(axis="y", labelsize=14)
-            plt.xticks(data["commit"], rotation=90, fontsize=10)
-            plt.grid(True)
-            plt.legend(loc="upper left")
-            if metric_key == "overflow_count":
-                title_threshold = static_thresholds["cyclictest"]["latency_overflow_count"]
-                ax.yaxis.set_major_locator(mticker.MaxNLocator(integer=True))
-                plt.axhline(
-                    y=static_thresholds["cyclictest"]["latency_overflow_count"],
-                    color="k",
-                    linestyle="-.",
-                    linewidth=1.5,
-                )
-            elif metric_key == "avg_latency_ms":
-                title_threshold = "variant specific latency_threshold_us_*"
-            else:
-                title_threshold = "not monitored"
-            plt.title(
-                f"{title} / Threshold: {title_threshold}",
-                loc="right",
-                fontweight="bold",
-                fontsize=16,
+    def plot_cyclictest_latency_metric(
+        self,
+        test_name,
+        data,
+        metric_key,
+        axis_label,
+        title,
+        threshold_change_indexes,
+    ):
+        plt.figure(figsize=(20, 10))
+        plt.set_loglevel("WARNING")
+        for variant in self.CYCLICTEST_VARIANTS:
+            key = f"{variant}_{metric_key}"
+            plt.plot(
+                data["commit"],
+                data[key],
+                marker="o",
+                linestyle="-",
+                label=self.CYCLICTEST_LABELS[variant],
             )
-            plt.suptitle(
-                f"{test_name}\nBuild type: {self.processing.build_type}, "
-                f"Device: {self.processing.device}",
-                fontsize=18,
-                fontweight="bold",
+        plt.ylabel(axis_label, fontsize=16)
+        plt.xlabel("Build Number", fontsize=16)
+        ax = plt.gca()
+        ax.tick_params(axis="y", labelsize=14)
+        plt.xticks(data["commit"], rotation=90, fontsize=10)
+        plt.grid(True)
+        plt.legend(loc="upper left")
+
+        if metric_key == "overflow_count":
+            title_threshold = static_thresholds["cyclictest"]["latency_overflow_count"]
+            ax.yaxis.set_major_locator(mticker.MaxNLocator(integer=True))
+            plt.axhline(
+                y=title_threshold,
+                color="k",
+                linestyle="-.",
+                linewidth=1.5,
             )
-            plt.tight_layout()
-            plt.savefig(
-                self.processing.plot_dir
-                + f"{self.processing.device}_{test_name}_{metric_key}.png"
+            self.draw_cyclictest_threshold_change_lines(threshold_change_indexes)
+        elif metric_key == "avg_latency_ms":
+            title_threshold = "variant specific latency_threshold_us_*"
+        else:
+            title_threshold = "not monitored"
+
+        plt.title(
+            f"{title} / Threshold: {title_threshold}",
+            loc="right",
+            fontweight="bold",
+            fontsize=16,
+        )
+        plt.suptitle(
+            f"{test_name}\nBuild type: {self.processing.build_type}, "
+            f"Device: {self.processing.device}",
+            fontsize=18,
+            fontweight="bold",
+        )
+        plt.tight_layout()
+        plt.savefig(
+            self.processing.plot_dir
+            + f"{self.processing.device}_{test_name}_{metric_key}.png"
+        )
+        plt.close()
+
+    def read_cyclictest_latency_csv_and_plot(self, test_name):
+        data = self.init_cyclictest_latency_data()
+
+        self.read_cyclictest_latency_csv(test_name, data)
+        limit_checks = self.build_cyclictest_limit_checks(data)
+        self.processing.stats.trim_plot_data(data)
+        threshold_change_indexes = self.find_cyclictest_threshold_change_indexes(
+            data,
+            self.CYCLICTEST_VARIANTS,
+        )
+
+        for metric_key, axis_label, title in self.CYCLICTEST_PLOT_DEFS:
+            self.plot_cyclictest_latency_metric(
+                test_name,
+                data,
+                metric_key,
+                axis_label,
+                title,
+                threshold_change_indexes,
             )
-            plt.close()
 
         return limit_checks
