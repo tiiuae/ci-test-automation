@@ -505,6 +505,13 @@ Measure cyclictest latency on target
     ...    ${cyclictest_debug_data}
     ...    ${cyclictest_spike_plot_data}
 
+    FOR    ${variant}    IN    @{variants}
+        ${histogram_limit}    Get Cyclictest Histogram Limit    ${target}    ${variant}
+        Set To Dictionary
+        ...    ${latency_data}
+        ...    ${variant}_latency_threshold_us=${histogram_limit}
+    END
+
     &{cyclictest_checks}    Save Cyclictest Latency Data    ${TEST NAME}    ${latency_data}
     @{failed_variants}      Get Failed Cyclictest Variants    ${cyclictest_checks}
     @{histogram_plot_names}    Create List
