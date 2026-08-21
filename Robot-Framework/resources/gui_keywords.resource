@@ -203,6 +203,16 @@ Locate and click
     IF   ${wiggle}   Wiggle cursor
     Click    ${double_click}
 
+Accept Chrome Terms Of Service If Shown
+    [Documentation]    Chrome Terms of Service dialog is shown only on some fresh profiles.
+    [Arguments]    ${attempts}=3    ${interval}=1s
+    ${status}    Run Keyword And Return Status
+    ...    Wait Until Keyword Succeeds    ${attempts}x    ${interval}    Verify Text Is On The Screen    Terms of Service    scale=2
+    IF    ${status}
+        Press Key(s)    ENTER
+        Wait Until Keyword Succeeds    2x    1s    Verify Text Is On The Screen    Terms of Service    expected=${False}    scale=2
+    END
+
 Click
     [Arguments]   ${double_click}=False  ${sudo}=False
     IF  ${double_click}

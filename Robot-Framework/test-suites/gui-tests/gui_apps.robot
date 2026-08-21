@@ -282,6 +282,7 @@ Copy text to clipboard
 
 Paste clipboard text and verify
     [Arguments]    ${text}
+    Accept Chrome Terms Of Service If Shown
     Locate on screen   text    Search    scale=3
     Press Key(s)       LEFTCTRL+V
     Move cursor to corner
@@ -289,6 +290,8 @@ Paste clipboard text and verify
 
 Open restricted page in Trusted Browser
     Start App in VM    ${Trusted Browser}    params_string=-- https://yle.fi    always_check_vm=True
+    Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
+    Accept Chrome Terms Of Service If Shown
 
 Verify page is blocked in Trusted Browser
     Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
@@ -301,8 +304,12 @@ Forward page to normal browser
 Verify page opened in normal browser
     Check that App is running in VM    ${Google Chrome}    range=10
     Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
+    Accept Chrome Terms Of Service If Shown
     Skip Chrome sign-in prompt if shown
-    Wait Until Keyword Succeeds    10x    1s    Verify Text Is On The Screen    Uutiset    scale=2
+    Wait Until Keyword Succeeds    10x    1s
+    ...    Run Keywords
+    ...    Accept Chrome Terms Of Service If Shown    attempts=1    interval=0s
+    ...    AND    Verify Text Is On The Screen    Uutiset    scale=2
 
 Skip Chrome sign-in prompt if shown
     [Documentation]    Chrome sign-in prompt is shown not every time
@@ -329,6 +336,7 @@ Verify app window restored near coordinates
     END
 
 Save Zoom window baseline coordinates
+    Accept Chrome Terms Of Service If Shown    attempts=3
     ${status}   Run Keyword And Return Status   Locate on screen   image   ${Zoom}[close_button]   0.99   10   timeout=120   scale=2
     Run Keyword If    not ${status}    Focus Zoom window
     ${window_x}   ${window_y}    Locate on screen   image   ${Zoom}[close_button]   0.99   10   timeout=120   scale=2
