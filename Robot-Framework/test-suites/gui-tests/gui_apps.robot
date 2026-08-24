@@ -66,9 +66,9 @@ Maximize and restore window
     [Tags]            SP-T78
     Start app via GUI    ${Zoom}
     ${zoom_window_coords}    ${zoom_anchor_coords}    Save Zoom window baseline coordinates
-    Locate and click maximize/restore window button
-    Verify app window is maximized
-    Locate and click maximize/restore window button
+    Locate and click maximize/restore window button   ${Zoom}
+    Verify app window is maximized   ${Zoom}
+    Locate and click maximize/restore window button   ${Zoom}
     Verify Zoom window restored to baseline    ${zoom_window_coords}    ${zoom_anchor_coords}
     [Teardown]   Run Keywords    Kill App in VM   ${Zoom}
     ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
@@ -171,7 +171,7 @@ Verify Device Information
     Set Test Variable   ${device_info_failures}
     Set Test Variable   ${device_info_unknown_fields}
 
-    Check Device Information Field   Ghaf Version       ${ghaf_version}
+    Check Device Information Field   Ghaf Version       ${ghaf_version}     scale=3
     Check Device Information Field   Device ID          ${device_id}        scale=3
     Check Device Information Field   Secure Boot        ${secure_boot}
     Check Device Information Field   Disk Encryption    ${disk_encryption}
@@ -208,7 +208,10 @@ Open Folder In COSMIC Files
     [Arguments]    ${folder}    ${folder_name}
     Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
     Start App in VM    ${COSMIC Files}    always_check_vm=True    params_string=-- ${folder}
-    Locate on screen   text    ${folder_name}    iterations=10    scale=2
+    Locate on screen   text    ${folder_name}    iterations=10    scale=3
+    # Fullscreen window to make sure whole file name can be seen
+    Locate and click maximize/restore window button   ${COSMIC Files}
+    Verify app window is maximized   ${COSMIC Files}
     Move cursor to corner
 
 Take Screenshot With Print Screen
@@ -296,7 +299,7 @@ Copy text to clipboard
 Paste clipboard text and verify
     [Arguments]    ${text}
     Accept Chrome Terms Of Service If Shown
-    Locate on screen   text    Search    scale=3
+    Locate on screen   image   open-normal-browser.png   confidence=0.80
     Press Key(s)       LEFTCTRL+V
     Move cursor to corner
     Verify Text Is On The Screen    ${text}
@@ -326,8 +329,8 @@ Verify page opened in normal browser
 
 Skip Chrome sign-in prompt if shown
     [Documentation]    Chrome sign-in prompt is shown not every time
-    ${status}    Run Keyword And Return Status      Locate on screen    text    Stay    0.9    10    scale=2
-    Run Keyword If    ${status}    Locate and click    text    Stay    iterations=3    timeout=15    scale=2
+    ${status}    Run Keyword And Return Status      Wait Until Keyword Succeeds    3x    1s   Verify Text Is On The Screen    Sign in to Chrome
+    Run Keyword If    ${status}    Tab and enter   tabs=1
 
 Locate and click minimize window button
     ${mouse_x}  ${mouse_y}  Locate on screen  image  ${Zoom}[close_button]  0.99  10  timeout=120  scale=2
@@ -390,13 +393,14 @@ Wait for Zoom icon coordinates to change and restore window
     FAIL    An additional minimized Zoom session icon hasn't appeared.
 
 Locate and click maximize/restore window button
-    ${mouse_x}  ${mouse_y}  Locate on screen  image  ${Zoom}[close_button]  0.99  10  timeout=120  scale=2
+    [Arguments]    ${app}   ${tolerance}=3
+    ${mouse_x}  ${mouse_y}  Locate on screen  image  ${app}[close_button]  0.99  10  timeout=120  scale=2
     ${target_x}    Evaluate    ${mouse_x} - 20
     Run ydotool command   mousemove --absolute -x ${target_x} -y ${mouse_y}
-    Click
+    Click   wiggle=True
 
 Verify app window is maximized
-    [Arguments]    ${tolerance}=3
-    ${window_x}   ${window_y}    Locate on screen   image   ${Zoom}[close_button]   0.99   10   timeout=120   scale=2
+    [Arguments]    ${app}   ${tolerance}=3
+    ${window_x}   ${window_y}    Locate on screen   image   ${app}[close_button]   0.99   10   timeout=120   scale=2
     ${x_in_range}    Evaluate    abs(${window_x} - 947) <= ${tolerance}
     ${y_in_range}    Evaluate    abs(${window_y} - 25) <= ${tolerance}

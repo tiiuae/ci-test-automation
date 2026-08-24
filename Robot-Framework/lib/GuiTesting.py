@@ -148,13 +148,15 @@ def convert_resolution(coordinates):
     }
     return mouse_coordinates
 
-def convert_app_icon(crop, background, input_file='icon.svg', output_file='icon.png'):
+def convert_app_icon(crop, background, resize='none', input_file='icon.svg', output_file='icon.png'):
+    command = ['magick']
     if background != "none":
-        subprocess.run(['magick', '-background', background, input_file, '-gravity', 'center', '-extent',
-                        '{}x{}'.format(crop, crop), output_file])
-    else:
-        subprocess.run(['magick', input_file, '-gravity', 'center', '-extent',
-                        '{}x{}'.format(crop, crop), output_file])
+        command.extend(['-background', background])
+    command.append(input_file)
+    if resize != "none":
+        command.extend(['-resize', resize])
+    command.extend(['-gravity', 'center', '-extent', '{}x{}'.format(crop, crop), output_file])
+    subprocess.run(command)
     return
 
 def negate_app_icon(input_file, output_file):
