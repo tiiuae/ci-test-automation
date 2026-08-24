@@ -102,10 +102,9 @@ Test setup
     Wiggle cursor
 
 Test teardown
-    IF  $TEST_STATUS=='PASS'
-        Log out from laptop
-    ELSE
+    IF  $TEST_STATUS!='PASS'
         Hard Reboot Device And Connect
+        Login to laptop
     END
     Switch to vm   ${GUI_VM}   user=${USER_LOGIN}
     Save screen recording   ${TEST_STATUS}   ${TEST_NAME} 
