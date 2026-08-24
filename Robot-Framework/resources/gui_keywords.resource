@@ -199,9 +199,7 @@ Locate and click
     [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=10  ${timeout}=120  ${scale}=1  ${wiggle}=False   ${double_click}=False
     ${mouse_x}  ${mouse_y}  Locate on screen  ${type}  ${searched_item}  ${confidence}  ${iterations}  timeout=${timeout}  scale=${scale}
     Run ydotool command   mousemove --absolute -x ${mouse_x} -y ${mouse_y}
-    # Wiggle is sometimes needed for the window to recognize the mouse
-    IF   ${wiggle}   Wiggle cursor
-    Click    ${double_click}
+    Click    ${double_click}   ${wiggle}
 
 Accept Chrome Terms Of Service If Shown
     [Documentation]    Chrome Terms of Service dialog is shown only on some fresh profiles.
@@ -214,7 +212,8 @@ Accept Chrome Terms Of Service If Shown
     END
 
 Click
-    [Arguments]   ${double_click}=False  ${sudo}=False
+    [Arguments]   ${double_click}=False  ${wiggle}=False   ${sudo}=False
+    IF   ${wiggle}   Wiggle cursor
     IF  ${double_click}
         Log   Double-clicking
         Run ydotool command   click 0xC0 0xC0   sudo=${sudo}
@@ -229,6 +228,7 @@ Move cursor to corner
     Run ydotool command   mousemove --absolute -x 50 -y 50
 
 Wiggle cursor
+    [Documentation]    Wiggle is sometimes needed for the window to recognize the mouse
     Log To Console    Moving the mouse a bit
     Run ydotool command   mousemove 1 1
     Run ydotool command   mousemove -- -1 -1
@@ -267,10 +267,10 @@ Check if logged out
     RETURN    ${False}
 
 Get icon
-    [Documentation]    Copy icon svg file to test agent machine. Crop and convert the svg file to png.
-    [Arguments]        ${path}   ${icon_name}   ${crop}=0   ${background}=none   ${output_filename}=icon.png
+    [Documentation]    Copy an icon file to the test agent machine, then crop, resize and convert it to png.
+    [Arguments]        ${path}   ${icon_name}   ${crop}=0   ${background}=none   ${resize}=none   ${output_filename}=icon.png
     SSHLibrary.Get File  ${path}/${icon_name}   ${ICONS_DIR}/icon.svg
-    Convert app icon  ${crop}   ${background}   input_file=${ICONS_DIR}/icon.svg  output_file=${ICONS_DIR}/${output_filename}
+    Convert app icon  ${crop}   ${background}   ${resize}   input_file=${ICONS_DIR}/icon.svg  output_file=${ICONS_DIR}/${output_filename}
 
 Check if locked
     [Documentation]    Check if the screen lock is active
@@ -437,13 +437,6 @@ Kill Initial Setup
     EXCEPT
         # Wait for the initial setup to start
         Run Keyword and Ignore Error     Check that App is running in VM   ${Cosmic Initial Setup}   range=5
-        # Wait until Ghaf theme is applied, this does not happen if initial setup is killed too fast
-        Wait Until Keyword Succeeds   10s   0.5s   Check file exists   .config/cosmic/com.system76.CosmicTheme*
-        IF    "storeDisk-debug-installer" in "${JOB}"
-            Sleep    3
-        ELSE
-            Sleep    1
-        END
         # Kill the initial setup so that it does not interfere with tests
         Kill process by name   ${Cosmic Initial Setup}[process_name]   sudo=False   require_exists=False
     END

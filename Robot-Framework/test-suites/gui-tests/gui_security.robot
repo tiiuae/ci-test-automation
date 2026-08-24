@@ -25,9 +25,9 @@ Check Access List In Trusted Browser
 
     # Access List consist of several files with multiple sections. These pages are 1 per section.
     https://graph.microsoft.com             text_to_find=Microsoft Graph
-    https://excel.cloud.microsoft.com       text_to_find=Welcome to Excel
-    https://word.cloud.microsoft            text_to_find=Welcome to Word
-    https://powerpoint.cloud.microsoft      text_to_find=start using PowerPoint
+    https://excel.cloud.microsoft.com       text_to_find=Microsoft Excel
+    https://word.cloud.microsoft            text_to_find=Microsoft Word
+    https://powerpoint.cloud.microsoft      text_to_find=Microsoft PowerPoint
     https://teams.live.com                  text_to_find=Video calls
     https://www.msn.com                     text_to_find=MSN
     https://onedrive.live.com               text_to_find=OneDrive
@@ -35,7 +35,7 @@ Check Access List In Trusted Browser
     https://ghaflogs.vedenemo.dev           text_to_find=Welcome to Grafana
     https://www.google.com                  text_to_find=Google
     https://thenationalnews.com             text_to_find=The National
-    https://access.clarivate.com            text_to_find=innovation at Clarivate
+    https://www.tii.ae/                     text_to_find=Innovation
     https://hcm22.sapsf.com                 text_to_find=SAP SuccessFactors
     https://jira.atlassian.com              text_to_find=Jira Software
 

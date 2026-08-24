@@ -44,6 +44,5 @@ Save gui icons and icon path
     Get icon                ${icons}/hicolor/48x48/apps  com.system76.CosmicSettings.svg  background=black  output_filename=${COSMIC Settings}[icon]
     Switch to vm            ${Trusted Browser}[VM]
     ${open_normal_path}     Search nix store    open-normal
-    SSHLibrary.Get File     ${open_normal_path}/ghaf-logo-512px.png    ${ICONS_DIR}/open-normal-browser.png
-    OperatingSystem.Run     magick ${ICONS_DIR}/open-normal-browser.png -resize 16x16 -background white -alpha remove ${ICONS_DIR}/open-normal-browser.png
+    Get icon                ${open_normal_path}    ghaf-logo-512px.png  crop=0  background=black  resize=16x16  output_filename=open-normal-browser.png
     [Teardown]              Switch to vm    ${GUI_VM}    user=${USER_LOGIN}

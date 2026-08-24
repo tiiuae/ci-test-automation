@@ -3,19 +3,19 @@
     "display_name": "Advanced Network Configuration",
     "VM": "gui-vm",
     "process_name": "nm-connection-editor",
-    "close_button": "window-close.png"
+    "close_button": "window-close-neg.png"
   },
   "App Store": {
     "display_name": "App Store",
     "VM": "flatpak-vm",
     "process_name": "cosmic-store",
-    "close_button": "window-close-neg.png"
+    "close_button": "ghaf-close.png"
   },
   "Bluetooth Settings": {
     "display_name": "Bluetooth Settings",
     "VM": "gui-vm",
     "process_name": "blueman-manager-wrapped",
-    "close_button": "window-close.png"
+    "close_button": "window-close-neg.png"
   },
   "Calculator": {
     "display_name": "Calculator",
@@ -102,7 +102,7 @@
     "display_name": "Fingerprints",
     "VM": "gui-vm",
     "process_name": "fingwit",
-    "close_button": "window-close.png"
+    "close_button": "window-close-neg.png"
   },
   "FMO Offboarding": {
     "display_name": "FMO Offboarding",
@@ -164,7 +164,7 @@
     "VM": "gui-vm",
     "process_name": "gpu-screen-recorder-gtk",
     "recording_process_name": "gpu-screen-recorder",
-    "close_button": "window-close.png"
+    "close_button": "window-close-neg.png"
   },
   "Microsoft 365": {
     "display_name": "Microsoft 365",
@@ -211,7 +211,7 @@
     "display_name": "Volume Control",
     "VM": "gui-vm",
     "process_name": "pavucontrol",
-    "close_button": "window-close.png"
+    "close_button": "window-close-neg.png"
   },
   "VPN": {
     "display_name": "VPN",
