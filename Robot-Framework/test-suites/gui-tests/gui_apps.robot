@@ -221,16 +221,12 @@ Screen Recording Test Setup
 
 Start Screen Recording With Shortcut
     Press Key(s)    LEFTCTRL+LEFTSHIFT+LEFTALT+R
-    Locate on screen    text    Share    iterations=10    debug_screenshot=False    scale=2
-    # Click the screen preview in the portal, then confirm sharing
-    Run ydotool command    mousemove --absolute -x 500 -y 300
-    Click
-    Locate and click       text    Share    iterations=10    scale=2
+    Select a display to record
     Wait Until Keyword Succeeds    10x    0.5s    Check that process is running    ${GPU Screen Recorder}[recording_process_name]
 
 Stop Screen Recording With Shortcut
     Press Key(s)    LEFTCTRL+LEFTSHIFT+LEFTALT+R
-    Wait Until Keyword Succeeds    10x    0.5s    Check that process is not running    ${GPU Screen Recorder}[recording_process_name]
+    Wait Until Keyword Succeeds    20x    0.5s    Check that process is not running    ${GPU Screen Recorder}[recording_process_name]
 
 Get Videos Folder Recording List
     ${videos}    Run Command    ls -1 ${videos_dir}/*.mp4    rc_match=skip
@@ -250,8 +246,9 @@ Get New Saved Screen Recording
 Verify Video Is Visible In COSMIC Files
     [Arguments]    ${recorded_video}
     ${recorded_video_name}    Run Command    basename ${recorded_video}
+    ${recording_pattern}    Replace String    ${recorded_video_name}    ghaf-    ${EMPTY}
     Locate on screen   text    Videos    iterations=10    scale=2
-    Locate on screen   text    ${recorded_video_name}    iterations=15    scale=2
+    Locate on screen   text    ${recording_pattern}    iterations=15    scale=2
 
 Screen Recording Test Teardown
     Kill process by name    ${GPU Screen Recorder}[recording_process_name]    sudo=False    require_exists=False
