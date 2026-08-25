@@ -77,7 +77,7 @@ Verify Gala is loaded
     [Documentation]   Open Gala and wait the window to be loaded
     [Tags]            SP-T108
     Start app via GUI   ${Gala}
-    Locate on screen    image   gala_signin_arrow.png   confidence=0.8   iterations=25
+    Verify Gala sign in arrow load time
     Close app via GUI   ${Gala}
     [Teardown]   Run Keywords    Kill App in VM   ${Gala}   require_exists=False
     ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
@@ -128,6 +128,21 @@ Record screen with keyboard shortcut
 
 
 *** Keywords ***
+
+Verify Gala sign in arrow load time
+    [Arguments]    ${expected_max_seconds}=10    ${timeout_seconds}=25
+    ${start_time}    Get Time    epoch
+    ${status}        Run Keyword And Return Status    Wait Until Keyword Succeeds    ${timeout_seconds}s    1s
+    ...              Verify Image On The Screen    gala_signin_arrow.png    confidence=0.8
+    ${end_time}      Get Time    epoch
+    ${elapsed}       Evaluate    ${end_time} - ${start_time}
+    IF    not ${status}
+        FAIL    Gala window still does not contain sign in arrow after approximately ${elapsed} seconds.
+    END
+    Log    Gala sign in arrow appeared in approximately ${elapsed} seconds.    console=True
+    IF    ${elapsed} > ${expected_max_seconds}
+        FAIL    Gala page loaded in approximately ${elapsed} seconds, expected less than ${expected_max_seconds} seconds.
+    END
 
 Navigate To Device Information Page
     [Documentation]   Open the 'About' page from the initial Services view.
