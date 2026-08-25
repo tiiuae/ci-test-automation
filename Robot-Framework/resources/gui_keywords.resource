@@ -380,16 +380,23 @@ Start screen recording
     TRY
         Wait Until Keyword Succeeds    10x    0.5s    Run Command    ls -la ${video_file}
     EXCEPT
-        # Try to allow screen capture if recording file was not created
-        Locate on screen   text   Share   iterations=5   debug_screenshot=False
-        # Select the display to record
-        Run ydotool command   mousemove --absolute -x 500 -y 300
-        Run ydotool command   click 0xC0
-        Press Key(s)          ENTER
+        Select a display to record
         Wait Until Keyword Succeeds    10x    0.5s    Run Command    ls -la ${video_file}
     END
     [Teardown]       Run Keyword If   '${KEYWORD_STATUS}' == 'FAIL'   Run Keywords   Timestamp last screenshot
     ...              AND   Run Command   cat ${log_file}
+
+Select a display to record
+    [Documentation]   Try to allow screen capture if recording file was not created
+    TRY
+        Wait Until Keyword Succeeds    5x    0.5s    Verify Text Is On The Screen    Share your screen
+    EXCEPT
+        Log   Did not find a window to allow screen capture, probably already allowed
+    ELSE
+        Run ydotool command   mousemove --absolute -x 500 -y 300
+        Run ydotool command   click 0xC0
+        Press Key(s)          ENTER
+    END
 
 Stop screen recording
     [Arguments]      ${test_status}   ${test_name}=""
