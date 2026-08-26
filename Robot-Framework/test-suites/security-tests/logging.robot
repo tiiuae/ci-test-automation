@@ -33,13 +33,11 @@ User password is not revealed in Grafana
 Check Grafana log forwarding after disconnected state
     [Documentation]  Check that logs are sent to Grafana from time of disconnection during previous boot
     [Tags]           SP-T283  orin-agx  orin-agx-64  orin-nx  lab-only
-    ${initial_check_passed}    Set Variable    ${False}
     Switch to vm      ${ADMIN_VM}
     ${id}             Get Actual Device ID
     Log To Console    Creating log entry and verifying forwarding to grafana
     Run Command       logger --priority=user.info "logtest0_${BUILD_ID}"    sudo=True
     Wait Until Keyword Succeeds  60s  5s  Check VM Log on Grafana  ${id}  ${ADMIN_VM}  2m  ${True}  logtest0_${BUILD_ID}
-    ${initial_check_passed}    Set Variable    ${True}
     Log To Console    Initial check for log forwarding passed
 
     Log To Console    Blocking log forwarding from admin-vm
@@ -63,7 +61,6 @@ Check Grafana log forwarding after disconnected state
     END
     Wait Until Keyword Succeeds  120s  5s  Check VM Log on Grafana     ${id}   ${ADMIN_VM}   5m   ${True}   logtest1_${BUILD_ID}
     Log To Console               Checked that log is forwarded after clearing the iptables rule by reboot
-    [Teardown]  Skip If    not ${initial_check_passed}    Known issue: SSRCSP-7612
 
 *** Keywords ***
 
