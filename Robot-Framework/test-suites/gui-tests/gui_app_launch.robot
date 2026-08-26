@@ -9,6 +9,7 @@ Resource            ../../config/variables.robot
 Variables           ../../lib/performance_thresholds.py
 Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
 ...                 ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}  ${PERF_LOW_LIMIT}
+Library             Collections
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
@@ -147,12 +148,19 @@ Create App Launch Montage And Move Graphs
 Save launch time
     [Documentation]    Evaluate the time between starting the app from the GUI app menu
     ...                and locating & clicking the close button on the app window.
-    ...                Threshold is read from performance_thresholds.py (storeDisk uses its dedicated value).
+    ...                Threshold is read from apps.json for non-storeDisk app-specific limits.
+    ...                Otherwise performance_thresholds.py is used (storeDisk uses its dedicated value).
     [Arguments]        ${app_key}
     IF    "storeDisk" in "${JOB}"
         ${threshold}    Set Variable    ${static_thresholds}[app_launch_time_storedisk]
     ELSE
-        ${threshold}    Set Variable    ${static_thresholds}[app_launch_time]
+        ${has_app_thresholds}    Run Keyword And Return Status    Dictionary Should Contain Key    ${app_key}    app_launch_time_thresholds
+        IF    ${has_app_thresholds}
+            ${threshold}    Get App Launch Threshold
+            ...    ${app_key}[app_launch_time_thresholds]    ${static_thresholds}[app_launch_time]    ${JOB}    ${DEVICE_TYPE}
+        ELSE
+            ${threshold}    Set Variable    ${static_thresholds}[app_launch_time]
+        END
     END
     ${diff}        Evaluate    ${TIME_${app_key}[process_name]_launched} - ${TIME_${app_key}[process_name]_start}
     &{results}     Create Dictionary

@@ -54,6 +54,18 @@ class PerformanceDataProcessing:
     def get_data_dir(self):
         return self.data_dir
 
+    @keyword
+    def get_app_launch_threshold(self, app_thresholds, default_threshold, job, device_type):
+        # Allow a single app-specific threshold value when it does not vary by target.
+        if not isinstance(app_thresholds, dict):
+            return app_thresholds
+
+        for target in (device_type, job):
+            if target in app_thresholds:
+                return app_thresholds[target]
+
+        return default_threshold
+
     # --- Ballooning keywords ---
 
     @keyword

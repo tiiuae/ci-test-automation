@@ -63,7 +63,7 @@ deviations are detected in a row (to the same direction)
 '''
 
 static_thresholds = {
-    'app_launch_time': 10,
+    'app_launch_time': 5,
     'app_launch_time_storedisk': 5,
     'wait_until_reset': 5,
     'cyclictest': {
