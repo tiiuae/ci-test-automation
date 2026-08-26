@@ -50,8 +50,7 @@ Alloy and stunnel services are running in admin-vm
     Switch to vm   ${ADMIN_VM}
     Run Keyword And Continue On Failure   Verify service status  range=5  service=alloy.service    expected_state=active  expected_substate=running
     Run Keyword And Continue On Failure   Verify service status  range=5  service=stunnel.service  expected_state=active  expected_substate=running
-    [Teardown]    Run Keywords    Reboot Orin if ssh connection dropped
-    ...           AND             Run Keyword If Test Failed    Skip Alloy Check On Orin
+    [Teardown]    Reboot Orin if ssh connection dropped
 
 Check logging rate
     [Documentation]    Check that host or vms are not creating too much logs
@@ -171,10 +170,10 @@ Check Grafana logs
         ${failed_vms_check_2}   Check Logs Are available   ${id}   since=${since_boot}s
         ${check_status}         Run Keyword And Return Status    Should Be Empty   ${failed_vms_check_2}
         IF  ${check_status}
-            ${skip_msg}=    Catenate    SEPARATOR=\n
+            ${fail_msg}=    Catenate    SEPARATOR=\n
             ...    Log forwarding stopped for these VMs: ${failed_vms_check_1}
             ...    Verified that log forwarding was working some time after boot for all VMs
-            SKIP   Known issue: SSRCSP-8202: ${skip_msg}
+            FAIL    ${fail_msg}
         ELSE
             Remove Values From List    ${failed_vms_check_1}    @{failed_vms_check_2}
             ${fail_msg}=    Catenate    SEPARATOR=\n
@@ -193,13 +192,6 @@ Logging Suite Setup
     Remove Values From List  ${HOSTNAME_LIST}   ${NET_VM}
     Set Suite Variable       @{VM_LIST}
     Set Suite Variable       @{HOSTNAME_LIST}
-
-
-Skip Alloy Check On Orin
-    IF    "orin" in "${DEVICE_TYPE}" and "alloy.service: inactive" in $TEST_MESSAGE
-        Log Error    Alloy not running   alloy.service is inactive
-        SKIP         Known issue: SSRCSP-8773
-    END
 
 Check Logs Are Available
     [Documentation]  Check if logs are available from each VM in Grafana
