@@ -55,6 +55,10 @@
     "display_name": "COSMIC Settings",
     "VM": "gui-vm",
     "process_name": "cosmic-settings$",
+    "app_launch_time_thresholds": {
+      "lenovo-x1": 6,
+      "darter-pro": 8.5
+    },
     "close_button": "ghaf-close.png",
     "icon": "settings.png"
   },
@@ -62,6 +66,9 @@
     "display_name": "COSMIC System Monitor",
     "VM": "gui-vm",
     "process_name": "cosmic-monitor",
+    "app_launch_time_thresholds": {
+      "darter-pro": 8
+    },
     "close_button": "ghaf-close.png"
   },
   "COSMIC Terminal": {
