@@ -67,7 +67,13 @@ VM memory usage snapshot
         IF    ${mem_avail_pct} < ${low_mem_limit}
             Run Keyword And Continue On Failure    FAIL    ${vm} available memory is below ${low_mem_limit}% of the total memory
         END
-        IF    ${swap_free_pct} < ${low_swap_limit}
+        IF    ${swap_total_mib} == 0
+            IF  "orin-agx" in "${DEVICE_TYPE}" and "${vm}" == "${HOST}"
+                Log    Total swap memory is 0 in ${vm}. Ignoring swap check specifically for Orin AGX ghaf-host (known to have 0 swap)
+            ELSE
+                Run Keyword And Continue On Failure    FAIL    Zero total swap detected in ${vm}. Expected non-zero swap.
+            END
+        ELSE IF    ${swap_free_pct} < ${low_swap_limit}
             Run Keyword And Continue On Failure    FAIL    ${vm} swap free is below ${low_swap_limit}% of the total swap
         END
         Log    Memory in ${vm}: avail ${mem_avail_mib}/${mem_total_mib} MiB, swap free ${swap_free_mib}/${swap_total_mib} MiB    console=True

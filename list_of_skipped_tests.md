@@ -38,7 +38,8 @@
 ## Workarounds
 
 | DATE SET   | TEST CASE / KEYWORD                   | TICKET / Additional Data                                                                               | Error Log Context       |
-| ---------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------- |
+|------------| ------------------------------------- |--------------------------------------------------------------------------------------------------------|-------------------------|
+| 27.08.2026 | VM memory usage snapshot              | Orin AGX ghaf-host has 0 total swap memory. Ignore swap low limit check in this case.                  |                         |
 | 17.08.2026 | Select power menu option              | SSRCSP-8805, skipped on X1 if taskbar disappears                                                       | Taskbar disappeared     |
 | 17.07.2026 | Log out with loginctl                 | Log out all testuser sessions if the are many on seat (controlling the screen) (probably a Cosmic bug) |                         |
 | 15.07.2026 | Verify booting after restart by power | SSRCSP-8704, extra 90 seconds added for AGX boot                                                       |                         |
