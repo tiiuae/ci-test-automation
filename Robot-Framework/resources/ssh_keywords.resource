@@ -374,12 +374,12 @@ Transfer Shell Script To DUT
 
 Transfer Shell Script To VM
     [Arguments]        ${vm}    ${script_name}
-    IF  "${vm}" != "net-vm"
-        ${vm_fail}    ${result} =    Run Keyword And Ignore Error    Switch to vm    ${vm}
-        Run Keyword If    '${vm_fail}' == 'FAIL'   Append To List	 ${FAILED_VMS}	  ${vm}
-        Run Keyword If    '${vm_fail}' == 'FAIL'   Return From Keyword  ${vm_fail}
-        Log               Successfully connected to ${vm}  console=True
+    ${vm_fail}    ${result}    Run Keyword And Ignore Error    Switch to vm    ${vm}
+    IF    '${vm_fail}' == 'FAIL'
+        Append To List   ${FAILED_VMS}   ${vm}
+        RETURN           ${vm_fail}
     END
+    Log       Successfully connected to ${vm}  console=True
     Transfer Shell Script To DUT    performance-tests   ${script_name}   /tmp
 
 Elevate to superuser

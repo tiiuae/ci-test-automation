@@ -3,6 +3,7 @@
 
 *** Settings ***
 Documentation       Gathering performance data
+Test Tags           performance-robot
 
 Resource            ../../config/variables.robot
 Library             ../../lib/output_parser.py
@@ -23,8 +24,6 @@ Suite Setup         Switch to vm   ${HOST}
 
 
 *** Variables ***
-@{FAILED_VM_TESTS}
-@{IMPROVED_VM_TESTS}
 ${SAVE_CYCLICTEST_HISTOGRAMS_ON_PASS}    ${True}
 ${CYCLICTEST_USE_NIX_SHELL}              ${True}
 # If this limit of overflows above variant specific threshold is exceeded it triggers
@@ -367,62 +366,38 @@ FileIO read isolation test
 
     [Teardown]             Teardown of Fileio Read Isolation Test   ${reference-vm}   ${attacker-vm}   ${test_dir}
 
-Sysbench test in NetVM
-    [Documentation]      Run CPU and Memory benchmark using Sysbench in NetVM.
-    [Tags]               SP-T61  SP-T61-8  orin-agx  orin-agx-64  orin-nx
-
-    Switch to vm                            ${NET_VM}
-    Transfer Shell Script To VM             ${NET_VM}   sysbench_test
-
-    Run Command    /tmp/sysbench_test 1   sudo=True   timeout=180
-
-    &{threads}    	        Create Dictionary	 net-vm=1
-    Save sysbench results   net-vm   _1thread
-
-    &{statistics_cpu}       Read CPU csv and plot  net-vm_${TEST NAME}_cpu_1thread
-    &{statistics_mem_rd}    Read Mem csv and plot  net-vm_${TEST NAME}_memory_read_1thread
-    &{statistics_mem_wr}    Read Mem csv and plot  net-vm_${TEST NAME}_memory_write_1thread
-
-    Log    <img src="${REL_PLOT_DIR}${DEVICE}_net-vm_${TEST NAME}_cpu_1thread.png" alt="CPU Plot" width="1200">       HTML
-    Log    <img src="${REL_PLOT_DIR}${DEVICE}_net-vm_${TEST NAME}_memory_read_1thread.png" alt="Mem Plot" width="1200">    HTML
-    Log    <img src="${REL_PLOT_DIR}${DEVICE}_net-vm_${TEST NAME}_memory_write_1thread.png" alt="Mem Plot" width="1200">    HTML
-
-    ${stats_dict}           Evaluate      dict(${statistics_cpu}, **${statistics_mem_rd}, **${statistics_mem_wr})
-    Determine Test Status   ${stats_dict}
-
 Sysbench test in VMs
     [Documentation]      Run CPU and Memory benchmark using Sysbench in Virtual Machines
     ...                  for 1 thread and MULTIPLE threads if there are more than 1 thread in VM.
-    [Tags]               SP-T61  SP-T61-9  lenovo-x1  darter-pro  dell-7330
-    &{threads}    	Create Dictionary
-    @{vms}      Get VM list
-    @{FAILED_VMS} 	Create List
-    Set Global Variable  @{FAILED_VMS}
-    Switch to vm    ${NET_VM}
+    [Tags]               SP-T61  SP-T61-8  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
+    &{threads}             Create Dictionary
+    @{vms}                 Get VM list
+    @{FAILED_VMS}          Create List
+    @{FAILED_VM_TESTS}     Create List
+    @{IMPROVED_VM_TESTS}   Create List
+    Set Test Variable      @{FAILED_VMS}
+    Set Test Variable      @{FAILED_VM_TESTS}
+    Set Test Variable      @{IMPROVED_VM_TESTS}
 
     FOR    ${vm}    IN    @{vms}
-        Log To Console       Fetching thread count for ${vm}
+        Log                  Fetching thread count for ${vm}   console=True
         Switch to vm         ${vm}
-        ${output}            Run Command    lscpu
-        ${threads_n}         Get Cpu Thread Count  ${output}
+        ${threads_n}         Run Command    nproc
+        Run Command          lscpu          # For debugging
         Set To Dictionary    ${threads}    ${vm}=${threads_n}
     END
-    Log To Console       Compiled vm-threads dictionary:
-    Log    ${threads}    console=True
-
-    Switch to vm    ${NET_VM}
+    Log              Compiled vm-threads dictionary: ${threads}    console=True
 
     FOR	 ${vm}	IN	@{vms}
-        ${threads_n}	Get From Dictionary	  ${threads}	 ${vm}
+        ${threads_n}    Get From Dictionary	  ${threads}    ${vm}
         ${vm_fail}      Transfer Shell Script To VM   ${vm}  sysbench_test
         IF  '${vm_fail}' == 'FAIL'
             Log         Skipping tests for ${vm} because couldn't connect to it  console=True
         ELSE
-            Run Command       /tmp/sysbench_test ${threads_n}  sudo=True   timeout=120
+            Run Command       /tmp/sysbench_test ${threads_n}  sudo=True   timeout=180
             Run Keyword If    ${threads_n} > 1   Save sysbench results   ${vm}
             Save sysbench results   ${vm}   _1thread
         END
-        Switch to vm    ${NET_VM}
     END
 
     Read VMs data CSV and plot  test_name=${TEST NAME}  vms_dict=${threads}
@@ -435,24 +410,28 @@ Sysbench test in VMs
     Log    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}_memory_read.png" alt="Mem Plot" width="1200">    HTML
     Log    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}_memory_write.png" alt="Mem Plot" width="1200">    HTML
 
-    ${length}       Get Length    ${FAILED_VMS}
+    ${improved_count}     Get Length    ${IMPROVED_VM_TESTS}
+    ${failed_test_count}  Get Length    ${FAILED_VM_TESTS}
+    ${failed_vm_count}    Get Length    ${FAILED_VMS}
+    ${improved_msg}       Set Variable  ${EMPTY}
+    ${fail_msg}           Set Variable  ${EMPTY}
 
-    ${isEmpty}    Run Keyword And Return Status    Should Be Empty    ${FAILED_VM_TESTS}
-    ${fail_msg}=  Set Variable  ${EMPTY}
-    IF  ${isEmpty} == False
-      ${fail_msg}=  Set Variable  Deviation detected in the following tests: "${FAILED_VM_TESTS}"\n
+    IF  ${improved_count} > 0
+      ${improved_msg}=  Set Variable  Performance improvement detected in the following tests: ${IMPROVED_VM_TESTS}\n
     END
-    IF  ${length} > 0
+    IF  ${failed_test_count} > 0
+      ${fail_msg}=  Set Variable  Performance deterioration detected in the following tests: ${FAILED_VM_TESTS}\n
+    END
+    IF  ${failed_vm_count} > 0
       ${fail_msg}=  Set Variable  ${fail_msg}These VMs were not tested due to connection fail: ${FAILED_VMS}
     END
-    IF  ${isEmpty} == False or ${length} > 0
+
+    IF  $fail_msg != ''
+        ${fail_msg}=  Set Variable  ${fail_msg}${improved_msg}
         FAIL  ${fail_msg}
     END
-
-    ${isEmpty}    Run Keyword And Return Status    Should Be Empty    ${IMPROVED_VM_TESTS}
-    IF  ${isEmpty} == False
-      ${pass_msg}=  Set Variable  Performance improvement detected in the following tests: "${IMPROVED_VM_TESTS}"\n
-      Pass Execution    ${pass_msg}
+    IF  $improved_msg != ''
+      Pass Execution    ${improved_msg}
     END
 
 
@@ -642,7 +621,7 @@ Save cpu results
     ${statistics}       Output Dictionary First Value   ${statistics_dict}
     IF  "${statistics}[flag]" == "-1"
         Append To List     ${FAILED_VM_TESTS}        ${host}_${test}
-        Log                Deviation detected in test: ${host}_${test}  console=True
+        Log                Deterioration detected in test: ${host}_${test}  console=True
     END
     IF  "${statistics}[flag]" == "1"
         Append To List     ${IMPROVED_VM_TESTS}      ${host}_${test}
