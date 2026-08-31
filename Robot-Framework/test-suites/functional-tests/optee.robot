@@ -14,60 +14,30 @@ Suite Setup         Switch to vm   ${HOST}
 *** Test Cases ***
 
 OP-TEE xtest
-       [Documentation]  Runs OP-TEE's xtest
-       ...
-       ...              NOTE: About fail and failures!!
-       ...              As a background then currently three test cases are failing within
-       ...              xtest full run and therefore these test cases are excluded from
-       ...              full run. They fail due bug/issues within OP-TEE. As soon as fixes
-       ...              are introduced then this test should be updated!
-       ...
-       ...              How to update?
-       ...
-       ...              1. Remove corresponding "-x"-flag from xtest (this test)
-       ...
-       ...              2. Delete corresponding "OP-TEE xtest XXXX" test case
-       ...
-       ...              (3. If everything is fixed (no more "-x"-flags), remove this comment!!)
-       [Tags]  SP-T122  optee-xtest
+    [Documentation]  Runs OP-TEE's xtest
+    ...
+    ...              NOTE: About fail and failures!!
+    ...              There is currently one xtest that fails and is excluded from this test.
+    ...              This test should be updated when it starts passing.
+    ...
+    ...              How to update?
+    ...
+    ...              1. Remove corresponding "-x"-flag from xtest (this test)
+    ...
+    ...              2. Delete corresponding "OP-TEE xtest XXXX" test case
+    ...
+    ...              (3. If everything is fixed (no more "-x"-flags), remove this comment!!)
+    [Tags]  SP-T122  optee-xtest
 
-       Run Command    xtest -x 1006 -x 1008 -x 1033 -x 1024    sudo=True   timeout=300
-
-OP-TEE xtest 1024
-    [Documentation]   Xtest 1024
-    ...               Test will be skipped in case of failure, because this is a known issue.
-    ...               Please read OP-TEE Test suite comment
-    [Tags]  SP-T129  optee-xtest
-
-    ${status}  ${out}   Run Keyword And Ignore Error   Run Command    xtest 1024   sudo=True
-    IF   $status == 'FAIL'   SKIP   Known issue (SSRCSP-8198) encountered, skipping the test
+    Run Command    xtest -x 1006  sudo=True   timeout=300
 
 OP-TEE xtest 1006
     [Documentation]   Xtest 1006
     ...               Test will be skipped in case of failure, because this is a known issue.
-    ...               Please read OP-TEE Test suite comment
     [Tags]  SP-T129  optee-xtest
 
     ${status}  ${out}   Run Keyword And Ignore Error   Run Command    xtest 1006   sudo=True
     IF   $status == 'FAIL'   SKIP   Known issue (SSRCSP-8198) encountered, skipping the test
-
-OP-TEE xtest 1008
-    [Documentation]   Xtest 1008
-    ...               Test will be skipped in case of failure, because this is a known issue.
-    ...               Please read OP-TEE Test suite comment
-    [Tags]  SP-T129  optee-xtest
-
-    ${status}  ${out}   Run Keyword And Ignore Error   Run Command    xtest 1008   sudo=True
-    IF   $status == 'FAIL'   SKIP   Known issue encountered, skipping the test
-
-OP-TEE xtest 1033
-    [Documentation]   Xtest 1033
-    ...               Test will be skipped in case of failure, because this is a known issue.
-    ...               Please read OP-TEE Test suite comment
-    [Tags]  SP-T129  optee-xtest
-
-    ${status}  ${out}   Run Keyword And Ignore Error   Run Command    xtest 1033   sudo=True
-    IF   $status == 'FAIL'   SKIP   Known issue encountered, skipping the test
 
 
 Basic pkcs11-tool-optee test

@@ -13,11 +13,10 @@
 | 01.07.2026 | Account lockout after failed GUI login        | Test under development                                                  | Account lockout      |
 | 13.05.2026 | Validate Forward Secure Sealing               | SSRCSP-8820                                                             | FSS test failed      |
 | 30.04.2026 | Open PDF from VM                              | SSRCSP-8367                                                             | Crash in media-vm    |
-| 17.03.2026 | OP-TEE xtest 1006, OP-TEE xtest 1024 (Orins)  | SSRCSP-8198                                                             | (Fails every time)   |
+| 17.03.2026 | OP-TEE xtest 1006                             | SSRCSP-8198                                                             | (Fails every time)   |
 | 11.02.2026 | Check device id (storeDisk)                   | SSRCSP-7997                                                             | (Fails every time)   |
 | 11.02.2026 | Check net-vm hostname (storeDisk)             | SSRCSP-7997                                                             | (Fails every time)   |
 | 16.09.2025 | Check systemctl status in every VM            | [List of skips](/Robot-Framework/test-suites/functional-tests/vm.robot) | Systemctl status     |
-| 21.12.2023 | OP-TEE xtest 1033, OP-TEE xtest 1008 (Orins)  | These tests have never passed                                           | (Fails every time)   |
 
 ## Old Dell 7330 skips
 
@@ -38,7 +37,7 @@
 ## Workarounds
 
 | DATE SET   | TEST CASE / KEYWORD                   | TICKET / Additional Data                                                                               | Error Log Context       |
-|------------| ------------------------------------- |--------------------------------------------------------------------------------------------------------|-------------------------|
+| ---------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------- |
 | 27.08.2026 | VM memory usage snapshot              | Orin AGX ghaf-host has 0 total swap memory. Ignore swap low limit check in this case.                  |                         |
 | 17.08.2026 | Select power menu option              | SSRCSP-8805, skipped on X1 if taskbar disappears                                                       | Taskbar disappeared     |
 | 17.07.2026 | Log out with loginctl                 | Log out all testuser sessions if the are many on seat (controlling the screen) (probably a Cosmic bug) |                         |
