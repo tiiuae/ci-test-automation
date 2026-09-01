@@ -69,11 +69,11 @@ Turn Laptop On
 
 Soft Reboot Device And Connect
     [Documentation]  Reboot device from ${vm} and connect after the reboot
-    [Arguments]      ${vm}=${HOST}
+    [Arguments]      ${vm}=${HOST}    ${retry}=60
     ${reboot_log_since}    Get Time    epoch
     ${soft_reboot_ok}      Run Keyword And Return Status
     ...    Run Keywords
-    ...    Soft Reboot Device   ${vm}
+    ...    Soft Reboot Device   ${vm}   check_iterations=${retry}
     ...    AND
     ...    Connect After Reboot   soft_reboot=True
     IF    not ${soft_reboot_ok}
@@ -104,7 +104,7 @@ Collect Logs After Failed Soft Reboot
 
 Soft Reboot Device
     [Documentation]  Reboot device from ${vm}
-    [Arguments]      ${vm}=${HOST}
+    [Arguments]      ${vm}=${HOST}  ${check_iterations}=60
     ${device_is_available}   Ping Host   ${DEVICE_IP_ADDRESS}
     IF  ${device_is_available}
         Switch to vm   ${vm}
@@ -113,7 +113,7 @@ Soft Reboot Device
     ELSE
         FAIL    Device expected to be available but not responding.
     END
-    ${shutdown_ok}    Run Keyword And Return Status    Verify shutdown via network
+    ${shutdown_ok}    Run Keyword And Return Status    Verify shutdown via network      iterations=${check_iterations}
     IF    not ${shutdown_ok}   FAIL    Device still responds after reboot initiated from ${vm}.
     Close All Connections
 
@@ -149,12 +149,12 @@ Wake up device
     Check If Device Is Available    retry=30s   action=suspend
 
 Wait Until Device Is Down
-    [Arguments]    ${power_off}=${False}
+    [Arguments]    ${power_off}=${False}    ${check_iterations}=60
     IF  "${SERIAL_PORT}" == "NONE"
         IF  ${power_off}
-            ${time}   Verify shutdown via network    required_down_count=1
+            ${time}   Verify shutdown via network    required_down_count=1  iterations=${check_iterations}
         ELSE
-            ${time}   Verify shutdown via network
+            ${time}   Verify shutdown via network   iterations=${check_iterations}
         END
     ELSE
         ${time}  ${verified_via_serial}   Verify shutdown via serial

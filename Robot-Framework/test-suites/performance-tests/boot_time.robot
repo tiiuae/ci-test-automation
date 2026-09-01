@@ -51,7 +51,8 @@ Measure Hard Boot Time
 Measure Orin Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
     [Tags]           SP-T187  SP-T187-2  orin-agx  orin-agx-64  orin-nx
-    Soft Reboot Device
+    #  SSRCSP-8874 Shutdown time for orins increased, iterations set from default 60 to 180.
+    Soft Reboot Device  check_iterations=180
     Get Time To Ping
 
 Measure Orin Shutdown Time
@@ -65,7 +66,8 @@ Measure Orin Hard Boot Time
     [Tags]           SP-T182  SP-T182-2  orin-agx  orin-agx-64  orin-nx  lab-only
     Log To Console                Shutting down by switching the power off
     Turn Off Power
-    Wait Until Device Is Down     power_off=${True}
+    #  SSRCSP-8874 Shutdown time for orins increased, iterations set from default 60 to 180.
+    Wait Until Device Is Down     power_off=${True}     check_iterations=180
     Close All Connections
     Log To Console                The device has shut down
     Log To Console                Booting the device by switching the power on
