@@ -16,7 +16,7 @@ Suite Setup         Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
 
 Check user systemctl status
     [Documentation]   Verify systemctl status --user is running
-    [Tags]            SP-T260  systemctl  darter-pro  lenovo-x1  dell-7330  fmo
+    [Tags]            SP-T260  systemctl  lenovo-x1  darter-pro  dell-7330  fmo
     [Teardown]        Set Test Message    append=${True}  separator=\n    message=${found_known_issues_message}
     Set Test Variable   ${found_known_issues_message}   ${EMPTY}
 
@@ -39,23 +39,23 @@ Check user systemctl status
 
 Givc-cli shows Ghaf version
     [Documentation]    Verify that givc-cli sysinfo shows current Ghaf version.
-    [Tags]             SP-T369  SP-T369-1  darter-pro  lenovo-x1
+    [Tags]             SP-T369  SP-T369-1  lenovo-x1  darter-pro
     ${version}         Get Ghaf Version
     Verify givc-cli sysinfo field    Ghaf Version    ${version}
 
 Givc-cli shows Secure Boot enabled
     [Documentation]    Verify that givc-cli sysinfo shows Secure Boot enabled on Secure Boot devices.
-    [Tags]             SP-T369  SP-T369-2  lenovo-x1  secboot-only
+    [Tags]             SP-T369  SP-T369-2  lenovo-x1  darter-pro  secboot-only
     Verify givc-cli sysinfo field    Secure Boot    enabled
 
 Givc-cli shows Secure Boot disabled
     [Documentation]    Verify that givc-cli sysinfo shows Secure Boot disabled on non-Secure Boot devices.
-    [Tags]             SP-T369  SP-T369-3  darter-pro  lenovo-x1  excl-secboot
+    [Tags]             SP-T369  SP-T369-3  lenovo-x1  darter-pro  excl-secboot
     Verify givc-cli sysinfo field    Secure Boot    disabled
 
 Givc-cli shows Disk Encryption
     [Documentation]    Verify that givc-cli sysinfo shows Disk Encryption enabled on installer images and disabled on non-installers.
-    [Tags]             SP-T369  SP-T369-4  darter-pro  lenovo-x1
+    [Tags]             SP-T369  SP-T369-4  lenovo-x1  darter-pro
     IF    "installer" in "${JOB}"
         Verify givc-cli sysinfo field    Disk Encryption    enabled
     ELSE

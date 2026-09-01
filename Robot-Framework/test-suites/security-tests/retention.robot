@@ -15,7 +15,7 @@ Resource            ../../resources/service_keywords.resource
 
 Log retention policies
     [Documentation]   Check that retention policies are applied and enforced
-    [Tags]            SP-T329  lenovo-x1  darter-pro
+    [Tags]            SP-T329  lenovo-x1  darter-pro  orin-agx  orin-agx-64  orin-nx
 
     Switch to vm   ${HOST}
     Check journald configuration

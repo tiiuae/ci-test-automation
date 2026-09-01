@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Verify that SPIRE server is healthy and x509pop agents are attested
-Test Tags           spire  lenovo-x1  darter-pro
+Test Tags           spire  lenovo-x1  darter-pro  orin-agx  orin-agx-64  orin-nx
 
 Library             Collections
 Library             String

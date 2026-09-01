@@ -81,7 +81,7 @@ Check serial connection
 
 Check storage size
     [Documentation]  Check that there is enough persistent storage available
-    [Tags]           SP-T342  pre-merge  bat  lenovo-x1  darter-pro  dell-7330
+    [Tags]           SP-T342  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
     ${total_storage}       Check Boot Disk Size
     ${persistent_storage}  Check Persistent Storage Size
     Should Be True  ${total_storage} > ${persistent_storage} > ${100}
@@ -98,7 +98,7 @@ Check full disk encryption
 Check Secure Boot is enabled
     [Documentation]  To be run only on Secure Boot X1
     ...              Install sbctl and check that Secure Boot is enabled
-    [Tags]           SP-T341  lenovo-x1  secboot-only
+    [Tags]           SP-T341  lenovo-x1  darter-pro  secboot-only
     ${sb_status}      Get Secure Boot Status
     Should Be Equal   ${sb_status}   Enabled   Secure Boot is not enabled
 

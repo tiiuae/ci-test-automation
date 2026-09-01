@@ -155,7 +155,7 @@ Wipe installed Ghaf from internal memory
 
 Break the system
     [Documentation]   Wipe boot partition
-    [Tags]            break  darter-pro  lenovo-x1
+    [Tags]            break  lenovo-x1  darter-pro
     Check If Device Is Up    retry=5x
     IF    ${IS_AVAILABLE} == False
         Turn Laptop On
