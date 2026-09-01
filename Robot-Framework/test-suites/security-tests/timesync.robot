@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Testing time synchronization
-Test Tags           timesync
+Test Tags           timesync  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  fmo
 
 Library             ../../lib/TimeLibrary.py
 Resource            ../../resources/common_keywords.resource
@@ -29,7 +29,7 @@ Time synchronization
     ...                      -Net-vm is not connected to net.
     ...                  - Ghaf-host is connected to net via Net-VM if adapter is used!.
     ...                  - In this test we expect adapter to be used.
-    [Tags]            SP-T97  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  fmo
+    [Tags]            SP-T97
 
     Switch to vm   ${HOST}
     Check that time is correct  timezone=UTC
@@ -46,7 +46,7 @@ Time synchronization
     [Teardown]  Timesync Teardown
 
 Update system time from internet in VMs
-    [Tags]            SP-T217  lenovo-x1  darter-pro  dell-7330
+    [Tags]            SP-T217
     [Template]        Update system time from internet in ${vm}
     [Setup]           VM Time Update Setup
     FOR    ${vm}    IN    @{VM_LIST}

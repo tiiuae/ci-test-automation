@@ -45,7 +45,7 @@ Wifi passthrough into NetVM
 
 Ethernet passthrough into NetVM
     [Documentation]     Verify that ethernet connection works inside netvm and internet is available
-    [Tags]              SP-T62  SP-T62-1  pre-merge  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  lab-only
+    [Tags]              SP-T62  SP-T62-1  pre-merge  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  lab-only
     [Setup]             Switch to vm   ${NET_VM}
     Check Network Availability   8.8.8.8   limit_freq=${False}   interface=eth
 

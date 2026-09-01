@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Bluetooth functional tests with external Bluetooth Board
-Test Tags           bluetooth  lab-only  lenovo-x1  darter-pro
+Test Tags           bluetooth  lenovo-x1  darter-pro  lab-only
 
 Library             SerialLibrary    encoding=ascii
 Library             Process
