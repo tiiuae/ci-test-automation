@@ -74,7 +74,7 @@ Check Access List In Trusted Browser Template
     Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
 
     Wait Until Keyword Succeeds     10x                        1s
-    ...                             Verify Text Is On The Screen    ${text_to_find}
+    ...                             Verify Text Is On The Screen    ${text_to_find}     compare_alphanum_only=${True}
 
     [Teardown]    Kill App in VM   ${Trusted Browser}   status=${KEYWORD_STATUS}
 

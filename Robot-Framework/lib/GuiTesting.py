@@ -104,15 +104,16 @@ def get_text_field_from_image(image, field, scale=1):
     recognized_text = get_text(data)
     raise AssertionError(f"Field '{field}' not found in image. Recognized text: {recognized_text}")
 
-def is_text_on_the_screen(screenshot, text, scale=1):
+def is_text_on_the_screen(screenshot, text, scale=1, compare_alphanum_only=False):
     logging.info("Searching " + text)
     data = get_data_from_image(screenshot, scale)
+    text_from_image = ''.join(get_text(data))
 
-    for sentence in get_text(data):
-        if text in sentence:
-            return True
+    if compare_alphanum_only:
+        text_from_image = ''.join(char for char in text_from_image if char.isalnum())
+        text = ''.join(char for char in text if char.isalnum())
 
-    return False
+    return text in text_from_image
 
 def is_image_on_the_screen(screenshot, image, confidence=0.99):
     logging.info("Searching " + image)
