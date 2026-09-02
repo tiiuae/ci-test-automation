@@ -142,23 +142,11 @@ class ParseMeasurementData:
 
     def append_measurement_history_result(self, test_name, metric_name, unit, build_id, device, measurements):
         file_path = os.path.join(self.csv_dir, f"{device}_{test_name}__{metric_name}.csv")
-        row = {"build_id": build_id, "unit": unit}
-        for column, value in measurements.items():
-            row[str(column)] = value
+        row = self._build_measurement_history_row(unit, build_id, measurements)
 
         if os.path.exists(file_path):
             data = pd.read_csv(file_path)
-            columns = list(data.columns)
-            for column in row:
-                if column not in columns:
-                    columns.append(column)
-            for column in columns:
-                if column not in row:
-                    row[column] = pd.NA
-            data = pd.concat(
-                [data.reindex(columns=columns), pd.DataFrame([row], columns=columns)],
-                ignore_index=True,
-            )
+            data = self._append_measurement_history_row(data, row)
         else:
             columns = ["build_id", "unit"] + [str(column) for column in measurements.keys()]
             for column in columns:
@@ -171,6 +159,42 @@ class ParseMeasurementData:
     def generate_measurement_history_graph(self, test_name, metric_name, device):
         file_path = os.path.join(self.csv_dir, f"{device}_{test_name}__{metric_name}.csv")
         data = pd.read_csv(file_path)
+        self._plot_measurement_history_graph(data, test_name, metric_name, device)
+        return
+
+    def preview_measurement_history_result(self, test_name, metric_name, unit, build_id, device, measurements):
+        file_path = os.path.join(self.csv_dir, f"{device}_{test_name}__{metric_name}.csv")
+        if os.path.exists(file_path):
+            data = pd.read_csv(file_path)
+        else:
+            data = pd.DataFrame(columns=["build_id", "unit"])
+        row = self._build_measurement_history_row(unit, build_id, measurements)
+        data = self._append_measurement_history_row(data, row)
+        self._plot_measurement_history_graph(data, test_name, metric_name, device)
+        return
+
+    @staticmethod
+    def _build_measurement_history_row(unit, build_id, measurements):
+        row = {"build_id": build_id, "unit": unit}
+        for column, value in measurements.items():
+            row[str(column)] = value
+        return row
+
+    @staticmethod
+    def _append_measurement_history_row(data, row):
+        columns = list(data.columns)
+        for column in row:
+            if column not in columns:
+                columns.append(column)
+        for column in columns:
+            if column not in row:
+                row[column] = pd.NA
+        return pd.concat(
+            [data.reindex(columns=columns), pd.DataFrame([row], columns=columns)],
+            ignore_index=True,
+        )
+
+    def _plot_measurement_history_graph(self, data, test_name, metric_name, device):
         if data.empty:
             logging.warning("No measurement history data to plot for %s/%s", test_name, metric_name)
             return
