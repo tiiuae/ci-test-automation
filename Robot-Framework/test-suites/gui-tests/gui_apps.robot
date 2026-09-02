@@ -126,6 +126,21 @@ Record screen with keyboard shortcut
     Verify Video Is Visible In COSMIC Files    ${recorded_video}
     [Teardown]        Screen Recording Test Teardown
 
+Use Unsafe shares to move image via COSMIC Files GUI
+    [Documentation]    Save an image from ${Google Chrome}[display_name] to the Unsafe chrome-vm share,
+    ...                then copy it to the Unsafe business-vm share using ${COSMIC Files}[display_name].
+    [Tags]             SP-T198  SP-T198-7  shares
+    ${file_name}       Set Variable    Solitary_tree_-_geograph.org.uk_-_1145309.jpg
+    ${image_url}       Set Variable    https://commons.wikimedia.org/wiki/Special:Redirect/file/Solitary_tree_-_geograph.org.uk_-_1145309.jpg
+    ${source_share}    Set Variable    "/Shares/Unsafe chrome-vm share"
+    ${target_share}    Set Variable    "/Shares/Unsafe business-vm share"
+
+    Download reference image for GUI matching    ${image_url}    ${file_name}
+    Save image from Chrome to Unsafe share    ${image_url}    ${file_name}
+    Copy file between Unsafe shares via COSMIC Files    ${source_share}    ${target_share}    ${file_name}
+    Open Shared Image In Target VM User App    ${file_name}
+    [Teardown]    Unsafe Share GUI Image Test Teardown    ${file_name}
+
 
 *** Keywords ***
 
@@ -214,6 +229,14 @@ Open Folder In COSMIC Files
     Verify app window is maximized   ${COSMIC Files}
     Move cursor to corner
 
+Open Share In COSMIC Files
+    [Arguments]    ${share_name}
+    Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+    Start App in VM    ${COSMIC Files}    always_check_vm=True
+    Locate on screen   image    ${COSMIC Files}[close_button]    0.90    iterations=10
+    Locate and click   text    Shares    iterations=3    scale=3    wiggle=True
+    Locate and click   text    ${share_name}    iterations=3    scale=2    wiggle=True    double_click=True
+
 Take Screenshot With Print Screen
     Press Key(s)       PRINT
     Wait Until Keyword Succeeds    5x    0.5s    Check that process is running    ${COSMIC Screenshot}[process_name]
@@ -289,6 +312,65 @@ Save current document from COSMIC Text Editor to Shares
     Locate and click   text   comms-vm    wiggle=True   double_click=True
     Press Key(s)       ENTER
 
+Download reference image for GUI matching
+    [Arguments]    ${image_url}    ${file_name}
+    ${result}    Run Process    curl    -L    -f    -s    -S    -o    ${ICONS_DIR}/${file_name}    ${image_url}    stderr=STDOUT
+    Should Be Equal As Integers    ${result.rc}    0    Failed to download reference image: ${result.stdout}
+
+Save image from Chrome to Unsafe share
+    [Arguments]    ${image_url}    ${file_name}
+    Start App in VM    ${Google Chrome}    always_check_vm=True    params_string=-- ${image_url}
+    Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
+    Accept Chrome Terms Of Service If Shown
+    Skip Chrome sign-in prompt if shown
+    Select Chrome search engine if prompted
+    Locate on screen   image    ${Google Chrome}[close_button]    0.90    iterations=20
+    Run ydotool command    mousemove --absolute -x 480 -y 300    # The direct image URL is expected to place the image in the screen center.
+    Run ydotool command    click 0xC1   # Right click
+    Press Key(s)       DOWN
+    Press Key(s)       DOWN
+    Press Key(s)       ENTER
+    Locate and click   text    Unsafe   iterations=3    scale=2    wiggle=True
+    Press Key(s)       LEFTALT+S
+    Switch to vm       ${CHROME_VM}
+    Wait Until Keyword Succeeds    10x    1s    Check file exists    /home/appuser/'Unsafe share'/${file_name}    sudo=True
+    Close app via GUI   ${Google Chrome}
+
+Copy file between Unsafe shares via COSMIC Files
+    [Arguments]    ${source_share}    ${target_share}    ${file_name}
+    Open Share In COSMIC Files    chrome-vm
+    Locate and click    text    tree    confidence=0.9   iterations=5    scale=2    wiggle=True
+    Press Key(s)        LEFTCTRL+C
+    Locate and click    text    Shares       iterations=5    scale=3    wiggle=True
+    Locate and click    text    business-vm  iterations=5    scale=2    wiggle=True    double_click=True
+    Locate and click    text    Empty        wiggle=True
+    Press Key(s)        LEFTCTRL+V
+    Click               # click in the another part of the window to deselect the file for better test recognition
+    Wait Until Keyword Succeeds    5x    1s    Check file exists    ${target_share}/${file_name}
+
+Open Shared Image In Target VM User App
+    [Arguments]    ${file_name}
+    Start App in VM    ${Trusted Browser}    always_check_vm=True
+    Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
+    Accept Chrome Terms Of Service If Shown
+    Locate on screen   image    ${Trusted Browser}[close_button]    0.90    iterations=20
+    Press Key(s)       LEFTCTRL+L
+    Type string        file:///home/appuser/Unsafe%20share/${file_name}    enter_at_end=True
+    Move cursor to corner
+    Locate on screen   image    ${file_name}    0.75    iterations=10
+
+Unsafe Share GUI Image Test Teardown
+    [Arguments]    ${file_name}
+    Kill App in VM    ${COSMIC Files}    require_exists=False
+    Kill App in VM    ${Google Chrome}    require_exists=False
+    Switch to vm      ${CHROME_VM}
+    Remove file       /home/appuser/'Unsafe share'/${file_name}    sudo=True    rc_match=skip
+    Switch to vm      ${BUSINESS_VM}
+    Remove file       /home/appuser/'Unsafe share'/${file_name}    sudo=True    rc_match=skip
+    Kill App in VM    ${Trusted Browser}    require_exists=False
+    Switch to vm      ${GUI_VM}    user=${USER_LOGIN}
+    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+
 Copy text to clipboard
     [Arguments]    ${text}
     Run ydotool command  type ${text}
@@ -331,6 +413,16 @@ Skip Chrome sign-in prompt if shown
     [Documentation]    Chrome sign-in prompt is shown not every time
     ${status}    Run Keyword And Return Status      Wait Until Keyword Succeeds    3x    1s   Verify Text Is On The Screen    Sign in to Chrome
     Run Keyword If    ${status}    Tab and enter   tabs=1
+
+Select Chrome search engine if prompted
+    [Documentation]    Chrome first-run search engine prompt is shown only on some fresh profiles.
+    ${status}    Run Keyword And Return Status
+    ...    Wait Until Keyword Succeeds    3x    1s    Verify Text Is On The Screen    Choose your search engine    scale=2
+    IF    ${status}
+        Tab and enter    tabs=2
+        Tab and enter
+        Wait Until Keyword Succeeds    2x    1s    Verify Text Is On The Screen    Choose your search engine    expected=${False}    scale=2
+    END
 
 Locate and click minimize window button
     ${mouse_x}  ${mouse_y}  Locate on screen  image  ${Zoom}[close_button]  0.99  10  timeout=120  scale=2
