@@ -53,82 +53,14 @@ Alloy and stunnel services are running in admin-vm
     [Teardown]    Reboot Orin if ssh connection dropped
 
 Check logging rate
-    [Documentation]    Check that host or vms are not creating too much logs
-    [Tags]             SP-T359  log_rate
+    [Documentation]    Check that host or vms are not creating too much logs and save the result to history.
+    [Tags]             SP-T359  SP-T359-1  -pre-merge
+    Check logging rate against history    ${TEST NAME}    save_history=${True}
 
-    ${check_interval}          Set Variable   100
-    ${entry_limit}             Set Variable   400
-    ${dell_host_entry_limit}   Set Variable   1000   # Known Issue: SSRCSP-8481
-    ${orin_entry_limit}        Set Variable   1000
-    ${bytes_per_entry}         Set Variable   200
-
-    &{spam_metrics}       Create Dictionary
-    &{ok_metrics}         Create Dictionary
-    &{spam_logs}          Create Dictionary
-    &{unavailable_vms}    Create Dictionary
-    &{entry_history}      Create Dictionary
-    &{byte_history}       Create Dictionary
-
-    FOR  ${vm}  IN  @{VM_LIST}
-        Set To Dictionary    ${entry_history}    ${vm}=${EMPTY}
-        Set To Dictionary    ${byte_history}     ${vm}=${EMPTY}
-    END
-    FOR  ${vm}  IN  @{VM_LIST}
-        ${switch_status}    ${switch_output}    Run Keyword And Ignore Error    Switch to vm    ${vm}    timeout=10
-        IF  '${switch_status}' == 'FAIL'
-            Log    Skipping ${vm}: ${switch_output}    console=True
-            Set To Dictionary    ${unavailable_vms}    ${vm}=${switch_output}
-            CONTINUE
-        END
-        IF  "orin" in "${DEVICE_TYPE}"
-            ${vm_entry_limit}   Set Variable   ${orin_entry_limit}
-        ELSE IF  "${DEVICE_TYPE}" == "dell-7330" and '${vm}' == '${HOST}'
-            ${vm_entry_limit}   Set Variable   ${dell_host_entry_limit}  # Known Issue: SSRCSP-8481
-        ELSE
-            ${vm_entry_limit}   Set Variable   ${entry_limit}
-        END
-        ${vm_byte_limit}    Evaluate    ${vm_entry_limit} * ${bytes_per_entry}
-
-        # Logs from sshd-session are excluded, they are created by the ssh connections in tests
-        ${byte_status}    ${byte_rate}    Run Keyword And Ignore Error
-        ...    Run Command    journalctl --since "$(date -d '${check_interval} seconds ago' '+%Y-%m-%d %H:%M:%S')" | grep -v "sshd-session" | wc -c | awk '{print $1}'
-        ${entries_status}    ${entries}    Run Keyword And Ignore Error
-        ...    Run Command    journalctl --since "${check_interval} seconds ago" | grep -v "sshd-session" | wc -l
-        IF  '${byte_status}' == 'PASS'
-            Set To Dictionary    ${byte_history}    ${vm}=${byte_rate}
-        END
-        IF  '${entries_status}' == 'PASS'
-            Set To Dictionary    ${entry_history}    ${vm}=${entries}
-        END
-        IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS' and (${entries} > ${vm_entry_limit} or ${byte_rate} > ${vm_byte_limit})
-            ${recent_logs}       Run Command        journalctl --since "${check_interval} seconds ago" | grep -v "sshd-session"
-            Set To Dictionary    ${spam_logs}       ${vm}=${recent_logs}
-            Set To Dictionary    ${spam_metrics}    ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${vm_entry_limit}/${vm_byte_limit}
-        ELSE IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS'
-            Set To Dictionary    ${ok_metrics}      ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${vm_entry_limit}/${vm_byte_limit}
-        END
-    END
-
-    ${ok_metrics_report}      Evaluate    '\\n'.join([f'{k}: {v}' for k, v in $ok_metrics.items()]) if $ok_metrics else 'None'
-    ${spam_metrics_report}    Evaluate    '\\n'.join([f'{k}: {v}' for k, v in $spam_metrics.items()]) if $spam_metrics else 'None'
-    Log                       VMs with acceptable logging rates:\n${ok_metrics_report}       console=True
-    Log                       Log spamming detected in these VMs:\n${spam_metrics_report}    console=True
-
-    ${has_unavailable_vms}    Run Keyword And Return Status    Should Not Be Empty    ${unavailable_vms}
-    IF  ${has_unavailable_vms}
-        Log                VMs not accessible during logging check:\n${unavailable_vms}    console=True
-    END
-    Save measurement history data    ${TEST NAME}    log_entries    entries/100s    &{entry_history}
-    Save measurement history data    ${TEST NAME}    log_byte_rate    bytes/100s    &{byte_history}
-    ${status}          Run Keyword And Return Status    Should Be Empty  ${spam_metrics}
-    IF  not ${status}
-        Log            Logs from the VMs demonstrating too high logging rates
-        FOR  ${vm}  ${logs}  IN  &{spam_logs}
-            Log        ${vm}
-            Log        ${logs}
-        END
-        FAIL           Too high logging rate detected\nmeas interval: ${check_interval}s\n${spam_metrics_report}
-    END
+Check logging rate preview
+    [Documentation]    Check that host or vms are not creating too much logs without saving the result to history.
+    [Tags]             SP-T359  SP-T359-2  -bat  -regression
+    Check logging rate against history    Check logging rate    save_history=${False}
 
 Validate Forward Secure Sealing
     [Documentation]   Run Forward Secure Sealing tests in all VMs
@@ -232,4 +164,85 @@ Save logging logs from VMs
         Log    Collecting journalctl output from ${vm}    console=True
         Run Command    journalctl -b -u ${service}
         Run Command    journalctl -b
+    END
+
+Check logging rate against history
+    [Arguments]    ${history_test_name}    ${save_history}=${True}
+    ${check_interval}          Set Variable   100
+    ${entry_limit}             Set Variable   400
+    ${dell_host_entry_limit}   Set Variable   1000   # Known Issue: SSRCSP-8481
+    ${orin_entry_limit}        Set Variable   1000
+    ${bytes_per_entry}         Set Variable   200
+
+    &{spam_metrics}       Create Dictionary
+    &{ok_metrics}         Create Dictionary
+    &{spam_logs}          Create Dictionary
+    &{unavailable_vms}    Create Dictionary
+    &{entry_history}      Create Dictionary
+    &{byte_history}       Create Dictionary
+
+    FOR  ${vm}  IN  @{VM_LIST}
+        Set To Dictionary    ${entry_history}    ${vm}=${EMPTY}
+        Set To Dictionary    ${byte_history}     ${vm}=${EMPTY}
+    END
+    FOR  ${vm}  IN  @{VM_LIST}
+        ${switch_status}    ${switch_output}    Run Keyword And Ignore Error    Switch to vm    ${vm}    timeout=10
+        IF  '${switch_status}' == 'FAIL'
+            Log    Skipping ${vm}: ${switch_output}    console=True
+            Set To Dictionary    ${unavailable_vms}    ${vm}=${switch_output}
+            CONTINUE
+        END
+        IF  "orin" in "${DEVICE_TYPE}"
+            ${vm_entry_limit}   Set Variable   ${orin_entry_limit}
+        ELSE IF  "${DEVICE_TYPE}" == "dell-7330" and '${vm}' == '${HOST}'
+            ${vm_entry_limit}   Set Variable   ${dell_host_entry_limit}  # Known Issue: SSRCSP-8481
+        ELSE
+            ${vm_entry_limit}   Set Variable   ${entry_limit}
+        END
+        ${vm_byte_limit}    Evaluate    ${vm_entry_limit} * ${bytes_per_entry}
+
+        # Logs from sshd-session are excluded, they are created by the ssh connections in tests
+        ${byte_status}    ${byte_rate}    Run Keyword And Ignore Error
+        ...    Run Command    journalctl --since "$(date -d '${check_interval} seconds ago' '+%Y-%m-%d %H:%M:%S')" | grep -v "sshd-session" | wc -c | awk '{print $1}'
+        ${entries_status}    ${entries}    Run Keyword And Ignore Error
+        ...    Run Command    journalctl --since "${check_interval} seconds ago" | grep -v "sshd-session" | wc -l
+        IF  '${byte_status}' == 'PASS'
+            Set To Dictionary    ${byte_history}    ${vm}=${byte_rate}
+        END
+        IF  '${entries_status}' == 'PASS'
+            Set To Dictionary    ${entry_history}    ${vm}=${entries}
+        END
+        IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS' and (${entries} > ${vm_entry_limit} or ${byte_rate} > ${vm_byte_limit})
+            ${recent_logs}       Run Command        journalctl --since "${check_interval} seconds ago" | grep -v "sshd-session"
+            Set To Dictionary    ${spam_logs}       ${vm}=${recent_logs}
+            Set To Dictionary    ${spam_metrics}    ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${vm_entry_limit}/${vm_byte_limit}
+        ELSE IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS'
+            Set To Dictionary    ${ok_metrics}      ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${vm_entry_limit}/${vm_byte_limit}
+        END
+    END
+
+    ${ok_metrics_report}      Evaluate    '\\n'.join([f'{k}: {v}' for k, v in $ok_metrics.items()]) if $ok_metrics else 'None'
+    ${spam_metrics_report}    Evaluate    '\\n'.join([f'{k}: {v}' for k, v in $spam_metrics.items()]) if $spam_metrics else 'None'
+    Log                       VMs with acceptable logging rates:\n${ok_metrics_report}       console=True
+    Log                       Log spamming detected in these VMs:\n${spam_metrics_report}    console=True
+
+    ${has_unavailable_vms}    Run Keyword And Return Status    Should Not Be Empty    ${unavailable_vms}
+    IF  ${has_unavailable_vms}
+        Log                VMs not accessible during logging check:\n${unavailable_vms}    console=True
+    END
+    IF  ${save_history}
+        Save measurement history data    ${history_test_name}    log_entries    entries/100s    &{entry_history}
+        Save measurement history data    ${history_test_name}    log_byte_rate    bytes/100s    &{byte_history}
+    ELSE
+        Preview measurement history data    ${history_test_name}    log_entries    entries/100s    &{entry_history}
+        Preview measurement history data    ${history_test_name}    log_byte_rate    bytes/100s    &{byte_history}
+    END
+    ${status}          Run Keyword And Return Status    Should Be Empty  ${spam_metrics}
+    IF  not ${status}
+        Log            Logs from the VMs demonstrating too high logging rates
+        FOR  ${vm}  ${logs}  IN  &{spam_logs}
+            Log        ${vm}
+            Log        ${logs}
+        END
+        FAIL           Too high logging rate detected\nmeas interval: ${check_interval}s\n${spam_metrics_report}
     END
