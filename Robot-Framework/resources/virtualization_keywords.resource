@@ -35,8 +35,7 @@ Get microvm PCI passthrough list
     [Documentation]     Returns PCI Addresses, like 0001:01:00.0
     ...                 Pre-condition: requires active ssh connection to ghaf host
     [Arguments]    ${vmname}
-    ${cmd}=        Format String    cat /var/lib/microvms/{vmname}/booted/share/microvm/pci-devices    vmname=${vmname}
-    ${output}      Run Command    ${cmd}
+    ${output}      Run Command    cat /var/lib/microvms/${vmname}/booted/share/microvm/pci-devices   sudo=True
     @{lines}=      Split To Lines    ${output}
     RETURN         @{lines}
 
