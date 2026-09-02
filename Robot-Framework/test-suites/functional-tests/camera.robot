@@ -11,7 +11,6 @@ Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/audio_and_video_keywords.resource
 
-Test Setup          Switch to vm   ${NET_VM}
 Test Timeout        2 minutes
 
 
@@ -22,21 +21,18 @@ ${VIDEO_DIR}    ${OUTPUT_DIR}/outputs/camera
 *** Test Cases ***
 
 Check Camera in VMs
-    [Documentation]  Check that camera is available in business-vm and not in other VMs
+    [Documentation]  Check that camera is not available by default
     [Tags]  SP-T235
     @{vms}      Get VM list
     FOR  ${vm}  IN  @{vms}
         Switch to vm        ${vm}
-        IF  '${vm}' == '${BUSINESS_VM}'
-            Run Keyword And Continue On Failure   Run Command  ls /dev/ | grep video  sudo=True
-        ELSE
-            Run Keyword And Continue On Failure   Run Command  ls /dev/ | grep video  sudo=True  rc_match=not_equal  compare_rc=0
-        END
+        Run Keyword And Continue On Failure   Run Command  ls /dev/ | grep video  sudo=True  rc_match=not_equal  compare_rc=0
     END
 
 Record Video With Camera
     [Documentation]  Start Camera application and record short video
-    [Tags]  SP-T236
+    [Tags]           SP-T236
+    [Setup]          Attach integrated camera   ${BUSINESS_VM}
     Switch to vm            ${BUSINESS_VM}
     Remove file             /tmp/video*   sudo=True  rc_match=skip
     @{recorded_video_ids}   Create List
@@ -58,3 +54,4 @@ Record Video With Camera
     FOR  ${id}  IN  @{recorded_video_ids}
         Verify Video File  ${id}
     END
+    [Teardown]       Detach integrated camera
