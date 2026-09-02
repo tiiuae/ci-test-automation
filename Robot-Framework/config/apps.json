@@ -20,8 +20,8 @@
   "Calculator": {
     "display_name": "Calculator",
     "VM": "gui-vm",
-    "process_name": "gnome-calculator",
-    "close_button": "window-close-neg.png"
+    "process_name": "cosmic-ext-calculator",
+    "close_button": "ghaf-close.png"
   },
   "COSMIC Document Reader": {
     "display_name": "COSMIC Document Reader",
