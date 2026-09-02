@@ -311,7 +311,7 @@ Open restricted page in Trusted Browser
 
 Verify page is blocked in Trusted Browser
     Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
-    Wait Until Keyword Succeeds    10x    1s    Verify Text Is On The Screen    This site can’t be reached
+    Wait Until Keyword Succeeds    10x    1s    Verify Text Is On The Screen    This site can’t be reached  compare_alphanum_only=${True}
     Verify Text Is On The Screen    Uutiset    expected=${False}    scale=2
 
 Forward page to normal browser
