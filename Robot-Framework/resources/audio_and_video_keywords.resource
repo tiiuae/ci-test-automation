@@ -6,17 +6,41 @@ Resource            ../resources/ssh_keywords.resource
 Resource            ../resources/file_keywords.resource
 Library             ../lib/output_parser.py
 Library             DateTime
+Library             String
 
 *** Keywords ***
 
 Check camera
-    [Arguments]    ${expected}
-    Switch to vm   ${BUSINESS_VM}
+    [Arguments]    ${vm}   ${expected}
+    Switch to vm   ${vm}
     ${output}      Run Command      v4l2-ctl --list-devices    sudo=True
     ${status}      Run Keyword And Return Status    Should Contain  ${output}  /dev/video
     IF    ${status} != ${expected}
         FAIL       Expected availability of camera: ${expected}, in fact: ${status}
     END
+
+Attach integrated camera
+    [Arguments]    ${vm}
+    [Setup]        Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
+    Log            Attaching camera to ${vm}    console=True
+    Run Command    vhotplugcli usb attach --tag cam --vm ${vm}
+    Check integrated camera VM   ${vm}
+    Switch to vm   ${vm}
+    Wait Until Keyword Succeeds    5x    1s    Run Command     ls /dev/video*
+
+Detach integrated camera
+    [Setup]        Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
+    Log            Detaching camera    console=True
+    Run Command    vhotplugcli usb detach --tag cam
+    Check integrated camera VM   null
+
+Check integrated camera VM
+    [Arguments]    ${vm}
+    [Setup]        Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
+    ${expected_state}      Set Variable If    '${vm}' == 'null'   true   false
+    ${output}              Run Command        vhotplugcli usb list --tag cam
+    Should Match Regexp    ${output}    (?m)^\\s*vm\\s*:\\s*${vm}$
+    Should Match Regexp    ${output}    (?m)^\\s*disconnected\\s*:\\s*${expected_state}$
 
 Record Audio And Verify
     [Documentation]  Record short audio with pulseaudio tool.

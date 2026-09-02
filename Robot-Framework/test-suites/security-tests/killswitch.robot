@@ -20,10 +20,11 @@ ${AUDIO_DIR}    ${OUTPUT_DIR}/outputs/audio-temp
 Killswitch disconnects camera
     [Documentation]  Check that camera works, then block it using killswitch and verify that it doesn't work
     [Tags]           SP-T275  SP-T275-1  bat
-    Check camera     expected=True
-    Set device state  blocked    cam
-    Check camera     expected=False
-    [Teardown]       Set device state    unblocked    cam
+    [Setup]           Attach integrated camera   ${BUSINESS_VM}
+    Check camera      ${BUSINESS_VM}  expected=True
+    Set device state  blocked         cam
+    Check camera      ${BUSINESS_VM}  expected=False
+    [Teardown]        Run Keywords    Set device state    unblocked    cam    AND    Detach integrated camera
 
 Killswitch disconnects microphone
     [Documentation]  Check that microphone works, then block it using killswitch and verify that it doesn't work
