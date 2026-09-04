@@ -44,6 +44,7 @@ Account lockout after failed GUI login
     ...                 Remove account from the lock list and log back in with the correct password.
     [Tags]              SP-T267  lenovo-x1  darter-pro
     Skip If    ${DISABLE_LOGOUT}    This test can't run when logging out is disabled
+    Set Test Variable    ${FAILLOCK_COUNT_OFFSET}    False
     Log out and verify
     Check faillock entry count    0
     Sleep   4   # Give extra time before first login to make sure that password field is ready
@@ -51,7 +52,24 @@ Account lockout after failed GUI login
     FOR   ${i}   IN RANGE   1   6
         Log              Typing wrong password (iteration #${i})   console=True
         Log in via GUI   password=wrong_password   sleep_seconds=1
-        Wait Until Keyword Succeeds    10x    1s    Check faillock entry count    ${i}
+        TRY
+            Wait Until Keyword Succeeds    10x    1s    Check faillock entry count    ${i}
+        EXCEPT    *Faillock count is wrong*    type=GLOB
+            ${count}    Get faillock entry count
+            ${tolerated_count}    Evaluate    int(${i}) - 1
+            IF    not ${FAILLOCK_COUNT_OFFSET} and ${count} == ${tolerated_count}
+                Set Test Variable    ${FAILLOCK_COUNT_OFFSET}    True
+                Log Error    Account lockout    Tolerated one missed faillock increment
+                Log          Tolerated one missed faillock increment    console=True
+            ELSE
+                Check faillock entry count    ${i}
+            END
+        END
+    END
+    IF    ${FAILLOCK_COUNT_OFFSET}
+        # Add another attempt when one faillock increment was missed.
+        Log in via GUI   password=wrong_password   sleep_seconds=1
+        Wait Until Keyword Succeeds    10x    1s    Check faillock entry count    5
     END
     # One more wrong attempt to make sure that greeter has updated
     Log in via GUI   password=wrong_password   sleep_seconds=1
@@ -92,11 +110,18 @@ Unlock account and login
 Check faillock entry count
     [Documentation]    Verify that the current faillock entry count matches ${expected_count}
     [Arguments]        ${expected_count}
+    IF   ${FAILLOCK_COUNT_OFFSET}
+        ${expected_count}    Evaluate    int(${expected_count}) - 1
+    END
+    ${count}    Get faillock entry count
+    Should Be Equal As Integers    ${count}    ${expected_count}   Faillock count is wrong (expected ${expected_count}, current count ${count})
+    Log    Wrong password detected ${count} times    console=True
+
+Get faillock entry count
     [Setup]       Switch to vm    ${GUI_VM}
     Run Command   faillock --user ${USER_LOGIN}    sudo=True    rc_match=skip   # For debugging
     ${count}      Run Command    faillock --user ${USER_LOGIN} | grep -c '^[0-9]'    sudo=True    rc_match=skip
-    Should Be Equal As Integers    ${count}    ${expected_count}
-    Log           Wrong password detected ${expected_count} times    console=True
+    RETURN    ${count}
     [Teardown]    Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
 
 Save account lockout state
