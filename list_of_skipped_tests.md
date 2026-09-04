@@ -36,15 +36,16 @@
 
 ## Workarounds
 
-| DATE SET   | TEST CASE / KEYWORD                   | TICKET / Additional Data                                                                               | Error Log Context       |
-|------------| ------------------------------------- |--------------------------------------------------------------------------------------------------------|-------------------------|
-| 04.09.2026 | Verify shutdown via network           | SSRCSP-8874, Shutdown time for orins increased and takes 160 seconds.                                  |                         |
-| 27.08.2026 | VM memory usage snapshot              | Orin AGX ghaf-host has 0 total swap memory. Ignore swap low limit check in this case.                  |                         |
-| 17.08.2026 | Select power menu option              | SSRCSP-8805, skipped on X1 if taskbar disappears                                                       | Taskbar disappeared     |
-| 17.07.2026 | Log out with loginctl                 | Log out all testuser sessions if the are many on seat (controlling the screen) (probably a Cosmic bug) |                         |
-| 15.07.2026 | Verify booting after restart by power | SSRCSP-8704, extra 90 seconds added for AGX boot                                                       |                         |
-| 30.06.2026 | Unlock account and login              | Try to login twice after unlocking, first login after unlocking the account fails                      |                         |
-| 22.06.2026 | Set RTC time                          | SSRCSP-8622, separate command for Lenovo X1                                                            |                         |
-| 17.06.2026 | Verify service status                 | SSRCSP-8662, welcome check disabled                                                                    | (Failing part skipped)  |
-| 29.01.2026 | Reboot Orin if ssh connection dropped | This keyword is a workaround for the SSH connection dropping on Orin, reboots and connect again        | Orin connection dropped |
-| 27.01.2026 | Verify shutdown via serial            | Shutdown is checked via network if shutdown log was not found in serial output                         |                         |
+| DATE SET   | TEST CASE / KEYWORD                    | TICKET / Additional Data                                                                               | Error Log Context       |
+| ---------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------- |
+| 04.09.2026 | Verify shutdown via network            | SSRCSP-8874, Shutdown time for orins increased and takes 160 seconds.                                  |                         |
+| 04.09.2026 | Account lockout after failed GUI login | Tolerate one missed faillock increment                                                                 | Account lockout         |
+| 27.08.2026 | VM memory usage snapshot               | Orin AGX ghaf-host has 0 total swap memory. Ignore swap low limit check in this case.                  |                         |
+| 17.08.2026 | Select power menu option               | SSRCSP-8805, skipped on X1 if taskbar disappears                                                       | Taskbar disappeared     |
+| 17.07.2026 | Log out with loginctl                  | Log out all testuser sessions if the are many on seat (controlling the screen) (probably a Cosmic bug) |                         |
+| 15.07.2026 | Verify booting after restart by power  | SSRCSP-8704, extra 90 seconds added for AGX boot                                                       |                         |
+| 30.06.2026 | Unlock account and login               | Try to login twice after unlocking, first login after unlocking the account fails                      |                         |
+| 22.06.2026 | Set RTC time                           | SSRCSP-8622, separate command for Lenovo X1                                                            |                         |
+| 17.06.2026 | Verify service status                  | SSRCSP-8662, welcome check disabled                                                                    | (Failing part skipped)  |
+| 29.01.2026 | Reboot Orin if ssh connection dropped  | This keyword is a workaround for the SSH connection dropping on Orin, reboots and connect again        | Orin connection dropped |
+| 27.01.2026 | Verify shutdown via serial             | Shutdown is checked via network if shutdown log was not found in serial output                         |                         |
