@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
+test_dir="$1"
+id="$2"
+status_file="$3"
+vm="$4"
+since="$5"
+
+echo "time,host_available_mem,vm_visible_memory_target" > "${test_dir}/ballooning_host_${id}.csv"
+start_time=$(date +%s.%3N)
+
+for i in $(seq 1000); do
+    current_time=$(date +%s.%3N)
+    elapsed_time=$(awk "BEGIN {print $current_time - $start_time}")
+    host_avail=$(awk '/MemAvailable:/ { print int($2/1024) }' /proc/meminfo)
+    target=$(journalctl -b -u "ghaf-mem-manager-${vm}.service" --since "@${since}" --no-pager |
+        awk "/Adjusting .*${vm}\\.sock/ { target=int(\$NF/1024/1024) } END { print target+0 }")
+
+    echo "${elapsed_time},${host_avail},${target}" >> "${test_dir}/ballooning_host_${id}.csv"
+    if [[ $(cat "${status_file}") == "finished" ]]
+    then
+        break
+    fi
+    sleep 0.5
+done
