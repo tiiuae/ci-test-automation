@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 import pandas
 
@@ -80,9 +82,20 @@ def plot_standard_latency_panel(
 
 
 def generate_ballooning_graph_plot(data_dir, plot_dir, device, result_id, test_name):
-    data = pandas.read_csv(data_dir + "ballooning_" + result_id + ".csv")
+    vm_data_path = data_dir + "ballooning_" + result_id + ".csv"
+    host_data_path = data_dir + "ballooning_host_" + result_id + ".csv"
+    vm_data = pandas.read_csv(vm_data_path) if os.path.exists(vm_data_path) else None
+    host_data = pandas.read_csv(host_data_path) if os.path.exists(host_data_path) else None
+    if vm_data is None and host_data is None:
+        raise FileNotFoundError(f"No ballooning CSV data found for {result_id}")
+
     start_time = 0
-    end_time = int(data['time'].values[data.index.max()])
+    end_times = []
+    if vm_data is not None:
+        end_times.append(vm_data['time'].max())
+    if host_data is not None:
+        end_times.append(host_data['time'].max())
+    end_time = int(max(end_times))
     step = int((end_time - start_time) / 20)
     if step < 1:
         step = 1
@@ -90,11 +103,34 @@ def generate_ballooning_graph_plot(data_dir, plot_dir, device, result_id, test_n
     plt.set_loglevel('WARNING')
     plt.ticklabel_format(axis='y', style='plain')
     plt.yticks(fontsize=14)
-    plt.plot(data['time'], data['total_mem'], marker='o', linestyle='-', color='b', label='total_mem')
-    plt.plot(data['time'], data['used_mem'], marker='o', linestyle='-', color='g', label='used_mem')
-    plt.plot(data['time'], data['available_mem'], marker='o', linestyle='-', color='r', label='avail_mem')
+    if host_data is not None:
+        plt.plot(
+            host_data['time'],
+            host_data['vm_visible_memory_target'],
+            marker='o',
+            linestyle='-',
+            color='b',
+            label='VM visible memory target',
+        )
+        plt.plot(
+            host_data['time'],
+            host_data['host_available_mem'],
+            marker='o',
+            linestyle='-',
+            color='g',
+            label='host MemAvailable',
+        )
+    if vm_data is not None:
+        plt.plot(
+            vm_data['time'],
+            vm_data['vm_available_mem'],
+            marker='o',
+            linestyle='-',
+            color='r',
+            label='Apparent VM MemAvailable (seen by "free")',
+        )
     plt.title(device + " - " + test_name, loc='center', fontweight="bold", fontsize=16)
-    plt.ylabel('MegaBytes', fontsize=16)
+    plt.ylabel('MiB', fontsize=16)
     plt.grid(True)
     plt.xlabel('Time (s)', fontsize=16)
     plt.legend(loc='upper left', fontsize=20)
