@@ -56,5 +56,3 @@ class ZephyrListener:
                 self.zephyr.create_test_result(test_run_key=test_cycle, test_case_key=zephyr_tag, status=status, comment=result.message)
             else:
                 logger.error(f"Failed to save test results to Zephyr.\n Test name: {test.name}\n Test tag: {zephyr_tag}\n Test Cycle: {test_cycle}\n")
-        else:
-            logger.error(f"Failed to save results to Zephyr: not connected")
