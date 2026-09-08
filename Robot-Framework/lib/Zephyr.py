@@ -24,10 +24,10 @@ class Zephyr:
     project_key: str
     test_statuses = ZephyrTestStatuses
 
-    def __init__(self, project_key="SSRCSP"):
+    def __init__(self, project_key="SSRCSP", jira_link="https://jira.tii.ae"):
         """ Initialize Zephyr Scale API client."""
         self.token = os.getenv("JIRA_TOKEN")
-        self.jira_link = os.getenv("JIRA_LINK")
+        self.jira_link = jira_link
 
         self.zephyr_api = f"{self.jira_link}/rest/atm/1.0"
         self.project_key = project_key
