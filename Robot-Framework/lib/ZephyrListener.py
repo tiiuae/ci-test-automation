@@ -23,6 +23,7 @@ target_to_cycle_map = {
     'dell-7330': "SSRCSP-C188",
     'darter-pro': "SSRCSP-C189",
     'x1-sec-boot': "SSRCSP-C190",
+    'darter-sec-boot': "SSRCSP-C208"
 }
 
 
