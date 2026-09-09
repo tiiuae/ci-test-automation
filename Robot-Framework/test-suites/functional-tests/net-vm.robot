@@ -58,7 +58,7 @@ Verify NetVM PCI device passthrough
 Check net-vm hostname
     [Documentation]    Compare actual net-vm hostname with expected one from the config file,
     ...                It should never change.
-    [Tags]             SP-352  SP-352-1  pre-merge  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  lab-only
+    [Tags]             SP-T352  SP-T352-1  pre-merge  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  lab-only
     Switch to vm       ${NET_VM}
     Log                Comparing actual net-vm hostname ${NETVM_NAME} and expected ${STATIC_NETVM_NAME}     console=True
     Should Be Equal As Strings   ${NETVM_NAME}    ${STATIC_NETVM_NAME}    ignore_case=True
