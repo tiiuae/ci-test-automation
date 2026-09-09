@@ -96,7 +96,9 @@ Collect Logs After Failed Soft Reboot
     IF    ${IS_AVAILABLE}
         IF  "${CONNECTION_TYPE}" == "ssh"
             Run Keyword And Continue On Failure    ssh_keywords.Save log   ${HOST}    ${since}
-            Run Keyword And Continue On Failure    ssh_keywords.Save log   ${GUI_VM}  ${since}
+            IF  ${IS_LAPTOP}
+                Run Keyword And Continue On Failure    ssh_keywords.Save log   ${GUI_VM}  ${since}
+            END
         ELSE
             Run Keyword And Continue On Failure    serial_keywords.Save log    ${since}
         END
