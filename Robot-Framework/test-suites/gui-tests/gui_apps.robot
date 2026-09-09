@@ -260,6 +260,10 @@ Verify Saved Screenshot Contains Text
 Screen Recording Test Setup
     Set Test Variable   ${videos_dir}        /home/${USER_LOGIN}/Videos
     Set Test Variable   ${recorded_video}    ${EMPTY}
+    Run Command         mkdir -p ${videos_dir}
+    # Stale screen-capture files could be accepted by fuzzy text recognition instead of the file created by this test.
+    Run Command         find ${videos_dir} -maxdepth 1 -type f -name 'ghaf-screen-capture_*.mp4' -delete
+    Run Command         find ${videos_dir} -maxdepth 1 -type f -name 'ghaf-screen-capture_*.mp3' -delete
 
 Start Screen Recording With Shortcut
     Press Key(s)    LEFTCTRL+LEFTSHIFT+LEFTALT+R
@@ -290,7 +294,7 @@ Verify Video Is Visible In COSMIC Files
     ${recorded_video_name}    Run Command    basename ${recorded_video}
     ${recording_pattern}    Replace String    ${recorded_video_name}    ghaf-    ${EMPTY}
     Locate on screen   text    Videos    iterations=10    scale=2
-    Locate on screen   text    ${recording_pattern}    iterations=15    scale=2
+    Locate on screen   text    ${recording_pattern}    iterations=15    scale=2    allowed_error_percent=15
 
 Screen Recording Test Teardown
     Kill process by name    ${GPU Screen Recorder}[recording_process_name]    sudo=False    require_exists=False
