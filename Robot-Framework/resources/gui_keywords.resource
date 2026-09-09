@@ -133,8 +133,11 @@ Take Remote Screenshot And Download
 
 Verify Text Is On The Screen
     [Arguments]    ${text}    ${expected}=${True}    ${scale}=1     ${compare_alphanum_only}=${False}
+    ...            ${allowed_error_percent}=0
     ${screenshot_path}      Take Remote Screenshot And Download
-    ${is_visible}           Is Text On The Screen   ${screenshot_path}   ${text}   scale=${scale}   compare_alphanum_only=${compare_alphanum_only}
+    ${is_visible}           Is Text On The Screen   ${screenshot_path}   ${text}   scale=${scale}
+    ...                     compare_alphanum_only=${compare_alphanum_only}
+    ...                     allowed_error_percent=${allowed_error_percent}
     Should Be Equal         ${is_visible}    ${expected}
     ...                     msg=Text '${text}' is on the screen: ${is_visible}, expected: ${expected}
 
@@ -148,7 +151,9 @@ Verify Image On The Screen
 Locate on screen
     [Documentation]    Take a screenshot. Locate given image or text on the screenshot.
     ...                Return center coordinates of the item in mouse coordinate system.
-    [Arguments]        ${type}  ${searched_item}  ${confidence}=0.99   ${iterations}=10   ${expected_result}=PASS  ${debug_screenshot}=True   ${timeout}=120   ${scale}=1
+    [Arguments]        ${type}  ${searched_item}  ${confidence}=0.99   ${iterations}=10
+    ...                ${expected_result}=PASS  ${debug_screenshot}=True   ${timeout}=120   ${scale}=1
+    ...                ${allowed_error_percent}=0
     [Timeout]          ${timeout} seconds
     ${coordinates}=        Set Variable  ${EMPTY}
     ${locate_status}=      Set Variable  FAIL
@@ -162,7 +167,9 @@ Locate on screen
             IF  $type=="image"
                 ${locate_status}    ${coordinates}  Run Keyword And Ignore Error  Locate image  ${SCREENSHOT_LOCAL}  ${ICONS_DIR}/${searched_item}   ${confidence}
             ELSE IF  $type=="text"
-                ${locate_status}    ${coordinates}  Run Keyword And Ignore Error  Locate text  ${SCREENSHOT_LOCAL}  ${searched_item}   scale=${scale}
+                ${locate_status}    ${coordinates}  Run Keyword And Ignore Error  Locate text
+                ...                 ${SCREENSHOT_LOCAL}  ${searched_item}   scale=${scale}
+                ...                 allowed_error_percent=${allowed_error_percent}
             ELSE
                 FAIL              Wrong type ${type} given for image recognition
             END
@@ -196,8 +203,10 @@ Take a screenshot
     RETURN   ${screenshot_status}  ${result}
 
 Locate and click
-    [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=10  ${timeout}=120  ${scale}=1  ${wiggle}=False   ${double_click}=False
-    ${mouse_x}  ${mouse_y}  Locate on screen  ${type}  ${searched_item}  ${confidence}  ${iterations}  timeout=${timeout}  scale=${scale}
+    [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=10  ${timeout}=120
+    ...           ${scale}=1  ${wiggle}=False   ${double_click}=False   ${allowed_error_percent}=0
+    ${mouse_x}  ${mouse_y}  Locate on screen  ${type}  ${searched_item}  ${confidence}  ${iterations}
+    ...                         timeout=${timeout}  scale=${scale}  allowed_error_percent=${allowed_error_percent}
     Run ydotool command   mousemove --absolute -x ${mouse_x} -y ${mouse_y}
     Click    ${double_click}   ${wiggle}
 

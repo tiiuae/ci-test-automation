@@ -4,7 +4,9 @@
 from evdev import ecodes
 from PIL import Image
 from pyscreeze import locate, center
+from robot.libraries.BuiltIn import BuiltIn, RobotNotRunningError
 import logging
+import math
 import pytesseract
 import re
 import subprocess
@@ -47,6 +49,145 @@ def get_text(data: pytesseract.Output.DICT):
 def _normalize_ocr_text(text):
     # OCR can add punctuation or split words oddly. Normalize labels before matching.
     return re.sub(r"[^a-z0-9]+", "", text.lower())
+
+def _normalize_ocr_text_with_map(text):
+    # Keep indexes so fuzzy match spans can be reported using the original OCR text.
+    normalized = []
+    index_map = []
+    for i, char in enumerate(text):
+        if char.isalnum():
+            normalized.append(char.lower())
+            index_map.append(i)
+
+    return ''.join(normalized), index_map
+
+def _levenshtein_distance(haystack, needle):
+    # Standard Levenshtein edit distance using a two-row dynamic programming table.
+    # Calculates how many single-character edits are needed to turn one string into the other.
+    # Allowed edits are:
+    #   - insert a character
+    #   - delete a character
+    #   - replace a character
+    if haystack == needle:
+        return 0
+    previous_row = list(range(len(needle) + 1))
+    for i, haystack_char in enumerate(haystack, 1):
+        current_row = [i]
+        for j, needle_char in enumerate(needle, 1):
+            insert_cost = current_row[j - 1] + 1
+            delete_cost = previous_row[j] + 1
+            replace_cost = previous_row[j - 1] + (haystack_char != needle_char)
+            current_row.append(min(insert_cost, delete_cost, replace_cost))
+        previous_row = current_row
+    return previous_row[-1]
+
+def _parse_allowed_error_percent(allowed_error_percent):
+    # Robot arguments arrive as strings, so validate and convert the percentage once.
+    allowed_error_percent = float(allowed_error_percent)
+    if allowed_error_percent < 0 or allowed_error_percent > 100:
+        raise ValueError("allowed_error_percent must be between 0 and 100")
+
+    return allowed_error_percent
+
+def _find_fuzzy_match_span(haystack, needle, max_errors):
+    # Prefer exact substring matches; they are accepted even when fuzzy matching is disabled.
+    exact_start = haystack.find(needle)
+    if exact_start >= 0:
+        return exact_start, exact_start + len(needle)
+
+    # Without tolerance, empty input, or empty expected text, there is no fuzzy match to search.
+    if max_errors == 0 or not haystack or not needle:
+        return None
+
+    # OCR may add or drop characters, so compare substrings slightly shorter and longer than expected.
+    min_length = max(1, len(needle) - max_errors)
+    max_length = min(len(haystack), len(needle) + max_errors)
+
+    # If OCR produced fewer characters than the shortest expected candidate, compare all of it once.
+    if len(haystack) < min_length:
+        if _levenshtein_distance(haystack, needle) <= max_errors:
+            return 0, len(haystack)
+        return None
+
+    # Return the closest acceptable substring so reports show only the matched OCR text.
+    best_match = None
+    best_distance = max_errors + 1
+    for start in range(len(haystack)):
+        for length in range(min_length, max_length + 1):
+            end = start + length
+            if end > len(haystack):
+                break
+            distance = _levenshtein_distance(haystack[start:end], needle)
+            if distance < best_distance:
+                best_match = (start, end)
+                best_distance = distance
+
+    return best_match
+
+def _fuzzy_contains(haystack, needle, max_errors):
+    # Boolean wrapper for callers that only need to know whether a fuzzy match exists.
+    return _find_fuzzy_match_span(haystack, needle, max_errors) is not None
+
+def _get_fuzzy_match_text(detected_text, expected_text, allowed_error_percent):
+    # Return the original OCR substring that satisfied fuzzy matching, for readable reporting.
+    expected = _normalize_ocr_text(expected_text)
+    if not expected:
+        return ""
+
+    detected, index_map = _normalize_ocr_text_with_map(detected_text)
+    max_errors = math.ceil(len(expected) * allowed_error_percent / 100)
+    match_span = _find_fuzzy_match_span(detected, expected, max_errors)
+    if match_span is None:
+        return None
+
+    start, end = match_span
+    if not index_map:
+        return detected_text
+
+    return detected_text[index_map[start]:index_map[end - 1] + 1]
+
+def _text_matches(candidate, expected_text, allowed_error_percent):
+    # Compare normalized text so OCR punctuation and whitespace differences do not block matching.
+    expected = _normalize_ocr_text(expected_text)
+    candidate = _normalize_ocr_text(candidate)
+    max_errors = math.ceil(len(expected) * allowed_error_percent / 100)
+    return _fuzzy_contains(candidate, expected, max_errors)
+
+def _log_imperfect_text_match(detected_text, expected_text, allowed_error_percent, matched_text=None):
+    # Report accepted fuzzy OCR match both via logs and Robot test message.
+    if matched_text is None:
+        matched_text = _get_fuzzy_match_text(detected_text, expected_text, allowed_error_percent)
+    if matched_text is None:
+        return
+
+    expected = _normalize_ocr_text(expected_text)
+    matched = _normalize_ocr_text(matched_text)
+    if allowed_error_percent and expected != matched:
+        message = (
+            f"Accepted imperfect OCR match '{matched_text}' for expected text '{expected_text}' "
+            f"with allowed_error_percent={allowed_error_percent:g}"
+        )
+        logging.info(message)
+        try:
+            BuiltIn().set_test_message(message, append=True, separator="\n")
+        except (RuntimeError, RobotNotRunningError) as error:
+            logging.debug(f"Could not append OCR match to Robot test message: {error}")
+
+def _get_ocr_word_candidates(words, text, allowed_error_percent):
+    # Build adjacent OCR word groups so multi-word labels can match across Tesseract word splits.
+    expected_word_count = max(1, len(text.split()))
+    max_window_size = expected_word_count if allowed_error_percent == 0 else expected_word_count + 2
+
+    for window_size in range(1, max_window_size + 1):
+        for i in range(0, len(words) - window_size + 1):
+            candidate_words = words[i:i + window_size]
+            yield {
+                'text': ' '.join(word['text'] for word in candidate_words),
+                'left': min(word['left'] for word in candidate_words),
+                'top': min(word['top'] for word in candidate_words),
+                'right': max(word['left'] + word['width'] for word in candidate_words),
+                'bottom': max(word['top'] + word['height'] for word in candidate_words),
+            }
 
 def _get_ocr_words(data):
     # Keep each recognized word together with its position so field values can be read by layout.
@@ -104,14 +245,31 @@ def get_text_field_from_image(image, field, scale=1):
     recognized_text = get_text(data)
     raise AssertionError(f"Field '{field}' not found in image. Recognized text: {recognized_text}")
 
-def is_text_on_the_screen(screenshot, text, scale=1, compare_alphanum_only=False):
+def is_text_on_the_screen(screenshot, text, scale=1, compare_alphanum_only=False, allowed_error_percent=0):
     logging.info("Searching " + text)
     data = get_data_from_image(screenshot, scale)
-    text_from_image = ''.join(get_text(data))
+    expected_text = text
+    text_entries = get_text(data)
+    text_from_image = ''.join(text_entries)
+    allowed_error_percent = _parse_allowed_error_percent(allowed_error_percent)
 
     if compare_alphanum_only:
         text_from_image = ''.join(char for char in text_from_image if char.isalnum())
         text = ''.join(char for char in text if char.isalnum())
+
+    if allowed_error_percent:
+        for text_entry in text_entries:
+            matched_text = _get_fuzzy_match_text(text_entry, expected_text, allowed_error_percent)
+            if matched_text is not None:
+                _log_imperfect_text_match(text_entry, expected_text, allowed_error_percent, matched_text)
+                return True
+
+        matched_text = _get_fuzzy_match_text(text_from_image, expected_text, allowed_error_percent)
+        if matched_text is not None:
+            _log_imperfect_text_match(text_from_image, expected_text, allowed_error_percent, matched_text)
+            return True
+
+        return False
 
     return text in text_from_image
 
@@ -119,17 +277,21 @@ def is_image_on_the_screen(screenshot, image, confidence=0.99):
     logging.info("Searching " + image)
     return locate(image, screenshot, confidence=confidence) is not None
 
-def locate_text(screenshot, text, scale=1):
+def locate_text(screenshot, text, scale=1, allowed_error_percent=0):
     logging.info("Searching " + text)
     data = get_data_from_image(screenshot, scale)
+    allowed_error_percent = _parse_allowed_error_percent(allowed_error_percent)
+    words = _get_ocr_words(data)
 
-    # Loop through results to find matching text
-    for i, word in enumerate(data['text']):
-        if text.lower() in word.strip().lower():
-            x, y, w, h = (data[key][i] for key in ['left', 'top', 'width', 'height'])
-            x, y, w, h = (v // scale for v in (x, y, w, h))
+    for candidate in _get_ocr_word_candidates(words, text, allowed_error_percent):
+        if _text_matches(candidate['text'], text, allowed_error_percent):
+            _log_imperfect_text_match(candidate['text'], text, allowed_error_percent)
+            x = candidate['left'] // scale
+            y = candidate['top'] // scale
+            w = (candidate['right'] - candidate['left']) // scale
+            h = (candidate['bottom'] - candidate['top']) // scale
             text_center = (x + w // 2, y + h // 2)
-            logging.info(f"Found '{text}' at {text_center}")
+            logging.info(f"Found '{text}' as '{candidate['text']}' at {text_center}")
             image_center_in_mouse_coordinates = convert_resolution(text_center)
             logging.info(image_center_in_mouse_coordinates)
             return image_center_in_mouse_coordinates

@@ -27,7 +27,7 @@ Check Access List In Trusted Browser
     https://graph.microsoft.com             text_to_find=Microsoft Graph
     https://excel.cloud.microsoft.com       text_to_find=Microsoft Excel
     https://word.cloud.microsoft            text_to_find=Microsoft Word
-    https://powerpoint.cloud.microsoft      text_to_find=Microsoft PowerPoint
+    https://powerpoint.cloud.microsoft      text_to_find=Microsoft PowerPoint    allowed_error_percent=10
     https://teams.live.com                  text_to_find=Video calls
     https://www.msn.com                     text_to_find=MSN
     https://onedrive.live.com               text_to_find=OneDrive
@@ -87,12 +87,14 @@ Check Access List In Trusted Browser Template
     ...                If page is blocked by access list, error depends on the protocol used:
     ...                   https: 'This site can’t be reached'
     ...                   http:  'Access Denied'
-    [Arguments]    ${url}   ${text_to_find}
+    [Arguments]    ${url}   ${text_to_find}   ${allowed_error_percent}=0
     Start App in VM    ${Trusted Browser}    params_string=-- ${url}    always_check_vm=True
     Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
 
     Wait Until Keyword Succeeds     10x                        1s
-    ...                             Verify Text Is On The Screen    ${text_to_find}     compare_alphanum_only=${True}
+    ...                             Verify Text Is On The Screen    ${text_to_find}
+    ...                             compare_alphanum_only=${True}
+    ...                             allowed_error_percent=${allowed_error_percent}
 
     [Teardown]    Kill App in VM   ${Trusted Browser}   status=${KEYWORD_STATUS}
 
