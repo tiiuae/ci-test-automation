@@ -49,7 +49,7 @@ class ZephyrListener:
 
     def end_test(self, test: TestCase, result: TestResult):
         """Code executed after each test to save its result to Zephyr"""
-        if self.zephyr.connected:
+        if self.zephyr.connected and False:  # sending will be turned on after test tags are set properly
             zephyr_tag = self.find_zephyr_tag(result.tags)
             status = robot_status_to_zephyr[result.status]
             test_cycle = self.get_test_cycle()
