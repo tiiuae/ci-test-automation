@@ -141,7 +141,12 @@ Connect After Reboot
         END
         Check If Device Is Available   retry=5x    action=reboot
     ELSE
-        Check If Device Is Available   retry=60s   action=reboot
+        # Known issue SSRCSP-8704
+        IF  "orin-agx" in "${DEVICE_TYPE}"
+            Check If Device Is Available   retry=150s   action=reboot
+        ELSE
+            Check If Device Is Available   retry=60s   action=reboot
+        END
     END
 
 Wake up device
