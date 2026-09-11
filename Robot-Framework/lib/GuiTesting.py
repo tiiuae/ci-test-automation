@@ -46,6 +46,19 @@ def get_text(data: pytesseract.Output.DICT):
     logging.info(text_list)
     return text_list
 
+def text_matches(candidate, expected_text, allowed_error_percent=0, log_imperfect_match=True):
+    # Public Robot keyword for fuzzy comparison of already extracted OCR text values.
+    allowed_error_percent = _parse_allowed_error_percent(allowed_error_percent)
+    if not allowed_error_percent:
+        return candidate.strip().lower() == expected_text.strip().lower()
+
+    matched_text = _get_fuzzy_match_text(candidate, expected_text, allowed_error_percent)
+    matches = matched_text is not None
+    if matches and log_imperfect_match:
+        _log_imperfect_text_match(candidate, expected_text, allowed_error_percent, matched_text)
+
+    return matches
+
 def _normalize_ocr_text(text):
     # OCR can add punctuation or split words oddly. Normalize labels before matching.
     return re.sub(r"[^a-z0-9]+", "", text.lower())
@@ -124,10 +137,6 @@ def _find_fuzzy_match_span(haystack, needle, max_errors):
 
     return best_match
 
-def _fuzzy_contains(haystack, needle, max_errors):
-    # Boolean wrapper for callers that only need to know whether a fuzzy match exists.
-    return _find_fuzzy_match_span(haystack, needle, max_errors) is not None
-
 def _get_fuzzy_match_text(detected_text, expected_text, allowed_error_percent):
     # Return the original OCR substring that satisfied fuzzy matching, for readable reporting.
     expected = _normalize_ocr_text(expected_text)
@@ -145,13 +154,6 @@ def _get_fuzzy_match_text(detected_text, expected_text, allowed_error_percent):
         return detected_text
 
     return detected_text[index_map[start]:index_map[end - 1] + 1]
-
-def _text_matches(candidate, expected_text, allowed_error_percent):
-    # Compare normalized text so OCR punctuation and whitespace differences do not block matching.
-    expected = _normalize_ocr_text(expected_text)
-    candidate = _normalize_ocr_text(candidate)
-    max_errors = math.ceil(len(expected) * allowed_error_percent / 100)
-    return _fuzzy_contains(candidate, expected, max_errors)
 
 def _log_imperfect_text_match(detected_text, expected_text, allowed_error_percent, matched_text=None):
     # Report accepted fuzzy OCR match both via logs and Robot test message.
@@ -284,8 +286,9 @@ def locate_text(screenshot, text, scale=1, allowed_error_percent=0):
     words = _get_ocr_words(data)
 
     for candidate in _get_ocr_word_candidates(words, text, allowed_error_percent):
-        if _text_matches(candidate['text'], text, allowed_error_percent):
-            _log_imperfect_text_match(candidate['text'], text, allowed_error_percent)
+        matched_text = _get_fuzzy_match_text(candidate['text'], text, allowed_error_percent)
+        if matched_text is not None:
+            _log_imperfect_text_match(candidate['text'], text, allowed_error_percent, matched_text)
             x = candidate['left'] // scale
             y = candidate['top'] // scale
             w = (candidate['right'] - candidate['left']) // scale
