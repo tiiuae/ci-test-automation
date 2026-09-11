@@ -26,6 +26,7 @@ ${PING_TIMEOUT}            180
 ${SEARCH_TIMEOUT}          60
 ${SHUTDOWN_POWER_LIMIT}    1500
 ${SHUTDOWN_VERIFIED}       ${False}
+${SHUTDOWN_DEVICE_BOOTED}  ${False}
 
 
 *** Test Cases ***
@@ -111,26 +112,27 @@ Get Time To Ping
 
 Get Shutdown Time
     [Arguments]  ${plot_name}=Shutdown Times
-    ${status}                     Open Serial Port    timeout=10
-    IF  not ${status}
-        Skip    Failed to connect via serial
+    Set Suite Variable            ${SHUTDOWN_VERIFIED}       ${False}
+    Set Suite Variable            ${SHUTDOWN_DEVICE_BOOTED}  ${False}
+    IF  not ${IS_LAPTOP}
+        ${status}                 Open Serial Port    timeout=10
+        IF  not ${status}
+            Skip    Failed to connect via serial
+        END
     END
     ${use_power_measurement}      Set Variable    ${False}
     ${availability}               Check variable availability  RPI_IP_ADDRESS
-    IF  ${availability}
+    IF  ${availability} and not ${IS_LAPTOP}
         Start power measurement   ${BUILD_ID}_shutdown   timeout=300
         IF  $SSH_MEASUREMENT!='${EMPTY}'
             ${use_power_measurement}    Set Variable    ${True}
         END
     END
-    Soft Shutdown Device
-    ${start_time_epoch}           DateTime.Get Current Date   result_format=epoch
-    ${shutdown_time_epoch}  ${verified_via_serial}    Verify shutdown via serial    open_serial_port=${False}
-    IF  not ${verified_via_serial}
-        SKIP    Shutdown time verification via serial failed, fell back to 'Verify shutdown via network' which is not accurate.\nSkipping the test.
+    IF  ${IS_LAPTOP}
+        ${shutdown_time}  ${start_time_epoch}    Get Laptop Shutdown Time
+    ELSE
+        ${shutdown_time}  ${start_time_epoch}    Get Serial Shutdown Time
     END
-    ${shutdown_time}              Evaluate    int(${shutdown_time_epoch}) - int(${start_time_epoch})
-    Log                           Shutdown time measured via Serial output: ${shutdown_time}   console=True
     Set Suite Variable            ${SHUTDOWN_VERIFIED}    ${True}
     &{final_results}              Create Dictionary
     Set To Dictionary             ${final_results}  shutdown_time  ${shutdown_time}
@@ -156,6 +158,46 @@ Get Shutdown Time
         Should Be True           ${measurement_diff} <= 10
         ...                      msg=Shutdown time by power differs ${measurement_diff} sec from serial, expected <= 10 sec
     END
+
+Get Serial Shutdown Time
+    Soft Shutdown Device
+    ${start_time_epoch}           DateTime.Get Current Date   result_format=epoch
+    ${shutdown_time_epoch}  ${verified_via_serial}    Verify shutdown via serial    open_serial_port=${False}
+    IF  not ${verified_via_serial}
+        ${skip_msg}               Catenate  SEPARATOR=\n
+        ...                       Shutdown time verification via serial failed, fell back to
+        ...                       'Verify shutdown via network' which is not accurate.
+        ...                       Skipping the test.
+        SKIP                      ${skip_msg}
+    END
+    ${shutdown_time}              Evaluate    int(${shutdown_time_epoch}) - int(${start_time_epoch})
+    Log                           Shutdown time measured via Serial output: ${shutdown_time}   console=True
+    RETURN                        ${shutdown_time}    ${start_time_epoch}
+
+Get Laptop Shutdown Time
+    Switch to vm                  ${GUI_VM}
+    ${start_time_epoch}           Run Command    date +%s
+    Soft Shutdown Device
+    Verify shutdown via network
+    Close All Connections
+    Turn Laptop On
+    Connect After Reboot
+    Set Suite Variable            ${SHUTDOWN_DEVICE_BOOTED}  ${True}
+    ${shutdown_time_epoch}        Get System Power Off Time From Previous Boot
+    ${shutdown_time}              Evaluate    int(${shutdown_time_epoch}) - int(${start_time_epoch})
+    Log                           Shutdown time measured via ghaf-host journalctl: ${shutdown_time}   console=True
+    RETURN                        ${shutdown_time}    ${start_time_epoch}
+
+Get System Power Off Time From Previous Boot
+    Switch to vm                  ${HOST}
+    ${cmd}                        Catenate  SEPARATOR=\n
+    ...                           journalctl -b -1 --output=short-unix --grep "System Power Off" --no-pager |
+    ...                           tail -n 1 |
+    ...                           awk '{print int($1)}'
+    ${shutdown_time_epoch}        Run Command    ${cmd}
+    Should Not Be Empty           ${shutdown_time_epoch}
+    ...                           Could not find "System Power Off" from ghaf-host previous boot journal.
+    RETURN                        ${shutdown_time_epoch}
 
 Get Boot times
     [Documentation]  Collect boot times from device
@@ -285,7 +327,9 @@ Shutdown Time Teardown
     Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
     Sleep  10
     IF  ${IS_LAPTOP}
-        IF  not ${SHUTDOWN_VERIFIED}
+        IF  ${SHUTDOWN_DEVICE_BOOTED}
+            Check If Device Is Available    retry=5x    action=shutdown
+        ELSE IF  not ${SHUTDOWN_VERIFIED}
             Reboot Laptop
             Check If Device Is Up    retry=110s
             IF  ${IS_AVAILABLE} == False
@@ -306,4 +350,6 @@ Shutdown Time Teardown
             Check If Device Is Up   retry=140s
         END
     END
-    Connect After Reboot
+    IF  not ${IS_LAPTOP} or not ${SHUTDOWN_DEVICE_BOOTED}
+        Connect After Reboot
+    END
