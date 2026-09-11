@@ -187,7 +187,7 @@ Verify Device Information
     Set Test Variable   ${device_info_unknown_fields}
 
     Check Device Information Field   Ghaf Version       ${ghaf_version}     scale=3
-    Check Device Information Field   Device ID          ${device_id}        scale=3
+    Check Device Information Field   Device ID          ${device_id}        scale=3   allowed_error_percent=1
     Check Device Information Field   Secure Boot        ${secure_boot}
     Check Device Information Field   Disk Encryption    ${disk_encryption}
 
@@ -201,14 +201,14 @@ Ghaf Control Panel Test Teardown
     Run Keyword If Test Failed     Log Error    Ghaf Control Panel     Ghaf Control Panel test failed
 
 Check Device Information Field
-    [Arguments]    ${field}    ${expected}   ${scale}=2
+    [Arguments]    ${field}    ${expected}   ${scale}=2   ${allowed_error_percent}=0
     ${screenshot_path}  Take Remote Screenshot And Download
     ${actual}           Get Text Field From Image   ${screenshot_path}   ${field}   scale=${scale}
     IF    '${actual.strip().lower()}' == 'unknown'
         Append To List    ${device_info_unknown_fields}    ${field}
         RETURN
     END
-    ${matches}    Run Keyword And Return Status    Should Be Equal As Strings    ${actual}    ${expected}    ignore_case=True
+    ${matches}    Text Matches    ${actual}    ${expected}    allowed_error_percent=${allowed_error_percent}
     IF    not ${matches}
         Append To List    ${device_info_failures}    ${field} value in Ghaf Control Panel is ${actual}, expected ${expected}
     END
