@@ -26,6 +26,8 @@ ${PING_TIMEOUT}            180
 ${SEARCH_TIMEOUT}          60
 ${SHUTDOWN_POWER_LIMIT}    1500
 ${SHUTDOWN_VERIFIED}       ${False}
+${SHUTDOWN_DEVICE_BOOTED}  ${False}
+${WAIT_BEFORE_POWER_ON}    30
 
 
 *** Test Cases ***
@@ -109,37 +111,33 @@ Get Time To Ping
 
 Get Shutdown Time
     [Arguments]  ${plot_name}=Shutdown Times
-    ${status}                     Open Serial Port    timeout=10
-    IF  not ${status}
-        Skip    Failed to connect via serial
+    Set Suite Variable            ${SHUTDOWN_VERIFIED}       ${False}
+    Set Suite Variable            ${SHUTDOWN_DEVICE_BOOTED}  ${False}
+    IF  not ${IS_LAPTOP}
+        ${status}                 Open Serial Port    timeout=10
+        IF  not ${status}
+            Skip    Failed to connect via serial
+        END
     END
     ${use_power_measurement}      Set Variable    ${False}
     ${availability}               Check variable availability  RPI_IP_ADDRESS
-    IF  ${availability}
+    IF  ${availability} and ${IS_LAPTOP}
         Start power measurement   ${BUILD_ID}_shutdown   timeout=300
         IF  $SSH_MEASUREMENT!='${EMPTY}'
             ${use_power_measurement}    Set Variable    ${True}
         END
     END
-    Soft Shutdown Device
-    ${start_time_epoch}           DateTime.Get Current Date   result_format=epoch
-    ${shutdown_time_epoch}  ${verified_via_serial}    Verify shutdown via serial    open_serial_port=${False}
-    IF  not ${verified_via_serial}
-        SKIP    Shutdown time verification via serial failed, fell back to 'Verify shutdown via network' which is not accurate.\nSkipping the test.
+    IF  ${IS_LAPTOP}
+        ${shutdown_time}  ${start_time_epoch}  ${shutdown_time_power}    Get Laptop Shutdown Time
+        ...                                                        ${use_power_measurement}
+    ELSE
+        ${shutdown_time}  ${start_time_epoch}    Get Serial Shutdown Time
+        ${shutdown_time_power}              Set Variable    ${nan}
     END
-    ${shutdown_time}              Evaluate    int(${shutdown_time_epoch}) - int(${start_time_epoch})
-    Log                           Shutdown time measured via Serial output: ${shutdown_time}   console=True
     Set Suite Variable            ${SHUTDOWN_VERIFIED}    ${True}
     &{final_results}              Create Dictionary
     Set To Dictionary             ${final_results}  shutdown_time  ${shutdown_time}
-    Set To Dictionary             ${final_results}  shutdown_time_power  ${nan}
-    IF  ${use_power_measurement}
-        ${shutdown_time_power_epoch}    Detect when power went low   ${BUILD_ID}_shutdown
-        ${shutdown_time_power}          Evaluate
-        ...                             int(${shutdown_time_power_epoch}) - int(${start_time_epoch})
-        Log                             Shutdown time by power measured: ${shutdown_time_power}   console=True
-        Set To Dictionary               ${final_results}  shutdown_time_power  ${shutdown_time_power}
-    END
+    Set To Dictionary             ${final_results}  shutdown_time_power  ${shutdown_time_power}
     Check Result Validity         ${final_results}
     &{statistics}                 Save Boot time Data   ${TEST NAME}  ${final_results}
     IF  ${use_power_measurement}
@@ -151,9 +149,63 @@ Get Shutdown Time
     Determine Test Status         ${statistics}  inverted=1
     IF  ${use_power_measurement}
         ${measurement_diff}      Evaluate    abs(${shutdown_time_power} - ${shutdown_time})
-        Should Be True           ${measurement_diff} <= 10
-        ...                      msg=Shutdown time by power differs ${measurement_diff} sec from serial, expected <= 10 sec
+        ${diff_msg}              Catenate
+        ...                      Shutdown time by power differs ${measurement_diff} sec from journal, expected <= 10 sec
+        Should Be True           ${measurement_diff} <= 10    msg=${diff_msg}
     END
+
+Get Serial Shutdown Time
+    Soft Shutdown Device
+    ${start_time_epoch}           DateTime.Get Current Date   result_format=epoch
+    ${shutdown_time_epoch}  ${verified_via_serial}    Verify shutdown via serial    open_serial_port=${False}
+    IF  not ${verified_via_serial}
+        ${skip_msg}               Catenate  SEPARATOR=\n
+        ...                       Shutdown time verification via serial failed, fell back to
+        ...                       'Verify shutdown via network' which is not accurate.
+        ...                       Skipping the test.
+        SKIP                      ${skip_msg}
+    END
+    ${shutdown_time}              Evaluate    int(${shutdown_time_epoch}) - int(${start_time_epoch})
+    Log                           Shutdown time measured via Serial output: ${shutdown_time}   console=True
+    RETURN                        ${shutdown_time}    ${start_time_epoch}
+
+Get Laptop Shutdown Time
+    [Arguments]                   ${use_power_measurement}
+    Switch to vm                  ${GUI_VM}
+    ${start_time_epoch}           Run Command    date +%s
+    Soft Shutdown Device
+    Verify shutdown via network
+    ${shutdown_time_power}        Set Variable    ${nan}
+    IF  ${use_power_measurement}
+        Connect to measurement agent
+        ${shutdown_time_power_epoch}    Detect when power went low   ${BUILD_ID}_shutdown
+        ${shutdown_time_power}          Evaluate
+        ...                             int(${shutdown_time_power_epoch}) - int(${start_time_epoch})
+        Log                             Shutdown time by power measured: ${shutdown_time_power}   console=True
+    END
+    Close All Connections
+    # Ensure HW is actually shutdown before pressing power button
+    IF  not ${use_power_measurement}
+        Wait                      ${WAIT_BEFORE_POWER_ON}    silently=${False}
+    END
+    Turn Laptop On
+    Connect After Reboot
+    Set Suite Variable            ${SHUTDOWN_DEVICE_BOOTED}  ${True}
+    ${shutdown_time_epoch}        Get System Power Off Time From Previous Boot
+    ${shutdown_time}              Evaluate    int(${shutdown_time_epoch}) - int(${start_time_epoch})
+    Log                           Shutdown time measured via ghaf-host journalctl: ${shutdown_time}   console=True
+    RETURN                        ${shutdown_time}    ${start_time_epoch}    ${shutdown_time_power}
+
+Get System Power Off Time From Previous Boot
+    Switch to vm                  ${HOST}
+    # Journaling is stopped at some point of the shutdown process causing last kernel logs (like "System Power Off") to
+    # drop out from journalctl. Last log of the previous boot is the best approximation we can get for shutdown time.
+    ${cmd}                        Catenate  SEPARATOR=\n
+    ...                           journalctl -b -1 --output=short-unix --no-pager --reverse |
+    ...                           head -n 1 |
+    ...                           awk '{print int($1)}'
+    ${last_timestamp}             Run Command    ${cmd}
+    RETURN                        ${last_timestamp}
 
 Get Boot times
     [Documentation]  Collect boot times from device
@@ -213,9 +265,7 @@ Log Journal To Debug
 
 Wait Until Power Is Low
     [Arguments]           ${measurement_id}
-    ${retro_interval}     Set Variable    3
-    # Give some time for measurement results to accumulate before starting to iterate retrospective time intervals
-    Sleep                 ${retro_interval}
+    ${retro_interval}     Set Variable  3
     WHILE  True   limit=180 seconds
         ${end_time}        Get current timestamp
         ${end_time_epoch}  Get Time    epoch
@@ -283,7 +333,9 @@ Shutdown Time Teardown
     Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
     Sleep  10
     IF  ${IS_LAPTOP}
-        IF  not ${SHUTDOWN_VERIFIED}
+        IF  ${SHUTDOWN_DEVICE_BOOTED}
+            Check If Device Is Available    retry=5x    action=shutdown
+        ELSE IF  not ${SHUTDOWN_VERIFIED}
             Reboot Laptop
             Check If Device Is Up    retry=110s
             IF  ${IS_AVAILABLE} == False
@@ -304,4 +356,6 @@ Shutdown Time Teardown
             Check If Device Is Up   retry=140s
         END
     END
-    Connect After Reboot
+    IF  not ${IS_LAPTOP} or not ${SHUTDOWN_DEVICE_BOOTED}
+        Connect After Reboot
+    END
