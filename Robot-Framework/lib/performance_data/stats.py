@@ -275,8 +275,16 @@ class PerformanceStatistics:
                         modified_build = build
                     data["commit"].append(modified_build)
 
-                    for key_index in range(1, len(row) - 1):
-                        data[data_key_list[key_index]].append(float(row[key_index]))
+                    for key_index in range(1, len(data_key_list)):
+                        if key_index < len(row) - 1:
+                            data[data_key_list[key_index]].append(float(row[key_index]))
+                        elif data_key_list[key_index] not in monitored_value:
+                            data[data_key_list[key_index]].append(float("nan"))
+                        else:
+                            raise ValueError(
+                                f"Missing monitored value '{data_key_list[key_index]}' "
+                                f"in {self.processing.device}_{test_name}.csv row: {row}"
+                            )
 
                     new_statistics_row = {}
                     indexed_statistics_row = {}

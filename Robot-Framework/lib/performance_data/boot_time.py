@@ -112,7 +112,7 @@ class BootTimeProcessor:
         while len(data['shutdown_time_power']) < len(data['commit']):
             data['shutdown_time_power'].append(float('nan'))
         plt.ticklabel_format(axis='y', style='plain')
-        plt.plot(data['commit'], data['shutdown_time'], marker='o', linestyle='-', color='b', label='Serial')
+        plt.plot(data['commit'], data['shutdown_time'], marker='o', linestyle='-', color='b', label='by software')
         self.processing.stats.plot_marginals_and_deviations(
             data['commit'],
             statistics,
@@ -125,7 +125,7 @@ class BootTimeProcessor:
                 marker='o',
                 linestyle='-',
                 color='g',
-                label='Power',
+                label='by power',
             )
         plt.yticks(fontsize=14)
         plt.title('Shutdown time', loc='right', fontweight="bold", fontsize=16)
