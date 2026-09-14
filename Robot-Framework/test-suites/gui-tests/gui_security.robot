@@ -78,7 +78,6 @@ Account lockout after failed GUI login
     Run Keyword And Expect Error     *    Log in, unlock and verify
     [Teardown]       Run keywords    Unlock account and login
     ...                       AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
-    ...                       AND    Run Keyword If Test Failed   SKIP    Test under development
 
 *** Keywords ***
 
