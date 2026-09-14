@@ -93,8 +93,6 @@ Shutdown from power menu
     Login to laptop   enable_dnd=True
 
     Should Not Be True    ${elapsed} > ${max_elapsed}    msg=Shutdown took too long: ${elapsed} seconds (expected < ${max_elapsed})
-    [Teardown]    Run Keywords   GUI Power Test Teardown   AND
-    ...           Run Keyword If Test Failed   Run Keyword If   "took too long" in $TEST_MESSAGE   Skip shutdown from power menu
 
 Log out and log in from power menu
     [Documentation]   Logout via GUI power menu icon and verify logged out state.
@@ -149,12 +147,6 @@ GUI Power Test Teardown
         Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
     END
 
-Skip shutdown from power menu
-    IF    "${DEVICE_TYPE}" == "lenovo-x1" or "${DEVICE_TYPE}" == "x1-sec-boot"
-        Log Error    Slow shutdown    Shutdown took too long
-        SKIP         Known Issue: SSRCSP-8714
-    END
-
 Select power menu option
     [Documentation]    Open power menu by clicking the icon.
     ...                Search the correct text or click given coordinates.
@@ -164,7 +156,7 @@ Select power menu option
     # Wait for menu to open and stop retrying when successful
     ${menu_opened}     Run Keyword And Return Status   Locate on screen   text   Settings   iterations=3
     IF  not ${menu_opened}
-        IF    "${DEVICE_TYPE}" == "lenovo-x1" or "${DEVICE_TYPE}" == "x1-sec-boot"
+        IF    ${IS_LAPTOP}
             Log Error    Taskbar disappeared    Power menu did not open even though power icon was clicked
             SKIP         Known Issue: SSRCSP-8806 (Failed to open power menu: 'Settings' not visible.)
         ELSE
