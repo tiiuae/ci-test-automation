@@ -131,16 +131,17 @@ Soft Shutdown Device
 Connect After Reboot
     [Documentation]   Verify that device rebooted and connect
     [Arguments]      ${soft_reboot}=False
-    Wait   30
     IF    ("${DEVICE_TYPE}" == "darter-pro" or "${DEVICE_TYPE}" == "darter-sec-boot") and ${soft_reboot}
         WHILE    True    limit=120 seconds
             Log              Pressing Enter    console=True
             Press Button     ${SWITCH_BOT}-Enter
-            Check If Device Is Up   retry=5x
-            IF   ${IS_AVAILABLE} == True and "${CONNECTION_TYPE}" == "ssh"   BREAK
+            ${ssh_status}    Try To Check Ssh On Device    retry=1x    interval=${PING_SPACING}s    ssh_timeout=3s
+            IF   ${ssh_status}    BREAK
+            Wait             3
         END
         Check If Device Is Available   retry=5x    action=reboot
     ELSE
+        Wait   30
         # Known issue SSRCSP-8704
         IF  "orin-agx" in "${DEVICE_TYPE}"
             Check If Device Is Available   retry=150s   action=reboot

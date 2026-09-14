@@ -141,15 +141,15 @@ Check If Device Is Available
     Switch to vm     ${NET_VM}
 
 Try To Check Ssh On Device
-    [Arguments]    ${retry}   ${interval}
-    ${ssh_status}=      Set variable    ${False}
+    [Arguments]    ${retry}   ${interval}    ${ssh_timeout}=50s
+    [Tags]    robot:recursive-stop-on-failure
+    ${ssh_status}=      Set Variable    ${False}
     TRY
         Wait Until Keyword Succeeds     ${retry}    ${interval}
-        ...      Run keywords
+        ...      Run Keywords
         ...         Run Keyword If      ${UART_CAPTURE_ACTIVE}           Drain Serial Output    save_output=${True}  AND
         ...         Verify Ping Host    ${DEVICE_IP_ADDRESS}             console_log=${True}
-
-        Wait Until Ssh Is Ready On Device   ${DEVICE_IP_ADDRESS}
+        Wait Until Ssh Is Ready On Device   ${DEVICE_IP_ADDRESS}    timeout=${ssh_timeout}
 
         ${ssh_status}=      Set Variable    ${True}
         Log    Device is available via SSH    console=True
