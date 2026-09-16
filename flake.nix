@@ -75,6 +75,7 @@
                 paramiko
                 evdev
                 matplotlib
+                rapidfuzz
               ])
               ++ (with self.packages.${system}; [
                 robotframework-jsonlibrary

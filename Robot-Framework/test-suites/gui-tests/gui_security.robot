@@ -20,14 +20,14 @@ Check Access List In Trusted Browser
     [Tags]    SP-T209  SP-T210  SP-T211  SP-T362  lenovo-x1  darter-pro
     [Template]    Check Access List In Trusted Browser Template
     # Pages outside access list shouldn't be available via Trusted Browser. Http and https have different errors
-    https://yle.fi                          text_to_find=This site can’t be reached
+    https://yle.fi                          text_to_find=This site can’t be reached     precision_percent=90
     http://yle.fi                           text_to_find=Access Denied
 
     # Access List consist of several files with multiple sections. These pages are 1 per section.
     https://graph.microsoft.com             text_to_find=Microsoft Graph
     https://excel.cloud.microsoft.com       text_to_find=Microsoft Excel
     https://word.cloud.microsoft            text_to_find=Microsoft Word
-    https://powerpoint.cloud.microsoft      text_to_find=Microsoft PowerPoint    allowed_error_percent=10
+    https://powerpoint.cloud.microsoft      text_to_find=Microsoft PowerPoint    precision_percent=90
     https://teams.live.com                  text_to_find=Video calls
     https://www.msn.com                     text_to_find=MSN
     https://onedrive.live.com               text_to_find=OneDrive
@@ -86,14 +86,13 @@ Check Access List In Trusted Browser Template
     ...                If page is blocked by access list, error depends on the protocol used:
     ...                   https: 'This site can’t be reached'
     ...                   http:  'Access Denied'
-    [Arguments]    ${url}   ${text_to_find}   ${allowed_error_percent}=0
+    [Arguments]    ${url}   ${text_to_find}   ${precision_percent}=${100}
     Start App in VM    ${Trusted Browser}    params_string=-- ${url}    always_check_vm=True
     Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
 
     Wait Until Keyword Succeeds     10x                        1s
     ...                             Verify Text Is On The Screen    ${text_to_find}
-    ...                             compare_alphanum_only=${True}
-    ...                             allowed_error_percent=${allowed_error_percent}
+    ...                             precision_percent=${precision_percent}
 
     [Teardown]    Kill App in VM   ${Trusted Browser}   status=${KEYWORD_STATUS}
 

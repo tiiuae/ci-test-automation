@@ -32,6 +32,7 @@ writeShellApplication {
       ps.opencv4
       ps.evdev
       ps.matplotlib
+      ps.rapidfuzz
 
       # These are taken from this flake
       robotframework-advancedlogging

@@ -187,7 +187,7 @@ Verify Device Information
     Set Test Variable   ${device_info_unknown_fields}
 
     Check Device Information Field   Ghaf Version       ${ghaf_version}     scale=3
-    Check Device Information Field   Device ID          ${device_id}        scale=3   allowed_error_percent=1
+    Check Device Information Field   Device ID          ${device_id}        scale=3   precision_percent=90
     Check Device Information Field   Secure Boot        ${secure_boot}
     Check Device Information Field   Disk Encryption    ${disk_encryption}
 
@@ -201,14 +201,14 @@ Ghaf Control Panel Test Teardown
     Run Keyword If Test Failed     Log Error    Ghaf Control Panel     Ghaf Control Panel test failed
 
 Check Device Information Field
-    [Arguments]    ${field}    ${expected}   ${scale}=2   ${allowed_error_percent}=0
+    [Arguments]    ${field}    ${expected}   ${scale}=2   ${precision_percent}=${100}
     ${screenshot_path}  Take Remote Screenshot And Download
     ${actual}           Get Text Field From Image   ${screenshot_path}   ${field}   scale=${scale}
     IF    '${actual.strip().lower()}' == 'unknown'
         Append To List    ${device_info_unknown_fields}    ${field}
         RETURN
     END
-    ${matches}    Text Matches    ${actual}    ${expected}    allowed_error_percent=${allowed_error_percent}
+    ${matches}    Text Matches    ${actual}    ${expected}    precision=${precision_percent}
     IF    not ${matches}
         Append To List    ${device_info_failures}    ${field} value in Ghaf Control Panel is ${actual}, expected ${expected}
     END
@@ -294,7 +294,7 @@ Verify Video Is Visible In COSMIC Files
     ${recorded_video_name}    Run Command    basename ${recorded_video}
     ${recording_pattern}    Replace String    ${recorded_video_name}    ghaf-    ${EMPTY}
     Locate on screen   text    Videos    iterations=10    scale=2
-    Locate on screen   text    ${recording_pattern}    iterations=15    scale=2    allowed_error_percent=15
+    Locate on screen   text    ${recording_pattern}    iterations=15    scale=2    precision_percent=85
 
 Screen Recording Test Teardown
     Kill process by name    ${GPU Screen Recorder}[recording_process_name]    sudo=False    require_exists=False
@@ -397,7 +397,7 @@ Open restricted page in Trusted Browser
 
 Verify page is blocked in Trusted Browser
     Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
-    Wait Until Keyword Succeeds    10x    1s    Verify Text Is On The Screen    This site can’t be reached  compare_alphanum_only=${True}
+    Wait Until Keyword Succeeds    10x    1s    Verify Text Is On The Screen    This site can’t be reached  precision_percent=${90}
     Verify Text Is On The Screen    Uutiset    expected=${False}    scale=2
 
 Forward page to normal browser
