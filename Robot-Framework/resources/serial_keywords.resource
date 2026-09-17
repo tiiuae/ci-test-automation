@@ -6,6 +6,7 @@ Library             ../lib/KMTronicLibrary.py   ${RELAY_SERIAL_PORT}
 Library             ../lib/output_parser.py
 Library             ../lib/helper_functions.py
 Library             AdvancedLogging
+Library             DateTime
 Library             OperatingSystem
 Library             SerialLibrary    encoding=ascii
 Library             String
@@ -469,14 +470,18 @@ Drain Serial Output
     END
 
 Append Normalized UART Capture
-    [Documentation]    Normalize raw serial text and append only readable content to the active UART log file.
+    [Documentation]    Normalize raw serial text and append each readable line with the current time to the active UART log file.
     [Arguments]    ${output}
     IF    not ${UART_CAPTURE_ACTIVE}
         RETURN
     END
     ${normalized_output}    Normalize Serial Output    ${output}
     IF    $normalized_output != ''
-        OperatingSystem.Append To File    ${UART_CAPTURE_FILE}    ${normalized_output}${\n}
+        ${current_date}    DateTime.Get Current Date
+        @{lines}    Split To Lines    ${normalized_output}
+        FOR    ${line}    IN    @{lines}
+            OperatingSystem.Append To File    ${UART_CAPTURE_FILE}    ${current_date} ${line}${\n}
+        END
     END
 
 Collect Failure Diagnostics Via Serial
