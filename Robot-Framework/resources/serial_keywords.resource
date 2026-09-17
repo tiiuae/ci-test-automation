@@ -485,13 +485,15 @@ Collect Failure Diagnostics Via Serial
     ...                - how small/large output is expected,
     ...                - if sudo is required
     ...                - target location for running the command ( host / vm )
+    Log To Console     Trying to collect diagnostics via debug UART after failed boot test
     IF    ${UART_CAPTURE_ACTIVE}
+        Log To Console    Retrying serial login up to 24 times
         ${status}    Run Keyword And Return Status    Wait Until Keyword Succeeds    24x    5s    Log In To Ghaf OS    attempts=1
     ELSE
         ${status}    Run Keyword And Return Status    Connect via serial    timeout=20
     END
     IF    not ${status}
-        Log    Failed to connect via serial, UART diagnostics were not collected.
+        Log To Console    Failed to connect via serial, UART diagnostics were not collected.
         RETURN
     END
     Log To Console    Collecting failure diagnostics via UART...
