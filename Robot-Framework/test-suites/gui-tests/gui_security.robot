@@ -102,7 +102,6 @@ Account lockout Teardown
     Unlock account and login
     Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
     Soft Reboot Device And Connect
-    Login to laptop
 
 Unlock account and login
     [Documentation]  Unlock the user account and log back in

@@ -123,7 +123,6 @@ Run Nixos Rebuild
         FAIL  nixos-rebuild didn't finish successfully withing the given time
     END
     Soft Reboot Device And Connect
-    Run Keyword If    ${IS_LAPTOP}    Login to laptop
 
 Clone Ghaf Repository
     [Arguments]               ${repo_path}=${REPOSITORY_PATH}    ${commit}=${EMPTY}

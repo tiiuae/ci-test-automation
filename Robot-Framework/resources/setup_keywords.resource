@@ -17,7 +17,6 @@ ${ROBOT_SUDOERS_BOOT_ID}     ${EMPTY}
 *** Keywords ***
 
 Prepare Test Environment
-    [Arguments]   ${enable_dnd}=False
     [Timeout]     5 minutes
     Check If Device Is Available
     ${timestamp}          Run Command    date '+%Y-%m-%d %H:%M:%S'
@@ -28,7 +27,7 @@ Prepare Test Environment
         Verify boot from expected device
         Create test user
         Save login and logout icons
-        Login to laptop   ${enable_dnd}
+        Login to laptop
     END
 
 Verify boot from expected device
@@ -56,7 +55,6 @@ Check that System And Boot Disk Match
 
 Clean Up Test Environment
     [Timeout]     5 minutes
-    [Arguments]   ${disable_dnd}=False
     IF    ${IS_AVAILABLE} == True and "${CONNECTION_TYPE}" == "ssh"
         IF   "${SUITE STATUS}" != "PASS"    Save host journalctl
         IF   ${IS_LAPTOP}                   Log out from laptop
@@ -146,18 +144,16 @@ Save login and logout icons
 
 Login to laptop
     [Documentation]   Log in to the laptop
-    [Arguments]       ${enable_dnd}=False
     Ensure Robot sudoers is installed in all VMs
     Start ydotoold
     Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
-    Log in, unlock and verify   ${enable_dnd}
+    Log in, unlock and verify
 
 Log out from laptop
     [Documentation]   Log out from the laptop
-    [Arguments]       ${disable_dnd}=False
     Start ydotoold
     Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
-    Log out and verify   ${disable_dnd}
+    Log out and verify
     Stop ydotoold
 
 Is first graphical login

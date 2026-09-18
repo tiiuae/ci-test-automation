@@ -233,14 +233,12 @@ Detect when power went low
     END
 
 Boot Time Test Teardown
-    Run Keyword If Test Failed   Failed Boot Time Test Teardown
-    IF   ${IS_LAPTOP}    Login to laptop
-
-Failed Boot Time Test Teardown
-    Hard Reboot Device And Connect
-    IF   ${IS_LAPTOP}
+    IF  $test_status=='FAIL'
+        Hard Reboot Device And Connect
         Switch to vm          ${HOST}
         Log Journal To Debug  boot=-1
+    ELSE IF  ${IS_LAPTOP}
+        Login to laptop
     END
 
 Shutdown Time Teardown
