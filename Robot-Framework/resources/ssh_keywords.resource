@@ -246,6 +246,12 @@ Connect to VM
     ${connection}     Open connection and login   connection_point=${vm_name}   username=${user}   password=${pw}   target_output=${vm_name}   jumphost=${NET-VM_GHAF_SSH}   timeout=${timeout}
     RETURN   ${connection}
 
+Open VM connection with recovery key
+    [Documentation]    Open a new VM connection using a recovery key for authentication.
+    [Arguments]        ${vm_name}    ${user}    ${recovery_key}
+    ${connection}      Connect to VM    ${vm_name}    user=${user}    pw=${recovery_key}
+    RETURN             ${connection}
+
 Save log
     [Arguments]       ${host}=${HOST}  ${since}=${EMPTY}
     Switch to vm  ${host}
