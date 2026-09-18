@@ -114,7 +114,6 @@ Test setup
 Test teardown
     IF  $TEST_STATUS!='PASS'
         Hard Reboot Device And Connect
-        Login to laptop
     END
     Switch to vm   ${GUI_VM}   user=${USER_LOGIN}
     Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
@@ -123,7 +122,6 @@ App suspension test teardown
     ${ssh_available}    Try To Check Ssh On Device    retry=3x    interval=1s    ssh_timeout=5s
     IF    not ${ssh_available}
         Hard Reboot Device And Connect
-        Login to laptop
     ELSE
         Kill App in VM    ${Google Chrome}    status=PASS    require_exists=False
         Kill App in VM    ${Zoom}             status=PASS    require_exists=False

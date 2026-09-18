@@ -72,13 +72,11 @@ Persistence Suite Setup
     Set Suite Variable             ${PERSISTENCE_SETUP_ERRORS}
     Save original values
     Set values        EXPECTED
-    Soft Reboot Device And Connect   vm=${GUI_VM}
-    Login to laptop
+    Soft Reboot Device And Connect
 
 Persistence Suite Teardown
     IF  $SUITE_STATUS=='FAIL'
         Hard Reboot Device And Connect
-        Login to laptop
     END
     Set values   ORIGINAL
 

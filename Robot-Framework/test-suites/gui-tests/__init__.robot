@@ -17,11 +17,11 @@ Test Tags           regression  gui
 
 GUI Tests Setup
     [Timeout]    5 minutes
-    Prepare Test Environment   enable_dnd=True
+    Prepare Test Environment
     Save gui icons and icon path
 
 GUI Tests Teardown
     [Timeout]    5 minutes
     # In case the screen recording was not stopped
     Stop screen recording service
-    Clean Up Test Environment   disable_dnd=True
+    Clean Up Test Environment

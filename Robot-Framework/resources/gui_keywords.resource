@@ -28,7 +28,6 @@ ${YDOTOOL_SOCKET}      /tmp/.ydotool_socket
 
 Log in, unlock and verify
     [Documentation]   Open desktop by logging in or unlocking. Verify that desktop is available.
-    [Arguments]       ${enable_dnd}=False
     # A single probe cannot tell "a user is logged in" from "greetd has restarted
     # and the greeter session has not registered on its seat yet" -- both look
     # like "no greeter session on a seat".So only trust a negative when a real user
@@ -54,18 +53,17 @@ Log in, unlock and verify
 
     Kill Initial Setup
     Disable automatic suspension
-    IF  ${enable_dnd}      Set do not disturb state   true
+    Set do not disturb state   true
 
 Log out and verify
     [Documentation]   Log out. Verify that session was logged out.
-    [Arguments]       ${disable_dnd}=True
+    Set do not disturb state   false
     # Allow disabling logout in case of running test automation locally from ghaf-host.
     # This prevents terminal from being shutdown and allows test run to finish.
     IF  ${DISABLE_LOGOUT}
         Log To Console    Log out disabled. Skipping log out procedure.
         RETURN
     END
-    IF  ${disable_dnd}   Set do not disturb state   false
     ${logout_status}      Check if logged out    1
     IF  not ${logout_status}
         ${lock}       Check if locked

@@ -284,7 +284,6 @@ Plot ballooning
 Procedure After Timeout
     ${rebooted}     Set Variable  True
     Hard Reboot Device And Connect
-    Login to laptop
 
 Clean Test Files
     Run Command   sudo -n rm /dev/shm/test/*      rc_match=skip

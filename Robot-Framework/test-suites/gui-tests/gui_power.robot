@@ -65,7 +65,7 @@ Reboot from power menu
     Verify shutdown via network
     Connect After Reboot   soft_reboot=True
     ${end_time}       Get Time    epoch
-    Login to laptop   enable_dnd=True
+    Login to laptop
     ${elapsed}        Evaluate    ${end_time} - ${start_time}
     ${reboot_limit}   Convert To Integer    90
     Log               Reboot took ${elapsed} seconds   console=True
@@ -93,7 +93,7 @@ Shutdown from power menu
     END
     Turn Laptop On
     Connect After Reboot
-    Login to laptop   enable_dnd=True
+    Login to laptop
 
     Should Not Be True    ${elapsed} > ${max_elapsed}    msg=Shutdown took too long: ${elapsed} seconds (expected < ${max_elapsed})
 
@@ -142,7 +142,7 @@ GUI Power Test Teardown
         IF    ${IS_AVAILABLE}
             ssh_keywords.Save log   ${GUI_VM}  ${gui_power_log_since}
             ssh_keywords.Save log   ${HOST}    ${gui_power_log_since}
-            Login to laptop         enable_dnd=True
+            Switch to vm            ${GUI_VM}  user=${USER_LOGIN}
             Save screen recording   ${TEST_STATUS}   ${TEST_NAME}
         END
     ELSE

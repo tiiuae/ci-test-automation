@@ -30,7 +30,7 @@ Verify Ping Host
     [Arguments]    ${hostname}    ${expected_status}=${True}   ${timeout}=${PING_SPACING}    ${console_log}=${False}
     ${received_status}=    Ping Host            hostname=${hostname}    timeout=${timeout}
     Run Keyword If         ${console_log}       Log      Ping ${hostname}... Status: ${received_status}     console=True
-    Should Be Equal        ${received_status}   ${expected_status}
+    Should Be Equal        ${received_status}   ${expected_status}    Ping status was ${received_status}, expected ${expected_status}
 
 Wait For Device Going Offline
     [Arguments]    ${hostname}   ${timeout}=15s     ${ping_timeout}=${PING_SPACING}
