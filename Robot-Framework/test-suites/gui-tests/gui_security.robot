@@ -82,7 +82,27 @@ Account lockout after failed GUI login
     ...                       AND    Soft Reboot Device And Connect
     ...                       AND    Login to laptop
 
+Use recovery key to login
+    [Documentation]    Get the recovery key from user provisioning logs and use it to log in to gui-vm.
+    [Tags]             SP-T302  lenovo-x1  darter-pro  lab-only
+    Connect to GUI VM with recovery key
+    Verify recovery key SSH login
+
 *** Keywords ***
+
+Connect to GUI VM with recovery key
+    Switch to vm           ${GUI_VM}
+    Set Log Level          NONE
+    ${journal}             Run Command    journalctl -u user-provision-test.service --no-pager -o cat    sudo=True
+    ${recovery_keys}       Get Regexp Matches    ${journal}    [a-z-]{71}
+    Should Not Be Empty    ${recovery_keys}    Recovery key was not found in user-provision-test.service logs
+    Open VM connection with recovery key     ${GUI_VM}    ${USER_LOGIN}    ${recovery_keys}[0]
+    [Teardown]             Set Log Level    INFO
+
+Verify recovery key SSH login
+    ${logged_in_user}    Run Command         whoami
+    Should Be Equal      ${logged_in_user}   ${USER_LOGIN}    Failed to log in to gui-vm as ${USER_LOGIN} using the recovery key
+    [Teardown]           Close Connection
 
 Check Access List In Trusted Browser Template
     [Documentation]    Running Trusted Browser and trying to find text on the opened page.
