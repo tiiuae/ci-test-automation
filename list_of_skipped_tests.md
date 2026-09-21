@@ -8,7 +8,6 @@
 | 26.08.2026 | Verify Gala is loaded                  | SSRCSP-8855                                                             | Slow Gala          |
 | 20.07.2026 | nvpmodel check test (Orins)            | SSRCSP-8712                                                             | (Fails every time) |
 | 06.07.2026 | Open video with COSMIC Media Player    | SSRCSP-8367                                                             | Crash in media-vm  |
-| 13.05.2026 | Validate Forward Secure Sealing        | SSRCSP-8820                                                             | FSS test failed    |
 | 30.04.2026 | Open PDF from VM                       | SSRCSP-8367                                                             | Crash in media-vm  |
 | 17.03.2026 | OP-TEE xtest 1006                      | SSRCSP-8198                                                             | (Fails every time) |
 | 11.02.2026 | Check device id (storeDisk)            | SSRCSP-7997                                                             | (Fails every time) |

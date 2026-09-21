@@ -50,7 +50,7 @@ Verify service status
     END
 
     IF  ${finished}
-        Log To Console  ${\n}systemctl status ${service}: ${state} (${substate})
+        Log   Systemctl status ${service}: ${state} (${substate})   console=True
     ELSE
         Run Command   journalctl -b -u ${service}
         IF   ${welcome_check}   FAIL    systemctl status ${service}: ${state} (${substate}), expected: ${expected_state} (${expected_substate}), welcome check passed: ${finished}
