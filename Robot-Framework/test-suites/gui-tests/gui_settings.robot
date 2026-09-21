@@ -18,7 +18,7 @@ Change timezone in settings
     Set timezone      UTC
     Search in COSMIC Settings   zone
     Tab and enter     tabs=5
-    Tab and enter     tabs=9
+    Tab and enter     tabs=2
     Type string       Dubai    enter_at_end=True
     Tab and enter     tabs=1
     Wait Until Keyword Succeeds  10s  1s   Verify timezone   Asia/Dubai
