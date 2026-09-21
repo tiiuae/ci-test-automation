@@ -157,13 +157,13 @@
   "Google Chrome": {
     "display_name": "Google Chrome",
     "VM": "chrome-vm",
-    "process_name": "chrome",
+    "process_name": "google-chrome",
     "close_button": "ghaf-close.png"
   },
   "Google Chrome GPU": {
     "display_name": "Google Chrome GPU",
     "VM": "gui-vm",
-    "process_name": "chrome",
+    "process_name": "google-chrome",
     "close_button": "ghaf-close.png"
   },
   "GPU Screen Recorder": {
