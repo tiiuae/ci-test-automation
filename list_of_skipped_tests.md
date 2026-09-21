@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                                     | TICKET / Additional Data                                                | Error Log Context    |
 | ---------- | --------------------------------------------- | ----------------------------------------------------------------------- | -------------------- |
+| 21.09.2026 | Account lockout after failed GUI login        | SSRCSP-8943                                                             | Account lockout      |
 | 26.08.2026 | Start COSMIC Settings via GUI (non-storeDisk) | SSRCSP-8856                                                             | Slow Cosmic Settings |
 | 26.08.2026 | Verify Gala is loaded                         | SSRCSP-8855                                                             | Slow Gala            |
 | 05.08.2026 | Ghaf Control Panel shows device information   | SSRCSP-8770 (GUI shows "unknown")                                       | Ghaf Control Panel   |
