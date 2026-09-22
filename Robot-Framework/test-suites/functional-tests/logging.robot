@@ -192,7 +192,7 @@ Check logging rate against history
             Set To Dictionary    ${unavailable_vms}    ${vm}=${switch_output}
             CONTINUE
         END
-        IF  "orin" in "${DEVICE_TYPE}"
+        IF  ${IS_ORIN}
             ${vm_entry_limit}   Set Variable   ${orin_entry_limit}
         ELSE IF  "${DEVICE_TYPE}" == "dell-7330" and '${vm}' == '${HOST}'
             ${vm_entry_limit}   Set Variable   ${dell_host_entry_limit}  # Known Issue: SSRCSP-8481

@@ -67,7 +67,7 @@ VM memory usage snapshot
             Run Keyword And Continue On Failure    FAIL    ${vm} available memory is below ${low_mem_limit}% of the total memory
         END
         IF    ${swap_total_mib} == 0
-            IF  "orin-agx" in "${DEVICE_TYPE}" and "${vm}" == "${HOST}"
+            IF  "agx" in "${DEVICE_TYPE}" and "${vm}" == "${HOST}"
                 Log    Total swap memory is 0 in ${vm}. Ignoring swap check specifically for Orin AGX ghaf-host (known to have 0 swap)
             ELSE
                 Run Keyword And Continue On Failure    FAIL    Zero total swap detected in ${vm}. Expected non-zero swap.
@@ -104,7 +104,7 @@ nvpmodel check test
     IF  not ("Power mode check ok: ${ExpectedNVPmode}" in $output)
         FAIL  ${output}\n\nExpected: ${ExpectedNVPmode}
     END
-    [Teardown]     Run Keyword If Test Failed    Run Keyword If   "orin" in "${DEVICE_TYPE}"    SKIP     Known issue: SSRCSP-8712
+    [Teardown]     Run Keyword If Test Failed    Run Keyword If   ${IS_ORIN}    SKIP     Known issue: SSRCSP-8712
 
 Cyclictest latency on ghaf-host
     [Documentation]    Run four cyclictest latency measurements on ghaf-host and track min/avg/max
