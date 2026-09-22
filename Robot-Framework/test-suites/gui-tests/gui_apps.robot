@@ -318,7 +318,7 @@ Save image from Chrome to Unsafe share
     [Arguments]    ${image_url}    ${file_name}
     Start App in VM    ${Google Chrome}    always_check_vm=True    params_string=-- ${image_url}
     Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
-    Accept Chrome Terms Of Service If Shown
+    Accept Chrome Terms Of Service If Shown    ${Google Chrome}
     Skip Chrome sign-in prompt if shown
     Select Chrome search engine if prompted
     Locate on screen   image    ${Google Chrome}[close_button]    0.90    iterations=20
@@ -349,7 +349,7 @@ Open Shared Image In Target VM User App
     [Arguments]    ${file_name}
     Start App in VM    ${Trusted Browser}    always_check_vm=True
     Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
-    Accept Chrome Terms Of Service If Shown
+    Accept Chrome Terms Of Service If Shown    ${Trusted Browser}
     Locate on screen   image    ${Trusted Browser}[close_button]    0.90    iterations=20
     Press Key(s)       LEFTCTRL+L
     Type string        file:///home/appuser/Unsafe%20share/${file_name}    enter_at_end=True
@@ -377,7 +377,7 @@ Copy text to clipboard
 
 Paste clipboard text and verify
     [Arguments]    ${text}
-    Accept Chrome Terms Of Service If Shown
+    Accept Chrome Terms Of Service If Shown    ${Trusted Browser}
     Locate on screen   image   open-normal-browser.png   confidence=0.80
     Press Key(s)       LEFTCTRL+V
     Move cursor to corner
@@ -386,7 +386,7 @@ Paste clipboard text and verify
 Open restricted page in Trusted Browser
     Start App in VM    ${Trusted Browser}    params_string=-- https://yle.fi    always_check_vm=True
     Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
-    Accept Chrome Terms Of Service If Shown
+    Accept Chrome Terms Of Service If Shown    ${Trusted Browser}
 
 Verify page is blocked in Trusted Browser
     Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
@@ -399,11 +399,11 @@ Forward page to normal browser
 Verify page opened in normal browser
     Check that App is running in VM    ${Google Chrome}    range=10
     Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
-    Accept Chrome Terms Of Service If Shown
+    Accept Chrome Terms Of Service If Shown    ${Google Chrome}
     Skip Chrome sign-in prompt if shown
     Wait Until Keyword Succeeds    10x    1s
     ...    Run Keywords
-    ...    Accept Chrome Terms Of Service If Shown    attempts=1    interval=0s
+    ...    Accept Chrome Terms Of Service If Shown    ${Google Chrome}    attempts=1    interval=0s
     ...    AND    Verify Text Is On The Screen    Uutiset    scale=2
 
 Skip Chrome sign-in prompt if shown
@@ -432,7 +432,7 @@ Verify app window is minimized
     Wait Until Keyword Succeeds    3x    1s    Verify Image On The Screen    ${Zoom}[close_button]    ${False}
 
 Save Zoom window baseline coordinates
-    Accept Chrome Terms Of Service If Shown    attempts=3
+    Accept Chrome Terms Of Service If Shown    ${Zoom}    attempts=3
     ${status}   Run Keyword And Return Status   Locate on screen   image   ${Zoom}[close_button]   0.99   10   timeout=120   scale=2
     Run Keyword If    not ${status}    Focus Zoom window
     ${window_x}   ${window_y}    Locate on screen   image   ${Zoom}[close_button]   0.99   10   timeout=120   scale=2
