@@ -143,7 +143,7 @@ Connect After Reboot
     ELSE
         Wait   30
         # Known issue SSRCSP-8704
-        IF  "orin-agx" in "${DEVICE_TYPE}"
+        IF  "agx" in "${DEVICE_TYPE}"
             Check If Device Is Available   retry=150s   action=reboot
         ELSE
             Check If Device Is Available   retry=60s   action=reboot
@@ -204,7 +204,7 @@ Verify shutdown via network
 Reboot Orin if ssh connection dropped
     [Arguments]    ${context_name}=${EMPTY}
     ${ssh_available}  Run Keyword And Return Status    Run Command    ls  timeout=5
-    IF  not ${ssh_available} and "orin" in "${DEVICE_TYPE}"
+    IF  not ${ssh_available} and ${IS_ORIN}
         Hard Reboot Device And Connect
         IF    '${context_name}' == ''
             ${context_name}    Get Variable Value    ${TEST NAME}    UNKNOWN_TEST

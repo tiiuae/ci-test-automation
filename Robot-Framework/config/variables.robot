@@ -67,8 +67,10 @@ Set Variables
     END
     IF  "${DEVICE_TYPE}" == "lenovo-x1" or "${DEVICE_TYPE}" == "dell-7330" or "${DEVICE_TYPE}" == "darter-pro" or "${DEVICE_TYPE}" == "x1-sec-boot" or "${DEVICE_TYPE}" == "darter-sec-boot"
         Set Global Variable  ${IS_LAPTOP}           True
+        Set Global Variable  ${IS_ORIN}             False     # While we do not have other options except laptop/orin
     ELSE
         Set Global Variable  ${IS_LAPTOP}           False
+        Set Global Variable  ${IS_ORIN}             True      # While we do not have other options except laptop/orin
     END
     Set Global Variable  ${NET_VM}             net-vm
     Set Global Variable  ${NETVM_SERVICE}      microvm@${NET_VM}.service

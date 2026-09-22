@@ -87,8 +87,8 @@ Rebuild from modified ghaf repo
     [Timeout]               50 minutes
     IF  ${IS_LAPTOP}
         ${target_name}      Set Variable    intel-laptop-debug
-    ELSE IF  "orin" in "${DEVICE_TYPE}"
-        IF  "${DEVICE_TYPE}" == "orin-agx-64"
+    ELSE IF  ${IS_ORIN}
+        IF  "agx-64" in "${DEVICE_TYPE}"
             ${target_name}    Set Variable    nvidia-jetson-orin-agx64-debug
         ELSE
             ${target_name}    Set Variable    nvidia-jetson-${DEVICE_TYPE}-debug
