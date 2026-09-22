@@ -211,3 +211,29 @@ Reboot Orin if ssh connection dropped
         END
         Log Error    Orin connection dropped    Connection dropped during ${context_name}
     END
+
+Confirm suspension and wake up the device
+    [Documentation]   Check that the device is suspended.
+    ...               Wake up by pressing the power button for 1 sec.
+    ...               Check that the device is awake and unlock.
+    Wait For Device Going Offline    ${DEVICE_IP_ADDRESS}
+
+    Log To Console      Letting the device stay suspended for 30 sec
+    Wait                30
+    Log To Console      Waking the device up by pressing the power button for 1 sec
+    Wake up device
+
+    Close All Connections
+    Start ydotoold
+    Switch to vm        ${GUI_VM}   user=${USER_LOGIN}
+
+    # Sometimes screen wakeup has required a mouse move
+    Wiggle cursor
+    Wait Until Keyword Succeeds   30s   2s    Check the screen state   on
+
+    Log To Console      Checking if the screen is in locked state after wake up
+    ${locked}           Check if locked   iterations=3   debug_screenshot=True
+    Should Be True      ${locked}    Screen lock not active after wake up
+
+    Unlock
+    Verify desktop availability
