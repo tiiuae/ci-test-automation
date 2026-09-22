@@ -22,6 +22,7 @@ ${ICONS_DIR}           ${OUTPUT_DIR}/outputs/icons
 ${SCREENSHOT_GHAF}     /home/${USER_LOGIN}/test-images/screenshot.jpeg
 ${SCREENSHOT_LOCAL}    ${GUI_OUTPUT_DIR}/screenshot.jpeg
 ${YDOTOOL_SOCKET}      /tmp/.ydotool_socket
+@{CHROME_TERMS_CHECKED_VMS}
 
 
 *** Keywords ***
@@ -223,13 +224,15 @@ Verify item is near expected coordinates
 
 Accept Chrome Terms Of Service If Shown
     [Documentation]    Chrome Terms of Service dialog is shown only on some fresh profiles.
-    [Arguments]    ${attempts}=3    ${interval}=1s
+    [Arguments]    ${app_key}    ${attempts}=3    ${interval}=1s
+    IF    $app_key['VM'] in $CHROME_TERMS_CHECKED_VMS    RETURN
     ${status}    Run Keyword And Return Status
     ...    Wait Until Keyword Succeeds    ${attempts}x    ${interval}    Verify Text Is On The Screen    Terms of Service    scale=2
     IF    ${status}
         Press Key(s)    ENTER
         Wait Until Keyword Succeeds    2x    1s    Verify Text Is On The Screen    Terms of Service    expected=${False}    scale=2
     END
+    Append To List    ${CHROME_TERMS_CHECKED_VMS}    ${app_key}[VM]
 
 Click
     [Arguments]   ${double_click}=False  ${wiggle}=False   ${sudo}=False
@@ -460,3 +463,56 @@ Kill Initial Setup
         # Kill the initial setup so that it does not interfere with tests
         Kill process by name   ${Cosmic Initial Setup}[process_name]   sudo=False   require_exists=False
     END
+
+Select power menu option
+    [Documentation]    Open power menu by clicking the icon.
+    ...                Search the correct text or click given coordinates.
+    [Arguments]        ${text}=${EMPTY}   ${x}=0   ${y}=0   ${confirmation}=False   ${tabs}=1
+    Log To Console     Opening power menu
+    Locate and click   image  power.png  0.95  10
+    # Wait for menu to open and stop retrying when successful
+    ${menu_opened}     Run Keyword And Return Status   Locate on screen   text   Settings   iterations=3
+    IF  not ${menu_opened}
+        IF    ${IS_LAPTOP}
+            Log Error    Taskbar disappeared    Power menu did not open even though power icon was clicked
+            SKIP         Known Issue: SSRCSP-8806 (Failed to open power menu: 'Settings' not visible.)
+        ELSE
+            FAIL         Failed to open power menu: 'Settings' not visible.
+        END
+    END
+    IF  '${text}'
+        Locate and click   text   ${text}
+    ELSE IF  ${x} != 0 and ${y} != 0
+        Log To Console        Clicking the coordinates of the icon {'x': ${x}, 'y': ${y}}
+        Run ydotool command   mousemove --absolute -x ${x} -y ${y}
+        Click
+    ELSE
+        FAIL   No type provided
+    END
+    Sleep   1
+    # Some options have a separate confirmation window that needs to be clicked.
+    # Error is ignored because the connection is sometimes lost before the last Enter returns a value.
+    IF  ${confirmation}   Run Keyword And Ignore Error   Tab and enter   tabs=${tabs}
+    Sleep   1
+
+Save gui icons and icon path
+    [Documentation]         Save the icons that are used in GUI tests
+    Log To Console          Saving GUI test icons
+    ${icons}                Run Command   find $(echo $XDG_DATA_DIRS | tr ':' ' ') -type d -name "icons" 2>/dev/null   rc_match=skip
+    # Window controls
+    Get icon                ${icons}/Cosmic/scalable/actions  window-close-symbolic.svg  crop=0  background=white  output_filename=window-close.png
+    Negate app icon         ${ICONS_DIR}/window-close.png  ${ICONS_DIR}/window-close-neg.png
+    OperatingSystem.Copy File    ../test-files/ghaf-close.png    ${ICONS_DIR}/
+    OperatingSystem.Copy File    ../test-files/ghaf-next.png    ${ICONS_DIR}/
+    OperatingSystem.Copy File    ../test-files/gala_signin_arrow.png    ${ICONS_DIR}/
+    # Desktop
+    Get icon                ${icons}/Cosmic/scalable/actions  system-search-symbolic.svg  crop=0  background=white  output_filename=search.png
+    Negate app icon         ${ICONS_DIR}/search.png  ${ICONS_DIR}/search-neg.png
+    Get icon                ${icons}/Papirus/24x24/actions  system-shutdown.svg  crop=0  background=black  output_filename=power.png
+    # App icons
+    Get icon                ${icons}/Papirus/48x48/apps  Zoom.svg  crop=0  background=black  output_filename=${Zoom}[icon]
+    Get icon                ${icons}/hicolor/48x48/apps  com.system76.CosmicSettings.svg  background=black  output_filename=${COSMIC Settings}[icon]
+    Switch to vm            ${Trusted Browser}[VM]
+    ${open_normal_path}     Search nix store    open-normal
+    Get icon                ${open_normal_path}    ghaf-logo-512px.png  crop=0  background=black  resize=16x16  output_filename=open-normal-browser.png
+    [Teardown]              Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
