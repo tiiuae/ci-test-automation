@@ -21,7 +21,9 @@ Roll back to original generation
     IF  ${gen_at_teardown}!=${gen_before}
         Log To Console    Rolling back to original generation and removing the new generation
         ${new_boot_id}    Get Bootctl Generation Id    ${gen_at_teardown}
-        Run Command       bootctl unlink ${new_boot_id}  sudo=True
+        IF  ${new_boot_id}
+            Run Command       bootctl unlink ${new_boot_id}  sudo=True
+        END
         Run Command       nix-env -p /nix/var/nix/profiles/system --switch-generation ${gen_before}  sudo=True
         Run Command       nix-env -p /nix/var/nix/profiles/system --delete-generations ${gen_at_teardown}  sudo=True
     ELSE

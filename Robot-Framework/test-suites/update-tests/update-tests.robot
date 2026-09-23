@@ -13,7 +13,7 @@ Resource            ../../resources/update_keywords.resource
 
 Suite Setup         Update Setup
 Test Teardown       Roll back to original generation
-Test Timeout        15 minutes
+Test Timeout        20 minutes
 
 
 *** Test Cases ***
@@ -47,11 +47,11 @@ Update with
     Set Suite Variable    ${gen_before}
     Log To Console        Updating...
     IF  "${update_method}"=="ota-update"
-        ${output}             Run Command  ota-update cachix --cache ghaf-release ${RELEASE_NAME}  sudo=True   timeout=600
+        ${output}             Run Command  ota-update cachix --cache ghaf-release ${RELEASE_NAME}  sudo=True   timeout=900
         Should Not Contain    ${output}  Error
     ELSE IF  "${update_method}"=="givc-cli"
         Switch to vm          ${GUI_VM}
-        ${output}             Run Command  givc-cli update cachix --cache ghaf-release ${RELEASE_NAME}  sudo=True   timeout=600
+        ${output}             Run Command  givc-cli update cachix --cache ghaf-release ${RELEASE_NAME}  sudo=True   timeout=900
         Should Not Contain    ${output}  Error
         Switch to vm          ${HOST}
     ELSE
@@ -63,6 +63,7 @@ Update with
     IF  ${gen_before}==${gen_after}
         FAIL    Update via ${update_method} failed OR attempted updating to already existing revision
     END
+    Get Bootctl Generation Id    ${gen_after}
 
 Compare current with cachix revision
     [Documentation]  Make sure that pinned cachix revision differs from current running ghaf version.
