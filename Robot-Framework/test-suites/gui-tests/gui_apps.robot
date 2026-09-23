@@ -182,9 +182,7 @@ Verify Device Information
     ${secure_boot}      Get givc-cli sysinfo field   ${sysinfo}   Secure Boot
     ${disk_encryption}  Get givc-cli sysinfo field   ${sysinfo}   Disk Encryption
     ${device_info_failures}         Create List
-    ${device_info_unknown_fields}   Create List
     Set Test Variable   ${device_info_failures}
-    Set Test Variable   ${device_info_unknown_fields}
 
     Check Device Information Field   Ghaf Version       ${ghaf_version}     scale=3
     Check Device Information Field   Device ID          ${device_id}        scale=3   allowed_error_percent=1
@@ -192,7 +190,6 @@ Verify Device Information
     Check Device Information Field   Disk Encryption    ${disk_encryption}
 
     IF    $device_info_failures          FAIL    ${device_info_failures}
-    IF    $device_info_unknown_fields    SKIP    Known issue: SSRCSP-8770 (value 'unknown' for ${device_info_unknown_fields})
 
 Ghaf Control Panel Test Teardown
     Kill App in VM                 ${Ghaf Control Panel}    require_exists=False
@@ -204,10 +201,6 @@ Check Device Information Field
     [Arguments]    ${field}    ${expected}   ${scale}=2   ${allowed_error_percent}=0
     ${screenshot_path}  Take Remote Screenshot And Download
     ${actual}           Get Text Field From Image   ${screenshot_path}   ${field}   scale=${scale}
-    IF    '${actual.strip().lower()}' == 'unknown'
-        Append To List    ${device_info_unknown_fields}    ${field}
-        RETURN
-    END
     ${matches}    Text Matches    ${actual}    ${expected}    allowed_error_percent=${allowed_error_percent}
     IF    not ${matches}
         Append To List    ${device_info_failures}    ${field} value in Ghaf Control Panel is ${actual}, expected ${expected}
