@@ -49,7 +49,6 @@ Start COSMIC Media Player via GUI
 Start COSMIC Settings via GUI
     [Tags]            SP-T254  SP-T254-2
     ${COSMIC Settings}
-    [Teardown]    COSMIC Settings Teardown
 
 Start COSMIC System Monitor via GUI
     [Tags]            SP-T372  SP-T372-2
@@ -154,6 +153,11 @@ Save launch time
     IF    "storeDisk" in "${JOB}"
         ${threshold}    Set Variable    ${static_thresholds}[app_launch_time_storedisk]
     ELSE
+        # To define separate launch time for one app, add limits for the app in apps.json
+        # "app_launch_time_thresholds": {
+        #     "lenovo-x1": 6,
+        #     "darter-pro": 8.5
+        # }
         ${has_app_thresholds}    Run Keyword And Return Status    Dictionary Should Contain Key    ${app_key}    app_launch_time_thresholds
         IF    ${has_app_thresholds}
             ${threshold}    Get App Launch Threshold
@@ -169,11 +173,4 @@ Save launch time
     Log  <img src="${DEVICE}_${TEST NAME}.png" alt="Launch Time of ${app_key}[process_name]" width="1200">    HTML
     IF    not ${passed}
         FAIL    ${app_key}[display_name] was started in ~${diff} sec, expected <=${threshold} sec
-    END
-
-COSMIC Settings Teardown
-    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
-    IF  "${TEST_STATUS}" == "FAIL" and "storeDisk" not in "${JOB}"
-        Log Error    Slow Cosmic Settings    Cosmic Settings opened too slowly
-        SKIP   Known Issue: SSRCSP-8856
     END
