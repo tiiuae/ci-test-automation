@@ -67,13 +67,13 @@
   "COSMIC Terminal": {
     "display_name": "COSMIC Terminal",
     "VM": "gui-vm",
-    "process_name": "cosmic-term",
+    "process_name": "^cosmic-term$",
     "close_button": "ghaf-close.png"
   },
   "COSMIC Text Editor": {
     "display_name": "COSMIC Text Editor",
     "VM": "gui-vm",
-    "process_name": "cosmic-edit",
+    "process_name": "^cosmic-edit( |$)",
     "close_button": "ghaf-close.png"
   },
   "Display Settings": {

@@ -78,7 +78,7 @@ Log app vm journalctl
     Run Command   journalctl -b
 
 Kill App in VM
-    [Documentation]   Connects to app-vm and kills app ${app_key}.
+    [Documentation]   Connects to app-vm and kills app ${app_key}[display_name].
     ...    Use after "Start application in VM", call this keyword from the test teardown.
     [Arguments]   ${app_key}   ${log_file}=None   ${status}=${TEST_STATUS}   ${require_exists}=True
     ${user}      Set Variable If      '${app_key}[VM]' == '${GUI_VM}'     ${USER_LOGIN}   ghaf
