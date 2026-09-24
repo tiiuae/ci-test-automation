@@ -89,14 +89,22 @@ Is process running
 Check that process is running
     [Arguments]      ${process_name}
     ${is_running}    Is process running   ${process_name}
-    Should Be True   ${is_running}    Process ${process_name} is not running
-    Log              Process ${process_name} is running    console=True
+    IF    ${is_running}
+        Log    Process ${process_name} is running    console=True
+    ELSE
+        Run Command   ps aux   # For debugging
+        FAIL   Process ${process_name} is not running
+    END
 
 Check that process is not running
     [Arguments]          ${process_name}   ${error_message}=still running
     ${is_running}        Is process running   ${process_name}
-    Should Not Be True   ${is_running}        Process ${process_name} is ${error_message}
-    Log                  Process ${process_name} is not running    console=True
+    IF    not ${is_running}
+        Log    Process ${process_name} is not running    console=True
+    ELSE
+        Run Command   ps aux   # For debugging
+        FAIL   Process ${process_name} is ${error_message}
+    END
 
 Kill process by name
     [Arguments]   ${process_name}   ${sudo}=True   ${require_exists}=${True}   ${signal}=TERM   ${fallback_signal}=KILL
