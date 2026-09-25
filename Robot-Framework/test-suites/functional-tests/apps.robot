@@ -45,11 +45,11 @@ Start COSMIC System Monitor
     ${COSMIC System Monitor}
 
 Start COSMIC Terminal
-    [Tags]            SP-T263  SP-T263-1  fmo
+    [Tags]            SP-T263  SP-T263-1  -pre-merge  fmo
     ${COSMIC Terminal}
 
 Start COSMIC Text Editor
-    [Tags]            SP-T243  SP-T243-1  fmo
+    [Tags]            SP-T243  SP-T243-1  -pre-merge  fmo
     ${COSMIC Text Editor}
 
 Start Calculator
