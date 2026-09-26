@@ -11,6 +11,7 @@ Resource            ../../resources/gui-vm_keywords.resource
 Resource            ../../resources/measurement_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/app_keywords.resource
 Library             ../../lib/output_parser.py
 Library             JSONLibrary
 
@@ -92,6 +93,15 @@ Automatic suspension
         END
     END
 
+Suspend and wake up with apps running
+    [Documentation]   Launch several apps in different VM and verify, that they are still running after suspension
+    [Tags]            SP-T208  lenovo-x1  darter-pro  lab-only
+    [Setup]           Start screen recording
+    ${app_statuses}   Launch several apps in different VMs
+    Suspend device via GUI and wake up     ${app_statuses}
+    Check apps are running after wake up   ${app_statuses}
+    [Teardown]        App suspension test teardown
+
 *** Keywords ***
 
 Test setup
@@ -107,7 +117,20 @@ Test teardown
         Login to laptop
     END
     Switch to vm   ${GUI_VM}   user=${USER_LOGIN}
-    Save screen recording   ${TEST_STATUS}   ${TEST_NAME} 
+    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+
+App suspension test teardown
+    ${device_online}    Ping Host    ${DEVICE_IP_ADDRESS}
+    IF    not ${device_online}
+        Hard Reboot Device And Connect
+        Login to laptop
+    END
+    Kill App in VM    ${Google Chrome}    status=PASS    require_exists=False
+    Kill App in VM    ${Zoom}             status=PASS    require_exists=False
+    Kill App in VM    ${Gala}             status=PASS    require_exists=False
+    Kill App in VM    ${COSMIC Files}     status=PASS    require_exists=False
+    Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 Save max brightness
     ${device}     Run Command    ls /sys/class/backlight/
@@ -129,3 +152,63 @@ Check screen brightness
     [Arguments]       ${expected_brightness}
     ${output}     Get screen brightness
     Should be Equal As Numbers   ${output}  ${expected_brightness}   The screen brightness is ${output}, expected ${expected_brightness}
+
+Suspend device via GUI and wake up
+    [Arguments]    ${app_statuses}
+    ${any_app_started}    Evaluate    any($app_statuses.values())
+    IF    not ${any_app_started}
+        FAIL    PRECONDITION FAILED: No applications were launched. The test could not be performed.
+    END
+    Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
+    Select power menu option   x=815   y=120
+    Confirm suspension and wake up the device
+
+Launch several apps in different VMs
+    ${app_statuses}      Create Dictionary
+    ${started}           Run Keyword And Return Status    Start app via GUI    ${COSMIC Files}
+    Set To Dictionary    ${app_statuses}    files=${started}
+    ${started}           Run Keyword And Return Status    Start App in VM    ${Gala}
+    Set To Dictionary    ${app_statuses}    gala=${started}
+    ${started}           Run Keyword And Return Status    Start App in VM    ${Zoom}
+    Set To Dictionary    ${app_statuses}    zoom=${started}
+    IF    ${started}
+        Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+        Accept Chrome Terms Of Service If Shown    ${Zoom}    attempts=2    interval=500ms
+    END
+    ${started}           Run Keyword And Return Status    Start App in VM    ${Google Chrome}
+    Set To Dictionary    ${app_statuses}    chrome=${started}
+    IF    ${started}
+        Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+        Accept Chrome Terms Of Service If Shown    ${Google Chrome}    attempts=2    interval=500ms
+    END
+    RETURN    ${app_statuses}
+
+Check apps are running after wake up
+    [Documentation]    The order is important:
+    ...                It should be reverse to the order from the keyword 'Launch several apps in different VMs'.
+    ...                Expecting Apps to be opened in the same order.
+    [Arguments]    ${app_statuses}
+    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[chrome]    Check that App is running and visible    ${Google Chrome}    chrome
+    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[zoom]      Check that App is running and visible    ${Zoom}             Zoom
+    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[gala]      Check that App is running and visible    ${Gala}             business
+    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[files]     Check that App is running and visible    ${COSMIC Files}     Shares
+    [Teardown]    Verify app launch precondition    ${app_statuses}    ${KEYWORD_STATUS}
+
+Check that App is running and visible
+    [Arguments]     ${app_key}    ${text_to_check}
+    Check that App is running in VM    ${app_key}
+    Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
+    Verify Text Is On The Screen    ${text_to_check}
+    [Teardown]   Kill App in VM    ${app_key}    status=${KEYWORD_STATUS}
+
+Verify app launch precondition
+    [Arguments]    ${app_statuses}    ${check_status}
+    ${failed_to_start}    Evaluate    ', '.join(name for name, started in $app_statuses.items() if not started)
+    ${started_apps}    Evaluate    ', '.join(name for name, started in $app_statuses.items() if started)
+    IF    not $failed_to_start
+        RETURN
+    ELSE IF    $check_status == 'PASS'
+        FAIL    PRECONDITION PARTIALLY SATISFIED: Failed to launch: ${failed_to_start}. Suspend/wake verification passed for: ${started_apps}.
+    ELSE
+        FAIL    PRECONDITION PARTIALLY SATISFIED: Failed to launch: ${failed_to_start}. Suspend/wake verification also failed.
+    END
