@@ -53,7 +53,7 @@ Start COSMIC Text Editor
     ${COSMIC Text Editor}
 
 Start Calculator
-    [Tags]            SP-T202  SP-T202-1  fmo
+    [Tags]            SP-T202  SP-T202-1  -pre-merge  fmo
     ${Calculator}
 
 Start Element
@@ -73,7 +73,7 @@ Start Getting Started
     ${Getting Started}
 
 Start Ghaf Control Panel
-    [Tags]            SP-T205  SP-T205-1  fmo
+    [Tags]            SP-T205  SP-T205-1  -pre-merge  fmo
     ${Ghaf Control Panel}
 
 Start Google Chrome
