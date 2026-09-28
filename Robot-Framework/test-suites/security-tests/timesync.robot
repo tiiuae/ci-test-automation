@@ -5,11 +5,10 @@
 Documentation       Testing time synchronization
 Test Tags           timesync  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  fmo
 
-Library             ../../lib/TimeLibrary.py
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
-Resource            ../../resources/service_keywords.resource
+Resource            ../../resources/time_keywords.resource
 
 
 *** Variables ***
@@ -36,7 +35,8 @@ Time synchronization
 
     Stop timesync daemon
     Set RTC time  ${wrong_time}
-    ${time_changed}  Run Keyword And Return Status  Wait Until Keyword Succeeds  5s  1s  Check time was changed
+    ${time_changed}  Run Keyword And Return Status
+    ...    Wait Until Keyword Succeeds    5s    1s    Check Time Was Changed    ${wrong_time}
     IF  ${time_changed} != True
         FAIL    Failed to set RTC time
     END
@@ -75,97 +75,6 @@ Update system time from internet in ${vm}
     Unblock internet traffic
     Check that time is correct
     [Teardown]  Run Keyword If  "${KEYWORD STATUS}" == 'FAIL'   Run Keyword  Unblock internet traffic
-
-Stop timesync daemon
-    Run Command            systemctl stop systemd-timesyncd.service  sudo=True
-    Verify service status  service=systemd-timesyncd.service  expected_state=inactive  expected_substate=dead
-
-Start timesync daemon
-    Run Command            systemctl start systemd-timesyncd.service  sudo=True
-    Verify service status  service=systemd-timesyncd.service  expected_state=active  expected_substate=running
-    Run Command            timedatectl -a
-
-Restart timesync daemon
-    [Arguments]            ${service_name}=systemd-timesyncd.service
-    Run Command            systemctl restart ${service_name}  sudo=True
-    Verify service status  service=${service_name}  expected_state=active  expected_substate=running
-    Run Command            timedatectl -a
-
-Check that time is correct
-    [Documentation]   Check that current system time is correct (time tolerance = 30 sec)
-    [Arguments]       ${timezone}=UTC
-
-    ${is_synchronized} =   Set Variable    False
-    FOR    ${i}    IN RANGE    30
-        ${output}      Run Command    timedatectl -a
-        ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}  ${is_synchronized}   Parse time info  ${output}
-        IF    ${is_synchronized}
-            BREAK
-        END
-        Sleep    1
-    END
-    Log               ${output}
-    Run Keyword If    not ${is_synchronized}    FAIL   Time was not synchronized!
-
-    ${current_time}   Get current time   ${timezone}
-    Log To Console    Comparing device time: ${universal_time} and real time ${current_time}
-    ${time_close}     Is time close      ${universal_time}  ${current_time}  tolerance_seconds=30
-    Should Be True    ${time_close}  ${universal_time} expected close to ${current_time}, Time was synchronized: ${is_synchronized}
-    Compare local and universal time
-
-Set RTC time
-    [Arguments]       ${time}=${wrong_time}
-    ${original_time}      Get Time	epoch
-    Set Test Variable     ${original_time}  ${original_time}
-    Log To Console        Setting time ${time}
-    Run Command     hwclock --set --date="${time}" --verbose  sudo=True
-    Sleep    3
-    # Workaround for SSRCSP-8622
-    ${extra_flag}   Set Variable If   "${DEVICE_TYPE}" == "lenovo-x1" or "${DEVICE_TYPE}" == "x1-sec-boot"   -f /dev/rtc1   ${EMPTY}
-    Run Command     hwclock -s --verbose ${extra_flag}  sudo=True
-    Run Command     timedatectl -a
-
-Check time was changed
-    [Documentation]   Check that current system time is equal to given time tolerance.
-    [Arguments]       ${expected_time}=${wrong_time}  ${timezone}=UTC
-    ${output}         Run Command    timedatectl -a
-    ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}  ${is_synchronized}   Parse time info  ${output}
-    ${now}            Get Time  epoch
-    ${time_diff}      Evaluate  ${now} - ${original_time}
-    IF  '${expected_time}' != 'None'
-        ${expected_time}  Convert To UTC  ${expected_time}
-        Log               Comparing device time: ${universal_time} and time which was set ${expected_time}    console=True
-        ${time_close}     Is time close  ${universal_time}  ${expected_time}  tolerance_seconds=${time_diff}
-        Should Be True    ${time_close}   Time was not set, expected close to: ${expected_time}, in fact: ${universal_time}
-    ELSE
-        ${actual_time}    Get Current Time
-        Log               Comparing device time: ${universal_time} and actual time    console=True
-        ${time_close}     Is time close  ${universal_time}  ${actual_time}  tolerance_seconds=${time_diff}
-        Should Not Be True    ${time_close}    Time was not changed, expected close to: ${actual_time}, in fact: ${universal_time}
-    END
-    Compare local and universal time
-
-Compare local and universal time
-    [Documentation]   Universal time should be UTC,
-    ...               Local time should be Asia/Dubai time zone for LenovoX1 and UTC for others
-    [Arguments]       ${timezone}=UTC
-    ${output}         Run Command    timedatectl -a
-    ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}  ${is_synchronized}    Parse time info  ${output}
-    ${local_time_utc}  Convert To UTC  ${local_time}
-    ${time_close}     Is time close  ${universal_time}  ${local_time_utc}  tolerance_seconds=1
-    Should Be True    ${time_close}
-
-Set RTC from system clock
-    [Documentation]   Set the Hardware Clock from the System Clock
-    Run Command       hwclock -w --verbose  sudo=True
-    Run Command       timedatectl -a
-
-Set system time
-    [Arguments]         ${time}=${wrong_time}
-    ${original_time}    Get Time	epoch
-    Set Test Variable   ${original_time}  ${original_time}
-    Run Command         date -s '${time}'  sudo=True
-    Run Command         timedatectl -a
 
 Block internet traffic
     Run Command    iptables -I OUTPUT -p udp --dport 123 -j DROP  sudo=True

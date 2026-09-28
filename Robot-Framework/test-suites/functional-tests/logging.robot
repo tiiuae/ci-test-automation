@@ -13,6 +13,7 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/service_keywords.resource
 Resource            ../../resources/measurement_keywords.resource
+Resource            ../../resources/logging_keywords.resource
 
 Suite Setup         Logging Suite Setup
 
@@ -86,41 +87,13 @@ Verify log sealing in all VMs
     [Documentation]   Verify that log sealing works in all VMs
     ...               All VMs are tested at the same time to save time
     [Tags]            SP-T353
-    &{seals_before}        Create Dictionary
-    @{vms_with_baseline}   Create List
-    @{failures}            Create List
-
-    Log    Saving the amount of sealed logs in every VM    console=True
-    FOR  ${vm}  IN  @{VM_LIST}
-        TRY
-            ${seal_count}        Get number of sealed logs   ${vm}
-            Set To Dictionary    ${seals_before}             ${vm}=${seal_count}
-            Append To List       ${vms_with_baseline}        ${vm}
-        EXCEPT    AS    ${error}
-            Append To List    ${failures}   Failed to get initial seal count from ${vm}: ${error}
-        END
-    END
-
-    Log   Creating new logs in every VM   console=True
-    Create logs in all VMs    log=log_sealing_check_${BUILD_ID}
-
-    Log    Checking that every VM has new sealed logs   console=True
-    FOR  ${vm}  IN  @{vms_with_baseline}
-        ${seal_count}    Get From Dictionary    ${seals_before}    ${vm}
-        TRY
-            ${seals_after}    Wait Until Keyword Succeeds    10x    1s    Get increased number of sealed logs    ${vm}    ${seal_count}
-            Log    Sealed logs in ${vm}: ${seal_count} -> ${seals_after}   console=True
-        EXCEPT    AS    ${error}
-            Append To List    ${failures}    Log sealing verification failed in ${vm}: ${error}
-        END
-    END
-    Should Be Empty    ${failures}    Log sealing failures: ${failures}
+    Verify Log Sealing In VMs    log_sealing_check_${BUILD_ID}    @{VM_LIST}
 
 Verify log sealer in admin-vm
     [Documentation]  Verify that log sealer is working in admin-vm
     [Tags]           SP-T376
     ${seal_count}    Get number of sealed logs   ${ADMIN_VM}   sealer=True
-    Create logs in all VMs    log=log_sealer_check_${BUILD_ID}
+    Create Logs In VMs    log_sealer_check_${BUILD_ID}    @{VM_LIST}
     ${seals_after}   Wait Until Keyword Succeeds    10x    1s    Get increased number of sealed logs    ${ADMIN_VM}    ${seal_count}   sealer=True
     Log              Sealer logs in ${ADMIN_VM}: ${seal_count} -> ${seals_after}   console=True
 
@@ -132,7 +105,7 @@ Check Grafana logs
     ${id}              Get Actual Device ID
     Set Suite Variable  ${device_id}    ${id}
     Skip If Grafana Unreachable
-    Run Keyword And Continue On Failure   Create logs in all VMs   log=${TEST_LOG}
+    Run Keyword And Continue On Failure   Create Logs In VMs    ${TEST_LOG}    @{VM_LIST}
     Sleep              5
     ${failed_vms_check_1}   Check Logs Are Available   ${id}  since=3m  word=${TEST_LOG}
     ${check_status}         Run Keyword And Return Status    Should Be Empty   ${failed_vms_check_1}
@@ -182,16 +155,6 @@ Check Logs Are Available
         END
     END
     RETURN  ${failed_vms}
-
-Create logs in all VMs
-    [Documentation]    Create a logger log in all VMs
-    [Arguments]        ${log}
-    FOR  ${vm}  IN  @{VM_LIST}
-        Switch to vm   ${vm}
-        Run Command  logger --priority=user.info "${log}"
-        ${out}   Run Command    journalctl --since "1 minute ago" | grep "${log}"
-        Run Keyword And Continue On Failure   Should Contain  ${out}   ${log}   Log was not created in ${vm}
-    END
 
 Save logging logs from VMs
     [Arguments]    ${failed_vms}
@@ -287,26 +250,3 @@ Check logging rate against history
         END
         FAIL           Too high logging rate detected\nmeas interval: ${check_interval}s\n${spam_metrics_report}
     END
-
-Get increased number of sealed logs
-    [Arguments]        ${vm}    ${seals_before}   ${sealer}=False
-    ${seals_after}     Get number of sealed logs    ${vm}   sealer=${sealer}
-    Should Be True     ${seals_after} > ${seals_before}
-    ...                Sealed log count in ${vm} has not increased: ${seals_before} -> ${seals_after}
-    RETURN             ${seals_after}
-
-Get number of sealed logs
-    [Arguments]       ${vm}   ${sealer}=False
-    Switch to vm      ${vm}
-    IF   ${sealer}
-        ${output}         Run Command   logseald verify-sealer --state-dir /var/lib/logseald/sealer   sudo=True
-        Should Contain    ${output}     PASS    Log sealer failed in ${vm}
-        ${matches}        Get Regexp Matches   ${output}    (\\d+) total seals    1
-    ELSE
-        ${state-dir}      Set Variable If  '${vm}'=='${HOST}'   /persist/common/logseald/producer    /var/lib/logseald/producer
-        ${output}         Run Command       logseald verify-producer --state-dir ${state-dir} --cert /etc/givc/cert.pem --source ${vm}   sudo=True
-        Should Contain    ${output}         PASS    Log sealing failed in ${vm}
-        ${matches}        Get Regexp Matches   ${output}    (\\d+) sealed total    1
-    END
-    ${seal_count}     Convert To Integer   ${matches}[0]
-    RETURN            ${seal_count}
