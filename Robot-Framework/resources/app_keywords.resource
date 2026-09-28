@@ -8,6 +8,7 @@ Resource            ../resources/file_keywords.resource
 Resource            ../resources/ssh_keywords.resource
 Resource            ../resources/gui_keywords.resource
 Resource            ../resources/service_keywords.resource
+Resource            ../resources/setup_keywords.resource
 Variables           ../config/apps.json
 
 *** Variables ***
@@ -110,15 +111,38 @@ Kill App in VM
     ${user}      Set Variable If      '${app_key}[VM]' == '${GUI_VM}'     ${USER_LOGIN}   ghaf
     ${sudo}      Set Variable If      '${app_key}[VM]' == '${GUI_VM}'     False           True
 
-    Switch to vm            ${app_key}[VM]             user=${user}
-    # Capture D-state diagnostics before cleanup when a GUI application failed to start.
-    IF  '${status}' == 'FAIL' and '${app_key}[VM]' == '${GUI_VM}'
-        Run Keyword And Ignore Error   Log blocked process diagnostics
+    Switch to vm    ${app_key}[VM]    user=${user}
+    IF    '${app_key}[VM]' == '${GUI_VM}'
+        ${pids_status}    ${blocked_pids}    Run Keyword And Ignore Error    Get blocked process PIDs
+        IF    $pids_status == 'PASS' and $blocked_pids
+            Run Keyword And Ignore Error    Capture DAX hang snapshot
+        END
     END
-    Kill process by name    ${app_key}[process_name]   sudo=${sudo}   require_exists=${require_exists}
 
-    IF  '${log_file}' != 'None'   Log and remove app output   ${log_file}
-    IF  '${status}'=='FAIL'       Log app vm journalctl       ${app_key}
+    TRY
+        Kill process by name    ${app_key}[process_name]    sudo=${sudo}    require_exists=${require_exists}
+    FINALLY
+        IF    '${app_key}[VM]' == '${GUI_VM}'
+            ${pids_status}    ${blocked_pids}    Run Keyword And Ignore Error    Get blocked process PIDs
+            IF    $pids_status == 'PASS' and $blocked_pids
+                Run Keyword And Ignore Error    Log blocked process diagnostics
+            END
+        END
+
+        IF    '${log_file}' != 'None'    Log and remove app output    ${log_file}
+        IF    '${status}' == 'FAIL'      Log app vm journalctl        ${app_key}
+
+        IF    '${app_key}[VM]' == '${GUI_VM}'
+            # D state can be temporary; reboot only if blocked processes are still present.
+            ${recheck_status}    ${blocked_pids_before_reboot}    Run Keyword And Ignore Error    Get blocked process PIDs
+            IF    $recheck_status == 'PASS' and $blocked_pids_before_reboot
+                Evaluate    $RUNNING_VMS.clear()
+                Hard Reboot Device And Connect
+                Login to laptop
+                Install DAX hang snapshot script
+            END
+        END
+    END
 
 Start app via GUI
     [Documentation]    Start Application via GUI and verify related process started
