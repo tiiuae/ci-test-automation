@@ -85,6 +85,10 @@ Kill App in VM
     ${sudo}      Set Variable If      '${app_key}[VM]' == '${GUI_VM}'     False           True
 
     Switch to vm            ${app_key}[VM]             user=${user}
+    # Capture D-state diagnostics before cleanup when a GUI application failed to start.
+    IF  '${status}' == 'FAIL' and '${app_key}[VM]' == '${GUI_VM}'
+        Run Keyword And Ignore Error   Log blocked process diagnostics
+    END
     Kill process by name    ${app_key}[process_name]   sudo=${sudo}   require_exists=${require_exists}
 
     IF  '${log_file}' != 'None'   Log and remove app output   ${log_file}

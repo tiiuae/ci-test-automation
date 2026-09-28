@@ -106,6 +106,22 @@ Check that process is not running
         FAIL   Process ${process_name} is ${error_message}
     END
 
+Log blocked process diagnostics
+    [Documentation]    Log kernel stacks for D-state processes and recent kernel messages.
+    [Setup]            Switch to vm    ${GUI_VM}
+    ${blocked_pids}    Run Command    ps -eo pid=,stat= | awk '$2 ~ /^D/ {print $1}'    rc_match=skip
+    IF    not $blocked_pids
+        Log    No D-state processes found
+    ELSE
+        @{pids}    Split String    ${blocked_pids}
+        FOR    ${pid}    IN    @{pids}
+            Log    Kernel stack for D-state process ${pid}
+            Run Command    cat /proc/${pid}/stack    sudo=True    rc_match=skip    timeout=10
+        END
+    END
+    Run Command    journalctl -k -b --no-pager -o short-precise    sudo=True    rc_match=skip    timeout=15
+    [Teardown]         Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+
 Kill process by name
     [Arguments]   ${process_name}   ${sudo}=True   ${require_exists}=${True}   ${signal}=TERM   ${fallback_signal}=KILL
     IF    ${require_exists}   Check that process is running   ${process_name}
@@ -117,6 +133,7 @@ Kill process by name
         Log   Process ${process_name} still running after signal ${signal}, retrying with ${fallback_signal}   console=True
         Run Command    pkill -${fallback_signal} -Aef "${process_name}"  sudo=${sudo}  return=rc  rc_match=skip  timeout=15
         ${stopped}   Run Keyword And Return Status   Wait Until Keyword Succeeds   5x   1s   Check that process is not running   ${process_name}
+        IF  not ${stopped}   Run Keyword And Ignore Error   Log blocked process diagnostics
         Should Be True   ${stopped}   Process ${process_name} is still running after ${signal} and ${fallback_signal}
     END
 
