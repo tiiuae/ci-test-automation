@@ -33,7 +33,8 @@
 ## Workarounds
 
 | DATE SET   | TEST CASE / KEYWORD                    | TICKET / Additional Data                                                                               | Error Log Context       |
-| ---------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------- |
+| ---------- | -------------------------------------- |--------------------------------------------------------------------------------------------------------| ----------------------- |
+| 01.10.2026 | GUI VM application teardown            | Hard reboot in case of D-state processes                                                               |                         |
 | 30.09.2026 | Application launch tests               | App order is mixed to avoid launching too many gui-vm apps in a row                                    |                         |
 | 04.09.2026 | Account lockout after failed GUI login | Tolerate one missed faillock increment                                                                 | Account lockout         |
 | 27.08.2026 | VM memory usage snapshot               | Orin AGX ghaf-host has 0 total swap memory. Ignore swap low limit check in this case.                  |                         |
