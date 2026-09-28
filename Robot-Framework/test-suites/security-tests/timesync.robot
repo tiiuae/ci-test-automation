@@ -10,6 +10,7 @@ Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
 Resource            ../../resources/service_keywords.resource
+Resource            ../../resources/time_keywords.resource
 
 
 *** Variables ***
@@ -75,15 +76,6 @@ Update system time from internet in ${vm}
     Unblock internet traffic
     Check that time is correct
     [Teardown]  Run Keyword If  "${KEYWORD STATUS}" == 'FAIL'   Run Keyword  Unblock internet traffic
-
-Stop timesync daemon
-    Run Command            systemctl stop systemd-timesyncd.service  sudo=True
-    Verify service status  service=systemd-timesyncd.service  expected_state=inactive  expected_substate=dead
-
-Start timesync daemon
-    Run Command            systemctl start systemd-timesyncd.service  sudo=True
-    Verify service status  service=systemd-timesyncd.service  expected_state=active  expected_substate=running
-    Run Command            timedatectl -a
 
 Restart timesync daemon
     [Arguments]            ${service_name}=systemd-timesyncd.service
@@ -159,13 +151,6 @@ Set RTC from system clock
     [Documentation]   Set the Hardware Clock from the System Clock
     Run Command       hwclock -w --verbose  sudo=True
     Run Command       timedatectl -a
-
-Set system time
-    [Arguments]         ${time}=${wrong_time}
-    ${original_time}    Get Time	epoch
-    Set Test Variable   ${original_time}  ${original_time}
-    Run Command         date -s '${time}'  sudo=True
-    Run Command         timedatectl -a
 
 Block internet traffic
     Run Command    iptables -I OUTPUT -p udp --dport 123 -j DROP  sudo=True
