@@ -32,6 +32,12 @@ Prepare Test Environment
         Login to laptop   ${enable_dnd}
     END
 
+Install DAX hang snapshot script
+    [Documentation]    Install the script used to capture blocked kernel tasks in GUI VM.
+    [Setup]             Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+    Put File            ../test-files/dax-hang-snapshot.sh    /tmp/dax-hang-snapshot.sh
+    Run Command         chmod 755 /tmp/dax-hang-snapshot.sh
+
 Verify boot from expected device
     [Setup]   Switch to vm    ${HOST}
     IF  '${JOB}' == '${DEVICE_TYPE}'
