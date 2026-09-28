@@ -13,6 +13,7 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/service_keywords.resource
 Resource            ../../resources/measurement_keywords.resource
+Resource            ../../resources/logging_keywords.resource
 
 Suite Setup         Logging Suite Setup
 
@@ -292,26 +293,3 @@ Check logging rate against history
         END
         FAIL           Too high logging rate detected\nmeas interval: ${check_interval}s\n${spam_metrics_report}
     END
-
-Get increased number of sealed logs
-    [Arguments]        ${vm}    ${seals_before}   ${sealer}=False
-    ${seals_after}     Get number of sealed logs    ${vm}   sealer=${sealer}
-    Should Be True     ${seals_after} > ${seals_before}
-    ...                Sealed log count in ${vm} has not increased: ${seals_before} -> ${seals_after}
-    RETURN             ${seals_after}
-
-Get number of sealed logs
-    [Arguments]       ${vm}   ${sealer}=False
-    Switch to vm      ${vm}
-    IF   ${sealer}
-        ${output}         Run Command   logseald verify-sealer --state-dir /var/lib/logseald/sealer   sudo=True
-        Should Contain    ${output}     PASS    Log sealer failed in ${vm}
-        ${matches}        Get Regexp Matches   ${output}    (\\d+) total seals    1
-    ELSE
-        ${state-dir}      Set Variable If  '${vm}'=='${HOST}'   /persist/common/logseald/producer    /var/lib/logseald/producer
-        ${output}         Run Command       logseald verify-producer --state-dir ${state-dir} --cert /etc/givc/cert.pem --source ${vm}   sudo=True
-        Should Contain    ${output}         PASS    Log sealing failed in ${vm}
-        ${matches}        Get Regexp Matches   ${output}    (\\d+) sealed total    1
-    END
-    ${seal_count}     Convert To Integer   ${matches}[0]
-    RETURN            ${seal_count}
