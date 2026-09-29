@@ -31,8 +31,34 @@ Start App in VM
     IF    '${app_key}[VM]' not in ${RUNNING_VMS} or ${always_check_vm}   Check that appVM is running   ${app_key}
     Check that App is not running in VM    ${app_key}   range=1   before_launch_check=True
 
-    Start application   ${app_key}[display_name]    params_string=${params_string}
+    ${toplevels_before}   Get GUI VM toplevels
+    Start application     ${app_key}[display_name]    params_string=${params_string}
     Check that App is running in VM    ${app_key}   range=5
+    Wait for app window   ${app_key}   ${toplevels_before}
+
+Get GUI VM toplevels
+    [Documentation]    Return the Wayland toplevels currently shown by the GUI VM compositor.
+    Switch to vm    ${GUI_VM}      user=${USER_LOGIN}
+    ${output}       Run Command    WAYLAND_DISPLAY=wayland-1 lswt --json
+    ${toplevels}    Evaluate       json.loads($output)["toplevels"]    json
+    RETURN    ${toplevels}
+
+Wait for app window
+    [Documentation]    Wait until the GUI VM has more toplevels and the expected app ID appears, if known.
+    [Arguments]        ${app_key}    ${toplevels_before}
+    ${expected_app_id}    Evaluate    $app_key.get("app_id", "")
+    Wait Until Keyword Succeeds    10x    0.5s    App window should be open    ${toplevels_before}    ${expected_app_id}
+
+App window should be open
+    [Arguments]    ${toplevels_before}    ${expected_app_id}
+    ${toplevels_after}    Get GUI VM toplevels
+    ${before_count}    Get Length    ${toplevels_before}
+    ${after_count}     Get Length    ${toplevels_after}
+    Should Be True    ${after_count} > ${before_count}
+    IF    $expected_app_id
+        ${visible_app_ids}    Evaluate    [item["app-id"] for item in $toplevels_after]
+        Should Contain    ${visible_app_ids}    ${expected_app_id}
+    END
 
 Check that appVM is running
     [Arguments]    ${app_key}

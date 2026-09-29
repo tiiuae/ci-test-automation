@@ -3,47 +3,55 @@
     "display_name": "Advanced Network Configuration",
     "VM": "gui-vm",
     "process_name": "nm-connection-editor",
+    "app_id": "nm-connection-editor",
     "close_button": "window-close-neg.png"
   },
   "App Store": {
     "display_name": "App Store",
     "VM": "flatpak-vm",
     "process_name": "cosmic-store",
+    "app_id": "com.system76.CosmicStore",
     "close_button": "ghaf-close.png"
   },
   "Bluetooth Settings": {
     "display_name": "Bluetooth Settings",
     "VM": "gui-vm",
     "process_name": "blueman-manager-wrapped",
+    "app_id": "blueman-manager",
     "close_button": "window-close-neg.png"
   },
   "Calculator": {
     "display_name": "Calculator",
     "VM": "gui-vm",
     "process_name": "cosmic-ext-calculator",
+    "app_id": "dev.edfloreshz.Calculator",
     "close_button": "ghaf-close.png"
   },
   "COSMIC Document Reader": {
     "display_name": "COSMIC Document Reader",
     "VM": "gui-vm",
     "process_name": "cosmic-reader",
+    "app_id": "com.system76.CosmicReader",
     "close_button": "ghaf-close.png"
   },
   "COSMIC Files": {
     "display_name": "COSMIC Files",
     "VM": "gui-vm",
     "process_name": "^cosmic-files( |$)",
+    "app_id": "com.system76.CosmicFiles",
     "close_button": "ghaf-close.png"
   },
   "Cosmic Initial Setup": {
     "display_name": "Cosmic Initial Setup",
     "VM": "gui-vm",
-    "process_name": "cosmic-initial-setup"
+    "process_name": "cosmic-initial-setup",
+    "app_id": "com.system76.CosmicInitialSetup"
   },
   "COSMIC Media Player": {
     "display_name": "COSMIC Media Player",
     "VM": "gui-vm",
     "process_name": "cosmic-player",
+    "app_id": "com.system76.CosmicPlayer",
     "close_button": "ghaf-close.png"
   },
   "COSMIC Screenshot": {
@@ -55,6 +63,7 @@
     "display_name": "COSMIC Settings",
     "VM": "gui-vm",
     "process_name": "cosmic-settings$",
+    "app_id": "com.system76.CosmicSettings",
     "close_button": "ghaf-close.png",
     "icon": "settings.png"
   },
@@ -62,18 +71,21 @@
     "display_name": "COSMIC System Monitor",
     "VM": "gui-vm",
     "process_name": "cosmic-monitor",
+    "app_id": "com.system76.CosmicMonitor",
     "close_button": "ghaf-close.png"
   },
   "COSMIC Terminal": {
     "display_name": "COSMIC Terminal",
     "VM": "gui-vm",
     "process_name": "^cosmic-term$",
+    "app_id": "com.system76.CosmicTerm",
     "close_button": "ghaf-close.png"
   },
   "COSMIC Text Editor": {
     "display_name": "COSMIC Text Editor",
     "VM": "gui-vm",
     "process_name": "^cosmic-edit( |$)",
+    "app_id": "com.system76.CosmicEdit",
     "close_button": "ghaf-close.png"
   },
   "Display Settings": {
@@ -86,6 +98,7 @@
     "display_name": "Element",
     "VM": "comms-vm",
     "process_name": "element",
+    "app_id": "element",
     "close_button": "ghaf-close.png"
   },
   "Firefox": {
@@ -102,6 +115,7 @@
     "display_name": "Fingerprints",
     "VM": "gui-vm",
     "process_name": "fingwit",
+    "app_id": ".fingwit-wrapped",
     "close_button": "window-close-neg.png"
   },
   "FMO Offboarding": {
@@ -118,6 +132,7 @@
     "display_name": "Gala",
     "VM": "business-vm",
     "process_name": "gala",
+    "app_id": "chrome-gala-atrc.azure-atrc.androidinthecloud.net__-Default",
     "close_button": "ghaf-close.png"
   },
   "Getting Started": {
@@ -130,6 +145,7 @@
     "display_name": "Ghaf Control Panel",
     "VM": "gui-vm",
     "process_name": "ctrl-panel",
+    "app_id": "ctrl-panel",
     "close_button": "window-close-neg.png"
   },
   "Ghaf Isolated Document Viewer": {
@@ -163,6 +179,7 @@
     "display_name": "GPU Screen Recorder",
     "VM": "gui-vm",
     "process_name": "gpu-screen-recorder-gtk",
+    "app_id": "com.dec05eba.gpu_screen_recorder",
     "recording_process_name": "gpu-screen-recorder",
     "close_button": "window-close-neg.png"
   },
@@ -170,6 +187,7 @@
     "display_name": "Microsoft 365",
     "VM": "business-vm",
     "process_name": "microsoft365",
+    "app_id": "chrome-microsoft365.com__-Default",
     "close_button": "ghaf-close.png"
   },
   "Onlyoffice": {
@@ -181,6 +199,7 @@
     "display_name": "Outlook",
     "VM": "business-vm",
     "process_name": "outlook",
+    "app_id": "chrome-outlook.office.com__mail_-Default",
     "close_button": "ghaf-close.png"
   },
   "Slack": {
@@ -193,24 +212,28 @@
     "display_name": "Sticky Notes",
     "VM": "gui-vm",
     "process_name": "sticky-wrapped",
+    "app_id": "com.vixalien.sticky",
     "close_button": "window-close-neg.png"
   },
   "Teams": {
     "display_name": "Teams",
     "VM": "business-vm",
     "process_name": "teams",
+    "app_id": "chrome-teams.microsoft.com__-Default",
     "close_button": "ghaf-close.png"
   },
   "Trusted Browser": {
     "display_name": "Trusted Browser",
     "VM": "business-vm",
     "process_name": "google-chrome",
+    "app_id": "google-chrome-business",
     "close_button": "ghaf-close.png"
   },
   "Volume Control": {
     "display_name": "Volume Control",
     "VM": "gui-vm",
     "process_name": "pavucontrol",
+    "app_id": "org.pulseaudio.pavucontrol",
     "close_button": "window-close-neg.png"
   },
   "VPN": {
