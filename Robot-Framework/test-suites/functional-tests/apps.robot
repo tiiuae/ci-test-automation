@@ -41,7 +41,7 @@ Start COSMIC Settings
     ${COSMIC Settings}
 
 Start COSMIC System Monitor
-    [Tags]            SP-T372  SP-T372-1
+    [Tags]            SP-T372  SP-T372-1  -pre-merge
     ${COSMIC System Monitor}
 
 Start COSMIC Terminal
@@ -81,7 +81,7 @@ Start Google Chrome
     ${Google Chrome}
 
 Start GPU Screen Recorder
-    [Tags]            SP-T293  SP-T293-1
+    [Tags]            SP-T293  SP-T293-1  -pre-merge
     ${GPU Screen Recorder}
 
 Start Microsoft 365
@@ -97,7 +97,7 @@ Start Slack
     ${Slack}
 
 Start Sticky Notes
-    [Tags]            SP-T201  SP-T201-1  fmo
+    [Tags]            SP-T201  SP-T201-1  -pre-merge  fmo
     ${Sticky Notes}
 
 Start Teams
