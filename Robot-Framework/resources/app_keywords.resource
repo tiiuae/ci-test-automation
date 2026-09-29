@@ -30,9 +30,15 @@ Start App in VM
 
     IF    '${app_key}[VM]' not in ${RUNNING_VMS} or ${always_check_vm}   Check that appVM is running   ${app_key}
     Check that App is not running in VM    ${app_key}   range=1   before_launch_check=True
-
+    Wait for GUI VM app    ${app_key}
     Start application   ${app_key}[display_name]    params_string=${params_string}
     Check that App is running in VM    ${app_key}   range=5
+    Wait for GUI VM app    ${app_key}
+
+Wait for GUI VM app
+    [Documentation]    Wait one second between consecutive GUI VM app tests and before app termination.
+    [Arguments]        ${app_key}
+    IF    '${app_key}[VM]' == '${GUI_VM}'    Wait    1
 
 Check that appVM is running
     [Arguments]    ${app_key}
