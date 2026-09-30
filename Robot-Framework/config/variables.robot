@@ -64,6 +64,7 @@ Set Variables
         Run Keyword And Ignore Error    Set Global Variable  ${SWITCH_BOT}         ${config['addresses']['${DEVICE}']['switch_bot']}
         Run Keyword And Ignore Error    Set Global Variable  ${RELAY_NUMBER}       ${config['addresses']['${DEVICE}']['relay_number']}
         Run Keyword And Ignore Error    Set Global Variable  ${RPI_IP_ADDRESS}     ${config['addresses']['${DEVICE}']['rpi_ip_address']}
+        Run Keyword And Ignore Error    Set Global Variable  ${TEST_SERVER_IP}     ${config['addresses']['test_server_ip']}
     END
     IF  "${DEVICE_TYPE}" == "lenovo-x1" or "${DEVICE_TYPE}" == "dell-7330" or "${DEVICE_TYPE}" == "darter-pro" or "${DEVICE_TYPE}" == "x1-sec-boot" or "${DEVICE_TYPE}" == "darter-sec-boot"
         Set Global Variable  ${IS_LAPTOP}           True
@@ -99,6 +100,10 @@ Set Variables
     IF  $result.stdout != '${EMPTY}'
         Set Global Variable        ${FLEETDM_API_TOKEN}   ${result.stdout}
     END
+    ${result} 	Run Process    sh    -c    cat /run/secrets/test-server-login  shell=true
+    Set Global Variable        ${LOGIN_SERVER}   ${result.stdout}
+    ${result} 	Run Process    sh    -c    cat /run/secrets/test-server-pass  shell=true
+    Set Global Variable        ${PASSWORD_SERVER}   ${result.stdout}
     ${result} 	Run Process    sh    -c    cat /run/secrets/pi-login  shell=true
     Set Global Variable        ${LOGIN_PI}   ${result.stdout}
     ${result} 	Run Process    sh    -c    cat /run/secrets/pi-pass  shell=true
