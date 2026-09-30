@@ -33,6 +33,7 @@
 
 | DATE SET   | TEST CASE / KEYWORD                    | TICKET / Additional Data                                                                               | Error Log Context       |
 | ---------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------- |
+| 30.09.2026 | Application launch tests               | App order is mixed to avoid launching too many gui-vm apps in a row                                    |                         |
 | 04.09.2026 | Account lockout after failed GUI login | Tolerate one missed faillock increment                                                                 | Account lockout         |
 | 27.08.2026 | VM memory usage snapshot               | Orin AGX ghaf-host has 0 total swap memory. Ignore swap low limit check in this case.                  |                         |
 | 17.08.2026 | Select power menu option               | SSRCSP-8805, skipped if taskbar disappears                                                             | Taskbar disappeared     |
