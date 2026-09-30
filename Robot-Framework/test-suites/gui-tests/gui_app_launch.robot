@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Launch applications via GUI
-Test Tags           SP-T285  gui-app-launch  lenovo-x1  darter-pro
+Test Tags           SP-T285  gui-app-launch  pre-merge  lenovo-x1  darter-pro
 
 Resource            ../../config/variables.robot
 Variables           ../../lib/performance_thresholds.py
