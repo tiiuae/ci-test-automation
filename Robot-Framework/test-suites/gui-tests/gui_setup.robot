@@ -57,7 +57,7 @@ Open Initial Setup
 Verify that Ghaf intro is running and kill it
     [Documentation]     Verify that ${Getting Started}[display_name] is running and kill it.
     Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
-    Accept Chrome Terms Of Service If Shown    ${Getting Started}
+    Accept Chrome Terms Of Service If Shown    ${Getting Started}    add_to_checked_vms=False
     Switch to vm    ${Getting Started}[VM]
     Check that App is running in VM   ${Getting Started}  range=10
     Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
@@ -164,7 +164,7 @@ Switch layout and verify
 Verify language
     [Documentation]   Verify that current language matches ${expected_language}.
     [Arguments]       ${expected_language}
-    ${language}         Get language
+    ${language}       Get language
     Should Be Equal   ${expected_language}  ${language}   System language is ${language}, expected ${expected_language}
 
 Get language
