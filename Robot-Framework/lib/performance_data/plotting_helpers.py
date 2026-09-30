@@ -3,6 +3,8 @@ import os
 import matplotlib.pyplot as plt
 import pandas
 
+EVENT_LINE_COLORS = ('black', 'darkgreen', 'purple', 'darkorange', 'crimson')
+
 
 def start_plot(figsize=(20, 10)):
     plt.figure(figsize=figsize)
@@ -14,6 +16,63 @@ def save_plot(plot_dir, device, test_name, close=False):
     plt.savefig(plot_dir + f'{device}_{test_name}.png')
     if close:
         plt.close()
+
+
+def _snap_to_previous_value(x_values, value):
+    previous_values = [x_value for x_value in x_values if x_value <= value]
+    if not previous_values:
+        return None
+    return previous_values[-1]
+
+
+def draw_vertical_event_lines(
+    event_lines,
+    label=None,
+    x_values=None,
+    snap_to_previous=False,
+    x_formatter=None,
+    color=None,
+    linestyle='-.',
+    linewidth=3,
+):
+    if not event_lines:
+        return
+    if hasattr(event_lines, 'items'):
+        events = event_lines.items()
+    else:
+        events = ((x_value, label) for x_value in event_lines)
+
+    shown_labels = set()
+    event_color_by_key = {}
+    has_label = False
+    for x_value, event_label in events:
+        if snap_to_previous:
+            x_value = _snap_to_previous_value(x_values, x_value)
+        if x_value is None:
+            continue
+        if x_formatter is not None:
+            x_value = x_formatter(x_value)
+        line_label = event_label
+        if line_label:
+            has_label = True
+            if line_label in shown_labels:
+                line_label = None
+            else:
+                shown_labels.add(line_label)
+        event_key = event_label if event_label else x_value
+        if color is None and event_key not in event_color_by_key:
+            color_index = len(event_color_by_key) % len(EVENT_LINE_COLORS)
+            event_color_by_key[event_key] = EVENT_LINE_COLORS[color_index]
+        line_color = color if color is not None else event_color_by_key[event_key]
+        plt.axvline(
+            x=x_value,
+            color=line_color,
+            linestyle=linestyle,
+            linewidth=linewidth,
+            label=line_label,
+        )
+    if has_label:
+        plt.legend(loc='upper left')
 
 
 def plot_standard_history_series(
