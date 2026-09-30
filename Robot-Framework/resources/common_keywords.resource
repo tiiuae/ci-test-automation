@@ -194,7 +194,7 @@ Set device state
     ELSE
         ${state_to_set}   Set Variable   unblock
     END
-    Run Command   ghaf-killswitch ${state_to_set} ${device}
+    Run Command   ghaf-kill-switch ${state_to_set} ${device}
     ${device_state}   Get device state    ${device}
     Should Be Equal   ${device_state}   ${expected_state}
     Log To Console    ${device} is ${device_state}
@@ -209,13 +209,13 @@ Set all devices state
     ELSE
         ${state_to_set}   Set Variable   unblock
     END
-    Run Command       ghaf-killswitch ${state_to_set} --all
+    Run Command       ghaf-kill-switch ${state_to_set} --all
     Log               Set all devices to ${expected_state}    console=True
 
 Verify all devices state
     [Arguments]       ${expected_state}
     [Setup]           Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
-    ${output}         Run Command   ghaf-killswitch status
+    ${output}         Run Command   ghaf-kill-switch status
     FOR    ${device}    IN    cam    mic    bluetooth    net
         ${device_state}    Get kill switch status   ${output}   ${device}
         Run Keyword And Continue On Failure
@@ -225,7 +225,7 @@ Verify all devices state
 Get device state
     [Arguments]     ${device}
     [Setup]         Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
-    ${output}       Run Command   ghaf-killswitch status
+    ${output}       Run Command   ghaf-kill-switch status
     ${state}        Get kill switch status   ${output}   ${device}
     RETURN          ${state}
 
