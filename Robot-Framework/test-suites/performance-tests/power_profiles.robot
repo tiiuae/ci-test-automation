@@ -49,8 +49,7 @@ Power consumption with different power profiles
 
 Test Setup
     [Timeout]   5 minutes
-    ${availability}   Check variable availability  RPI_IP_ADDRESS
-    IF  ${availability}==False   SKIP   Power measurement agent IP address not defined. Skipping the test
+    Require Power Measurement Agent
     Switch to vm         ${GUI_VM}  user=${USER_LOGIN}
     ${active_profile}    Get active power profile
     Set Suite Variable   ${ORIGINAL_POWER_PROFILE}   ${active_profile}

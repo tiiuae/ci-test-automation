@@ -10,6 +10,7 @@
   robotframework-retryfailed,
   robotframework-seriallibrary,
   robotframework-debuglibrary,
+  sshpass,
   stdenv,
   writeShellApplication,
 }:
@@ -19,6 +20,7 @@ writeShellApplication {
     iperf
     imagemagick
     ffmpeg
+    sshpass
     (python3.withPackages (ps: [
       # These are taken from nixpkgs
       ps.robotframework

@@ -8,6 +8,7 @@ Library             DateTime
 Library             SSHLibrary
 Resource            ../resources/common_keywords.resource
 Resource            ../resources/file_keywords.resource
+Resource            ../resources/performance_keywords.resource
 Resource            ../resources/ssh_keywords.resource
 
 
@@ -18,6 +19,17 @@ ${DATA_PROCESS_ERROR}     ${False}
 
 
 *** Keywords ***
+
+Require Power Measurement Agent
+    ${availability}=    Check variable availability    RPI_IP_ADDRESS
+    IF  ${availability} == False
+        SKIP    Power measurement agent IP address not defined. Skipping the test
+    END
+
+Ensure balanced power profile
+    IF    ${IS_LAPTOP}
+        Set power profile    gui-balanced
+    END
 
 Start power measurement
     [Documentation]    Connect to the measurement agent and run script to start collecting measurement results
@@ -55,6 +67,7 @@ Connect to measurement agent
 Start recording power
     [Arguments]       ${file_name}   ${timeout}
     Log To Console    Starting to record power measurements
+    Switch Connection  ${SSH_MEASUREMENT}
     Run Keyword And Ignore Error  Run Command   nohup python /home/ghaf/ghaf/ghaf-power-measurement/measure_power.py ${file_name}.csv ${timeout} > output.log 2>&1 &  timeout=3
 
 Stop recording power
@@ -63,7 +76,8 @@ Stop recording power
         RETURN
     END
     Log To Console    Stopping power recording
-    Run Keyword And Ignore Error  Run Command   pkill python  timeout=3
+    Switch Connection  ${SSH_MEASUREMENT}
+    Run Keyword And Ignore Error  Run Command   pkill -f /home/ghaf/ghaf/ghaf-power-measurement/measure_power.py  timeout=3
 
 Get power record
     [Arguments]       ${file_name}=power_data.csv  ${use_switch}=${False}
@@ -95,7 +109,7 @@ Save measurement interval
 Generate power plot
     [Documentation]   Extract power data from start timestamp to current time.
     ...               Plot power vs time and save to png file.
-    [Arguments]       ${id}   ${test_name}
+    [Arguments]       ${id}   ${test_name}   ${event_lines}=${EMPTY}
     IF  $SSH_MEASUREMENT=='${EMPTY}'
         Log To Console    No connection to power measurement device. Ignoring all power measurement related keywords.
         RETURN
@@ -107,7 +121,7 @@ Generate power plot
         Log To Console          Data processing error. Aborting plot generation.
         RETURN
     END
-    Generate power graph        power_interval.csv  ${test_name}
+    Generate power graph        power_interval.csv  ${test_name}  ${event_lines}
     Log                         <img src="${REL_PLOT_DIR}power_${test_name}.png" alt="Power plot" width="1200">    HTML
 
 Check max power during suspension
@@ -147,28 +161,31 @@ Measure power level change
     RETURN  ${False}
 
 Start BAT0 power logging
-    [Arguments]               ${timeout}=180
-    Start parameter logging   ${HOST}   bat0_power_logger   5   ${timeout}
+    [Arguments]               ${timeout}=180   ${overwrite}=false
+    Start parameter logging   ${HOST}   bat0_power_logger   5   ${timeout}   ${overwrite}
 
 Plot BAT0 power log
-    Plot parameter log      ${HOST}  power  mW  bat0_power_logger  1000
+    [Arguments]             ${event_lines}=${EMPTY}
+    Plot parameter log      ${HOST}  power  mW  bat0_power_logger  1000  ${event_lines}
 
 Start parameter logging
     [Documentation]         Keyword for logging any parameter in given vm on the target device.
     ...                     The actual commands for extracting desired parameters are defined in test-files/log_params
-    [Arguments]             ${vm}   ${script}=log_params   ${log_interval}=1   ${timeout}=300
+    [Arguments]             ${vm}   ${script}=log_params   ${log_interval}=1   ${timeout}=300   ${extra_args}=${EMPTY}
     Switch to vm                    ${vm}
     Kill process by name            ${script}   True   ${False}
     Transfer Shell Script To DUT    ../test-files   ${script}   /tmp
     Log                             Launching ${script} script in ${vm}     console=True
     Set timestamp                   ${script}_log_start
-    ${command}                      Set Variable    /tmp/${script} /tmp/${script}.csv ${log_interval} ${timeout}
+    ${command}                      Set Variable
+    ...                             /tmp/${script} /tmp/${script}.csv ${log_interval} ${timeout} ${extra_args}
     Run Command                     nohup ${command} > /tmp/output.log 2>&1 &
 
 Plot parameter log
     [Documentation]   Extract power data from start timestamp to current time.
     ...               Plot parameter vs time and save to png file.
-    [Arguments]                  ${vm}  ${param_label}  ${param_unit}  ${script}=log_params  ${divider}=1
+    [Arguments]                  ${vm}  ${param_label}  ${param_unit}  ${script}=log_params
+    ...                          ${divider}=1  ${event_lines}=${EMPTY}
     Switch to vm                 ${vm}
     Kill process by name         ${script}   True   ${False}
     SSHLibrary.Get file          /tmp/${script}.csv   ${LOGGED_PARAMS_DIR}${script}.csv
@@ -179,6 +196,7 @@ Plot parameter log
         RETURN
     END
     Generate param graph         ${script}_interval.csv  ${param_label}  ${param_unit}  ${BUILD_ID}
+    ...                          ${event_lines}
     Log                          <img src="${PLOT_DIR}${param_label}_${BUILD_ID}.png" alt="Stats plot" width="1200">    HTML
 
 Save measurement history data

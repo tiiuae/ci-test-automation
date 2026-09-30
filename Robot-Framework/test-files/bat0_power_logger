@@ -4,23 +4,30 @@
 output_file="$1"
 log_interval="$2"
 timeout="$3"
+overwrite="${4:-false}"
 
 start_epochtime=$(date +%s)
 
+case "${overwrite}" in
+    true | True | TRUE | 1)
+        rm -f "${output_file}"
+        ;;
+esac
+
 # Create label row
 if [ ! -s "${output_file}" ]; then
-    echo "time,power" > ${output_file}
+    echo "time,power" > "${output_file}"
 fi
 
 while true
 do
     current_epochtime=$(date +%s)
-    timestamp=$(date +'%Y-%m-%d %H:%M:%S')
+    timestamp=$(date -u +'%Y-%m-%d %H:%M:%S')
 
     # Log average of cpu frequencies
     power=$(cat /sys/class/power_supply/BAT0/power_now)
 
-    echo "${timestamp},${power}" >> ${output_file}
+    echo "${timestamp},${power}" >> "${output_file}"
     elapsed_time=$(awk "BEGIN {print int(${current_epochtime} - ${start_epochtime})}")
     if [ ${elapsed_time} -gt ${timeout} ]; then
         break
