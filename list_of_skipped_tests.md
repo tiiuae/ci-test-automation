@@ -2,17 +2,16 @@
 
 ## Active SKIPS
 
-| DATE SET   | TEST CASE                              | TICKET / Additional Data                                                | Error Log Context  |
-| ---------- | -------------------------------------- | ----------------------------------------------------------------------- | ------------------ |
-| 21.09.2026 | Account lockout after failed GUI login | SSRCSP-8943                                                             | Account lockout    |
-| 26.08.2026 | Verify Gala is loaded                  | SSRCSP-8855                                                             | Slow Gala          |
-| 20.07.2026 | nvpmodel check test (Orins)            | SSRCSP-8712                                                             | (Fails every time) |
-| 06.07.2026 | Open video with COSMIC Media Player    | SSRCSP-8367                                                             | Crash in media-vm  |
-| 30.04.2026 | Open PDF from VM                       | SSRCSP-8367                                                             | Crash in media-vm  |
-| 17.03.2026 | OP-TEE xtest 1006                      | SSRCSP-8198                                                             | (Fails every time) |
-| 11.02.2026 | Check device id (storeDisk)            | SSRCSP-7997                                                             | (Fails every time) |
-| 11.02.2026 | Check net-vm hostname (storeDisk)      | SSRCSP-7997                                                             | (Fails every time) |
-| 16.09.2025 | Check systemctl status in every VM     | [List of skips](/Robot-Framework/test-suites/functional-tests/vm.robot) | Systemctl status   |
+| DATE SET   | TEST CASE                           | TICKET / Additional Data                                                | Error Log Context  |
+| ---------- | ----------------------------------- | ----------------------------------------------------------------------- | ------------------ |
+| 26.08.2026 | Verify Gala is loaded               | SSRCSP-8855                                                             | Slow Gala          |
+| 20.07.2026 | nvpmodel check test (Orins)         | SSRCSP-8712                                                             | (Fails every time) |
+| 06.07.2026 | Open video with COSMIC Media Player | SSRCSP-8367                                                             | Crash in media-vm  |
+| 30.04.2026 | Open PDF from VM                    | SSRCSP-8367                                                             | Crash in media-vm  |
+| 17.03.2026 | OP-TEE xtest 1006                   | SSRCSP-8198                                                             | (Fails every time) |
+| 11.02.2026 | Check device id (storeDisk)         | SSRCSP-7997                                                             | (Fails every time) |
+| 11.02.2026 | Check net-vm hostname (storeDisk)   | SSRCSP-7997                                                             | (Fails every time) |
+| 16.09.2025 | Check systemctl status in every VM  | [List of skips](/Robot-Framework/test-suites/functional-tests/vm.robot) | Systemctl status   |
 
 ## Old Dell 7330 skips
 
@@ -25,6 +24,7 @@
 
 | DATE SET   | TEST CASE (removed tag)                   | TICKET / Additional Data                                              |
 | ---------- | ----------------------------------------- | --------------------------------------------------------------------- |
+| 25.09.2026 | Some gui-vm app tests (pre-merge)         | Tests excluded from pre-merge while debugging is ongoing              |
 | 24.04.2026 | Rebuild tests (regression)                | Rebuild tests do not work properly with signed images                 |
 | 27.02.2026 | Measure Soft Boot Time (darter-pro)       | Test removed because the Enter finger causes inaccuracy to the result |
 | 03.09.2025 | Performance/network suite (all orin tags) | iperf is not available on Orins                                       |

@@ -224,7 +224,7 @@ Verify item is near expected coordinates
 
 Accept Chrome Terms Of Service If Shown
     [Documentation]    Chrome Terms of Service dialog is shown only on some fresh profiles.
-    [Arguments]    ${app_key}    ${attempts}=3    ${interval}=1s
+    [Arguments]    ${app_key}    ${attempts}=3    ${interval}=1s   ${add_to_checked_vms}=True
     IF    $app_key['VM'] in $CHROME_TERMS_CHECKED_VMS    RETURN
     ${status}    Run Keyword And Return Status
     ...    Wait Until Keyword Succeeds    ${attempts}x    ${interval}    Verify Text Is On The Screen    Terms of Service    scale=2
@@ -232,7 +232,7 @@ Accept Chrome Terms Of Service If Shown
         Press Key(s)    ENTER
         Wait Until Keyword Succeeds    2x    1s    Verify Text Is On The Screen    Terms of Service    expected=${False}    scale=2
     END
-    Append To List    ${CHROME_TERMS_CHECKED_VMS}    ${app_key}[VM]
+    IF    ${add_to_checked_vms}    Append To List    ${CHROME_TERMS_CHECKED_VMS}    ${app_key}[VM]
 
 Click
     [Arguments]   ${double_click}=False  ${wiggle}=False   ${sudo}=False
