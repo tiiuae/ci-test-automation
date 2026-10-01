@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                           | TICKET / Additional Data                                                | Error Log Context  |
 | ---------- | ----------------------------------- | ----------------------------------------------------------------------- | ------------------ |
+| 01.10.2026 | Check logging rate preview          | Issue caused by the changes in app tests                                |
 | 26.08.2026 | Verify Gala is loaded               | SSRCSP-8855                                                             | Slow Gala          |
 | 20.07.2026 | nvpmodel check test (Orins)         | SSRCSP-8712                                                             | (Fails every time) |
 | 06.07.2026 | Open video with COSMIC Media Player | SSRCSP-8367                                                             | Crash in media-vm  |
@@ -24,7 +25,7 @@
 
 | DATE SET   | TEST CASE (removed tag)                   | TICKET / Additional Data                                              |
 | ---------- | ----------------------------------------- | --------------------------------------------------------------------- |
-| 25.09.2026 | Some gui-vm app tests (pre-merge)         | Tests excluded from pre-merge while debugging is ongoing              |
+| 25.09.2026 | apps-tests (pre-merge)                    | Replaced with gui-app-launch tests while debugging continues          |
 | 24.04.2026 | Rebuild tests (regression)                | Rebuild tests do not work properly with signed images                 |
 | 27.02.2026 | Measure Soft Boot Time (darter-pro)       | Test removed because the Enter finger causes inaccuracy to the result |
 | 03.09.2025 | Performance/network suite (all orin tags) | iperf is not available on Orins                                       |
