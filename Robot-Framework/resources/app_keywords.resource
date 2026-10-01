@@ -110,20 +110,33 @@ Kill App in VM
     [Arguments]   ${app_key}   ${log_file}=None   ${status}=${TEST_STATUS}   ${require_exists}=True
     ${user}      Set Variable If      '${app_key}[VM]' == '${GUI_VM}'     ${USER_LOGIN}   ghaf
     ${sudo}      Set Variable If      '${app_key}[VM]' == '${GUI_VM}'     False           True
+    ${simulate_dax_hang}    Evaluate    $app_key["process_name"] == "cosmic-ext-calculator"
 
     Switch to vm    ${app_key}[VM]    user=${user}
     IF    '${app_key}[VM]' == '${GUI_VM}'
         ${pids_status}    ${blocked_pids}    Run Keyword And Ignore Error    Get blocked process PIDs
+        IF    $simulate_dax_hang
+            Log    DAX fallback test: simulating a blocked Calculator process    WARN
+            ${pids_status}    Set Variable    PASS
+            ${blocked_pids}    Set Variable    1
+        END
         IF    $pids_status == 'PASS' and $blocked_pids
             Run Keyword And Ignore Error    Capture DAX hang snapshot
         END
     END
 
     TRY
+        IF    $simulate_dax_hang
+            Fail    DAX fallback test: simulated Calculator failure before process cleanup
+        END
         Kill process by name    ${app_key}[process_name]    sudo=${sudo}    require_exists=${require_exists}
     FINALLY
         IF    '${app_key}[VM]' == '${GUI_VM}'
             ${pids_status}    ${blocked_pids}    Run Keyword And Ignore Error    Get blocked process PIDs
+            IF    $simulate_dax_hang
+                ${pids_status}    Set Variable    PASS
+                ${blocked_pids}    Set Variable    1
+            END
             IF    $pids_status == 'PASS' and $blocked_pids
                 Run Keyword And Ignore Error    Log blocked process diagnostics
             END
@@ -133,7 +146,12 @@ Kill App in VM
         IF    '${status}' == 'FAIL'      Log app vm journalctl        ${app_key}
 
         IF    '${app_key}[VM]' == '${GUI_VM}'
-            IF    $pids_status == 'PASS' and $blocked_pids
+            ${recheck_status}    ${blocked_pids_before_reboot}    Run Keyword And Ignore Error    Get blocked process PIDs
+            IF    $simulate_dax_hang
+                ${recheck_status}    Set Variable    PASS
+                ${blocked_pids_before_reboot}    Set Variable    1
+            END
+            IF    $recheck_status == 'PASS' and $blocked_pids_before_reboot
                 Evaluate    $RUNNING_VMS.clear()
                 Hard Reboot Device And Connect
                 Login to laptop
