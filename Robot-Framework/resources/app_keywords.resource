@@ -136,10 +136,10 @@ Kill App in VM
             # D state can be temporary; reboot only if blocked processes are still present.
             ${recheck_status}    ${blocked_pids_before_reboot}    Run Keyword And Ignore Error    Get blocked process PIDs
             IF    $recheck_status == 'PASS' and $blocked_pids_before_reboot
+                Log Error    DAX issue    D-state processes ${blocked_pids_before_reboot} found during ${TEST_NAME}.
                 Evaluate    $RUNNING_VMS.clear()
                 Hard Reboot Device And Connect
                 Login to laptop
-                Install DAX hang snapshot script
             END
         END
     END

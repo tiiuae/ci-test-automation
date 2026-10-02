@@ -7,7 +7,6 @@ Test Tags           apps  bat  lenovo-x1  darter-pro  dell-7330
 
 Resource            ../../resources/app_keywords.resource
 
-Suite Setup         Install DAX hang snapshot script
 Test Template       App Launch Test Template
 
 

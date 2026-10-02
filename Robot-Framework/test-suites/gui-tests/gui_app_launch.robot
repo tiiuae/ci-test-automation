@@ -16,7 +16,7 @@ Resource            ../../resources/ssh_keywords.resource
 
 Test Setup          Start screen recording
 Test Teardown       Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
-Suite Teardown      Create App Launch Montage And Move Graphs
+Suite Teardown      GUI App Launch Suite Teardown
 Test Template       Launch App And Save Time
 
 
@@ -131,6 +131,15 @@ Start Zoom via GUI
     ${Zoom}
 
 *** Keywords ***
+GUI App Launch Suite Teardown
+    Create App Launch Montage And Move Graphs
+    ${blocked_pids}    Get blocked process PIDs
+    IF    $blocked_pids
+        Log Error    DAX issue    D-state processes ${blocked_pids} found after ${SUITE_NAME}.
+        Capture DAX hang snapshot
+        Log blocked process diagnostics
+    END
+
 Launch App And Save Time
     [Arguments]    ${app_key}
     Set Test Documentation   Start ${app_key}[display_name] via GUI and measure launch time

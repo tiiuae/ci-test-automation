@@ -8,7 +8,6 @@ Test Tags           gui-apps  lenovo-x1  darter-pro
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/gui_keywords.resource
 
-Suite Setup         Install DAX hang snapshot script
 Test Setup          Start screen recording
 Test Teardown       Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
