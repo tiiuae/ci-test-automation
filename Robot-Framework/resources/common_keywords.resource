@@ -7,6 +7,7 @@ Library             Collections
 Library             OperatingSystem
 Library             DateTime
 Library             Process
+Library             SSHLibrary
 Library             String
 
 
@@ -114,8 +115,11 @@ Get blocked process PIDs
     [Teardown]      Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
 
 Capture DAX hang snapshot
-    [Documentation]    Dump all blocked kernel tasks before killing a GUI VM application.
-    [Setup]         Switch to vm    ${GUI_VM}
+    [Documentation]    Copy and run the script that dumps all blocked kernel tasks.
+    [Setup]         Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+    Put File        ../test-files/dax-hang-snapshot.sh    /tmp/dax-hang-snapshot.sh
+    Run Command     chmod 755 /tmp/dax-hang-snapshot.sh
+    Switch to vm    ${GUI_VM}
     Run Command     /tmp/dax-hang-snapshot.sh    sudo=True    timeout=30
     [Teardown]      Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
 
