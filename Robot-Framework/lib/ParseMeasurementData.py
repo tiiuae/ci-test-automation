@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import csv
 import os
 
+from performance_data.plotting_helpers import draw_vertical_event_lines
+
 
 class ParseMeasurementData:
 
@@ -60,10 +62,20 @@ class ParseMeasurementData:
             return False
         return True
 
-    def generate_power_graph(self, csv_file, test_name):
+    @staticmethod
+    def _format_time_for_x_axis(timestamp):
+        return timestamp[11:19]
+
+    def generate_power_graph(
+        self,
+        csv_file,
+        test_name,
+        event_lines=None,
+    ):
         data = pd.read_csv(self.csv_dir + csv_file)
         start_time = data['time'].values[0]
         end_time = data['time'].values[data.index.max()]
+        event_x_values = data['time'].copy()
         plt.figure(figsize=(20, 10))
         plt.set_loglevel('WARNING')
 
@@ -92,6 +104,12 @@ class ParseMeasurementData:
         plt.ylabel('Power (mW)', fontsize=16)
         plt.grid(True)
         plt.xticks(data['time'], rotation=45, fontsize=14)
+        draw_vertical_event_lines(
+            event_lines,
+            x_values=event_x_values,
+            snap_to_previous=True,
+            x_formatter=self._format_time_for_x_axis,
+        )
 
         # Set maximum for tick number
         plt.locator_params(axis='x', nbins=40)
@@ -112,10 +130,18 @@ class ParseMeasurementData:
         mean_value = data['power'].mean()
         return mean_value
 
-    def generate_param_graph(self, csv_file, param_label, param_unit, build_id):
+    def generate_param_graph(
+        self,
+        csv_file,
+        param_label,
+        param_unit,
+        build_id,
+        event_lines=None,
+    ):
         data = pd.read_csv(self.csv_dir + csv_file)
         start_time = data['time'].values[0]
         end_time = data['time'].values[data.index.max()]
+        event_x_values = data['time'].copy()
         plt.figure(figsize=(20, 10))
         plt.set_loglevel('WARNING')
 
@@ -133,6 +159,12 @@ class ParseMeasurementData:
         plt.ylabel(param_unit, fontsize=16)
         plt.grid(True)
         plt.xticks(data['time'], rotation=45, fontsize=14)
+        draw_vertical_event_lines(
+            event_lines,
+            x_values=event_x_values,
+            snap_to_previous=True,
+            x_formatter=self._format_time_for_x_axis,
+        )
 
         # Set maximum for tick number
         plt.locator_params(axis='x', nbins=40)
