@@ -10,4 +10,4 @@ robotframework-retryfailed==0.2.0
 matplotlib==3.7.2
 plugp100==3.11.0
 pytz==2023.3.post1
-
+rapidfuzz==3.14.6
