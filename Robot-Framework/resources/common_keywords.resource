@@ -7,7 +7,6 @@ Library             Collections
 Library             OperatingSystem
 Library             DateTime
 Library             Process
-Library             SSHLibrary
 Library             String
 
 
@@ -107,26 +106,10 @@ Check that process is not running
         FAIL   Process ${process_name} is ${error_message}
     END
 
-Get blocked process PIDs
-    [Documentation]    Return PIDs of D-state processes in GUI VM.
-    [Setup]         Switch to vm    ${GUI_VM}
-    ${blocked_pids}    Run Command    ps -eo pid=,stat= | awk '$2 ~ /^D/ {print $1}'    sudo=True    rc_match=skip
-    RETURN          ${blocked_pids}
-    [Teardown]      Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
-
-Capture DAX hang snapshot
-    [Documentation]    Copy and run the script that dumps all blocked kernel tasks.
-    [Setup]         Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
-    Put File        ../test-files/dax-hang-snapshot.sh    /tmp/dax-hang-snapshot.sh
-    Run Command     chmod 755 /tmp/dax-hang-snapshot.sh
-    Switch to vm    ${GUI_VM}
-    Run Command     /tmp/dax-hang-snapshot.sh    sudo=True    timeout=30
-    [Teardown]      Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
-
 Log blocked process diagnostics
     [Documentation]    Log kernel stacks for D-state processes and recent kernel messages.
-    ${blocked_pids}    Get blocked process PIDs
-    Switch to vm       ${GUI_VM}
+    [Setup]            Switch to vm    ${GUI_VM}
+    ${blocked_pids}    Run Command    ps -eo pid=,stat= | awk '$2 ~ /^D/ {print $1}'    rc_match=skip
     IF    not $blocked_pids
         Log    No D-state processes found
     ELSE
@@ -137,7 +120,7 @@ Log blocked process diagnostics
         END
     END
     Run Command    journalctl -k -b --no-pager -o short-precise    sudo=True    rc_match=skip    timeout=15
-    [Teardown]     Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+    [Teardown]         Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
 
 Kill process by name
     [Arguments]   ${process_name}   ${sudo}=True   ${require_exists}=${True}   ${signal}=TERM   ${fallback_signal}=KILL
@@ -151,6 +134,7 @@ Kill process by name
         Run Command    pkill -${fallback_signal} -Aef "${process_name}"  sudo=${sudo}  return=rc  rc_match=skip  timeout=15
         ${stopped}   Run Keyword And Return Status   Wait Until Keyword Succeeds   5x   1s   Check that process is not running   ${process_name}
     END
+    IF    not ${stopped}    Run Keyword And Ignore Error    Log blocked process diagnostics
     Should Be True   ${stopped}   Process ${process_name} is still running after ${signal} and ${fallback_signal}
 
 Save Time
