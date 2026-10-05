@@ -115,14 +115,13 @@ Edit ghaf repo
     Log To Console        Making changes to the local ghaf repository
     IF  ${IS_LAPTOP}
         Log To Console    Switching to audit mode
-        Edit File         ${repository_path}/modules/reference/profiles/mvp-user-trial.nix  security.audit.enable = false;  security.audit.enable = true;
         Edit File         ${repository_path}/modules/common/security/audit/default.nix  ghaf.security.audit.enableOspp  ghaf.security.audit.enableVerboseRebuild = true;  ${False}
         Edit file         ${repository_path}/modules/common/security/audit/default.nix  ghaf.security.audit.enableOspp  ghaf.security.audit.enableVerboseOspp = true;  ${False}
         Edit file         ${repository_path}/modules/common/security/audit/default.nix  ghaf.security.audit.enableOspp = mkIf cfg.enableVerboseOspp true;  ghaf.security.audit.enableOspp = true;
         Edit File         ${repository_path}/modules/microvm/host/microvm-host.nix  storeWatcher.enable = false;  storeWatcher.enable = true;
     ELSE
         # Ensure rebuild by minor change
-        Edit File         ${repository_path}/modules/development/debug-tools.nix  pkgs.file  ''  ${True}
+        Edit File         ${repository_path}/modules/development/debug-tools.nix  strace  ''  ${True}
     END
 
 Run Nixos Rebuild
@@ -251,7 +250,7 @@ Prepare Rebuild Audit Event
     [Documentation]  Add a harmless package to make nixos-rebuild copy store paths and emit audit logs.
     Elevate to superuser
     Log To Console   Adding package to trigger nixos-rebuild audit event
-    Edit file        ${repository_path}/modules/development/debug-tools.nix  pkgs.file  pkgs.xdiskusage  ${False}
+    Edit file        ${repository_path}/modules/development/debug-tools.nix  strace  xdiskusage  ${False}
 
 Get Audit Search Timestamp
     [Documentation]  Return timestamp in a format accepted by ausearch -ts.
