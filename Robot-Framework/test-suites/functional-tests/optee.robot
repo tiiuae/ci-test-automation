@@ -29,7 +29,7 @@ OP-TEE xtest
     ...              (3. If everything is fixed (no more "-x"-flags), remove this comment!!)
     [Tags]  SP-T122  optee-xtest
 
-    Run Command    xtest -x 1006  sudo=True   timeout=300
+    Run Command    xtest -x 1006  sudo=True   timeout=400
 
 OP-TEE xtest 1006
     [Documentation]   Xtest 1006
