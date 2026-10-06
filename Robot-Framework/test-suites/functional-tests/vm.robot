@@ -28,6 +28,7 @@ Suite Setup         VM Suite Setup
              ...    orin-nx|gpu-vm|gpu-partition-manager.service|SSRCSP-8792
              ...    darter|ANY|fail2ban.service|SSRCSP-8891
              ...    agx-64|ghaf-host|ghaf-load-ftpm-module.service|SSRCSP-8938
+             ...    orin|ghaf-host|ghaf-load-ftpm-module.service|SSRCSP-8938
 
 # Container for test message. Keyword `Set Test Message` doesn't work properly with Templates.
 # Accumulates messages from tests that use 'Check systemctl status Template' to be added to the main test message in teardown
