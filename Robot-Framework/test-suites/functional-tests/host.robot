@@ -19,7 +19,7 @@ Suite Setup         Switch to vm   ${HOST}
 Check device id
     [Documentation]    Compare actual device id with expected one from the config file,
     ...                It should never change.
-    [Tags]             SP-T351  SP-T351-1  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  lab-only
+    [Tags]             SP-T467  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  lab-only
     ${actual_device_id}          Get Actual Device ID
     Log                Comparing actual device ID ${actual_device_id} and expected ${STATIC_DEVICE_ID}     console=True
     Should Be Equal As Strings   ${actual_device_id}    ${STATIC_DEVICE_ID}    ignore_case=True
@@ -45,7 +45,7 @@ Check QSPI version
 
 Check all VMs are running
     [Documentation]    Check that all VMs are running.
-    [Tags]             SP-T68  SP-T68-1  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  fmo
+    [Tags]             SP-T502  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  fmo
     @{vms}      Get VM list
     FOR   ${vm}  IN  @{vms}
         ${status}=    Run Keyword And Continue On Failure    Verify service status  service=microvm@${vm}
@@ -53,7 +53,7 @@ Check all VMs are running
 
 Check all VMs are running on Orins
     [Documentation]    Check that all VMs are running.
-    [Tags]             SP-T68  SP-T68-2  pre-merge  bat  orin-agx  orin-agx-64  orin-nx
+    [Tags]             SP-T503  pre-merge  bat  orin-agx  orin-agx-64  orin-nx
     Switch to vm    ${HOST}
     ${output}       Run Command        microvm -l
     ${output}       Replace String Using Regexp    ${output}    \x1b\\[[0-9;]*m    ${EMPTY}
@@ -65,7 +65,7 @@ Check all VMs are running on Orins
 
 Check serial connection
     [Documentation]    Check serial connection
-    [Tags]             SP-T170  SP-T51  pre-merge  bat  lenovo-x1  darter-pro  orin-agx  orin-agx-64  orin-nx  lab-only
+    [Tags]             SP-T170  pre-merge  bat  lenovo-x1  darter-pro  orin-agx  orin-agx-64  orin-nx  lab-only
     [Setup]            Serial setup
     Log    Reading serial console...     console=True
     FOR    ${i}    IN RANGE    30
@@ -98,7 +98,7 @@ Check full disk encryption
 Check Secure Boot is enabled
     [Documentation]  To be run only on Secure Boot X1
     ...              Install sbctl and check that Secure Boot is enabled
-    [Tags]           SP-T341  lenovo-x1  darter-pro  orin-agx-64  secboot-only
+    [Tags]           SP-T464  lenovo-x1  darter-pro  orin-agx-64  secboot-only
     ${sb_status}      Get Secure Boot Status
     Should Be Equal   ${sb_status}   Enabled   Secure Boot is not enabled
 

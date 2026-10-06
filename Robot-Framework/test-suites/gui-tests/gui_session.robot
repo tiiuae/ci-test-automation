@@ -18,7 +18,7 @@ Change workspace with app open
     [Documentation]   Open ${COSMIC Text Editor}[display_name], switch to another workspace,
     ...               verify the app window is not visible, then return to the first workspace
     ...               and verify that the app window is still there.
-    [Tags]            SP-T248
+    [Tags]            SP-T428
     Start app via GUI              ${COSMIC Text Editor}
     Verify app window visibility   ${COSMIC Text Editor}    attempts=10x
     Change workspace    2

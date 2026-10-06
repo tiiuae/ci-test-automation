@@ -45,7 +45,7 @@ Wifi passthrough into NetVM
 
 Ethernet passthrough into NetVM
     [Documentation]     Verify that ethernet connection works inside netvm and internet is available
-    [Tags]              SP-T62  SP-T62-1  pre-merge  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  lab-only
+    [Tags]              SP-T490  pre-merge  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  lab-only
     [Setup]             Switch to vm   ${NET_VM}
     Check Network Availability   8.8.8.8   limit_freq=${False}   interface=eth
 
@@ -68,7 +68,7 @@ Check net-vm hostname
 Verify native ethernet is present and in the same network as USB ethernet
     [Documentation]    Verify that native ethernet exists, both interfaces have IPs,
     ...                and belong to the same /24 subnet.
-    [Tags]             SP-T62  SP-T62-2  pre-merge  darter-pro  lab-only
+    [Tags]             SP-T491  pre-merge  darter-pro  lab-only
     ${usb_eth}         Get Interface name   usb-eth
     ${usb_ip}          Get VM IP            ${usb_eth}
     ${native_eth}      Get Interface name   native-eth

@@ -25,7 +25,7 @@ ${repository_path}      /persist/ghaf
 Check device-id persistence over nixos-rebuild
     [Documentation]         Verify that device-id has not changed over nixos-rebuild and reboot
     # Add tags orin-agx, orin-agx-64, orin-nx once rebuild is fixed on Orins
-    [Tags]                  SP-T351
+    [Tags]                  SP-T469
     [Timeout]               1 minutes
     ${device_id_check}      Get Actual Device ID
     IF  $device_id_check != '${device_id}'

@@ -21,46 +21,19 @@ ${AUDIO_DIR}           ${OUTPUT_DIR}/outputs/audio-temp
 
 
 *** Test Cases ***
+Record audio in all VMs with audio
+    [Tags]   SP-T247    pre-merge
+    [Template]  Record Audio And Verify
+    FOR  ${vm}  IN  @{VMS_WITH_AUDIO}
+        ${vm}
+    END
 
-Record audio in business-vm
-    [Tags]   SP-T247  SP-T247-1  pre-merge
-    Record Audio And Verify   ${BUSINESS_VM}
-
-Record audio in chrome-vm
-    [Tags]  SP-T247  SP-T247-2
-    Record Audio And Verify   ${CHROME_VM}
-
-Record audio in comms-vm
-    [Tags]   SP-T247  SP-T247-3
-    Record Audio And Verify   ${COMMS_VM}
-
-Record audio in flatpak-vm
-    [Tags]   SP-T247  SP-T247-4
-    Record Audio And Verify   ${FLATPAK_VM}
-
-Record audio in gui-vm
-    [Tags]   SP-T247  SP-T247-5  pre-merge
-    Record Audio And Verify   ${GUI_VM}
-
-Play audio in business-vm
-    [Tags]   SP-T212  SP-T212-1  pre-merge
-    Play Audio And Verify   ${BUSINESS_VM}
-    
-Play audio in chrome-vm
-    [Tags]   SP-T212  SP-T212-2
-    Play Audio And Verify   ${CHROME_VM}
-
-Play audio in comms-vm
-    [Tags]   SP-T212  SP-T212-3
-    Play Audio And Verify   ${COMMS_VM}
-
-Play audio in flatpak-vm
-    [Tags]   SP-T212  SP-T212-4
-    Play Audio And Verify   ${FLATPAK_VM}
-
-Play audio in gui-vm
-    [Tags]   SP-T212  SP-T212-5  pre-merge
-    Play Audio And Verify   ${GUI_VM}
+Play audio in all VMs with audio
+    [Tags]   SP-T212    pre-merge
+    [Template]   Play Audio And Verify
+    FOR  ${vm}  IN  @{VMS_WITH_AUDIO}
+        ${vm}
+    END
 
 Check Audio devices
     [Documentation]  List audio sinks and sources in VMs

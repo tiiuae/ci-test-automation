@@ -15,27 +15,27 @@ Suite Setup         Shares setup
 *** Test Cases ***
 
 File sharing from Chrome-VM to Business-VM
-    [Tags]          SP-T198-1
+    [Tags]          SP-T405
     ${CHROME_VM}    ${BUSINESS_VM}
 
 File sharing from Chrome-VM to Comms-VM
-    [Tags]          SP-T198-2  pre-merge
+    [Tags]          SP-T406  pre-merge
     ${CHROME_VM}    ${COMMS_VM}
 
 File sharing from Comms-VM to Business-VM
-    [Tags]          SP-T198-3
+    [Tags]          SP-T407
     ${COMMS_VM}     ${BUSINESS_VM}
 
 File sharing from Comms-VM to Chrome-VM
-    [Tags]          SP-T198-4
+    [Tags]          SP-T408
     ${COMMS_VM}     ${CHROME_VM}
 
 File sharing from Business-VM to Comms-VM
-    [Tags]          SP-T198-5
+    [Tags]          SP-T409
     ${BUSINESS_VM}  ${COMMS_VM}
 
 File sharing from Business-VM to Chrome-VM
-    [Tags]          SP-T198-6
+    [Tags]          SP-T410
     ${BUSINESS_VM}  ${CHROME_VM}
 
 *** Keywords ***

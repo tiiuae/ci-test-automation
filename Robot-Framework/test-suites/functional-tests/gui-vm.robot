@@ -39,23 +39,23 @@ Check user systemctl status
 
 Givc-cli shows Ghaf version
     [Documentation]    Verify that givc-cli sysinfo shows current Ghaf version.
-    [Tags]             SP-T369  SP-T369-1  lenovo-x1  darter-pro
+    [Tags]             SP-T476 lenovo-x1  darter-pro
     ${version}         Get Ghaf Version
     Verify givc-cli sysinfo field    Ghaf Version    ${version}
 
 Givc-cli shows Secure Boot enabled
     [Documentation]    Verify that givc-cli sysinfo shows Secure Boot enabled on Secure Boot devices.
-    [Tags]             SP-T369  SP-T369-2  lenovo-x1  darter-pro  secboot-only
+    [Tags]             SP-T477  lenovo-x1  darter-pro  secboot-only
     Verify givc-cli sysinfo field    Secure Boot    enabled
 
 Givc-cli shows Secure Boot disabled
     [Documentation]    Verify that givc-cli sysinfo shows Secure Boot disabled on non-Secure Boot devices.
-    [Tags]             SP-T369  SP-T369-3  lenovo-x1  darter-pro  excl-secboot
+    [Tags]             SP-T478 lenovo-x1  darter-pro  excl-secboot
     Verify givc-cli sysinfo field    Secure Boot    disabled
 
 Givc-cli shows Disk Encryption
     [Documentation]    Verify that givc-cli sysinfo shows Disk Encryption enabled on installer images and disabled on non-installers.
-    [Tags]             SP-T369  SP-T369-4  lenovo-x1  darter-pro
+    [Tags]             SP-T479  lenovo-x1  darter-pro
     IF    "installer" in "${JOB}"
         Verify givc-cli sysinfo field    Disk Encryption    enabled
     ELSE
