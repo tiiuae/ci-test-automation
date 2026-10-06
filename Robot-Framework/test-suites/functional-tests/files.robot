@@ -18,22 +18,22 @@ ${OUTPUT_FILE}   /tmp/out.log
 
 Open PDF from chrome-vm
     [Documentation]    Open PDF file from ${CHROME_VM} and check that ${Ghaf Isolated Document Viewer}[display_name] started
-    [Tags]             SP-T131  SP-T131-1  pre-merge
+    [Tags]             SP-T383  pre-merge
     Open PDF from app-vm    ${CHROME_VM}
 
 Open PDF from comms-vm
     [Documentation]    Open PDF file from ${COMMS_VM} and check that ${Ghaf Isolated Document Viewer}[display_name] started
-    [Tags]             SP-T131  SP-T131-2
+    [Tags]             SP-T384
     Open PDF from app-vm    ${COMMS_VM}
 
 Open PDF from business-vm
     [Documentation]    Open PDF file from ${BUSINESS_VM} and check that ${Ghaf Isolated Document Viewer}[display_name] started
-    [Tags]             SP-T131  SP-T131-3
+    [Tags]             SP-T385
     Open PDF from app-vm    ${BUSINESS_VM}
 
 Open PDF from gui-vm
     [Documentation]    Open PDF file from ${GUI_VM} and check that ${Ghaf Isolated Document Viewer}[display_name] started
-    [Tags]             SP-T131  SP-T131-4
+    [Tags]             SP-T386
     Open PDF from app-vm    ${GUI_VM}  user=${USER_LOGIN}  sudo=False
 
 Open image with Ghaf Isolated Image Viewer

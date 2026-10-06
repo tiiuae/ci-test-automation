@@ -34,7 +34,7 @@ ${WAIT_BEFORE_POWER_ON}    30
 
 Measure Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
-    [Tags]           SP-T187  SP-T187-1  lenovo-x1  dell-7330
+    [Tags]           SP-T403  lenovo-x1  dell-7330
     Soft Reboot Device
     Get Boot times
 
@@ -46,13 +46,13 @@ Measure Shutdown Time
 
 Measure Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
-    [Tags]           SP-T182  SP-T182-1  lenovo-x1  darter-pro  dell-7330  lab-only
+    [Tags]           SP-T399  lenovo-x1  darter-pro  dell-7330  lab-only
     Reboot Laptop
     Get Boot times                plot_name=Hard Boot Times
 
 Measure Orin Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
-    [Tags]           SP-T187  SP-T187-2  orin-agx  orin-agx-64  orin-nx
+    [Tags]           SP-T404  orin-agx  orin-agx-64  orin-nx
     Soft Reboot Device  check_iterations=60
     Get Time To Ping
 
@@ -64,7 +64,7 @@ Measure Orin Shutdown Time
 
 Measure Orin Hard Boot Time
     [Documentation]  Measure how long it takes to device to boot up with hard reboot
-    [Tags]           SP-T182  SP-T182-2  orin-agx  orin-agx-64  orin-nx  lab-only
+    [Tags]           SP-T400  orin-agx  orin-agx-64  orin-nx  lab-only
     Log To Console                Shutting down by switching the power off
     Turn Off Power
     Wait Until Device Is Down     power_off=${True}     check_iterations=60

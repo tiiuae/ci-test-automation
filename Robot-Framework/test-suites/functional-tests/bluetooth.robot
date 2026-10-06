@@ -22,7 +22,7 @@ ${BT_BOARD_LOCK_ACQUIRED}    ${False}
 
 Connect and disconnect Bluetooth Board
     [Documentation]    Discover Bluetooth Board, connect/disconnect it from audio-vm, and remove device.
-    [Tags]             SP-T221
+    [Tags]             SP-T423
     Switch to vm       ${AUDIO_VM}
     ${bt_board_mac}    Discover bluetooth device by name
     Open Bluetooth Board Serial Port

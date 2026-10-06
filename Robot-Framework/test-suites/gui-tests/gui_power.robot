@@ -24,7 +24,7 @@ Suspend and wake up from power menu
     [Documentation]   Suspend the device via GUI taskbar suspend icon and wake up.
     ...               Logs device power consumption during the test
     ...               if power measurement tooling is set.
-    [Tags]            SP-T75  SP-T75-3  lenovo-x1  darter-pro  lab-only
+    [Tags]            SP-T492  lenovo-x1  darter-pro  lab-only
     Start power measurement       ${BUILD_ID}   timeout=180
     # Connect back to gui-vm after power measurement has been started
     Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
@@ -38,7 +38,7 @@ Suspend and wake up from power menu
 Lock and Unlock from power menu
     [Documentation]   Lock the screen via GUI power menu lock icon and check that the screen is locked.
     ...               Unlock lock screen by typing the password and check that desktop is available.
-    [Tags]            SP-T75  SP-T75-1  lock  lenovo-x1  darter-pro
+    [Tags]            SP-T493  lock  lenovo-x1  darter-pro
     Select power menu option   text=Lock
     ${lock}           Check if locked   iterations=3   debug_screenshot=True
     IF  not ${lock}   FAIL    Failed to lock the screen
@@ -48,7 +48,7 @@ Lock and Unlock from power menu
 Lock screen with shortcut
     [Documentation]   Lock the screen via shortcut and verify locked state.
     ...               Unlock lock screen by typing the password and check that desktop is available.
-    [Tags]            SP-T186  SP-T186-2  lock  lenovo-x1  darter-pro
+    [Tags]            SP-T401  lock  lenovo-x1  darter-pro
     Press Key(s)      LEFTMETA+ESC
     ${lock}           Check if locked   iterations=3   debug_screenshot=True
     IF  not ${lock}   FAIL    Failed to lock the screen
@@ -58,7 +58,7 @@ Lock screen with shortcut
 Reboot from power menu
     [Documentation]   Reboot the device via GUI power menu reboot icon.
     ...               Check that it shuts down. Check that it turns on and boots to login screen.
-    [Tags]            SP-T75  SP-T75-4  lenovo-x1  darter-pro  lab-only
+    [Tags]            SP-T494  lenovo-x1  darter-pro  lab-only
     Select power menu option   x=870   y=120   confirmation=True
     ${start_time}     Get Time    epoch
     Verify shutdown via network
@@ -74,7 +74,7 @@ Reboot from power menu
 Shutdown from power menu
     [Documentation]   Shutdown the device via GUI power menu shutdown icon.
     ...               Check that it shuts down and then wakes up with a short power button press.
-    [Tags]            SP-T75  SP-T75-5  lenovo-x1  darter-pro  lab-only
+    [Tags]            SP-T495  lenovo-x1  darter-pro  lab-only
     Select power menu option   x=925   y=120   confirmation=True
     Set Test Variable          ${max_elapsed}  25
 
@@ -97,7 +97,7 @@ Shutdown from power menu
 Log out and log in from power menu
     [Documentation]   Logout via GUI power menu icon and verify logged out state.
     ...               Login and verify that desktop is available.
-    [Tags]            SP-T75  SP-T75-2  logoutlogin  lenovo-x1  darter-pro
+    [Tags]            SP-T496  logoutlogin  lenovo-x1  darter-pro
     Skip If    ${DISABLE_LOGOUT}    This test can't run when logging out is disabled
     Select power menu option   text=LogOut   confirmation=True
     ${logout_status}            Check if logged out
@@ -107,7 +107,7 @@ Log out and log in from power menu
 Log out and log in with shortcut
     [Documentation]   Logout via logout shortcut and verify logged out state.
     ...               Login and verify that desktop is available.
-    [Tags]            SP-T186  SP-T186-1  lenovo-x1  darter-pro
+    [Tags]            SP-T402  lenovo-x1  darter-pro
     Skip If    ${DISABLE_LOGOUT}    This test can't run when logging out is disabled
     Press Key(s)                LEFTMETA+LEFTSHIFT+ESC
     Locate on screen            text  Quit  10

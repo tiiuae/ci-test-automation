@@ -24,7 +24,7 @@ Install Firefox
 Install Onlyoffice and save documents
     [Documentation]    Install and launch Onlyoffice from App Store
     ...                Save different types of files to Shares
-    [Tags]    SP-T312  SP-T313  SP-T314  SP-T355
+    [Tags]    SP-T312
     Install and Launch App Store app   ${Onlyoffice}
 
     Save a file from Onlyoffice   Document       test_Document.docx

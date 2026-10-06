@@ -25,7 +25,7 @@ ${TEST_LOG}           log_check_${BUILD_ID}
 
 Logging service is running in all VMs
     [Documentation]    Check that logging service is running in every VM
-    [Tags]             SP-T333  SP-T333-1
+    [Tags]             SP-T458
     ${failed_vms}      Create List
     FOR  ${vm}  IN  @{VM_LIST}
         Switch to vm   ${vm}
@@ -45,7 +45,7 @@ Logging service is running in all VMs
 
 Alloy and stunnel services are running in admin-vm
     [Documentation]    Verify that admin-vm runs alloy and stunnel services required for log collection and forwarding
-    [Tags]             SP-T333  SP-T333-2
+    [Tags]             SP-T459
     [Timeout]          2 minutes
     Switch to vm   ${ADMIN_VM}
     Run Keyword And Continue On Failure   Verify service status  range=5  service=alloy.service    expected_state=active  expected_substate=running

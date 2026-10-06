@@ -50,7 +50,7 @@ Copy and paste text between VMs
 
 Open an app from the dock
     [Documentation]   Open Zoom, minimize its window, verify it is hidden, then restore it from dock and compare coordinates.
-    [Tags]            SP-T79
+    [Tags]            SP-T497
     Start app via GUI    ${Zoom}
     ${zoom_window_coords}    ${zoom_anchor_coords}    Save Zoom window baseline coordinates
     ${zoom_before_x}   ${zoom_before_y}    Save Zoom icon coordinates

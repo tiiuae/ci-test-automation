@@ -34,7 +34,7 @@ OP-TEE xtest
 OP-TEE xtest 1006
     [Documentation]   Xtest 1006
     ...               Test will be skipped in case of failure, because this is a known issue.
-    [Tags]  SP-T129  optee-xtest
+    [Tags]  SP-T382  optee-xtest
 
     ${status}  ${out}   Run Keyword And Ignore Error   Run Command    xtest 1006   sudo=True
     IF   $status == 'FAIL'   SKIP   Known issue (SSRCSP-8198) encountered, skipping the test

@@ -78,7 +78,7 @@ Verify EPT is enabled in every VM
 
 Check Device ID in every VM
     [Documentation]    Check that Device ID is the same in every vm.
-    [Tags]             SP-T351  SP-T351-2  orin-agx  orin-agx-64  orin-nx
+    [Tags]             SP-T468  orin-agx  orin-agx-64  orin-nx
     ${host_device_id}  Get Actual Device ID
     @{VM_LIST}         Get VM list
     ${failed_vms}      Create List

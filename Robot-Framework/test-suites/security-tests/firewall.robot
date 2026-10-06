@@ -35,7 +35,7 @@ Network traffic passes through all VMs' firewall
     END
 
 Check that internal ping flooding triggers blacklisting
-    [Tags]            SP-T299  SP-T299-1  lenovo-x1  darter-pro  dell-7330
+    [Tags]            SP-T443  lenovo-x1  darter-pro  dell-7330
     [Template]        Ping Flood Test ${vm}
     FOR    ${vm}    IN    @{VM_LIST_WITH_HOST}
         IF  '${vm}' != '${MEDIA_VM}' and '${vm}' != '${NET_VM}'
@@ -45,7 +45,7 @@ Check that internal ping flooding triggers blacklisting
     [Teardown]      Run Keyword If Test Failed    Blacklist Teardown
 
 Check that internal tcp syn flooding triggers blacklisting
-    [Tags]            SP-T299  SP-T299-2  lenovo-x1  darter-pro  dell-7330
+    [Tags]            SP-T444  lenovo-x1  darter-pro  dell-7330
     [Template]        Internal Tcp Syn Flood Test ${vm}
     FOR    ${vm}    IN    @{VM_LIST_WITH_HOST}
         IF  '${vm}' != '${MEDIA_VM}' and '${vm}' != '${NET_VM}'
@@ -56,7 +56,7 @@ Check that internal tcp syn flooding triggers blacklisting
 
 Check that external ping flooding triggers blacklisting
     [Documentation]   Validate that ping flooding from the test agent to net-vm triggers firewall blacklisting.
-    [Tags]            SP-T299  SP-T299-3  lenovo-x1  darter-pro  orin-agx  orin-agx-64  orin-nx  lab-only
+    [Tags]            SP-T445  lenovo-x1  darter-pro  orin-agx  orin-agx-64  orin-nx  lab-only
     [Setup]           Run Keyword If   "${SERIAL_PORT}" == "NONE"   SKIP   No serial address, skipping test
     ${ext_attacker_ip}    Get External Attacker IP
     External Ping Flood NetVM
@@ -66,7 +66,7 @@ Check that external ping flooding triggers blacklisting
 
 Check that external tcp syn flooding triggers blacklisting
     [Documentation]   Validate that tcp syn probing from the test agent to net-vm triggers firewall blacklisting.
-    [Tags]            SP-T299  SP-T299-4  lenovo-x1  darter-pro  orin-agx  orin-agx-64  orin-nx  lab-only
+    [Tags]            SP-T446  lenovo-x1  darter-pro  orin-agx  orin-agx-64  orin-nx  lab-only
     [Setup]           Run Keyword If   "${SERIAL_PORT}" == "NONE"   SKIP   No serial address, skipping test
     ${ext_attacker_ip}    Get External Attacker IP
     Tcp Syn Flood         ${DEVICE_IP_ADDRESS}

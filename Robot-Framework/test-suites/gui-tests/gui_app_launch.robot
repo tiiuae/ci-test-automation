@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Launch applications via GUI
-Test Tags           SP-T285  gui-app-launch  pre-merge  lenovo-x1  darter-pro
+Test Tags           gui-app-launch  pre-merge  lenovo-x1  darter-pro
 
 Resource            ../../config/variables.robot
 Variables           ../../lib/performance_thresholds.py
@@ -23,111 +23,111 @@ Test Template       Launch App And Save Time
 *** Test Cases ***
 
 Start Advanced Network Configuration via GUI
-    [Tags]            SP-T336  SP-T336-2
+    [Tags]            SP-T463
     ${Advanced Network Configuration}
 
 Start App Store via GUI
-    [Tags]            SP-T334  SP-T334-2
+    [Tags]            SP-T460
     ${App Store}
 
 Start Bluetooth Settings via GUI
-    [Tags]            SP-T204  SP-T204-2
+    [Tags]            SP-T417
     ${Bluetooth Settings}
 
 Start COSMIC Document Reader via GUI
-    [Tags]            SP-T105  SP-T105-2
+    [Tags]            SP-T381
     ${COSMIC Document Reader}
 
 Start COSMIC Files via GUI
-    [Tags]            SP-T206  SP-T206-2
+    [Tags]            SP-T421
     ${COSMIC Files}
 
 Start COSMIC Media Player via GUI
-    [Tags]            SP-T294  SP-T294-2
+    [Tags]            SP-T442
     ${COSMIC Media Player}
 
 Start COSMIC Settings via GUI
-    [Tags]            SP-T254  SP-T254-2
+    [Tags]            SP-T430
     ${COSMIC Settings}
 
 Start COSMIC System Monitor via GUI
-    [Tags]            SP-T372  SP-T372-2
+    [Tags]            SP-T481
     ${COSMIC System Monitor}
 
 Start COSMIC Terminal via GUI
-    [Tags]            SP-T263  SP-T263-2
+    [Tags]            SP-T432
     ${COSMIC Terminal}
 
 Start COSMIC Text Editor via GUI
-    [Tags]            SP-T243  SP-T243-2
+    [Tags]            SP-T426
     ${COSMIC Text Editor}
 
 Start Calculator via GUI
-    [Tags]            SP-T202  SP-T202-2
+    [Tags]            SP-T416
     ${Calculator}
 
 Start Element via GUI
-    [Tags]            SP-T52  SP-T52-2
+    [Tags]            SP-T501
     ${Element}
 
 Start Fingerprints via GUI
-    [Tags]            SP-T364  SP-T364-2
+    [Tags]            SP-T475
     ${Fingerprints}
 
 Start Gala via GUI
-    [Tags]            SP-T104  SP-T104-2
+    [Tags]            SP-T379
     ${Gala}
 
 Start Getting Started via GUI
-    [Tags]            SP-T354  SP-T354-2
+    [Tags]            SP-T471
     ${Getting Started}
 
 Start Ghaf Control Panel via GUI
-    [Tags]            SP-T205  SP-T205-2
+    [Tags]            SP-T420
     ${Ghaf Control Panel}
 
 Start Google Chrome via GUI
-    [Tags]            SP-T92  SP-T92-2
+    [Tags]            SP-T499
     ${Google Chrome}
 
 Start GPU Screen Recorder via GUI
-    [Tags]            SP-T293  SP-T293-2
+    [Tags]            SP-T439
     ${GPU Screen Recorder}
 
 Start Microsoft 365 via GUI
-    [Tags]            SP-T178  SP-T178-2
+    [Tags]            SP-T394
     ${Microsoft 365}
 
 Start Outlook via GUI
-    [Tags]            SP-T176  SP-T176-2
+    [Tags]            SP-T390
     ${Outlook}
 
 Start Slack via GUI
-    [Tags]            SP-T181  SP-T181-2
+    [Tags]            SP-T398
     ${Slack}
 
 Start Sticky Notes via GUI
-    [Tags]            SP-T201  SP-T201-2
+    [Tags]            SP-T414
     ${Sticky Notes}
 
 Start Teams via GUI
-    [Tags]            SP-T177  SP-T177-2
+    [Tags]            SP-T392
     ${Teams}
 
 Start Trusted Browser via GUI
-    [Tags]            SP-T179  SP-T179-2
+    [Tags]            SP-T396
     ${Trusted Browser}
 
 Start Volume Control via GUI
-    [Tags]            SP-T349  SP-T349-2
+    [Tags]            SP-T465
     ${Volume Control}
 
 Start VPN via GUI
-    [Tags]            SP-T200  SP-T200-2
+    [Tags]            SP-T412
     ${VPN}
 
 Start Zoom via GUI
-    [Tags]            SP-T237  SP-T237-2
+    [Tags]            SP-T425
     ${Zoom}
 
 *** Keywords ***
