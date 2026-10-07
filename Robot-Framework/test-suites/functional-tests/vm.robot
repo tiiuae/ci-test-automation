@@ -29,6 +29,7 @@ Suite Setup         VM Suite Setup
              ...    darter|ANY|fail2ban.service|SSRCSP-8891
              ...    agx-64|ghaf-host|ghaf-load-ftpm-module.service|SSRCSP-8938
              ...    orin|ghaf-host|ghaf-load-ftpm-module.service|SSRCSP-8938
+             ...    ANY|disp-vm|systemd-modules-load.service|SSRCSP-9041
 
 # Container for test message. Keyword `Set Test Message` doesn't work properly with Templates.
 # Accumulates messages from tests that use 'Check systemctl status Template' to be added to the main test message in teardown

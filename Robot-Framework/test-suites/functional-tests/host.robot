@@ -42,7 +42,6 @@ Check QSPI version
     [Documentation]    QSPI version should be up-to-date
     [Tags]             SP-T95  pre-merge  bat  orin-agx  orin-agx-64  orin-nx
     Check QSPI Version is up to date
-    [Teardown]    Run Keyword If Test Failed   SKIP   QSPI update in progress
 
 Check all VMs are running
     [Documentation]    Check that all VMs are running.
@@ -99,7 +98,7 @@ Check full disk encryption
 Check Secure Boot is enabled
     [Documentation]  To be run only on Secure Boot X1
     ...              Install sbctl and check that Secure Boot is enabled
-    [Tags]           SP-T341  lenovo-x1  darter-pro  secboot-only
+    [Tags]           SP-T341  lenovo-x1  darter-pro  orin-agx-64  secboot-only
     ${sb_status}      Get Secure Boot Status
     Should Be Equal   ${sb_status}   Enabled   Secure Boot is not enabled
 
