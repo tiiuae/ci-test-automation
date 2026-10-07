@@ -34,6 +34,7 @@
 
 | DATE SET   | TEST CASE / KEYWORD                    | TICKET / Additional Data                                                                               | Error Log Context       |
 | ---------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------- |
+| 07.10.2026 | Check Device Information Field         | For Ghaf Version, text recognition sometimes omits dots. SSRGSP-9046 for more sophisticated solution   |                         |
 | 01.10.2026 | GUI VM application teardown            | Hard reboot in case of D-state processes                                                               | DAX issue               |
 | 30.09.2026 | Application launch tests               | App order is mixed to avoid launching too many gui-vm apps in a row                                    |                         |
 | 04.09.2026 | Account lockout after failed GUI login | Tolerate one missed faillock increment                                                                 | Account lockout         |
