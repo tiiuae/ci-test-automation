@@ -188,10 +188,14 @@ Create logs in all VMs
     [Documentation]    Create a logger log in all VMs
     [Arguments]        ${log}
     FOR  ${vm}  IN  @{VM_LIST}
-        Switch to vm   ${vm}
-        Run Command  logger --priority=user.info "${log}"
-        ${out}   Run Command    journalctl --since "1 minute ago" | grep "${log}"
-        Run Keyword And Continue On Failure   Should Contain  ${out}   ${log}   Log was not created in ${vm}
+        TRY
+            Switch to vm   ${vm}
+            Run Command  logger --priority=user.info "${log}"
+            Wait Until Keyword Succeeds    3x    0.5s   Run Command    journalctl --since "1 minute ago" | grep "${log}"
+        EXCEPT    AS    ${error_message}
+            Log   ${error_message}
+            Run Keyword And Continue On Failure    FAIL   Log was not created in ${vm}
+        END
     END
 
 Save logging logs from VMs
