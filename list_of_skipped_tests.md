@@ -4,7 +4,6 @@
 
 | DATE SET   | TEST CASE                           | TICKET / Additional Data                                                | Error Log Context  |
 | ---------- | ----------------------------------- | ----------------------------------------------------------------------- | ------------------ |
-| 06.10.2026 | Check QSPI version                  | QSPI update in progress                                                 |
 | 01.10.2026 | Check logging rate preview          | Issue caused by the changes in app tests                                |
 | 26.08.2026 | Verify Gala is loaded               | SSRCSP-8855                                                             | Slow Gala          |
 | 20.07.2026 | nvpmodel check test (Orins)         | SSRCSP-8712                                                             | (Fails every time) |
