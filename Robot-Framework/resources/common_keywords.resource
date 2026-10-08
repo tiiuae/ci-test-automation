@@ -80,6 +80,21 @@ Get VM list
     @{vm_list}      Split String       ${output}
     Should Not Be Empty     ${vm_list}   VM list is empty
     IF    ${with_host}    Append To List   ${vm_list}   ${HOST}
+
+    # Workaround for a known issue SSRCSP-9056
+    IF    $DISP_VM in $vm_list
+        TRY
+            Switch to vm    ${DISP_VM}    timeout=10
+        EXCEPT    AS    ${error_message}
+            Log         ${error_message}
+            Log         Known issue SSRCSP-9056: ${DISP_VM} is unavailable, skipping it in the following tests   console=True
+            Log Error   Disp-vm     Disp-vm is not available in ${SUITE_NAME}
+            Remove Values From List    ${vm_list}    ${DISP_VM}
+        FINALLY
+            Switch to vm    ${HOST}
+        END
+    END
+
     RETURN    @{vm_list}
 
 Is process running
