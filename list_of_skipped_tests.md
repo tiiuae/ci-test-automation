@@ -34,6 +34,7 @@
 
 | DATE SET   | TEST CASE / KEYWORD                    | TICKET / Additional Data                                                                               | Error Log Context       |
 | ---------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------- |
+| 09.10.2026 | Get VM list                            | SSRCSP-9056, disp-vm is removed from the list if it is not available                                   | Disp-vm                 |
 | 07.10.2026 | Check Device Information Field         | For Ghaf Version, text recognition sometimes omits dots. SSRGSP-9046 for more sophisticated solution   |                         |
 | 01.10.2026 | GUI VM application teardown            | Hard reboot in case of D-state processes                                                               | DAX issue               |
 | 30.09.2026 | Application launch tests               | App order is mixed to avoid launching too many gui-vm apps in a row                                    |                         |
