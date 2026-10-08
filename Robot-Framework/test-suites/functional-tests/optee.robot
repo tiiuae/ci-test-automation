@@ -46,7 +46,7 @@ Basic pkcs11-tool-optee test
     ...               calling OP-TEE. Then it generates RSA 2048-bit and ECDSA
     ...               secp256r1 keys, for which signing and signature
     ...               verification operations are tested.
-    [Tags]            SP-T113
+    [Tags]            SP-T106
 
     ${tool}=    Set Variable    "pkcs11-tool-optee"
     List key slots    ${tool}
