@@ -17,10 +17,9 @@ robot_status_to_zephyr = {
 
 target_to_cycle_map = {
     'orin-agx': "SSRCSP-C184",
-    'orin-agx-64': "SSRCSP-C185",
+    'agx-64-sec-boot': "SSRCSP-C185",
     'orin-nx': "SSRCSP-C186",
     'lenovo-x1': "SSRCSP-C187",
-    'dell-7330': "SSRCSP-C188",
     'darter-pro': "SSRCSP-C189",
     'x1-sec-boot': "SSRCSP-C190",
     'darter-sec-boot': "SSRCSP-C208"
@@ -44,12 +43,11 @@ class ZephyrListener:
         """Getting test tag from tags section"""
         for tag in tags:
             if tag.startswith('SP-T'):
-                return "SSRCSP-T114"  #PLACEHOLDER!
                 return tag
 
     def end_test(self, test: TestCase, result: TestResult):
         """Code executed after each test to save its result to Zephyr"""
-        if self.zephyr.connected and False:  # sending will be turned on after test tags are set properly
+        if self.zephyr.connected:
             zephyr_tag = self.find_zephyr_tag(result.tags)
             status = robot_status_to_zephyr[result.status]
             test_cycle = self.get_test_cycle()
