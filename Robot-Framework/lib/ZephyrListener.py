@@ -43,7 +43,7 @@ class ZephyrListener:
         """Getting test tag from tags section"""
         for tag in tags:
             if tag.startswith('SP-T'):
-                return tag
+                return "SSRC"+tag
 
     def end_test(self, test: TestCase, result: TestResult):
         """Code executed after each test to save its result to Zephyr"""
