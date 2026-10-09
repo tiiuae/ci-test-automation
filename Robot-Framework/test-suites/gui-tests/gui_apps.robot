@@ -186,8 +186,8 @@ Verify Device Information
 
     Check Device Information Field   Ghaf Version       ${ghaf_version}     scale=3
     Check Device Information Field   Device ID          ${device_id}        scale=3   precision_percent=90
-    Check Device Information Field   Secure Boot        ${secure_boot}
-    Check Device Information Field   Disk Encryption    ${disk_encryption}
+    Check Device Information Field   Secure Boot        ${secure_boot}      scale=3
+    Check Device Information Field   Disk Encryption    ${disk_encryption}  scale=3
 
     IF    $device_info_failures          FAIL    ${device_info_failures}
 
