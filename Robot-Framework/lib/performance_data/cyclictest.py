@@ -10,6 +10,7 @@ from output_parser import (
     parse_cyclictest_spike_count,
     parse_cyclictest_spikes,
 )
+from performance_data.plotting_helpers import draw_vertical_event_lines
 from performance_thresholds import static_thresholds
 
 
@@ -395,13 +396,12 @@ class CyclictestProcessor:
 
     @staticmethod
     def draw_cyclictest_threshold_change_lines(threshold_change_indexes):
-        for change_index in threshold_change_indexes:
-            plt.axvline(
-                x=change_index - 0.5,
-                color="k",
-                linestyle="-.",
-                linewidth=3,
-            )
+        draw_vertical_event_lines(
+            {
+                change_index - 0.5: "Threshold change"
+                for change_index in threshold_change_indexes
+            },
+        )
 
     def plot_cyclictest_latency_metric(
         self,

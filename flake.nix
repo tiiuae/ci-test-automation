@@ -59,6 +59,7 @@
             imagemagick
             ffmpeg
             iperf
+            sshpass
 
             (python3.withPackages (
               ps:

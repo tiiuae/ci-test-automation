@@ -437,11 +437,6 @@ Sysbench test in VMs
 
 *** Keywords ***
 
-Ensure balanced power profile
-    IF    ${IS_LAPTOP}
-        Set power profile    gui-balanced
-    END
-
 Measure cyclictest latency on target
     [Arguments]         ${target}
     Set custom low limit   0.000001

@@ -16,6 +16,57 @@ def save_plot(plot_dir, device, test_name, close=False):
         plt.close()
 
 
+def _snap_to_previous_value(x_values, value):
+    previous_values = [x_value for x_value in x_values if x_value <= value]
+    if not previous_values:
+        return None
+    return previous_values[-1]
+
+
+def draw_vertical_event_lines(
+    event_lines,
+    label=None,
+    x_values=None,
+    snap_to_previous=False,
+    x_formatter=None,
+    color='k',
+    linestyle='-.',
+    linewidth=3,
+):
+    if not event_lines:
+        return
+    if hasattr(event_lines, 'items'):
+        events = event_lines.items()
+    else:
+        events = ((x_value, label) for x_value in event_lines)
+
+    shown_labels = set()
+    has_label = False
+    for x_value, event_label in events:
+        if snap_to_previous:
+            x_value = _snap_to_previous_value(x_values, x_value)
+        if x_value is None:
+            continue
+        if x_formatter is not None:
+            x_value = x_formatter(x_value)
+        line_label = event_label
+        if line_label:
+            has_label = True
+            if line_label in shown_labels:
+                line_label = None
+            else:
+                shown_labels.add(line_label)
+        plt.axvline(
+            x=x_value,
+            color=color,
+            linestyle=linestyle,
+            linewidth=linewidth,
+            label=line_label,
+        )
+    if has_label:
+        plt.legend(loc='upper left')
+
+
 def plot_standard_history_series(
     x_data,
     y_data,
