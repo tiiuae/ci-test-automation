@@ -89,6 +89,7 @@ Check Access List In Trusted Browser Template
     [Arguments]    ${url}   ${text_to_find}   ${precision_percent}=100
     Start App in VM    ${Trusted Browser}    params_string=-- ${url}    always_check_vm=True
     Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
+    Accept Chrome HTTP Warning If Shown    ${url}
 
     Wait Until Keyword Succeeds     10x                        1s
     ...                             Verify Text Is On The Screen    ${text_to_find}

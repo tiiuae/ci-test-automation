@@ -222,6 +222,17 @@ Verify item is near expected coordinates
         FAIL    Item '${searched_item}' is in unexpected location: expected around (${expected_x}, ${expected_y}), got (${actual_x}, ${actual_y}).
     END
 
+Accept Chrome HTTP Warning If Shown
+    [Documentation]    Chrome may ask for permission before continuing over HTTP.
+    [Arguments]        ${url}
+    IF    'http://' in $url
+        ${status}    Run Keyword And Return Status     Wait Until Keyword Succeeds    3x    1s
+        ...          Verify Text Is On The Screen      Continue to site     scale=2
+        IF    ${status}
+            Locate and click    text    Continue to site     scale=2
+        END
+    END
+
 Accept Chrome Terms Of Service If Shown
     [Documentation]    Chrome Terms of Service dialog is shown only on some fresh profiles.
     [Arguments]    ${app_key}    ${attempts}=3    ${interval}=1s   ${add_to_checked_vms}=True
