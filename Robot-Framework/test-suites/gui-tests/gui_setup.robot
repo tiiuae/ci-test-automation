@@ -18,6 +18,7 @@ ${ORIGINAL_KEYBOARD}    /tmp/xkb_config_${USER_LOGIN}.bak
 
 Complete Initial Setup
     [Documentation]   Complete ${Cosmic Initial Setup}[display_name]
+    [Tags]    SP-T508
     [Setup]      Run Keywords   Start screen recording
     ...                   AND   Open Initial Setup
     ...                   AND   Save original values
