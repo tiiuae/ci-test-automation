@@ -17,14 +17,9 @@ Suite Setup         VM Suite Setup
 *** Variables ***
 # Add any known failing services here with the vm name and bug ticket number.
 # device|vm|service-name|ticket-number
-@{known_issues}=    ANY|audio-vm|systemd-rfkill.service|SSRCSP-7321
-             ...    ANY|ghaf-host|systemd-rfkill.service|SSRCSP-7321
-             ...    ANY|gui-vm|plymouth-start.service|SSRCSP-7306
-             ...    ANY|gui-vm|plymouth-quit.service|SSRCSP-7306
+@{known_issues}=    ANY|ghaf-host|systemd-rfkill.service|SSRCSP-7321
              ...    darter|ghaf-host|systemd-tpm2-setup.service|SSRCSP-8357
              ...    darter|ghaf-host|systemd-pcrlogin@901.service|SSRCSP-8776
-             ...    ANY|net-vm|nw-packet-forwarder.service|SSRCSP-8791
-             ...    ANY|net-vm|smcroute.service|SSRCSP-8791
              ...    orin-nx|gpu-vm|gpu-partition-manager.service|SSRCSP-8792
              ...    darter|ANY|fail2ban.service|SSRCSP-8891
              ...    agx-64|ghaf-host|ghaf-load-ftpm-module.service|SSRCSP-8938

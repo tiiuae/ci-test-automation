@@ -9,7 +9,6 @@
 | 20.07.2026 | nvpmodel check test (Orins)         | SSRCSP-8712                                                             | (Fails every time) |
 | 06.07.2026 | Open video with COSMIC Media Player | SSRCSP-8367                                                             | Crash in media-vm  |
 | 30.04.2026 | Open PDF from VM                    | SSRCSP-8367                                                             | Crash in media-vm  |
-| 17.03.2026 | OP-TEE xtest 1006                   | SSRCSP-8198                                                             | (Fails every time) |
 | 11.02.2026 | Check device id (storeDisk)         | SSRCSP-7997                                                             | (Fails every time) |
 | 11.02.2026 | Check net-vm hostname (storeDisk)   | SSRCSP-7997                                                             | (Fails every time) |
 | 16.09.2025 | Check systemctl status in every VM  | [List of skips](/Robot-Framework/test-suites/functional-tests/vm.robot) | Systemctl status   |
@@ -34,12 +33,10 @@
 | DATE SET   | TEST CASE / KEYWORD                    | TICKET / Additional Data                                                                               | Error Log Context       |
 | ---------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------- |
 | 09.10.2026 | Get VM list                            | SSRCSP-9056, disp-vm is removed from the list if it is not available                                   | Disp-vm                 |
-| 07.10.2026 | Check Device Information Field         | For Ghaf Version, text recognition sometimes omits dots. SSRGSP-9046 for more sophisticated solution   |                         |
+| 07.10.2026 | Check Device Information Field         | For Ghaf Version, text recognition sometimes omits dots. SSRGSP-9046 for more sophisticated solution   | Ghaf version            |
 | 04.09.2026 | Account lockout after failed GUI login | Tolerate one missed faillock increment                                                                 | Account lockout         |
 | 27.08.2026 | VM memory usage snapshot               | Orin AGX ghaf-host has 0 total swap memory. Ignore swap low limit check in this case.                  |                         |
-| 17.08.2026 | Select power menu option               | SSRCSP-8805, skipped if taskbar disappears                                                             | Taskbar disappeared     |
-| 17.07.2026 | Log out with loginctl                  | Log out all testuser sessions if the are many on seat (controlling the screen) (probably a Cosmic bug) |                         |
-| 15.07.2026 | Verify booting after restart by power  | SSRCSP-8704, extra 90 seconds added for AGX boot                                                       |                         |
+| 17.07.2026 | Log out with loginctl                  | Log out all testuser sessions if the are many on seat (controlling the screen) (probably a Cosmic bug) | Multiple sessions       |
 | 30.06.2026 | Unlock account and login               | Try to login twice after unlocking, first login after unlocking the account fails                      |                         |
 | 22.06.2026 | Set RTC time                           | SSRCSP-8622, separate command for Lenovo X1                                                            |                         |
 | 17.06.2026 | Verify service status                  | SSRCSP-8662, welcome check disabled                                                                    | (Failing part skipped)  |

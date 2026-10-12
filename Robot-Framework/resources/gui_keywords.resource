@@ -103,6 +103,8 @@ Log out with loginctl
     Run Command           loginctl         # For debugging
     @{session_ids}        Split To Lines    ${session_ids}
     Should Not Be Empty   ${session_ids}    No active session found for ${USER_LOGIN}
+    ${session_count}      Get Length        ${session_ids}
+    IF    ${session_count} > 1    Log Error    Multiple sessions    Logged out ${session_count} sessions
     FOR    ${session_id}    IN    @{session_ids}
         Run Command       loginctl terminate-session ${session_id}   sudo=True
     END
@@ -471,12 +473,7 @@ Select power menu option
     # Wait for menu to open and stop retrying when successful
     ${menu_opened}     Run Keyword And Return Status   Locate on screen   text   Settings   iterations=3
     IF  not ${menu_opened}
-        IF    ${IS_LAPTOP}
-            Log Error    Taskbar disappeared    Power menu did not open even though power icon was clicked
-            SKIP         Known Issue: SSRCSP-8806 (Failed to open power menu: 'Settings' not visible.)
-        ELSE
-            FAIL         Failed to open power menu: 'Settings' not visible.
-        END
+        FAIL    Failed to open power menu: 'Settings' not visible.
     END
     IF  '${text}'
         Locate and click   text   ${text}

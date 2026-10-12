@@ -14,31 +14,10 @@ Suite Setup         Switch to vm   ${HOST}
 *** Test Cases ***
 
 OP-TEE xtest
-    [Documentation]  Runs OP-TEE's xtest
-    ...
-    ...              NOTE: About fail and failures!!
-    ...              There is currently one xtest that fails and is excluded from this test.
-    ...              This test should be updated when it starts passing.
-    ...
-    ...              How to update?
-    ...
-    ...              1. Remove corresponding "-x"-flag from xtest (this test)
-    ...
-    ...              2. Delete corresponding "OP-TEE xtest XXXX" test case
-    ...
-    ...              (3. If everything is fixed (no more "-x"-flags), remove this comment!!)
-    [Tags]  SP-T122  optee-xtest
+    [Documentation]   Runs OP-TEE's xtest
+    [Tags]            SP-T122  optee-xtest
 
-    Run Command    xtest -x 1006  sudo=True   timeout=400
-
-OP-TEE xtest 1006
-    [Documentation]   Xtest 1006
-    ...               Test will be skipped in case of failure, because this is a known issue.
-    [Tags]  SP-T382  optee-xtest
-
-    ${status}  ${out}   Run Keyword And Ignore Error   Run Command    xtest 1006   sudo=True
-    IF   $status == 'FAIL'   SKIP   Known issue (SSRCSP-8198) encountered, skipping the test
-
+    Run Command       xtest   sudo=True   timeout=400
 
 Basic pkcs11-tool-optee test
     [Documentation]   Test OP-TEE PKCS#11 through pkcs11-tool-optee wrapper.
@@ -48,96 +27,47 @@ Basic pkcs11-tool-optee test
     ...               verification operations are tested.
     [Tags]            SP-T106
 
-    ${tool}=    Set Variable    "pkcs11-tool-optee"
-    List key slots    ${tool}
+    ${tool}    Set Variable    "pkcs11-tool-optee"
+    List key slots     ${tool}
     Initialize slot    ${tool}
     Test Public Key usage    ${tool}    keyid=1    keylabel=rsakey0    mechanism=SHA256-RSA-PKCS-PSS
     Test Public Key usage    ${tool}    keyid=2    keylabel=eckey0    mechanism=ECDSA-SHA256
     List key slots    ${tool}
-    List objects    ${tool}
-
-
-# These two tests are for the ghaf-caml-crush, which is not included in the
-# default build, but the tests are included here for convenience.
-
-# Check caml-crush service is running
-#     [Documentation]  Checks if the systemd service for caml-crush is running.
-#     # Tags should be really: optee orin-agx  orin-nx
-#     # but caml-crush is not included in basic ghaf builds
-#     [Tags]  caml-crush
-
-#     ${state}  ${substate}=    Verify service status  service="caml-crush.service"  expected_state=active  expected_substate=running
-
-
-# Basic pkcs11-tool-caml-crush RSA and ECDSA key test
-#     [Documentation]   Test OP-TEE PKCS#11 through pkcs11-tool-caml-crush
-#     ...               wrapper. Basic test which initalizes key slots, by
-#     ...               directly calling OP-TEE. Then it generates RSA 2048-bit
-#     ...               and ECDSA secp256r1 keys, for which signing and signature
-#     ...               verification operations are tested.
-#     # Tags should be really: optee  orin-agx  orin-nx
-#     # but caml-crush is not included in basic ghaf builds
-#     [Tags]  caml-crush
-
-#     ${tool}=    Set Variable    "pkcs11-tool-caml-crush-optee"
-#     List key slots    ${tool}
-#     Initialize slot    ${tool}
-#     Test Public Key usage    ${tool}    keyid=1    keylabel=rsakey0    mechanism=SHA256-RSA-PKCS-PSS
-#     Test Public Key usage    ${tool}    keyid=2    keylabel=eckey0    mechanism=ECDSA-SHA256
-#     List key slots    ${tool}
-#     List objects    ${tool}
+    List objects      ${tool}
 
 
 *** Keywords ***
 
-
 List key slots
     [Documentation]    List all key slots
     [Arguments]        ${tool}
-
-    ${cmd}=    Set Variable    ${tool} -L
-    Run Command    ${cmd}    sudo=True
-
+    Run Command        ${tool} -L    sudo=True
 
 List objects
     [Documentation]    List all key slots
     [Arguments]        ${tool}
-
-    ${cmd}=    Set Variable    ${tool} --list-objects
-    Run Command    ${cmd}    sudo=True
+    Run Command        ${tool} --list-objects    sudo=True
 
 
 Initialize slot
     [Documentation]    Initialize Key Slot
     [Arguments]        ${tool}
-
-    ${cmd}=    Set Variable    ${tool} --init-token --label mytoken --so-pin 1234
-    Run Command    ${cmd}    sudo=True
-
-    ${cmd}=    Set Variable    ${tool} --label mytoken --login --so-pin 1234 --init-pin --pin 0000
-    Run Command    ${cmd}    sudo=True
-
-    ${cmd}=    Set Variable    ${tool} --token-label mytoken --pin 0000 --keypairgen --key-type RSA:2048 --id 1 --label rsakey0
-    Run Command    ${cmd}    sudo=True
-
-    ${cmd}=    Set Variable    ${tool} --token-label mytoken --pin 0000 --keypairgen --key-type EC:secp256r1 --id 2 --label eckey0
-    Run Command    ${cmd}    sudo=True
+    Run Command   ${tool} --init-token --label mytoken --so-pin 1234                     sudo=True
+    Run Command   ${tool} --label mytoken --login --so-pin 1234 --init-pin --pin 0000    sudo=True
+    Run Command   ${tool} --token-label mytoken --pin 0000 --keypairgen --key-type RSA:2048 --id 1 --label rsakey0       sudo=True
+    Run Command   ${tool} --token-label mytoken --pin 0000 --keypairgen --key-type EC:secp256r1 --id 2 --label eckey0    sudo=True
 
 
 Test Public Key usage
     [Documentation]    Test Public Key usage
     [Arguments]        ${tool}    ${keyid}    ${keylabel}    ${mechanism}
 
-    ${content_file}=    Set Variable    /tmp/pkcs11test_content
-    ${signature_file}=    Set Variable    /tmp/pkcs11test_signature
+    ${content_file}     Set Variable    /tmp/pkcs11test_content
+    ${signature_file}   Set Variable    /tmp/pkcs11test_signature
 
-    ${cmd}=    Set Variable    dd if=/dev/random of=${content_file} count=1 bs=32
-    Run Command    ${cmd}    sudo=True
+    Run Command    dd if=/dev/random of=${content_file} count=1 bs=32    sudo=True
+    Run Command    ${tool} --token-label mytoken --pin 0000 --id ${keyid} --label ${keylabel} --sign -m ${mechanism} --input-file ${content_file} --output-file ${signature_file}    sudo=True
 
-    ${cmd}=    Set Variable    ${tool} --token-label mytoken --pin 0000 --id ${keyid} --label ${keylabel} --sign -m ${mechanism} --input-file ${content_file} --output-file ${signature_file}
-    Run Command    ${cmd}    sudo=True
-
-    ${cmd}=    Set Variable    ${tool} --token-label mytoken --pin 0000 --id ${keyid} --label ${keylabel} --verify -m ${mechanism} --signature-file ${signature_file} --input-file ${content_file}
-    ${output}    Run Command    ${cmd}    sudo=True
-    Should Contain    ${output}    Signature is valid
+    ${output}    Run Command    ${tool} --token-label mytoken --pin 0000 --id ${keyid} --label ${keylabel} --verify -m ${mechanism} --signature-file ${signature_file} --input-file ${content_file}    sudo=True
+    Should Contain        ${output}    Signature is valid
     Should Not Contain    ${output}    Invalid signature
