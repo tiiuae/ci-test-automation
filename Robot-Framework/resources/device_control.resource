@@ -142,12 +142,7 @@ Connect After Reboot
         Check If Device Is Available   retry=5x    action=reboot
     ELSE
         Wait   30
-        # Known issue SSRCSP-8704
-        IF  "agx" in "${DEVICE_TYPE}"
-            Check If Device Is Available   retry=150s   action=reboot
-        ELSE
-            Check If Device Is Available   retry=60s   action=reboot
-        END
+        Check If Device Is Available   retry=60s   action=reboot
     END
 
 Wake up device

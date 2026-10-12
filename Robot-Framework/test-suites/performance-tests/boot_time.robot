@@ -349,12 +349,7 @@ Shutdown Time Teardown
         END
     ELSE
         Reboot Orin
-        IF  "agx" in "${DEVICE_TYPE}"
-            # Known issue SSRCSP-8704
-            Check If Device Is Up   retry=230s
-        ELSE
-            Check If Device Is Up   retry=140s
-        END
+        Check If Device Is Up   retry=140s
     END
     IF  not ${IS_LAPTOP} or not ${SHUTDOWN_DEVICE_BOOTED}
         Connect After Reboot

@@ -31,12 +31,7 @@ Verify booting after restart by power
     Reboot Orin
     Start UART Log Capture
 
-    IF  "agx" in "${DEVICE_TYPE}"
-        # Known issue SSRCSP-8704
-        Check If Device Is Up   retry=230s
-    ELSE
-        Check If Device Is Up   retry=140s
-    END
+    Check If Device Is Up   retry=140s
 
     IF    ${IS_AVAILABLE} == False
         FAIL    The device did not start

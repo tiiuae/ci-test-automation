@@ -195,7 +195,6 @@ Ghaf Control Panel Test Teardown
     Kill App in VM                 ${Ghaf Control Panel}    require_exists=False
     Switch to vm                   ${GUI_VM}    user=${USER_LOGIN}
     Stop screen recording          ${TEST_STATUS}   ${TEST_NAME}
-    Run Keyword If Test Failed     Log Error    Ghaf Control Panel     Ghaf Control Panel test failed
 
 Check Device Information Field
     [Arguments]    ${field}    ${expected}   ${scale}=2   ${precision_percent}=100
@@ -207,6 +206,7 @@ Check Device Information Field
         ${matched_text_without_dots}=     Replace String  ${matched_text}   .   ${EMPTY}
         IF  "${expected_without_dots}" == "${matched_text_without_dots}"
             ${matches}=     Set variable    ${True}
+            Log Error       Ghaf version    Matched Ghaf version without dots
         END
     END
 
