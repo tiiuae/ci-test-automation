@@ -25,7 +25,6 @@
 
 | DATE SET   | TEST CASE (removed tag)                   | TICKET / Additional Data                                              |
 | ---------- | ----------------------------------------- | --------------------------------------------------------------------- |
-| 25.09.2026 | apps-tests (pre-merge)                    | Replaced with gui-app-launch tests while debugging continues          |
 | 24.04.2026 | Rebuild tests (regression)                | Rebuild tests do not work properly with signed images                 |
 | 27.02.2026 | Measure Soft Boot Time (darter-pro)       | Test removed because the Enter finger causes inaccuracy to the result |
 | 03.09.2025 | Performance/network suite (all orin tags) | iperf is not available on Orins                                       |
@@ -36,8 +35,6 @@
 | ---------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------- |
 | 09.10.2026 | Get VM list                            | SSRCSP-9056, disp-vm is removed from the list if it is not available                                   | Disp-vm                 |
 | 07.10.2026 | Check Device Information Field         | For Ghaf Version, text recognition sometimes omits dots. SSRGSP-9046 for more sophisticated solution   |                         |
-| 01.10.2026 | GUI VM application teardown            | Hard reboot in case of D-state processes                                                               | DAX issue               |
-| 30.09.2026 | Application launch tests               | App order is mixed to avoid launching too many gui-vm apps in a row                                    |                         |
 | 04.09.2026 | Account lockout after failed GUI login | Tolerate one missed faillock increment                                                                 | Account lockout         |
 | 27.08.2026 | VM memory usage snapshot               | Orin AGX ghaf-host has 0 total swap memory. Ignore swap low limit check in this case.                  |                         |
 | 17.08.2026 | Select power menu option               | SSRCSP-8805, skipped if taskbar disappears                                                             | Taskbar disappeared     |
