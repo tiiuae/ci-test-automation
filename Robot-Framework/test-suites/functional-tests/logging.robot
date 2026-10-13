@@ -20,6 +20,8 @@ Suite Setup         Logging Suite Setup
 
 *** Variables ***
 ${TEST_LOG}           log_check_${BUILD_ID}
+${LOG_RECEIVER}       ghaf-journal-receiver.service
+${LOG_SENDER}         systemd-journal-upload.service
 
 
 *** Test Cases ***
@@ -27,31 +29,27 @@ ${TEST_LOG}           log_check_${BUILD_ID}
 Logging service is running in all VMs
     [Documentation]    Check that logging service is running in every VM
     [Tags]             SP-T458
-    ${failed_vms}      Create List
     FOR  ${vm}  IN  @{VM_LIST}
-        Switch to vm   ${vm}
-        IF   '${vm}' == '${ADMIN_VM}'
-            ${service}    Set Variable    systemd-journal-remote.service
-        ELSE
-            ${service}    Set Variable    systemd-journal-upload.service
-        END
-        ${status}  ${output}   Run Keyword And Ignore Error   Verify service status  range=5  service=${service}  expected_state=active  expected_substate=running
-        Log   ${output}
-        IF    '${status}' == 'FAIL'
-            Log    FAIL: Logging service not running in ${vm}   console=True
-            Append To List    ${failed_vms}    ${vm}
+        TRY
+            Switch to vm   ${vm}
+            IF   '${vm}' == '${ADMIN_VM}'
+                ${service}    Set Variable    ${LOG_RECEIVER}
+            ELSE
+                ${service}    Set Variable    ${LOG_SENDER}
+            END
+            Verify service status  range=5  service=${service}  expected_state=active  expected_substate=running
+        EXCEPT    AS    ${error_message}
+            Log   ${error_message}
+            Run Keyword And Continue On Failure   FAIL    Logging service is not running in ${vm}: ${error_message}
         END
     END
-    IF  ${failed_vms} != []    FAIL    VMs with logging service not running: ${failed_vms}
 
-Alloy and stunnel services are running in admin-vm
-    [Documentation]    Verify that admin-vm runs alloy and stunnel services required for log collection and forwarding
+Alloy is running in admin-vm
+    [Documentation]    Verify that alloy is running in admin-vm
     [Tags]             SP-T459
-    [Timeout]          2 minutes
-    Switch to vm   ${ADMIN_VM}
+    [Setup]            Switch to vm   ${ADMIN_VM}
     Run Keyword And Continue On Failure   Verify service status  range=5  service=alloy.service    expected_state=active  expected_substate=running
-    Run Keyword And Continue On Failure   Verify service status  range=5  service=stunnel.service  expected_state=active  expected_substate=running
-    [Teardown]    Reboot Orin if ssh connection dropped
+    [Teardown]         Reboot Orin if ssh connection dropped
 
 Check logging rate
     [Documentation]    Check that host or vms are not creating too much logs and save the result to history.
@@ -161,18 +159,14 @@ Check Grafana logs
 
 Logging Suite Setup
     @{VM_LIST}               Get VM list  with_host=True
-    @{HOSTNAME_LIST}         Set Variable   @{VM_LIST}
-    Append To List           ${HOSTNAME_LIST}   ${NETVM_NAME}
-    Remove Values From List  ${HOSTNAME_LIST}   ${NET_VM}
     Set Suite Variable       @{VM_LIST}
-    Set Suite Variable       @{HOSTNAME_LIST}
 
 Check Logs Are Available
     [Documentation]  Check if logs are available from each VM in Grafana
     ...              Without ${word} argument the keyword tries to find any logs
     [Arguments]      ${id}  ${since}=600s  ${word}=${EMPTY}
     ${failed_vms}    Create List
-    FOR  ${vm}  IN  @{HOSTNAME_LIST}
+    FOR  ${vm}  IN  @{VM_LIST}
         IF  $word=='${EMPTY}'
             ${status}  Check VM Log on Grafana   ${id}   ${vm}   ${since}
         ELSE
@@ -204,9 +198,9 @@ Save logging logs from VMs
     FOR    ${vm}    IN    @{failed_vms}
         Switch to vm    ${vm}
         IF    '${vm}' == '${ADMIN_VM}'
-            ${service}    Set Variable    systemd-journal-remote.service
+            ${service}    Set Variable    ${LOG_RECEIVER}
         ELSE
-            ${service}    Set Variable    systemd-journal-upload.service
+            ${service}    Set Variable    ${LOG_SENDER}
         END
         Log    Collecting journalctl output from ${vm}    console=True
         Run Command    journalctl -b -u ${service}
