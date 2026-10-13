@@ -269,9 +269,18 @@ Wiggle cursor
 
 Verify desktop availability
     [Documentation]   Check that launcher icon is available on desktop
+    [Tags]            robot:recursive-stop-on-failure
     [Arguments]       ${iterations}=30
     Log To Console    Verifying login by trying to detect the launcher icon
-    Locate on screen  image  ${APP_MENU_LAUNCHER}  0.95  ${iterations}
+    TRY
+        Locate on screen  image  ${APP_MENU_LAUNCHER}  0.95  ${iterations}
+    EXCEPT    AS    ${error}
+        # Workaround for known issue SSRCSP-9075
+        Log Error    No launcher icon    Launcher icon was missing
+        Log          Launcher icon was not found, looking for power menu icon   console=True
+        Locate on screen  image  power.png  0.95  10
+        Log          Power menu icon found, continuing test   console=True
+    END
 
 Verify login session
     [Documentation]   Confirm that the given user has an active login session on a seat

@@ -4,7 +4,6 @@
 
 | DATE SET   | TEST CASE                           | TICKET / Additional Data                                                | Error Log Context  |
 | ---------- | ----------------------------------- | ----------------------------------------------------------------------- | ------------------ |
-| 01.10.2026 | Check logging rate preview          | Issue caused by the changes in app tests                                |
 | 26.08.2026 | Verify Gala is loaded               | SSRCSP-8855                                                             | Slow Gala          |
 | 20.07.2026 | nvpmodel check test (Orins)         | SSRCSP-8712                                                             | (Fails every time) |
 | 06.07.2026 | Open video with COSMIC Media Player | SSRCSP-8367                                                             | Crash in media-vm  |
@@ -32,6 +31,7 @@
 
 | DATE SET   | TEST CASE / KEYWORD                    | TICKET / Additional Data                                                                               | Error Log Context       |
 | ---------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------- |
+| 13.10.2026 | Verify desktop availability            | SSRCSP-9075, search for power menu icon if launcher is not found                                       | No launcher icon        |
 | 09.10.2026 | Get VM list                            | SSRCSP-9056, disp-vm is removed from the list if it is not available                                   | Disp-vm                 |
 | 07.10.2026 | Check Device Information Field         | For Ghaf Version, text recognition sometimes omits dots. SSRGSP-9046 for more sophisticated solution   | Ghaf version            |
 | 04.09.2026 | Account lockout after failed GUI login | Tolerate one missed faillock increment                                                                 | Account lockout         |
