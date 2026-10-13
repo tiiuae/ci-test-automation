@@ -186,8 +186,9 @@ Verify Device Information
 
     Check Device Information Field   Ghaf Version       ${ghaf_version}     scale=3
     Check Device Information Field   Device ID          ${device_id}        scale=3   precision_percent=90
-    Check Device Information Field   Secure Boot        ${secure_boot}      scale=3
-    Check Device Information Field   Disk Encryption    ${disk_encryption}  scale=3
+    #    Workaround for SSRCSP-9060, gathering info if retries or scaling helps with no value issue
+    Check Device Information Field With Retry   Secure Boot        ${secure_boot}      scale=3
+    Check Device Information Field With Retry   Disk Encryption    ${disk_encryption}  scale=3
 
     IF    $device_info_failures          FAIL    ${device_info_failures}
 
@@ -195,6 +196,25 @@ Ghaf Control Panel Test Teardown
     Kill App in VM                 ${Ghaf Control Panel}    require_exists=False
     Switch to vm                   ${GUI_VM}    user=${USER_LOGIN}
     Stop screen recording          ${TEST_STATUS}   ${TEST_NAME}
+
+Check Device Information Field With Retry
+    [Arguments]    ${field}    ${expected}   ${scale}=2   ${precision_percent}=100
+    TRY
+        Check Device Information Field    field=${field}    expected=${expected}    scale=${scale}   precision_percent=${precision_percent}
+    EXCEPT
+        TRY
+            Wait until keyword succeeds     5x      1s
+            ...           Check Device Information Field    field=${field}    expected=${expected}
+            ...                                             scale=${scale}    precision_percent=${precision_percent}
+        EXCEPT
+            FOR    ${increased_scale}    IN RANGE    4    10
+                Run keyword and continue on failure
+                ...           Check Device Information Field    field=${field}             expected=${expected}
+                ...                                             scale=${increased_scale}   precision_percent=${precision_percent}
+            END
+        END
+        Fail    Check Device Information Field tried to find value for ${field} with retries.
+    END
 
 Check Device Information Field
     [Arguments]    ${field}    ${expected}   ${scale}=2   ${precision_percent}=100
