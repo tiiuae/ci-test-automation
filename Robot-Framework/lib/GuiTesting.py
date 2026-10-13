@@ -90,6 +90,7 @@ def get_text_field_from_image(image, field, scale=1):
     data = get_data_from_image(image, scale)
     words = _get_ocr_words(data)
     expected_words = [_normalize_ocr_text(word) for word in field.split()]
+    label_found = False
 
     for i in range(len(words)):
         label_words = words[i:i + len(expected_words)]
@@ -100,6 +101,7 @@ def get_text_field_from_image(image, field, scale=1):
         if label_text != expected_words:
             continue
 
+        label_found = True
         label_right = max(word['left'] + word['width'] for word in label_words)
         label_center_y = sum(word['top'] + word['height'] / 2 for word in label_words) / len(label_words)
         label_height = max(word['height'] for word in label_words)
@@ -119,7 +121,9 @@ def get_text_field_from_image(image, field, scale=1):
             return value
 
     recognized_text = get_text(data)
-    raise AssertionError(f"Field '{field}' not found in image. Recognized text: {recognized_text}")
+    if not label_found:
+        raise AssertionError(f"Field '{field}' was not found in image. Recognized text: {recognized_text}")
+    raise AssertionError(f"Value for field '{field}' was not found in image. Recognized text: {recognized_text}")
 
 def is_text_on_the_screen(screenshot, text, scale=1, ignore_case=True, precision=100):
     logging.info("Searching " + text)
