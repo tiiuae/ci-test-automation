@@ -145,7 +145,7 @@ Save login and logout icons
     Get icon                ${icons}/hicolor/scalable/apps  com.system76.CosmicAppLibrary.svg  crop=0  background=black  output_filename=launcher.png
     Get icon                ${icons}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
     # Needed for SSRCSP-9075 workaround
-    Get icon                ${icons}/Papirus/24x24/actions  system-shutdown.svg  crop=0  background=black  output_filename=power.png
+    Get icon                ${icons}/Papirus/16x16/symbolic/status  security-high-symbolic.svg  crop=0  background=black  output_filename=killswitch.png
 
 Login to laptop
     [Documentation]   Log in to the laptop

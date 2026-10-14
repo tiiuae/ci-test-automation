@@ -331,10 +331,9 @@ Save Recorded Shortcut Video
 Save current document from COSMIC Text Editor to Shares
     [Arguments]      ${file_name}
     Press Key(s)       LEFTCTRL+LEFTSHIFT+S
-    Locate on screen   text    Shares    scale=3
-    Type string        ${file_name}
     Locate and click   text   Shares
     Locate and click   text   comms-vm    wiggle=True   double_click=True
+    Type string        ${file_name}
     Press Key(s)       ENTER
 
 Download reference image for GUI matching
