@@ -277,9 +277,9 @@ Verify desktop availability
     EXCEPT    AS    ${error}
         # Workaround for known issue SSRCSP-9075
         Log Error    No launcher icon    Launcher icon was missing
-        Log          Launcher icon was not found, looking for power menu icon   console=True
-        Locate on screen  image  power.png  0.95  10
-        Log          Power menu icon found, continuing test   console=True
+        Log          Launcher icon was not found, looking for killswitch icon   console=True
+        Locate on screen  image  killswitch.png  0.95  10
+        Log          Killswitch icon found, continuing test   console=True
     END
 
 Verify login session
