@@ -9,6 +9,9 @@ Library             Collections
 Library             String
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/service_keywords.resource
+
+Suite Setup         Wait for VMs to be running
 
 
 *** Variables ***
@@ -29,6 +32,16 @@ Spire agents are running
 
 *** Keywords ***
 
+Wait for VMs to be running
+    @{vm_list}    Get VM list
+    FOR    ${vm}    IN    @{vm_list}
+        TRY
+            Verify service status    service=microvm@${vm}    range=30
+        EXCEPT    AS    ${error}
+            Log    ${vm}: ${error}    WARN
+        END
+    END
+
 Check SPIRE server health
     ${output}    Run Command    spire-server healthcheck -socketPath ${SPIRE_SOCKET_PATH} -verbose   sudo=True
     Should Contain    ${output}    Server is healthy.
@@ -37,16 +50,20 @@ Get SPIRE x509pop agents
     ${output}    Run Command    spire-server agent list -socketPath ${SPIRE_SOCKET_PATH} -attestationType ${SPIRE_ATTESTATION_TYPE}   sudo=True
     RETURN       ${output}
 
+Check SPIRE agent count
+    [Arguments]       ${expected_count}
+    ${agents}         Get SPIRE x509pop agents
+    @{spiffe_ids}     Get Regexp Matches    ${agents}    (?m)^SPIFFE ID\\s*:
+    ${agent_count}    Get Length            ${spiffe_ids}
+    Should Be Equal As Integers    ${agent_count}    ${expected_count}
+    ...    Expected one ${SPIRE_ATTESTATION_TYPE} SPIRE agent for every VM and host. Expected: ${expected_count}, found: ${agent_count}.
+
 Check SPIRE agents
     @{vm_list}         Get VM list    with_host=True
     ${expected_count}  Get Length    ${vm_list}
     Switch to vm       ${ADMIN_VM}
-    ${agents}          Get SPIRE x509pop agents
-    @{spiffe_ids}      Get Regexp Matches    ${agents}    (?m)^SPIFFE ID\\s*:
-    ${agent_count}     Get Length            ${spiffe_ids}
     TRY
-        Should Be Equal As Integers    ${agent_count}    ${expected_count}
-        ...    Expected one ${SPIRE_ATTESTATION_TYPE} SPIRE agent for every VM and host. Expected: ${expected_count}, found: ${agent_count}.
+        Wait Until Keyword Succeeds    10x    1s    Check SPIRE agent count    ${expected_count}
     EXCEPT    AS    ${count_error}
         Log    ${count_error}
     ELSE
