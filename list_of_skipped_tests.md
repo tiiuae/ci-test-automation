@@ -2,15 +2,13 @@
 
 ## Active SKIPS
 
-| DATE SET   | TEST CASE                           | TICKET / Additional Data                                                | Error Log Context  |
-| ---------- | ----------------------------------- | ----------------------------------------------------------------------- | ------------------ |
-| 26.08.2026 | Verify Gala is loaded               | SSRCSP-8855                                                             | Slow Gala          |
-| 20.07.2026 | nvpmodel check test (Orins)         | SSRCSP-8712                                                             | (Fails every time) |
-| 06.07.2026 | Open video with COSMIC Media Player | SSRCSP-8367                                                             | Crash in media-vm  |
-| 30.04.2026 | Open PDF from VM                    | SSRCSP-8367                                                             | Crash in media-vm  |
-| 11.02.2026 | Check device id (storeDisk)         | SSRCSP-7997                                                             | (Fails every time) |
-| 11.02.2026 | Check net-vm hostname (storeDisk)   | SSRCSP-7997                                                             | (Fails every time) |
-| 16.09.2025 | Check systemctl status in every VM  | [List of skips](/Robot-Framework/test-suites/functional-tests/vm.robot) | Systemctl status   |
+| DATE SET   | TEST CASE                          | TICKET / Additional Data                                                | Error Log Context  |
+| ---------- | ---------------------------------- | ----------------------------------------------------------------------- | ------------------ |
+| 26.08.2026 | Verify Gala is loaded              | SSRCSP-8855                                                             | Slow Gala          |
+| 20.07.2026 | nvpmodel check test (Orins)        | SSRCSP-8712                                                             | (Fails every time) |
+| 11.02.2026 | Check device id (storeDisk)        | SSRCSP-7997                                                             | (Fails every time) |
+| 11.02.2026 | Check net-vm hostname (storeDisk)  | SSRCSP-7997                                                             | (Fails every time) |
+| 16.09.2025 | Check systemctl status in every VM | [List of skips](/Robot-Framework/test-suites/functional-tests/vm.robot) | Systemctl status   |
 
 ## Old Dell 7330 skips
 

@@ -56,14 +56,12 @@ Open video with COSMIC Media Player
     Sleep              3s
     Stop screen recording service   robot-video-file-test-recording
     Check file exists              ${video_file}
-    ${open_timestamp}            Run Command    date +%s
     Open file with XDG handler     ${video_file}   sudo=False
     Check that App is running in VM    ${Ghaf Isolated Media Player}   range=10
     [Teardown]  Run Keywords  Switch to vm    ${GUI_VM}  user=${USER_LOGIN}   AND
     ...                       Stop screen recording service   robot-video-file-test-recording   AND
     ...                       Remove the file in VM       ${video_file}  ${GUI_VM}   ${USER_LOGIN}   AND
-    ...                       Kill app and XDG process    ${Ghaf Isolated Media Player}[process_name]   AND
-    ...                       Run Keyword If   '${TEST_STATUS}' == 'FAIL'   Check for cosmic app crash   ${open_timestamp}   ${Ghaf Isolated Media Player}[process_name]   ${test_name}.mkv
+    ...                       Kill app and XDG process    ${Ghaf Isolated Media Player}[process_name]
 
 Open text file with COSMIC Text Editor
     [Documentation]    Open text file and check that ${COSMIC Text Editor}[display_name] started
@@ -93,12 +91,10 @@ Open PDF from app-vm
     [Arguments]       ${vm}   ${user}=ghaf   ${sudo}=True
     Switch to vm                 ${vm}   user=${user}
     Put File                     ../test-files/test_pdf.pdf   /tmp/test_pdf_${vm}.pdf
-    ${open_timestamp}            Run Command    date +%s
     Open file with XDG handler   /tmp/test_pdf_${vm}.pdf   sudo=${sudo}
     Check that App is running in VM    ${Ghaf Isolated Document Viewer}   range=10
     [Teardown]    Run Keywords   Remove the file in VM        /tmp/test_pdf_${vm}.pdf   ${vm}  ${user}
     ...                    AND   Kill app and XDG process     ${Ghaf Isolated Document Viewer}[process_name]
-    ...                    AND   Run Keyword If   '${KEYWORD_STATUS}' == 'FAIL'   Check for cosmic app crash   ${open_timestamp}   ${Ghaf Isolated Document Viewer}[process_name]   test_pdf_${vm}.pdf
 
 Open file with XDG handler
     [Arguments]      ${file}  ${sudo}=True
@@ -109,14 +105,3 @@ Open file to gui-vm with XDG handler
     [Arguments]      ${text_file}
     Log To Console   Trying to open ${text_file}
     Run Command      WAYLAND_DISPLAY=wayland-1 nohup sh -c 'xdg-open ${text_file}' > ${OUTPUT_FILE} 2>&1 &
-
-Check for cosmic app crash
-    [Documentation]     COSMIC app crashes sometimes before it opens the file (SSRCSP-8367). Check if process started and skip the test if it did.
-    [Arguments]         ${journal_since}  ${app}  ${file_name}
-    Switch to vm        ${MEDIA_VM}
-    ${app_started}      Run Keyword And Return Status   Run Command    journalctl -b --since @${journal_since} | grep -E "Started \\[systemd-run\\].*${app}.*${file_name}"
-    Run Command         journalctl -b --since @${journal_since}   # All logs for debugging
-    IF  ${app_started}
-        Log Error    Crash in media-vm    ${app} crashed in ${MEDIA_VM}
-        SKIP         Known Issue: SSRCSP-8367
-    END
