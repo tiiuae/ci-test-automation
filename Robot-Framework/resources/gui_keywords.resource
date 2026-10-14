@@ -375,19 +375,23 @@ Press Key(s)
 
 Confidential password write
     [Arguments]      ${pw}
-    Switch to vm     ${GUI_VM}
+    [Setup]          Switch to vm     ${GUI_VM}
     Log To Console   Typing password secretly
-    Set Log Level    NONE
-    Write            read -r -s -p 'pw: ' PASSWD
-    Sleep            0.5
-    ${output} 	     SSHLibrary.Read
-    Write            ${pw}
-    Sleep            0.5
-    ${output} 	     SSHLibrary.Read
-    Write            printf '%s' "$PASSWD" | YDOTOOL_SOCKET=${YDOTOOL_SOCKET} ydotool type -f -
-    ${output}        SSHLibrary.Read Until    ${LOGIN}@
-    Write            unset PASSWD
-    Set Log Level    INFO
+    TRY
+        ${previous_log_level}   Set Log Level    NONE
+        SSHLibrary.Write        read -r -s -p 'pw: ' PASSWD
+        SSHLibrary.Read Until   pw:
+        SSHLibrary.Write Bare   ${pw}${\n}
+        SSHLibrary.Read Until   ${LOGIN}@
+        SSHLibrary.Write        printf '%s' "$PASSWD" | YDOTOOL_SOCKET=${YDOTOOL_SOCKET} ydotool type -f -
+        SSHLibrary.Read Until   ${LOGIN}@
+    EXCEPT
+        FAIL   Failed to write the password, error hidden to not leak sensitive data
+    FINALLY
+        Run Keyword And Continue On Failure    SSHLibrary.Write         unset PASSWD
+        Run Keyword And Continue On Failure    SSHLibrary.Read Until    ${LOGIN}@
+        Set Log Level    ${previous_log_level}
+    END
     Press Key(s)     ENTER   True
     [Teardown]       Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
 
