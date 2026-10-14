@@ -27,7 +27,7 @@ ${SAVE_BOOT_LOGS_ON_PASS}    ${True}
 
 Verify booting after restart by power
     [Documentation]    Restart device by power and verify init service is running
-    [Tags]             relayboot  orin-agx  orin-agx-64  orin-nx  SP-T514
+    [Tags]             SP-T514  relayboot  orin-agx  orin-agx-64  orin-nx
     Reboot Orin
     Start UART Log Capture
 
@@ -83,7 +83,7 @@ Verify booting laptop
 
 Turn OFF Device
     [Documentation]   Turn off device
-    [Tags]            relay-turnoff    SP-T510
+    [Tags]            SP-T510  relay-turnoff
     [Setup]     Run Keyword If  "${DEVICE_IP_ADDRESS}" == "NONE"    Get ethernet IP address
     Log To Console    ${\n}Turning device off...
     IF  ${IS_LAPTOP}
@@ -96,7 +96,7 @@ Turn OFF Device
 
 Turn ON Device
     [Documentation]   Turn on device
-    [Tags]            relay-turnon  SP-T511
+    [Tags]            SP-T511  relay-turnon
     Log To Console    ${\n}Turning device on...
     IF  ${IS_LAPTOP}
         Press Button      ${SWITCH_BOT}-ON
@@ -115,7 +115,7 @@ Turn ON Device
 
 Run installer
     [Documentation]   Reboot laptop and run installer, will not turn off after test, boot test is required after this
-    [Tags]            installer  lenovo-x1  darter-pro  SP-T509
+    [Tags]            SP-T509  installer  lenovo-x1  darter-pro
     Reboot Laptop     verify_shutdown=False
     Check If Device Is Up   retry=100s
     IF    ${IS_AVAILABLE} == False
@@ -135,7 +135,7 @@ Run installer
 
 Wipe installed Ghaf from internal memory
     [Documentation]   Turn on device and wipe internal memory using ghaf-installer
-    [Tags]            wiping  lenovo-x1  darter-pro  SP-T513
+    [Tags]            SP-T513  wiping  lenovo-x1  darter-pro
     Log To Console    ${\n}Turning device on...
     Turn Laptop On
     Check If Device Is Up   retry=60s
@@ -150,7 +150,7 @@ Wipe installed Ghaf from internal memory
 
 Break the system
     [Documentation]   Wipe boot partition
-    [Tags]            break  lenovo-x1  darter-pro  SP-T512
+    [Tags]            SP-T512  break  lenovo-x1  darter-pro
     Check If Device Is Up    retry=5x
     IF    ${IS_AVAILABLE} == False
         Turn Laptop On

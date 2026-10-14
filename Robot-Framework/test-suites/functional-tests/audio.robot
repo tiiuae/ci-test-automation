@@ -22,14 +22,14 @@ ${AUDIO_DIR}           ${OUTPUT_DIR}/outputs/audio-temp
 
 *** Test Cases ***
 Record audio in all VMs with audio
-    [Tags]   SP-T247    pre-merge
+    [Tags]   SP-T247  pre-merge
     [Template]  Record Audio And Verify
     FOR  ${vm}  IN  @{VMS_WITH_AUDIO}
         ${vm}
     END
 
 Play audio in all VMs with audio
-    [Tags]   SP-T212    pre-merge
+    [Tags]   SP-T212  pre-merge
     [Template]   Play Audio And Verify
     FOR  ${vm}  IN  @{VMS_WITH_AUDIO}
         ${vm}

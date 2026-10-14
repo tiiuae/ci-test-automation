@@ -24,7 +24,8 @@ Log retention policies
 
     Switch to vm   ${ADMIN_VM}
     Check journald configuration
-    Check Journal Directory Activity    /var/log/journal/remote
+    Check journal receiver configuration
+    Check Journal Directory Activity    /var/log/ghaf-journal/shared    remote.journal
 
 
 *** Keywords ***
@@ -47,6 +48,14 @@ Check journald configuration
     Run Keyword And Continue On Failure   Should Match Regexp    ${output}    SystemMaxFileSize=\\d+M
     Run Keyword And Continue On Failure   Should Contain         ${output}    Storage=persistent
 
+Check journal receiver configuration
+    [Documentation]    Verify that retention policies are passed to the shared journal receiver
+    ${pid}       Run Command    systemctl show --property=MainPID --value ghaf-journal-receiver.service
+    ${output}    Run Command    cat /proc/${pid}/cmdline | xargs -0 -n1    sudo=True
+    Run Keyword And Continue On Failure    Should Match Regexp    ${output}    --max-use=\\S+
+    Run Keyword And Continue On Failure    Should Match Regexp    ${output}    --max-file-size=\\S+
+    Run Keyword And Continue On Failure    Should Match Regexp    ${output}    --max-retention=\\S+
+    Run Keyword And Continue On Failure    Should Match Regexp    ${output}    --max-file-age=\\S+
 
 Check Disk Usage Under 500M
     [Documentation]     Extracts value of disk usage by journals, converts it to megabytes
