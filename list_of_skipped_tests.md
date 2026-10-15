@@ -29,6 +29,7 @@
 
 | DATE SET   | TEST CASE / KEYWORD                    | TICKET / Additional Data                                                                               | Error Log Context       |
 | ---------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------- |
+| 16.10.2026 | Start screen recording                 | SSRCSP-9084, skip screen recording if it fails due to gpu initialization failure                       | GPU init                |
 | 13.10.2026 | Verify Device Information              | SSRCSP-9060, gathering additionl info if retries or scaling works helps to find value                  | Value was not found     |
 | 13.10.2026 | Verify desktop availability            | SSRCSP-9075, search for killswitch icon if launcher is not found                                       | No launcher icon        |
 | 09.10.2026 | Get VM list                            | SSRCSP-9056, disp-vm is removed from the list if it is not available                                   | Disp-vm                 |
