@@ -187,8 +187,8 @@ Verify Device Information
     Check Device Information Field   Ghaf Version       ${ghaf_version}     scale=3
     Check Device Information Field   Device ID          ${device_id}        scale=3   precision_percent=90
     #    Workaround for SSRCSP-9060, gathering info if retries or scaling helps with no value issue
-    Check Device Information Field With Retry   Secure Boot        ${secure_boot}      scale=3
-    Check Device Information Field With Retry   Disk Encryption    ${disk_encryption}  scale=3
+    Check Device Information Field With Retry   Secure Boot        ${secure_boot}      scale=4
+    Check Device Information Field With Retry   Disk Encryption    ${disk_encryption}  scale=4
 
     IF    $device_info_failures          FAIL    ${device_info_failures}
 
@@ -207,7 +207,7 @@ Check Device Information Field With Retry
             ...           Check Device Information Field    field=${field}    expected=${expected}
             ...                                             scale=${scale}    precision_percent=${precision_percent}
         EXCEPT
-            FOR    ${increased_scale}    IN RANGE    4    10
+            FOR    ${increased_scale}    IN RANGE    5    10
                 Run keyword and continue on failure
                 ...           Check Device Information Field    field=${field}             expected=${expected}
                 ...                                             scale=${increased_scale}   precision_percent=${precision_percent}
