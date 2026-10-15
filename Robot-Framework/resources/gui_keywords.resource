@@ -407,7 +407,26 @@ Run ydotool command
     END
     Sleep   0.2
 
+# Workaround for SSRCSP-9084
+# When fixed remove this keyword and the word "implementation" from the keyword below this one
 Start screen recording
+    [Arguments]      ${unit_name}=robot-screen-recording   ${video_file}=${EMPTY}   ${log_file}=/tmp/gpu-screen-recorder.log
+    TRY
+        Start screen recording implementation    ${unit_name}    ${video_file}    ${log_file}
+    EXCEPT    AS    ${error}
+        Switch to vm   ${GUI_VM}
+        ${dmesg}       Run Command   dmesg   sudo=True
+        ${gpu_init_failed_error}     Set Variable    Failed to initialize GPU, declaring it wedged!
+        IF    $gpu_init_failed_error in $dmesg
+            Log Error   GPU init    Screen recording failed due to gpu initialization error in ${TEST_NAME}
+            Log         Screen recording failed due to gpu initialization error, continuing test without recording    level=WARN
+        ELSE
+            FAIL        Screen recording failed: ${error}
+        END
+    END
+    [Teardown]   Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
+
+Start screen recording implementation
     [Arguments]      ${unit_name}=robot-screen-recording   ${video_file}=${EMPTY}   ${log_file}=/tmp/gpu-screen-recorder.log
     [Setup]          Stop screen recording service   ${unit_name}
     [Timeout]        1 minute
