@@ -429,11 +429,17 @@ Start UART Log Capture
     END
     Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${True}
     Set Global Variable    ${UART_CAPTURE_FILE}      ${capture_file}
+    Set Global Variable    ${UART_COMPLETION_MARKER_FOUND}    ${False}
     OperatingSystem.Create File    ${UART_CAPTURE_FILE}
 
 Drain Serial Output
     [Documentation]    Drain pending serial output until idle or timeout, optionally appending normalized output to the UART log file.
     [Arguments]    ${save_output}=${False}    ${max_seconds}=3    ${recover_with_ctrl_c}=${False}
+    ...    ${completion_marker}=${EMPTY}
+    ${marker_found}    Get Variable Value    ${UART_COMPLETION_MARKER_FOUND}    ${False}
+    IF    '${completion_marker}' != '${EMPTY}' and ${marker_found}
+        RETURN
+    END
     ${empty_reads}    Set Variable    0
     ${start_time}    Get Time    epoch
     WHILE    True
@@ -445,10 +451,20 @@ Drain Serial Output
         IF    '${status}' != 'PASS'
             BREAK
         END
+        IF    '${completion_marker}' != '${EMPTY}' and '${completion_marker}' in '${output}'
+            IF  ${save_output}
+                Append Normalized UART Capture    ${output}
+            END
+            Set Global Variable    ${UART_COMPLETION_MARKER_FOUND}    ${True}
+            BREAK
+        END
         ${clean_output}    Strip String    ${output}
         IF    $clean_output == '${EMPTY}'
             ${empty_reads}    Evaluate    ${empty_reads} + 1
             IF    ${empty_reads} > 2
+                IF    '${completion_marker}' != '${EMPTY}'
+                    CONTINUE
+                END
                 IF    ${recover_with_ctrl_c}
                     Write Data    ${recovery_char}    \x03
                 ELSE

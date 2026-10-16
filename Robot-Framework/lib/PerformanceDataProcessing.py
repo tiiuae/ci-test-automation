@@ -11,6 +11,7 @@ from performance_data.networking_speed import NetworkingSpeedProcessor
 from performance_data.plotting_helpers import generate_ballooning_graph_plot
 from performance_data.stats import PerformanceStatistics
 from performance_data.vm_memory import VmMemoryProcessor
+from BootHealth import BootHealth
 
 
 class PerformanceDataProcessing:
@@ -39,6 +40,7 @@ class PerformanceDataProcessing:
         self.zero_result_flag = -100
         self.low_limit = float(low_limit)
         self.default_low_limit = float(low_limit)
+        self.boot_health = BootHealth(device, self.data_dir, plot_dir, self.stats)
 
     # --- Configuration keywords ---
 
@@ -189,6 +191,34 @@ class PerformanceDataProcessing:
             boot_data,
             self.boot_time.read_bootime_csv_and_plot,
         )
+
+    @keyword("Plot Boot Time Data Without Saving")
+    def plot_boot_time_data_without_saving(
+        self, test_name, boot_data, relative_threshold, absolute_limit
+    ):
+        return self.boot_health.plot_boot_time_data_without_saving(
+            test_name,
+            boot_data["response_to_ping"],
+            relative_threshold,
+            absolute_limit,
+        )
+
+    @keyword("Save Boot Time Data And Plot")
+    def save_boot_time_data_and_plot(self, test_name, boot_data, absolute_limit=None):
+        self.csv_store.write_test_data_to_csv(test_name, boot_data)
+        return self.boot_time.read_bootime_csv_and_plot(test_name, absolute_limit)
+
+    @keyword("Find Saved Serial Log")
+    def find_saved_serial_log(self, directory, build_id, minimum_lines=200):
+        return self.boot_health.find_saved_serial_log(directory, build_id, minimum_lines)
+
+    @keyword("Analyze Boot Log File")
+    def analyze_boot_log_file(self, file_path, gap_limit=10):
+        return self.boot_health.analyze_boot_log_file(file_path, gap_limit)
+
+    @keyword("Analyze Boot Log")
+    def analyze_boot_log(self, source, output, gap_limit=10):
+        return self.boot_health.analyze_boot_log(source, output, gap_limit)
 
     @keyword
     def save_memory_data(self, test_name, memory_data):
