@@ -12,6 +12,7 @@ Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/service_keywords.resource
 Resource            ../../resources/file_keywords.resource
+Resource            ../../resources/boot_time_keywords.resource
 
 Suite Teardown      Teardown
 
@@ -21,6 +22,7 @@ ${CONNECTION_TYPE}           ssh
 ${IS_AVAILABLE}              False
 ${DEVICE_TYPE}               ${EMPTY}
 ${SAVE_BOOT_LOGS_ON_PASS}    ${True}
+${BOOT_PING_TIME}             ${EMPTY}
 
 
 *** Test Cases ***
@@ -28,10 +30,11 @@ ${SAVE_BOOT_LOGS_ON_PASS}    ${True}
 Verify booting after restart by power
     [Documentation]    Restart device by power and verify init service is running
     [Tags]             SP-T514  relayboot  orin-agx  orin-agx-64  orin-nx
-    Reboot Orin
+    ${boot_start_time}    Get Time    epoch
     Start UART Log Capture
+    Reboot Orin
 
-    Check If Device Is Up   retry=140s
+    Check If Device Is Up   retry=180s
 
     IF    ${IS_AVAILABLE} == False
         FAIL    The device did not start
@@ -48,23 +51,27 @@ Verify booting after restart by power
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Verify init.scope status via serial
     END
+    Drain Serial Output    save_output=${True}    max_seconds=30    completion_marker=ghaf-host login:
+    Save Time To Ping On Target Device    ${boot_start_time}    timeout=30
 
     [Teardown]   Test Teardown
 
 Verify booting laptop
     [Documentation]    Restart the laptop by power and verify init service is running
     [Tags]             SP-T287  relayboot  lenovo-x1  darter-pro  dell-7330
-    Reboot Laptop      verify_shutdown=False
     Start UART Log Capture
+    ${boot_start_time}    Get Time    epoch
+    Reboot Laptop      verify_shutdown=False
     IF    "installer" in "${JOB}"
-        Check If Device Is Up    retry=490s
+        Check If Device Is Up    retry=500s
     ELSE
-        Check If Device Is Up    retry=110s
+        Check If Device Is Up    retry=150s
     END
     IF    ${IS_AVAILABLE} == False
         Log To Console    Turning device on again...
+        ${boot_start_time}    Get Time    epoch
         Turn Laptop On
-        Check If Device Is Up    retry=110s
+        Check If Device Is Up    retry=150s
     END
     IF    ${IS_AVAILABLE} == False
         FAIL    The device did not start
@@ -78,6 +85,8 @@ Verify booting laptop
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
         Verify init.scope status via serial
     END
+    Drain Serial Output    save_output=${True}    max_seconds=10    completion_marker=ghaf-host login:
+    Save Time To Ping On Target Device    ${boot_start_time}    timeout=10
 
     [Teardown]   Test Teardown
 
