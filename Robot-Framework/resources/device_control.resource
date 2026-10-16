@@ -132,7 +132,7 @@ Connect After Reboot
     [Documentation]   Verify that device rebooted and connect
     [Arguments]      ${soft_reboot}=False
     IF    ("${DEVICE_TYPE}" == "darter-pro" or "${DEVICE_TYPE}" == "darter-sec-boot") and ${soft_reboot}
-        WHILE    True    limit=120 seconds
+        WHILE    True    limit=120 seconds    on_limit=pass
             Log              Pressing Enter    console=True
             Press Button     ${SWITCH_BOT}-Enter
             ${ssh_status}    Try To Check Ssh On Device    retry=1x    interval=${PING_SPACING}s    ssh_timeout=3s
