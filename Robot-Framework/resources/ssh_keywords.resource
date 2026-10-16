@@ -144,11 +144,13 @@ Try To Check Ssh On Device
     [Arguments]    ${retry}   ${interval}    ${ssh_timeout}=50s
     [Tags]    robot:recursive-stop-on-failure
     ${ssh_status}=      Set Variable    ${False}
+    Set Global Variable    ${BOOT_PING_TIME}    ${EMPTY}
     TRY
         Wait Until Keyword Succeeds     ${retry}    ${interval}
         ...      Run Keywords
-        ...         Run Keyword If      ${UART_CAPTURE_ACTIVE}           Drain Serial Output    save_output=${True}  AND
-        ...         Verify Ping Host    ${DEVICE_IP_ADDRESS}             console_log=${True}
+        ...         Run Keyword If      ${UART_CAPTURE_ACTIVE}           Drain Serial Output    save_output=${True}
+        ...             completion_marker=ghaf-host login:  AND
+        ...         Verify Ping Host And Save Time    ${DEVICE_IP_ADDRESS}             console_log=${True}
         Wait Until Ssh Is Ready On Device   ${DEVICE_IP_ADDRESS}    timeout=${ssh_timeout}
 
         ${ssh_status}=      Set Variable    ${True}
@@ -157,6 +159,15 @@ Try To Check Ssh On Device
         Log    Device is not available via SSH, failed with an exception:\n ${exc}!     console=True
     END
     RETURN    ${ssh_status}
+
+Verify Ping Host And Save Time
+    [Arguments]    ${hostname}    ${timeout}=${PING_SPACING}    ${console_log}=${False}
+    Verify Ping Host    ${hostname}    timeout=${timeout}    console_log=${console_log}
+    ${ping_time}    Get Variable Value    ${BOOT_PING_TIME}    ${EMPTY}
+    IF    not $ping_time
+        ${ping_time}    Get Time    epoch
+        Set Global Variable    ${BOOT_PING_TIME}    ${ping_time}
+    END
 
 Set Global Device Availability Variables
     [Arguments]    ${ssh_status}    ${serial_status}
