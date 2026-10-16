@@ -130,6 +130,18 @@ Check If Device Is Up
 Check If Device Is Available
     [Arguments]     ${retry}=5x   ${action}=${EMPTY}
     Check If Device Is Up    retry=${retry}
+
+    IF    $action == 'reboot' and $CONNECTION_TYPE == 'serial' and $SERIAL_PORT != 'NONE'
+        # SSRCSP-9085: try recovering net-vm before falling back to a full device reboot.
+        Log    SSH is unavailable after reboot. Restarting net-vm via serial.    console=True
+        TRY
+            Run Command On Serial    systemctl restart ${NETVM_SERVICE}    sudo=${True}    timeout=20
+            Close All Connections
+            Check If Device Is Up    retry=60s
+        EXCEPT    AS    ${error}
+            Log    Could not recover SSH by restarting net-vm: ${error}    console=True
+        END
+    END
     ${extra_log}    Set Variable If   '${action}'!='${EMPTY}'   after ${action}    for tests
     IF    ${IS_AVAILABLE} == False
         FAIL    The device is not available via SSH or serial ${extra_log}.
