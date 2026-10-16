@@ -16,6 +16,7 @@ Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/boot_time_keywords.resource
 Variables           ../../lib/performance_thresholds.py
 
 Suite Teardown      Close All Connections
@@ -76,38 +77,6 @@ Measure Orin Hard Boot Time
 
 
 *** Keywords ***
-
-Measure Time To Ping
-    [Arguments]               ${start_time}
-    ${ping_response}          Set Variable  ${EMPTY}
-    Log To Console            Start checking ping response
-    ${ping_end_time}          Set Variable  False
-    WHILE  not $ping_response   limit=${PING_TIMEOUT} seconds
-        # Pinging every 3 sec will limit resolution of the measurement to 3s but faster pinging might trigger ghaf firewall rule.
-        # Better option could be using arping if that is not limited.
-        ${ping_response}      Ping Host  ${DEVICE_IP_ADDRESS}  3
-        IF  $ping_response
-            ${ping_end_time}  DateTime.Get Current Date  result_format=epoch
-            Sleep             ${PING_SPACING}
-        END
-    END
-    IF  not $ping_end_time
-        FAIL                  No response to ping within ${PING_TIMEOUT}
-    END
-    ${ping_response_seconds}  DateTime.Subtract Date From Date  ${ping_end_time}  ${start_time}   exclude_millis=True
-    Log                       Response time to ping measured: ${ping_response_seconds}   console=True
-    RETURN                    ${ping_response_seconds}
-
-Get Time To Ping
-    [Arguments]  ${plot_name}=Soft Boot Times
-    ${start_time_epoch}           DateTime.Get Current Date   result_format=epoch
-    ${ping_response_seconds}      Measure Time To Ping  ${start_time_epoch}
-    &{final_results}              Create Dictionary
-    Set To Dictionary             ${final_results}  response_to_ping  ${ping_response_seconds}
-    Check Result Validity         ${final_results}
-    &{statistics}                 Save Boot time Data   ${TEST NAME}  ${final_results}
-    Log  <img src="${DEVICE}_${TEST NAME}.png" alt="${plot_name}" width="1200">    HTML
-    Determine Test Status         ${statistics}  inverted=1
 
 Get Shutdown Time
     [Arguments]  ${plot_name}=Shutdown Times
@@ -206,58 +175,6 @@ Get System Power Off Time From Previous Boot
     ...                           awk '{print int($1)}'
     ${last_timestamp}             Run Command    ${cmd}
     RETURN                        ${last_timestamp}
-
-Get Boot times
-    [Documentation]  Collect boot times from device
-    [Arguments]  ${plot_name}=Soft Boot Times
-    ${start_time_epoch}  DateTime.Get Current Date   result_format=epoch
-    # For detecting timestamp of Login screen in cosmic desktop
-    ${testuser_line}  Catenate  SEPARATOR=\n
-    ...  testuser_line=$(journalctl -b --output=short-iso | grep "${USER_LOGIN}: changing state activating-for-acquire")
-    ...  echo $testuser_line
-
-    ${ping_response_seconds}    Measure Time To Ping    ${start_time_epoch}
-    Switch to vm            ${GUI_VM}
-    ${time_to_desktop}      Check Time To Notification  ${testuser_line}   ${start_time_epoch}
-    Log                     Boot time to login screen measured: ${time_to_desktop}   console=True
-    &{final_results}        Create Dictionary
-    Set To Dictionary       ${final_results}  time_to_desktop  ${time_to_desktop}
-    Set To Dictionary       ${final_results}  response_to_ping  ${ping_response_seconds}
-    # Before saving the data, check that the captured values are positive.
-    Check Result Validity   ${final_results}
-    &{statistics}           Save Boot time Data   ${TEST NAME}  ${final_results}
-    Log  <img src="${DEVICE}_${TEST NAME}.png" alt="${plot_name}" width="1200">    HTML
-    # In boot time test decrease in result value is considered improvement -> using inverted argument
-    Determine Test Status   ${statistics}   inverted=1
-
-Check Time To Notification
-    [Documentation]  Check that correct notification is available in journalctl
-    [Arguments]      ${command}   ${start_time}
-    ${notification_line}  Set Variable  ${EMPTY}
-    WHILE  '${notification_line}' == '${EMPTY}'   limit=${SEARCH_TIMEOUT} seconds
-        ${notification_line}    Run Command  ${command}
-    END
-
-    IF  '${notification_line}' == '${EMPTY}'
-       Fail  The searched journalctl line that is needed for 'time_to_desktop' calculation was not captured.
-    END
-
-    ${get_timestamp}      Catenate  SEPARATOR=\n
-    ...  desktop_time=$(date -d "$(${command} | tail -1 | awk '{print $1}')" "+%s")
-    ...  echo $desktop_time
-    ${notification_time}  Run Command  ${get_timestamp}
-    ${time}  Subtract Time From Time  ${notification_time}  ${start_time}   exclude_millis=True
-    Should Be True  0 < ${time} < 120
-    RETURN  ${time}
-
-Check Result Validity
-    [Arguments]      ${captured_results}
-    FOR  ${key}  ${value}  IN  &{captured_results}
-         IF  '${value}' == 'nan'
-             CONTINUE
-         END
-         Should Be True  ${value} > 0
-    END
 
 Log Journal To Debug
     [Arguments]           ${boot}=0

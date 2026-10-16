@@ -231,6 +231,33 @@ class PerformanceStatistics:
             deviations,
         )
 
+    def analyze_data_series(self, data_column, threshold, low_limit=None):
+        baseline_start = 0
+        new_baseline_start = 0
+        deviation_counter = 0
+        deviations = []
+        statistics_block = None
+
+        for row_index in range(len(data_column)):
+            (
+                statistics_block,
+                baseline_start,
+                new_baseline_start,
+                deviation_counter,
+                deviations,
+            ) = self.analyze_performance_value(
+                data_column[: row_index + 1],
+                baseline_start,
+                threshold,
+                deviation_counter,
+                deviations,
+                new_baseline_start,
+                row_index,
+                low_limit,
+            )
+
+        return statistics_block
+
     def calculate_statistics(
         self,
         test_name,
