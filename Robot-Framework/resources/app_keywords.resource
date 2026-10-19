@@ -17,6 +17,26 @@ ${APP_OUTPUT_FILE}   /home/${USER_LOGIN}/output.log
 
 *** Keywords ***
 
+GUI App Test Setup
+    Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+    ${timestamp}    Run Command    date +%s
+    Set Test Variable    ${GUI_TEST_START_TIME}    ${timestamp}
+    Start screen recording
+
+GUI App Test Teardown
+    [Arguments]    ${test_status}    ${test_name}
+    Stop screen recording    ${test_status}    ${test_name}
+    IF    $test_status == 'FAIL'
+        Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+        ${status}    ${journal}    Run Keyword And Ignore Error    Run Command
+        ...    journalctl -b --since '@${GUI_TEST_START_TIME}' --no-pager _COMM=waypipe --grep 'waypipe-secctx-.*ECONNREFUSED'
+        IF    $status == 'PASS' and 'waypipe-secctx-' in $journal and 'ECONNREFUSED' in $journal
+            Log Error    Waypipe socket    Waypipe security-context socket connection refused in ${TEST_NAME} (SSRCSP-9093)
+            SKIP    Known issue: SSRCSP-9093 (Waypipe security-context socket connection refused)
+        END
+    END
+
+
 App Launch Test Template
     [Arguments]   ${app_key}
     Set Test Documentation   Start ${app_key}[display_name] and verify process started

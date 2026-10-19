@@ -9,7 +9,7 @@ Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Test Setup          Run Keywords   Switch to vm   ${GUI_VM}  user=${USER_LOGIN}  AND   Start screen recording
+Test Setup          GUI App Test Setup
 Test Teardown       App Store Test Teardown
 Test Timeout        10 minutes
 
@@ -37,7 +37,7 @@ App Store Test Teardown
     ${availability}         Check variable availability   app_key
     IF   ${availability}    Kill app and Uninstall in App Store   ${app_key}
     Switch to vm            ${GUI_VM}  user=${USER_LOGIN}
-    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+    GUI App Test Teardown   ${TEST_STATUS}   ${TEST_NAME}
 
 Install and Launch App Store app
     [Documentation]   Install app from App Store and launch it from the app menu

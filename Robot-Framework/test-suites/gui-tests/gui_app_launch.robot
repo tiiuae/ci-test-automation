@@ -14,8 +14,8 @@ Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Test Setup          Start screen recording
-Test Teardown       Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+Test Setup          GUI App Test Setup
+Test Teardown       GUI App Test Teardown   ${TEST_STATUS}   ${TEST_NAME}
 Suite Teardown      Create App Launch Montage And Move Graphs
 Test Template       Launch App And Save Time
 

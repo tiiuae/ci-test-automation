@@ -8,8 +8,8 @@ Test Tags           gui-apps  lenovo-x1  darter-pro
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/gui_keywords.resource
 
-Test Setup          Start screen recording
-Test Teardown       Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+Test Setup          GUI App Test Setup
+Test Teardown       GUI App Test Teardown   ${TEST_STATUS}   ${TEST_NAME}
 
 
 *** Test Cases ***
@@ -32,7 +32,7 @@ Create and save text file from COSMIC Text Editor via GUI
     [Teardown]   Run Keywords   Kill App in VM   ${COSMIC Text Editor}   require_exists=False
     ...    AND   Switch to vm            ${GUI_VM}        user=${USER_LOGIN}
     ...    AND   Remove file by name     ${file_name}
-    ...    AND   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+    ...    AND   GUI App Test Teardown   ${TEST_STATUS}   ${TEST_NAME}
 
 Copy and paste text between VMs
     [Documentation]   Copy text in ${COSMIC Text Editor}[display_name] and paste it into ${Trusted Browser}[display_name]
@@ -46,7 +46,7 @@ Copy and paste text between VMs
     [Teardown]    Run Keywords    Kill App in VM   ${Trusted Browser}
     ...           AND             Kill App in VM   ${COSMIC Text Editor}
     ...           AND             Switch to vm     ${GUI_VM}        user=${USER_LOGIN}
-    ...           AND             Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+    ...           AND             GUI App Test Teardown   ${TEST_STATUS}   ${TEST_NAME}
 
 Open an app from the dock
     [Documentation]   Open Zoom, minimize its window, verify it is hidden, then restore it from dock and compare coordinates.
@@ -59,7 +59,7 @@ Open an app from the dock
     Wait for Zoom icon coordinates to change and restore window    ${zoom_before_x}    ${zoom_before_y}
     Verify Zoom window restored to baseline    ${zoom_window_coords}    ${zoom_anchor_coords}
     [Teardown]   Run Keywords    Kill App in VM   ${Zoom}
-    ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+    ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    GUI App Test Teardown   ${TEST_STATUS}   ${TEST_NAME}
 
 Maximize and restore window
     [Documentation]   Open Zoom, maximize its window, verify it, then restore it and compare coordinates.
@@ -71,7 +71,7 @@ Maximize and restore window
     Locate and click maximize/restore window button   ${Zoom}
     Verify Zoom window restored to baseline    ${zoom_window_coords}    ${zoom_anchor_coords}
     [Teardown]   Run Keywords    Kill App in VM   ${Zoom}
-    ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+    ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    GUI App Test Teardown   ${TEST_STATUS}   ${TEST_NAME}
 
 Verify Gala is loaded
     [Documentation]   Open Gala and wait the window to be loaded
@@ -80,7 +80,7 @@ Verify Gala is loaded
     Verify Gala sign in arrow load time
     Close app via GUI   ${Gala}
     [Teardown]   Run Keywords    Kill App in VM   ${Gala}   require_exists=False
-    ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+    ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    GUI App Test Teardown   ${TEST_STATUS}   ${TEST_NAME}
 
 Trusted Browser opens blocked page in normal browser
     [Documentation]    Open blocked Yle in ${Trusted Browser}[display_name], then open it in ${Google Chrome}[display_name].
@@ -91,7 +91,7 @@ Trusted Browser opens blocked page in normal browser
     Verify page opened in normal browser
     [Teardown]   Run Keywords    Kill App in VM   ${Google Chrome}   require_exists=False
     ...    AND   Kill App in VM   ${Trusted Browser}   require_exists=False
-    ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+    ...    AND   Switch to vm    ${GUI_VM}  user=${USER_LOGIN}    AND    GUI App Test Teardown   ${TEST_STATUS}   ${TEST_NAME}
 
 Ghaf Control Panel shows device information
     [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
@@ -112,7 +112,7 @@ Take a screenshot via Print Screen
     Verify Saved Screenshot Contains Text    ${screenshot}    Screenshots
     [Teardown]   Run Keywords   Remove file    ${screenshot}
     ...    AND   Kill App in VM   ${COSMIC Files}
-    ...    AND   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+    ...    AND   GUI App Test Teardown   ${TEST_STATUS}   ${TEST_NAME}
 
 Record screen with keyboard shortcut
     [Documentation]   Start and stop screen recording with Ctrl+Shift+Alt+R, then verify the recorded video is visible in Videos
@@ -195,7 +195,7 @@ Verify Device Information
 Ghaf Control Panel Test Teardown
     Kill App in VM                 ${Ghaf Control Panel}    require_exists=False
     Switch to vm                   ${GUI_VM}    user=${USER_LOGIN}
-    Stop screen recording          ${TEST_STATUS}   ${TEST_NAME}
+    GUI App Test Teardown          ${TEST_STATUS}   ${TEST_NAME}
 
 Check Device Information Field With Retry
     [Arguments]    ${field}    ${expected}   ${scale}=2   ${precision_percent}=100
@@ -394,7 +394,7 @@ Unsafe Share GUI Image Test Teardown
     Remove file       /home/appuser/'Unsafe share'/${file_name}    sudo=True    rc_match=skip
     Kill App in VM    ${Trusted Browser}    require_exists=False
     Switch to vm      ${GUI_VM}    user=${USER_LOGIN}
-    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+    GUI App Test Teardown   ${TEST_STATUS}   ${TEST_NAME}
 
 Copy text to clipboard
     [Arguments]    ${text}
