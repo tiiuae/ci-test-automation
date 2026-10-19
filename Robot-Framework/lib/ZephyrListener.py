@@ -52,10 +52,15 @@ class ZephyrListener:
         self.zephyr = Zephyr()
 
     def get_target(self):
-        test_target_env_var = BuiltIn().get_variable_value("${TEST_TARGET}")
-        if not test_target_env_var:
-            raise ValueError("TEST_TARGET is missing or empty")
-        return self.parse_target(test_target_env_var)
+        job_env_var = BuiltIn().get_variable_value("${JOB}")
+        if not job_env_var:
+            raise ValueError("JOB env variable is missing or empty")
+
+        device_type_env_var = BuiltIn().get_variable_value("${DEVICE_TYPE}")
+        if not device_type_env_var:
+            raise ValueError("DEVICE_TYPE env variable is missing or empty")
+
+        return self.parse_target(job_env_var, device_type_env_var)
 
     def get_test_cycle(self):
         """Getting test cycle for saving results"""
@@ -79,28 +84,34 @@ class ZephyrListener:
             status = robot_status_to_zephyr[result.status]
             test_cycle = self.get_test_cycle()
             if test_cycle and zephyr_tag:
+                logger.info(
+                    f"Saving test results to Zephyr.\n Test name: {test.name}\n Test tag: {zephyr_tag}\n Test Cycle: {test_cycle}\n")
                 self.zephyr.create_test_result(test_run_key=test_cycle, test_case_key=zephyr_tag, status=status, comment=result.message)
             else:
                 logger.error(f"Failed to save test results to Zephyr.\n Test name: {test.name}\n Test tag: {zephyr_tag}\n Test Cycle: {test_cycle}\n")
 
-    def parse_target(self, target):
+    def parse_device(self, device_type):
+        if 'darter' in device_type:
+            return 'darp11'
+
+        if ('lenovo-x1' in device_type) or ('x1-sec-boot' in device_type):
+            return 'lenovo-x1'
+
+        if 'orin-nx' in device_type:
+            return 'orin-nx'
+
+        if 'orin-agx' in device_type:
+            return 'orin-agx'
+
+        if 'agx-64' in device_type:
+            return 'orin-agx64'
+
+    def parse_target(self, job_target, device_type):
         structured_target = {
-            'device': None,
-            'secure boot': None,
-            'installer': None,
-            'aarch': None
+            'device': self.parse_device(device_type),
+            'secure boot': 'sec-boot' in device_type,
+            'installer': True if 'installer' in job_target else False,
+            'aarch': 'aarch64' if 'aarch64' in job_target else 'x86_64'
         }
-        splitted_target = target.split('@')
-        structured_target['secure boot'] = splitted_target[-1] == 'secureboot'
 
-        structured_target['installer'] = True if 'installer' in splitted_target[0] else False
-
-        for device in target_to_cycle_map.keys():
-            if f"{device}-" in splitted_target[0]:  # dash is needed to not mix up orin-agx- with orin-agx64-
-                structured_target['device'] = device
-
-        if 'orin' in structured_target['device']:
-            structured_target['aarch'] = splitted_target[0].split('-')[0]
-        else:
-            structured_target['aarch'] = 'x86_64'  #  default for lenovo x1 and darter pro
         return structured_target
