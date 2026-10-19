@@ -202,6 +202,7 @@ Check Device Information Field With Retry
     TRY
         Check Device Information Field    field=${field}    expected=${expected}    scale=${scale}   precision_percent=${precision_percent}
     EXCEPT
+        Log Error   Control Panel value   Could not find ${field} value from Control Panel
         TRY
             Wait until keyword succeeds     5x      1s
             ...           Check Device Information Field    field=${field}    expected=${expected}

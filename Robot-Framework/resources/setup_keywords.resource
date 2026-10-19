@@ -144,8 +144,6 @@ Save login and logout icons
     ${icons}                Run Command   find $(echo $XDG_DATA_DIRS | tr ':' ' ') -type d -name "icons" 2>/dev/null   rc_match=skip
     Get icon                ${icons}/hicolor/scalable/apps  com.system76.CosmicAppLibrary.svg  crop=0  background=black  output_filename=launcher.png
     Get icon                ${icons}/Cosmic/scalable/actions  system-lock-screen-symbolic.svg  background=black  output_filename=lock.png
-    # Needed for SSRCSP-9075 workaround
-    Get icon                ${icons}/Papirus/16x16/symbolic/status  security-high-symbolic.svg  crop=0  background=black  output_filename=killswitch.png
 
 Login to laptop
     [Documentation]   Log in to the laptop

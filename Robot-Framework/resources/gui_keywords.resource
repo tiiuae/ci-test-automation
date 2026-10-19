@@ -272,15 +272,7 @@ Verify desktop availability
     [Tags]            robot:recursive-stop-on-failure
     [Arguments]       ${iterations}=30
     Log To Console    Verifying login by trying to detect the launcher icon
-    TRY
-        Locate on screen  image  ${APP_MENU_LAUNCHER}  0.95  ${iterations}
-    EXCEPT    AS    ${error}
-        # Workaround for known issue SSRCSP-9075
-        Log Error    No launcher icon    Launcher icon was missing
-        Log          Launcher icon was not found, looking for killswitch icon   console=True
-        Locate on screen  image  killswitch.png  0.95  10
-        Log          Killswitch icon found, continuing test   console=True
-    END
+    Locate on screen  image  ${APP_MENU_LAUNCHER}  0.95  ${iterations}
 
 Verify login session
     [Documentation]   Confirm that the given user has an active login session on a seat
