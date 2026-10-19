@@ -3,7 +3,8 @@
 ## Active SKIPS
 
 | DATE SET   | TEST CASE                          | TICKET / Additional Data                                                | Error Log Context  |
-| ---------- | ---------------------------------- | ----------------------------------------------------------------------- | ------------------ |
+| ---------- |------------------------------------| ----------------------------------------------------------------------- | ------------------ |
+| 19.10.2026 | GUI App tests                      | SSRCSP-9093                                                             | Waypipe socket     |
 | 26.08.2026 | Verify Gala is loaded              | SSRCSP-8855                                                             | Slow Gala          |
 | 20.07.2026 | nvpmodel check test (Orins)        | SSRCSP-8712                                                             | (Fails every time) |
 | 11.02.2026 | Check device id (storeDisk)        | SSRCSP-7997                                                             | (Fails every time) |
