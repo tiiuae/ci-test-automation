@@ -90,7 +90,25 @@ Check Device ID in every VM
     END
     IF  ${failed_vms} != []    FAIL    VMs with different Device IDs: ${failed_vms}
 
+VMs use net-vm as DNS server
+    [Documentation]    Check that every VM except net-vm uses 192.168.100.1 as its current and configured DNS server.
+    [Tags]             SP-T515  orin-agx  orin-agx-64  orin-nx
+    @{vms}             Get VM list
+    Remove Values From List    ${vms}    ${NET_VM}
+    FOR    ${vm}    IN    @{vms}
+        Run Keyword And Continue On Failure    Verify VM uses net-vm as DNS server    ${vm}
+    END
+
 *** Keywords ***
+
+Verify VM uses net-vm as DNS server
+    [Arguments]     ${vm}
+    Switch to vm    ${vm}
+    ${output}       Run Command    resolvectl status
+    FOR    ${field}    IN    Current DNS Server    DNS Servers
+        ${value}    Get Regexp Matches    ${output}    (?m)^\\s*${field}: (.+)$    1
+        Should Be Equal    ${value}[0]    192.168.100.1     msg=${vm}: ${field} is ${value}[0], expected 192.168.100.1
+    END
 
 Check systemctl status Template
     [Arguments]    ${vm}   ${timeout}=2 minutes
