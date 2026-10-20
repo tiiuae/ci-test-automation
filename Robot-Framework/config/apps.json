@@ -139,6 +139,8 @@
     "display_name": "Getting Started",
     "VM": "chrome-vm",
     "process_name": "ghaf-intro",
+    "app_id": "ghaf-intro",
+    "alternative_title": "Google Chrome",
     "close_button": "ghaf-close.png"
   },
   "Ghaf Control Panel": {
@@ -167,6 +169,8 @@
     "display_name": "Google Chrome",
     "VM": "chrome-vm",
     "process_name": "google-chrome",
+    "app_id": "google-chrome",
+    "alternative_title": "Google Chrome",
     "close_button": "ghaf-close.png"
   },
   "Google Chrome GPU": {
@@ -206,6 +210,8 @@
     "display_name": "Slack",
     "VM": "comms-vm",
     "process_name": "slack",
+    "app_id": "chrome-app.slack.com__client-Default",
+    "alternative_title": "Google Chrome",
     "close_button": "ghaf-close.png"
   },
   "Sticky Notes": {
@@ -240,6 +246,7 @@
     "display_name": "VPN",
     "VM": "business-vm",
     "process_name": "gp-gui",
+    "alternative_title": "VPN",
     "close_button": "ghaf-close.png"
   },
   "Zoom": {
@@ -247,6 +254,8 @@
     "VM": "comms-vm",
     "process_name": "zoom",
     "close_button": "ghaf-close.png",
+    "app_id": "chrome-app.zoom.us__wc_home-Default",
+    "alternative_title": "Google Chrome",
     "icon": "Zoom.png"
   }
 }

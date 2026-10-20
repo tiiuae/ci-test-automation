@@ -34,6 +34,10 @@ Start Bluetooth Settings via GUI
     [Tags]            SP-T417
     ${Bluetooth Settings}
 
+Start Calculator via GUI
+    [Tags]            SP-T416
+    ${Calculator}
+
 Start COSMIC Document Reader via GUI
     [Tags]            SP-T381
     ${COSMIC Document Reader}
@@ -61,10 +65,6 @@ Start COSMIC Terminal via GUI
 Start COSMIC Text Editor via GUI
     [Tags]            SP-T426
     ${COSMIC Text Editor}
-
-Start Calculator via GUI
-    [Tags]            SP-T416
-    ${Calculator}
 
 Start Element via GUI
     [Tags]            SP-T501
@@ -131,12 +131,13 @@ Start Zoom via GUI
     ${Zoom}
 
 *** Keywords ***
+
 Launch App And Save Time
     [Arguments]    ${app_key}
     Set Test Documentation   Start ${app_key}[display_name] via GUI and measure launch time
-    Start app via GUI   ${app_key}
-    Close app via GUI   ${app_key}
-    Save launch time    ${app_key}
+    ${launch_time}     Start app via GUI   ${app_key}   measure_time=True
+    Save launch time   ${app_key}    ${launch_time}
+    [Teardown]     Close app via GUI   ${app_key}
 
 Create App Launch Montage And Move Graphs
     [Documentation]   Combine all graphs to one image and move the single graphs to their own folder
@@ -145,11 +146,10 @@ Create App Launch Montage And Move Graphs
     Run Process    sh    -c    mv *"Start"*.png "${OUTPUT_DIR}/outputs/graphs/"
 
 Save launch time
-    [Documentation]    Evaluate the time between starting the app from the GUI app menu
-    ...                and locating & clicking the close button on the app window.
+    [Documentation]    Evaluate the device-measured app launch duration.
     ...                Threshold is read from apps.json for non-storeDisk app-specific limits.
     ...                Otherwise performance_thresholds.py is used (storeDisk uses its dedicated value).
-    [Arguments]        ${app_key}
+    [Arguments]        ${app_key}    ${launch_time}
     IF    "storeDisk" in "${JOB}"
         ${threshold}    Set Variable    ${static_thresholds}[app_launch_time_storedisk]
     ELSE
@@ -166,11 +166,10 @@ Save launch time
             ${threshold}    Set Variable    ${static_thresholds}[app_launch_time]
         END
     END
-    ${diff}        Evaluate    ${TIME_${app_key}[process_name]_launched} - ${TIME_${app_key}[process_name]_start}
     &{results}     Create Dictionary
-    Set To Dictionary  ${results}    time_to_launch  ${diff}
+    Set To Dictionary  ${results}    time_to_launch  ${launch_time}
     ${passed}      Save App Launch Time Data   ${TEST NAME}  ${results}  ${threshold}
     Log  <img src="${DEVICE}_${TEST NAME}.png" alt="Launch Time of ${app_key}[process_name]" width="1200">    HTML
     IF    not ${passed}
-        FAIL    ${app_key}[display_name] was started in ~${diff} sec, expected <=${threshold} sec
+        FAIL    ${app_key}[display_name] was started in ~${launch_time} sec, expected <=${threshold} sec
     END

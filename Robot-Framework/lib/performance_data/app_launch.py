@@ -59,8 +59,9 @@ class AppLaunchProcessor:
 
         x = range(len(data['commit']))
         plt.plot(x, [threshold] * len(x), color='red', linestyle='dotted', linewidth=2)
+        plt.ylim(0, 10)
         plt.legend(title="App launching time", loc="lower left", ncol=3)
-        plt.yticks(fontsize=14)
+        plt.yticks(range(0, 11), fontsize=14)
         plt.title(f'{test_name}', loc='right', fontweight="bold", fontsize=16)
         plt.grid(True)
         plt.xticks(range(len(data['commit'])), data['commit'], rotation=90, fontsize=10)

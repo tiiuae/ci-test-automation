@@ -152,13 +152,6 @@ Kill process by name
     IF    not ${stopped}    Run Keyword And Ignore Error    Log blocked process diagnostics
     Should Be True   ${stopped}   Process ${process_name} is still running after ${signal} and ${fallback_signal}
 
-Save Time
-    [Arguments]    ${label}    ${time}=None
-    IF  "${time}" == "None"
-        ${time}    Evaluate    time.time()
-    END
-    Set Suite Variable    ${TIME_${label}}    ${time}
-
 Wait
     [Arguments]       ${sec}  ${silently}=${True}  ${log_interval}=5
     ${time}           Get Time

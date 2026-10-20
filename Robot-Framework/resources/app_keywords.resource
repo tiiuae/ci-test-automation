@@ -11,7 +11,8 @@ Resource            ../resources/service_keywords.resource
 Variables           ../config/apps.json
 
 *** Variables ***
-${APP_OUTPUT_FILE}   /home/${USER_LOGIN}/output.log
+${APP_OUTPUT_FILE}           /home/${USER_LOGIN}/output.log
+${APP_WINDOW_WATCH_SCRIPT}   /tmp/robot-app-window-watcher.sh
 @{RUNNING_VMS}
 
 
@@ -59,26 +60,48 @@ Start App in VM
 Get GUI VM toplevels
     [Documentation]    Return the Wayland toplevels currently shown by the GUI VM compositor.
     Switch to vm    ${GUI_VM}      user=${USER_LOGIN}
-    ${output}       Run Command    WAYLAND_DISPLAY=wayland-1 lswt --json
-    ${toplevels}    Evaluate       json.loads($output)["toplevels"]    json
+    ${toplevels}    Run Command    WAYLAND_DISPLAY=wayland-1 lswt --custom at
     RETURN    ${toplevels}
 
 Wait for app window
-    [Documentation]    Wait until the GUI VM has more toplevels and the expected app ID appears, if known.
+    [Documentation]    Wait until the GUI VM has more toplevels and any expected app ID or title appears.
     [Arguments]        ${app_key}    ${toplevels_before}
-    ${expected_app_id}    Evaluate    $app_key.get("app_id", "")
-    Wait Until Keyword Succeeds    10x    0.5s    App window should be open    ${toplevels_before}    ${expected_app_id}
+    ${expected_windows}   Get expected app windows   ${app_key}
+    Wait Until Keyword Succeeds    10x    0.5s    App window should be open    ${toplevels_before}    @{expected_windows}
 
 App window should be open
-    [Arguments]    ${toplevels_before}    ${expected_app_id}
+    [Arguments]    ${toplevels_before}    @{expected_windows}
     ${toplevels_after}    Get GUI VM toplevels
-    ${before_count}    Get Length    ${toplevels_before}
-    ${after_count}     Get Length    ${toplevels_after}
+    ${before_count}    Get Line Count    ${toplevels_before}
+    ${after_count}     Get Line Count    ${toplevels_after}
     Should Be True    ${after_count} > ${before_count}
-    IF    $expected_app_id
-        ${visible_app_ids}    Evaluate    [item["app-id"] for item in $toplevels_after]
-        Should Contain    ${visible_app_ids}    ${expected_app_id}
+    Should Contain Any    ${toplevels_after}    @{expected_windows}   msg=None of the expected windows ${expected_windows} appeared in ${toplevels_after}
+
+Get expected app windows
+    [Documentation]    Return configured app ID and possible window title for an app.
+    [Arguments]        ${app_key}
+    ${expected_windows}    Create List
+    FOR    ${key}    IN    app_id    alternative_title
+        ${value}    Get From Dictionary    ${app_key}    ${key}    default=${EMPTY}
+        IF    $value    Append To List    ${expected_windows}    ${value}
     END
+    RETURN    ${expected_windows}
+
+Launch app and wait for window
+    [Documentation]   Press Enter and return the elapsed time when the app window appears.
+    [Arguments]       ${app_key}
+    [Setup]           Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
+    Put File             ${CURDIR}/../test-files/app_window_watcher.sh   ${APP_WINDOW_WATCH_SCRIPT}
+    Run Command          chmod 755 ${APP_WINDOW_WATCH_SCRIPT}
+    ${expected_windows}  Get expected app windows   ${app_key}
+    ${quoted_windows}    Create List
+    FOR  ${window}  IN  @{expected_windows}
+        Append To List   ${quoted_windows}   '${window}'
+    END
+    ${command}           Catenate   SEPARATOR=${SPACE}   ${APP_WINDOW_WATCH_SCRIPT}   @{quoted_windows}
+    ${output}            Run Command   ${command}   timeout=15
+    ${launch_time}       Convert To Number   ${output}
+    RETURN               ${launch_time}
 
 Check that appVM is running
     [Arguments]    ${app_key}
@@ -142,31 +165,35 @@ Kill App in VM
 
 Start app via GUI
     [Documentation]    Start Application via GUI and verify related process started
-    [Arguments]        ${app_key}
+    [Arguments]        ${app_key}   ${measure_time}=False
     Check that appVM is running          ${app_key}
     Check that App is not running in VM   ${app_key}   range=1   before_launch_check=True
 
     Open app menu
-    Type string     ${app_key}[display_name]  enter_at_end=True
-    Save time       ${app_key}[process_name]_start
+    Type string     ${app_key}[display_name]
 
-    Check that App is running in VM   ${app_key}   range=10
-
-    [Teardown]    Run Keywords    Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
-    ...           AND             Move cursor to corner
+    IF   ${measure_time}
+        ${launch_time}   Launch app and wait for window    ${app_key}
+        Log              Launch time of ${app_key}[display_name]: ${launch_time}    console=True
+        RETURN           ${launch_time}
+    ELSE
+        Press Key(s)      ENTER
+        Check that App is running in VM   ${app_key}   range=10
+    END
+    [Teardown]   Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
 
 Open app menu
     [Documentation]   Open app menu from the app menu icon
     [Setup]           Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
     Log To Console    Opening app menu
-    Locate and click  image  ${APP_MENU_LAUNCHER}  0.95  10
+    Press Key(s)       LEFTMETA
     TRY
         # Search for app menu magnifying glass to identify that the app menu is open
-        Wait Until Keyword Succeeds    5x    1s    Verify Image On The Screen   search-neg.png  confidence=0.90
+        Wait Until Keyword Succeeds    10x    0.5s    Verify Image On The Screen   search-neg.png  confidence=0.90
     EXCEPT
         Log To Console    App menu did not open, trying again (it might have already been open)
         Locate and click  image  ${APP_MENU_LAUNCHER}  0.95  10
-        Wait Until Keyword Succeeds    5x    1s    Verify Image On The Screen   search-neg.png  confidence=0.90
+        Wait Until Keyword Succeeds    10x    0.5s    Verify Image On The Screen   search-neg.png  confidence=0.90
     END
 
 Close app via GUI
@@ -176,7 +203,6 @@ Close app via GUI
     Switch to vm       ${GUI_VM}  user=${USER_LOGIN}
     Log To Console     Clicking the close button of the application window
     Locate and click   image  ${app_key}[close_button]  0.9  iterations=25  wiggle=True
-    Save Time          ${app_key}[process_name]_launched    ${LAST_SCREENSHOT_TIME}
     IF  ${verify_is_killed}
         ${status}          Run Keyword And Return Status  Check that App is not running in VM    ${app_key}   range=5
         Should Be True     ${status}   Failed to close the application
