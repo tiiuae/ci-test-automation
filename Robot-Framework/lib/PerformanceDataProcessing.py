@@ -1,6 +1,9 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+import matplotlib
+matplotlib.use("Agg") # To avoid thread errors
+
 from robot.api.deco import keyword
 from performance_data.app_launch import AppLaunchProcessor
 from performance_data.benchmarks import BenchmarkProcessor, VmBenchmarkProcessor

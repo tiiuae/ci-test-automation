@@ -201,8 +201,6 @@ Locate on screen
 
 Take a screenshot
     ${screenshot_status}  ${result}   Run Keyword And Ignore Error  Run Command  WAYLAND_DISPLAY=wayland-1 grim -t jpeg -q 100 ${SCREENSHOT_GHAF}   timeout=5
-    ${LAST_SCREENSHOT_TIME}  Evaluate    time.time()
-    Set Global Variable      ${LAST_SCREENSHOT_TIME}
     RETURN   ${screenshot_status}  ${result}
 
 Locate and click
