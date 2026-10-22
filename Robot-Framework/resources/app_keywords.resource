@@ -29,9 +29,9 @@ GUI App Test Teardown
     Stop screen recording    ${test_status}    ${test_name}
     IF    $test_status == 'FAIL'
         Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
-        ${status}    ${journal}    Run Keyword And Ignore Error    Run Command
-        ...    journalctl -b --since '@${GUI_TEST_START_TIME}' --no-pager _COMM=waypipe --grep 'waypipe-secctx-.*ECONNREFUSED'
-        IF    $status == 'PASS' and 'waypipe-secctx-' in $journal and 'ECONNREFUSED' in $journal
+        # "|| true" makes sure that the command won't fail even when there are no matches
+        ${journal}    Run Command   journalctl --since '@${GUI_TEST_START_TIME}' --no-pager | grep waypipe || true
+        IF    'waypipe-secctx-' in $journal and 'ECONNREFUSED' in $journal
             Log Error    Waypipe socket    Waypipe security-context socket connection refused in ${TEST_NAME} (SSRCSP-9093)
             SKIP    Known issue: SSRCSP-9093 (Waypipe security-context socket connection refused)
         END
