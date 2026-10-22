@@ -7,8 +7,11 @@ from pyscreeze import locate, center
 from rapidfuzz import fuzz
 from robot.libraries.BuiltIn import BuiltIn
 import logging
+import os
 import pytesseract
 import subprocess
+import cv2
+import numpy
 
 def locate_image(screenshot, image, confidence):
     logging.info("Searching " + image)
@@ -248,3 +251,46 @@ def generate_ydotool_key_command(key_combination):
     release_events = [f"{code}:0" for code in reversed(key_codes)]
 
     return "key " + " ".join(press_events + release_events)
+
+def get_diff_images(screenshot_path1, screenshot_path2, exclude_top_panel=True, exclude_bottom_panel=True, padding=2):
+    screenshot1 = cv2.imread(screenshot_path1)
+    screenshot2 = cv2.imread(screenshot_path2)
+
+    diff = cv2.absdiff(screenshot1, screenshot2)
+
+    mask = numpy.any(diff > 20, axis=2)
+    icons_dir = BuiltIn().get_variable_value("${ICONS_DIR}")
+
+    if exclude_top_panel:
+        box = locate(
+            f"{icons_dir}/power.png",
+            screenshot_path1,
+            confidence=0.95,
+        )
+        panel_bottom = box.top + box.height
+        mask[:panel_bottom, :] = False
+
+    if exclude_bottom_panel:
+        box = locate(
+            f"{icons_dir}/launcher.png",
+            screenshot_path1,
+            confidence=0.95,
+        )
+        panel_top = max(0, box.top - 10)  # locates looks for the icon, but panel is wider, so applying some padding
+        mask[panel_top:, :] = False
+
+    ys, xs = numpy.nonzero(mask)
+    if xs.size == 0:
+        raise AssertionError("No changes detected")
+
+    height, width = screenshot2.shape[:2]
+    x = max(0, int(xs.min()) - padding)
+    y = max(0, int(ys.min()) - padding)
+    right = min(width, int(xs.max()) + padding)
+    bottom = min(height, int(ys.max()) + padding)
+
+    crop = screenshot2[y:bottom, x:right]
+    screenshot_base = os.path.splitext(screenshot_path2)[0]
+    cropped_screen_path = f"{screenshot_base}_cropped.png"  # png avoids additional JPEG compression
+    cv2.imwrite(cropped_screen_path, crop)
+    return cropped_screen_path

@@ -97,8 +97,9 @@ Ghaf Control Panel shows device information
     [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
     [Tags]             SP-T370
     Start app via GUI   ${Ghaf Control Panel}
-    Navigate To Device Information Page
-    Verify Device Information
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
     [Teardown]     Ghaf Control Panel Test Teardown
 
 Take a screenshot via Print Screen
@@ -176,6 +177,7 @@ Open Ghaf Control Panel Settings
     Click
 
 Verify Device Information
+    [Arguments]    ${screenshot_path}
     ${ghaf_version}     Get Ghaf Version
     ${device_id}        Get Actual Device ID
     ${sysinfo}          Run Command   givc-cli sysinfo
@@ -184,11 +186,10 @@ Verify Device Information
     ${device_info_failures}         Create List
     Set Test Variable   ${device_info_failures}
 
-    Check Device Information Field   Ghaf Version       ${ghaf_version}     scale=3
-    Check Device Information Field   Device ID          ${device_id}        scale=3   precision_percent=90
-    #    Workaround for SSRCSP-9060, gathering info if retries or scaling helps with no value issue
-    Check Device Information Field With Retry   Secure Boot        ${secure_boot}      scale=4
-    Check Device Information Field With Retry   Disk Encryption    ${disk_encryption}  scale=4
+    Check Device Information Field    ${screenshot_path}       Ghaf Version       ${ghaf_version}     scale=3
+    Check Device Information Field    ${screenshot_path}       Device ID          ${device_id}        scale=3    precision_percent=90
+    Check Device Information Field    ${screenshot_path}       Secure Boot        ${secure_boot}
+    Check Device Information Field    ${screenshot_path}       Disk Encryption    ${disk_encryption}
 
     IF    $device_info_failures          FAIL    ${device_info_failures}
 
@@ -196,30 +197,10 @@ Ghaf Control Panel Test Teardown
     Kill App in VM                 ${Ghaf Control Panel}    require_exists=False
     Switch to vm                   ${GUI_VM}    user=${USER_LOGIN}
     GUI App Test Teardown          ${TEST_STATUS}   ${TEST_NAME}
-
-Check Device Information Field With Retry
-    [Arguments]    ${field}    ${expected}   ${scale}=2   ${precision_percent}=100
-    TRY
-        Check Device Information Field    field=${field}    expected=${expected}    scale=${scale}   precision_percent=${precision_percent}
-    EXCEPT
-        Log Error   Control Panel value   Could not find ${field} value from Control Panel
-        TRY
-            Wait until keyword succeeds     5x      1s
-            ...           Check Device Information Field    field=${field}    expected=${expected}
-            ...                                             scale=${scale}    precision_percent=${precision_percent}
-        EXCEPT
-            FOR    ${increased_scale}    IN RANGE    5    10
-                Run keyword and continue on failure
-                ...           Check Device Information Field    field=${field}             expected=${expected}
-                ...                                             scale=${increased_scale}   precision_percent=${precision_percent}
-            END
-        END
-        Fail    Check Device Information Field tried to find value for ${field} with retries.
-    END
+    Run Keyword If Test Passed    Remove Captured Screenshots
 
 Check Device Information Field
-    [Arguments]    ${field}    ${expected}   ${scale}=2   ${precision_percent}=100
-    ${screenshot_path}  Take Remote Screenshot And Download
+    [Arguments]    ${screenshot_path}    ${field}    ${expected}   ${scale}=2   ${precision_percent}=100
     ${actual}           Get Text Field From Image   ${screenshot_path}   ${field}   scale=${scale}
     ${matches}   ${matched_text}     Text Matches    ${actual}    ${expected}    precision=${precision_percent}
     IF  not ${matches} and "${field}" == "Ghaf Version"     # workaround for SSRCSP-9045

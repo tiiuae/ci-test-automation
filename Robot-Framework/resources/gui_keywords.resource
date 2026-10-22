@@ -544,3 +544,36 @@ Save gui icons and icon path
     ${open_normal_path}     Search nix store    open-normal
     Get icon                ${open_normal_path}    ghaf-logo-512px.png  crop=0  background=black  resize=16x16  output_filename=open-normal-browser.png
     [Teardown]              Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+
+Capture Action Changes
+    [Documentation]    Return the cropped screenshot path and the wrapped keyword's return value.
+    [Arguments]    ${action}    @{args}
+    ${screenshots}=    Get Variable Value    ${CAPTURED_SCREENSHOTS}    ${None}
+    IF    $screenshots is None
+        ${screenshots}=    Create List
+        Set Test Variable    ${CAPTURED_SCREENSHOTS}    ${screenshots}
+    END
+
+    ${suffix}=    Get current timestamp
+    ${before}=    Take Remote Screenshot And Download
+    ...    to=${GUI_OUTPUT_DIR}/before_${suffix}.jpeg
+    Append To List    ${screenshots}    ${before}
+
+    ${result}=    Run Keyword    ${action}    @{args}
+
+    ${after}=    Take Remote Screenshot And Download
+    ...    to=${GUI_OUTPUT_DIR}/after_${suffix}.jpeg
+    Append To List    ${screenshots}    ${after}
+
+    ${cropped}=    Get Diff Images    ${before}    ${after}
+    Append To List    ${screenshots}    ${cropped}
+
+    RETURN    ${cropped}    ${result}
+
+Remove Captured Screenshots
+    [Documentation]    Remove only the local screenshots registered by the current test.
+    ${screenshots}=    Get Variable Value    ${CAPTURED_SCREENSHOTS}    ${None}
+    IF    $screenshots
+        OperatingSystem.Remove Files    @{screenshots}
+        Set Test Variable    ${CAPTURED_SCREENSHOTS}    ${None}
+    END
