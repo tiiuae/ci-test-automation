@@ -134,6 +134,7 @@ Check If Device Is Available
     IF    $action == 'reboot' and $CONNECTION_TYPE == 'serial' and $SERIAL_PORT != 'NONE'
         # SSRCSP-9085: try recovering net-vm before falling back to a full device reboot.
         Log    SSH is unavailable after reboot. Restarting net-vm via serial.    console=True
+        Set Test Variable    ${NETVM_RESTARTED_VIA_SERIAL}    ${True}
         TRY
             Run Command On Serial    systemctl restart ${NETVM_SERVICE}    sudo=${True}    timeout=20
             Close All Connections
