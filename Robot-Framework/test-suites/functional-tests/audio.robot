@@ -16,8 +16,8 @@ Test Timeout        3 minutes
 *** Variables ***
 
 ${AUDIO_DIR}           ${OUTPUT_DIR}/outputs/audio-temp
-@{VMS_WITH_AUDIO}      ${BUSINESS_VM}  ${CHROME_VM}  ${COMMS_VM}  ${FLATPAK_VM}  ${GUI_VM}
-@{VMS_WITHOUT_AUDIO}   ${AUDIO_VM}  ${ADMIN_VM}  ${HOST}  ${MEDIA_VM}  ${NET_VM}
+@{VMS_WITH_AUDIO}      ${BUSINESS_VM}  ${CHROME_VM}  ${COMMS_VM}  ${FLATPAK_VM}  ${GUI_VM}  ${MEDIA_VM}
+@{VMS_WITHOUT_AUDIO}   ${AUDIO_VM}  ${ADMIN_VM}  ${HOST}  ${NET_VM}
 
 
 *** Test Cases ***
