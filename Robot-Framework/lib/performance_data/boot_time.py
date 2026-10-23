@@ -10,7 +10,7 @@ class BootTimeProcessor:
     def __init__(self, processing):
         self.processing = processing
 
-    def read_bootime_csv_and_plot(self, test_name):
+    def read_bootime_csv_and_plot(self, test_name, absolute_limit=None):
         if 'Shutdown' in test_name:
             threshold = [thresholds['shutdown_time']]
             monitored_values = ['shutdown_time']
@@ -19,7 +19,7 @@ class BootTimeProcessor:
                 'shutdown_time': [],
                 'shutdown_time_power': [],
             }
-        elif 'Orin' in test_name:
+        elif 'Boot Health' in test_name or 'Orin' in test_name:
             threshold = [thresholds['boot_time']['response_to_ping']]
             monitored_values = ['response_to_ping']
             data = {
@@ -56,10 +56,13 @@ class BootTimeProcessor:
                 return_statistics,
             )
 
-        plt.subplot(2, 1, 1)
+        if 'Boot Health' in test_name or 'Orin' in test_name:
+            plt.subplot(1, 1, 1)
+        else:
+            plt.subplot(2, 1, 1)
         plt.ticklabel_format(axis='y', style='plain')
         plt.plot(data['commit'], data['response_to_ping'], marker='o', linestyle='-', color='b')
-        if 'Orin' in test_name:
+        if 'Orin' in test_name or 'Boot Health' in test_name:
             index = ''
         else:
             index = '1'
@@ -69,13 +72,21 @@ class BootTimeProcessor:
             40,
             index,
         )
+        if absolute_limit is not None:
+            plt.axhline(
+                absolute_limit,
+                color='crimson',
+                linestyle='--',
+                label=f'absolute limit: {absolute_limit}s',
+            )
+            plt.legend()
         plt.yticks(fontsize=14)
         plt.title('Response to ping', loc='right', fontweight="bold", fontsize=16)
         plt.ylabel('seconds', fontsize=12)
         plt.grid(True)
         plt.xticks(data['commit'], rotation=90, fontsize=10)
 
-        if 'Orin' not in test_name:
+        if 'Orin' not in test_name and 'Boot Health' not in test_name:
             plt.subplot(2, 1, 2)
             plt.ticklabel_format(axis='y', style='plain')
             plt.plot(data['commit'], data['time_to_desktop'], marker='o', linestyle='-', color='b')

@@ -63,6 +63,16 @@ deviations are detected in a row (to the same direction)
 '''
 
 static_thresholds = {
+    'boot_health': {
+        'response_to_ping': {
+            'lenovo-x1': 90,
+            'darter-pro': 90,
+            'orin-agx': 95,
+            'orin-nx': 80,
+            'laptop': 90,
+        },
+        'serial_timestamp_gap': 15,
+    },
     'app_launch_time': 5,
     'app_launch_time_storedisk': 5,
     'wait_until_reset': 5,
