@@ -13,13 +13,6 @@
     "app_id": "com.system76.CosmicStore",
     "close_button": "ghaf-close.png"
   },
-  "Bluetooth Settings": {
-    "display_name": "Bluetooth Settings",
-    "VM": "gui-vm",
-    "process_name": "blueman-manager-wrapped",
-    "app_id": "blueman-manager",
-    "close_button": "window-close-neg.png"
-  },
   "Calculator": {
     "display_name": "Calculator",
     "VM": "gui-vm",

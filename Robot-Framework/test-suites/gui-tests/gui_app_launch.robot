@@ -30,10 +30,6 @@ Start App Store via GUI
     [Tags]            SP-T460
     ${App Store}
 
-Start Bluetooth Settings via GUI
-    [Tags]            SP-T417
-    ${Bluetooth Settings}
-
 Start Calculator via GUI
     [Tags]            SP-T416
     ${Calculator}
