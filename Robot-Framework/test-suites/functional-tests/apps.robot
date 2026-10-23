@@ -20,10 +20,6 @@ Start App Store
     [Tags]            SP-T461
     ${App Store}
 
-Start Bluetooth Settings
-    [Tags]            SP-T418  fmo
-    ${Bluetooth Settings}
-
 Start Calculator
     [Tags]            SP-T415  fmo
     ${Calculator}

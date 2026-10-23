@@ -72,7 +72,14 @@ Save original values
     ${language}          Get language
     Set Suite Variable   ${ORIGINAL_LANGUAGE}   ${language}
 
-    Copy file            ${KEYBOARD_CONFIG}     ${ORIGINAL_KEYBOARD}
+    TRY
+        Copy file            ${KEYBOARD_CONFIG}     ${ORIGINAL_KEYBOARD}
+    EXCEPT    *No such file or directory*    type=GLOB
+        Log    Keyboard config was absent before test   console=True
+        Set Suite Variable   ${ORIGINAL_KEYBOARD_EXISTS}   ${False}
+    ELSE
+        Set Suite Variable   ${ORIGINAL_KEYBOARD_EXISTS}   ${True}
+    END
 
     ${timezone}          Get timezone
     Set Suite Variable   ${ORIGINAL_TIMEZONE}   ${timezone}
@@ -80,7 +87,11 @@ Save original values
 Restore original values
     [Documentation]   Restore language, keyboard config and timezone to original values
     Set language      ${ORIGINAL_LANGUAGE} 
-    Copy file         ${ORIGINAL_KEYBOARD}   ${KEYBOARD_CONFIG}
+    IF    ${ORIGINAL_KEYBOARD_EXISTS}
+        Copy file         ${ORIGINAL_KEYBOARD}   ${KEYBOARD_CONFIG}
+    ELSE
+        Remove file       ${KEYBOARD_CONFIG}
+    END
     Set timezone      ${ORIGINAL_TIMEZONE}
     [Teardown]        Run Command    rm -f ${ORIGINAL_KEYBOARD}
 
