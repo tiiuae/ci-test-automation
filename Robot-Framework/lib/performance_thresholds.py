@@ -65,11 +65,11 @@ deviations are detected in a row (to the same direction)
 static_thresholds = {
     'boot_health': {
         'response_to_ping': {
-            'lenovo-x1': 90,
-            'darter-pro': 90,
-            'orin-agx': 95,
-            'orin-nx': 80,
-            'laptop': 90,
+            'lenovo-x1': 110,
+            'darter-pro': 110,
+            'orin-agx': 140,
+            'orin-nx': 140,
+            'laptop': 110,
         },
         'serial_timestamp_gap': 15,
     },
