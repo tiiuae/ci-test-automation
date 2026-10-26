@@ -159,7 +159,6 @@ Measure UDP Bidir Throughput Big Packets
     ${statistics}           Save Networking Speed Data   ${TEST NAME}  ${speed_data}
     # Measurement result based PASS/FAIL criteria disabled for this test case
     # Determine Test Status   ${statistics}
-    # [Teardown]   Run Keyword If   "AGX" in "${DEVICE}"   Run Keyword If Test Failed   Skip   "Known issue: SSRCSP-6623 (AGX)"
 
 *** Keywords ***
 Run iperf server on DUT
