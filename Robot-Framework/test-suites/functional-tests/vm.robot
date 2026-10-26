@@ -20,10 +20,6 @@ Suite Setup         VM Suite Setup
 @{known_issues}=    ANY|ghaf-host|systemd-rfkill.service|SSRCSP-7321
              ...    darter|ghaf-host|systemd-tpm2-setup.service|SSRCSP-8357
              ...    darter|ghaf-host|systemd-pcrlogin@901.service|SSRCSP-8776
-             ...    orin-nx|gpu-vm|gpu-partition-manager.service|SSRCSP-8792
-             ...    darter|ANY|fail2ban.service|SSRCSP-8891
-             ...    agx-64|ghaf-host|ghaf-load-ftpm-module.service|SSRCSP-8938
-             ...    orin|ghaf-host|ghaf-load-ftpm-module.service|SSRCSP-8938
              ...    ANY|disp-vm|systemd-modules-load.service|SSRCSP-9041
 
 # Container for test message. Keyword `Set Test Message` doesn't work properly with Templates.
