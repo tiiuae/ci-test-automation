@@ -66,10 +66,14 @@ static_thresholds = {
     'boot_health': {
         'response_to_ping': {
             'lenovo-x1': 110,
+            'x1-sec-boot': 110,
             'darter-pro': 110,
+            'darter-sec-boot': 110,
+            'dell-7330': 110,
             'orin-agx': 140,
+            'orin-agx-64': 140,
+            'agx-64-sec-boot': 140,
             'orin-nx': 140,
-            'laptop': 110,
         },
         'serial_timestamp_gap': 15,
     },
