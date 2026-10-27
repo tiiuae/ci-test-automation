@@ -38,6 +38,7 @@ App Store Test Teardown
     IF   ${availability}    Kill app and Uninstall in App Store   ${app_key}
     Switch to vm            ${GUI_VM}  user=${USER_LOGIN}
     GUI App Test Teardown   ${TEST_STATUS}   ${TEST_NAME}
+    Run Keyword If Test Passed    Remove Captured Screenshots
 
 Install and Launch App Store app
     [Documentation]   Install app from App Store and launch it from the app menu
@@ -167,5 +168,6 @@ Save a file from Onlyoffice
 
 Search for typed text
     [Documentation]   Write a text and search for it with text recognition
-    Type string         testText    enter_at_end=True
-    Locate on screen    text     testText   iterations=2
+    ${screenshot_path}   ${_}=    Capture Action Changes    Type string         testText    enter_at_end=True
+    ${is_found}    ${_}=    Is Text On The Screen   ${screenshot_path}       testText   scale=2    config=--psm 11
+    Should Be True    ${is_found}    msg=testText wasn't found on the screenshot

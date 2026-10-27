@@ -23,10 +23,11 @@ def locate_image(screenshot, image, confidence):
     logging.info(image_center_in_mouse_coordinates)
     return image_center_in_mouse_coordinates
 
-def get_data_from_image(image, scale=1):
+def get_data_from_image(image, scale=1, config=''):
+    """Read OCR data with optional Tesseract CLI options, e.g. config='--psm 7'."""
     image = Image.open(image)
     image = image.resize((image.width * scale, image.height * scale), Image.BICUBIC)
-    data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
+    data = pytesseract.image_to_data(image, config=config, output_type=pytesseract.Output.DICT)
     logging.info(data)
     return data
 
@@ -87,10 +88,10 @@ def _get_ocr_words(data):
 
     return words
 
-def get_text_field_from_image(image, field, scale=1):
+def get_text_field_from_image(image, field, scale=1, config=''):
     # Read table-like UI rows where the label is on the left and the value is on the same row to the right.
     logging.info(f"Reading field '{field}' from {image}")
-    data = get_data_from_image(image, scale)
+    data = get_data_from_image(image, scale, config=config)
     words = _get_ocr_words(data)
     expected_words = [_normalize_ocr_text(word) for word in field.split()]
     label_found = False
@@ -128,9 +129,9 @@ def get_text_field_from_image(image, field, scale=1):
         raise AssertionError(f"Field '{field}' was not found in image. Recognized text: {recognized_text}")
     raise AssertionError(f"Value for field '{field}' was not found in image. Recognized text: {recognized_text}")
 
-def is_text_on_the_screen(screenshot, text, scale=1, ignore_case=True, precision=100):
+def is_text_on_the_screen(screenshot, text, scale=1, ignore_case=True, precision=100, config=''):
     logging.info("Searching " + text)
-    data = get_data_from_image(screenshot, scale)
+    data = get_data_from_image(screenshot, scale, config=config)
     return is_text_in_parsed_image_data(data=data, text=text, ignore_case=ignore_case, precision=precision)
 
 def is_text_in_parsed_image_data(data, text, ignore_case=True, precision=100):
@@ -179,10 +180,10 @@ def _find_best_ocr_match(words, text, precision, ignore_case):
     matched_words, matched_text = best_match
     return matched_words, matched_text, best_score
 
-def locate_text(screenshot, text, scale=1, precision=100, ignore_case=True):
+def locate_text(screenshot, text, scale=1, precision=100, ignore_case=True, config=''):
     logging.info(f"Searching for '{text}'")
     precision = _parse_precision(precision)
-    data = get_data_from_image(screenshot, scale)
+    data = get_data_from_image(screenshot, scale, config=config)
     words = _get_ocr_words(data)
 
     matched_words, matched_text, best_score = _find_best_ocr_match(
