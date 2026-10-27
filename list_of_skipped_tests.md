@@ -3,7 +3,7 @@
 ## Active SKIPS
 
 | DATE SET   | TEST CASE                          | TICKET / Additional Data                                                              | Error Log Context  |
-|------------|------------------------------------|---------------------------------------------------------------------------------------|--------------------|
+| ---------- | ---------------------------------- | ------------------------------------------------------------------------------------- | ------------------ |
 | 23.10.2026 | Reboot from power menu             | SSRCSP-9085, skip if connect after reboot hits time limit after net-vm serial restart |                    |
 | 19.10.2026 | GUI App tests                      | SSRCSP-9093                                                                           | Waypipe socket     |
 | 26.08.2026 | Verify Gala is loaded              | SSRCSP-8855                                                                           | Slow Gala          |
@@ -11,13 +11,6 @@
 | 11.02.2026 | Check device id (storeDisk)        | SSRCSP-7997                                                                           | (Fails every time) |
 | 11.02.2026 | Check net-vm hostname (storeDisk)  | SSRCSP-7997                                                                           | (Fails every time) |
 | 16.09.2025 | Check systemctl status in every VM | [List of skips](/Robot-Framework/test-suites/functional-tests/vm.robot)               | Systemctl status   |
-
-## Old Dell 7330 skips
-
-| DATE SET   | TEST CASE                            | TICKET / Additional Data                |
-| ---------- | ------------------------------------ | --------------------------------------- |
-| 15.06.2026 | VM memory usage snapshot (Dell 7330) | Dell has less memory than other targets |
-| 22.05.2026 | Check logging rate (Dell)            | SSRCSP-8481                             |
 
 ## TAGs removed
 

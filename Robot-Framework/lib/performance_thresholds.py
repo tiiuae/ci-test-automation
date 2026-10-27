@@ -77,8 +77,8 @@ static_thresholds = {
         },
         'serial_timestamp_gap': 15,
     },
-    'app_launch_time': 5,
-    'app_launch_time_storedisk': 5,
+    'app_launch_time': 2.5,
+    'app_launch_time_storedisk': 2.5,
     'wait_until_reset': 5,
     'cyclictest': {
         # Same value is used both as the absolute pass/fail limit for avg latency measurement of the variant

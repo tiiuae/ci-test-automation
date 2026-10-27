@@ -44,7 +44,7 @@ Record memory usage test
 
 VM memory usage snapshot
     [Documentation]    Log current memory usage (available/total) and swap usage (free/total) in every VM and ghaf-host and plot it across builds.
-    [Tags]             SP-T360  memory_usage  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
+    [Tags]             SP-T360  memory_usage  lenovo-x1  darter-pro  orin-agx  orin-agx-64  orin-nx
     ${low_mem_limit}       Set Variable    10
     ${low_swap_limit}      Set Variable    50
     @{vms}         Get VM list    with_host=True
@@ -89,7 +89,6 @@ VM memory usage snapshot
 
     [Teardown]      Run Keywords    Close All Connections
     ...             AND             Switch to vm   ${HOST}
-    ...             AND             Run Keyword If Test Failed    Run Keyword If    "${DEVICE_TYPE}" == "dell-7330"    SKIP    Low memory target has less memory available
 
 nvpmodel check test
     [Documentation]     If power mode changed it would probably have an effect on performance test results.

@@ -188,13 +188,13 @@ class ParseMeasurementData:
         data.to_csv(file_path, index=False)
         return file_path
 
-    def generate_measurement_history_graph(self, test_name, metric_name, device):
+    def generate_measurement_history_graph(self, test_name, metric_name, device, graph_value_limit=None):
         file_path = os.path.join(self.csv_dir, f"{device}_{test_name}__{metric_name}.csv")
         data = pd.read_csv(file_path)
-        self._plot_measurement_history_graph(data, test_name, metric_name, device)
+        self._plot_measurement_history_graph(data, test_name, metric_name, device, graph_value_limit)
         return
 
-    def preview_measurement_history_result(self, test_name, metric_name, unit, build_id, device, measurements):
+    def preview_measurement_history_result(self, test_name, metric_name, unit, build_id, device, measurements, graph_value_limit=None):
         file_path = os.path.join(self.csv_dir, f"{device}_{test_name}__{metric_name}.csv")
         if os.path.exists(file_path):
             data = pd.read_csv(file_path)
@@ -202,7 +202,7 @@ class ParseMeasurementData:
             data = pd.DataFrame(columns=["build_id", "unit"])
         row = self._build_measurement_history_row(unit, build_id, measurements)
         data = self._append_measurement_history_row(data, row)
-        self._plot_measurement_history_graph(data, test_name, metric_name, device)
+        self._plot_measurement_history_graph(data, test_name, metric_name, device, graph_value_limit)
         return
 
     @staticmethod
@@ -226,7 +226,7 @@ class ParseMeasurementData:
             ignore_index=True,
         )
 
-    def _plot_measurement_history_graph(self, data, test_name, metric_name, device):
+    def _plot_measurement_history_graph(self, data, test_name, metric_name, device, graph_value_limit=None):
         if data.empty:
             logging.warning("No measurement history data to plot for %s/%s", test_name, metric_name)
             return
@@ -250,6 +250,8 @@ class ParseMeasurementData:
         has_numeric_values = False
         for column in value_columns:
             values = pd.to_numeric(data[column], errors="coerce")
+            if graph_value_limit is not None:
+                values = values.where(values <= float(graph_value_limit))
             if values.notna().any():
                 has_numeric_values = True
                 ax.plot(
