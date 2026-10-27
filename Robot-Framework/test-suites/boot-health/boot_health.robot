@@ -46,11 +46,6 @@ Check Boot Time And Plot
     Skip If    not ${boot_id_matches}    Saved boot time belongs to another boot; skipping timing evaluation.
     ${installer_target}    Evaluate    'installer' in $JOB.lower()
     ${target_type}    Set Variable    ${DEVICE_TYPE}
-    IF    '${DEVICE_TYPE}' == 'orin-agx-64'
-        ${target_type}    Set Variable    orin-agx
-    ELSE IF    '${DEVICE_TYPE}' == 'dell-7330'
-        ${target_type}    Set Variable    laptop
-    END
     ${ping_ok}    ${ping_exceeded}    ${ping_issue}=    Validate Boot Time Value
     ...    response to ping    ${ping}    ${ping_rc}
     ...    ${static_thresholds}[boot_health][response_to_ping][${target_type}]
