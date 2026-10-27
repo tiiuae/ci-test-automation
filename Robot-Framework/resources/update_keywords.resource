@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Library             String
 Library             Collections
+Library             String
 Resource            ../resources/common_keywords.resource
 
 *** Variables ***

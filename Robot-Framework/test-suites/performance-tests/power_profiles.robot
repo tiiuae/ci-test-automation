@@ -3,8 +3,9 @@
 
 *** Settings ***
 Documentation       Testing power consumption with different power profiles on Lenovo-X1
-Test Tags           power-profiles  lenovo-x1  lab-only
 
+Library             ../../lib/output_parser.py
+Library             JSONLibrary
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/gui-vm_keywords.resource
 Resource            ../../resources/measurement_keywords.resource
@@ -12,8 +13,8 @@ Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/common_keywords.resource
-Library             ../../lib/output_parser.py
-Library             JSONLibrary
+
+Test Tags           power-profiles  lenovo-x1  lab-only
 
 *** Variables ***
 ${POWERSAVE_LIMIT}           10500

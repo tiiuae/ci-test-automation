@@ -5,7 +5,6 @@
 Library             Collections
 Library             String
 
-
 *** Keywords ***
 
 Create deviation message

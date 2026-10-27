@@ -3,6 +3,7 @@
 
 *** Settings ***
 Resource            ../config/variables.robot
+
 Suite Setup         Global Setup
 
 *** Keywords ***

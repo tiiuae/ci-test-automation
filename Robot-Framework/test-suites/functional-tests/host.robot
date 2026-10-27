@@ -3,7 +3,6 @@
 
 *** Settings ***
 Documentation       Common system tests on host
-Test Tags           host
 
 Library             ../../lib/output_parser.py
 Resource            ../../resources/common_keywords.resource
@@ -13,6 +12,7 @@ Resource            ../../resources/service_keywords.resource
 
 Suite Setup         Switch to vm   ${HOST}
 
+Test Tags           host
 
 *** Test Cases ***
 

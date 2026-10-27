@@ -2,16 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
+Library             DateTime
+Library             OperatingSystem
+Library             String
 Library             ../lib/KMTronicLibrary.py   ${RELAY_SERIAL_PORT}
 Library             ../lib/output_parser.py
 Library             ../lib/helper_functions.py
 Library             AdvancedLogging
-Library             DateTime
-Library             OperatingSystem
 Library             SerialLibrary    encoding=ascii
-Library             String
 Resource            ../resources/device_control.resource
-
 
 *** Keywords ***
 

@@ -3,10 +3,10 @@
 
 *** Settings ***
 Documentation       Shared keywords for external blacklisting checks and recovery
+
 Resource            ../resources/common_keywords.resource
 Resource            ../resources/ssh_keywords.resource
 Resource            ../resources/serial_keywords.resource
-
 
 *** Keywords ***
 

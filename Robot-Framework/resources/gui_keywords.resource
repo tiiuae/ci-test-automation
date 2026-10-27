@@ -5,13 +5,12 @@
 Documentation       Keywords for gui tests. Note: These keywords assume the connection is to the gui-vm
 ...                 as the non-privileged user.
 
-Library             ../lib/GuiTesting.py
 Library             Collections
 Library             DateTime
+Library             ../lib/GuiTesting.py
 Resource            ../resources/app_keywords.resource
 Resource            ../resources/file_keywords.resource
 Resource            ../resources/ssh_keywords.resource
-
 
 *** Variables ***
 ${APP_MENU_LAUNCHER}   launcher.png

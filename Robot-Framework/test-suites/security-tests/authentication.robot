@@ -3,10 +3,10 @@
 
 *** Settings ***
 Documentation       Test user authentication
-Test Tags           authentication  lenovo-x1  darter-pro
 
 Resource            ../../resources/ssh_keywords.resource
 
+Test Tags           authentication  lenovo-x1  darter-pro
 
 *** Test Cases ***
 

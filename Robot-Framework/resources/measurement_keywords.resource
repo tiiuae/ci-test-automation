@@ -2,15 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Resource            ../config/variables.robot
-Library             ../lib/ParseMeasurementData.py    ${LOGGED_PARAMS_DIR}    ${PLOT_DIR}
 Library             DateTime
+Library             ../lib/ParseMeasurementData.py    ${LOGGED_PARAMS_DIR}    ${PLOT_DIR}
 Library             SSHLibrary
+Resource            ../config/variables.robot
 Resource            ../resources/common_keywords.resource
 Resource            ../resources/file_keywords.resource
 Resource            ../resources/performance_keywords.resource
 Resource            ../resources/ssh_keywords.resource
-
 
 *** Variables ***
 ${SSH_MEASUREMENT}        ${EMPTY}

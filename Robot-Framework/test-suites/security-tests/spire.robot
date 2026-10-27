@@ -3,7 +3,6 @@
 
 *** Settings ***
 Documentation       Verify that SPIRE server is healthy and x509pop agents are attested
-Test Tags           spire  lenovo-x1  darter-pro  orin-agx  orin-agx-64  orin-nx
 
 Library             Collections
 Library             String
@@ -13,6 +12,7 @@ Resource            ../../resources/service_keywords.resource
 
 Suite Setup         Wait for VMs to be running
 
+Test Tags           spire  lenovo-x1  darter-pro  orin-agx  orin-agx-64  orin-nx
 
 *** Variables ***
 ${SPIRE_SOCKET_PATH}        /run/spire-server/api.sock

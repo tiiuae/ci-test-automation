@@ -3,15 +3,17 @@
 
 *** Settings ***
 Documentation       Checking VM's firewall
-Test Tags           firewall
+
+Library             OperatingSystem
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/security_blacklist_keywords.resource
-Library             OperatingSystem
 
 Suite Setup         Suite Setup
+
+Test Tags           firewall
 
 *** Variables ***
 ${port}             5432

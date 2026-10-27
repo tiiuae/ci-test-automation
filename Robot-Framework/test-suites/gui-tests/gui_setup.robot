@@ -3,11 +3,12 @@
 
 *** Settings ***
 Documentation       Testing setup
-Test Tags           gui-setup  lenovo-x1  darter-pro
 
 Resource            ../../resources/gui-vm_keywords.resource
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/setup_keywords.resource
+
+Test Tags           gui-setup  lenovo-x1  darter-pro
 
 *** Variables ***
 ${KEYBOARD_CONFIG}      /home/${USER_LOGIN}/.config/cosmic/com.system76.CosmicComp/v1/xkb_config

@@ -4,7 +4,6 @@
 *** Settings ***
 Documentation       Validates that individual VM failures are isolated and do not impact
 ...                 the availability, performance, or security of other VMs or the host system.
-Test Tags           vm-isolation  lenovo-x1  darter-pro  dell-7330
 
 Library             Collections
 Library             String
@@ -14,6 +13,8 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/service_keywords.resource
 
 Suite Setup     VM Isolation Suite Setup
+
+Test Tags           vm-isolation  lenovo-x1  darter-pro  dell-7330
 
 *** Test Cases ***
 

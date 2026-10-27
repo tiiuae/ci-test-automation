@@ -3,9 +3,10 @@
 
 *** Settings ***
 Documentation       Update tests
-Test Tags           update  lenovo-x1  darter-pro  excl-storeDisk  excl-secboot
 
 Resource            ../../resources/setup_keywords.resource
 
 Suite Setup         Prepare Test Environment
 Suite Teardown      Clean Up Test Environment
+
+Test Tags           update  lenovo-x1  darter-pro  excl-storeDisk  excl-secboot

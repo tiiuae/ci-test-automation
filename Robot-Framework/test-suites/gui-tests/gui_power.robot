@@ -3,7 +3,6 @@
 
 *** Settings ***
 Documentation       Testing power options
-Test Tags           gui-power
 
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/device_control.resource
@@ -17,6 +16,7 @@ Resource            ../../resources/serial_keywords.resource
 Test Setup          GUI Power Test Setup
 Test Teardown       GUI Power Test Teardown
 
+Test Tags           gui-power
 
 *** Test Cases ***
 

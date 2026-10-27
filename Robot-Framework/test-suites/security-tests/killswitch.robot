@@ -3,12 +3,14 @@
 
 *** Settings ***
 Documentation       Check killswitch functionality
-Test Tags           killswitch  lenovo-x1  darter-pro
+
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/audio_and_video_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/gui-vm_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
+
+Test Tags           killswitch  lenovo-x1  darter-pro
 
 *** Variables ***
 

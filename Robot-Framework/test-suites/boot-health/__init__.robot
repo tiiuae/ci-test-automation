@@ -3,5 +3,7 @@
 
 *** Settings ***
 Documentation       Boot health tests.
-Test Tags           boot-health
+
 Test Timeout        10 minutes
+
+Test Tags           boot-health

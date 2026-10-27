@@ -3,13 +3,14 @@
 
 *** Settings ***
 Documentation       Checking retention policies
-Test Tags           retention
+
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/device_control.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/service_keywords.resource
 
+Test Tags           retention
 
 *** Test Cases ***
 

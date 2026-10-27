@@ -3,7 +3,6 @@
 
 *** Settings ***
 Documentation       Testing security via GUI
-Test Tags           gui-security
 
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/common_keywords.resource
@@ -15,6 +14,8 @@ Test Setup          Run keywords      Start screen recording
 Test Teardown       Run keywords      Switch to vm            ${GUI_VM}  user=${USER_LOGIN}        AND
 ...                                   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 Test Timeout        10 minutes
+
+Test Tags           gui-security
 
 *** Test Cases ***
 Check Access List In Trusted Browser

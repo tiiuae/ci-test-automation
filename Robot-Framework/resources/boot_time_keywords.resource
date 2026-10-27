@@ -2,15 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-
-Library             DateTime
 Library             Collections
-Library             ../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
-...                 ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}  ${PERF_LOW_LIMIT}
-Variables           ../lib/performance_thresholds.py
+Library             DateTime
+Resource            performance_data_processing.resource
 Resource            device_control.resource
 Resource            performance_keywords.resource
 Resource            ssh_keywords.resource
+Variables           ../lib/performance_thresholds.py
 
 *** Variables ***
 ${BOOT_PING_TIMEOUT}        180

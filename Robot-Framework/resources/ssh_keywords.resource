@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Library             ../lib/helper_functions.py
-Library             ../lib/output_parser.py
 Library             OperatingSystem
 Library             Process
-Library             SSHLibrary
 Library             String
+Library             ../lib/helper_functions.py
+Library             ../lib/output_parser.py
+Library             SSHLibrary
 Resource            ../config/variables.robot
 Resource            ../resources/common_keywords.resource
 Resource            ../resources/serial_keywords.resource

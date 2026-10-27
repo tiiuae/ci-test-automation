@@ -3,9 +3,10 @@
 
 *** Settings ***
 Documentation       Performance tests
-Test Tags           performance
 
 Resource            ../../resources/setup_keywords.resource
 
 Suite Setup         Prepare Test Environment
 Suite Teardown      Clean Up Test Environment
+
+Test Tags           performance

@@ -3,7 +3,6 @@
 
 *** Settings ***
 Documentation       Tests for update tooling
-Test Tags           rebuild
 
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/device_control.resource
@@ -16,6 +15,7 @@ Resource            ../../resources/service_keywords.resource
 Suite Setup          Rebuild from modified ghaf repo
 Suite Teardown       Rebuild Teardown
 
+Test Tags           rebuild
 
 *** Test Cases ***
 

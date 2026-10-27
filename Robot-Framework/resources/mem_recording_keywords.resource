@@ -2,13 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Library             OperatingSystem
 Library             Collections
+Library             OperatingSystem
 Library             ../lib/MemRecordingProcessing.py    ${LOGGED_PARAMS_DIR}mem_recordings/    ${PLOT_DIR}
 Resource            ../config/variables.robot
 Resource            ../resources/common_keywords.resource
 Resource            ../resources/ssh_keywords.resource
-
 
 *** Variables ***
 

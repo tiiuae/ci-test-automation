@@ -3,7 +3,6 @@
 
 *** Settings ***
 Documentation       Testing audio
-Test Tags           audio  bat  lenovo-x1  darter-pro  dell-7330
 
 Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/audio_and_video_keywords.resource
@@ -12,6 +11,7 @@ Resource            ../../resources/ssh_keywords.resource
 Suite Setup         Switch to vm   ${NET_VM}
 Test Timeout        3 minutes
 
+Test Tags           audio  bat  lenovo-x1  darter-pro  dell-7330
 
 *** Variables ***
 

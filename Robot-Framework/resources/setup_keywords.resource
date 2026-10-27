@@ -9,7 +9,6 @@ Resource            ../resources/ssh_keywords.resource
 Resource            ../resources/common_keywords.resource
 Resource            ../resources/file_keywords.resource
 
-
 *** Variables ***
 ${CONNECTION_TYPE}           ssh
 ${ROBOT_SUDOERS_BOOT_ID}     ${EMPTY}

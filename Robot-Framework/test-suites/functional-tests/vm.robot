@@ -3,16 +3,16 @@
 
 *** Settings ***
 Documentation       Tests that are run in every VM
-Test Tags           vms  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  fmo
 
-Library             ../../lib/output_parser.py
 Library             Collections
+Library             ../../lib/output_parser.py
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/service_keywords.resource
 
 Suite Setup         VM Suite Setup
 
+Test Tags           vms  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  fmo
 
 *** Variables ***
 # Add any known failing services here with the vm name and bug ticket number.

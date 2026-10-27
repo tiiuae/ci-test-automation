@@ -3,16 +3,17 @@
 
 *** Settings ***
 Documentation       Bluetooth functional tests with external Bluetooth Board
-Test Tags           bluetooth  lenovo-x1  darter-pro  lab-only
 
-Library             SerialLibrary    encoding=ascii
-Library             Process
 Library             OperatingSystem
+Library             Process
+Library             SerialLibrary    encoding=ascii
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Wait Until Keyword Succeeds    180s    5s    Try Acquire Bluetooth Board Lock
 Suite Teardown      Release Bluetooth Board Lock
+
+Test Tags           bluetooth  lenovo-x1  darter-pro  lab-only
 
 *** Variables ***
 ${BT_BOARD_LOCK_PATH}        /tmp/.bt-board-lock

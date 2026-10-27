@@ -2,13 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Library             ../lib/output_parser.py
 Library             Collections
-Library             OperatingSystem
 Library             DateTime
+Library             OperatingSystem
 Library             Process
 Library             String
-
+Library             ../lib/output_parser.py
 
 *** Keywords ***
 
