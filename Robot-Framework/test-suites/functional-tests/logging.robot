@@ -209,9 +209,8 @@ Save logging logs from VMs
 Check logging rate against history
     [Arguments]    ${history_test_name}    ${save_history}=${True}
     ${check_interval}          Set Variable   100
-    ${entry_limit}             Set Variable   400
-    ${dell_host_entry_limit}   Set Variable   1000   # Known Issue: SSRCSP-8481
-    ${orin_entry_limit}        Set Variable   1000
+    ${entry_limit}             Set Variable   250
+    ${orin_entry_limit}        Set Variable   400
     ${bytes_per_entry}         Set Variable   200
 
     &{spam_metrics}       Create Dictionary
@@ -234,8 +233,6 @@ Check logging rate against history
         END
         IF  ${IS_ORIN}
             ${vm_entry_limit}   Set Variable   ${orin_entry_limit}
-        ELSE IF  "${DEVICE_TYPE}" == "dell-7330" and '${vm}' == '${HOST}'
-            ${vm_entry_limit}   Set Variable   ${dell_host_entry_limit}  # Known Issue: SSRCSP-8481
         ELSE
             ${vm_entry_limit}   Set Variable   ${entry_limit}
         END
@@ -270,12 +267,14 @@ Check logging rate against history
     IF  ${has_unavailable_vms}
         Log                VMs not accessible during logging check:\n${unavailable_vms}    console=True
     END
+    ${graph_entry_limit}    Evaluate    4 * ${entry_limit}
+    ${graph_byte_limit}     Evaluate    ${graph_entry_limit} * ${bytes_per_entry}
     IF  ${save_history}
-        Save measurement history data    ${history_test_name}    log_entries    entries/100s    &{entry_history}
-        Save measurement history data    ${history_test_name}    log_byte_rate    bytes/100s    &{byte_history}
+        Save measurement history data    ${history_test_name}    log_entries    entries/100s    &{entry_history}    graph_value_limit=${graph_entry_limit}
+        Save measurement history data    ${history_test_name}    log_byte_rate    bytes/100s    &{byte_history}    graph_value_limit=${graph_byte_limit}
     ELSE
-        Preview measurement history data    ${history_test_name}    log_entries    entries/100s    &{entry_history}
-        Preview measurement history data    ${history_test_name}    log_byte_rate    bytes/100s    &{byte_history}
+        Preview measurement history data    ${history_test_name}    log_entries    entries/100s    &{entry_history}    graph_value_limit=${graph_entry_limit}
+        Preview measurement history data    ${history_test_name}    log_byte_rate    bytes/100s    &{byte_history}    graph_value_limit=${graph_byte_limit}
     END
     ${status}          Run Keyword And Return Status    Should Be Empty  ${spam_metrics}
     IF  not ${status}

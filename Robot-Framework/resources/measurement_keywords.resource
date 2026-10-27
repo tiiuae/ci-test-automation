@@ -200,15 +200,15 @@ Plot parameter log
 
 Save measurement history data
     [Documentation]    Save one build worth of measurement series values and plot the accumulated history.
-    [Arguments]        ${test_name}    ${metric_name}    ${unit}    &{measurements}
+    [Arguments]        ${test_name}    ${metric_name}    ${unit}    ${graph_value_limit}=${None}    &{measurements}
     ${build_id}    Set Variable    ${BUILD_ID}-${COMMIT_HASH}
     Append measurement history result    ${test_name}    ${metric_name}    ${unit}    ${build_id}    ${DEVICE}    ${measurements}
-    Generate measurement history graph    ${test_name}    ${metric_name}    ${DEVICE}
+    Generate measurement history graph    ${test_name}    ${metric_name}    ${DEVICE}    ${graph_value_limit}
     Log    <img src="${REL_PLOT_DIR}${DEVICE}_${test_name}__${metric_name}.png" alt="${metric_name} history" width="1200">    HTML
 
 Preview measurement history data
     [Documentation]    Plot current measurement together with history without saving it to history.
-    [Arguments]        ${test_name}    ${metric_name}    ${unit}    &{measurements}
+    [Arguments]        ${test_name}    ${metric_name}    ${unit}    ${graph_value_limit}=${None}    &{measurements}
     ${build_id}    Set Variable    ${BUILD_ID}-${COMMIT_HASH}
-    Preview measurement history result    ${test_name}    ${metric_name}    ${unit}    ${build_id}    ${DEVICE}    ${measurements}
+    Preview measurement history result    ${test_name}    ${metric_name}    ${unit}    ${build_id}    ${DEVICE}    ${measurements}    ${graph_value_limit}
     Log    <img src="${REL_PLOT_DIR}${DEVICE}_${test_name}__${metric_name}.png" alt="${metric_name} history" width="1200">    HTML
