@@ -6,6 +6,7 @@ Documentation       Check killswitch functionality
 
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/audio_and_video_keywords.resource
+Resource            ../../resources/bluetooth.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/gui-vm_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
@@ -63,6 +64,25 @@ Killswitch disconnects WLAN
     Get wifi IP
     [Teardown]       WLAN teardown
 
+Kill switch disconnects Bluetooth
+    [Documentation]    Verify that blocking removes the Bluetooth controller and unblocking restores it
+    ...                Check that Bluetooth functionality continues working
+    [Tags]             SP-T339  lab-only
+    [Setup]            Wait Until Keyword Succeeds    180s    5s    Try Acquire Bluetooth Board Lock
+    Verify Bluetooth controller availability    ${True}
+    ${bt_board_mac}    Discover bluetooth device by name
+    Open Bluetooth Board Serial Port
+    Connect bluetooth device       ${bt_board_mac}
+    Set device state  blocked    bluetooth
+    Verify Bluetooth controller availability    ${False}
+    Set device state  unblocked    bluetooth
+    Verify Bluetooth controller availability    ${True}
+    ${bt_board_mac}    Discover bluetooth device by name
+    Connect bluetooth device       ${bt_board_mac}
+    Disconnect bluetooth device    ${bt_board_mac}
+    Remove bluetooth device        ${bt_board_mac}
+    [Teardown]         Bluetooth teardown
+
 
 *** Keywords ***
 
@@ -81,3 +101,10 @@ WLAN teardown
     END
     Set device state  unblocked  net
     Remove Wifi configuration  ${TEST_WIFI_SSID}
+
+Bluetooth teardown
+    Set device state    unblocked    bluetooth
+    Switch to vm       ${AUDIO_VM}
+    Remove cached bluetooth devices by name
+    Close Bluetooth Board Serial Port
+    Release Bluetooth Board Lock
