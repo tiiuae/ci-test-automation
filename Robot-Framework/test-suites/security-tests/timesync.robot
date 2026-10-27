@@ -3,7 +3,6 @@
 
 *** Settings ***
 Documentation       Testing time synchronization
-Test Tags           timesync  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  fmo
 
 Library             ../../lib/TimeLibrary.py
 Resource            ../../resources/common_keywords.resource
@@ -12,6 +11,7 @@ Resource            ../../resources/wifi_keywords.resource
 Resource            ../../resources/service_keywords.resource
 Resource            ../../resources/time_keywords.resource
 
+Test Tags           timesync  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  fmo
 
 *** Variables ***
 ${wrong_time}       01/11/23 11:00:00 UTC

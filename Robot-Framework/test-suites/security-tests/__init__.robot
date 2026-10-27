@@ -3,9 +3,10 @@
 
 *** Settings ***
 Documentation       Security tests
-Test Tags           regression  security
 
 Resource            ../../resources/setup_keywords.resource
 
 Suite Setup         Prepare Test Environment
 Suite Teardown      Clean Up Test Environment
+
+Test Tags           regression  security

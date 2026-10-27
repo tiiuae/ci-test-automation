@@ -3,7 +3,6 @@
 
 *** Settings ***
 Documentation       Suspension test
-Test Tags           regression  suspension
 
 Resource            ../../resources/device_control.resource
 Resource            ../../resources/setup_keywords.resource
@@ -11,6 +10,7 @@ Resource            ../../resources/setup_keywords.resource
 Suite Setup         Suspension Tests Setup
 Suite Teardown      Clean Up Test Environment
 
+Test Tags           regression  suspension
 
 *** Keywords ***
 

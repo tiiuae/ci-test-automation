@@ -3,16 +3,13 @@
 
 *** Settings ***
 Documentation       Gathering performance data
-Test Tags           performance-robot
 
-Resource            ../../config/variables.robot
-Library             ../../lib/output_parser.py
-Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
-...                 ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}  ${PERF_LOW_LIMIT}
 Library             Collections
 Library             DateTime
 Library             OperatingSystem
 Library             String
+Library             ../../lib/output_parser.py
+Resource            ../../resources/performance_data_processing.resource
 Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
@@ -22,6 +19,7 @@ Resource            ../../resources/mem_recording_keywords.resource
 
 Suite Setup         Switch to vm   ${HOST}
 
+Test Tags           performance-robot
 
 *** Variables ***
 ${SAVE_CYCLICTEST_HISTOGRAMS_ON_PASS}    ${True}

@@ -3,11 +3,10 @@
 
 *** Settings ***
 Documentation       Testing logging
-Test Tags           logging  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
 
+Library             Collections
 Library             DateTime
 Library             OperatingSystem
-Library             Collections
 Library             ../../lib/helper_functions.py
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/common_keywords.resource
@@ -17,6 +16,7 @@ Resource            ../../resources/logging_keywords.resource
 
 Suite Setup         Logging Suite Setup
 
+Test Tags           logging  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
 
 *** Variables ***
 ${TEST_LOG}           log_check_${BUILD_ID}

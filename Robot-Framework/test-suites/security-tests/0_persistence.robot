@@ -3,7 +3,7 @@
 
 *** Settings ***
 Documentation       Check persistence
-Test Tags           persistence  lenovo-x1  darter-pro  lab-only
+
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/device_control.resource
 Resource            ../../resources/gui-vm_keywords.resource
@@ -13,6 +13,8 @@ Resource            ../../resources/ssh_keywords.resource
 Suite Setup         Persistence Suite Setup
 Suite Teardown      Persistence Suite Teardown
 Test Teardown       Run Keyword If Test Failed   Log persistence setup errors
+
+Test Tags           persistence  lenovo-x1  darter-pro  lab-only
 
 *** Variables ***
 ${EXPECTED_BRIGHTNESS}    7758

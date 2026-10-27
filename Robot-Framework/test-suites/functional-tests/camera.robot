@@ -3,7 +3,6 @@
 
 *** Settings ***
 Documentation       Testing camera application
-Test Tags           camera  pre-merge  bat  lenovo-x1  darter-pro  dell-7330
 
 Library             Collections
 Library             OperatingSystem
@@ -13,6 +12,7 @@ Resource            ../../resources/audio_and_video_keywords.resource
 
 Test Timeout        2 minutes
 
+Test Tags           camera  pre-merge  bat  lenovo-x1  darter-pro  dell-7330
 
 *** Variables ***
 ${VIDEO_DIR}    ${OUTPUT_DIR}/outputs/camera

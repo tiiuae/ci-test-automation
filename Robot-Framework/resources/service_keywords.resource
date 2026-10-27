@@ -5,7 +5,6 @@
 Resource            ../resources/common_keywords.resource
 Resource            ../resources/ssh_keywords.resource
 
-
 *** Keywords ***
 
 Service should not be failed

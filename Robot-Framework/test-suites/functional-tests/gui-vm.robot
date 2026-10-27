@@ -3,7 +3,6 @@
 
 *** Settings ***
 Documentation       Testing Gui-vm
-Test Tags           gui-vm  pre-merge
 
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
@@ -11,6 +10,7 @@ Resource            ../../resources/service_keywords.resource
 
 Suite Setup         Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
 
+Test Tags           gui-vm  pre-merge
 
 *** Test Cases ***
 

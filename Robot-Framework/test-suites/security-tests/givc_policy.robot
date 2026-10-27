@@ -3,7 +3,6 @@
 
 *** Settings ***
 Documentation       Validate GIVC policy initialization, delivery integrity and firewall apply wiring
-Test Tags           givc-policy  lenovo-x1  darter-pro  dell-7330
 
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/service_keywords.resource
@@ -11,6 +10,7 @@ Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         GIVC policy suite setup
 
+Test Tags           givc-policy  lenovo-x1  darter-pro  dell-7330
 
 *** Variables ***
 

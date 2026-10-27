@@ -3,11 +3,11 @@
 
 *** Settings ***
 Documentation       Testing settings options
-Test Tags           gui-settings  lenovo-x1  darter-pro
 
 Resource            ../../resources/gui-vm_keywords.resource
 Resource            ../../resources/gui_keywords.resource
 
+Test Tags           gui-settings  lenovo-x1  darter-pro
 
 *** Test Cases ***
 

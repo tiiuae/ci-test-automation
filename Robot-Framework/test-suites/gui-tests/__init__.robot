@@ -3,7 +3,6 @@
 
 *** Settings ***
 Documentation       GUI tests
-Test Tags           regression  gui
 
 Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/setup_keywords.resource
@@ -12,6 +11,7 @@ Suite Setup         GUI Tests Setup
 Suite Teardown      GUI Tests Teardown
 Test Timeout        5 minutes
 
+Test Tags           regression  gui
 
 *** Keywords ***
 

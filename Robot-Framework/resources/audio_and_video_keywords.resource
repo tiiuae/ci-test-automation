@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Resource            ../resources/ssh_keywords.resource
-Resource            ../resources/file_keywords.resource
-Library             ../lib/output_parser.py
 Library             DateTime
 Library             String
+Library             ../lib/output_parser.py
+Resource            ../resources/ssh_keywords.resource
+Resource            ../resources/file_keywords.resource
 
 *** Keywords ***
 

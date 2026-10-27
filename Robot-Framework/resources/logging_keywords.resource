@@ -6,7 +6,6 @@ Library             String
 Resource            common_keywords.resource
 Resource            ssh_keywords.resource
 
-
 *** Keywords ***
 
 Get Increased Number Of Sealed Logs

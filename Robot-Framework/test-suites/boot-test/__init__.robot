@@ -3,4 +3,5 @@
 
 *** Settings ***
 Documentation       Boot test
+
 Test Timeout        15 minutes

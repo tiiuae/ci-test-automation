@@ -3,16 +3,17 @@
 
 *** Settings ***
 Documentation       Test device visibility in fleetdm
-Test Tags           fleetdm  lenovo-x1  darter-pro  lab-only
 
+Library             DateTime
 Library             Process
 Library             String
-Library             DateTime
 Library             ../../lib/helper_functions.py
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/common_keywords.resource
 
 Suite Setup         FleetDM Setup
+
+Test Tags           fleetdm  lenovo-x1  darter-pro  lab-only
 
 *** Test Cases ***
 

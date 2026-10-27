@@ -4,15 +4,13 @@
 *** Settings ***
 Documentation       Validate boot-time records and boot diagnostics collected by relayboot.
 
-Resource            ../../config/variables.robot
-Library             ../../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
-...                 ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}  ${PERF_LOW_LIMIT}
-Variables           ../../lib/performance_thresholds.py
+Resource            ../../resources/performance_data_processing.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/device_control.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/service_keywords.resource
+Variables           ../../lib/performance_thresholds.py
 
 Suite Teardown      Close All Connections
 

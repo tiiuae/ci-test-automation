@@ -5,9 +5,10 @@
 Resource            ../../resources/service_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
-Test Tags           ip-spoofing
+
 Test Timeout        3 minutes
 
+Test Tags           ip-spoofing
 
 *** Variables ***
 ${connection}

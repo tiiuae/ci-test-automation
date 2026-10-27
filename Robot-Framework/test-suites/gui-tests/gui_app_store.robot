@@ -3,7 +3,6 @@
 
 *** Settings ***
 Documentation       Testing App Store
-Test Tags           app-store  darter-pro  storeDisk-only
 
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/gui_keywords.resource
@@ -13,6 +12,7 @@ Test Setup          GUI App Test Setup
 Test Teardown       App Store Test Teardown
 Test Timeout        10 minutes
 
+Test Tags           app-store  darter-pro  storeDisk-only
 
 *** Test Cases ***
 

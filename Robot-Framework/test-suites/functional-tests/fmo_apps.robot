@@ -3,12 +3,12 @@
 
 *** Settings ***
 Documentation       Testing FMO target
-Test Tags           fmo-apps  bat  fmo
 
 Resource            ../../resources/app_keywords.resource
 
 Test Template       App Launch Test Template
 
+Test Tags           fmo-apps  bat  fmo
 
 *** Test Cases ***
 

@@ -3,7 +3,6 @@
 
 *** Settings ***
 Documentation       Testing applications via GUI
-Test Tags           gui-apps  lenovo-x1  darter-pro
 
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/gui_keywords.resource
@@ -11,6 +10,7 @@ Resource            ../../resources/gui_keywords.resource
 Test Setup          GUI App Test Setup
 Test Teardown       GUI App Test Teardown   ${TEST_STATUS}   ${TEST_NAME}
 
+Test Tags           gui-apps  lenovo-x1  darter-pro
 
 *** Test Cases ***
 

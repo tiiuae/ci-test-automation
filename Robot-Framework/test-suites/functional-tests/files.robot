@@ -3,12 +3,13 @@
 
 *** Settings ***
 Documentation       Testing launching files
-Test Tags           files  bat  lenovo-x1  darter-pro  dell-7330
 
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
+
+Test Tags           files  bat  lenovo-x1  darter-pro  dell-7330
 
 *** Variables ***
 ${OUTPUT_FILE}   /tmp/out.log

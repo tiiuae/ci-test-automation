@@ -4,17 +4,16 @@
 *** Settings ***
 Documentation       Network load power consumption tests
 
+Library             Collections
 Library             OperatingSystem
 Library             Process
 Library             String
-Library             Collections
 Resource            ../../config/variables.robot
 Resource            ../../resources/measurement_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Run Keywords    Check Network Power Iperf Server Variables
 ...                 AND             Ensure balanced power profile
-
 
 *** Variables ***
 

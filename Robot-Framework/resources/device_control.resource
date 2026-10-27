@@ -7,7 +7,6 @@ Library             ../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET
 Resource            ../resources/common_keywords.resource
 Resource            ../resources/serial_keywords.resource
 
-
 *** Keywords ***
 
 Reboot Orin

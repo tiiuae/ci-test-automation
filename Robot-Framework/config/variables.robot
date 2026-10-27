@@ -6,7 +6,6 @@ Library    OperatingSystem
 Library    Process
 Library    String
 
-
 *** Variables ***
 
 ${BUILD_ID}               ${EMPTY}

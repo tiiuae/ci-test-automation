@@ -7,7 +7,6 @@ Resource            common_keywords.resource
 Resource            ssh_keywords.resource
 Resource            service_keywords.resource
 
-
 *** Keywords ***
 
 Stop Timesync Daemon

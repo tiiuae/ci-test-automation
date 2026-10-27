@@ -60,6 +60,7 @@
             ffmpeg
             iperf
             sshpass
+            robotframework-tidy
 
             (python3.withPackages (
               ps:
