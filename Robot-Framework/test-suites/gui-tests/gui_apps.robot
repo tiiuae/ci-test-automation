@@ -23,13 +23,19 @@ Create and save text file from COSMIC Text Editor via GUI
 
     Start app via GUI   ${COSMIC Text Editor}
     Locate on screen    image      ${COSMIC Text Editor}[close_button]
-    Type string         ${doc_text}   enter_at_end=True
+    Type string         WRONG_TEXT   enter_at_end=True
     Save current document from COSMIC Text Editor to Shares   ${file_name}
     Check file exists   ${share_path}
     ${saved_content}    Run Command    cat ${share_path}
+
+    Open Share In COSMIC Files    comms-vm
+    Locate and click   text   cosmic    wiggle=True   double_click=True
+    Sleep    2
+
     Should Contain      ${saved_content}   ${doc_text}
     Close app via GUI   ${COSMIC Text Editor}
     [Teardown]   Run Keywords   Kill App in VM   ${COSMIC Text Editor}   require_exists=False
+    ...    AND   Kill App in VM   ${COSMIC Files}   require_exists=False
     ...    AND   Switch to vm            ${GUI_VM}        user=${USER_LOGIN}
     ...    AND   Remove file by name     ${file_name}
     ...    AND   GUI App Test Teardown   ${TEST_STATUS}   ${TEST_NAME}
