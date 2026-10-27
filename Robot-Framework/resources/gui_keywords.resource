@@ -134,11 +134,11 @@ Take Remote Screenshot And Download
     RETURN    ${to}
 
 Verify Text Is On The Screen
-    [Arguments]    ${text}    ${expected}=${True}    ${scale}=1     ${precision_percent}=100
+    [Arguments]    ${text}    ${expected}=${True}    ${scale}=1     ${precision_percent}=100    ${config}=${EMPTY}
     ${screenshot_path}      Take Remote Screenshot And Download
     Log                     Checking for text "${text}", expected: ${expected}    console=True
     ${is_visible}  ${_}     Is Text On The Screen   ${screenshot_path}   ${text}   scale=${scale}
-    ...                     precision=${precision_percent}
+    ...                     precision=${precision_percent}    config=${config}
     Should Be Equal         ${is_visible}    ${expected}
     ...                     msg=Text '${text}' is on the screen: ${is_visible}, expected: ${expected}
 
@@ -155,7 +155,7 @@ Locate on screen
     ...                Return center coordinates of the item in mouse coordinate system.
     [Arguments]        ${type}  ${searched_item}  ${confidence}=0.99   ${iterations}=10
     ...                ${expected_result}=PASS  ${debug_screenshot}=True   ${timeout}=120   ${scale}=1
-    ...                ${precision_percent}=100
+    ...                ${precision_percent}=100    ${config}=${EMPTY}
     [Timeout]          ${timeout} seconds
     ${coordinates}=        Set Variable  ${EMPTY}
     ${locate_status}=      Set Variable  FAIL
@@ -171,7 +171,7 @@ Locate on screen
             ELSE IF  $type=="text"
                 ${locate_status}    ${coordinates}  Run Keyword And Ignore Error  Locate text
                 ...                 ${SCREENSHOT_LOCAL}  ${searched_item}   scale=${scale}
-                ...                 precision=${precision_percent}
+                ...                 precision=${precision_percent}    config=${config}
             ELSE
                 FAIL              Wrong type ${type} given for image recognition
             END
@@ -204,9 +204,9 @@ Take a screenshot
 
 Locate and click
     [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=10  ${timeout}=120
-    ...           ${scale}=1  ${wiggle}=False   ${double_click}=False   ${precision_percent}=100
+    ...           ${scale}=1  ${wiggle}=False   ${double_click}=False   ${precision_percent}=100    ${config}=${EMPTY}
     ${mouse_x}  ${mouse_y}  Locate on screen  ${type}  ${searched_item}  ${confidence}  ${iterations}
-    ...                         timeout=${timeout}  scale=${scale}  precision_percent=${precision_percent}
+    ...                         timeout=${timeout}  scale=${scale}  precision_percent=${precision_percent}    config=${config}
     Run ydotool command   mousemove --absolute -x ${mouse_x} -y ${mouse_y}
     Click    ${double_click}   ${wiggle}
 
@@ -546,7 +546,8 @@ Save gui icons and icon path
 
 Capture Action Changes
     [Documentation]    Return the cropped screenshot path and the wrapped keyword's return value.
-    [Arguments]    ${action}    @{args}
+    ...    Forward positional and named arguments to the wrapped keyword.
+    [Arguments]    ${action}    @{args}    &{kwargs}
     ${screenshots}=    Get Variable Value    ${CAPTURED_SCREENSHOTS}    ${None}
     IF    $screenshots is None
         ${screenshots}=    Create List
@@ -558,7 +559,7 @@ Capture Action Changes
     ...    to=${GUI_OUTPUT_DIR}/before_${suffix}.jpeg
     Append To List    ${screenshots}    ${before}
 
-    ${result}=    Run Keyword    ${action}    @{args}
+    ${result}=    Run Keyword    ${action}    @{args}    &{kwargs}
 
     ${after}=    Take Remote Screenshot And Download
     ...    to=${GUI_OUTPUT_DIR}/after_${suffix}.jpeg
