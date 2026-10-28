@@ -85,7 +85,7 @@ VM Nix store matches its provided closure
     # Get provided nix store closure from host
     Switch to vm              ${HOST}
     ${microvm_pid}            Run Command       pgrep -fo -- 'microvm@${vm} run'
-    ${paths_argument}         Run Command       grep -ao 'paths=[^:]*' /proc/${microvm_pid}/cmdline
+    ${paths_argument}         Run Command       xargs -0 -n1 < /proc/${microvm_pid}/cmdline | grep -o 'paths=.*'
     ${closure_file}           Replace String    ${paths_argument}   paths=   ${EMPTY}   count=1
     Should Not Be Empty       ${closure_file}   Failed to find the provided closure file for ${vm}
     ${provided_closure}       Run Command    cat ${closure_file}

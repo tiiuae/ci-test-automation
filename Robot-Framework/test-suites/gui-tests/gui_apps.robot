@@ -22,7 +22,7 @@ Create and save text file from COSMIC Text Editor via GUI
     ${share_path}      Set Variable    /Shares/'Unsafe comms-vm share'/${file_name}
 
     Start app via GUI   ${COSMIC Text Editor}
-    Locate on screen    image      ${COSMIC Text Editor}[close_button]
+    Locate on screen    image      ${COSMIC Text Editor}[close_button]   0.90
     Type string         ${doc_text}   enter_at_end=True
     Save current document from COSMIC Text Editor to Shares   ${file_name}
     Check file exists   ${share_path}
@@ -39,7 +39,7 @@ Copy and paste text between VMs
     [Tags]            SP-T72
     ${clipboard_text}    Set Variable  COPYPASTE
     Start app via GUI    ${COSMIC Text Editor}
-    Locate on screen     image         ${COSMIC Text Editor}[close_button]
+    Locate on screen     image         ${COSMIC Text Editor}[close_button]   0.90
     Copy text to clipboard    ${clipboard_text}
     Start app via GUI    ${Trusted Browser}
     Paste clipboard text and verify     ${clipboard_text}
@@ -236,7 +236,7 @@ Open Share In COSMIC Files
     [Arguments]    ${share_name}
     Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
     Start App in VM    ${COSMIC Files}    always_check_vm=True
-    Locate on screen   image    ${COSMIC Files}[close_button]    0.90    iterations=10
+    Locate on screen   image    ${COSMIC Files}[close_button]    0.90
     Locate and click   text    Shares    iterations=3    scale=3    wiggle=True
     Locate and click   text    ${share_name}    iterations=3    scale=2    wiggle=True    double_click=True
 
@@ -431,7 +431,7 @@ Select Chrome search engine if prompted
     END
 
 Locate and click minimize window button
-    ${mouse_x}  ${mouse_y}  Locate on screen  image  ${Zoom}[close_button]  0.99  10  timeout=120  scale=2
+    ${mouse_x}  ${mouse_y}  Locate on screen  image  ${Zoom}[close_button]  0.90
     ${target_x}    Evaluate    ${mouse_x} - 40
     Run ydotool command   mousemove --absolute -x ${target_x} -y ${mouse_y}
     Click
@@ -442,11 +442,11 @@ Verify app window is minimized
 
 Save Zoom window baseline coordinates
     Accept Chrome Terms Of Service If Shown    ${Zoom}    attempts=3
-    ${status}   Run Keyword And Return Status   Locate on screen   image   ${Zoom}[close_button]   0.99   10   timeout=120   scale=2
+    ${status}   Run Keyword And Return Status   Locate on screen   image   ${Zoom}[close_button]   0.90
     Run Keyword If    not ${status}    Focus Zoom window
-    ${window_x}   ${window_y}    Locate on screen   image   ${Zoom}[close_button]   0.99   10   timeout=120   scale=2
+    ${window_x}   ${window_y}    Locate on screen   image   ${Zoom}[close_button]   0.90
     Focus Zoom window
-    ${anchor_x}   ${anchor_y}    Locate on screen   text    Workplace        0.99   10   timeout=120   scale=2
+    ${anchor_x}   ${anchor_y}    Locate on screen   text    Workplace       scale=2
     ${window_coords}    Create List    ${window_x}    ${window_y}
     ${anchor_coords}    Create List    ${anchor_x}    ${anchor_y}
     RETURN    ${window_coords}    ${anchor_coords}
@@ -454,10 +454,10 @@ Save Zoom window baseline coordinates
 Verify Zoom window restored to baseline
     [Arguments]    ${window_coords}    ${anchor_coords}
     Focus Zoom window
-    Run Keyword And Ignore Error   Verify Image On The Screen    ${Zoom}[close_button]
+    Run Keyword And Ignore Error   Verify Image On The Screen    ${Zoom}[close_button]   confidence=0.90
     Run Keyword And Continue On Failure    Verify item is near expected coordinates
-    ...    ${anchor_coords}[0]   ${anchor_coords}[1]   searched_type=text   searched_item=Workplace   tolerance=3
-    Verify item is near expected coordinates    ${window_coords}[0]   ${window_coords}[1]   searched_type=image   searched_item=${Zoom}[close_button]   tolerance=5
+    ...    ${anchor_coords}[0]   ${anchor_coords}[1]   searched_type=text   searched_item=Workplace   tolerance=3   confidence=0.80
+    Verify item is near expected coordinates    ${window_coords}[0]   ${window_coords}[1]   searched_type=image   searched_item=${Zoom}[close_button]   tolerance=5   confidence=0.80
 
 Focus Zoom window
     [Documentation]    Move the mouse on the top of the window,coordinates are hardcoded,
@@ -466,13 +466,13 @@ Focus Zoom window
     Wiggle cursor
 
 Save Zoom icon coordinates
-    ${zoom_x}   ${zoom_y}    Locate on screen   image   ${Zoom}[icon]   0.80   10   timeout=120   scale=2
+    ${zoom_x}   ${zoom_y}    Locate on screen   image   ${Zoom}[icon]   0.90
     RETURN    ${zoom_x}    ${zoom_y}
 
 Wait for Zoom icon coordinates to change and restore window
     [Arguments]    ${old_x}    ${old_y}
     FOR    ${i}    IN RANGE    5
-        ${new_x}   ${new_y}    Locate on screen   image   ${Zoom}[icon]   0.90   10   timeout=10   scale=2
+        ${new_x}   ${new_y}    Locate on screen   image   ${Zoom}[icon]   0.90   timeout=10
         ${changed}    Evaluate    abs(${new_x} - ${old_x}) > 2 or abs(${new_y} - ${old_y}) > 2
         IF    ${changed}
             Locate and click   image   ${Zoom}[icon]   confidence=0.90  scale=2
@@ -483,13 +483,13 @@ Wait for Zoom icon coordinates to change and restore window
 
 Locate and click maximize/restore window button
     [Arguments]    ${app}   ${tolerance}=3
-    ${mouse_x}  ${mouse_y}  Locate on screen  image  ${app}[close_button]  0.99  10  timeout=120  scale=2
+    ${mouse_x}  ${mouse_y}  Locate on screen  image  ${app}[close_button]  0.90
     ${target_x}    Evaluate    ${mouse_x} - 20
     Run ydotool command   mousemove --absolute -x ${target_x} -y ${mouse_y}
     Click   wiggle=True
 
 Verify app window is maximized
     [Arguments]    ${app}   ${tolerance}=3
-    ${window_x}   ${window_y}    Locate on screen   image   ${app}[close_button]   0.99   10   timeout=120   scale=2
+    ${window_x}   ${window_y}    Locate on screen   image   ${app}[close_button]   0.90
     ${x_in_range}    Evaluate    abs(${window_x} - 947) <= ${tolerance}
     ${y_in_range}    Evaluate    abs(${window_y} - 25) <= ${tolerance}
