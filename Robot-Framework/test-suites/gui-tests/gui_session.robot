@@ -40,4 +40,4 @@ Verify app window visibility
     [Documentation]   Wait until the app window close button visibility matches the expected state.
     [Arguments]       ${app_key}    ${expected}=${True}    ${attempts}=2x
     Wait Until Keyword Succeeds    ${attempts}    1s
-    ...                           Verify Image On The Screen    ${app_key}[close_button]    expected=${expected}
+    ...                           Verify Image On The Screen    ${app_key}[close_button]    confidence=0.90    expected=${expected}

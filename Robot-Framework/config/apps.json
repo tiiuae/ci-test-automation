@@ -11,28 +11,28 @@
     "VM": "flatpak-vm",
     "process_name": "cosmic-store",
     "app_id": "com.system76.CosmicStore",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "Calculator": {
     "display_name": "Calculator",
     "VM": "gui-vm",
     "process_name": "cosmic-ext-calculator",
     "app_id": "dev.edfloreshz.Calculator",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "COSMIC Document Reader": {
     "display_name": "COSMIC Document Reader",
     "VM": "gui-vm",
     "process_name": "cosmic-reader",
     "app_id": "com.system76.CosmicReader",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "COSMIC Files": {
     "display_name": "COSMIC Files",
     "VM": "gui-vm",
     "process_name": "^cosmic-files( |$)",
     "app_id": "com.system76.CosmicFiles",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "Cosmic Initial Setup": {
     "display_name": "Cosmic Initial Setup",
@@ -45,7 +45,7 @@
     "VM": "gui-vm",
     "process_name": "cosmic-player",
     "app_id": "com.system76.CosmicPlayer",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "COSMIC Screenshot": {
     "display_name": "COSMIC Screenshot",
@@ -57,7 +57,7 @@
     "VM": "gui-vm",
     "process_name": "cosmic-settings$",
     "app_id": "com.system76.CosmicSettings",
-    "close_button": "ghaf-close.png",
+    "close_button": "window-close-neg.png",
     "icon": "settings.png"
   },
   "COSMIC System Monitor": {
@@ -65,34 +65,34 @@
     "VM": "gui-vm",
     "process_name": "cosmic-monitor",
     "app_id": "com.system76.CosmicMonitor",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "COSMIC Terminal": {
     "display_name": "COSMIC Terminal",
     "VM": "gui-vm",
     "process_name": "^cosmic-term$",
     "app_id": "com.system76.CosmicTerm",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "COSMIC Text Editor": {
     "display_name": "COSMIC Text Editor",
     "VM": "gui-vm",
     "process_name": "^cosmic-edit( |$)",
     "app_id": "com.system76.CosmicEdit",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "Display Settings": {
     "display_name": "Display Settings",
     "VM": "gui-vm",
     "process_name": "wdisplays",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "Element": {
     "display_name": "Element",
     "VM": "comms-vm",
     "process_name": "element",
     "app_id": "element",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "Firefox": {
     "display_name": "Firefox",
@@ -126,7 +126,7 @@
     "VM": "business-vm",
     "process_name": "gala",
     "app_id": "chrome-gala-atrc.azure-atrc.androidinthecloud.net__-Default",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "Getting Started": {
     "display_name": "Getting Started",
@@ -134,7 +134,7 @@
     "process_name": "ghaf-intro",
     "app_id": "ghaf-intro",
     "alternative_title": "Google Chrome",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "Ghaf Control Panel": {
     "display_name": "Ghaf Control Panel",
@@ -164,13 +164,13 @@
     "process_name": "google-chrome",
     "app_id": "google-chrome",
     "alternative_title": "Google Chrome",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "Google Chrome GPU": {
     "display_name": "Google Chrome GPU",
     "VM": "gui-vm",
     "process_name": "google-chrome",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "GPU Screen Recorder": {
     "display_name": "GPU Screen Recorder",
@@ -185,7 +185,7 @@
     "VM": "business-vm",
     "process_name": "microsoft365",
     "app_id": "chrome-microsoft365.com__-Default",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "Onlyoffice": {
     "display_name": "Onlyoffice",
@@ -197,7 +197,7 @@
     "VM": "business-vm",
     "process_name": "outlook",
     "app_id": "chrome-outlook.office.com__mail_-Default",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "Slack": {
     "display_name": "Slack",
@@ -205,7 +205,7 @@
     "process_name": "slack",
     "app_id": "chrome-app.slack.com__client-Default",
     "alternative_title": "Google Chrome",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "Sticky Notes": {
     "display_name": "Sticky Notes",
@@ -219,14 +219,14 @@
     "VM": "business-vm",
     "process_name": "teams",
     "app_id": "chrome-teams.microsoft.com__-Default",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "Trusted Browser": {
     "display_name": "Trusted Browser",
     "VM": "business-vm",
     "process_name": "google-chrome",
     "app_id": "google-chrome-business",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "Volume Control": {
     "display_name": "Volume Control",
@@ -240,13 +240,13 @@
     "VM": "business-vm",
     "process_name": "gp-gui",
     "alternative_title": "VPN",
-    "close_button": "ghaf-close.png"
+    "close_button": "window-close-neg.png"
   },
   "Zoom": {
     "display_name": "Zoom",
     "VM": "comms-vm",
     "process_name": "zoom",
-    "close_button": "ghaf-close.png",
+    "close_button": "window-close-neg.png",
     "app_id": "chrome-app.zoom.us__wc_home-Default",
     "alternative_title": "Google Chrome",
     "icon": "Zoom.png"
