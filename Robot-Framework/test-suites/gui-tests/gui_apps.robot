@@ -106,12 +106,13 @@ Take a screenshot via Print Screen
     [Documentation]   Open screenshot tool with PrtSc, take a screenshot with Enter, and verify the image was saved to Pictures
     [Tags]            SP-T171
     Set Test Variable   ${screenshots_dir}    /home/${USER_LOGIN}/Pictures/Screenshots
+    Set Test Variable   ${screenshot}    False
     Run Command         mkdir -p ${screenshots_dir}
     Open Folder In COSMIC Files    ${screenshots_dir}    Screenshots
-    ${expected_screenshot_pattern}    Take Screenshot With Print Screen
-    ${screenshot}    Wait Until Keyword Succeeds    5x    1s    Get Saved Screenshot    ${expected_screenshot_pattern}
+    ${screenshot_timestamp}        Take Screenshot With Print Screen
+    ${screenshot}    Wait Until Keyword Succeeds    5x    1s    Get Saved Screenshot    ${screenshot_timestamp}
     Verify Saved Screenshot Contains Text    ${screenshot}    Screenshots
-    [Teardown]   Run Keywords   Remove file    ${screenshot}
+    [Teardown]   Run Keywords   Run Keyword If    $screenshot    Remove file    ${screenshot}
     ...    AND   Kill App in VM   ${COSMIC Files}
     ...    AND   GUI App Test Teardown   ${TEST_STATUS}   ${TEST_NAME}
 
@@ -241,17 +242,17 @@ Open Share In COSMIC Files
     Locate and click   text    ${share_name}    iterations=3    scale=2    wiggle=True    double_click=True
 
 Take Screenshot With Print Screen
+    ${screenshot_timestamp}    Run Command    date +%s
     Press Key(s)       PRINT
     Wait Until Keyword Succeeds    5x    0.5s    Check that process is running    ${COSMIC Screenshot}[process_name]
-    ${expected_screenshot_pattern}    Run Command    date '+Screenshot_%F_%H-%M-[0-9][0-9].png'
     Press Key(s)       ENTER
-    RETURN             ${expected_screenshot_pattern}
+    RETURN    ${screenshot_timestamp}
 
 Get Saved Screenshot
-    [Arguments]    ${expected_screenshot_pattern}
-    ${screenshot}    Run Command    ls -t ${screenshots_dir}/${expected_screenshot_pattern} | head -n 1
-    Should Not Be Empty    ${screenshot}
-    ...    New screenshot matching ${expected_screenshot_pattern} was not created under ${screenshots_dir}.
+    [Documentation]    Look for the not empty screenshot file, which was changed after the given timestamp
+    [Arguments]        ${screenshot_timestamp}
+    ${screenshot}    Run Command    find '${screenshots_dir}' -maxdepth 1 -name 'Screenshot_*.png' -newermt '@${screenshot_timestamp}' -size +0c
+    Should Not Be Empty    ${screenshot}    New screenshot was not created under ${screenshots_dir} after timestamp ${screenshot_timestamp}.
     RETURN    ${screenshot}
 
 Verify Saved Screenshot Contains Text
