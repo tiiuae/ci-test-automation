@@ -151,7 +151,7 @@ Collect Boot Diagnostics
     ...    uptime
     ...    systemd-analyze --no-pager
     ...    systemd-analyze blame --no-pager
-    ...    systemd-analyze critical-chain
+    ...    systemd-analyze critical-chain --no-pager
     ...    systemctl --failed --no-legend --no-pager
     IF    ${IS_LAPTOP}
         FOR    ${command}    IN    @{diagnostic_commands}
