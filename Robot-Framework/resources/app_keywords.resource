@@ -67,7 +67,14 @@ Wait for app window
     [Documentation]    Wait until the GUI VM has more toplevels and any expected app ID or title appears.
     [Arguments]        ${app_key}    ${toplevels_before}
     ${expected_windows}   Get expected app windows   ${app_key}
-    Wait Until Keyword Succeeds    10x    0.5s    App window should be open    ${toplevels_before}    @{expected_windows}
+    TRY
+        Wait Until Keyword Succeeds    10x    0.5s    App window should be open    ${toplevels_before}    @{expected_windows}
+    EXCEPT    AS    ${error}
+        Run Keyword And Ignore Error    Run Keywords
+        ...    Take Remote Screenshot And Download
+        ...    AND    Timestamp last screenshot
+        Fail    ${error}
+    END
 
 App window should be open
     [Arguments]    ${toplevels_before}    @{expected_windows}
