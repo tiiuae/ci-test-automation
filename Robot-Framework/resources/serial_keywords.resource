@@ -116,6 +116,15 @@ Log In To Ghaf OS
     FOR    ${i}    IN RANGE    ${attempts}
         Write Data        ${\n}
         ${output}         SerialLibrary.Read Until    terminator=${HOST} login
+        IF  "(END)" in $output
+            Log To Console    Warning: Serial session was unexpectedly blocked by pager in ${TEST_NAME}    level=WARN
+            Write Data    \x03
+            ${output}    SerialLibrary.Read Until    terminator=ghaf@${HOST}:
+            IF  "@${HOST}" in $output
+                Log To Console    Successfully exited serial pager and found shell prompt    level=WARN
+                RETURN
+            END
+        END
         ${status}         Run Keyword And Return Status    Should contain    ${output}    ${HOST} login
         IF  ${status}
             Write Data    ${LOGIN}${\n}
