@@ -241,14 +241,6 @@ Check Device Information Field
     [Arguments]    ${screenshot_path}    ${field}    ${expected}   ${scale}=2   ${precision_percent}=100
     ${actual}           Get Text Field From Image   ${screenshot_path}   ${field}   scale=${scale}
     ${matches}   ${matched_text}     Text Matches    ${actual}    ${expected}    precision=${precision_percent}
-    IF  not ${matches} and "${field}" == "Ghaf Version"     # workaround for SSRCSP-9045
-        ${expected_without_dots}=         Replace String  ${expected}       .   ${EMPTY}
-        ${matched_text_without_dots}=     Replace String  ${matched_text}   .   ${EMPTY}
-        IF  "${expected_without_dots}" == "${matched_text_without_dots}"
-            ${matches}=     Set variable    ${True}
-            Log Error       Ghaf version    Matched Ghaf version without dots
-        END
-    END
 
     IF    not ${matches}
         Append To List    ${device_info_failures}    ${field} value in Ghaf Control Panel is ${actual}, expected ${expected}
