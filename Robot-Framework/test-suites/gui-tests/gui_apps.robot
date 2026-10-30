@@ -192,6 +192,203 @@ Ghaf Control Panel shows device information 10
     Verify Device Information   ${screenshot_path}
     [Teardown]     Ghaf Control Panel Test Teardown
 
+Ghaf Control Panel shows device information
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 1
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 2
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 3
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 4
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 5
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 6
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 7
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 8
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 9
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 10
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 1
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 2
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 3
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 4
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 5
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 6
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 7
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 8
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 9
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 10
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
 
 Take a screenshot via Print Screen
     [Documentation]   Open screenshot tool with PrtSc, take a screenshot with Enter, and verify the image was saved to Pictures
