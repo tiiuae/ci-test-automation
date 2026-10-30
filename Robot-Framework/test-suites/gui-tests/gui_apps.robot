@@ -187,7 +187,7 @@ Verify Device Information
     ${device_info_failures}         Create List
     Set Test Variable   ${device_info_failures}
 
-    Check Device Information Field    ${screenshot_path}       Ghaf Version       ${ghaf_version}     scale=3
+    Check Device Information Field    ${screenshot_path}       Ghaf Version       ${ghaf_version}     scale=3    tesseract_config=--psm 11 -c load_system_dawg=0 -c load_freq_dawg=0
     Check Device Information Field    ${screenshot_path}       Device ID          ${device_id}        scale=3    precision_percent=90
     Check Device Information Field    ${screenshot_path}       Secure Boot        ${secure_boot}
     Check Device Information Field    ${screenshot_path}       Disk Encryption    ${disk_encryption}
@@ -201,17 +201,9 @@ Ghaf Control Panel Test Teardown
     Run Keyword If Test Passed    Remove Captured Screenshots
 
 Check Device Information Field
-    [Arguments]    ${screenshot_path}    ${field}    ${expected}   ${scale}=2   ${precision_percent}=100
-    ${actual}           Get Text Field From Image   ${screenshot_path}   ${field}   scale=${scale}
+    [Arguments]    ${screenshot_path}    ${field}    ${expected}   ${scale}=2   ${precision_percent}=100    ${tesseract_config}=${EMPTY}
+    ${actual}           Get Text Field From Image   ${screenshot_path}   ${field}   scale=${scale}    config=${tesseract_config}
     ${matches}   ${matched_text}     Text Matches    ${actual}    ${expected}    precision=${precision_percent}
-    IF  not ${matches} and "${field}" == "Ghaf Version"     # workaround for SSRCSP-9045
-        ${expected_without_dots}=         Replace String  ${expected}       .   ${EMPTY}
-        ${matched_text_without_dots}=     Replace String  ${matched_text}   .   ${EMPTY}
-        IF  "${expected_without_dots}" == "${matched_text_without_dots}"
-            ${matches}=     Set variable    ${True}
-            Log Error       Ghaf version    Matched Ghaf version without dots
-        END
-    END
 
     IF    not ${matches}
         Append To List    ${device_info_failures}    ${field} value in Ghaf Control Panel is ${actual}, expected ${expected}
