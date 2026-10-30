@@ -102,6 +102,43 @@ Ghaf Control Panel shows device information
     Verify Device Information   ${screenshot_path}
     [Teardown]     Ghaf Control Panel Test Teardown
 
+Ghaf Control Panel shows device information 1
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 2
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 3
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+Ghaf Control Panel shows device information 4
+    [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
+    [Tags]             SP-T370
+    Start app via GUI   ${Ghaf Control Panel}
+    ${screenshot_path}   ${_}=    Capture Action Changes
+    ...                           Navigate To Device Information Page
+    Verify Device Information   ${screenshot_path}
+    [Teardown]     Ghaf Control Panel Test Teardown
+
+
 Take a screenshot via Print Screen
     [Documentation]   Open screenshot tool with PrtSc, take a screenshot with Enter, and verify the image was saved to Pictures
     [Tags]            SP-T171
