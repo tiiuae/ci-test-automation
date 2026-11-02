@@ -37,6 +37,15 @@ Roll back to original generation
     Run Command           nix-collect-garbage  sudo=True  timeout=180
     Close All Connections
 
+Roll back to original generation after rebuild
+    IF  '${SUITE_STATUS}'=='FAIL'
+        Hard Reboot Device And Connect   login=False
+    END
+    Switch to vm    ${HOST}
+    Remove Ghaf Repository
+    Roll back to original generation
+    Soft Reboot Device And Connect    vm=${HOST}
+
 Get Bootctl Generation Id
     [Documentation]    Return bootctl entry id for a NixOS generation from `bootctl list` output.
     [Arguments]        ${generation}
@@ -63,7 +72,7 @@ Get Bootctl Generation Id
     FAIL    Could not find bootctl entry for generation ${generation}
 
 Run Nixos Rebuild
-    [Arguments]      ${target_name}  ${repo_path}=${REPOSITORY_PATH}  ${interrupt}=${EMPTY}
+    [Arguments]      ${target_name}  ${repo_path}=${REPOSITORY_PATH}  ${interrupt}=${EMPTY}  ${login}=True
     ${no_output_timeout}  Set Variable    240
     ${no_output_start}    Set Variable    ${EMPTY}
     Elevate to superuser
@@ -123,7 +132,7 @@ Run Nixos Rebuild
     IF  not ${rebuild_ok}
         FAIL  nixos-rebuild didn't finish successfully withing the given time
     END
-    Soft Reboot Device And Connect
+    Soft Reboot Device And Connect   login=${login}
 
 Clone Ghaf Repository
     [Arguments]               ${repo_path}=${REPOSITORY_PATH}    ${commit}=${EMPTY}
