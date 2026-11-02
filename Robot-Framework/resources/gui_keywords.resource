@@ -203,6 +203,7 @@ Take a screenshot
 Locate and click
     [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=10  ${timeout}=120
     ...           ${scale}=1  ${wiggle}=False   ${double_click}=False   ${precision_percent}=100    ${config}=${EMPTY}
+    [Tags]        robot:stop-on-failure
     ${mouse_x}  ${mouse_y}  Locate on screen  ${type}  ${searched_item}  ${confidence}  ${iterations}
     ...                         timeout=${timeout}  scale=${scale}  precision_percent=${precision_percent}    config=${config}
     Run ydotool command   mousemove --absolute -x ${mouse_x} -y ${mouse_y}
