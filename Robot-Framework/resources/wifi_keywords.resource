@@ -1,11 +1,12 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Resource            ../resources/ssh_keywords.resource
 
-*** Keywords ***
 
+*** Keywords ***
 Configure wifi
     [Arguments]         ${SSID}  ${passw}
     Switch to vm        ${NET_VM}
@@ -58,7 +59,7 @@ Get wifi IP
         ${status}     Run Keyword And Return Status    Should Not Be Equal As Strings    ${ip}    None
         IF  ${status}
             Log To Console     Ip is ${ip}
-            ${is_ready} =  Set Variable    True
+            ${is_ready}   Set Variable    True
             BREAK
         END
         Sleep    1

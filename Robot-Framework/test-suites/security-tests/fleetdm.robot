@@ -1,22 +1,23 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Test device visibility in fleetdm
 
+Library             ../../lib/helper_functions.py
 Library             DateTime
 Library             Process
 Library             String
-Library             ../../lib/helper_functions.py
-Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/common_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         FleetDM Setup
 
 Test Tags           fleetdm  lenovo-x1  darter-pro  lab-only
 
-*** Test Cases ***
 
+*** Test Cases ***
 Check device status on FleetDM
     [Documentation]     Verify that the device gets listed in fleetdm with correct details:
     ...                 status: online
@@ -30,8 +31,8 @@ Check device status on FleetDM
     # Wait Until Keyword Succeeds  31s  10s  Check fleetdm shows correct device start time
     # Log To Console      Device start time on FleetDM checked
 
-*** Keywords ***
 
+*** Keywords ***
 FleetDM Setup
     Skip If  $FLEETDM_ENROLL_SECRET=='${EMPTY}' or $FLEETDM_API_TOKEN=='${EMPTY}'  FleetDM secrets not available -> Skipping the test
     Switch to vm          ${GUI_VM}
@@ -72,7 +73,7 @@ Check fleetdm shows correct device start time
     # datetime cannot handle UTC timezone name
     ${device_time}       Replace String    ${device_time}    UTC    +00:00
     ${device_time}       Get Epoch Time    ${device_time}
-    ${difference}=       Evaluate    ${fleet_time} - ${device_time}
+    ${difference}        Evaluate    ${fleet_time} - ${device_time}
     IF  ${difference} > ${tolerance} or ${difference} < -${tolerance}
         FAIL    FleetDM last_restarted_at differs more than an hour from the actual device start time\ndifference: ${difference}
     END

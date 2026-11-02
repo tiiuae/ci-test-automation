@@ -1,19 +1,20 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Checking retention policies
 
 Resource            ../../resources/common_keywords.resource
-Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/device_control.resource
-Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/service_keywords.resource
+Resource            ../../resources/setup_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 
 Test Tags           retention
 
-*** Test Cases ***
 
+*** Test Cases ***
 Log retention policies
     [Documentation]   Check that retention policies are applied and enforced
     [Tags]            SP-T329  lenovo-x1  darter-pro  orin-agx  orin-agx-64  orin-nx
@@ -30,7 +31,6 @@ Log retention policies
 
 
 *** Keywords ***
-
 Check Journal Directory Activity
     [Documentation]     Looking for files in the given directory changed recently (period given in minutes).
     ...                 If file name is given, check it presents in the directory and also was changed in given period.

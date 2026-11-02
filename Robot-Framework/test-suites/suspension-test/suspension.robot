@@ -1,22 +1,23 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing automatic suspension
 
 Library             ../../lib/output_parser.py
 Library             JSONLibrary
+Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/device_control.resource
-Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/gui-vm_keywords.resource
+Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/measurement_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/app_keywords.resource
+
 
 *** Test Cases ***
-
 Automatic suspension
     [Documentation]   Wait and check that
     ...               in the beginning brightness is 100 %
@@ -25,7 +26,6 @@ Automatic suspension
     ...               in 20 min press the button and check that laptop woke up
     [Tags]            SP-T162  lenovo-x1  darter-pro  lab-only
     [Setup]           Test setup
-    [Teardown]        Test teardown
 
     ${suspended_power_limit}     Set Variable    3500
     ${rel_power_change_limit}    Set Variable    25
@@ -60,7 +60,7 @@ Automatic suspension
 
     # Sometimes screen wakeup has required a mouse move
     Wiggle cursor
-    
+
     Wait Until Keyword Succeeds   30s   2s    Check the screen state   on
 
     Log To Console           Checking if the screen is in locked state after wake up
@@ -92,6 +92,7 @@ Automatic suspension
             FAIL  Max suspended power ${max_suspended_power}mW (test limit ${suspended_power_limit}mW)\nPower consumption level increased ${power_changed}% over suspension and wake up (test limit ${rel_power_change_limit}%)
         END
     END
+    [Teardown]        Test teardown
 
 Suspend and wake up with apps running
     [Documentation]   Launch several apps in different VM and verify, that they are still running after suspension
@@ -102,8 +103,8 @@ Suspend and wake up with apps running
     Check apps are running after wake up   ${app_statuses}
     [Teardown]        App suspension test teardown
 
-*** Keywords ***
 
+*** Keywords ***
 Test setup
     Start screen recording
     Enable automatic suspension

@@ -1,13 +1,14 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Launch applications via GUI
 
 Library             Collections
-Resource            ../../resources/performance_data_processing.resource
 Resource            ../../resources/app_keywords.resource
 Resource            ../../resources/gui_keywords.resource
+Resource            ../../resources/performance_data_processing.resource
 Resource            ../../resources/ssh_keywords.resource
 Variables           ../../lib/performance_thresholds.py
 
@@ -18,114 +19,89 @@ Test Template       Launch App And Save Time
 
 Test Tags           gui-app-launch  lenovo-x1  darter-pro
 
-*** Test Cases ***
 
+*** Test Cases ***
 Start Advanced Network Configuration via GUI
     [Tags]            SP-T463
     ${Advanced Network Configuration}
-
 Start App Store via GUI
     [Tags]            SP-T460
     ${App Store}
-
 Start Calculator via GUI
     [Tags]            SP-T416
     ${Calculator}
-
 Start COSMIC Document Reader via GUI
     [Tags]            SP-T381
     ${COSMIC Document Reader}
-
 Start COSMIC Files via GUI
     [Tags]            SP-T421
     ${COSMIC Files}
-
 Start COSMIC Media Player via GUI
     [Tags]            SP-T442
     ${COSMIC Media Player}
-
 Start COSMIC Settings via GUI
     [Tags]            SP-T430
     ${COSMIC Settings}
-
 Start COSMIC System Monitor via GUI
     [Tags]            SP-T481
     ${COSMIC System Monitor}
-
 Start COSMIC Terminal via GUI
     [Tags]            SP-T432
     ${COSMIC Terminal}
-
 Start COSMIC Text Editor via GUI
     [Tags]            SP-T426
     ${COSMIC Text Editor}
-
 Start Element via GUI
     [Tags]            SP-T501
     ${Element}
-
 Start Fingerprints via GUI
     [Tags]            SP-T475
     ${Fingerprints}
-
 Start Gala via GUI
     [Tags]            SP-T379
     ${Gala}
-
 Start Getting Started via GUI
     [Tags]            SP-T471
     ${Getting Started}
-
 Start Ghaf Control Panel via GUI
     [Tags]            SP-T420
     ${Ghaf Control Panel}
-
 Start Google Chrome via GUI
     [Tags]            SP-T499
     ${Google Chrome}
-
 Start GPU Screen Recorder via GUI
     [Tags]            SP-T439
     ${GPU Screen Recorder}
-
 Start Microsoft 365 via GUI
     [Tags]            SP-T394
     ${Microsoft 365}
-
 Start Outlook via GUI
     [Tags]            SP-T390
     ${Outlook}
-
 Start Slack via GUI
     [Tags]            SP-T398
     ${Slack}
-
 Start Sticky Notes via GUI
     [Tags]            SP-T414
     ${Sticky Notes}
-
 Start Teams via GUI
     [Tags]            SP-T392
     ${Teams}
-
 Start Trusted Browser via GUI
     [Tags]            SP-T396
     ${Trusted Browser}
-
 Start Volume Control via GUI
     [Tags]            SP-T465
     ${Volume Control}
-
 Start VPN via GUI
     [Tags]            SP-T412
     ${VPN}
-
 Start Zoom via GUI
     [Tags]            SP-T425
     ${Zoom}
 
-*** Keywords ***
 
+*** Keywords ***
 Launch App And Save Time
     [Arguments]    ${app_key}
     Set Test Documentation   Start ${app_key}[display_name] via GUI and measure launch time

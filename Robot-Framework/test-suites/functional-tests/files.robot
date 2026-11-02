@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing launching files
 
@@ -11,12 +12,12 @@ Resource            ../../resources/ssh_keywords.resource
 
 Test Tags           files  bat  lenovo-x1  darter-pro  dell-7330
 
+
 *** Variables ***
 ${OUTPUT_FILE}   /tmp/out.log
 
 
 *** Test Cases ***
-
 Open PDF from chrome-vm
     [Documentation]    Open PDF file from ${CHROME_VM} and check that ${Ghaf Isolated Document Viewer}[display_name] started
     [Tags]             SP-T383  pre-merge
@@ -76,7 +77,6 @@ Open text file with COSMIC Text Editor
 
 
 *** Keywords ***
-
 Remove the file in VM
     [Arguments]        ${file_name}    ${vm}   ${user}=ghaf
     Switch to vm       ${vm}   user=${user}

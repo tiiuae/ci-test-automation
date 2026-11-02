@@ -1,20 +1,22 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing power consumption with different power profiles on Lenovo-X1
 
 Library             ../../lib/output_parser.py
 Library             JSONLibrary
-Resource            ../../resources/gui_keywords.resource
+Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/gui-vm_keywords.resource
+Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/measurement_keywords.resource
 Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/common_keywords.resource
 
 Test Tags           power-profiles  lenovo-x1  lab-only
+
 
 *** Variables ***
 ${POWERSAVE_LIMIT}           10500
@@ -22,14 +24,12 @@ ${ORIGINAL_POWER_PROFILE}    ${EMPTY}
 
 
 *** Test Cases ***
-
 Power consumption with different power profiles
     [Documentation]   Measure power consumption with different power profiles.
     ...               Confirm that consumption on powersave < balanced < performance.
     ...               Confirm that consumption on powersave < ${POWERSAVE_LIMIT}.
     [Tags]            SP-T337
     [Setup]           Test Setup
-    [Teardown]        Test Teardown
 
     Start power measurement  ${BUILD_ID}   timeout=1500
     Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
@@ -45,9 +45,10 @@ Power consumption with different power profiles
 
     Should Be True   ${powersave_power} < ${balanced_power} < ${performance_power}
     Should Be True   ${powersave_power} < ${POWERSAVE_LIMIT}
+    [Teardown]        Test Teardown
+
 
 *** Keywords ***
-
 Test Setup
     [Timeout]   5 minutes
     Require Power Measurement Agent

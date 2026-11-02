@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Bluetooth functional tests with external Bluetooth Board
 
@@ -11,8 +12,8 @@ Suite Teardown      Release Bluetooth Board Lock
 
 Test Tags           bluetooth  lenovo-x1  darter-pro  lab-only
 
-*** Test Cases ***
 
+*** Test Cases ***
 Connect and disconnect Bluetooth Board
     [Documentation]    Discover Bluetooth Board, connect/disconnect it from audio-vm, and remove device.
     [Tags]             SP-T423
@@ -26,7 +27,6 @@ Connect and disconnect Bluetooth Board
 
 
 *** Keywords ***
-
 Bluetooth test teardown
     [Documentation]    Close Bluetooth board serial port and remove cached target device.
     Close Bluetooth Board Serial Port

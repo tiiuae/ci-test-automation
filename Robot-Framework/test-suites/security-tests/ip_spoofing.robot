@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Resource            ../../resources/service_keywords.resource
 Resource            ../../resources/setup_keywords.resource
@@ -10,13 +11,13 @@ Test Timeout        3 minutes
 
 Test Tags           ip-spoofing
 
+
 *** Variables ***
 ${connection}
 ${ip_server}
 
 
 *** Test Cases ***
-
 Test IP spoofing
     [Tags]            SP-T128  lenovo-x1  darter-pro  dell-7330
     Set Suite Variable      ${file_path}   /home/appuser/'Unsafe share'
@@ -27,7 +28,6 @@ Test IP spoofing
 
 
 *** Keywords ***
-
 Test IP spoofing
     [Documentation]   Test if it's possible to steal packets via ip spoofing
     Prepare netcat server script
@@ -97,7 +97,7 @@ Check the result files
 
 Get Virtual Network Interface IP
     [Documentation]     Parse ifconfig output and look for ethint0 IP
-    ${if_name}=    Set Variable   ethint0
+    ${if_name}     Set Variable   ethint0
     FOR    ${i}    IN RANGE    20
         ${output}     Run Command      ifconfig
         ${ip}         Get ip from ifconfig    ${output}   ${if_name}

@@ -1,17 +1,19 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing time synchronization
 
 Library             ../../lib/TimeLibrary.py
 Resource            ../../resources/common_keywords.resource
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/wifi_keywords.resource
 Resource            ../../resources/service_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/time_keywords.resource
+Resource            ../../resources/wifi_keywords.resource
 
 Test Tags           timesync  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  fmo
+
 
 *** Variables ***
 ${wrong_time}       01/11/23 11:00:00 UTC
@@ -20,12 +22,11 @@ ${error_msg}        Unrecoverable error detected. Please collect any data possib
 
 
 *** Test Cases ***
-
 Time synchronization
     [Documentation]   Stop timesyncd, change time on ghaf host and check that time was changed
     ...               Start timesyncd and check that time was synchronized
     ...               Note!
-    ...               - ORIN-AGX: 
+    ...               - ORIN-AGX:
     ...                  - Ghaf-host is directly connected to net if wire directly connected to the HW.
     ...                      -Net-vm is not connected to net.
     ...                  - Ghaf-host is connected to net via Net-VM if adapter is used!.
@@ -54,8 +55,8 @@ Update system time from internet in VMs
         ${vm}
     END
 
-*** Keywords ***
 
+*** Keywords ***
 VM Time Update Setup
     @{VM_LIST}      Get VM list
     Remove Values From List  ${VM_LIST}   ${ADMIN_VM}
@@ -87,7 +88,7 @@ Check that time is correct
     [Documentation]   Check that current system time is correct (time tolerance = 30 sec)
     [Arguments]       ${timezone}=UTC
 
-    ${is_synchronized} =   Set Variable    False
+    ${is_synchronized}    Set Variable    False
     FOR    ${i}    IN RANGE    30
         ${output}      Run Command    timedatectl -a
         ${local_time}  ${universal_time}  ${rtc_time}  ${device_time_zone}  ${is_synchronized}   Parse time info  ${output}

@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
-*** Keywords ***
 
+*** Keywords ***
 Create file
     [Documentation]    Create file with given path & name, requires existing ssh connection
     [Arguments]        ${file_name}   ${sudo}=False
@@ -74,7 +74,7 @@ Edit File
 
 Get File Content Or Default
     [Arguments]    ${path}    ${default}=not found
-    ${out}    ${rc}=    Run Command    cat ${path}    return=out,rc    rc_match=skip
+    ${out}    ${rc}     Run Command    cat ${path}    return=out,rc    rc_match=skip
     IF    ${rc} == 0
         RETURN    ${out}
     ELSE

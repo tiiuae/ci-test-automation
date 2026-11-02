@@ -1,25 +1,27 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing target device bootup time.
 
 Library             Collections
 Library             DateTime
-Resource            ../../resources/performance_data_processing.resource
+Resource            ../../resources/boot_time_keywords.resource
 Resource            ../../resources/device_control.resource
 Resource            ../../resources/measurement_keywords.resource
+Resource            ../../resources/performance_data_processing.resource
 Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/boot_time_keywords.resource
 Variables           ../../lib/performance_thresholds.py
 
 Suite Teardown      Close All Connections
 Test Teardown       Boot Time Test Teardown
 
 Test Tags           boot-time
+
 
 *** Variables ***
 ${PING_TIMEOUT}            180
@@ -31,7 +33,6 @@ ${WAIT_BEFORE_POWER_ON}    30
 
 
 *** Test Cases ***
-
 Measure Soft Boot Time
     [Documentation]  Measure how long it takes to device to boot up with soft reboot
     [Tags]           SP-T403  lenovo-x1  dell-7330
@@ -76,7 +77,6 @@ Measure Orin Hard Boot Time
 
 
 *** Keywords ***
-
 Get Shutdown Time
     [Arguments]  ${plot_name}=Shutdown Times
     Set Suite Variable            ${SHUTDOWN_VERIFIED}       ${False}

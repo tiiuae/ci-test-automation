@@ -1,13 +1,14 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Library             String
 Resource            common_keywords.resource
 Resource            ssh_keywords.resource
 
-*** Keywords ***
 
+*** Keywords ***
 Get Increased Number Of Sealed Logs
     [Arguments]        ${vm}    ${seals_before}    ${sealer}=False    ${switch_vm}=True
     ${seals_after}     Get Number Of Sealed Logs    ${vm}    sealer=${sealer}    switch_vm=${switch_vm}

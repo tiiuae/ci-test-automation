@@ -1,16 +1,17 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
+Library             ../lib/output_parser.py
 Library             Collections
 Library             DateTime
 Library             OperatingSystem
 Library             Process
 Library             String
-Library             ../lib/output_parser.py
+
 
 *** Keywords ***
-
 Run Command
     [Documentation]   By default, executes a command, checks that return code is 0 and returns output.
     ...    The return code can be validated in three modes using `rc_match`:
@@ -53,7 +54,7 @@ Run Command
 
 Check variable availability
     [Arguments]    ${variable_name}
-    ${value}=    Get Variable Value    ${${variable_name}}
+    ${value}     Get Variable Value    ${${variable_name}}
     IF  $value!='${EMPTY}' and $value!=None
         RETURN  ${True}
     ELSE
@@ -271,12 +272,12 @@ Check VM Log on Grafana
     RETURN         ${status}
 
 Get logs by key words
-    [Arguments]      ${word}   ${period}=1d   ${hide_found_data}=${True}
     [Documentation]    Search and get logs from Grafana
     ...                *Args*'\n:
     ...                - word - key word to find in log line
     ...                - period - sets a period of time for searching to limit lines, 1 day by default
     ...                - hide_found_data - replace found pattern with a placeholder to hid it robot logs in case of sensitive data
+    [Arguments]      ${word}   ${period}=1d   ${hide_found_data}=${True}
     Set Log Level    NONE
     ${query}         Set Variable    {machine="${device_id}"} |= `${word}`
     ${logs}          Run Grafana Query    ${query}    ${period}    hide_found_data=${hide_found_data}    sensitive_word=${word}

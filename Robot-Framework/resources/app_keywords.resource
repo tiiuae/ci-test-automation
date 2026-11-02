@@ -1,14 +1,16 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Library             ../lib/output_parser.py
 Resource            ../resources/common_keywords.resource
 Resource            ../resources/file_keywords.resource
-Resource            ../resources/ssh_keywords.resource
 Resource            ../resources/gui_keywords.resource
 Resource            ../resources/service_keywords.resource
+Resource            ../resources/ssh_keywords.resource
 Variables           ../config/apps.json
+
 
 *** Variables ***
 ${APP_OUTPUT_FILE}           /home/${USER_LOGIN}/output.log
@@ -17,7 +19,6 @@ ${APP_WINDOW_WATCH_SCRIPT}   /tmp/robot-app-window-watcher.sh
 
 
 *** Keywords ***
-
 GUI App Test Setup
     Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
     ${timestamp}    Run Command    date +%s
@@ -37,12 +38,11 @@ GUI App Test Teardown
         END
     END
 
-
 App Launch Test Template
     [Arguments]   ${app_key}
     Set Test Documentation   Start ${app_key}[display_name] and verify process started
     Start App in VM          ${app_key}
-    [Teardown]    Kill App in VM   ${app_key}   ${APP_OUTPUT_FILE}   status=${KEYWORD_STATUS} 
+    [Teardown]    Kill App in VM   ${app_key}   ${APP_OUTPUT_FILE}   status=${KEYWORD_STATUS}
 
 Start App in VM
     [Documentation]    Use always_check_vm=True if calling from tests other than functional

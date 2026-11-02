@@ -1,23 +1,24 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
+Library             ../lib/MemRecordingProcessing.py    ${LOGGED_PARAMS_DIR}mem_recordings/    ${PLOT_DIR}
 Library             Collections
 Library             OperatingSystem
-Library             ../lib/MemRecordingProcessing.py    ${LOGGED_PARAMS_DIR}mem_recordings/    ${PLOT_DIR}
 Resource            ../config/variables.robot
 Resource            ../resources/common_keywords.resource
 Resource            ../resources/ssh_keywords.resource
 
-*** Variables ***
 
+*** Variables ***
 ${MEMREC_SCRIPT_DIR}    /tmp/mem-recordings
 ${SCRIPT_NAME}          mem_recording_loop.sh
 ${SCRIPT_PATH}          ${MEMREC_SCRIPT_DIR}/${SCRIPT_NAME}
 ${MEMREC_DIR}           ${EMPTY}
 
-*** Keywords ***
 
+*** Keywords ***
 Start memory recording in vm internals
     [Arguments]       ${vm}    ${id}    ${memrec_sudo}    ${interval_s}=10    ${timeout_s}=60
     Switch to vm      ${vm}

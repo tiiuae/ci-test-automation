@@ -1,12 +1,13 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Library             Collections
 Library             String
 
-*** Keywords ***
 
+*** Keywords ***
 Create deviation message
     [Arguments]       ${statistics}     ${inverted}
     ${word}           Set Variable    improvement
@@ -19,7 +20,7 @@ Create deviation message
             ${word}       Set Variable    deviation
         END
     END
-    ${message}=       Set Variable   Significant ${word} detected\n${statistics}\n
+    ${message}        Set Variable   Significant ${word} detected\n${statistics}\n
     RETURN            ${message}
 
 Determine Test Status
@@ -29,7 +30,7 @@ Determine Test Status
     ...                     and significant increase of result value as deviation/FAIL.
     [Arguments]             ${statistics_dict}  ${inverted}=0
     ${keys}                 Get Dictionary Keys          ${statistics_dict}
-    ${msg}=                 Set Variable  ${EMPTY}
+    ${msg}                  Set Variable  ${EMPTY}
     FOR   ${i}  IN  @{keys}
         ${statistics}       Get From Dictionary      ${statistics_dict}    ${i}
         ${low_limit_present}    Run Keyword And Return Status    Dictionary Should Contain Key    ${statistics}    low_limit
@@ -58,11 +59,11 @@ Output Dictionary First Value
     RETURN                  ${output}
 
 Install sysbench tool
-    ${command_output}=    Run Command    nix-env --query --installed
-    ${not_installed} =	Run Keyword And Return Status	Should Not Contain    ${command_output}    sysbench
+    ${command_output}     Run Command    nix-env --query --installed
+    ${not_installed} 	Run Keyword And Return Status	Should Not Contain    ${command_output}    sysbench
     IF  ${not_installed}
         Run Command       nix-env -i sysbench
-        ${command_output}=    Run Command    nix-env --query --installed
+        ${command_output}     Run Command    nix-env --query --installed
         Log               ${\n}Installed packages:${\n}${command_output}  console=True
         Should Contain    ${command_output}    sysbench    sysbench tool was not installed
         Log To Console    sysbench tool was successfully installed
@@ -71,11 +72,11 @@ Install sysbench tool
     END
 
 Install iperf tool
-    ${command_output}=    Run Command    nix-env --query --installed
-    ${not_installed} =	  Run Keyword And Return Status	Should Not Contain    ${command_output}    iperf
+    ${command_output}     Run Command    nix-env --query --installed
+    ${not_installed} 	  Run Keyword And Return Status	Should Not Contain    ${command_output}    iperf
     IF  ${not_installed}
         Run Command   nix-env -i iperf
-        ${command_output}=    Run Command    nix-env --query --installed
+        ${command_output}     Run Command    nix-env --query --installed
         Log To Console    ${\n}Installed packages:${\n}${command_output}
         Should Contain    ${command_output}    iperf    iperf tool was not installed
         Log To Console    iperf tool was successfully installed
@@ -85,16 +86,16 @@ Install iperf tool
 
 Initial Memory Check
     [Arguments]             ${max_init_memory}  ${iterations}
-    ${init_mem_check_ok}=             Set Variable  False
+    ${init_mem_check_ok}              Set Variable  False
     ${sleep_between}                  Evaluate      10
     FOR    ${i}    IN RANGE    ${iterations}
-        ${init_total_mem}=                Run Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $1}'
+        ${init_total_mem}                 Run Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $1}'
         Log                               Total memory at start ${init_total_mem} MiB  console=True
         IF  ${init_total_mem} > ${max_init_memory}
             Log To Console                Initial total memory too high. Waiting for the mem-manager to adjust it.
             Sleep  ${sleep_between}
         ELSE
-            ${init_mem_check_ok}=             Set Variable  True
+            ${init_mem_check_ok}              Set Variable  True
             BREAK
         END
     END
@@ -115,7 +116,7 @@ Set power profile
 Get active power profile
     [Documentation]     Return active power profile
     ${output}           Run Command   tuned-adm active
-    ${parts}            Split String    ${output}    : 
+    ${parts}            Split String    ${output}    :
     ${active_profile}   Strip String    ${parts}[1]
     Log                 Active power profile is ${active_profile}   console=True
     RETURN              ${active_profile}

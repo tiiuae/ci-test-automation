@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Verify access rights and isolation across memory zones, virtual machines, and system resources
 
@@ -10,8 +11,8 @@ Suite Setup         Setup
 
 Test Tags           access-control  bat  lenovo-x1  darter-pro  dell-7330
 
-*** Test Cases ***
 
+*** Test Cases ***
 Check access to host devices
     [Documentation]     Check that ghaf user has access to host devices in ghaf-host
     ...                 and does not have the access inside VMs
@@ -56,7 +57,6 @@ Check user account is only in gui-vm
 
 
 *** Keywords ***
-
 Setup
     @{VM_LIST_WITH_HOST}    Get VM list    with_host=True
     Set Suite Variable      @{VM_LIST_WITH_HOST}

@@ -1,25 +1,26 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing camera application
 
 Library             Collections
 Library             OperatingSystem
+Resource            ../../resources/audio_and_video_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/audio_and_video_keywords.resource
 
 Test Timeout        2 minutes
 
 Test Tags           camera  pre-merge  bat  lenovo-x1  darter-pro  dell-7330
+
 
 *** Variables ***
 ${VIDEO_DIR}    ${OUTPUT_DIR}/outputs/camera
 
 
 *** Test Cases ***
-
 Check Camera in VMs
     [Documentation]  Check that camera is not available by default
     [Tags]  SP-T235

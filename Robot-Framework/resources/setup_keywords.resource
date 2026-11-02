@@ -1,13 +1,15 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Library             SSHLibrary
 Resource            ../config/variables.robot
-Resource            ../resources/gui_keywords.resource
-Resource            ../resources/ssh_keywords.resource
 Resource            ../resources/common_keywords.resource
 Resource            ../resources/file_keywords.resource
+Resource            ../resources/gui_keywords.resource
+Resource            ../resources/ssh_keywords.resource
+
 
 *** Variables ***
 ${CONNECTION_TYPE}           ssh
@@ -15,7 +17,6 @@ ${ROBOT_SUDOERS_BOOT_ID}     ${EMPTY}
 
 
 *** Keywords ***
-
 Prepare Test Environment
     [Timeout]     5 minutes
     Check If Device Is Available
@@ -84,7 +85,7 @@ Log versions and device unique data
     Log                 Nixos version: ${nixos_version}    console=True
     Log                 NetVM hostname: ${NETVM_NAME}      console=True
     Get Actual Device ID
-    #Save the Robot Framework version
+    # Save the Robot Framework version
     ${robot_version}    Run   robot --version
     Log                 Robot version of the tests: ${robot_version}   console=True
     Log                 Device: ${DEVICE}                  console=True
@@ -94,8 +95,8 @@ Log versions and device unique data
     Log                 --------                           console=True
 
 Create test user
-    [Setup]              Switch to vm    ${GUI_VM}
     [Documentation]      Check if ${USER_LOGIN} already exists and if not create testuser
+    [Setup]              Switch to vm    ${GUI_VM}
     TRY
         Run Command      id -u ${USER_LOGIN}
     EXCEPT
@@ -110,11 +111,11 @@ Create test user
 Start ydotoold
     [Documentation]    Start ydotool daemon if it is not already running.
     [Setup]            Switch to vm    ${GUI_VM}
-    ${ydotoold_state}=    Run Command    sh -c 'ps aux | grep ydotoold | grep -v grep'  rc_match=skip
+    ${ydotoold_state}     Run Command    sh -c 'ps aux | grep ydotoold | grep -v grep'  rc_match=skip
     IF  $ydotoold_state == '${EMPTY}'
         Log To Console    Starting ydotool daemon
         Run Keyword And Ignore Error  Run Command  systemd-run --unit=ydotoold-persistent /run/current-system/sw/bin/ydotoold --socket-path /tmp/.ydotool_socket  sudo=True  timeout=3
-        ${ydotoold_state}=    Run Command    sh -c 'ps aux | grep ydotoold | grep -v grep'
+        ${ydotoold_state}     Run Command    sh -c 'ps aux | grep ydotoold | grep -v grep'
         Should Not Be Empty  ${ydotoold_state}  failed to start ydotool daemon
         # Allow all users to use Ydotool
         Run Command       chmod 666 /tmp/.ydotool_socket  sudo=True
@@ -125,7 +126,7 @@ Start ydotoold
 Stop ydotoold
     [Documentation]   Stop ydotool daemon
     [Setup]           Switch to vm    ${GUI_VM}
-    ${ydotoold_state}=    Run Command    sh -c 'ps aux | grep ydotoold | grep -v grep'  rc_match=skip
+    ${ydotoold_state}     Run Command    sh -c 'ps aux | grep ydotoold | grep -v grep'  rc_match=skip
     IF  $ydotoold_state == '${EMPTY}'
         Confirmed that ydotoold is not running
     ELSE

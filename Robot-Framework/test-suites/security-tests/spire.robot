@@ -1,18 +1,20 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Verify that SPIRE server is healthy and x509pop agents are attested
 
 Library             Collections
 Library             String
 Resource            ../../resources/common_keywords.resource
-Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/service_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Wait for VMs to be running
 
 Test Tags           spire  lenovo-x1  darter-pro  orin-agx  orin-agx-64  orin-nx
+
 
 *** Variables ***
 ${SPIRE_SOCKET_PATH}        /run/spire-server/api.sock
@@ -21,7 +23,6 @@ ${SPIRE_ATTESTATION_TYPE}  x509pop
 
 
 *** Test Cases ***
-
 Spire agents are running
     [Documentation]    Verify SPIRE server health and one x509pop attested agent for every VM and host.
     [Tags]             SP-T373
@@ -31,7 +32,6 @@ Spire agents are running
 
 
 *** Keywords ***
-
 Wait for VMs to be running
     @{vm_list}    Get VM list
     FOR    ${vm}    IN    @{vm_list}

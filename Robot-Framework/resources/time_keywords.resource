@@ -1,14 +1,15 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Library             DateTime
 Resource            common_keywords.resource
-Resource            ssh_keywords.resource
 Resource            service_keywords.resource
+Resource            ssh_keywords.resource
+
 
 *** Keywords ***
-
 Stop Timesync Daemon
     [Arguments]            ${service_name}=systemd-timesyncd.service
     Run Command            systemctl stop ${service_name}    sudo=True

@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing settings options
 
@@ -9,8 +10,8 @@ Resource            ../../resources/gui_keywords.resource
 
 Test Tags           gui-settings  lenovo-x1  darter-pro
 
-*** Test Cases ***
 
+*** Test Cases ***
 Change timezone in settings
     [Documentation]   Open COSMIC Settings app and change timezone
     [Tags]            SP-T136
@@ -29,8 +30,8 @@ Change timezone in settings
     ...          AND   Kill App in VM          ${COSMIC Settings}
     ...          AND   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
-*** Keywords ***
 
+*** Keywords ***
 Search in COSMIC Settings
     [Arguments]     ${search_term}
     Move cursor to corner

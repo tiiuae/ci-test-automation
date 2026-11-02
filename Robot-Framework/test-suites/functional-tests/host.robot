@@ -1,21 +1,22 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Common system tests on host
 
 Library             ../../lib/output_parser.py
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/serial_keywords.resource
-Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/service_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Switch to vm   ${HOST}
 
 Test Tags           host
 
-*** Test Cases ***
 
+*** Test Cases ***
 Check device id
     [Documentation]    Compare actual device id with expected one from the config file,
     ...                It should never change.
@@ -48,7 +49,7 @@ Check all VMs are running
     [Tags]             SP-T502  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  fmo
     @{vms}      Get VM list
     FOR   ${vm}  IN  @{vms}
-        ${status}=    Run Keyword And Continue On Failure    Verify service status  service=microvm@${vm}
+        ${status}     Run Keyword And Continue On Failure    Verify service status  service=microvm@${vm}
     END
 
 Check all VMs are running on Orins
@@ -104,7 +105,6 @@ Check Secure Boot is enabled
 
 
 *** Keywords ***
-
 Serial setup
     ${status}   Open Serial Port
     IF  ${status}==False

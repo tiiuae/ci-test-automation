@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing setup
 
@@ -10,13 +11,13 @@ Resource            ../../resources/setup_keywords.resource
 
 Test Tags           gui-setup  lenovo-x1  darter-pro
 
+
 *** Variables ***
 ${KEYBOARD_CONFIG}      /home/${USER_LOGIN}/.config/cosmic/com.system76.CosmicComp/v1/xkb_config
 ${ORIGINAL_KEYBOARD}    /tmp/xkb_config_${USER_LOGIN}.bak
 
 
 *** Test Cases ***
-
 Complete Initial Setup
     [Documentation]   Complete ${Cosmic Initial Setup}[display_name]
     [Tags]    SP-T508
@@ -46,8 +47,8 @@ Complete Initial Setup
     ...                   AND   Restore original cosmic config if test failed
     ...                   AND   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
-*** Keywords ***
 
+*** Keywords ***
 Open Initial Setup
     [Documentation]   Reset and launch ${Cosmic Initial Setup}[display_name].
     Remove file     /home/${USER_LOGIN}/.config/cosmic-initial-setup-done   rc_match=skip
@@ -87,7 +88,7 @@ Save original values
 
 Restore original values
     [Documentation]   Restore language, keyboard config and timezone to original values
-    Set language      ${ORIGINAL_LANGUAGE} 
+    Set language      ${ORIGINAL_LANGUAGE}
     IF    ${ORIGINAL_KEYBOARD_EXISTS}
         Copy file         ${ORIGINAL_KEYBOARD}   ${KEYBOARD_CONFIG}
     ELSE
@@ -126,7 +127,7 @@ Move to next page
     Locate and click  image   ghaf-next.png   0.95   wiggle=True
 
 Select setup option and continue
-    [Documentation]   Verify correct page, search and select ${search_term} 
+    [Documentation]   Verify correct page, search and select ${search_term}
     ...               and then confirm ${expected_value} with ${verify_keyword}.
     [Arguments]   ${page_name}   ${search_term}   ${expected_value}   ${verify_keyword}
     Check that page is correct   ${page_name}

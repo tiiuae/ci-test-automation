@@ -1,19 +1,21 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Checking VM's firewall
 
 Library             OperatingSystem
 Resource            ../../resources/common_keywords.resource
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/setup_keywords.resource
-Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/security_blacklist_keywords.resource
+Resource            ../../resources/serial_keywords.resource
+Resource            ../../resources/setup_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Suite Setup
 
 Test Tags           firewall
+
 
 *** Variables ***
 ${port}             5432
@@ -26,7 +28,6 @@ ${TCP_SYN_FLOOD_TIMEOUT}       0.005
 
 
 *** Test Cases ***
-
 Network traffic passes through all VMs' firewall
     [Tags]            SP-T288  lenovo-x1  darter-pro  dell-7330
     [Template]        Network traffic passes through ${vm} firewall
@@ -88,8 +89,8 @@ Check VM firewall policy
     END
     Check Network Availability   ${BLOCKED_PAGE}   expected_result=False   range=1
 
-*** Keywords ***
 
+*** Keywords ***
 Network traffic passes through ${vm} firewall
     [Documentation]    Network traffic passes through VM firewall
     Log    | | Check that traffic passes through ${vm} firewall    console=True
@@ -245,8 +246,8 @@ External Ping Flood NetVM
     Log To Console    Blacklisting triggered successfully by ping flooding
 
 Tcp Syn Flood
-    [Arguments]        ${target_ip}  ${external}=${True}
     [Documentation]    Flood the target with TCP SYN packets
+    [Arguments]        ${target_ip}  ${external}=${True}
     ${flood_cmd}       Set Variable    rc=1; for i in $(seq 1 ${TCP_SYN_FLOOD_ATTACK_COUNT}); do timeout ${TCP_SYN_FLOOD_TIMEOUT}s nc -z -w 1 ${target_ip} 22 >/dev/null 2>&1 && rc=0; sleep ${TCP_SYN_FLOOD_INTERVAL}; done; echo $rc
     IF  ${external}
         ${rc}   ${output}  Run And Return Rc And Output    ${flood_cmd}

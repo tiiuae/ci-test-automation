@@ -1,26 +1,27 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Check security in logs
 
 Library             Collections
 Library             DateTime
 Library             String
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/wifi_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/device_control.resource
-Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/logging_keywords.resource
+Resource            ../../resources/setup_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/time_keywords.resource
+Resource            ../../resources/wifi_keywords.resource
 
 Suite Setup         Logging Setup
 
 Test Tags           logging  lenovo-x1  darter-pro
 
-*** Test Cases ***
 
+*** Test Cases ***
 Wifi password is not revealed in Grafana
     [Documentation]  Check that logs in Grafana don't contain wifi password
     [Tags]           SP-T456  bat  orin-agx  orin-agx-64  lab-only
@@ -74,8 +75,8 @@ Log sealing works after clock change
     IF    $failures    FAIL    Log sealing checks failed: ${failures}
     [Teardown]    Restore System Time In VMs    @{VM_LIST}
 
-*** Keywords ***
 
+*** Keywords ***
 Logging Setup
     Switch to vm        ${HOST}
     ${device_id}        Get Actual Device ID

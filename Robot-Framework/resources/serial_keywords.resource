@@ -1,19 +1,20 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
-Library             DateTime
-Library             OperatingSystem
-Library             String
+Library             ../lib/helper_functions.py
 Library             ../lib/KMTronicLibrary.py   ${RELAY_SERIAL_PORT}
 Library             ../lib/output_parser.py
-Library             ../lib/helper_functions.py
 Library             AdvancedLogging
+Library             DateTime
+Library             OperatingSystem
 Library             SerialLibrary    encoding=ascii
+Library             String
 Resource            ../resources/device_control.resource
 
-*** Keywords ***
 
+*** Keywords ***
 Add Configured Serial Port
     [Arguments]   ${timeout}=2.0
     Add Port      ${SERIAL_PORT}
@@ -76,7 +77,7 @@ Check Serial Connection
 
     ${opened_here}    Set Variable    ${False}
     IF    not ${UART_CAPTURE_ACTIVE}
-        ${serial_status}=   Open Serial Port
+        ${serial_status}    Open Serial Port
         Should Not Be Equal    ${serial_status}    False    msg=Serial port is not available
         ${opened_here}    Set Variable    ${True}
     END
@@ -99,10 +100,10 @@ Check For Text In Serial Port
 
 Try To Check Serial On Device
     [Arguments]    ${range}=30x
-    ${serial_status}=      Set variable    ${False}
+    ${serial_status}       Set variable    ${False}
     TRY
         Check Serial Connection     range=${range}
-        ${serial_status}=    Set Variable   ${True}
+        ${serial_status}     Set Variable   ${True}
         Log    Device is available via Serial Port.     console=True
     EXCEPT   AS    ${exc}
         Log    Device is not available via serial, failed with an exception:\n ${exc}!      console=True
@@ -140,8 +141,8 @@ Log In To Ghaf OS
     FAIL    Serial console is not ready
 
 Verify init.scope status via serial
-    [Arguments]         ${range}=60
     [Documentation]     Check if init.scope service is running with given loop ${range}
+    [Arguments]         ${range}=60
     ${status}           Connect via serial  timeout=10
     IF    ${status}==False
         FAIL       Failed to connect via serial, init.scope status was not verified
@@ -162,7 +163,7 @@ Verify init.scope status via serial
         END
         Sleep    1
     END
-    ${diff}=    Evaluate    int(time.time()) - int(${start_time})
+    ${diff}     Evaluate    int(time.time()) - int(${start_time})
     FAIL    init.scope is not running after ${diff} sec! Status is ${status}
     [Teardown]    Run Keywords    Delete All Ports    AND
     ...           Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
@@ -270,7 +271,7 @@ Wait for shutdown via serial
                 ${empty_output}    Set Variable    ${True}
                 ${serial_empty_since}    Get Time  epoch
             END
-            ${diff}=    Evaluate    int(time.time()) - int(${serial_empty_since})
+            ${diff}     Evaluate    int(time.time()) - int(${serial_empty_since})
             IF  ${diff} > ${empty_output_timeout}
                 BREAK
             END
@@ -280,7 +281,7 @@ Wait for shutdown via serial
             Log    ${serial_output_log}
             RETURN    ${True}
         END
-        ${diff}=    Evaluate    int(time.time()) - int(${loop_start})
+        ${diff}     Evaluate    int(time.time()) - int(${loop_start})
         IF  ${diff} > ${loop_timeout}
             BREAK
         END
@@ -353,7 +354,7 @@ Run Command on VM Via Serial
         ${effective_command}    Set Variable    sudo ${command}
         ${ssh_options}         Set Variable    -t ${ssh_options}
     END
-    ${escaped_cmd}     Replace String    ${effective_command}    "    \\" 
+    ${escaped_cmd}     Replace String    ${effective_command}    "    \\"
     ${ssh_command}     Set Variable    ssh ${ssh_options} ${vm} "${escaped_cmd}"
     IF  $output_redirect != 'NONE'
         ${ssh_command}     Set Variable    ${ssh_command} > ${output_redirect}

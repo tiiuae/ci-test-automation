@@ -1,21 +1,22 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing Network VM
 
 Resource            ../../resources/common_keywords.resource
+Resource            ../../resources/device_control.resource
 Resource            ../../resources/file_keywords.resource
+Resource            ../../resources/service_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/virtualization_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
-Resource            ../../resources/device_control.resource
-Resource            ../../resources/service_keywords.resource
 
 Test Tags           net-vm  bat
 
-*** Test Cases ***
 
+*** Test Cases ***
 Verify NetVM is started
     [Documentation]         Verify that NetVM is active and running
     [Tags]                  SP-T45  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  fmo
@@ -75,8 +76,8 @@ Verify native ethernet is present and in the same network as USB ethernet
     ${native_ip}       Get VM IP            ${native_eth}
     Interfaces Should Be In Same Network    ${usb_ip}    ${native_ip}
 
-*** Keywords ***
 
+*** Keywords ***
 Interfaces Should Be In Same Network
     [Documentation]    Verify that two interfaces are in the same /24 subnet.
     [Arguments]        ${ip1}    ${ip2}

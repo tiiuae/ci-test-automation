@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Suspension test
 
@@ -12,8 +13,8 @@ Suite Teardown      Clean Up Test Environment
 
 Test Tags           regression  suspension
 
-*** Keywords ***
 
+*** Keywords ***
 Suspension Tests Setup
     [Timeout]    5 minutes
     Prepare Test Environment

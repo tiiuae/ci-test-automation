@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing App Store
 
@@ -14,8 +15,8 @@ Test Timeout        10 minutes
 
 Test Tags           app-store  lenovo-x1  darter-pro
 
-*** Test Cases ***
 
+*** Test Cases ***
 Install Firefox
     [Documentation]    Install and launch Firefox from App Store
     [Tags]    SP-T335
@@ -31,8 +32,8 @@ Install Onlyoffice and save documents
     Save a file from Onlyoffice   Spreadsheet    test_Spreadsheet.xlsx
     Save a file from Onlyoffice   Presentation   test_Presentation.pptx
 
-*** Keywords ***
 
+*** Keywords ***
 App Store Test Teardown
     ${availability}         Check variable availability   app_key
     IF   ${availability}    Kill app and Uninstall in App Store   ${app_key}
@@ -64,7 +65,7 @@ Install and Launch App Store app
     Tab and enter      tabs=1    # Close the sidebar
 
     # Install app
-    Locate and click   text   nstall   scale=3   wiggle=True   #Typo intentional, "I" is sometimes not recognized by the text recognition
+    Locate and click   text   nstall   scale=3   wiggle=True   # Typo intentional, "I" is sometimes not recognized by the text recognition
     Move cursor to corner
     Wait until flatpak app is installed    ${app_key}[process_name]
 
@@ -129,7 +130,7 @@ Kill app and Uninstall in App Store
     Kill App in VM    ${app_key}
     Open App Store
     Log     Uninstalling ${app_key}[display_name]   console=True
-    Locate and click   text   nstalled      scale=2   wiggle=True  #Typo intentional, "I" is sometimes not recognized by the text recognition
+    Locate and click   text   nstalled      scale=2   wiggle=True  # Typo intentional, "I" is sometimes not recognized by the text recognition
     Locate and click   text   ${app_key}[display_name]   wiggle=True
     # Uninstall app
     Locate and click   text   Uninstall     scale=3   wiggle=True
@@ -137,7 +138,7 @@ Kill app and Uninstall in App Store
     Run ydotool command   mousemove -x 340 -y 70
     Click
     Sleep  1
-    Locate and click   text   nstalled      scale=2   wiggle=True  #Typo intentional, "I" is sometimes not recognized by the text recognition
+    Locate and click   text   nstalled      scale=2   wiggle=True  # Typo intentional, "I" is sometimes not recognized by the text recognition
     # Verify uninstallation via GUI
     ${is_installed}    Run Keyword And Return Status   Locate on screen   text   ${app_key}[display_name]   iterations=3   expected_result=FAIL
     Should Not Be True   ${is_installed}     App ${app_key}[display_name] is still shown as installed in ${App Store}[display_name]
@@ -176,6 +177,6 @@ Save a file from Onlyoffice
 
 Search for typed text
     [Documentation]   Write a text and search for it with text recognition
-    ${screenshot_path}   ${_}=    Capture Action Changes    Type string         testText    enter_at_end=True
-    ${is_found}    ${_}=    Is Text On The Screen   ${screenshot_path}       testText   scale=2    config=--psm 11
+    ${screenshot_path}   ${_}     Capture Action Changes    Type string         testText    enter_at_end=True
+    ${is_found}    ${_}     Is Text On The Screen   ${screenshot_path}       testText   scale=2    config=--psm 11
     Should Be True    ${is_found}    msg=testText wasn't found on the screenshot
