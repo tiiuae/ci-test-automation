@@ -14,7 +14,7 @@ Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/update_keywords.resource
 
 Suite Setup          Rebuild from modified ghaf repo
-Suite Teardown       Rebuild Teardown
+Suite Teardown       Roll back to original generation after rebuild
 
 Test Tags           rebuild
 
@@ -120,15 +120,6 @@ Edit ghaf repo
         # Ensure rebuild by minor change
         Edit File         ${REPOSITORY_PATH}/modules/development/debug-tools.nix  strace  ''  ${True}
     END
-
-Rebuild Teardown
-    IF  '${SUITE_STATUS}'=='FAIL'
-        Hard Reboot Device And Connect
-    END
-    Switch to vm    ${HOST}
-    Remove Ghaf Repository
-    Roll back to original generation
-    Soft Reboot Device And Connect
 
 Check That Logging Is Working in VM
     [Documentation]  Check that the test log is sent to Grafana
