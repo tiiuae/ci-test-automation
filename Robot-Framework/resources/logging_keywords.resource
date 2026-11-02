@@ -46,3 +46,26 @@ Verify Log Sealing In Current VM
     ...                ${vm}    ${seals_before}    switch_vm=${False}
     Log    ${vm}: sealed logs ${seals_before} -> ${seals_after}    console=True
     RETURN    ${seals_after}
+
+Verify Received Journal Entry Count
+    [Documentation]    Check the exact number of matching messages in the receiver journal on the current VM.
+    [Arguments]        ${log_dir}    ${message}    ${expected_count}=1
+    ${entries}         Run Command
+    ...                journalctl -D '${log_dir}' -t ghaf-replay-test 'MESSAGE=${message}' -o cat --quiet --no-pager
+    ...                sudo=True
+    ${lines}           Split To Lines    ${entries}
+    ${count}           Count Values In List    ${lines}    ${message}
+    Should Be Equal As Integers    ${count}    ${expected_count}
+    ...                Received journal entry '${message}': expected ${expected_count}, found ${count}
+
+Save Journal Forwarding Logs
+    [Arguments]        ${sender_vm}    ${log_dir}
+    FOR    ${vm}    IN    ${ADMIN_VM}    ${sender_vm}
+        Switch to vm    ${vm}
+        IF    $vm == $ADMIN_VM
+            Run Command    journalctl -D '${log_dir}' -t ghaf-replay-test --no-pager -n 200    sudo=True
+            Run Command    journalctl -u ghaf-journal-receiver.service --no-pager -n 200    sudo=True
+        ELSE
+            Run Command    journalctl -u systemd-journal-upload.service --no-pager -n 200    sudo=True
+        END
+    END
