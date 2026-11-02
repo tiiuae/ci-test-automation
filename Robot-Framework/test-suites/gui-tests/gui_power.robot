@@ -59,7 +59,6 @@ Reboot from power menu
     [Documentation]   Reboot the device via GUI power menu reboot icon.
     ...               Check that it shuts down. Check that it turns on and boots to login screen.
     [Tags]            SP-T494  lenovo-x1  darter-pro  lab-only
-    Set Test Variable    ${NETVM_RESTARTED_VIA_SERIAL}    ${False}
     Select power menu option   x=870   y=120   confirmation=True
     ${start_time}     Get Time    epoch
     Verify shutdown via network
@@ -70,8 +69,6 @@ Reboot from power menu
     ${reboot_limit}   Convert To Integer    90
     Log               Reboot took ${elapsed} seconds   console=True
 
-    Skip If    $elapsed > $reboot_limit and $NETVM_RESTARTED_VIA_SERIAL
-    ...    Reboot exceeded the time limit after restarting net-vm via serial
     Should Not Be True    ${elapsed} > ${reboot_limit}    msg=Reboot took too long: ${elapsed} seconds (expected < ${reboot_limit})
 
 Shutdown from power menu
