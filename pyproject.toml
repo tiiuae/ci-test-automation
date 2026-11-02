@@ -1,0 +1,19 @@
+[tool.robotidy]
+overwrite = false
+transform = [
+    "MergeAndOrderSections",
+    "NormalizeAssignments",
+    "NormalizeComments",
+    "NormalizeNewLines",
+    "NormalizeSectionHeaderName",
+    "NormalizeSettingName",
+    "OrderSettings",
+    "OrderSettingsSection",
+    "Robot-Framework/robotidy_transformers/SortImports.py",
+    "Robot-Framework/robotidy_transformers/OrganizeRobotTags.py",
+]
+configure = [
+    "MergeAndOrderSections:create_comment_section=False",
+    "NormalizeAssignments:equal_sign_type=remove",
+    "OrderSettingsSection:imports_order=library,resource,variables",
+]

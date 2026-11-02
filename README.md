@@ -22,17 +22,16 @@ appear at `result/bin/ghaf-robot`.
 To enter a devshell, where you can run `robot` (instead of the wrapper) and all
 the Python dependencies are available, run `nix develop`.
 
-The shell includes Robotidy for formatting Robot Framework files. To organize
-settings in the test suites, run:
+The shell includes Robotidy for formatting Robot Framework files. Preview changes with:
 
 ```sh
-robotidy --transform OrderSettingsSection Robot-Framework
+robotidy --diff Robot-Framework
 ```
 
-To preview changes first, add `--diff`:
+To apply the formatting, enable overwrite explicitly:
 
 ```sh
-robotidy --transform OrderSettingsSection --diff Robot-Framework
+robotidy --overwrite Robot-Framework
 ```
 
 ## drcontrol.py
