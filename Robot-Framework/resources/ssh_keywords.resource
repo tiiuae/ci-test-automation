@@ -130,32 +130,37 @@ Check If Device Is Up
 Check If Device Is Available
     [Arguments]     ${retry}=5x   ${action}=${EMPTY}
     Check If Device Is Up    retry=${retry}
-
-    IF    $action == 'reboot' and $CONNECTION_TYPE == 'serial' and $SERIAL_PORT != 'NONE'
-        # SSRCSP-9085: try recovering net-vm before falling back to a full device reboot.
-        Log    SSH is unavailable after reboot. Restarting net-vm via serial.    console=True
-        Set Test Variable    ${NETVM_RESTARTED_VIA_SERIAL}    ${True}
-        TRY
-            Run Command On Serial    systemctl restart ${NETVM_SERVICE}    sudo=${True}    timeout=20
-            Close All Connections
-            Check If Device Is Up    retry=60s
-            IF    $CONNECTION_TYPE == 'ssh'
-                Switch to vm    ${NET_VM}
-                Log Error    SSH recovery    SSRCSP-9085: SSH unavailable after device reboot, restored after restarting net-vm via serial
-            END
-        EXCEPT    AS    ${error}
-            Log    Could not recover SSH by restarting net-vm: ${error}    console=True
-        END
-    END
     ${extra_log}    Set Variable If   '${action}'!='${EMPTY}'   after ${action}    for tests
     IF    ${IS_AVAILABLE} == False
         FAIL    The device is not available via SSH or serial ${extra_log}.
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
-        FAIL    The device is available only via serial ${extra_log}, but SSH is required.
+        IF    $action == 'reboot'
+            Try To Recover SSH Connection Via Serial   ${extra_log}
+        ELSE
+            FAIL    The device is available only via serial ${extra_log}, but SSH is required.
+        END
     ELSE
         Log     Device is available ${extra_log}.   console=True
     END
     Switch to vm     ${NET_VM}
+
+Try To Recover SSH Connection Via Serial
+    [Documentation]    Restart net-vm via serial to try to recover SSH connection.
+    ...                This keyword will fail even when connection is restored.
+    [Arguments]        ${extra_log}
+    Log    SSH is unavailable after reboot. Restarting net-vm via serial to try to recover.    console=True
+    TRY
+        Run Command On Serial    systemctl restart ${NETVM_SERVICE}    sudo=${True}    timeout=20
+        Close All Connections
+        Check If Device Is Up    retry=60s
+        Switch to vm    ${NET_VM}
+    EXCEPT    AS    ${error}
+        Log     Could not recover SSH by restarting net-vm: ${error}    console=True
+        FAIL    The device is available only via serial ${extra_log}, but SSH is required.
+    ELSE
+        Log Error   SSH recovery   SSH unavailable after device reboot, restored after restarting net-vm via serial
+        FAIL        Device was only available via serial ${extra_log}, but SSH recovered when net-vm was restarted via serial.
+    END
 
 Try To Check Ssh On Device
     [Arguments]    ${retry}   ${interval}    ${ssh_timeout}=50s
