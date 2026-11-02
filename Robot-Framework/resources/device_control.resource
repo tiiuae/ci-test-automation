@@ -69,9 +69,12 @@ Turn Laptop On
     END
 
 Soft Reboot Device And Connect
-    [Documentation]  Reboot device from ${GUI_VM} (laptops) or ${HOST} (Orins), reconnect and log in when testing a laptop
-    [Arguments]      ${retry}=60
-    ${vm}                  Set Variable If   ${IS_LAPTOP}   ${GUI_VM}   ${HOST}
+    [Documentation]  Reboot device from command line, reconnect and log in when testing a laptop.
+    ...              By default laptops are rebooted from ${GUI_VM} and Orins from ${HOST}.
+    [Arguments]      ${retry}=60   ${login}=True   ${vm}=${EMPTY}
+    IF  $vm == '${EMPTY}'
+        ${vm}   Set Variable If   ${IS_LAPTOP}   ${GUI_VM}   ${HOST}
+    END
     ${reboot_log_since}    Get Time    epoch
     ${soft_reboot_ok}      Run Keyword And Return Status
     ...    Run Keywords
@@ -82,20 +85,20 @@ Soft Reboot Device And Connect
         Collect Logs After Failed Soft Reboot    ${reboot_log_since}
         FAIL    Soft reboot failed.
     END
-    IF    ${IS_LAPTOP}
+    IF    ${IS_LAPTOP} and ${login}
         Login to laptop
     END
 
 Hard Reboot Device And Connect
     [Documentation]  Hard reboot the device, reconnect and log in when testing a laptop
-    [Arguments]     ${verify_shutdown}=True
+    [Arguments]     ${verify_shutdown}=True  ${login}=True
     IF  ${IS_LAPTOP}
         Reboot Laptop    verify_shutdown=${verify_shutdown}
     ELSE
         Reboot Orin
     END
     Connect After Reboot
-    IF    ${IS_LAPTOP}
+    IF    ${IS_LAPTOP} and ${login}
         Login to laptop
     END
 
