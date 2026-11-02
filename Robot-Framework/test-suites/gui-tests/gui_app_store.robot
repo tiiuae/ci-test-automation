@@ -12,7 +12,7 @@ Test Setup          GUI App Test Setup
 Test Teardown       App Store Test Teardown
 Test Timeout        10 minutes
 
-Test Tags           app-store  darter-pro  storeDisk-only
+Test Tags           app-store  lenovo-x1  darter-pro
 
 *** Test Cases ***
 
@@ -37,8 +37,16 @@ App Store Test Teardown
     ${availability}         Check variable availability   app_key
     IF   ${availability}    Kill app and Uninstall in App Store   ${app_key}
     Switch to vm            ${GUI_VM}  user=${USER_LOGIN}
-    GUI App Test Teardown   ${TEST_STATUS}   ${TEST_NAME}
     Run Keyword If Test Passed    Remove Captured Screenshots
+    [Teardown]    App Store Recording Teardown    ${KEYWORD_STATUS}    ${TEST_STATUS}    ${TEST_NAME}
+
+App Store Recording Teardown
+    [Arguments]    ${keyword_status}    ${test_status}    ${test_name}
+    IF    $keyword_status == 'FAIL' or $test_status == 'FAIL'
+        GUI App Test Teardown    FAIL    ${test_name}
+    ELSE
+        GUI App Test Teardown    ${test_status}    ${test_name}
+    END
 
 Install and Launch App Store app
     [Documentation]   Install app from App Store and launch it from the app menu
@@ -129,7 +137,7 @@ Kill app and Uninstall in App Store
     Run ydotool command   mousemove -x 340 -y 70
     Click
     Sleep  1
-    Locate and click   text   Back   scale=3   wiggle=True
+    Locate and click   text   nstalled      scale=2   wiggle=True  #Typo intentional, "I" is sometimes not recognized by the text recognition
     # Verify uninstallation via GUI
     ${is_installed}    Run Keyword And Return Status   Locate on screen   text   ${app_key}[display_name]   iterations=3   expected_result=FAIL
     Should Not Be True   ${is_installed}     App ${app_key}[display_name] is still shown as installed in ${App Store}[display_name]
