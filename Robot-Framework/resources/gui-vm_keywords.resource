@@ -1,14 +1,15 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Library             ../lib/output_parser.py
 Library             ../lib/TimeLibrary.py
 Resource            ../resources/common_keywords.resource
 Resource            ../resources/ssh_keywords.resource
 
-*** Keywords ***
 
+*** Keywords ***
 Get screen brightness
     [Documentation]   Get and return current brightness value
     [Arguments]       ${log_brightness}=True

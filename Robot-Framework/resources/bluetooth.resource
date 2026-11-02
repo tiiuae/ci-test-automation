@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Bluetooth service and bluetooth board related keywords.
 
@@ -10,12 +11,13 @@ Library             SerialLibrary    encoding=ascii
 Resource            common_keywords.resource
 Resource            ssh_keywords.resource
 
+
 *** Variables ***
 ${BT_BOARD_LOCK_PATH}        /tmp/.bt-board-lock
 ${BT_BOARD_LOCK_ACQUIRED}    ${False}
 
-*** Keywords ***
 
+*** Keywords ***
 Verify Bluetooth controller availability
     [Documentation]    Verify controller presence or absence in BlueZ according to availability.
     [Arguments]        ${availability}=${True}

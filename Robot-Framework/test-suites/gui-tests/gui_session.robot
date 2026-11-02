@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Tests for GUI session and application state persistence
 
@@ -12,8 +13,8 @@ Test Teardown       Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 Test Tags           gui-session  lenovo-x1  darter-pro
 
-*** Test Cases ***
 
+*** Test Cases ***
 Change workspace with app open
     [Documentation]   Open ${COSMIC Text Editor}[display_name], switch to another workspace,
     ...               verify the app window is not visible, then return to the first workspace
@@ -29,8 +30,8 @@ Change workspace with app open
     ...           AND             Switch to vm          ${GUI_VM}    user=${USER_LOGIN}
     ...           AND             Stop screen recording    ${TEST_STATUS}    ${TEST_NAME}
 
-*** Keywords ***
 
+*** Keywords ***
 Change workspace
     [Documentation]  Switch to the given workspace with a shortcut.
     [Arguments]      ${workspace_number}

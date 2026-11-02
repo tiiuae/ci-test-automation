@@ -1,25 +1,25 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Check killswitch functionality
 
-Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/audio_and_video_keywords.resource
 Resource            ../../resources/bluetooth.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/gui-vm_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/wifi_keywords.resource
 
 Test Tags           killswitch  lenovo-x1  darter-pro
 
-*** Variables ***
 
+*** Variables ***
 ${AUDIO_DIR}    ${OUTPUT_DIR}/outputs/audio-temp
 
 
 *** Test Cases ***
-
 Killswitch disconnects camera
     [Documentation]  Check that camera works, then block it using killswitch and verify that it doesn't work
     [Tags]           SP-T435  bat
@@ -85,7 +85,6 @@ Kill switch disconnects Bluetooth
 
 
 *** Keywords ***
-
 WLAN setup
     Switch to vm       ${NET_VM}
     ${wifi_if}         Get Interface name    wifi

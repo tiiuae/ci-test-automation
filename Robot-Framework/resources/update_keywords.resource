@@ -1,17 +1,18 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Library             Collections
 Library             String
 Resource            ../resources/common_keywords.resource
+
 
 *** Variables ***
 ${REPOSITORY_PATH}      /persist/ghaf
 
 
 *** Keywords ***
-
 Get current generation
     [Documentation]        Extract the number of current generation
     ${output}              Run Command  nix-env -p /nix/var/nix/profiles/system --list-generations  sudo=True

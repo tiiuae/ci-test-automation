@@ -1,15 +1,17 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
-Library             DateTime
 Library             ../lib/ParseMeasurementData.py    ${LOGGED_PARAMS_DIR}    ${PLOT_DIR}
+Library             DateTime
 Library             SSHLibrary
 Resource            ../config/variables.robot
 Resource            ../resources/common_keywords.resource
 Resource            ../resources/file_keywords.resource
 Resource            ../resources/performance_keywords.resource
 Resource            ../resources/ssh_keywords.resource
+
 
 *** Variables ***
 ${SSH_MEASUREMENT}        ${EMPTY}
@@ -18,9 +20,8 @@ ${DATA_PROCESS_ERROR}     ${False}
 
 
 *** Keywords ***
-
 Require Power Measurement Agent
-    ${availability}=    Check variable availability    RPI_IP_ADDRESS
+    ${availability}     Check variable availability    RPI_IP_ADDRESS
     IF  ${availability} == False
         SKIP    Power measurement agent IP address not defined. Skipping the test
     END
@@ -57,8 +58,8 @@ Connect to measurement agent
     [Documentation]         Set up SSH connection to the measurement agent
     [Arguments]             ${IP}=${RPI_IP_ADDRESS}    ${PORT}=22    ${target_output}=ghaf@raspberrypi
     Log To Console          Connecting to measurement agent
-    ${connection}=          Open Connection    ${IP}    port=${PORT}    prompt=\$    timeout=15
-    ${output}=              Login     username=${LOGIN_PI}    password=${PASSWORD_PI}
+    ${connection}           Open Connection    ${IP}    port=${PORT}    prompt=\$    timeout=15
+    ${output}               Login     username=${LOGIN_PI}    password=${PASSWORD_PI}
     Should Contain          ${output}    ${target_output}
     Set Global Variable     ${SSH_MEASUREMENT}    ${connection}
     RETURN                  ${SSH_MEASUREMENT}

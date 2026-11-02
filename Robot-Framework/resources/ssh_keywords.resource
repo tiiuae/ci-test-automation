@@ -1,19 +1,20 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
-Library             OperatingSystem
-Library             Process
-Library             String
 Library             ../lib/helper_functions.py
 Library             ../lib/output_parser.py
+Library             OperatingSystem
+Library             Process
 Library             SSHLibrary
+Library             String
 Resource            ../config/variables.robot
 Resource            ../resources/common_keywords.resource
 Resource            ../resources/serial_keywords.resource
 
-*** Variables ***
 
+*** Variables ***
 ${NETVM_NAME}       ${EMPTY}
 ${NETVM_SYNTAX}     ghaf-[0-9]{10}
 
@@ -22,21 +23,21 @@ ${NETVM_SYNTAX}     ghaf-[0-9]{10}
 Ping Host
     [Documentation]    Ping the given hostname once and return boolean result
     [Arguments]        ${hostname}  ${timeout}=${PING_SPACING}
-    ${ping_output}=    Run Process   ping ${hostname} -c 1 -W ${timeout}   shell=True
-    ${received}=       Evaluate    '1 received' in $ping_output.stdout
+    ${ping_output}     Run Process   ping ${hostname} -c 1 -W ${timeout}   shell=True
+    ${received}        Evaluate    '1 received' in $ping_output.stdout
     RETURN    ${received}
 
 Verify Ping Host
     [Arguments]    ${hostname}    ${expected_status}=${True}   ${timeout}=${PING_SPACING}    ${console_log}=${False}
-    ${received_status}=    Ping Host            hostname=${hostname}    timeout=${timeout}
+    ${received_status}     Ping Host            hostname=${hostname}    timeout=${timeout}
     Run Keyword If         ${console_log}       Log      Ping ${hostname}... Status: ${received_status}     console=True
     Should Be Equal        ${received_status}   ${expected_status}    Ping status was ${received_status}, expected ${expected_status}
 
 Wait For Device Going Offline
     [Arguments]    ${hostname}   ${timeout}=15s     ${ping_timeout}=${PING_SPACING}
-    ${log_message}=     Set Variable      Device failed to go offline: still pingable after ${timeout}.
+    ${log_message}      Set Variable      Device failed to go offline: still pingable after ${timeout}.
     Wait Until Keyword Succeeds    ${timeout}  2s  Verify Ping Host     hostname=${hostname}    expected_status=${False}    timeout=${ping_timeout}
-    ${log_message}=     Set Variable      Device is not pingable: offline.
+    ${log_message}      Set Variable      Device is not pingable: offline.
     [Teardown]    Log     ${log_message}    console=True
 
 Get Ethernet Interface By Type
@@ -65,7 +66,6 @@ Get Interface name
 
     IF    '${interface}' == 'wifi'
         ${if_name}    Get First Interface By Nmcli Type    wifi
-
     ELSE IF    '${interface}' == 'eth'
         ${usb_eth}    Get Ethernet Interface By Type    usb=True
 
@@ -74,13 +74,10 @@ Get Interface name
         ELSE
             ${if_name}    Get First Interface By Nmcli Type    ethernet
         END
-
     ELSE IF    '${interface}' == 'native-eth'
         ${if_name}    Get Ethernet Interface By Type    usb=False
-
     ELSE IF    '${interface}' == 'usb-eth'
         ${if_name}    Get Ethernet Interface By Type    usb=True
-
     ELSE
         Fail    Unsupported interface type '${interface}'
     END
@@ -120,10 +117,10 @@ Check Network Availability
     FAIL    Expected availability of ${host}: ${expected_result}, in fact: ${availability}
 
 Check If Device Is Up
-    [Arguments]    ${retry}=100s
     [Tags]    robot:recursive-stop-on-failure
-    ${ssh_status}=       Try To Check Ssh On Device  retry=${retry}  interval=${PING_SPACING}s
-    ${serial_status}=    Run Keyword If   not ${ssh_status}    Try To Check Serial On Device    range=3x
+    [Arguments]    ${retry}=100s
+    ${ssh_status}        Try To Check Ssh On Device  retry=${retry}  interval=${PING_SPACING}s
+    ${serial_status}     Run Keyword If   not ${ssh_status}    Try To Check Serial On Device    range=3x
 
     Set Global Device Availability Variables     ${ssh_status}   ${serial_status}
 
@@ -163,9 +160,9 @@ Try To Recover SSH Connection Via Serial
     END
 
 Try To Check Ssh On Device
-    [Arguments]    ${retry}   ${interval}    ${ssh_timeout}=50s
     [Tags]    robot:recursive-stop-on-failure
-    ${ssh_status}=      Set Variable    ${False}
+    [Arguments]    ${retry}   ${interval}    ${ssh_timeout}=50s
+    ${ssh_status}       Set Variable    ${False}
     Set Global Variable    ${BOOT_PING_TIME}    ${EMPTY}
     TRY
         Wait Until Keyword Succeeds     ${retry}    ${interval}
@@ -175,7 +172,7 @@ Try To Check Ssh On Device
         ...         Verify Ping Host And Save Time    ${DEVICE_IP_ADDRESS}             console_log=${True}
         Wait Until Ssh Is Ready On Device   ${DEVICE_IP_ADDRESS}    timeout=${ssh_timeout}
 
-        ${ssh_status}=      Set Variable    ${True}
+        ${ssh_status}       Set Variable    ${True}
         Log    Device is available via SSH    console=True
     EXCEPT   AS    ${exc}
         Log    Device is not available via SSH, failed with an exception:\n ${exc}!     console=True
@@ -271,9 +268,9 @@ Connect
 
 Connect to VM
     [Documentation]   Connect to any VM or ghaf-host over internal virtual network
+    [Tags]            robot:private   # Use 'Switch to vm' instead of calling this keyword directly
     [Arguments]       ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=60
     [Timeout]         ${timeout}
-    [Tags]            robot:private   # Use 'Switch to vm' instead of calling this keyword directly
     Switch to vm      ${NET_VM}
     Check if ssh is ready on vm        ${vm_name}   ${timeout}
     ${connection}     Open connection and login   connection_point=${vm_name}   username=${user}   password=${pw}   target_output=${vm_name}   jumphost=${NET-VM_GHAF_SSH}   timeout=${timeout}
@@ -309,7 +306,7 @@ Check if ssh is ready on vm
             BREAK
         END
         Sleep        ${PING_SPACING}
-        ${diff}=    Evaluate    int(time.time()) - int(${start_time})
+        ${diff}     Evaluate    int(time.time()) - int(${start_time})
         IF   ${diff} > ${timeout}
             BREAK
         END
@@ -340,7 +337,7 @@ Wait Until Ssh Is Ready On Device
     [Arguments]    ${ip_address}    ${timeout}=50s
     [Timeout]    ${timeout}
     ${is_ready}    Set Variable    ${False}
-    ${output}=    Wait Until Keyword Succeeds    ${timeout}   ${PING_SPACING}    Check Ssh Status    ip_address=${ip_address}
+    ${output}     Wait Until Keyword Succeeds    ${timeout}   ${PING_SPACING}    Check Ssh Status    ip_address=${ip_address}
     ${is_ready}    Set Variable    ${True}
     Log   ${output}     console=True
     [Teardown]    Run Keyword If    not ${is_ready}
@@ -364,7 +361,6 @@ Switch to vm
     ${variable_exists}    Check variable availability     ${ssh_connection}
 
     IF  ${variable_exists}
-
         ${connection_index}     Set Variable    ${${ssh_connection}}
         ${status}   Try to switch to active vm connection   ${connection_index}   ${hostname}   ${user}
 
@@ -378,8 +374,8 @@ Switch to vm
     Set Variable By Name     ${ssh_connection}    ${connection_index}
 
 Try to switch to active vm connection
-    [Arguments]        ${ssh_index}    ${hostname}   ${user}
     [Tags]             robot:private
+    [Arguments]        ${ssh_index}    ${hostname}   ${user}
     ${connection_status}  ${previous_connection}   Run Keyword And Ignore Error    Switch Connection   ${ssh_index}
 
     ${status}   ${output_user}    Run Keyword And Ignore Error   Run Command    whoami

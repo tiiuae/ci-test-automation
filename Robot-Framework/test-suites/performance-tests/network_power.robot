@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Network load power consumption tests
 
@@ -15,8 +16,8 @@ Resource            ../../resources/ssh_keywords.resource
 Suite Setup         Run Keywords    Check Network Power Iperf Server Variables
 ...                 AND             Ensure balanced power profile
 
-*** Variables ***
 
+*** Variables ***
 ${MIRROR_BENCH_WINDOW}           90
 ${MIRROR_BENCH_TIMEOUT}          300
 ${IPERF_SERVER_TIMEOUT}          420
@@ -40,7 +41,6 @@ Measure Physical Power During Mirror Network Load
     [Tags]             network-load-power  lab-only
     [Setup]            Run Keywords    Require Power Measurement Agent
     ...                AND             Prepare Network Power Iperf Server
-    [Teardown]         Physical Power Test Teardown
 
     Start Required Power Measurement    ${BUILD_ID}-mirror-network-load    timeout=${POWER_LOG_TIMEOUT}
 
@@ -89,6 +89,7 @@ Measure Physical Power During Mirror Network Load
     ...    ${BUILD_ID}-mirror-network-load
     ...    Network load effect on power consumption
     ...    ${plot_events}
+    [Teardown]         Physical Power Test Teardown
 
 Measure BAT0 Power During Mirror Network Load
     [Documentation]    Measure BAT0-reported power for 60s idle and 60s during mirror benchmark network load.
@@ -99,7 +100,6 @@ Measure BAT0 Power During Mirror Network Load
     [Setup]            Run Keywords    Multiply Test Timing Variables    2
     ...                AND             Require BAT0 Discharging
     ...                AND             Prepare Network Power Iperf Server
-    [Teardown]         BAT0 Power Test Teardown
 
     Start BAT0 power logging    timeout=${POWER_LOG_TIMEOUT}    overwrite=true
 
@@ -138,6 +138,7 @@ Measure BAT0 Power During Mirror Network Load
     Log                       BAT0 iperf mirroring on average power: ${mirroring_on_power} mW    console=True
     Log                       BAT0 iperf mirroring off average power: ${mirroring_off_power} mW    console=True
     Log                       BAT0 idle after average power: ${idle_after_power} mW    console=True
+    [Teardown]         BAT0 Power Test Teardown
 
 
 *** Keywords ***
@@ -146,10 +147,10 @@ Multiply Test Timing Variables
     IF  ${multiplier} == 1
         RETURN
     END
-    ${mirror_bench_window}=     Evaluate    int(${MIRROR_BENCH_WINDOW} * ${multiplier})
-    ${mirror_bench_timeout}=    Evaluate    int(${MIRROR_BENCH_TIMEOUT} * ${multiplier})
-    ${iperf_server_timeout}=    Evaluate    int(${IPERF_SERVER_TIMEOUT} * ${multiplier})
-    ${power_log_timeout}=       Evaluate    int(${POWER_LOG_TIMEOUT} * ${multiplier})
+    ${mirror_bench_window}      Evaluate    int(${MIRROR_BENCH_WINDOW} * ${multiplier})
+    ${mirror_bench_timeout}     Evaluate    int(${MIRROR_BENCH_TIMEOUT} * ${multiplier})
+    ${iperf_server_timeout}     Evaluate    int(${IPERF_SERVER_TIMEOUT} * ${multiplier})
+    ${power_log_timeout}        Evaluate    int(${POWER_LOG_TIMEOUT} * ${multiplier})
     Set Test Variable    ${MIRROR_BENCH_WINDOW}      ${mirror_bench_window}
     Set Test Variable    ${MIRROR_BENCH_TIMEOUT}     ${mirror_bench_timeout}
     Set Test Variable    ${IPERF_SERVER_TIMEOUT}     ${iperf_server_timeout}
@@ -165,11 +166,11 @@ Start Required Power Measurement
 Require BAT0 Discharging
     Switch to vm    ${HOST}
     TRY
-        ${battery_status}=    Run Command    cat /sys/class/power_supply/BAT0/status
+        ${battery_status}     Run Command    cat /sys/class/power_supply/BAT0/status
     EXCEPT
         SKIP    BAT0 power supply is not available.
     END
-    ${battery_status}=    Strip String    ${battery_status}
+    ${battery_status}     Strip String    ${battery_status}
     IF  '${battery_status}' != 'Discharging'
         SKIP    BAT0 status is ${battery_status}; run this test without charger connected.
     END
@@ -181,17 +182,17 @@ Run Mirror Bench And Measure Load Window
     ...    ${mirroring_off_start_timestamp}
     ...    ${mirroring_off_end_timestamp}
     ...    ${bench_end_timestamp}=${EMPTY}
-    ${safe_test_name}=    Replace String    ${TEST NAME}    ${SPACE}    _
-    ${bench_dir}=        Set Variable       ${OUTPUT_DIR}/mirror-bench/${safe_test_name}
-    ${marker}=           Set Variable       ${bench_dir}/load-start.marker
-    ${process_log}=      Set Variable       ${bench_dir}/robot-process.log
-    @{iperf_args}=       Create List
+    ${safe_test_name}     Replace String    ${TEST NAME}    ${SPACE}    _
+    ${bench_dir}         Set Variable       ${OUTPUT_DIR}/mirror-bench/${safe_test_name}
+    ${marker}            Set Variable       ${bench_dir}/load-start.marker
+    ${process_log}       Set Variable       ${bench_dir}/robot-process.log
+    @{iperf_args}        Create List
     IF  '${MIRROR_BENCH_IPERF_SERVER}' != '${EMPTY}'
         Append To List    ${iperf_args}    --iperf-server    ${MIRROR_BENCH_IPERF_SERVER}
     END
     Create Directory    ${bench_dir}
     Run Keyword And Ignore Error    OperatingSystem.Remove File    ${marker}
-    ${previous_log_level}=    Set Log Level    NONE
+    ${previous_log_level}     Set Log Level    NONE
     TRY
         Start Process
         ...    ${MIRROR_BENCH_SCRIPT}
@@ -221,7 +222,7 @@ Run Mirror Bench And Measure Load Window
     Set timestamp         ${mirroring_off_start_timestamp}
     Wait                  ${MIRROR_BENCH_WINDOW}
     Set timestamp         ${mirroring_off_end_timestamp}
-    ${result}=            Wait For Process
+    ${result}             Wait For Process
     ...                   mirror-bench
     ...                   timeout=${MIRROR_BENCH_TIMEOUT}
     ...                   on_timeout=terminate
@@ -235,14 +236,14 @@ Fail If Mirror Bench Failed
     IF  ${return_code} == 0
         RETURN
     END
-    ${log_exists}=    Run Keyword And Return Status    OperatingSystem.File Should Exist    ${process_log}
-    ${log}=           Set Variable If    ${log_exists}    ${EMPTY}    Process log was not created.
+    ${log_exists}     Run Keyword And Return Status    OperatingSystem.File Should Exist    ${process_log}
+    ${log}            Set Variable If    ${log_exists}    ${EMPTY}    Process log was not created.
     IF  ${log_exists}
-        ${log}=       OperatingSystem.Get File    ${process_log}
+        ${log}        OperatingSystem.Get File    ${process_log}
     END
-    ${local_iperf_hint}=    Set Variable    ${EMPTY}
+    ${local_iperf_hint}     Set Variable    ${EMPTY}
     IF  '${LOCAL_IPERF_SERVER}' != '${EMPTY}'
-        ${local_iperf_hint}=    Set Variable
+        ${local_iperf_hint}     Set Variable
         ...    ${\n}Using local iperf server. Is TCP port 5201 allowed on the Robot runner firewall?
     END
     FAIL    Mirror benchmark failed with return code ${return_code}.${local_iperf_hint}${\n}${log}
@@ -250,16 +251,16 @@ Fail If Mirror Bench Failed
 Wait For Mirror Bench Load Marker
     [Arguments]    ${marker}    ${process_log}
     FOR    ${index}    IN RANGE    ${MIRROR_BENCH_START_ATTEMPTS}
-        ${marker_exists}=    Run Keyword And Return Status    OperatingSystem.File Should Exist    ${marker}
+        ${marker_exists}     Run Keyword And Return Status    OperatingSystem.File Should Exist    ${marker}
         IF  ${marker_exists}
             RETURN
         END
-        ${is_running}=      Process.Is Process Running    mirror-bench
+        ${is_running}       Process.Is Process Running    mirror-bench
         IF  not ${is_running}
-            ${log_exists}=  Run Keyword And Return Status    OperatingSystem.File Should Exist    ${process_log}
-            ${log}=         Set Variable If    ${log_exists}    ${EMPTY}    Process log was not created.
+            ${log_exists}   Run Keyword And Return Status    OperatingSystem.File Should Exist    ${process_log}
+            ${log}          Set Variable If    ${log_exists}    ${EMPTY}    Process log was not created.
             IF  ${log_exists}
-                ${log}=     OperatingSystem.Get File    ${process_log}
+                ${log}      OperatingSystem.Get File    ${process_log}
             END
             FAIL    Mirror benchmark exited before load marker was created.${\n}${log}
         END
@@ -283,8 +284,8 @@ Prepare Network Power Iperf Server
 
 Skip If Dedicated Iperf Server Is Reserved
     Switch Connection    ${IPERF_SERVER_CONNECTION}
-    ${lock_value}=    Execute Command    cat ${IPERF_SERVER_LOCK_FILE} 2>/dev/null || echo 0
-    ${lock_value}=    Strip String    ${lock_value}
+    ${lock_value}     Execute Command    cat ${IPERF_SERVER_LOCK_FILE} 2>/dev/null || echo 0
+    ${lock_value}     Strip String    ${lock_value}
     IF  '${lock_value}' == '1'
         SKIP    Dedicated iperf server ${TEST_SERVER_IP}:5201 is locked by another network power test run.
     END
@@ -305,10 +306,10 @@ Check Network Power Iperf Server Variables
     END
 
 Require Dedicated Iperf Server Variables
-    ${previous_log_level}=    Set Log Level    NONE
-    ${server_ip}=            Check variable availability    TEST_SERVER_IP
-    ${server_login}=         Check variable availability    LOGIN_SERVER
-    ${server_password}=      Check variable availability    PASSWORD_SERVER
+    ${previous_log_level}     Set Log Level    NONE
+    ${server_ip}             Check variable availability    TEST_SERVER_IP
+    ${server_login}          Check variable availability    LOGIN_SERVER
+    ${server_password}       Check variable availability    PASSWORD_SERVER
     Set Log Level            ${previous_log_level}
     IF  not ${server_ip}
         FAIL    TEST_SERVER_IP is not defined. Set LOCAL_IPERF_SERVER to use the Robot runner instead.
@@ -318,13 +319,13 @@ Require Dedicated Iperf Server Variables
     END
 
 Connect To Dedicated Iperf Server
-    ${connection}=    Open Connection    ${TEST_SERVER_IP}    prompt=$    timeout=15
+    ${connection}     Open Connection    ${TEST_SERVER_IP}    prompt=$    timeout=15
     Login            username=${LOGIN_SERVER}    password=${PASSWORD_SERVER}
     Set Suite Variable    ${IPERF_SERVER_CONNECTION}    ${connection}
 
 Open Dedicated Iperf Server Port
     Switch Connection    ${IPERF_SERVER_CONNECTION}
-    ${out}    ${err}    ${rc}=    Execute Command
+    ${out}    ${err}    ${rc}     Execute Command
     ...    iptables -I INPUT -p tcp --dport 5201 -j ACCEPT
     ...    sudo=True
     ...    sudo_password=${PASSWORD_SERVER}
@@ -334,7 +335,7 @@ Open Dedicated Iperf Server Port
 
 Start Dedicated Iperf Server
     Switch Connection    ${IPERF_SERVER_CONNECTION}
-    ${out}    ${err}    ${rc}=    Execute Command
+    ${out}    ${err}    ${rc}     Execute Command
     ...    pgrep -f "[i]perf3.*-[s]"
     ...    return_stderr=True
     ...    return_rc=True
@@ -343,13 +344,13 @@ Start Dedicated Iperf Server
         Set Suite Variable    ${IPERF_SERVER_STARTED}    ${False}
         RETURN
     END
-    ${server_command}=    Set Variable    timeout ${IPERF_SERVER_TIMEOUT} iperf3 -s
+    ${server_command}     Set Variable    timeout ${IPERF_SERVER_TIMEOUT} iperf3 -s
     Execute Command    nohup nix-shell -p iperf3 --run '${server_command}' > /tmp/robot-iperf3-server.log 2>&1 &
     Wait Until Keyword Succeeds    60s    2s    Check Dedicated Iperf Server Running
     Set Suite Variable    ${IPERF_SERVER_STARTED}    ${True}
 
 Check Dedicated Iperf Server Running
-    ${out}    ${err}    ${rc}=    Execute Command
+    ${out}    ${err}    ${rc}     Execute Command
     ...    pgrep -f "[i]perf3.*-[s]"
     ...    return_stderr=True
     ...    return_rc=True
@@ -373,7 +374,7 @@ Close Dedicated Iperf Server
     END
 
 Close Dedicated Iperf Server Port
-    ${out}    ${err}    ${rc}=    Execute Command
+    ${out}    ${err}    ${rc}     Execute Command
     ...    iptables -D INPUT -p tcp --dport 5201 -j ACCEPT
     ...    sudo=True
     ...    sudo_password=${PASSWORD_SERVER}
@@ -392,7 +393,7 @@ Calculate BAT0 average power over interval
     ...    bat0_power_interval.csv
     ...    ${False}
     ...    1000
-    ${mean_power}=    Mean power    bat0_power_interval.csv
+    ${mean_power}     Mean power    bat0_power_interval.csv
     RETURN            ${mean_power}
 
 Physical Power Test Teardown

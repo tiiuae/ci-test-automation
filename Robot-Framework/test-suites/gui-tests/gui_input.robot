@@ -1,19 +1,20 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Tests for input-related GUI functionality
 
-Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/gui-vm_keywords.resource
+Resource            ../../resources/gui_keywords.resource
 
 Test Setup          Start screen recording
 Test Teardown       Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
 
 Test Tags           gui-input  lenovo-x1  darter-pro
 
-*** Test Cases ***
 
+*** Test Cases ***
 Change brightness with keyboard shortcuts
     [Documentation]     Change brightness with ydotool by clicking brightness buttons
     ...                 (Lenovo-X1: F5/F6, Darter-Pro: Fn+F8/Fn+F9)

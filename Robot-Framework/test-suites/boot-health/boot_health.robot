@@ -1,25 +1,27 @@
 # SPDX-FileCopyrightText: 2026 TII (SSRC) and the Ghaf contributors
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Validate boot-time records and boot diagnostics collected by relayboot.
 
-Resource            ../../resources/performance_data_processing.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/device_control.resource
+Resource            ../../resources/performance_data_processing.resource
 Resource            ../../resources/serial_keywords.resource
-Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/service_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 Variables           ../../lib/performance_thresholds.py
 
 Suite Teardown      Close All Connections
+
 
 *** Variables ***
 ${BOOT_TIME_DIR}    /persist/common
 ${MIN_SERIAL_LOG_LINES}    200
 
-*** Test Cases ***
 
+*** Test Cases ***
 Verify boot time results
     [Tags]    SP-T516  pre-merge  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  lab-only
     Check Boot Time And Plot    ${False}
@@ -34,17 +36,17 @@ Verify boot log health
     [Tags]    SP-T518  pre-merge  regression  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
     Check Boot Log Health
 
-*** Keywords ***
 
+*** Keywords ***
 Check Boot Time And Plot
     [Arguments]    ${save_history}
     Set Test Variable    ${BOOT_TIME_LIMIT_EXCEEDED}    ${False}
     Switch to vm    ${HOST}
-    ${ping}    ${ping_rc}    ${boot_id_matches}=    Read Boot Ping Result
+    ${ping}    ${ping_rc}    ${boot_id_matches}     Read Boot Ping Result
     Skip If    not ${boot_id_matches}    Saved boot time belongs to another boot; skipping timing evaluation.
     ${installer_target}    Evaluate    'installer' in $JOB.lower()
     ${target_type}    Set Variable    ${DEVICE_TYPE}
-    ${ping_ok}    ${ping_exceeded}    ${ping_issue}=    Validate Boot Time Value
+    ${ping_ok}    ${ping_exceeded}    ${ping_issue}     Validate Boot Time Value
     ...    response to ping    ${ping}    ${ping_rc}
     ...    ${static_thresholds}[boot_health][response_to_ping][${target_type}]
     ...    ${True}    ${installer_target}
@@ -192,7 +194,7 @@ Get Journalctl And Optional Dmesg Reports
     Create Directory    ${BOOT_DIAGNOSTICS_DIR}
     ${journal_remote}    Set Variable    /tmp/${BUILD_ID}-boot-health-journalctl.log
     ${journal_local}    Set Variable    ${BOOT_DIAGNOSTICS_DIR}/.journalctl-capture.tmp
-    ${journal_output}    ${journal_rc}=    Run Command
+    ${journal_output}    ${journal_rc}     Run Command
     ...    journalctl -b --no-pager -o short-iso > ${journal_remote}
     ...    return=out,rc    rc_match=skip    timeout=120
     @{reports}    Create List
@@ -209,7 +211,7 @@ Get Journalctl And Optional Dmesg Reports
     IF    ${include_dmesg}
         ${dmesg_remote}    Set Variable    /tmp/${BUILD_ID}-boot-health-dmesg.log
         ${dmesg_local}    Set Variable    ${BOOT_DIAGNOSTICS_DIR}/.dmesg-capture.tmp
-        ${dmesg_output}    ${dmesg_rc}=    Run Command
+        ${dmesg_output}    ${dmesg_rc}     Run Command
         ...    dmesg --color=never --time-format iso > ${dmesg_remote}
         ...    return=out,rc    rc_match=skip    sudo=True    timeout=120
         IF    ${dmesg_rc} == 0
@@ -270,11 +272,11 @@ Add Boot Log Issues
     END
 
 Read Boot Ping Result
-    ${ping}    ${ping_rc}=    Run Command    cat ${BOOT_TIME_DIR}/first_boot_to_ping
+    ${ping}    ${ping_rc}     Run Command    cat ${BOOT_TIME_DIR}/first_boot_to_ping
     ...                         return=out rc    rc_match=skip
-    ${saved_boot_id}    ${saved_boot_id_rc}=    Run Command
+    ${saved_boot_id}    ${saved_boot_id_rc}     Run Command
     ...    cat ${BOOT_TIME_DIR}/first_boot_to_ping_boot_id    return=out rc    rc_match=skip
-    ${current_boot_id}    ${current_boot_id_rc}=    Run Command
+    ${current_boot_id}    ${current_boot_id_rc}     Run Command
     ...    cat /proc/sys/kernel/random/boot_id    return=out rc    rc_match=skip
     ${boot_id_matches}    Evaluate
     ...    $saved_boot_id_rc == 0 and $current_boot_id_rc == 0 and $saved_boot_id.strip() == $current_boot_id.strip()
@@ -285,11 +287,11 @@ Read Boot Ping Result
     RETURN    ${ping}    ${ping_rc}    ${boot_id_matches}
 
 Read Boot Ping Timestamp
-    ${timestamp}    ${timestamp_rc}=    Run Command
+    ${timestamp}    ${timestamp_rc}     Run Command
     ...    cat ${BOOT_TIME_DIR}/first_boot_to_ping_timestamp    return=out,rc    rc_match=skip
-    ${saved_boot_id}    ${saved_boot_id_rc}=    Run Command
+    ${saved_boot_id}    ${saved_boot_id_rc}     Run Command
     ...    cat ${BOOT_TIME_DIR}/first_boot_to_ping_boot_id    return=out,rc_match=skip
-    ${current_boot_id}    ${current_boot_id_rc}=    Run Command
+    ${current_boot_id}    ${current_boot_id_rc}     Run Command
     ...    cat /proc/sys/kernel/random/boot_id    return=out,rc_match=skip
     ${boot_id_matches}    Evaluate
     ...    $saved_boot_id_rc == 0 and $current_boot_id_rc == 0 and $saved_boot_id.strip() == $current_boot_id.strip()

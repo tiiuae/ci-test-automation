@@ -1,22 +1,24 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing logging
 
+Library             ../../lib/helper_functions.py
 Library             Collections
 Library             DateTime
 Library             OperatingSystem
-Library             ../../lib/helper_functions.py
-Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/common_keywords.resource
-Resource            ../../resources/service_keywords.resource
-Resource            ../../resources/measurement_keywords.resource
 Resource            ../../resources/logging_keywords.resource
+Resource            ../../resources/measurement_keywords.resource
+Resource            ../../resources/service_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Logging Suite Setup
 
 Test Tags           logging  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
+
 
 *** Variables ***
 ${TEST_LOG}           log_check_${BUILD_ID}
@@ -25,7 +27,6 @@ ${LOG_SENDER}         systemd-journal-upload.service
 
 
 *** Test Cases ***
-
 Logging service is running in all VMs
     [Documentation]    Check that logging service is running in every VM
     [Tags]             SP-T458
@@ -141,21 +142,21 @@ Check Grafana logs
         ${failed_vms_check_2}   Check Logs Are available   ${id}   since=${since_boot}s
         ${check_status}         Run Keyword And Return Status    Should Be Empty   ${failed_vms_check_2}
         IF  ${check_status}
-            ${fail_msg}=    Catenate    SEPARATOR=\n
+            ${fail_msg}     Catenate    SEPARATOR=\n
             ...    Log forwarding stopped for these VMs: ${failed_vms_check_1}
             ...    Verified that log forwarding was working some time after boot for all VMs
             FAIL    ${fail_msg}
         ELSE
             Remove Values From List    ${failed_vms_check_1}    @{failed_vms_check_2}
-            ${fail_msg}=    Catenate    SEPARATOR=\n
+            ${fail_msg}     Catenate    SEPARATOR=\n
             ...    Log forwarding was working after boot but failed at this test for these VMs: ${failed_vms_check_1}
             ...    Failed to find any logs since last boot for these VMs: ${failed_vms_check_2}
             FAIL   ${fail_msg}
         END
     END
 
-*** Keywords ***
 
+*** Keywords ***
 Logging Suite Setup
     @{VM_LIST}               Get VM list  with_host=True
     Set Suite Variable       @{VM_LIST}

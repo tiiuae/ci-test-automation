@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Test user authentication
 
@@ -8,8 +9,8 @@ Resource            ../../resources/ssh_keywords.resource
 
 Test Tags           authentication  lenovo-x1  darter-pro
 
-*** Test Cases ***
 
+*** Test Cases ***
 Use recovery key to login
     [Documentation]    Get the recovery key from user provisioning logs and use it to log in to gui-vm.
     [Tags]             SP-T302  lab-only
@@ -18,7 +19,6 @@ Use recovery key to login
 
 
 *** Keywords ***
-
 Connect to GUI VM with recovery key
     Switch to vm           ${GUI_VM}
     Set Log Level          NONE

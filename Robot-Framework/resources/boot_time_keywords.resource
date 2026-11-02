@@ -1,21 +1,23 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Library             Collections
 Library             DateTime
-Resource            performance_data_processing.resource
 Resource            device_control.resource
+Resource            performance_data_processing.resource
 Resource            performance_keywords.resource
 Resource            ssh_keywords.resource
 Variables           ../lib/performance_thresholds.py
+
 
 *** Variables ***
 ${BOOT_PING_TIMEOUT}        180
 ${BOOT_SEARCH_TIMEOUT}      60
 
-*** Keywords ***
 
+*** Keywords ***
 Measure Time To Ping
     [Arguments]               ${start_time}  ${timeout}=${BOOT_PING_TIMEOUT}
     ${ping_response}          Set Variable    ${EMPTY}
@@ -45,7 +47,7 @@ Get Time To Ping
         ${start_time_epoch}   Set Variable   ${start_time}
     END
     IF  '${end_time}' == '${EMPTY}' or '${end_time}' == 'False'
-        ${ping_response_seconds}    ${ping_timestamp}=    Measure Time To Ping
+        ${ping_response_seconds}    ${ping_timestamp}     Measure Time To Ping
         ...    ${start_time_epoch}    ${timeout}
     ELSE
         ${ping_timestamp}    Set Variable    ${end_time}
@@ -91,7 +93,7 @@ Get Boot times
     ...  testuser_line=$(journalctl -b --output=short-iso | grep "${USER_LOGIN}: changing state activating-for-acquire")
     ...  echo $testuser_line
 
-    ${ping_response_seconds}    ${ping_timestamp}=    Measure Time To Ping
+    ${ping_response_seconds}    ${ping_timestamp}     Measure Time To Ping
     ...    ${start_time_epoch}    ${ping_timeout}
     Switch to vm               ${GUI_VM}
     ${time_to_desktop}         Check Time To Notification  ${testuser_line}  ${start_time_epoch}

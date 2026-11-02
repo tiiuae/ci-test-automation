@@ -1,14 +1,15 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Tests for update tooling
 
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/device_control.resource
 Resource            ../../resources/common_keywords.resource
+Resource            ../../resources/device_control.resource
 Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/setup_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/update_keywords.resource
 
 Suite Setup         Update Setup
@@ -17,8 +18,8 @@ Test Timeout        20 minutes
 
 Test Tags           cachix-update  regression
 
-*** Test Cases ***
 
+*** Test Cases ***
 Test ota update
     [Documentation]  Check that ota-update tooling works and new revision shows up in the bootloader list.
     ...              Do not try boot to the new revision. After test unlink the new revision.
@@ -33,7 +34,6 @@ Update via givc-cli
 
 
 *** Keywords ***
-
 Update Setup
     Set Suite Variable    ${RELEASE_NAME}    intel-laptop-debug
     Switch to vm          ${HOST}

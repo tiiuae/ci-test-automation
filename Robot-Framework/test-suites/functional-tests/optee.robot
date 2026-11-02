@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Test OP-TEE PKCS#11 through pkcs11-tool wrappers
 
@@ -11,8 +12,8 @@ Suite Setup         Switch to vm   ${HOST}
 
 Test Tags           optee  bat  orin-agx  orin-agx-64  orin-nx
 
-*** Test Cases ***
 
+*** Test Cases ***
 OP-TEE xtest
     [Documentation]   Runs OP-TEE's xtest
     [Tags]            SP-T122  optee-xtest
@@ -37,7 +38,6 @@ Basic pkcs11-tool-optee test
 
 
 *** Keywords ***
-
 List key slots
     [Documentation]    List all key slots
     [Arguments]        ${tool}
@@ -48,7 +48,6 @@ List objects
     [Arguments]        ${tool}
     Run Command        ${tool} --list-objects    sudo=True
 
-
 Initialize slot
     [Documentation]    Initialize Key Slot
     [Arguments]        ${tool}
@@ -56,7 +55,6 @@ Initialize slot
     Run Command   ${tool} --label mytoken --login --so-pin 1234 --init-pin --pin 0000    sudo=True
     Run Command   ${tool} --token-label mytoken --pin 0000 --keypairgen --key-type RSA:2048 --id 1 --label rsakey0       sudo=True
     Run Command   ${tool} --token-label mytoken --pin 0000 --keypairgen --key-type EC:secp256r1 --id 2 --label eckey0    sudo=True
-
 
 Test Public Key usage
     [Documentation]    Test Public Key usage

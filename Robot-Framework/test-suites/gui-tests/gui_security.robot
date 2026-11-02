@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing security via GUI
 
@@ -16,6 +17,7 @@ Test Teardown       Run keywords      Switch to vm            ${GUI_VM}  user=${
 Test Timeout        10 minutes
 
 Test Tags           gui-security
+
 
 *** Test Cases ***
 Check Access List In Trusted Browser
@@ -80,8 +82,8 @@ Account lockout after failed GUI login
     Run Keyword And Expect Error     *    Log in, unlock and verify
     [Teardown]       Account lockout Teardown
 
-*** Keywords ***
 
+*** Keywords ***
 Check Access List In Trusted Browser Template
     [Documentation]    Running Trusted Browser and trying to find text on the opened page.
     ...                If page is blocked by access list, error depends on the protocol used:

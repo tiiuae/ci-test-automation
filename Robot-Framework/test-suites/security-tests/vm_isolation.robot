@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Validates that individual VM failures are isolated and do not impact
 ...                 the availability, performance, or security of other VMs or the host system.
@@ -8,16 +9,16 @@ Documentation       Validates that individual VM failures are isolated and do no
 Library             Collections
 Library             String
 Resource            ../../resources/app_keywords.resource
+Resource            ../../resources/service_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/service_keywords.resource
 
 Suite Setup     VM Isolation Suite Setup
 
 Test Tags           vm-isolation  lenovo-x1  darter-pro  dell-7330
 
-*** Test Cases ***
 
+*** Test Cases ***
 Stopping one VM does not affect others
     [Documentation]     Run application in some VM, stop another VM and check
     ...                 that it doesn't affect the first VM and app running
@@ -40,8 +41,8 @@ VM Nix store matches its provided closure
 Host system path is not visible in VMs
     [Documentation]    Verify that the host's current system closure root does not leak into any VM
     [Tags]             SP-T506  excl-storeDisk
-    [Setup]            Set Host system path
     [Template]         Host system path is not visible in VMs
+    [Setup]            Set Host system path
     FOR    ${vm}    IN    @{VM_LIST}
         ${vm}
     END
@@ -55,8 +56,8 @@ VM store paths are not available in other VMs
     ${Element}
     ${VPN}
 
-*** Keywords ***
 
+*** Keywords ***
 VM Isolation Suite Setup
     @{VM_LIST}    Get VM list
     Set Suite Variable    @{VM_LIST}

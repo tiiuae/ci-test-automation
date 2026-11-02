@@ -1,24 +1,25 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Check network related security
 
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/wifi_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/device_control.resource
-Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/security_blacklist_keywords.resource
+Resource            ../../resources/setup_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/wifi_keywords.resource
 
 Test Tags           network-security
+
 
 *** Variables ***
 ${FAILED_SSH_LOGIN_ATTACK_COUNT}    12
 
 
 *** Test Cases ***
-
 Account lockout after failed SSH login
     [Documentation]  Try to connect from the external test agent to the device with a wrong password for several times, then check that
     ...              it is not possible to connect even with correct password.
@@ -37,8 +38,8 @@ Check OpenSSL3 is Available In Nix Store
     ${output}        Run Command    ls /nix/store | grep openssl-3    rc_match=skip
     Should Not Be Empty    ${output}    msg=Found no openssl in Nix Store
 
-*** Keywords ***
 
+*** Keywords ***
 Try External Login With Wrong Password
     [Arguments]     ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=10
     Log To Console    Trying to log in with the wrong password

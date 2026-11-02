@@ -1,21 +1,23 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing target device booting up.
 
 Library             ../../lib/output_parser.py
+Resource            ../../resources/boot_time_keywords.resource
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/device_control.resource
-Resource            ../../resources/serial_keywords.resource
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/service_keywords.resource
 Resource            ../../resources/file_keywords.resource
-Resource            ../../resources/boot_time_keywords.resource
+Resource            ../../resources/serial_keywords.resource
+Resource            ../../resources/service_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 
 Suite Teardown      Teardown
 
 Test Tags           ssh_boot_test
+
 
 *** Variables ***
 ${CONNECTION_TYPE}           ssh
@@ -26,7 +28,6 @@ ${BOOT_PING_TIME}             ${EMPTY}
 
 
 *** Test Cases ***
-
 Verify booting after restart by power
     [Documentation]    Restart device by power and verify init service is running
     [Tags]             SP-T514  relayboot  orin-agx  orin-agx-64  orin-nx
@@ -141,7 +142,6 @@ Run installer
         FAIL    SSH is not available and running installer via serial is not supported by test.
     END
 
-
 Wipe installed Ghaf from internal memory
     [Documentation]   Turn on device and wipe internal memory using ghaf-installer
     [Tags]            SP-T513  wiping  lenovo-x1  darter-pro
@@ -178,7 +178,6 @@ Break the system
 
 
 *** Keywords ***
-
 Test Teardown
     IF  ${IS_AVAILABLE} and ${IS_LAPTOP}
         IF  "${CONNECTION_TYPE}" == "ssh"

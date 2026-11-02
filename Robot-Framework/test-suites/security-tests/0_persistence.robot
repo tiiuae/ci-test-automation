@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Check persistence
 
@@ -16,6 +17,7 @@ Test Teardown       Run Keyword If Test Failed   Log persistence setup errors
 
 Test Tags           persistence  lenovo-x1  darter-pro  lab-only
 
+
 *** Variables ***
 ${EXPECTED_BRIGHTNESS}    7758
 ${EXPECTED_VOLUME}        42
@@ -27,7 +29,6 @@ ${EXPECTED_NET_STATE}     blocked
 
 
 *** Test Cases ***
-
 Verify camera block persisted
     [Tags]    SP-T449
     ${cam_state}      Get device state   cam
@@ -66,7 +67,6 @@ Verify timezone persisted
 
 
 *** Keywords ***
-
 Persistence Suite Setup
     ${PERSISTENCE_SETUP_ERRORS}    Create List
     Set Suite Variable             ${PERSISTENCE_SETUP_ERRORS}
@@ -91,7 +91,7 @@ Save original values
 
 Save original value
     [Arguments]    ${variable}    ${keyword}    @{args}
-    ${status}    ${value}=    Run Keyword And Ignore Error    ${keyword}    @{args}
+    ${status}    ${value}     Run Keyword And Ignore Error    ${keyword}    @{args}
     IF    '${status}' == 'PASS'
         Set Suite Variable    ${${variable}}    ${value}
     ELSE

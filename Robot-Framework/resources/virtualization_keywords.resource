@@ -1,21 +1,22 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
-Library             String
 Library             SSHLibrary
+Library             String
+
 
 *** Keywords ***
-
 Verify microvm PCI device passthrough
     [Documentation]     Verify that proper PCI devices have been passed through to the VM
     [Arguments]    ${vmname}
     Switch to vm   ${vmname}
-    @{pciids}=     Get list of PCI IDs
+    @{pciids}      Get list of PCI IDs
     Switch to vm   ${HOST}
-    @{pcipassthrus}=    Get microvm PCI passthrough list    vmname=${vmname}
+    @{pcipassthrus}     Get microvm PCI passthrough list    vmname=${vmname}
     FOR    ${pcipass}    IN    @{pcipassthrus}
-        ${pciidpass}=    Get PCI ID from PCI Address    address=${pcipass}
+        ${pciidpass}     Get PCI ID from PCI Address    address=${pcipass}
 	Log    Checking if PCI ID has been passed through to VM
 	Should Contain    ${pciids}    ${pciidpass}
     END
@@ -25,9 +26,9 @@ Get list of PCI IDs
     ...                 Pre-condition: requires active ssh connection to either
     ...                                host or one of the VMs, and ability run
     ...                                lspci in the target.
-    ${cmd}=    Set Variable    lspci -n | cut -d ' ' -f 4
+    ${cmd}     Set Variable    lspci -n | cut -d ' ' -f 4
     ${output}    Run Command    ${cmd}
-    @{lines}=    Split To Lines    ${output}
+    @{lines}     Split To Lines    ${output}
     RETURN       @{lines}
 
 Get microvm PCI passthrough list
@@ -35,13 +36,13 @@ Get microvm PCI passthrough list
     ...                 Pre-condition: requires active ssh connection to ghaf host
     [Arguments]    ${vmname}
     ${output}      Run Command    cat /var/lib/microvms/${vmname}/booted/share/microvm/pci-devices   sudo=True
-    @{lines}=      Split To Lines    ${output}
+    @{lines}       Split To Lines    ${output}
     RETURN         @{lines}
 
 Get PCI ID from PCI Address
     [Documentation]     Gets VENDORID:DEVICEID pair from sysfs
     [Arguments]     ${address}
-    ${cmd}=         Set Variable    VENDOR=$(cut -c 3-7 /sys/bus/pci/devices/${address}/vendor) && DEVICE=$(cut -c 3-7 /sys/bus/pci/devices/${address}/device) && echo "$VENDOR:$DEVICE"
+    ${cmd}          Set Variable    VENDOR=$(cut -c 3-7 /sys/bus/pci/devices/${address}/vendor) && DEVICE=$(cut -c 3-7 /sys/bus/pci/devices/${address}/device) && echo "$VENDOR:$DEVICE"
     ${output}       Run Command    ${cmd}
-    ${stripped}=    Strip String    ${output}
+    ${stripped}     Strip String    ${output}
     RETURN          ${stripped}

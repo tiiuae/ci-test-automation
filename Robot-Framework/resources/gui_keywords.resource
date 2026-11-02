@@ -1,16 +1,18 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Keywords for gui tests. Note: These keywords assume the connection is to the gui-vm
 ...                 as the non-privileged user.
 
+Library             ../lib/GuiTesting.py
 Library             Collections
 Library             DateTime
-Library             ../lib/GuiTesting.py
 Resource            ../resources/app_keywords.resource
 Resource            ../resources/file_keywords.resource
 Resource            ../resources/ssh_keywords.resource
+
 
 *** Variables ***
 ${APP_MENU_LAUNCHER}   launcher.png
@@ -25,7 +27,6 @@ ${YDOTOOL_SOCKET}      /tmp/.ydotool_socket
 
 
 *** Keywords ***
-
 Log in, unlock and verify
     [Documentation]   Open desktop by logging in or unlocking. Verify that desktop is available.
     # A single probe cannot tell "a user is logged in" from "greetd has restarted
@@ -155,8 +156,8 @@ Locate on screen
     ...                ${expected_result}=PASS  ${debug_screenshot}=True   ${timeout}=120   ${scale}=1
     ...                ${precision_percent}=100    ${config}=${EMPTY}
     [Timeout]          ${timeout} seconds
-    ${coordinates}=        Set Variable  ${EMPTY}
-    ${locate_status}=      Set Variable  FAIL
+    ${coordinates}         Set Variable  ${EMPTY}
+    ${locate_status}       Set Variable  FAIL
     Run Command            mkdir -p test-images
     Log To Console         Taking a screenshot to locate ${type} ${searched_item}   no_newline=True
     FOR   ${i}   IN RANGE   1   ${iterations}+1
@@ -201,9 +202,9 @@ Take a screenshot
     RETURN   ${screenshot_status}  ${result}
 
 Locate and click
+    [Tags]        robot:stop-on-failure
     [Arguments]   ${type}  ${searched_item}  ${confidence}=0.99  ${iterations}=10  ${timeout}=120
     ...           ${scale}=1  ${wiggle}=False   ${double_click}=False   ${precision_percent}=100    ${config}=${EMPTY}
-    [Tags]        robot:stop-on-failure
     ${mouse_x}  ${mouse_y}  Locate on screen  ${type}  ${searched_item}  ${confidence}  ${iterations}
     ...                         timeout=${timeout}  scale=${scale}  precision_percent=${precision_percent}    config=${config}
     Run ydotool command   mousemove --absolute -x ${mouse_x} -y ${mouse_y}
@@ -353,9 +354,9 @@ Timestamp last screenshot
     Run Process      cp  ${SCREENSHOT_LOCAL}  ${GUI_OUTPUT_DIR}/screenshot_${current_time}.jpeg
 
 Press Key(s)
-    [Arguments]        ${key_combination}   ${sudo}=False
     [Documentation]    Simulates key press(es) using ydotool. If there are multiple keys they must be separated with '+'.
     ...   Check the correct key name from https://github.com/torvalds/linux/blob/master/include/uapi/linux/input-event-codes.h
+    [Arguments]        ${key_combination}   ${sudo}=False
     ${ydotool_command}    Generate Ydotool Key Command   ${key_combination}
     Log                   ${ydotool_command}
     Log To Console        Pressing key(s): ${key_combination}
@@ -397,14 +398,31 @@ Run ydotool command
 
 Start screen recording
     [Arguments]      ${unit_name}=robot-screen-recording   ${video_file}=${EMPTY}   ${log_file}=/tmp/gpu-screen-recorder.log
-    [Setup]          Stop screen recording service   ${unit_name}
+    TRY
+        Start screen recording implementation    ${unit_name}    ${video_file}    ${log_file}
+    EXCEPT    AS    ${error}
+        Switch to vm   ${GUI_VM}
+        ${dmesg}       Run Command   dmesg   sudo=True
+        ${gpu_init_failed_error}     Set Variable    Failed to initialize GPU, declaring it wedged!
+        IF    $gpu_init_failed_error in $dmesg
+            Log Error   GPU init    Screen recording failed due to gpu initialization error in ${TEST_NAME}
+            Log         Screen recording failed due to gpu initialization error, continuing test without recording    level=WARN
+        ELSE
+            FAIL        Screen recording failed: ${error}
+        END
+    END
+    [Teardown]   Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
+
+Start screen recording implementation
+    [Arguments]      ${unit_name}=robot-screen-recording   ${video_file}=${EMPTY}   ${log_file}=/tmp/gpu-screen-recorder.log
     [Timeout]        1 minute
+    [Setup]          Stop screen recording service   ${unit_name}
     Log To Console   Starting screen recording
     IF   '${video_file}' == '${EMPTY}'
         ${test_name}     Replace String   ${TEST_NAME}   ${SPACE}   _
         ${video_file}    Set Variable     /home/${USER_LOGIN}/Videos/${test_name}.mkv
     END
-    ${cmd}=    Catenate    SEPARATOR=${SPACE}
+    ${cmd}     Catenate    SEPARATOR=${SPACE}
     ...    systemd-run --user --collect --no-block --unit=${unit_name} --property=PartOf=graphical-session.target --property=KillMode=control-group
     ...    /bin/sh -lc 'WAYLAND_DISPLAY=wayland-1 exec gpu-screen-recorder
     ...    -w portal -c mkv -k h264 -ac opus -f 60 -cursor yes -restore-portal-session yes
@@ -527,31 +545,31 @@ Capture Action Changes
     [Documentation]    Return the cropped screenshot path and the wrapped keyword's return value.
     ...    Forward positional and named arguments to the wrapped keyword.
     [Arguments]    ${action}    @{args}    &{kwargs}
-    ${screenshots}=    Get Variable Value    ${CAPTURED_SCREENSHOTS}    ${None}
+    ${screenshots}     Get Variable Value    ${CAPTURED_SCREENSHOTS}    ${None}
     IF    $screenshots is None
-        ${screenshots}=    Create List
+        ${screenshots}     Create List
         Set Test Variable    ${CAPTURED_SCREENSHOTS}    ${screenshots}
     END
 
-    ${suffix}=    Get current timestamp
-    ${before}=    Take Remote Screenshot And Download
+    ${suffix}     Get current timestamp
+    ${before}     Take Remote Screenshot And Download
     ...    to=${GUI_OUTPUT_DIR}/before_${suffix}.jpeg
     Append To List    ${screenshots}    ${before}
 
-    ${result}=    Run Keyword    ${action}    @{args}    &{kwargs}
+    ${result}     Run Keyword    ${action}    @{args}    &{kwargs}
 
-    ${after}=    Take Remote Screenshot And Download
+    ${after}     Take Remote Screenshot And Download
     ...    to=${GUI_OUTPUT_DIR}/after_${suffix}.jpeg
     Append To List    ${screenshots}    ${after}
 
-    ${cropped}=    Get Diff Images    ${before}    ${after}
+    ${cropped}     Get Diff Images    ${before}    ${after}
     Append To List    ${screenshots}    ${cropped}
 
     RETURN    ${cropped}    ${result}
 
 Remove Captured Screenshots
     [Documentation]    Remove only the local screenshots registered by the current test.
-    ${screenshots}=    Get Variable Value    ${CAPTURED_SCREENSHOTS}    ${None}
+    ${screenshots}     Get Variable Value    ${CAPTURED_SCREENSHOTS}    ${None}
     IF    $screenshots
         OperatingSystem.Remove Files    @{screenshots}
         Set Test Variable    ${CAPTURED_SCREENSHOTS}    ${None}

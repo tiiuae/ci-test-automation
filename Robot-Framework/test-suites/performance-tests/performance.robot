@@ -1,25 +1,27 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Gathering performance data
 
+Library             ../../lib/output_parser.py
 Library             Collections
 Library             DateTime
 Library             OperatingSystem
 Library             String
-Library             ../../lib/output_parser.py
+Resource            ../../resources/measurement_keywords.resource
+Resource            ../../resources/mem_recording_keywords.resource
 Resource            ../../resources/performance_data_processing.resource
 Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/measurement_keywords.resource
-Resource            ../../resources/mem_recording_keywords.resource
 
 Suite Setup         Switch to vm   ${HOST}
 
 Test Tags           performance-robot
+
 
 *** Variables ***
 ${SAVE_CYCLICTEST_HISTOGRAMS_ON_PASS}    ${True}
@@ -30,7 +32,6 @@ ${CYCLICTEST_SPIKE_THRESHOLD}            5
 
 
 *** Test Cases ***
-
 Record memory usage test
     [Documentation]      This test demonstrates usage of the memory recording keywords.
     ...                  Records memory usage across all vms over wait_time_s.
@@ -266,9 +267,9 @@ FileIO write isolation test
     Set custom low limit   -100
     Set Global Variable    ${PERF_LOW_LIMIT}   -100
 
-    ${reference-vm}=       Set Variable     ${COMMS_VM}
-    ${attacker-vm}=        Set Variable     ${CHROME_VM}
-    ${test_dir}=           Set Variable     /guestStorage/fileio
+    ${reference-vm}        Set Variable     ${COMMS_VM}
+    ${attacker-vm}         Set Variable     ${CHROME_VM}
+    ${test_dir}            Set Variable     /guestStorage/fileio
 
     Switch to vm           ${reference-vm}
     # Inflated memory (after boot) can affect the results
@@ -306,7 +307,7 @@ FileIO write isolation test
     Log                    Fileio throughput parallel: ${parallel_data}   console=True
     Log                    Impact of fileio test run in another VM: ${difference} %           console=True
 
-    ${result_list}=        Create List     ${single_result}  ${parallel_result}  ${difference}
+    ${result_list}         Create List     ${single_result}  ${parallel_result}  ${difference}
     &{statistics_dict}     Save Isolation Test Data     ${TEST NAME}  ${result_list}
     Log                    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
     Determine Test Status  ${statistics_dict}  inverted=1
@@ -324,9 +325,9 @@ FileIO read isolation test
     Set custom low limit   -100
     Set Global Variable    ${PERF_LOW_LIMIT}   -100
 
-    ${reference-vm}=       Set Variable     ${COMMS_VM}
-    ${attacker-vm}=        Set Variable     ${CHROME_VM}
-    ${test_dir}=           Set Variable     /guestStorage/fileio
+    ${reference-vm}        Set Variable     ${COMMS_VM}
+    ${attacker-vm}         Set Variable     ${CHROME_VM}
+    ${test_dir}            Set Variable     /guestStorage/fileio
 
     Switch to vm           ${reference-vm}
     Prepare files for fileio test in VM     ${files_size}   ${test_dir}
@@ -356,7 +357,7 @@ FileIO read isolation test
     Log                    Fileio throughput parallel: ${parallel_data}   console=True
     Log                    Impact of fileio test run in another VM: ${difference} %           console=True
 
-    ${result_list}=        Create List     ${single_result}  ${parallel_result}  ${difference}
+    ${result_list}         Create List     ${single_result}  ${parallel_result}  ${difference}
     &{statistics_dict}     Save Isolation Test Data     ${TEST NAME}  ${result_list}
     Log                    <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
     Determine Test Status  ${statistics_dict}  inverted=1
@@ -414,17 +415,17 @@ Sysbench test in VMs
     ${fail_msg}           Set Variable  ${EMPTY}
 
     IF  ${improved_count} > 0
-      ${improved_msg}=  Set Variable  Performance improvement detected in the following tests: ${IMPROVED_VM_TESTS}\n
+      ${improved_msg}   Set Variable  Performance improvement detected in the following tests: ${IMPROVED_VM_TESTS}\n
     END
     IF  ${failed_test_count} > 0
-      ${fail_msg}=  Set Variable  Performance deterioration detected in the following tests: ${FAILED_VM_TESTS}\n
+      ${fail_msg}   Set Variable  Performance deterioration detected in the following tests: ${FAILED_VM_TESTS}\n
     END
     IF  ${failed_vm_count} > 0
-      ${fail_msg}=  Set Variable  ${fail_msg}These VMs were not tested due to connection fail: ${FAILED_VMS}
+      ${fail_msg}   Set Variable  ${fail_msg}These VMs were not tested due to connection fail: ${FAILED_VMS}
     END
 
     IF  $fail_msg != ''
-        ${fail_msg}=  Set Variable  ${fail_msg}${improved_msg}
+        ${fail_msg}   Set Variable  ${fail_msg}${improved_msg}
         FAIL  ${fail_msg}
     END
     IF  $improved_msg != ''
@@ -433,7 +434,6 @@ Sysbench test in VMs
 
 
 *** Keywords ***
-
 Measure cyclictest latency on target
     [Arguments]         ${target}
     Set custom low limit   0.000001
@@ -592,13 +592,13 @@ Run cyclictest latency variant
         ...    ${histogram_limit}
         Set To Dictionary    ${cyclictest_spike_plot_data}    ${variant_name}=${spike_plot_generated}
         ${debug_report}    Catenate
-        ...    SEPARATOR= | 
+        ...    SEPARATOR= |
         ...    ${debug_report}
         ...    ${spike_report}
         Run Command         rm -f ${remote_spike_output}    sudo=True
     ELSE
         ${debug_report}    Catenate
-        ...    SEPARATOR= | 
+        ...    SEPARATOR= |
         ...    ${debug_report}
         ...    Spike debug skipped; threshold is > ${CYCLICTEST_SPIKE_THRESHOLD} overflows.
     END
@@ -672,7 +672,7 @@ Single vs Parallel CPU test
     ${difference}           Evaluate    int(${single_vm_result}-${parallel_vm_result})/int(${single_vm_result})*100
     Log                     ${difference} %           console=True
 
-    ${result_list}=         Create List     ${single_vm_result}  ${parallel_vm_result}  ${difference}
+    ${result_list}          Create List     ${single_vm_result}  ${parallel_vm_result}  ${difference}
     &{statistics_dict}      Save Isolation Test Data     ${TEST NAME}  ${result_list}
     Log                     <img src="${REL_PLOT_DIR}${DEVICE}_${TEST NAME}.png" alt="Mem Plot" width="1200">    HTML
     Determine Test Status   ${statistics_dict}  inverted=1

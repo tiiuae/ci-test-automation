@@ -1,13 +1,14 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Library    OperatingSystem
 Library    Process
 Library    String
 
-*** Variables ***
 
+*** Variables ***
 ${BUILD_ID}               ${EMPTY}
 ${SWITCH_TOKEN}           ${EMPTY}
 ${SWITCH_SECRET}          ${EMPTY}
@@ -32,7 +33,6 @@ ${BOOT_DIAGNOSTICS_DIR}   ./boot_diagnostics
 
 
 *** Keywords ***
-
 Set Variables
     [Arguments]  ${device}
     ${DIR_BODY}   ${DIR_END}     Split String From Right    ${OUTPUT_DIR}   /   1
@@ -49,7 +49,7 @@ Set Variables
         Set Global Variable  ${BT_BOARD_NAME}       NONE
         Set Global Variable  ${PLUG_TYPE}   NONE
     ELSE
-        ${config}=     Read Config    ${CONFIG_PATH}/test_config.json
+        ${config}      Read Config    ${CONFIG_PATH}/test_config.json
         Set Global Variable  ${SERIAL_PORT}        ${config['addresses']['${DEVICE}']['serial_port']}
         Set Global Variable  ${RELAY_SERIAL_PORT}  ${config['addresses']['relay_serial_port']}
         Set Global Variable  ${DEVICE_IP_ADDRESS}  ${config['addresses']['${DEVICE}']['device_ip_address']}
@@ -164,9 +164,9 @@ Set Native Build Variable
 Read Config
     [Arguments]  ${file_path}
 
-    ${file_data}=    OperatingSystem.Get File    ${file_path}
+    ${file_data}     OperatingSystem.Get File    ${file_path}
     TRY
-        ${source_data}=    Evaluate    json.loads('''${file_data}''')    json
+        ${source_data}     Evaluate    json.loads('''${file_data}''')    json
     EXCEPT
         FAIL    Couldn't parse test config ${file_path}
     END

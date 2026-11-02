@@ -1,11 +1,12 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing audio
 
-Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/audio_and_video_keywords.resource
+Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Switch to vm   ${NET_VM}
@@ -13,8 +14,8 @@ Test Timeout        3 minutes
 
 Test Tags           audio  bat  lenovo-x1  darter-pro  dell-7330
 
-*** Variables ***
 
+*** Variables ***
 ${AUDIO_DIR}           ${OUTPUT_DIR}/outputs/audio-temp
 @{VMS_WITH_AUDIO}      ${BUSINESS_VM}  ${CHROME_VM}  ${COMMS_VM}  ${FLATPAK_VM}  ${GUI_VM}  ${MEDIA_VM}
 @{VMS_WITHOUT_AUDIO}   ${AUDIO_VM}  ${ADMIN_VM}  ${HOST}  ${NET_VM}

@@ -1,22 +1,23 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Verify that VMs boot into immutable, signed filesystem snapshots
 
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/file_keywords.resource
-Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/service_keywords.resource
 Resource            ../../resources/setup_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Suite Setup
 Suite Teardown      Ensure Robot sudoers is installed in all VMs   skip_boot_check=True
 
 Test Tags           immutability  lenovo-x1  darter-pro  dell-7330
 
-*** Test Cases ***
 
+*** Test Cases ***
 VM is wiped after restarting
     [Documentation]     Verify that created file will be removed after restarting VM
     [Tags]              SP-T48
@@ -29,7 +30,6 @@ VM is wiped after restarting
 
 
 *** Keywords ***
-
 Suite Setup
     @{VM_LIST}      Get VM list
     Set Suite Variable      @{VM_LIST}

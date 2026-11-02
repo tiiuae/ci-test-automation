@@ -1,38 +1,39 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Tests that are run in every VM
 
-Library             Collections
 Library             ../../lib/output_parser.py
+Library             Collections
 Resource            ../../resources/common_keywords.resource
-Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/service_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         VM Suite Setup
 
 Test Tags           vms  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  fmo
 
+
 *** Variables ***
 # Add any known failing services here with the vm name and bug ticket number.
 # device|vm|service-name|ticket-number
-@{known_issues}=    ANY|ghaf-host|systemd-rfkill.service|SSRCSP-7321
+@{known_issues}     ANY|ghaf-host|systemd-rfkill.service|SSRCSP-7321
              ...    darter|ghaf-host|systemd-tpm2-setup.service|SSRCSP-8357
              ...    darter|ghaf-host|systemd-pcrlogin@901.service|SSRCSP-8776
              ...    ANY|disp-vm|systemd-modules-load.service|SSRCSP-9041
 
 # Container for test message. Keyword `Set Test Message` doesn't work properly with Templates.
 # Accumulates messages from tests that use 'Check systemctl status Template' to be added to the main test message in teardown
-${found_known_issues_message}=
+${found_known_issues_message}
 
 
 *** Test Cases ***
-
 Check internet connection in every VM
     [Documentation]    Pings google from every vm.
     [Tags]             SP-T257  orin-agx  orin-agx-64  orin-nx
-    ${failed_vms}=    Create List
+    ${failed_vms}     Create List
     FOR  ${vm}  IN  @{VM_LIST_WITH_HOST}
         Switch to vm     ${vm}
         ${status}     Run Keyword And Return Status   Check Network Availability   8.8.8.8   limit_freq=${False}
@@ -45,12 +46,12 @@ Check internet connection in every VM
 
 Check systemctl status in every VM
     [Documentation]    Check that systemctl status is running in every vm.
-    [Template]    Check systemctl status Template
-    [Teardown]    Set Test Message    append=${True}  separator=\n    message=${found_known_issues_message}
     [Tags]             SP-T98  systemctl  orin-agx  orin-agx-64  orin-nx
+    [Template]    Check systemctl status Template
     FOR    ${vm}    IN    @{VM_LIST_WITH_HOST}
         ${vm}
     END
+    [Teardown]    Set Test Message    append=${True}  separator=\n    message=${found_known_issues_message}
 
 Verify EPT is enabled in every VM
     [Documentation]    Check that ETP is enabled in every vm.
@@ -95,8 +96,8 @@ VMs use net-vm as DNS server
         Run Keyword And Continue On Failure    Verify VM uses net-vm as DNS server    ${vm}
     END
 
-*** Keywords ***
 
+*** Keywords ***
 Verify VM uses net-vm as DNS server
     [Arguments]     ${vm}
     Switch to vm    ${vm}
@@ -108,8 +109,8 @@ Verify VM uses net-vm as DNS server
 
 Check systemctl status Template
     [Arguments]    ${vm}   ${timeout}=2 minutes
-    ${failed_new_services}=    Create List
-    ${failed_old_services}=    Create List
+    ${failed_new_services}     Create List
+    ${failed_old_services}     Create List
     Switch to vm    ${vm}
     ${status}   ${failed_units}   Verify Systemctl status
 

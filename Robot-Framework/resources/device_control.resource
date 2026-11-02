@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Library             ../lib/PlugLibrary/PlugLibrary.py  ${PLUG_TYPE}
 Library             ../lib/SwitchbotLibrary.py  ${SWITCH_TOKEN}  ${SWITCH_SECRET}
@@ -8,11 +9,11 @@ Resource            ../resources/common_keywords.resource
 Resource            ../resources/serial_keywords.resource
 Resource            ../resources/setup_keywords.resource
 
-*** Keywords ***
 
+*** Keywords ***
 Reboot Orin
-    [Arguments]       ${delay}=5
     [Documentation]   Turn off power of device, wait for given amount of seconds and turn on the power
+    [Arguments]       ${delay}=5
     Log To Console    ${\n}Turning device off...
     Turn Off Power
     Sleep    ${delay}
@@ -44,8 +45,8 @@ Turn Off Power
     END
 
 Reboot Laptop
-    [Arguments]       ${delay}=20    ${verify_shutdown}=True
     [Documentation]   Turn off the laptop by pressing power button for 10 sec turn on by short pressing power button
+    [Arguments]       ${delay}=20    ${verify_shutdown}=True
     Log To Console    ${\n}Shutting down by pressing the power button
     ${start_time}     Get Time    epoch
     Press Button      ${SWITCH_BOT}-OFF

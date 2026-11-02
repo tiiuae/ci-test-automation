@@ -1,30 +1,30 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing Gui-vm
 
 Resource            ../../resources/common_keywords.resource
-Resource            ../../resources/ssh_keywords.resource
 Resource            ../../resources/service_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
 
 Test Tags           gui-vm  pre-merge
 
-*** Test Cases ***
 
+*** Test Cases ***
 Check user systemctl status
     [Documentation]   Verify systemctl status --user is running
     [Tags]            SP-T260  systemctl  lenovo-x1  darter-pro  dell-7330  fmo
-    [Teardown]        Set Test Message    append=${True}  separator=\n    message=${found_known_issues_message}
     Set Test Variable   ${found_known_issues_message}   ${EMPTY}
 
-    ${known_issues}=    Create List
+    ${known_issues}     Create List
     # Add any known failing services here with the target device and bug ticket number.
     # ...    device|gui-vm|service-name|ticket-number
 
-    ${status}     ${failed_units}=  Verify Systemctl status    range=3   add_params=--user
+    ${status}     ${failed_units}   Verify Systemctl status    range=3   add_params=--user
     Should not be true    '${status}' == 'starting'      msg=Current systemctl status is ${status}. Failed processes?: ${failed_units}
 
     Log    ${failed_units}
@@ -36,6 +36,7 @@ Check user systemctl status
     IF    ${filtered_failed_units}
         Check systemctl status for known issues  ${DEVICE_TYPE}  ${GUI_VM}  ${known_issues}  ${filtered_failed_units}   user=True
     END
+    [Teardown]        Set Test Message    append=${True}  separator=\n    message=${found_known_issues_message}
 
 Givc-cli shows Ghaf version
     [Documentation]    Verify that givc-cli sysinfo shows current Ghaf version.
@@ -62,8 +63,8 @@ Givc-cli shows Disk Encryption
         Verify givc-cli sysinfo field    Disk Encryption    disabled
     END
 
-*** Keywords ***
 
+*** Keywords ***
 Verify givc-cli sysinfo field
     [Arguments]    ${field}    ${expected}
     ${output}      Run Command    givc-cli sysinfo

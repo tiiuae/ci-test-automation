@@ -1,24 +1,25 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Tests for update tooling
 
-Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/device_control.resource
 Resource            ../../resources/common_keywords.resource
+Resource            ../../resources/device_control.resource
 Resource            ../../resources/file_keywords.resource
-Resource            ../../resources/setup_keywords.resource
-Resource            ../../resources/update_keywords.resource
 Resource            ../../resources/service_keywords.resource
+Resource            ../../resources/setup_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/update_keywords.resource
 
 Suite Setup          Rebuild from modified ghaf repo
 Suite Teardown       Rebuild Teardown
 
 Test Tags           rebuild
 
-*** Test Cases ***
 
+*** Test Cases ***
 Check device-id persistence over nixos-rebuild
     [Documentation]         Verify that device-id has not changed over nixos-rebuild and reboot
     # Add tags orin-agx, orin-agx-64, orin-nx once rebuild is fixed on Orins
@@ -69,8 +70,8 @@ Check that system logs privilege uses and key events
 Check audit update logging
     [Documentation]         Verify that interrupted nixos-rebuild (system update) is properly logged
     [Tags]                  SP-T276
-    [Setup]                 Prepare Rebuild Audit Test
     [Timeout]               10 minutes
+    [Setup]                 Prepare Rebuild Audit Test
     ${audit_start}            Get Audit Search Timestamp
     Log To Console            Starting nixos-rebuild and interrupting when copying started
     Run Nixos Rebuild         ${target_name}  ${REPOSITORY_PATH}  copied
@@ -79,7 +80,6 @@ Check audit update logging
 
 
 *** Keywords ***
-
 Rebuild from modified ghaf repo
     [Timeout]               50 minutes
     IF  ${IS_LAPTOP}

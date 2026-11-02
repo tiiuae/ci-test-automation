@@ -1,15 +1,16 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Shared keywords for external blacklisting checks and recovery
 
 Resource            ../resources/common_keywords.resource
-Resource            ../resources/ssh_keywords.resource
 Resource            ../resources/serial_keywords.resource
+Resource            ../resources/ssh_keywords.resource
+
 
 *** Keywords ***
-
 Verify NetVM Blacklist Contains IP Via Serial
     [Documentation]    Verify that the provided IP is found from net-vm's ${blacklist} via serial tunnel.
     [Arguments]        ${ip}  ${blacklist}=BLACKLIST

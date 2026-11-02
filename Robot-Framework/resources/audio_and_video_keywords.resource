@@ -1,15 +1,16 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
+Library             ../lib/output_parser.py
 Library             DateTime
 Library             String
-Library             ../lib/output_parser.py
-Resource            ../resources/ssh_keywords.resource
 Resource            ../resources/file_keywords.resource
+Resource            ../resources/ssh_keywords.resource
+
 
 *** Keywords ***
-
 Check camera
     [Arguments]    ${vm}   ${expected}
     Switch to vm   ${vm}

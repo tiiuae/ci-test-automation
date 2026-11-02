@@ -1,25 +1,26 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing power options
 
 Resource            ../../resources/common_keywords.resource
 Resource            ../../resources/device_control.resource
-Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/gui-vm_keywords.resource
+Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/measurement_keywords.resource
+Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
-Resource            ../../resources/serial_keywords.resource
 
 Test Setup          GUI Power Test Setup
 Test Teardown       GUI Power Test Teardown
 
 Test Tags           gui-power
 
-*** Test Cases ***
 
+*** Test Cases ***
 Suspend and wake up from power menu
     [Documentation]   Suspend the device via GUI taskbar suspend icon and wake up.
     ...               Logs device power consumption during the test
@@ -125,8 +126,8 @@ Suspend and wake up from lock screen
     Run ydotool command   click 0xC0
     Confirm suspension and wake up the device
 
-*** Keywords ***
 
+*** Keywords ***
 GUI Power Test Setup
     ${gui_power_log_since}    BuiltIn.Get Time   epoch
     Set Test Variable         ${gui_power_log_since}

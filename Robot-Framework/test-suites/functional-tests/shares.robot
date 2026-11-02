@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing files sharing among VMs
 
@@ -12,34 +13,29 @@ Test Template       File sharing test
 
 Test Tags           SP-T198  shares  bat  lenovo-x1  darter-pro  dell-7330
 
-*** Test Cases ***
 
+*** Test Cases ***
 File sharing from Chrome-VM to Business-VM
     [Tags]          SP-T405
     ${CHROME_VM}    ${BUSINESS_VM}
-
 File sharing from Chrome-VM to Comms-VM
     [Tags]          SP-T406  pre-merge
     ${CHROME_VM}    ${COMMS_VM}
-
 File sharing from Comms-VM to Business-VM
     [Tags]          SP-T407
     ${COMMS_VM}     ${BUSINESS_VM}
-
 File sharing from Comms-VM to Chrome-VM
     [Tags]          SP-T408
     ${COMMS_VM}     ${CHROME_VM}
-
 File sharing from Business-VM to Comms-VM
     [Tags]          SP-T409
     ${BUSINESS_VM}  ${COMMS_VM}
-
 File sharing from Business-VM to Chrome-VM
     [Tags]          SP-T410
     ${BUSINESS_VM}  ${CHROME_VM}
 
-*** Keywords ***
 
+*** Keywords ***
 File sharing test
     [Documentation]    Create file in the 'Unsafe share' folder on one VM, copy in GuiVM,
     ...                and check that file is available in the another VM

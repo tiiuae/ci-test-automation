@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Validate GIVC policy initialization, delivery integrity and firewall apply wiring
 
@@ -12,13 +13,12 @@ Suite Setup         GIVC policy suite setup
 
 Test Tags           givc-policy  lenovo-x1  darter-pro  dell-7330
 
-*** Variables ***
 
+*** Variables ***
 ${POLICY_BACKUP_DIR}    /tmp
 
 
 *** Test Cases ***
-
 GIVC policy init on boot in policy-enabled VMs
     [Documentation]  Verify givc-policy-init completed and preserves already delivered policies.
     [Tags]           SP-T365
@@ -30,8 +30,8 @@ GIVC policy init on boot in policy-enabled VMs
     ${failure_text}    Evaluate    "\\n".join($failures)
     Run Keyword If    ${failure_count} > 0    FAIL    ${failure_text}
 
-*** Keywords ***
 
+*** Keywords ***
 GIVC policy suite setup
     @{VM_LIST_WITH_HOST}    Get VM list    with_host=True
     @{POLICY_CLIENT_VMS}    Create List

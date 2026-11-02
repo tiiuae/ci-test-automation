@@ -1,16 +1,17 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Network performance tests
 ...                 Requires iperf installed on test running PC (sudo apt install iperf)
 
-Library             Collections
-Library             Process
 Library             ../../lib/output_parser.py
+Library             Collections
 Library             JSONLibrary
-Resource            ../../resources/performance_data_processing.resource
+Library             Process
 Resource            ../../resources/common_keywords.resource
+Resource            ../../resources/performance_data_processing.resource
 Resource            ../../resources/performance_keywords.resource
 Resource            ../../resources/serial_keywords.resource
 Resource            ../../resources/setup_keywords.resource
@@ -23,6 +24,7 @@ Suite Teardown      Run Keywords   Kill process by name   iperf
 ...                 AND  Close All Connections
 
 Test Tags           network
+
 
 *** Variables ***
 ${PERF_TEST_TIME}  10
@@ -158,6 +160,7 @@ Measure UDP Bidir Throughput Big Packets
     # Measurement result based PASS/FAIL criteria disabled for this test case
     # Determine Test Status   ${statistics}
 
+
 *** Keywords ***
 Run iperf server on DUT
     [Documentation]   Run iperf on DUT in server mode
@@ -179,12 +182,12 @@ Close port 5201 from iptables
 
 Check iperf was started
     [Arguments]       ${timeout}=5
-    ${is_started} =   Set Variable    False
+    ${is_started}    Set Variable    False
     FOR    ${i}    IN RANGE    ${timeout}
-        ${output}=     Run Command    sh -c 'ps aux | grep "iperf" | grep -v grep'
-        ${status} =    Run Keyword And Return Status    Should Contain    ${output}    iperf -s
+        ${output}      Run Command    sh -c 'ps aux | grep "iperf" | grep -v grep'
+        ${status}     Run Keyword And Return Status    Should Contain    ${output}    iperf -s
         IF    ${status}
-            ${is_started} =  Set Variable    True
+            ${is_started}   Set Variable    True
             BREAK
         END
         Sleep    1

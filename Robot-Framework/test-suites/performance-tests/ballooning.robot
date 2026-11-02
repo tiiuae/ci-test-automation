@@ -1,19 +1,21 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing performance of memory ballooning
 
-Resource            ../../resources/performance_data_processing.resource
 Resource            ../../resources/device_control.resource
-Resource            ../../resources/ssh_keywords.resource
+Resource            ../../resources/performance_data_processing.resource
 Resource            ../../resources/performance_keywords.resource
+Resource            ../../resources/ssh_keywords.resource
 
 Suite Teardown      Close All Connections
 Test Teardown       Ballooning Test Teardown
 Test Timeout        10 minutes
 
 Test Tags           ballooning
+
 
 *** Variables ***
 ${test_dir}               /tmp/ballooning
@@ -23,7 +25,6 @@ ${rebooted}               False
 
 
 *** Test Cases ***
-
 Test ballooning in chrome-vm
     [Tags]                  SP-T255  ballooning_chrome_vm  lenovo-x1  darter-pro
     Test ballooning in VM   vm=chrome-vm   mem_quota=6144   max_inflate_ratio=3
@@ -34,7 +35,6 @@ Test ballooning in business-vm
 
 
 *** Keywords ***
-
 Test ballooning in VM
     [Documentation]    Check that the host-side balloon manager changes the VM visible-memory target.
     ...                Check that memory cannot grow over the limit (mem_quota x max_inflate_ratio).
@@ -46,25 +46,25 @@ Test ballooning in VM
     Set Test Variable                 ${ballooning_vm}                  ${vm}
     Set Test Variable                 ${ballooning_id}                  ${vm}_${BUILD_ID}
 
-    ${expected_inflate_ratio}=        Set Variable  2
+    ${expected_inflate_ratio}         Set Variable  2
     ${expected_mem_at_inflate}        Evaluate      int(${mem_quota} * ${expected_inflate_ratio})
     ${max_mem_at_inflate}             Evaluate      int(${mem_quota} * ${max_inflate_ratio})
-    ${max_deflated_memory}=           Evaluate      int(1.2 * ${mem_quota})
+    ${max_deflated_memory}            Evaluate      int(1.2 * ${mem_quota})
 
-    ${timeout_inflate}=               Evaluate      int(${expected_mem_at_inflate} * 0.02)
-    ${timeout_deflate}=               Evaluate      int(${expected_mem_at_inflate} * 0.005)
-    ${timeout_logging}=               Evaluate      int(${timeout_inflate} + ${timeout_deflate} + 20)
+    ${timeout_inflate}                Evaluate      int(${expected_mem_at_inflate} * 0.02)
+    ${timeout_deflate}                Evaluate      int(${expected_mem_at_inflate} * 0.005)
+    ${timeout_logging}                Evaluate      int(${timeout_inflate} + ${timeout_deflate} + 20)
 
     Switch to vm                      ${HOST}
-    ${journal_start}=                 Run Command   date +%s
+    ${journal_start}                  Run Command   date +%s
     Run Command                       systemctl is-active ghaf-mem-manager-${vm}.service
-    ${host_avail_before}=             Read Host Available Memory
+    ${host_avail_before}              Read Host Available Memory
     Run Command                       mkdir ${test_dir}                         rc_match=skip
     Put File                          performance-tests/log_host_ballooning     ${test_dir}
     Run Command                       chmod 777 ${test_dir}/log_host_ballooning
     Run Command                       echo "started" > ${host_status_file}
 
-    ${host_log_cmd}=                  Catenate
+    ${host_log_cmd}                   Catenate
     ...                               nohup timeout ${timeout_logging} ${test_dir}/log_host_ballooning ${test_dir}
     ...                               ${vm}_${BUILD_ID} ${host_status_file} ${vm} ${journal_start}
     ...                               > ${test_dir}/host_logger.log 2>&1 &
@@ -87,7 +87,7 @@ Test ballooning in VM
     Run Command                       rm -r ${test_dir}/script_status/*         rc_match=skip
 
     Log To Console                    Starting memory logging script
-    ${log_cmd}=                       Catenate
+    ${log_cmd}                        Catenate
     ...                               nohup timeout ${timeout_logging} ${test_dir}/log_memory ${test_dir}
     ...                               ${vm}_${BUILD_ID} ${test_dir}/status_for_logging
     ...                               > ${test_dir}/vm_logger.log 2>&1 &
@@ -95,31 +95,31 @@ Test ballooning in VM
 
     Log To Console                    Starting memory consuming scripts
     Log To Console                    Launching memory consume at /dev/shm
-    ${shm_cmd}=                       Catenate
+    ${shm_cmd}                        Catenate
     ...                               sudo -n nohup timeout ${timeout_inflate}
     ...                               ${test_dir}/consume_memory /dev/shm ${test_dir}
     ...                               > ${test_dir}/consume_shm.log 2>&1 &
     Run Command                       ${shm_cmd}    timeout=3
     Log To Console                    Launching memory consume at /dev
-    ${dev_cmd}=                       Catenate
+    ${dev_cmd}                        Catenate
     ...                               sudo -n nohup timeout ${timeout_inflate}
     ...                               ${test_dir}/consume_memory /dev ${test_dir}
     ...                               > ${test_dir}/consume_dev.log 2>&1 &
     Run Command                       ${dev_cmd}    timeout=3
     Log To Console                    Launching memory consume at /run
-    ${run_cmd}=                       Catenate
+    ${run_cmd}                        Catenate
     ...                               sudo -n nohup timeout ${timeout_inflate}
     ...                               ${test_dir}/consume_memory /run ${test_dir}
     ...                               > ${test_dir}/consume_run.log 2>&1 &
     Run Command                       ${run_cmd}    timeout=3
 
     Switch to vm                      ${HOST}
-    ${min_target}   ${max_target}=    Wait For Balloon Target  ${vm}  ${journal_start}  increase
+    ${min_target}   ${max_target}     Wait For Balloon Target  ${vm}  ${journal_start}  increase
     ...                               ${expected_mem_at_inflate}  ${timeout_inflate}
-    ${host_memory_delta_limit}=       Evaluate    int(max(1024, ($max_target - $min_target) * 0.25))
-    ${host_avail_pressure}=           Wait For Host Available Memory  decrease
+    ${host_memory_delta_limit}        Evaluate    int(max(1024, ($max_target - $min_target) * 0.25))
+    ${host_avail_pressure}            Wait For Host Available Memory  decrease
     ...                               ${host_avail_before}  ${host_memory_delta_limit}  ${timeout_inflate}
-    ${host_avail_drop}=               Evaluate    $host_avail_before - $host_avail_pressure
+    ${host_avail_drop}                Evaluate    $host_avail_before - $host_avail_pressure
 
     Log                               Balloon target min during pressure: ${min_target} MiB   console=True
     Log                               Balloon target max during pressure: ${max_target} MiB   console=True
@@ -132,16 +132,16 @@ Test ballooning in VM
 
     Log To Console                    Releasing memory
     Switch to vm                      ${HOST}
-    ${release_time}=                  Run Command   date +%s
+    ${release_time}                   Run Command   date +%s
     Switch to vm                      ${vm}
     Clean Test Files
 
     Switch to vm                      ${HOST}
-    ${min_target}   ${max_target}=    Wait For Balloon Target  ${vm}  ${release_time}  decrease
+    ${min_target}   ${max_target}     Wait For Balloon Target  ${vm}  ${release_time}  decrease
     ...                               ${max_deflated_memory}  ${timeout_deflate}
-    ${host_avail_after}=              Wait For Host Available Memory  close-to-reference
+    ${host_avail_after}               Wait For Host Available Memory  close-to-reference
     ...                               ${host_avail_before}  ${host_memory_delta_limit}  ${timeout_deflate}
-    ${host_avail_recovery}=           Evaluate    $host_avail_after - $host_avail_pressure
+    ${host_avail_recovery}            Evaluate    $host_avail_after - $host_avail_pressure
     Log                               Balloon target min after cleanup: ${min_target} MiB   console=True
     Log                               Balloon target max after cleanup: ${max_target} MiB   console=True
     Log                               Host available memory recovery: ${host_avail_recovery} MiB   console=True
@@ -159,9 +159,9 @@ Test ballooning in VM
     Clean Ballooning Test Files
 
 Read memory status
-    ${total_mem}=                 Run Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $1}'  timeout=5
-    ${used_mem}=                  Run Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $2}'  timeout=5
-    ${avail_mem}=                 Run Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $6}'  timeout=5
+    ${total_mem}                  Run Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $1}'  timeout=5
+    ${used_mem}                   Run Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $2}'  timeout=5
+    ${avail_mem}                  Run Command  free --mebi | awk -F: 'NR==2 {print $2}' | awk '{print $6}'  timeout=5
     Log                           Used memory: ${used_mem} / Available: ${avail_mem} / Total: ${total_mem}
     ...                           console=True
     ${total_int}                  Evaluate    int(${total_mem})
@@ -169,29 +169,29 @@ Read memory status
     RETURN                        ${total_int}   ${used_mem}   ${avail_int}
 
 Read Host Available Memory
-    ${host_avail}=            Run Command
+    ${host_avail}             Run Command
     ...                       awk '/MemAvailable:/ { print int($2/1024) }' /proc/meminfo
     ...                       timeout=5
     Log                       Host available memory: ${host_avail} MiB   console=True
-    ${host_avail_int}=        Evaluate    int(${host_avail})
+    ${host_avail_int}         Evaluate    int(${host_avail})
     RETURN                    ${host_avail_int}
 
 Wait For Host Available Memory
     [Arguments]             ${direction}  ${reference}  ${delta_limit}  ${timeout}
-    ${start_time}=          Get Time	epoch
+    ${start_time}           Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
-        ${host_avail}=      Read Host Available Memory
-        ${delta}=           Evaluate    $reference - $host_avail
+        ${host_avail}       Read Host Available Memory
+        ${delta}            Evaluate    $reference - $host_avail
         IF  '${direction}' == 'decrease' and $delta >= $delta_limit
             Log To Console  Expected host MemAvailable decrease detected
             RETURN          ${host_avail}
         END
-        ${delta}=           Evaluate    abs($host_avail - $reference)
+        ${delta}            Evaluate    abs($host_avail - $reference)
         IF  '${direction}' == 'close-to-reference' and $delta <= $delta_limit
             Log To Console  Expected host MemAvailable recovery detected
             RETURN          ${host_avail}
         END
-        ${diff}=            Evaluate    int(time.time()) - int(${start_time})
+        ${diff}             Evaluate    int(time.time()) - int(${start_time})
         IF   ${diff} < ${timeout}
             Sleep           2
         ELSE
@@ -202,22 +202,22 @@ Wait For Host Available Memory
 
 Get Balloon Target Range
     [Arguments]             ${vm}  ${since}
-    ${cmd}=                 Catenate
+    ${cmd}                  Catenate
     ...                     journalctl -b -u ghaf-mem-manager-${vm}.service --since "@${since}" --no-pager |
     ...                     awk '/Adjusting .*${vm}\\.sock/ { mib=int($NF/1024/1024);
     ...                     if (mib>max) max=mib; if (min==0 || mib<min) min=mib }
     ...                     END { print min+0, max+0 }'
-    ${target_range}=        Run Command   ${cmd}   timeout=10
-    @{parts}=               Split String  ${target_range}
-    ${min_target}=          Evaluate      int($parts[0])
-    ${max_target}=          Evaluate      int($parts[1])
+    ${target_range}         Run Command   ${cmd}   timeout=10
+    @{parts}                Split String  ${target_range}
+    ${min_target}           Evaluate      int($parts[0])
+    ${max_target}           Evaluate      int($parts[1])
     RETURN                  ${min_target}   ${max_target}
 
 Wait For Balloon Target
     [Arguments]             ${vm}  ${since}  ${direction}  ${limit}  ${timeout}
-    ${start_time}=          Get Time	epoch
+    ${start_time}           Get Time	epoch
     FOR    ${i}    IN RANGE    ${timeout}
-        ${min_target}   ${max_target}=    Get Balloon Target Range  ${vm}  ${since}
+        ${min_target}   ${max_target}     Get Balloon Target Range  ${vm}  ${since}
         IF  '${direction}' == 'increase' and $max_target >= $limit
             Log To Console    Expected balloon target increase detected
             RETURN            ${min_target}   ${max_target}
@@ -226,7 +226,7 @@ Wait For Balloon Target
             Log To Console    Expected balloon target decrease detected
             RETURN            ${min_target}   ${max_target}
         END
-        ${diff}=              Evaluate    int(time.time()) - int(${start_time})
+        ${diff}               Evaluate    int(time.time()) - int(${start_time})
         IF   ${diff} < ${timeout}
             Sleep             2
         ELSE
@@ -246,8 +246,8 @@ Get host memory logs
     SSHLibrary.Get File     ${path}  ${data_dir}
 
 Collect Ballooning Logs And Plot
-    ${vm}=                  Get Variable Value  ${ballooning_vm}  ${EMPTY}
-    ${id}=                  Get Variable Value  ${ballooning_id}  ${EMPTY}
+    ${vm}                   Get Variable Value  ${ballooning_vm}  ${EMPTY}
+    ${id}                   Get Variable Value  ${ballooning_id}  ${EMPTY}
     IF  $vm == '' or $id == ''
         RETURN
     END
@@ -294,7 +294,7 @@ Clean Test Files
     Run Command   sudo -n rm -r /run/test         rc_match=skip
 
 Clean Ballooning Test Files
-    ${vm}=                  Get Variable Value  ${ballooning_vm}  ${EMPTY}
+    ${vm}                   Get Variable Value  ${ballooning_vm}  ${EMPTY}
     IF  $vm != ''
         TRY
             Switch to vm        ${vm}

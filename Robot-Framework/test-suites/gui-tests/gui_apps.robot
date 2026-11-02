@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2022-2026 Technology Innovation Institute (TII)
 # SPDX-License-Identifier: Apache-2.0
 
+
 *** Settings ***
 Documentation       Testing applications via GUI
 
@@ -12,8 +13,8 @@ Test Teardown       GUI App Test Teardown   ${TEST_STATUS}   ${TEST_NAME}
 
 Test Tags           gui-apps  lenovo-x1  darter-pro
 
-*** Test Cases ***
 
+*** Test Cases ***
 Create and save text file from COSMIC Text Editor via GUI
     [Documentation]   Create a new document in ${COSMIC Text Editor}[display_name], save it to Shares and verify the file was created
     [Tags]            SP-T194
@@ -97,7 +98,7 @@ Ghaf Control Panel shows device information
     [Documentation]    Open Ghaf Control Panel 'About' page and verify device information matches system data.
     [Tags]             SP-T370
     Start app via GUI   ${Ghaf Control Panel}
-    ${screenshot_path}   ${_}=    Capture Action Changes
+    ${screenshot_path}   ${_}     Capture Action Changes
     ...                           Navigate To Device Information Page
     Verify Device Information   ${screenshot_path}
     [Teardown]     Ghaf Control Panel Test Teardown
@@ -145,7 +146,6 @@ Use Unsafe shares to move image via COSMIC Files GUI
 
 
 *** Keywords ***
-
 Verify Gala sign in arrow load time
     [Arguments]    ${expected_max_seconds}=10    ${timeout_seconds}=60
     ${start_time}    Get Time    epoch
