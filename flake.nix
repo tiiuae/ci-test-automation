@@ -4,6 +4,10 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
     flake-utils.url = "github:numtide/flake-utils";
+    git-hooks = {
+      url = "github:cachix/git-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -11,6 +15,7 @@
       self,
       nixpkgs,
       flake-utils,
+      git-hooks,
     }:
     let
       systems = with flake-utils.lib.system; [
@@ -23,8 +28,23 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         callPythonPackage = pkgs.python3Packages.callPackage;
+        pre-commit-check = git-hooks.lib.${system}.run {
+          src = ./.;
+          hooks = {
+            robotidy = {
+              enable = true;
+              name = "Robotidy";
+              entry = "${./githooks/check-robotidy.sh}";
+              extraPackages = [ pkgs.robotframework-tidy ];
+              files = "\\.(robot|resource)$";
+              pass_filenames = true;
+            };
+          };
+        };
       in
       {
+        checks.pre-commit = pre-commit-check;
+
         packages = rec {
           pkcs7 = callPythonPackage ./pkgs/pkcs7 { }; # Requirement of PyP100
           PyP100 = callPythonPackage ./pkgs/PyP100 { inherit pkcs7; };
@@ -53,7 +73,7 @@
 
         # Development shell
         devShell = pkgs.mkShell {
-          buildInputs = with pkgs; [
+          buildInputs = (with pkgs; [
             file
             grafana-loki
             imagemagick
@@ -90,7 +110,15 @@
                 KMTronic
               ])
             ))
-          ];
+          ]) ++ pre-commit-check.enabledPackages;
+
+          shellHook = pre-commit-check.shellHook + ''
+            if [ -x ./githooks/install-git-hooks.sh ]; then
+              if ! ./githooks/install-git-hooks.sh; then
+                echo "Git hooks were not installed. Resolve the hook conflict or run the installer manually." >&2
+              fi
+            fi
+          '';
         };
 
         # Allows formatting files with `nix fmt`

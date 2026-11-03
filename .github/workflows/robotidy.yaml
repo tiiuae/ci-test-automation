@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2026 Technology Innovation Institute (TII)
+# SPDX-License-Identifier: Apache-2.0
+
+name: Robotidy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  robotidy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+      - name: Run Nix pre-commit checks
+        run: nix build -L .#checks.x86_64-linux.pre-commit
