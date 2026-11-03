@@ -26,4 +26,4 @@
   ## Project Notes
   - Keep in mind the environment where this code will be used: Robot Framework running on NixOS machine.
   - Do not treat the code or repository as the only source of truth. 
-  - Cross-check with Robot Framework documentation, especially in case of debugging problems or making changes to the code.  
+  - Cross-check with Robot Framework documentation, especially in case of debugging problems or making changes to the code.
