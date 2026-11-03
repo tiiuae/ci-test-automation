@@ -14,9 +14,19 @@ if [ ! -f ./githooks/check-commit.sh ]; then
     exit 1
 fi
 
-if [ -e ./.git/hooks/commit-msg ]; then
-    echo "./.git/hooks/commit-msg exists already" >&2
-    exit 1
-fi
+install_hook() {
+    local hook_name="$1"
+    local target="$2"
+    local hook_path="./.git/hooks/${hook_name}"
 
-ln -s ../../githooks/check-commit.sh ./.git/hooks/commit-msg
+    if [ -L "$hook_path" ] && [ "$(readlink "$hook_path")" = "$target" ]; then
+        echo "${hook_path} already points to ${target}"
+    elif [ -e "$hook_path" ] || [ -L "$hook_path" ]; then
+        echo "${hook_path} exists already and will not be overwritten" >&2
+        return 1
+    else
+        ln -s "$target" "$hook_path"
+    fi
+}
+
+install_hook commit-msg ../../githooks/check-commit.sh
