@@ -23,8 +23,9 @@
 
 | DATE SET   | TEST CASE / KEYWORD                      | TICKET / Additional Data                                                                               | Error Log Context       |
 | ---------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------- |
+| 03.11.2026 | Check SPIRE agent count                  | SSRCSP-9056, allow one extra spire agent for Orins because there might be one running in disp-vm       |                         |
 | 16.10.2026 | Try To Recover SSH Connection Via Serial | In Check If Device Is Available restart net-vm if only serial is available after reboot                | SSH recovery            |
-| 09.10.2026 | Get VM list                              | SSRCSP-9056, disp-vm is removed from the list if it is not available                                   | Disp-vm                 |
+| 09.10.2026 | Get VM list                              | SSRCSP-9056, disp-vm is removed from the list                                                          |                         |
 | 04.09.2026 | Account lockout after failed GUI login   | Tolerate one missed faillock increment                                                                 | Account lockout         |
 | 27.08.2026 | VM memory usage snapshot                 | Orin AGX ghaf-host has 0 total swap memory. Ignore swap low limit check in this case.                  |                         |
 | 17.07.2026 | Log out with loginctl                    | Log out all testuser sessions if the are many on seat (controlling the screen) (probably a Cosmic bug) | Multiple sessions       |
