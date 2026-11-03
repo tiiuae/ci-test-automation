@@ -55,8 +55,15 @@ Check SPIRE agent count
     ${agents}         Get SPIRE x509pop agents
     @{spiffe_ids}     Get Regexp Matches    ${agents}    (?m)^SPIFFE ID\\s*:
     ${agent_count}    Get Length            ${spiffe_ids}
-    Should Be Equal As Integers    ${agent_count}    ${expected_count}
-    ...    Expected one ${SPIRE_ATTESTATION_TYPE} SPIRE agent for every VM and host. Expected: ${expected_count}, found: ${agent_count}.
+    # Workaround for SSRCSP-9056. If disp-vm is available it will also have a spire agent.
+    IF    ${IS_ORIN}
+        ${orin_expected_count}    Evaluate    ${expected_count} + 1
+        Should Be True    ${expected_count} <= ${agent_count} <= ${orin_expected_count}
+        ...    Expected ${expected_count} to ${orin_expected_count} ${SPIRE_ATTESTATION_TYPE} SPIRE agents on Orin. Found: ${agent_count}.
+    ELSE
+        Should Be Equal As Integers    ${agent_count}    ${expected_count}
+        ...    Expected one ${SPIRE_ATTESTATION_TYPE} SPIRE agent for every VM and host. Expected: ${expected_count}, found: ${agent_count}.
+    END
 
 Check SPIRE agents
     @{vm_list}         Get VM list    with_host=True
