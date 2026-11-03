@@ -81,7 +81,7 @@ App window should be open
     ${toplevels_after}    Get GUI VM toplevels
     ${before_count}    Get Line Count    ${toplevels_before}
     ${after_count}     Get Line Count    ${toplevels_after}
-    Should Be True    ${after_count} > ${before_count}
+    Should Be True    ${after_count} > ${before_count}    msg=Expected new windows for @{expected_windows}, but no new ones were found after app started
     Should Contain Any    ${toplevels_after}    @{expected_windows}   msg=None of the expected windows ${expected_windows} appeared in ${toplevels_after}
 
 Get expected app windows
