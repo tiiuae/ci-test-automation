@@ -31,15 +31,11 @@ class Zephyr:
 
         self.zephyr_api = f"{self.jira_link}/rest/atm/1.0"
         self.project_key = project_key
-        headers = {
+        self.headers = {
             "Authorization": f"Bearer {self.token}",
             "Content-Type": "application/json",
             "Accept": "application/json",
         }
-
-        self.session = requests.Session()
-        self.session.headers.update(headers)
-        self.session.verify = False
 
         self.check_connection()
 
@@ -65,6 +61,15 @@ class Zephyr:
         if resp.status_code not in expected_statuses:
             raise ZephyrError(f"{error_message}\nHTTP Status Code: {resp.status_code} {resp.text}")
 
+    def _request(self, method, endpoint, error_message, expected_statuses, **kwargs):
+        """Send a Zephyr API request using a fresh session and return JSON."""
+        with requests.Session() as session:
+            session.headers.update(self.headers)
+            session.verify = False
+            resp = session.request(method, url=f"{self.zephyr_api}/{endpoint}", **kwargs)
+            self.check_http_status(resp, error_message, *expected_statuses)
+            return resp.json()
+
     def get_testcases(self, query, maxResults=200, startAt=0):
         """
         Search Zephyr Scale test cases.
@@ -80,17 +85,18 @@ class Zephyr:
         For Single and Multi Choice custom fields, operator "=" is not supported, use "IN" instead
         Available logical operators: AND
         """
-        url = f"{self.zephyr_api}/testcase/search"
-
         payload = {
             "query": query,
             "maxResults": maxResults,
             "startAt": startAt
         }
-        resp = self.session.get(url=url, params=payload)
-        self.check_http_status(resp, f"Failed to find test cases.\n Query: {query}", HTTPStatus.OK)
-
-        return resp.json()
+        return self._request(
+            "GET",
+            "testcase/search",
+            error_message=f"Failed to find test cases.\n Query: {query}",
+            expected_statuses=(HTTPStatus.OK,),
+            params=payload,
+        )
 
     def create_test_result(
             self,
@@ -107,19 +113,19 @@ class Zephyr:
         test_run_key == test_cycle_key: Zephyr API uses 'test run' naming in the URL, but in the GUI it's 'test cycle'.
         """
 
-        url = f"{self.zephyr_api}/testrun/{test_run_key}/testcase/{test_case_key}/testresult"
-
         payload = {
             "status": status,
             "comment": comment
         }
-
-        resp = self.session.post(url=url, json=payload)
-        self.check_http_status(resp,
-                               f"Failed to create test result.\n"
-                               f" Test Cycle: {test_run_key}\n"
-                               f" Test Case: {test_case_key}\n"
-                               f" Status: {status}\n",
-                               HTTPStatus.CREATED, HTTPStatus.OK)
-
-        return resp.json()
+        return self._request(
+            "POST",
+            f"testrun/{test_run_key}/testcase/{test_case_key}/testresult",
+            error_message=(
+                f"Failed to create test result.\n"
+                f" Test Cycle: {test_run_key}\n"
+                f" Test Case: {test_case_key}\n"
+                f" Status: {status}\n"
+            ),
+            expected_statuses=(HTTPStatus.CREATED, HTTPStatus.OK),
+            json=payload,
+        )
