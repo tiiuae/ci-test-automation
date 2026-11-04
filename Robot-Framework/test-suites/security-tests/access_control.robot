@@ -5,6 +5,7 @@
 *** Settings ***
 Documentation       Verify access rights and isolation across memory zones, virtual machines, and system resources
 
+Resource            ../../resources/file_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
 Suite Setup         Setup
@@ -27,6 +28,13 @@ Check that unauthorised user has no access to host devices
     [Tags]              SP-T434
     Switch to vm        ${GUI_VM}  user=${USER_LOGIN}
     Check access   /dev/nvme0n1    expected=False
+
+Check that device node access through shared storage is blocked
+    [Documentation]    Verify that root in chrome-vm cannot create a host NVMe device node in shared storage
+    [Tags]             SP-T523
+    ${major}    ${minor}    Get host NVMe device numbers
+    Verify device node creation in shared storage is blocked    ${major}    ${minor}
+    [Teardown]         Run Keyword If Test Failed    Node test teardown
 
 Check that unauthorised user has limited access to file system
     [Documentation]     Check that test user does not have access to /root
@@ -60,6 +68,27 @@ Check user account is only in gui-vm
 Setup
     @{VM_LIST_WITH_HOST}    Get VM list    with_host=True
     Set Suite Variable      @{VM_LIST_WITH_HOST}
+
+Get host NVMe device numbers
+    Switch to vm    ${HOST}
+    ${output}    Run Command    lsblk -o NAME,MAJ:MIN | grep nvme
+    @{devices}   Split To Lines    ${output}
+    @{fields}    Split String    ${devices}[0]
+    Should Match Regexp     ${fields}[1]    ^[0-9]+:[0-9]+$
+    ${major}    ${minor}    Split String    ${fields}[1]    :
+    RETURN      ${major}    ${minor}
+
+Verify device node creation in shared storage is blocked
+    [Arguments]    ${major}    ${minor}
+    Switch to vm   ${CHROME_VM}
+    ${error}    ${rc}    Run Command    mknod -m 0666 /etc/common/nvme b ${major} ${minor}
+    ...                  sudo=True    return=err,rc    rc_match=skip
+    Should Be Equal As Integers    ${rc}    1    Expected device node creation RC is 1, in fact ${rc}
+    Should Contain    ${error}     Operation not permitted
+
+Node test teardown
+    Switch to vm    ${CHROME_VM}
+    Remove file    /etc/common/nvme    sudo=True    rc_match=skip
 
 Check access to host devices in ${vm}
     Switch to vm    ${vm}
