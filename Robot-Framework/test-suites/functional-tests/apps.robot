@@ -43,6 +43,9 @@ Start COSMIC Terminal
 Start COSMIC Text Editor
     [Tags]            SP-T427  fmo
     ${COSMIC Text Editor}
+Start COSMIC Viewer
+    [Tags]            SP-T524
+    ${COSMIC Viewer}
 Start Element
     [Tags]            SP-T500
     ${Element}

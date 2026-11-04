@@ -51,9 +51,12 @@ Start COSMIC Terminal via GUI
 Start COSMIC Text Editor via GUI
     [Tags]            SP-T426
     ${COSMIC Text Editor}
+Start COSMIC Viewer via GUI
+    [Tags]            SP-T525
+    ${COSMIC Viewer}
 Start Element via GUI
     [Tags]            SP-T501
-    ${Element}
+    ${Element}    verify_is_killed=${False}
 Start Fingerprints via GUI
     [Tags]            SP-T475
     ${Fingerprints}
@@ -103,11 +106,11 @@ Start Zoom via GUI
 
 *** Keywords ***
 Launch App And Save Time
-    [Arguments]    ${app_key}
+    [Arguments]    ${app_key}    ${verify_is_killed}=${True}
     Set Test Documentation   Start ${app_key}[display_name] via GUI and measure launch time
     ${launch_time}     Start app via GUI   ${app_key}   measure_time=True
     Save launch time   ${app_key}    ${launch_time}
-    [Teardown]     Close app via GUI   ${app_key}
+    [Teardown]    Close app via GUI    ${app_key}    verify_is_killed=${verify_is_killed}
 
 Create App Launch Montage And Move Graphs
     [Documentation]   Combine all graphs to one image and move the single graphs to their own folder
