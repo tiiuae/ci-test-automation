@@ -23,6 +23,8 @@
 
 | DATE SET   | TEST CASE / KEYWORD                      | TICKET / Additional Data                                                                               | Error Log Context       |
 | ---------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------- |
+| 04.11.2026 | Soft Reboot Device And Connect           | SSRCSP-9056, extend Orin reconnection time from 60 to 90 seconds                                       |                         |
+| 04.11.2026 | Check logging rate against history       | SSRCSP-9056, skip logs that mention disp-vm                                                            |                         |
 | 03.11.2026 | Check SPIRE agent count                  | SSRCSP-9056, allow one extra spire agent for Orins because there might be one running in disp-vm       |                         |
 | 16.10.2026 | Try To Recover SSH Connection Via Serial | In Check If Device Is Available restart net-vm if only serial is available after reboot                | SSH recovery            |
 | 09.10.2026 | Get VM list                              | SSRCSP-9056, disp-vm is removed from the list                                                          |                         |

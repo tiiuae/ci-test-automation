@@ -240,10 +240,13 @@ Check logging rate against history
         ${vm_byte_limit}    Evaluate    ${vm_entry_limit} * ${bytes_per_entry}
 
         # Logs from sshd-session are excluded, they are created by the ssh connections in tests
+        # Logs from disp-vm are excluded due to SSRCSP-9056
+        ${ignored_log_pattern}    Set Variable   sshd-session|disp-vm
+
         ${byte_status}    ${byte_rate}    Run Keyword And Ignore Error
-        ...    Run Command    journalctl --since "$(date -d '${check_interval} seconds ago' '+%Y-%m-%d %H:%M:%S')" | grep -v "sshd-session" | wc -c | awk '{print $1}'
+        ...    Run Command    journalctl --since "$(date -d '${check_interval} seconds ago' '+%Y-%m-%d %H:%M:%S')" | grep -vE "${ignored_log_pattern}" | wc -c | awk '{print $1}'
         ${entries_status}    ${entries}    Run Keyword And Ignore Error
-        ...    Run Command    journalctl --since "${check_interval} seconds ago" | grep -v "sshd-session" | wc -l
+        ...    Run Command    journalctl --since "${check_interval} seconds ago" | grep -vE "${ignored_log_pattern}" | wc -l
         IF  '${byte_status}' == 'PASS'
             Set To Dictionary    ${byte_history}    ${vm}=${byte_rate}
         END
@@ -251,7 +254,7 @@ Check logging rate against history
             Set To Dictionary    ${entry_history}    ${vm}=${entries}
         END
         IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS' and (${entries} > ${vm_entry_limit} or ${byte_rate} > ${vm_byte_limit})
-            ${recent_logs}       Run Command        journalctl --since "${check_interval} seconds ago" | grep -v "sshd-session"
+            ${recent_logs}       Run Command        journalctl --since "${check_interval} seconds ago" | grep -vE "${ignored_log_pattern}"
             Set To Dictionary    ${spam_logs}       ${vm}=${recent_logs}
             Set To Dictionary    ${spam_metrics}    ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${vm_entry_limit}/${vm_byte_limit}
         ELSE IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS'
