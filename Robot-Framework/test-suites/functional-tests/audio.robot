@@ -16,7 +16,6 @@ Test Tags           audio  bat  lenovo-x1  darter-pro  dell-7330
 
 
 *** Variables ***
-${AUDIO_DIR}           ${OUTPUT_DIR}/outputs/audio-temp
 @{VMS_WITH_AUDIO}      ${BUSINESS_VM}  ${CHROME_VM}  ${COMMS_VM}  ${FLATPAK_VM}  ${GUI_VM}  ${MEDIA_VM}
 @{VMS_WITHOUT_AUDIO}   ${AUDIO_VM}  ${ADMIN_VM}  ${HOST}  ${NET_VM}
 

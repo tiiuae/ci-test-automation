@@ -10,6 +10,10 @@ Resource            ../resources/file_keywords.resource
 Resource            ../resources/ssh_keywords.resource
 
 
+*** Variables ***
+${AUDIO_DIR}        ${OUTPUT_DIR}/outputs/audio
+
+
 *** Keywords ***
 Check camera
     [Arguments]    ${vm}   ${expected}

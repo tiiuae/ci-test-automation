@@ -15,6 +15,8 @@ Variables           ../../lib/performance_thresholds.py
 
 Suite Teardown      Close All Connections
 
+Test Tags           lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  lab-only
+
 
 *** Variables ***
 ${BOOT_TIME_DIR}    /persist/common
@@ -23,17 +25,17 @@ ${MIN_SERIAL_LOG_LINES}    200
 
 *** Test Cases ***
 Verify boot time results
-    [Tags]    SP-T516  pre-merge  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  lab-only
+    [Tags]    SP-T516  pre-merge
     Check Boot Time And Plot    ${False}
     [Teardown]    Collect Boot Time Diagnostics
 
 Verify boot time results and update baseline
-    [Tags]    SP-T517  regression  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx  lab-only
+    [Tags]    SP-T517  regression
     Check Boot Time And Plot    ${True}
     [Teardown]    Collect Boot Time Diagnostics
 
 Verify boot log health
-    [Tags]    SP-T518  pre-merge  regression  lenovo-x1  darter-pro  dell-7330  orin-agx  orin-agx-64  orin-nx
+    [Tags]    SP-T518  pre-merge  regression
     Check Boot Log Health
 
 
