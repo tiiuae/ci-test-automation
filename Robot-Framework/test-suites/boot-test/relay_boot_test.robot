@@ -186,10 +186,12 @@ Test Teardown
             Run Keyword If Test Failed    Run Keyword And Ignore Error    serial_keywords.Save log
         END
     END
-    IF  not ${IS_LAPTOP}
+    IF  "${CONNECTION_TYPE}" == "serial"
+        Run Keyword And Ignore Error    Collect Failure Diagnostics Via Serial
+    ELSE
         Run Keyword If Test Failed    Run Keyword And Ignore Error    Collect Failure Diagnostics Via Serial
     END
-    IF    ${UART_CAPTURE_ACTIVE} and not ${SAVE_BOOT_LOGS_ON_PASS}
+    IF    ${UART_CAPTURE_ACTIVE} and "${CONNECTION_TYPE}" == "ssh" and not ${SAVE_BOOT_LOGS_ON_PASS}
         Run Keyword If Test Passed    OperatingSystem.Remove File    ${UART_CAPTURE_FILE}
     END
 

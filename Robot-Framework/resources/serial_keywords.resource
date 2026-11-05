@@ -112,9 +112,12 @@ Try To Check Serial On Device
 
 Log In To Ghaf OS
     [Documentation]       Log in with ${LOGIN} and ${PASSWORD}
-    [Arguments]           ${attempts}=4
+    [Arguments]           ${attempts}=4    ${retry_delay}=0s
     Log To Console        Trying to log in via serial...
     FOR    ${i}    IN RANGE    ${attempts}
+        IF    ${i} > 0
+            Sleep    ${retry_delay}
+        END
         Write Data        ${\n}
         ${output}         SerialLibrary.Read Until    terminator=${HOST} login
         IF  "(END)" in $output
@@ -169,14 +172,14 @@ Verify init.scope status via serial
     ...           Set Global Variable    ${UART_CAPTURE_ACTIVE}    ${False}
 
 Connect via serial
-    [Arguments]         ${timeout}=1.0
+    [Arguments]         ${timeout}=1.0    ${login_attempts}=4
     IF  not ${UART_CAPTURE_ACTIVE}
         ${status}           Open Serial Port    timeout=${timeout}
     ELSE
         ${status}    Set Variable    ${True}
     END
     IF    ${status}
-        ${status}   Run Keyword And Return Status    Log In To Ghaf OS
+        ${status}   Run Keyword And Return Status    Log In To Ghaf OS    attempts=${login_attempts}
     END
     RETURN    ${status}
 
@@ -293,10 +296,10 @@ Wait for shutdown via serial
 Run Command On Serial
     [Documentation]    Run a host command on the serial console and wait for the shell prompt.
     ...                NOTE: Does not currently work if NOPASSWD sudo is enabled.
-    [Arguments]    ${command}    ${timeout}=30    ${sudo}=${False}    ${pre_flush}=${True}
+    [Arguments]    ${command}    ${timeout}=30    ${sudo}=${False}    ${pre_flush}=${True}    ${login_attempts}=4
     ${opened_here}     Set Variable    ${False}
     IF    not ${UART_CAPTURE_ACTIVE}
-        ${status}    Connect via serial    timeout=${timeout}
+        ${status}    Connect via serial    timeout=${timeout}    login_attempts=${login_attempts}
         IF    ${status} == False
             FAIL    Failed to connect via serial. Cannot execute host command.
         END
@@ -335,13 +338,14 @@ Run Command On Serial
 
 Run Command on VM Via Serial
     [Documentation]    Execute a command on a VM through the host serial console and tunneling via ssh.
-    [Arguments]        ${vm}    ${command}    ${output_redirect}=NONE    ${timeout}=5    ${sudo}=${False}    ${pre_flush}=${True}    ${logging}=${True}
+    [Arguments]        ${vm}    ${command}    ${output_redirect}=NONE    ${timeout}=5    ${sudo}=${False}
+    ...                ${pre_flush}=${True}    ${logging}=${True}    ${login_attempts}=4
     IF    "${SERIAL_PORT}" == "NONE"
         FAIL    Serial port is not configured. Cannot execute ${vm} commands via serial.
     END
     ${opened_here}     Set Variable    ${False}
     IF    not ${UART_CAPTURE_ACTIVE}
-        ${status}          Connect via serial   timeout=${timeout}
+        ${status}          Connect via serial   timeout=${timeout}    login_attempts=${login_attempts}
         IF    ${status} == False
             FAIL    Failed to connect via serial. Cannot execute ${vm} commands.
         END
@@ -516,14 +520,20 @@ Collect Failure Diagnostics Via Serial
     ...                - if sudo is required
     ...                - target location for running the command ( host / vm )
     Log To Console     Trying to collect diagnostics via debug UART after failed boot test
-    IF    ${UART_CAPTURE_ACTIVE}
-        Log To Console    Retrying serial login up to 24 times
-        ${status}    Run Keyword And Return Status    Wait Until Keyword Succeeds    24x    5s    Log In To Ghaf OS    attempts=1
-    ELSE
-        ${status}    Run Keyword And Return Status    Connect via serial    timeout=20
+    IF    not ${UART_CAPTURE_ACTIVE}
+        ${serial_status}    Open Serial Port    timeout=20
+        IF    not ${serial_status}
+            Log To Console    Failed to open serial port, UART diagnostics were not collected.
+            RETURN
+        END
     END
+    Log To Console    Retrying serial login up to 20 times
+    ${status}    Run Keyword And Return Status    Log In To Ghaf OS    attempts=20    retry_delay=5s
     IF    not ${status}
         Log To Console    Failed to connect via serial, UART diagnostics were not collected.
+        IF    not ${UART_CAPTURE_ACTIVE}
+            Delete All Ports
+        END
         RETURN
     END
     Log To Console    Collecting failure diagnostics via UART...
@@ -542,28 +552,28 @@ Collect Failure Diagnostics Via Serial
     Run Diagnostic Commands Via Serial    ${HOST}    @{diagnostic_commands}
 
     # Collect expected large outputs by splitting them into batches
-    Run Command On Serial    sh -c '${dmesg_command} > /tmp/${HOST}-dmesg.txt'    sudo=${True}    pre_flush=${False}
+    Run Command On Serial    sh -c '${dmesg_command} > /tmp/${HOST}-dmesg.txt'    sudo=${True}    pre_flush=${False}    login_attempts=2
     Sleep    1
     Save Serial File Output To File    /tmp/${HOST}-dmesg.txt    ${BOOT_DIAGNOSTICS_DIR}/${HOST}-dmesg.txt
-    Run Command On Serial    sh -c 'journalctl -b --no-pager -o short-monotonic > /tmp/${HOST}_journalctl_-b.txt'    pre_flush=${True}
+    Run Command On Serial    sh -c 'journalctl -b --no-pager -o short-monotonic > /tmp/${HOST}_journalctl_-b.txt'    pre_flush=${True}    login_attempts=2
     Sleep    1
     Save Serial File Output To File    /tmp/${HOST}_journalctl_-b.txt    ${BOOT_DIAGNOSTICS_DIR}/${HOST}_journalctl_-b.txt
-    Run Command On Serial    sh -c 'journalctl -u microvm@net-vm --no-pager > /tmp/ghaf-host-microvm-net-vm-journal.txt'    pre_flush=${False}
+    Run Command On Serial    sh -c 'journalctl -u microvm@net-vm --no-pager > /tmp/ghaf-host-microvm-net-vm-journal.txt'    pre_flush=${False}    login_attempts=2
     Sleep    1
     Save Serial File Output To File    /tmp/ghaf-host-microvm-net-vm-journal.txt    ${BOOT_DIAGNOSTICS_DIR}/ghaf-host-microvm-net-vm-journal.txt
 
     Drain Serial Output    recover_with_ctrl_c=${True}
-    ${vm_list_output}    Run Command On Serial    command ls --color=never -1 /var/lib/microvms/
+    ${vm_list_output}    Run Command On Serial    command ls --color=never -1 /var/lib/microvms/    login_attempts=2
     @{vm_list}    Get Regexp Matches    ${vm_list_output}    (?m)^[A-Za-z0-9_.-]+$
     Should Not Be Empty    ${vm_list}    VM list is empty
     FOR    ${vm}    IN    @{vm_list}
         Should End With    ${vm}    -vm
         Run Diagnostic Commands Via Serial    ${vm}    @{diagnostic_commands}
 
-        ${dmesg_output}    Run Command on VM Via Serial    ${vm}    sh -c '${dmesg_command}'    sudo=${True}    pre_flush=${False}    logging=${False}
+        ${dmesg_output}    Run Command on VM Via Serial    ${vm}    sh -c '${dmesg_command}'    sudo=${True}    pre_flush=${False}    logging=${False}    login_attempts=2
         OperatingSystem.Create File        ${BOOT_DIAGNOSTICS_DIR}/${vm}-dmesg.txt    ${dmesg_output}
 
-        Run Command on VM Via Serial    ${vm}    sh -c 'journalctl -b --no-pager -o short-monotonic'    output_redirect=/tmp/${vm}_journalctl_-b.txt    pre_flush=${True}    logging=${False}
+        Run Command on VM Via Serial    ${vm}    sh -c 'journalctl -b --no-pager -o short-monotonic'    output_redirect=/tmp/${vm}_journalctl_-b.txt    pre_flush=${True}    logging=${False}    login_attempts=2
         Sleep    1
         Save Serial File Output To File    /tmp/${vm}_journalctl_-b.txt    ${BOOT_DIAGNOSTICS_DIR}/${vm}_journalctl_-b.txt
     END
@@ -577,9 +587,9 @@ Run Diagnostic Commands Via Serial
     FOR    ${command}    IN    @{commands}
         ${output_name}    Replace String    ${command}    ${SPACE}    _
         IF  $vm != '${HOST}'
-            ${cmd_output}    Run Command on VM Via Serial    ${vm}    sh -c '${command}'    pre_flush=${True}    logging=${False}
+            ${cmd_output}    Run Command on VM Via Serial    ${vm}    sh -c '${command}'    pre_flush=${True}    logging=${False}    login_attempts=2
         ELSE
-            ${cmd_output}    Run Command On Serial    sh -c '${command}'    pre_flush=${True}
+            ${cmd_output}    Run Command On Serial    sh -c '${command}'    pre_flush=${True}    login_attempts=2
         END
         OperatingSystem.Append To File     ${output_file}    ${command}\n$${cmd_output}\n\n
         Log    Saved "${command}" output from ${vm} to ${output_file}    console=True
