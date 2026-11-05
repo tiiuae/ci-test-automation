@@ -171,7 +171,7 @@ Save a file from Onlyoffice
     Press Key(s)       ENTER
 
     Wait Until Keyword Succeeds   5x   1s   Check file exists   /Shares/'Unsafe flatpak-vm share'/${file_name}
-    Locate and click    text   ${Onlyoffice}[display_name]   wiggle=True   precision_percent=90
+    Locate and click    text   ${Onlyoffice}[display_name]   wiggle=True   precision_percent=90     scale=3
 
     [Teardown]   Remove file  /Shares/'Unsafe flatpak-vm share'/${file_name}
 
