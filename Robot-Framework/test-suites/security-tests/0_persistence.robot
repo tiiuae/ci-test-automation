@@ -53,6 +53,7 @@ Verify brightness persisted
     [Tags]    SP-T453
     ${brightness}     Get screen brightness
     Should Be Equal   ${EXPECTED_BRIGHTNESS}  ${brightness}
+    [Teardown]    Run Keyword If Test Failed   Brightness persistence teardown
 
 Verify volume persisted
     [Tags]    SP-T454
@@ -67,6 +68,22 @@ Verify timezone persisted
 
 
 *** Keywords ***
+Brightness persistence teardown
+    # Compare current brightness with the saved value and its last update time.
+    Switch to vm    ${GUI_VM}
+    Run Command    grep -H . /sys/class/backlight/*/*brightness    sudo=True
+    Run Command    sh -c 'stat --format="%n | modified=%y | size=%s" /var/lib/systemd/backlight/*'    sudo=True    rc_match=skip
+    Run Command    sh -c 'grep -H . /var/lib/systemd/backlight/*'    sudo=True    rc_match=skip
+    # Capture the previous GUI VM boot to investigate incomplete shutdown.
+    Run Command    journalctl -b -1 --no-pager -o short-iso-precise    sudo=True
+    # Check GIVC errors and service shutdown order during the previous boot.
+    Switch to vm    ${ADMIN_VM}
+    # Identify the previous boot used for journal collection.
+    Run Command    journalctl --list-boots --no-pager    sudo=True
+    Run Command    journalctl -b -1 --no-pager -o short-iso-precise -u 'givc*'    sudo=True
+    Run Command    journalctl -b -1 --no-pager -o short-iso-precise _PID=1    sudo=True
+    Log persistence setup errors
+
 Persistence Suite Setup
     ${PERSISTENCE_SETUP_ERRORS}    Create List
     Set Suite Variable             ${PERSISTENCE_SETUP_ERRORS}
