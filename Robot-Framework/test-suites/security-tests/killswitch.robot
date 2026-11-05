@@ -15,10 +15,6 @@ Resource            ../../resources/wifi_keywords.resource
 Test Tags           killswitch  lenovo-x1  darter-pro
 
 
-*** Variables ***
-${AUDIO_DIR}    ${OUTPUT_DIR}/outputs/audio-temp
-
-
 *** Test Cases ***
 Killswitch disconnects camera
     [Documentation]  Check that camera works, then block it using killswitch and verify that it doesn't work

@@ -72,13 +72,13 @@ Soft Reboot Device And Connect
     [Documentation]  Reboot device from ${GUI_VM} (laptops) or ${HOST} (Orins), reconnect and log in when testing a laptop
     ${vm}                  Set Variable If   ${IS_LAPTOP}   ${GUI_VM}   ${HOST}
     # Extended time for Orins due to SSRCSP-9056 (disp-vm can time out during shutdown)
-    ${retry}               Set Variable If   ${IS_LAPTOP}   60          90
+    ${retry}               Set Variable If   ${IS_LAPTOP}   60s   90s
     ${reboot_log_since}    Get Time    epoch
     ${soft_reboot_ok}      Run Keyword And Return Status
     ...    Run Keywords
-    ...    Soft Reboot Device   ${vm}   check_iterations=${retry}
+    ...    Soft Reboot Device   ${vm}
     ...    AND
-    ...    Connect After Reboot   soft_reboot=True
+    ...    Connect After Reboot   soft_reboot=True    retry=${retry}
     IF    not ${soft_reboot_ok}
         Collect Logs After Failed Soft Reboot    ${reboot_log_since}
         FAIL    Soft reboot failed.
@@ -140,7 +140,7 @@ Soft Shutdown Device
 
 Connect After Reboot
     [Documentation]   Verify that device rebooted and connect
-    [Arguments]      ${soft_reboot}=False
+    [Arguments]      ${soft_reboot}=False   ${retry}=60s
     IF    ("${DEVICE_TYPE}" == "darter-pro" or "${DEVICE_TYPE}" == "darter-sec-boot") and ${soft_reboot}
         WHILE    True    limit=120 seconds    on_limit=pass
             Log              Pressing Enter    console=True
@@ -152,7 +152,7 @@ Connect After Reboot
         Check If Device Is Available   retry=5x    action=reboot
     ELSE
         Wait   30
-        Check If Device Is Available   retry=60s   action=reboot
+        Check If Device Is Available   retry=${retry}   action=reboot
     END
 
 Wake up device

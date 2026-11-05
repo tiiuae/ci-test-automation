@@ -247,7 +247,7 @@ Click
     IF   ${wiggle}   Wiggle cursor
     IF  ${double_click}
         Log   Double-clicking
-        Run ydotool command   click 0xC0 0xC0   sudo=${sudo}
+        Run ydotool command   click --next-delay 100 0xC0 0xC0   sudo=${sudo}
     ELSE
         Log   Clicking
         Run ydotool command   click 0xC0   sudo=${sudo}
@@ -397,23 +397,6 @@ Run ydotool command
     Sleep   0.2
 
 Start screen recording
-    [Arguments]      ${unit_name}=robot-screen-recording   ${video_file}=${EMPTY}   ${log_file}=/tmp/gpu-screen-recorder.log
-    TRY
-        Start screen recording implementation    ${unit_name}    ${video_file}    ${log_file}
-    EXCEPT    AS    ${error}
-        Switch to vm   ${GUI_VM}
-        ${dmesg}       Run Command   dmesg   sudo=True
-        ${gpu_init_failed_error}     Set Variable    Failed to initialize GPU, declaring it wedged!
-        IF    $gpu_init_failed_error in $dmesg
-            Log Error   GPU init    Screen recording failed due to gpu initialization error in ${TEST_NAME}
-            Log         Screen recording failed due to gpu initialization error, continuing test without recording    level=WARN
-        ELSE
-            FAIL        Screen recording failed: ${error}
-        END
-    END
-    [Teardown]   Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
-
-Start screen recording implementation
     [Arguments]      ${unit_name}=robot-screen-recording   ${video_file}=${EMPTY}   ${log_file}=/tmp/gpu-screen-recorder.log
     [Timeout]        1 minute
     [Setup]          Stop screen recording service   ${unit_name}
