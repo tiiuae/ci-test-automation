@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from html import escape
+from datetime import datetime, timedelta, timezone
 from Zephyr import Zephyr, ZephyrTestStatuses
 from robot.running import TestCase
 from robot.result import TestCase as TestResult
@@ -44,6 +45,8 @@ target_to_cycle_map = {
         (False, False, 'x86_64'): "SSRCSP-C226",
     }
 }
+NIGHTLY_SUMMARY_CASE = "SSRCSP-T526"
+NIGHTLY_SUMMARY_CYCLE = "SSRCSP-C230"
 
 class ZephyrListener:
     """Robot Framework listener for saving results to Jira Zephyr"""
@@ -52,6 +55,19 @@ class ZephyrListener:
 
     def __init__(self):
         self.zephyr = Zephyr()
+        self.nightly_failures = []
+
+    def start_suite(self, suite, result):
+        if result.parent is None:
+            self.nightly_failures.clear()
+
+    def end_suite(self, suite, result):
+        if result.has_setup and result.setup.status == 'FAIL':
+            self.record_nightly_failure(result.setup)
+        if result.has_teardown and result.teardown.status == 'FAIL':
+            self.record_nightly_failure(result.teardown)
+        if result.parent is None and self.zephyr.connected:
+            self.send_nightly_summary()
 
     def get_target(self):
         job_env_var = BuiltIn().get_variable_value("${JOB}")
@@ -81,6 +97,7 @@ class ZephyrListener:
 
     def end_test(self, test: TestCase, result: TestResult):
         """Code executed after each test to save its result to Zephyr"""
+        self.record_nightly_test_failure(result)
         if self.zephyr.connected:
             zephyr_tag = self.find_zephyr_tag(result.tags)
             status = robot_status_to_zephyr[result.status]
@@ -118,24 +135,35 @@ class ZephyrListener:
 
         return structured_target
 
-    def get_message_for_result(self, result: TestResult):
-        """Format the result message and log link as HTML for Zephyr."""
-        log_link = self.get_link_in_log(result)
-        # saving message and link "as is" will form just a oneline text, so replacing \n with <br> and adding <a> to make link clickable
-        message = '<br>'.join(escape(result.message).splitlines())
-        link = f'<a href="{escape(log_link, quote=True)}" target="_blank" rel="noopener noreferrer">Link to the test</a>'
-        message_for_result = f"{link}<br><br>{message}"
-        return message_for_result
+    def get_name_for_failure(self, result: TestResult | KeywordResult):
+        if isinstance(result, TestResult):
+            return result.longname
+        else:
+            scope = 'Test' if isinstance(result.parent, TestResult) else 'Suite'
+            return f"{scope} {result.type.lower()}: {result.name} ({result.parent.longname})"
 
-    def get_link_in_log(self, result: TestResult):
-        """Return the Jenkins artifact URL pointing to this test or its failure."""
+    def get_message_for_result(self, result: TestResult | KeywordResult):
+        """Format the result's name, log link and message as HTML for Zephyr."""
+        name = self.get_name_for_failure(result)
+        log_link = self.get_link_in_log(result)
+        failure_message = '<br>'.join(escape(result.message).splitlines())
+        title = (
+            f'<a href="{escape(log_link, quote=True)}" target="_blank" '
+            f'rel="noopener noreferrer">{escape(name)}</a>'
+        )
+        return f"<b>{title}</b>: {failure_message}"
+
+    def get_link_in_log(self, result: TestResult = None):
+        """Return the Jenkins log URL, optionally pointing to a test or its failure."""
         build_id = BuiltIn().get_variable_value("${BUILD_ID}")
         if not build_id:
             logger.warn("Cannot create HTML log link: BUILD_ID Robot variable is missing or empty")
             return None
+        # if result is None it returns just link to the log, useful for passed runs
+        anchor = self.get_log_anchor(result) if result is not None else ''
         return (
             f"https://ci-prod.vedenemo.dev/job/ghaf-hw-test/{build_id}/artifact/"
-            f"Robot-Framework/test-suites/regression/log.html{self.get_log_anchor(result)}"
+            f"Robot-Framework/test-suites/regression/log.html{anchor}"
         )
 
     def get_log_anchor(self, result: TestResult):
@@ -167,3 +195,76 @@ class ZephyrListener:
         if isinstance(result, KeywordResult):
             return result.id
         return None
+
+    def send_nightly_summary(self):
+        message = self.get_nightly_summary_message()
+        latest_result = self.zephyr.get_latest_test_result(NIGHTLY_SUMMARY_CASE)
+
+        now = datetime.now(timezone.utc)
+        actual_end_date = now.isoformat(timespec='milliseconds').replace('+00:00', 'Z')
+
+        if latest_result and self.is_recent_nightly_summary(latest_result, now):
+            previous_message = latest_result.get('comment') or ''
+            if previous_message:
+                message = f"{previous_message}<br><br>{message}"
+            self.zephyr.update_test_result(
+                test_run_key=NIGHTLY_SUMMARY_CYCLE, test_case_key=NIGHTLY_SUMMARY_CASE,
+                comment=message, actual_end_date=actual_end_date,
+            )
+        else:
+            self.zephyr.create_test_result(
+                test_run_key=NIGHTLY_SUMMARY_CYCLE, test_case_key=NIGHTLY_SUMMARY_CASE,
+                status=ZephyrTestStatuses.PASS, comment=message, actual_end_date=actual_end_date,
+            )
+
+    def is_recent_nightly_summary(self, result, now):
+        try:
+            last_sent = datetime.fromisoformat(result['actualEndDate'])
+        except (KeyError, TypeError, ValueError):
+            logger.warn("Cannot determine the last summary time; a new summary result will be created")
+            return False
+        if last_sent.tzinfo is None:
+            last_sent = last_sent.replace(tzinfo=timezone.utc)
+        return timedelta(0) <= now - last_sent <= timedelta(hours=12)
+
+    def record_nightly_test_failure(self, result: TestResult):
+        if result.status != 'FAIL':
+            return
+        suite = result.parent
+        while suite is not None:
+            if suite.has_setup and suite.setup.status == 'FAIL':
+                return
+            suite = suite.parent
+        if result.has_setup and result.setup.status == 'FAIL':
+            self.record_nightly_failure(result.setup)
+        else:
+            self.record_nightly_failure(result)
+
+    def record_nightly_failure(self, result: TestResult | KeywordResult):
+        # Robot Framework clears keyword results after listener callbacks.
+        self.nightly_failures.append(self.get_message_for_result(result))
+
+    def get_nightly_summary_message(self):
+        """Format target details and failures collected during this run as HTML."""
+        target = self.get_target()
+        device_info = ' '.join([
+            f"{escape(str(target['device']).upper())}<br>",
+            f"Secure Boot: {target['secure boot']},",
+            f"Installer: {target['installer']},",
+            f"Architecture: {escape(target['aarch'])}",
+        ])
+        failures = "No failed tests."
+        if self.nightly_failures:
+            failures = '<ul>' + ''.join(f'<li>{failure}</li>' for failure in self.nightly_failures) + '</ul>'
+        log_link = self.get_link_in_log()
+        run_link = ''
+        if log_link:
+            run_link = (
+                f'<a href="{escape(log_link, quote=True)}" target="_blank" '
+                'rel="noopener noreferrer">Full Run log</a><br><br>'
+            )
+        return (
+            f"<b><u>{device_info}</u></b><br><br>"
+            f"{run_link}"
+            f"<b>Run failures:</b><br>{failures}"
+        )
