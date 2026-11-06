@@ -52,16 +52,6 @@ Alloy is running in admin-vm
     Run Keyword And Continue On Failure   Verify service status  range=5  service=alloy.service    expected_state=active  expected_substate=running
     [Teardown]         Reboot Orin if ssh connection dropped
 
-Check logging rate
-    [Documentation]    Check that host or vms are not creating too much logs and save the result to history.
-    [Tags]             SP-T359  SP-T359-1  -pre-merge
-    Check logging rate against history    ${TEST NAME}    save_history=${True}
-
-Check logging rate preview
-    [Documentation]    Check that host or vms are not creating too much logs without saving the result to history.
-    [Tags]             SP-T359  SP-T359-2  -bat  -regression
-    Check logging rate against history    Check logging rate    save_history=${False}
-
 Log sealing service is running in all VMs
     [Documentation]    Check that log sealing service is running in all VMs
     [Tags]             SP-T374
@@ -155,6 +145,16 @@ Check Grafana logs
         END
     END
 
+Check logging rate
+    [Documentation]    Check that host or vms are not creating too much logs and save the result to history.
+    [Tags]             SP-T359  SP-T359-1  -pre-merge
+    Check logging rate against history    ${TEST NAME}    save_history=${True}
+
+Check logging rate preview
+    [Documentation]    Check that host or vms are not creating too much logs without saving the result to history.
+    [Tags]             SP-T359  SP-T359-2  -bat  -regression
+    Check logging rate against history    Check logging rate    save_history=${False}
+
 
 *** Keywords ***
 Logging Suite Setup
@@ -211,8 +211,8 @@ Check logging rate against history
     [Arguments]    ${history_test_name}    ${save_history}=${True}
     ${check_interval}          Set Variable   100
     ${entry_limit}             Set Variable   250
-    ${orin_entry_limit}        Set Variable   400
     ${bytes_per_entry}         Set Variable   200
+    ${byte_limit}              Evaluate       ${entry_limit} * ${bytes_per_entry}
 
     &{spam_metrics}       Create Dictionary
     &{ok_metrics}         Create Dictionary
@@ -232,12 +232,6 @@ Check logging rate against history
             Set To Dictionary    ${unavailable_vms}    ${vm}=${switch_output}
             CONTINUE
         END
-        IF  ${IS_ORIN}
-            ${vm_entry_limit}   Set Variable   ${orin_entry_limit}
-        ELSE
-            ${vm_entry_limit}   Set Variable   ${entry_limit}
-        END
-        ${vm_byte_limit}    Evaluate    ${vm_entry_limit} * ${bytes_per_entry}
 
         # Logs from sshd-session are excluded, they are created by the ssh connections in tests
         # Logs from disp-vm are excluded due to SSRCSP-9056
@@ -253,12 +247,12 @@ Check logging rate against history
         IF  '${entries_status}' == 'PASS'
             Set To Dictionary    ${entry_history}    ${vm}=${entries}
         END
-        IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS' and (${entries} > ${vm_entry_limit} or ${byte_rate} > ${vm_byte_limit})
+        IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS' and (${entries} > ${entry_limit} or ${byte_rate} > ${byte_limit})
             ${recent_logs}       Run Command        journalctl --since "${check_interval} seconds ago" | grep -vE "${ignored_log_pattern}"
             Set To Dictionary    ${spam_logs}       ${vm}=${recent_logs}
-            Set To Dictionary    ${spam_metrics}    ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${vm_entry_limit}/${vm_byte_limit}
+            Set To Dictionary    ${spam_metrics}    ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${entry_limit}/${byte_limit}
         ELSE IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS'
-            Set To Dictionary    ${ok_metrics}      ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${vm_entry_limit}/${vm_byte_limit}
+            Set To Dictionary    ${ok_metrics}      ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${entry_limit}/${byte_limit}
         END
     END
 
