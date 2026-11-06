@@ -26,7 +26,6 @@ Complete Initial Setup
     ...                   AND   Save original values
 
     Check page and open next   Accessibility setup
-    Check page and open next   Get connected
 
     Select setup option and continue   Select a language        English (Canada)    en_CA.utf8   Verify language
     Select setup option and continue   Select keyboard layout   Finnish (classic)   fi           Verify keyboard language
@@ -158,12 +157,11 @@ Switch theme and verify
 
 Switch layout and verify
     [Documentation]    Switch to bottom panel layout and then back to top panel
-    ${page_name}   Set Variable   Layout configuration
-    Check that page is correct   ${page_name}
+    Check that page is correct   Top Panel
 
     # Switch to bottom panel, confirm by checking that keyboard layout is shown at the bottom middle of the screen
-    Locate and click  text   configuration
-    Run ydotool command   mousemove -x 30 -y 50
+    Locate and click  text   Bottom Panel
+    Run ydotool command   mousemove -x 0 -y -40
     Click
     Wait Until Keyword Succeeds  3x  1s
     ...  Verify item is near expected coordinates   555   585   searched_type=text   searched_item=classic   tolerance=50

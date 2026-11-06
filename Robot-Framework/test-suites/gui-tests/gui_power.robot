@@ -121,9 +121,8 @@ Suspend and wake up from lock screen
     [Documentation]   Suspend the device from lock screen suspend icon and wake up.
     [Tags]            SP-T245  lenovo-x1  darter-pro  lab-only
     Press Key(s)          LEFTMETA+ESC
-    Locate on screen      image  ${LOCK_ICON}   0.95  10
-    Run ydotool command   mousemove --absolute -x 320 -y 275
-    Run ydotool command   click 0xC0
+    Locate on screen      image  ${LOCK_ICON}      0.95
+    Locate and click      image  suspend-neg.png   0.95
     Confirm suspension and wake up the device
 
 

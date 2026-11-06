@@ -516,6 +516,8 @@ Save gui icons and icon path
     Get icon                ${icons}/Cosmic/scalable/actions  system-search-symbolic.svg  crop=0  background=white  output_filename=search.png
     Negate app icon         ${ICONS_DIR}/search.png  ${ICONS_DIR}/search-neg.png
     Get icon                ${icons}/Cosmic/scalable/actions  system-shutdown-symbolic.svg  crop=0  background=black  output_filename=power.png
+    Get icon                ${icons}/Cosmic/scalable/actions  system-suspend-symbolic.svg  crop=0  background=white  output_filename=suspend.png
+    Negate app icon         ${ICONS_DIR}/suspend.png  ${ICONS_DIR}/suspend-neg.png
     # App icons
     Get icon                ${icons}/hicolor/scalable/apps  Zoom.svg  crop=0  background=black  resize=48x48  output_filename=${Zoom}[icon]
     Get icon                ${icons}/hicolor/48x48/apps  com.system76.CosmicSettings.svg  background=black  output_filename=${COSMIC Settings}[icon]
