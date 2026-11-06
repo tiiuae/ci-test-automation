@@ -68,6 +68,8 @@ class Zephyr:
             session.verify = False
             resp = session.request(method, url=f"{self.zephyr_api}/{endpoint}", **kwargs)
             self.check_http_status(resp, error_message, *expected_statuses)
+            if resp.status_code == HTTPStatus.NOT_FOUND:
+                return None
             return resp.json()
 
     def get_testcases(self, query, maxResults=200, startAt=0):
@@ -98,12 +100,39 @@ class Zephyr:
             params=payload,
         )
 
+    def get_latest_test_result(self, test_case_key: str):
+        """Return the last result for a test case, or None if it has no results or does not exist."""
+        return self._request(
+            "GET",
+            f"testcase/{test_case_key}/testresult/latest",
+            error_message=f"Failed to get latest test result.\n Test Case: {test_case_key}\n",
+            expected_statuses=(HTTPStatus.OK, HTTPStatus.NOT_FOUND),
+        )
+
+    def update_test_result(self, test_run_key: str, test_case_key: str, comment, actual_end_date=None):
+        """Update the last result's comment and optional end date, preserving its status."""
+        payload = {"comment": comment}
+        if actual_end_date is not None:
+            payload['actualEndDate'] = actual_end_date
+        return self._request(
+            "PUT",
+            f"testrun/{test_run_key}/testcase/{test_case_key}/testresult",
+            error_message=(
+                f"Failed to update test result.\n"
+                f" Test Cycle: {test_run_key}\n"
+                f" Test Case: {test_case_key}\n"
+            ),
+            expected_statuses=(HTTPStatus.OK,),
+            json=payload,
+        )
+
     def create_test_result(
             self,
             test_run_key: str,
             test_case_key: str,
             status: str,
-            comment = ""
+            comment = "",
+            actual_end_date=None
     ):
         """
         Create a test result for a test case inside a test cycle.
@@ -117,6 +146,8 @@ class Zephyr:
             "status": status,
             "comment": comment
         }
+        if actual_end_date is not None:
+            payload['actualEndDate'] = actual_end_date
         return self._request(
             "POST",
             f"testrun/{test_run_key}/testcase/{test_case_key}/testresult",
