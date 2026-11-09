@@ -30,6 +30,33 @@ Remove Wifi configuration
     Log To Console      Removing Wifi configuration
     Run Command         nmcli connection delete id ${SSID}  sudo=True
 
+Remove Wifi configuration if present
+    [Documentation]    Delete the profile if present
+    [Arguments]    ${SSID}
+    Switch to vm     ${NET_VM}
+    ${connections}    Run Command    nmcli --escape no -g NAME connection show
+    ${connections}    Split To Lines    ${connections}
+    IF    $SSID in $connections
+        Remove Wifi configuration    ${SSID}
+    END
+
+Verify Wi-Fi connection
+    [Documentation]    Check IP and ping the gateway and Internet through Wi-Fi
+    Switch to vm    ${NET_VM}
+    Get wifi IP
+    ${gateway}    Get gateway    wifi
+    Check Network Availability    ${gateway}    range=20    limit_freq=${False}    interface=wifi
+    Check Network Availability    8.8.8.8    range=20    limit_freq=${False}    interface=wifi
+
+Verify Wi-Fi disconnected
+    [Documentation]    Wait for the explicit disconnected state and verify that the Wi-Fi IP address is removed
+    Switch to vm    ${NET_VM}
+    ${if_name}      Get Interface name    wifi
+    Verify nmcli device status    ${if_name}    disconnected
+    ${output}    Run Command    ifconfig
+    ${ip}    Get ip from ifconfig    ${output}    ${if_name}
+    Should Be Equal    ${ip}    ${None}    Expected no IP address on the Wi-Fi interface after disconnecting.
+
 Turn OFF WiFi
     [Arguments]         ${SSID}
     Switch to vm        ${NET_VM}

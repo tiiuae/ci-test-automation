@@ -32,16 +32,9 @@ Wifi passthrough into NetVM
     Configure wifi      ${TEST_WIFI_SSID}  ${TEST_WIFI_PSWD}
     Get wifi IP
     Turn OFF WiFi       ${TEST_WIFI_SSID}
-    Sleep               1
-    ${pass_status}    ${output}   Run Keyword And Ignore Error    Get wifi IP
-    IF    $pass_status=='PASS'
-        FAIL    Expected: no IP address on wifi interface after turning wifi off.
-    END
+    Verify Wi-Fi disconnected
     Turn ON WiFi        ${TEST_WIFI_SSID}
-    Get wifi IP
-    ${gateway}          Get gateway    wifi
-    Check Network Availability   ${gateway}   range=20   limit_freq=${False}   interface=wifi
-    Check Network Availability   8.8.8.8      range=20   limit_freq=${False}   interface=wifi
+    Verify Wi-Fi connection
     [Teardown]          Run Keywords  Remove Wifi configuration  ${TEST_WIFI_SSID}  AND  Close All Connections
 
 Ethernet passthrough into NetVM

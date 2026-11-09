@@ -519,6 +519,7 @@ Save gui icons and icon path
     Get icon                ${icons}/Cosmic/scalable/actions  system-suspend-symbolic.svg  crop=0  background=white  output_filename=suspend.png
     Negate app icon         ${ICONS_DIR}/suspend.png  ${ICONS_DIR}/suspend-neg.png
     # App icons
+    Get icon                ${icons}/Cosmic/scalable/actions    view-more-symbolic.svg   background=black   output_filename=wifi-view-more.png
     Get icon                ${icons}/hicolor/scalable/apps  Zoom.svg  crop=0  background=black  resize=48x48  output_filename=${Zoom}[icon]
     Get icon                ${icons}/hicolor/48x48/apps  com.system76.CosmicSettings.svg  background=black  output_filename=${COSMIC Settings}[icon]
     Switch to vm            ${Trusted Browser}[VM]
