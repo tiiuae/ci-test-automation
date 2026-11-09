@@ -4,6 +4,9 @@
 
 set -euo pipefail
 
+repo_root="$(git rev-parse --show-toplevel)"
+export PYTHONPATH="${repo_root}/Robot-Framework${PYTHONPATH:+:$PYTHONPATH}"
+
 if ! command -v robotidy >/dev/null 2>&1; then
     echo "WARNING: Robotidy is not installed or not on PATH; cannot check Robot Framework files." >&2
     echo "Enter the repository devshell with 'nix develop', then preview with 'robotidy --diff Robot-Framework'." >&2
