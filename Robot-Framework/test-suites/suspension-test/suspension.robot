@@ -98,9 +98,10 @@ Suspend and wake up with apps running
     [Documentation]   Launch several apps in different VM and verify, that they are still running after suspension
     [Tags]            SP-T208  lenovo-x1  darter-pro  lab-only
     [Setup]           Start screen recording
+    ${screen_before_apps}       Take Remote Screenshot And Download     to=${GUI_OUTPUT_DIR}/suspend_and_wake_up_before_apps.jpeg
     ${app_statuses}   Launch several apps in different VMs
     Suspend device via GUI and wake up     ${app_statuses}
-    Check apps are running after wake up   ${app_statuses}
+    Check apps are running after wake up   ${app_statuses}      ${screen_before_apps}
     [Teardown]        App suspension test teardown
 
 
@@ -131,6 +132,7 @@ App suspension test teardown
     END
     Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
     Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+    Run Keyword If Test Passed    Remove Captured Screenshots
 
 Save max brightness
     ${device}     Run Command    ls /sys/class/backlight/
@@ -187,18 +189,25 @@ Check apps are running after wake up
     [Documentation]    The order is important:
     ...                It should be reverse to the order from the keyword 'Launch several apps in different VMs'.
     ...                Expecting Apps to be opened in the same order.
-    [Arguments]    ${app_statuses}
-    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[chrome]    Check that App is running and visible    ${Google Chrome}    chrome
-    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[zoom]      Check that App is running and visible    ${Zoom}             Zoom
-    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[gala]      Check that App is running and visible    ${Gala}             business
-    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[files]     Check that App is running and visible    ${COSMIC Files}     Shares
+    [Arguments]    ${app_statuses}      ${screen_before_apps}
+    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[chrome]    Check that App is running and visible    ${Google Chrome}    chrome     ${screen_before_apps}
+    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[zoom]      Check that App is running and visible    ${Zoom}             Zoom       ${screen_before_apps}
+    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[gala]      Check that App is running and visible    ${Gala}             business   ${screen_before_apps}
+    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[files]     Check that App is running and visible    ${COSMIC Files}     Shares     ${screen_before_apps}
     [Teardown]    Verify app launch precondition    ${app_statuses}    ${KEYWORD_STATUS}
 
 Check that App is running and visible
-    [Arguments]     ${app_key}    ${text_to_check}
+    [Arguments]     ${app_key}    ${text_to_check}  ${screen_before_apps}
     Check that App is running in VM    ${app_key}
-    Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
-    Verify Text Is On The Screen    ${text_to_check}
+    Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+    ${cropped}    Capture Changes Since Screenshot  ${screen_before_apps}   ${app_key}[display_name]
+
+    #  The header of an inactive window may contain light-gray text on a dark-gray background
+    #  Increasing contrast for grey color and inverting colors for better text recognition.
+    Convert Image    ${cropped}    options=-colorspace Gray -level 10%,50% -negate
+    ${is_found}   ${_}    Is Text On The Screen    ${cropped}    ${text_to_check}
+    Should Be True    ${is_found}    msg=Expected to find text '${text_to_check}' for the app '${app_key}[display_name]' after wake up, but failed to find
+
     [Teardown]   Kill App in VM    ${app_key}    status=${KEYWORD_STATUS}
 
 Verify app launch precondition
