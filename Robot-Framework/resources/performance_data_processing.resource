@@ -3,6 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 *** Settings ***
-Resource            ../config/variables.robot
+Resource            ../config/variables.robot  # Variables need to be imported before PerformanceDataProcessing.py
 Library             ../lib/PerformanceDataProcessing.py  ${DEVICE}  ${BUILD_ID}  ${COMMIT_HASH}  ${JOB}
 ...                 ${PERF_DATA_DIR}  ${CONFIG_PATH}  ${PLOT_DIR}  ${PERF_LOW_LIMIT}

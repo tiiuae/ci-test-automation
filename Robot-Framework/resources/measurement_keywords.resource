@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-*** Settings ***
+*** Settings ***    # robotidy: off
+Resource            ../config/variables.robot  # Variables need to be imported before ParseMeasurementData.py
 Library             ../lib/ParseMeasurementData.py    ${LOGGED_PARAMS_DIR}    ${PLOT_DIR}
 Library             DateTime
 Library             SSHLibrary
-Resource            ../config/variables.robot
 Resource            ../resources/common_keywords.resource
 Resource            ../resources/file_keywords.resource
 Resource            ../resources/performance_keywords.resource

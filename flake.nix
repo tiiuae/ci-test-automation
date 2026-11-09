@@ -113,6 +113,7 @@
           ]) ++ pre-commit-check.enabledPackages;
 
           shellHook = pre-commit-check.shellHook + ''
+            export PYTHONPATH="${./Robot-Framework}''${PYTHONPATH:+:$PYTHONPATH}"
             if [ -x ./githooks/install-git-hooks.sh ]; then
               if ! ./githooks/install-git-hooks.sh; then
                 echo "Git hooks were not installed. Resolve the hook conflict or run the installer manually." >&2

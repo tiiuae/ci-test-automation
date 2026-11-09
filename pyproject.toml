@@ -9,8 +9,8 @@ transform = [
     "NormalizeSettingName",
     "OrderSettings",
     "OrderSettingsSection",
-    "Robot-Framework/robotidy_transformers/SortImports.py",
-    "Robot-Framework/robotidy_transformers/OrganizeRobotTags.py",
+    "robotidy_transformers.SortImports",
+    "robotidy_transformers.OrganizeRobotTags",
 ]
 configure = [
     "MergeAndOrderSections:create_comment_section=False",
