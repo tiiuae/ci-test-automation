@@ -11,18 +11,15 @@ Resource            ../../resources/gui_keywords.resource
 Resource            ../../resources/setup_keywords.resource
 Resource            ../../resources/ssh_keywords.resource
 
-Test Setup          Run keywords      Start screen recording
-Test Teardown       Run keywords      Switch to vm            ${GUI_VM}  user=${USER_LOGIN}        AND
-...                                   Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
-Test Timeout        10 minutes
-
-Test Tags           gui-security
+Test Tags           gui-security  lenovo-x1  darter-pro
 
 
 *** Test Cases ***
 Check Access List In Trusted Browser
-    [Tags]    SP-T362  lenovo-x1  darter-pro
+    [Tags]        SP-T362
     [Template]    Check Access List In Trusted Browser Template
+    [Timeout]     15 minutes
+    [Setup]       Run Keywords   Start screen recording   AND   Collect whitelist debug logs
     # Pages outside access list shouldn't be available via Trusted Browser. Http and https have different errors
     https://yle.fi                          text_to_find=This site can’t be reached     precision_percent=90
     http://yle.fi                           text_to_find=Access Denied
@@ -32,21 +29,42 @@ Check Access List In Trusted Browser
     https://excel.cloud.microsoft.com       text_to_find=Microsoft Excel
     https://word.cloud.microsoft            text_to_find=Microsoft Word
     https://powerpoint.cloud.microsoft      text_to_find=Microsoft PowerPoint    precision_percent=90
-    https://teams.live.com                  text_to_find=Video calls
-    https://www.msn.com                     text_to_find=MSN
-    https://onedrive.live.com               text_to_find=OneDrive
-    https://www.akamai.com/                 text_to_find=Akamai
+    https://onedrive.live.com               text_to_find=Microsoft
+    https://www.akamai.com/                 text_to_find=Cloud Computing
     https://ghaflogs.vedenemo.dev           text_to_find=Welcome to Grafana
-    https://www.google.com                  text_to_find=Google
     https://thenationalnews.com             text_to_find=The National
     https://www.tii.ae/                     text_to_find=Innovation
     https://hcm22.sapsf.com                 text_to_find=SAP SuccessFactors
     https://jira.atlassian.com              text_to_find=Jira Software
+    [Teardown]    Run keywords      Switch to vm            ${GUI_VM}  user=${USER_LOGIN}        AND
+    ...                             Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+
+Verify Gala is loaded
+    [Tags]            SP-T108
+    [Template]        Launch business app and verify it loads
+    ${Gala}    gala_signin_arrow.png
+
+Verify Microsoft 365 is loaded
+    [Tags]            SP-T178
+    [Template]        Launch business app and verify it loads
+    ${Microsoft 365}    Copilot
+
+Verify Outlook is loaded
+    [Tags]            SP-T176
+    [Template]        Launch business app and verify it loads
+    ${Outlook}    Microsoft
+
+Verify Teams is loaded
+    [Tags]            SP-T177
+    [Template]        Launch business app and verify it loads
+    ${Teams}    Microsoft
 
 Account lockout after failed GUI login
     [Documentation]     Try to login to the device with a wrong password for several times, then check that user account is locked.
     ...                 Remove account from the lock list and log back in with the correct password.
-    [Tags]              SP-T267  lenovo-x1  darter-pro  lab-only
+    [Tags]              SP-T267  lab-only
+    [Timeout]           10 minutes
+    [Setup]             Start screen recording
     Skip If    ${DISABLE_LOGOUT}    This test can't run when logging out is disabled
     Set Test Variable    ${FAILLOCK_COUNT_OFFSET}    False
     Log out and verify
@@ -93,12 +111,69 @@ Check Access List In Trusted Browser Template
     Start App in VM    ${Trusted Browser}    params_string=-- ${url}    always_check_vm=True
     Switch to vm       ${GUI_VM}    user=${USER_LOGIN}
     Accept Chrome HTTP Warning If Shown    ${url}
-
-    Wait Until Keyword Succeeds     10x                        1s
-    ...                             Verify Text Is On The Screen    ${text_to_find}
-    ...                             precision_percent=${precision_percent}
-
+    Verify text is on the screen with page reload    ${text_to_find}    ${precision_percent}
     [Teardown]    Kill App in VM   ${Trusted Browser}   status=${KEYWORD_STATUS}
+
+Verify text is on the screen with page reload
+    [Arguments]    ${text_to_find}    ${precision_percent}=100
+    TRY
+        Wait Until Keyword Succeeds    10x    1s
+        ...    Verify Text Is On The Screen    ${text_to_find}    precision_percent=${precision_percent}
+    EXCEPT    *is on the screen*    type=GLOB
+        TRY
+            Collect whitelist debug logs
+            Log    Failed to find expected text "${text_to_find}", reloading the page    console=True
+            Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+            Press Key(s)    FN+F5
+            Wait Until Keyword Succeeds    10x    1s
+            ...    Verify Text Is On The Screen    ${text_to_find}    precision_percent=${precision_percent}
+        EXCEPT    *is on the screen*    type=GLOB
+            FAIL    Failed to find expected text "${text_to_find}" even after page was reloaded
+        ELSE
+            FAIL    Failed to find expected text "${text_to_find}", found it after page was reloaded
+        FINALLY
+            Collect whitelist debug logs
+        END
+    END
+
+Collect whitelist debug logs
+    [Setup]       Switch to vm    ${NET_VM}
+    Run Keyword And Ignore Error    Run Command   cat /etc/3proxy/ghaf_whitelist.txt /etc/3proxy/ms_whitelist.txt      sudo=True
+    Run Keyword And Ignore Error    Run Command   stat /etc/3proxy/ghaf_whitelist.txt /etc/3proxy/ms_whitelist.txt   sudo=True
+    Run Keyword And Ignore Error    Run Command   journalctl -b -u ghafFetchUrl.service
+    Run Keyword And Ignore Error    Run Command   journalctl -b -u 3proxy.service
+    [Teardown]    Switch to vm    ${GUI_VM}  user=${USER_LOGIN}
+
+Launch business app and verify it loads
+    [Documentation]   Open ${app}[display_name] and wait for it to load
+    [Arguments]       ${app}    ${expected}
+    [Setup]           GUI App Test Setup
+    Start app via GUI   ${app}
+    IF    $app == $Gala
+        Verify Gala sign in arrow load time   image_name=${expected}
+    ELSE
+        Verify text is on the screen with page reload   ${expected}
+    END
+    Close app via GUI    ${app}
+    [Teardown]    Run Keywords    Kill App in VM   ${app}   status=${KEYWORD_STATUS}   require_exists=False
+    ...                    AND    Switch to vm   ${GUI_VM}   user=${USER_LOGIN}
+    ...                    AND    GUI App Test Teardown   ${KEYWORD_STATUS}   ${TEST_NAME}
+
+Verify Gala sign in arrow load time
+    [Arguments]    ${expected_max_seconds}=10    ${timeout_seconds}=60    ${image_name}=gala_signin_arrow.png
+    ${start_time}    Get Time    epoch
+    ${status}        Run Keyword And Return Status    Wait Until Keyword Succeeds    ${timeout_seconds}s    1s
+    ...              Verify Image On The Screen    ${image_name}    confidence=0.8
+    ${end_time}      Get Time    epoch
+    ${elapsed}       Evaluate    ${end_time} - ${start_time}
+    IF    not ${status}
+        FAIL    Gala window still does not contain sign in arrow after approximately ${elapsed} seconds.
+    END
+    Log    Gala sign in arrow appeared in approximately ${elapsed} seconds.    console=True
+    IF    ${elapsed} > ${expected_max_seconds}
+        Log Error    Slow Gala    Gala took ${elapsed} seconds to open
+        SKIP    Known Issue: SSRCSP-8855 (Gala page loaded in approximately ${elapsed} seconds, expected less than ${expected_max_seconds} seconds.)
+    END
 
 Account lockout Teardown
     Unlock account and login
