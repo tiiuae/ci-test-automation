@@ -9,6 +9,7 @@ from robot.libraries.BuiltIn import BuiltIn
 import logging
 import os
 import pytesseract
+import shlex
 import subprocess
 import cv2
 import numpy
@@ -232,6 +233,13 @@ def convert_app_icon(crop, background, resize='none', input_file='icon.svg', out
     command.extend(['-gravity', 'center', '-extent', '{}x{}'.format(crop, crop), output_file])
     subprocess.run(command)
     return
+
+def convert_image(input_file, output_file=None, options=''):
+    """Process an image with ImageMagick options; output format follows the file extension."""
+    if not output_file:
+        output_file = input_file
+    command = ['magick', os.path.abspath(input_file), *shlex.split(options), os.path.abspath(output_file)]
+    subprocess.run(command, check=True)
 
 def negate_app_icon(input_file, output_file):
     subprocess.run(['magick', input_file, '-negate', output_file])

@@ -530,28 +530,38 @@ Save gui icons and icon path
 Capture Action Changes
     [Documentation]    Return the cropped screenshot path and the wrapped keyword's return value.
     ...    Forward positional and named arguments to the wrapped keyword.
-    [Arguments]    ${action}    @{args}    &{kwargs}
+    ...    Use before_screenshot as the initial image if provided and register it for cleanup.
+    [Arguments]    ${action}    @{args}    ${before_screenshot}=${None}    &{kwargs}
+
+    ${suffix}     Get current timestamp
+    ${before}     Set Variable    ${before_screenshot}
+    IF    not $before
+        ${before}     Take Remote Screenshot And Download
+        ...    to=${GUI_OUTPUT_DIR}/before_${suffix}.jpeg
+    END
+
+    ${result}     Run Keyword    ${action}    @{args}    &{kwargs}
+
+    ${cropped}    Capture Changes Since Screenshot    ${before}    ${suffix}
+    RETURN  ${cropped}    ${result}
+
+Capture Changes Since Screenshot
+    [Arguments]    ${screenshot_before}    ${suffix}
     ${screenshots}     Get Variable Value    ${CAPTURED_SCREENSHOTS}    ${None}
     IF    $screenshots is None
         ${screenshots}     Create List
         Set Test Variable    ${CAPTURED_SCREENSHOTS}    ${screenshots}
     END
-
-    ${suffix}     Get current timestamp
-    ${before}     Take Remote Screenshot And Download
-    ...    to=${GUI_OUTPUT_DIR}/before_${suffix}.jpeg
-    Append To List    ${screenshots}    ${before}
-
-    ${result}     Run Keyword    ${action}    @{args}    &{kwargs}
+    Append To List    ${screenshots}    ${screenshot_before}
 
     ${after}     Take Remote Screenshot And Download
     ...    to=${GUI_OUTPUT_DIR}/after_${suffix}.jpeg
     Append To List    ${screenshots}    ${after}
 
-    ${cropped}     Get Diff Images    ${before}    ${after}
+    ${cropped}     Get Diff Images    ${screenshot_before}    ${after}
     Append To List    ${screenshots}    ${cropped}
 
-    RETURN    ${cropped}    ${result}
+    RETURN    ${cropped}
 
 Remove Captured Screenshots
     [Documentation]    Remove only the local screenshots registered by the current test.
