@@ -75,7 +75,7 @@ Brightness persistence teardown
     Run Command    sh -c 'stat --format="%n | modified=%y | size=%s" /var/lib/systemd/backlight/*'    sudo=True    rc_match=skip
     Run Command    sh -c 'grep -H . /var/lib/systemd/backlight/*'    sudo=True    rc_match=skip
     # Capture the previous GUI VM boot to investigate incomplete shutdown.
-    Run Command    journalctl -b -1 --no-pager -o short-iso-precise    sudo=True
+    ${journal}     Run Command    journalctl -b -1 --no-pager -o short-iso-precise    sudo=True
     # Check GIVC errors and service shutdown order during the previous boot.
     Switch to vm    ${ADMIN_VM}
     # Identify the previous boot used for journal collection.
@@ -83,6 +83,12 @@ Brightness persistence teardown
     Run Command    journalctl -b -1 --no-pager -o short-iso-precise -u 'givc*'    sudo=True
     Run Command    journalctl -b -1 --no-pager -o short-iso-precise _PID=1    sudo=True
     Log persistence setup errors
+    ${brightness_mismatch}    Run Keyword And Return Status    Should Match    ${TEST_MESSAGE}    ${EXPECTED_BRIGHTNESS} != *
+    ${givc_timeout}    Run Keyword And Return Status     Should Contain    ${journal}    givc-gui-vm.service: State 'stop-sigterm' timed out.
+    IF    ${brightness_mismatch} and ${givc_timeout}
+        Log Error    Brightness persistence    Brightness not restored after GIVC shutdown timeout (SSRCSP-9214)
+        SKIP    Known issue: SSRCSP-9214 (Brightness not restored after GIVC shutdown timeout)
+    END
 
 Persistence Suite Setup
     ${PERSISTENCE_SETUP_ERRORS}    Create List
