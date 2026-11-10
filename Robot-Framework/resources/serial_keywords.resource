@@ -476,6 +476,7 @@ Drain Serial Output
             ${empty_reads}    Evaluate    ${empty_reads} + 1
             IF    ${empty_reads} > 2
                 IF    '${completion_marker}' != '${EMPTY}'
+                    Sleep    0.2
                     CONTINUE
                 END
                 IF    ${recover_with_ctrl_c}
