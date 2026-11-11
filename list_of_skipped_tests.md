@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                          | TICKET / Additional Data                                                | Error Log Context      |
 | ---------- | ---------------------------------- | ----------------------------------------------------------------------- | ---------------------- |
+| 11.11.2026 | Reboot / Shutdown from power menu  | SSRCSP-9231                                                             | Gui-vm timeout         |
 | 09.11.2026 | Verify brightness persisted        | SSRCSP-9214                                                             | Brightness persistence |
 | 19.10.2026 | GUI App tests                      | SSRCSP-9093                                                             | Waypipe socket         |
 | 26.08.2026 | Verify Gala is loaded              | SSRCSP-8855                                                             | Slow Gala              |
@@ -24,6 +25,7 @@
 
 | DATE SET   | TEST CASE / KEYWORD                      | TICKET / Additional Data                                                                               | Error Log Context       |
 | ---------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------- |
+| 11.11.2026 | Hard Reboot Device And Connect           | Press ON twice if laptop did not boot after first press                                                | ON pressed twice        |
 | 04.11.2026 | Soft Reboot Device And Connect           | SSRCSP-9056, extend Orin reconnection time from 60 to 90 seconds                                       |                         |
 | 04.11.2026 | Check logging rate against history       | SSRCSP-9056, skip logs that mention disp-vm                                                            |                         |
 | 03.11.2026 | Check SPIRE agent count                  | SSRCSP-9056, allow one extra spire agent for Orins because there might be one running in disp-vm       |                         |
