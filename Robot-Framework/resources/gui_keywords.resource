@@ -521,6 +521,10 @@ Save gui icons and icon path
     Negate app icon         ${ICONS_DIR}/window-close.png  ${ICONS_DIR}/window-close-neg.png
     OperatingSystem.Copy File    ../test-files/ghaf-next.png    ${ICONS_DIR}/
     OperatingSystem.Copy File    ../test-files/gala_signin_arrow.png    ${ICONS_DIR}/
+    OperatingSystem.Copy File    ../test-files/osk-toggle-off.png    ${ICONS_DIR}/
+    OperatingSystem.Copy File    ../test-files/osk-shift.png    ${ICONS_DIR}/
+    Get icon                ${icons}/Cosmic/scalable/actions    edit-clear-symbolic.svg    background=white    resize=20x20    output_filename=osk-backspace.png
+    Negate app icon         ${ICONS_DIR}/osk-backspace.png    ${ICONS_DIR}/osk-backspace.png
     # Desktop
     Get icon                ${icons}/Cosmic/scalable/actions  system-search-symbolic.svg  crop=0  background=white  output_filename=search.png
     Negate app icon         ${ICONS_DIR}/search.png  ${ICONS_DIR}/search-neg.png
@@ -579,3 +583,11 @@ Remove Captured Screenshots
         OperatingSystem.Remove Files    @{screenshots}
         Set Test Variable    ${CAPTURED_SCREENSHOTS}    ${None}
     END
+
+Save current document from COSMIC Text Editor to Shares
+    [Arguments]      ${file_name}
+    Press Key(s)       LEFTCTRL+LEFTSHIFT+S
+    Locate and click   text   Shares
+    Locate and click   text   comms-vm    wiggle=True   double_click=True
+    Type string        ${file_name}
+    Press Key(s)       ENTER
