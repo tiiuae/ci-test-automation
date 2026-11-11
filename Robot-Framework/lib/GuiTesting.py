@@ -90,9 +90,12 @@ def _get_ocr_words(data):
     return words
 
 def get_text_field_from_image(image, field, scale=1, config=''):
-    # Read table-like UI rows where the label is on the left and the value is on the same row to the right.
     logging.info(f"Reading field '{field}' from {image}")
     data = get_data_from_image(image, scale, config=config)
+    return get_text_field_from_data(data, field)
+
+def get_text_field_from_data(data, field):
+    """Read a table-like UI row from previously recognized OCR data."""
     words = _get_ocr_words(data)
     expected_words = [_normalize_ocr_text(word) for word in field.split()]
     label_found = False
