@@ -13,6 +13,15 @@ Test Tags           gui-settings  lenovo-x1  darter-pro
 
 
 *** Test Cases ***
+Verify hardware and operating system information in Cosmic Settings
+    [Documentation]   Open the About page and compare its hardware and OS information with command-line values.
+    ...               Check hardware identity on the host and OS, CPU and memory in GUI VM.
+    [Tags]            SP-T530
+    [Setup]           Start screen recording
+    ${screenshot_path}    ${_}    Capture Action Changes    Open COSMIC About page
+    Verify COSMIC About information    ${screenshot_path}
+    [Teardown]    COSMIC About Test Teardown
+
 Connect to known Wi-Fi in Cosmic Settings
     [Documentation]   Enable Wi-Fi, connect to a known network and disconnect via COSMIC Settings
     ...               Verify Wi-Fi traffic in NetVM
@@ -54,6 +63,83 @@ Change timezone in settings
 
 
 *** Keywords ***
+Open COSMIC About page
+    [Documentation]    Launch COSMIC Settings and open System & accounts → About.
+    Start app via GUI    ${COSMIC Settings}
+    Locate and click    text    System & accounts    scale=2    wiggle=True
+    Locate and click    text    About                scale=2    wiggle=True
+    Locate on screen    text    Operating system     scale=2    config=--psm 11
+
+Verify COSMIC About information
+    [Arguments]    ${screenshot_path}
+    ${os}              Run Command    . /etc/os-release; printf '%s' "$PRETTY_NAME"
+    ${architecture}    Run Command    uname -m
+    ${kernel}          Run Command    uname -r
+    ${desktop}         Run Command    cosmic-settings --version
+    ${desktop}         Replace String    ${desktop}    cosmic-settings    COSMIC
+    ${windowing}       Run Command    systemctl --user show-environment | sed -n 's/^XDG_SESSION_TYPE=//p'
+    ${windowing}       Convert To Title Case    ${windowing}
+    ${processor}       Run Command    sed -n 's/^model name[[:space:]]*: //p' /proc/cpuinfo | head -n 1
+    ${memory}          Run Command    awk '/^MemTotal:/ {printf "%.2f GiB", $2 / 1024 / 1024}' /proc/meminfo
+    ${vendor}    ${model}    Get host hardware identity
+    ${failures}        Create List
+    ${ocr_data}        Get Data From Image    ${screenshot_path}    scale=3    config=--psm 11
+
+    Check COSMIC About field    ${ocr_data}    Operating system                 ${os}              ${failures}
+    Check COSMIC About field    ${ocr_data}    Operating system architecture    ${architecture}    ${failures}
+    Check COSMIC About field    ${ocr_data}    Kernel version                   ${kernel}          ${failures}
+    Check COSMIC About field    ${ocr_data}    Desktop environment              ${desktop}         ${failures}
+    Check COSMIC About field    ${ocr_data}    Windowing system                 ${windowing}       ${failures}
+    Check COSMIC About field    ${ocr_data}    Processor                        ${processor}       ${failures}
+    Check COSMIC About field    ${ocr_data}    Memory                           ${memory}          ${failures}
+    ${vendor_matches}    Check COSMIC About hardware model    ${ocr_data}    ${vendor}    ${model}    ${failures}
+
+    IF    $failures    FAIL    ${failures}
+    IF    not $vendor_matches
+        Log Error    COSMIC hardware vendor    COSMIC About shows QEMU instead of ${vendor} (SSRCSP-9243)
+        SKIP    Known issue: SSRCSP-9243 (COSMIC About shows QEMU instead of ${vendor})
+    END
+
+Get host hardware identity
+    [Documentation]    Read physical DMI from the host; GUI VM's own DMI describes virtual hardware.
+    [Setup]    Switch to vm    ${HOST}
+    ${vendor}    Run Command    cat /sys/class/dmi/id/sys_vendor
+    ${model}     Run Command    cat /sys/class/dmi/id/board_name
+    Should Not Be Empty    ${vendor}
+    Should Not Be Empty    ${model}
+    RETURN    ${vendor}    ${model}
+    [Teardown]    Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+
+Check COSMIC About field
+    [Arguments]    ${ocr_data}    ${field}    ${expected}    ${failures}
+    Should Not Be Empty    ${expected}    No command-line value for ${field}.
+    ${actual}    Get Text Field From Data    ${ocr_data}    ${field}
+    IF    $actual != $expected
+        Append To List    ${failures}    ${field} in COSMIC About is '${actual}', expected '${expected}'.
+    END
+
+Check COSMIC About hardware model
+    [Arguments]    ${ocr_data}    ${vendor}    ${model}    ${failures}
+    ${actual}    Get Text Field From Data    ${ocr_data}    Hardware model
+    ${vendor_matches}    Run Keyword And Return Status    Should Start With    ${actual}    ${vendor}    ignore_case=True
+    IF    not $vendor_matches and not $actual.startswith('QEMU ')
+        Append To List    ${failures}    Hardware model in COSMIC About is '${actual}', expected vendor '${vendor}'.
+    END
+    # Board identifiers contain letters and digits that OCR can confuse, for example O and 0.
+    ${recognized_model}    Replace String    ${actual}    O    0
+    ${expected_model}      Replace String    ${model}     O    0
+    ${model_matches}       Run Keyword And Return Status    Should Contain    ${recognized_model}    ${expected_model}
+    IF    not $model_matches
+        Append To List    ${failures}    Hardware model in COSMIC About is '${actual}', expected board model '${model}'.
+    END
+    RETURN    ${vendor_matches}
+
+COSMIC About Test Teardown
+    Kill App in VM    ${COSMIC Settings}    require_exists=False
+    Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
+    Stop screen recording    ${TEST_STATUS}    ${TEST_NAME}
+    Run Keyword If Test Passed    Remove Captured Screenshots
+
 Prepare known Wi-Fi GUI test
     [Documentation]    Start screen recording and prepare a disconnected known network
     ...    (Known Networks avoids relying on the search field, which disappears below 15 detected networks)

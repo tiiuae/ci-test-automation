@@ -4,6 +4,9 @@
 
 | DATE SET   | TEST CASE                          | TICKET / Additional Data                                                | Error Log Context      |
 | ---------- | ---------------------------------- | ----------------------------------------------------------------------- | ---------------------- |
+| 12.11.2026 | Verify hardware and operating      | SSRCSP-9243                                                             | COSMIC hardware vendor |
+|            | system information in              |                                                                         |                        |
+|            | Cosmic Settings (vendor only)      |                                                                         |                        |
 | 11.11.2026 | Reboot / Shutdown from power menu  | SSRCSP-9231                                                             | Gui-vm timeout         |
 | 09.11.2026 | Verify brightness persisted        | SSRCSP-9214                                                             | Brightness persistence |
 | 19.10.2026 | GUI App tests                      | SSRCSP-9093                                                             | Waypipe socket         |
