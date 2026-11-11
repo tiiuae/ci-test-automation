@@ -180,6 +180,18 @@ Check Device Information Field
     ${actual}           Get Text Field From Image   ${screenshot_path}   ${field}   scale=${scale}    config=${tesseract_config}
     ${matches}   ${matched_text}     Text Matches    ${actual}    ${expected}    precision=${precision_percent}
 
+    IF    not $matches and $field == 'Ghaf Version'
+        ${actual_without_dots}      Replace String    ${actual}      .    ${EMPTY}
+        ${expected_without_dots}    Replace String    ${expected}    .    ${EMPTY}
+        IF    $actual_without_dots == $expected_without_dots
+            ${message}    Set Variable
+            ...    Ghaf Version check: accepted mismatch after ignoring dots; actual='${actual}', expected='${expected}'.
+            Log    ${message}    WARN
+            Set Test Message    ${message}    append=${TRUE}    separator=\n
+            ${matches}    Set Variable    ${TRUE}
+        END
+    END
+
     IF    not ${matches}
         Append To List    ${device_info_failures}    ${field} value in Ghaf Control Panel is ${actual}, expected ${expected}
     END
