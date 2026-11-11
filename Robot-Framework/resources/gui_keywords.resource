@@ -108,6 +108,16 @@ Log out with loginctl
     END
     [Teardown]   Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
 
+Save current document from COSMIC Text Editor to Shares
+    [Documentation]    Open Save As and save the current document under file_name in Unsafe comms-vm share.
+    ...                Use the GUI file picker; leave verification and removal of the saved file to the caller.
+    [Arguments]      ${file_name}
+    Press Key(s)       LEFTCTRL+LEFTSHIFT+S
+    Locate and click   text   Shares
+    Locate and click   text   comms-vm    wiggle=True   double_click=True
+    Type string        ${file_name}
+    Press Key(s)       ENTER
+
 Type string
     [Arguments]    ${string}=${EMPTY}  ${enter_at_end}=False   ${sudo}=False
     Log To Console    Typing "${string}"
@@ -512,6 +522,9 @@ Save gui icons and icon path
     Negate app icon         ${ICONS_DIR}/window-close.png  ${ICONS_DIR}/window-close-neg.png
     OperatingSystem.Copy File    ../test-files/ghaf-next.png    ${ICONS_DIR}/
     OperatingSystem.Copy File    ../test-files/gala_signin_arrow.png    ${ICONS_DIR}/
+    OperatingSystem.Copy File    ../test-files/osk-toggle-off.png    ${ICONS_DIR}/
+    OperatingSystem.Copy File    ../test-files/osk-shift.png    ${ICONS_DIR}/
+    OperatingSystem.Copy File    ../test-files/osk-backspace.png    ${ICONS_DIR}/
     # Desktop
     Get icon                ${icons}/Cosmic/scalable/actions  system-search-symbolic.svg  crop=0  background=white  output_filename=search.png
     Negate app icon         ${ICONS_DIR}/search.png  ${ICONS_DIR}/search-neg.png
