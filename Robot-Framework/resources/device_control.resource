@@ -92,10 +92,19 @@ Hard Reboot Device And Connect
     [Arguments]     ${verify_shutdown}=True
     IF  ${IS_LAPTOP}
         Reboot Laptop    verify_shutdown=${verify_shutdown}
+        TRY
+            Connect After Reboot
+        EXCEPT   AS   ${error}
+            Log    ${error}
+            Log To Console    Turning device on again...
+            Turn Laptop On
+            Connect After Reboot
+            Log Error   ON pressed twice    Device woke up after it was turned on twice
+        END
     ELSE
         Reboot Orin
+        Connect After Reboot
     END
-    Connect After Reboot
     IF    ${IS_LAPTOP}
         Login to laptop
     END

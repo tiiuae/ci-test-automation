@@ -70,6 +70,9 @@ Reboot from power menu
     ${reboot_limit}   Convert To Integer    90
     Log               Reboot took ${elapsed} seconds   console=True
 
+    IF    ${elapsed} > ${reboot_limit}
+        Skip If Gui-vm Timed Out On Previous Boot   message=Reboot took too long: ${elapsed} seconds (expected < ${reboot_limit})
+    END
     Should Not Be True    ${elapsed} > ${reboot_limit}    msg=Reboot took too long: ${elapsed} seconds (expected < ${reboot_limit})
 
 Shutdown from power menu
@@ -83,16 +86,20 @@ Shutdown from power menu
     ${end_time}       Wait Until Device Is Down
     ${elapsed}        Evaluate    ${end_time} - ${start_time}
     Log               Shutdown took ${elapsed} seconds   console=True
+    #  Wait time extended from 10 to 20 due to SSRCSP-9231
     IF    ${elapsed} <= ${max_elapsed}
-        ${wait_time}  Evaluate    ${max_elapsed} - ${elapsed} + 10
+        ${wait_time}  Evaluate    ${max_elapsed} - ${elapsed} + 20
         Wait          ${wait_time}
     ELSE
-        Wait          10
+        Wait          20
     END
     Turn Laptop On
     Connect After Reboot
     Login to laptop
 
+    IF    ${elapsed} > ${max_elapsed}
+        Skip If Gui-vm Timed Out On Previous Boot   message=Shutdown took too long: ${elapsed} seconds (expected < ${max_elapsed})
+    END
     Should Not Be True    ${elapsed} > ${max_elapsed}    msg=Shutdown took too long: ${elapsed} seconds (expected < ${max_elapsed})
 
 Log out and log in from power menu
@@ -145,4 +152,16 @@ GUI Power Test Teardown
     ELSE
         Switch to vm    ${GUI_VM}   user=${USER_LOGIN}
         Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+    END
+
+Skip If Gui-vm Timed Out On Previous Boot
+    [Documentation]    Check if SSRCSP-9231 caused extended shutdown/reboot and skip the test if it did.
+    [Arguments]    ${message}
+    Switch to vm    ${HOST}
+    ${timeout_log}    Run Command
+    ...    journalctl -b -1 --no-pager | grep -F "microvm@gui-vm.service: Failed with result 'timeout'."
+    ...    sudo=True    rc_match=skip
+    IF    $timeout_log != ''
+        Log Error    Gui-vm timeout    gui-vm timed out during the previous boot
+        SKIP    Known issue: SSRCSP-9231 (gui-vm timed out during the previous boot) (${message})
     END
