@@ -131,11 +131,7 @@ Check If Device Is Available
     IF    ${IS_AVAILABLE} == False
         FAIL    The device is not available via SSH or serial ${extra_log}.
     ELSE IF  "${CONNECTION_TYPE}" == "serial"
-        IF    $action == 'reboot'
-            Try To Recover SSH Connection Via Serial   ${extra_log}
-        ELSE
-            FAIL    The device is available only via serial ${extra_log}, but SSH is required.
-        END
+        Try To Recover SSH Connection Via Serial   ${extra_log}
     ELSE
         Log     Device is available ${extra_log}.   console=True
     END
