@@ -97,7 +97,7 @@ Automatic suspension
 Suspend and wake up with apps running
     [Documentation]   Launch several apps in different VM and verify, that they are still running after suspension
     [Tags]            SP-T208  lenovo-x1  darter-pro  lab-only
-    [Setup]           Start screen recording
+    [Setup]           GUI App Test Setup
     ${screen_before_apps}       Take Remote Screenshot And Download     to=${GUI_OUTPUT_DIR}/suspend_and_wake_up_before_apps.jpeg
     ${app_statuses}   Launch several apps in different VMs
     Suspend device via GUI and wake up     ${app_statuses}
@@ -131,7 +131,7 @@ App suspension test teardown
         Kill App in VM    ${COSMIC Files}     status=PASS    require_exists=False
     END
     Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
-    Stop screen recording   ${TEST_STATUS}   ${TEST_NAME}
+    GUI App Test Teardown    ${TEST_STATUS}    ${TEST_NAME}
     Run Keyword If Test Passed    Remove Captured Screenshots
 
 Save max brightness
