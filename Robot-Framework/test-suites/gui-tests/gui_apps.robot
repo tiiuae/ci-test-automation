@@ -15,6 +15,20 @@ Test Tags           gui-apps  lenovo-x1  darter-pro
 
 
 *** Test Cases ***
+Check that fingerprint reader is available
+    [Documentation]    Check that Fingerprints detects the reader on X1 or reports no reader on Darter.
+    [Tags]             SP-T533
+    Start app via GUI    ${Fingerprints}
+    IF    $DEVICE_TYPE in ('lenovo-x1', 'x1-sec-boot')
+        Wait Until Keyword Succeeds    10x    1s
+        ...    Verify Text Is On The Screen    Choose a finger to configure it    scale=2
+    ELSE IF    $DEVICE_TYPE in ('darter-pro', 'darter-sec-boot')
+        Wait Until Keyword Succeeds    10x    1s
+        ...    Verify Text Is On The Screen    No fingerprint reader detected    scale=2
+    END
+    [Teardown]    Run Keywords    Kill App in VM    ${Fingerprints}    require_exists=False
+    ...    AND    GUI App Test Teardown    ${TEST_STATUS}    ${TEST_NAME}
+
 Create and save text file from COSMIC Text Editor via GUI
     [Documentation]   Create a new document in ${COSMIC Text Editor}[display_name], save it to Shares and verify the file was created
     [Tags]            SP-T194
