@@ -290,14 +290,6 @@ Save Recorded Shortcut Video
     ${recorded_video_name}    Run Command    basename ${recorded_video}
     SSHLibrary.Get File    ${recorded_video}    ${GUI_OUTPUT_DIR}/${recorded_video_name}
 
-Save current document from COSMIC Text Editor to Shares
-    [Arguments]      ${file_name}
-    Press Key(s)       LEFTCTRL+LEFTSHIFT+S
-    Locate and click   text   Shares
-    Locate and click   text   comms-vm    wiggle=True   double_click=True
-    Type string        ${file_name}
-    Press Key(s)       ENTER
-
 Download reference image for GUI matching
     [Arguments]    ${image_url}    ${file_name}
     ${result}    Run Process    curl    -L    -f    -s    -S    -o    ${ICONS_DIR}/${file_name}    ${image_url}    stderr=STDOUT

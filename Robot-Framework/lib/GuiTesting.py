@@ -226,6 +226,34 @@ def convert_resolution(coordinates):
     }
     return mouse_coordinates
 
+def locate_on_screen_keyboard_keys(screenshot, image_dir, *keys):
+    """Locate text keys and Shift/Backspace icons in one screenshot; return ydotool coordinates."""
+    image = Image.open(screenshot)
+    # The docked COSMIC keyboard's key labels fit in the bottom 30% of the tested screen.
+    # Restrict OCR to it: recognizing the whole desktop missed individual key labels.
+    keyboard_top = image.height * 7 // 10
+    keyboard = image.crop((0, keyboard_top, image.width, image.height))
+    scale = 2
+    keyboard = keyboard.resize((keyboard.width * scale, keyboard.height * scale), Image.BICUBIC)
+    # Sparse-text mode recognizes the widely spaced key labels independently.
+    data = pytesseract.image_to_data(keyboard, config='--psm 11', output_type=pytesseract.Output.DICT)
+    words = _get_ocr_words(data)
+    coordinates = {}
+    for key in keys:
+        matches = [word for word in words if word['text'].casefold() == key.casefold()]
+        if len(matches) != 1:
+            raise AssertionError(f"Expected one exact OCR match for OSK key '{key}', got {len(matches)}")
+        word = matches[0]
+        x = (word['left'] + word['width'] / 2) / scale
+        y = keyboard_top + (word['top'] + word['height'] / 2) / scale
+        coordinates[key] = convert_resolution((x, y))
+
+    # These keys have icons instead of text labels; use the same screenshot for image matching.
+    for key, filename in [('Shift', 'osk-shift.png'), ('Backspace', 'osk-backspace.png')]:
+        coordinates[key] = locate_image(screenshot, os.path.join(image_dir, filename), 0.90)
+    logging.info(f"OSK key coordinates: {coordinates}")
+    return coordinates
+
 def convert_app_icon(crop, background, resize='none', input_file='icon.svg', output_file='icon.png'):
     command = ['magick']
     if background != "none":
