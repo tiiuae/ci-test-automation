@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                          | TICKET / Additional Data                                                | Error Log Context      |
 | ---------- | ---------------------------------- | ----------------------------------------------------------------------- | ---------------------- |
+| 13.11.2026 | Non-gui app tests (storeDisk)      | SSRCSP-9250                                                             | StoreDisk app window   |
 | 12.11.2026 | Verify hardware and operating      | SSRCSP-9243                                                             | COSMIC hardware vendor |
 |            | system information in              |                                                                         |                        |
 |            | Cosmic Settings (vendor only)      |                                                                         |                        |
