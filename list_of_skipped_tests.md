@@ -29,6 +29,7 @@
 
 | DATE SET   | TEST CASE / KEYWORD                      | TICKET / Additional Data                                                                               | Error Log Context       |
 | ---------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------- |
+| 16.11.2026 | Start screen recording                   | SSRCSP-9253, record screen directly without portal                                                     |
 | 11.11.2026 | Hard Reboot Device And Connect           | Press ON twice if laptop did not boot after first press                                                | ON pressed twice        |
 | 04.11.2026 | Soft Reboot Device And Connect           | SSRCSP-9056, extend Orin reconnection time from 60 to 90 seconds                                       |                         |
 | 04.11.2026 | Check logging rate against history       | SSRCSP-9056, skip logs that mention disp-vm                                                            |                         |
