@@ -55,8 +55,11 @@ Check journal receiver configuration
     ${output}    Run Command    cat /proc/${pid}/cmdline | xargs -0 -n1    sudo=True
     Run Keyword And Continue On Failure    Should Match Regexp    ${output}    --max-use=\\S+
     Run Keyword And Continue On Failure    Should Match Regexp    ${output}    --max-file-size=\\S+
-    Run Keyword And Continue On Failure    Should Match Regexp    ${output}    --max-retention=\\S+
-    Run Keyword And Continue On Failure    Should Match Regexp    ${output}    --max-file-age=\\S+
+    # Orins do not have max-retention or max-file-age because it would remove wrongly timestamped boot logs
+    IF   not ${IS_ORIN}
+        Run Keyword And Continue On Failure    Should Match Regexp    ${output}    --max-retention=\\S+
+        Run Keyword And Continue On Failure    Should Match Regexp    ${output}    --max-file-age=\\S+
+    END
 
 Check Disk Usage Under 500M
     [Documentation]     Extracts value of disk usage by journals, converts it to megabytes
