@@ -21,14 +21,15 @@ Service should not be failed
 
 Verify service status
     [Documentation]   Check if service is running with given loop ${range}
-    [Arguments]       ${range}=45  ${service}=${EMPTY}   ${expected_state}=active   ${expected_substate}=running  ${expected_rc}=0
+    [Arguments]       ${range}=45  ${service}=${EMPTY}   ${expected_state}=active   ${expected_substate}=running  ${expected_rc}=0  ${user}=False
     ${vmservice}      Run Keyword And Return Status  Should Contain  ${service}  microvm@
     ${finished}       Set Variable  False
 
     ${welcome_check}  Set Variable If  ${IS_LAPTOP}    False    True
+    ${systemctl}      Set Variable If    ${user}    systemctl --user    systemctl
 
     FOR    ${i}    IN RANGE    ${range}
-        ${output}            Run Command          systemctl show ${service} --no-pager  rc_match=not_equal  compare_rc=4
+        ${output}            Run Command          ${systemctl} show ${service} --no-pager  rc_match=not_equal  compare_rc=4
         ${state}             Get Service State     ${output}
         ${substate}          Get Service Substate  ${output}
         ${state_status}      Run Keyword And Return Status    Should Be True	'${state}' == '${expected_state}'  Expected ${expected_state} but in fact ${state}

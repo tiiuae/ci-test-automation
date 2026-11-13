@@ -86,7 +86,7 @@ Log in via GUI
     Click   sudo=True
 
     IF  "${DEVICE_TYPE}" == "dell-7330"    Sleep  5
-    Confidential password write  ${password}
+    Confidential password write  ${password}   user=${LOGIN}
 
 Log out with loginctl
     [Documentation]   Log out from the laptop
@@ -363,25 +363,26 @@ Press Key(s)
     Run ydotool command   ${ydotool_command}   ${sudo}
 
 Confidential password write
-    [Arguments]      ${pw}
-    [Setup]          Switch to vm     ${GUI_VM}
+    [Arguments]      ${pw}   ${user}=${USER_LOGIN}
+    [Setup]          Switch to vm     ${GUI_VM}   user=${user}
     Log To Console   Typing password secretly
     TRY
         ${previous_log_level}   Set Log Level    NONE
         SSHLibrary.Write        read -r -s -p 'pw: ' PASSWD
         SSHLibrary.Read Until   pw:
         SSHLibrary.Write Bare   ${pw}${\n}
-        SSHLibrary.Read Until   ${LOGIN}@
+        SSHLibrary.Read Until   ${user}@
         SSHLibrary.Write        printf '%s' "$PASSWD" | YDOTOOL_SOCKET=${YDOTOOL_SOCKET} ydotool type -f -
-        SSHLibrary.Read Until   ${LOGIN}@
+        SSHLibrary.Read Until   ${user}@
     EXCEPT
         FAIL   Failed to write the password, error hidden to not leak sensitive data
     FINALLY
         Run Keyword And Continue On Failure    SSHLibrary.Write         unset PASSWD
-        Run Keyword And Continue On Failure    SSHLibrary.Read Until    ${LOGIN}@
+        Run Keyword And Continue On Failure    SSHLibrary.Read Until    ${user}@
         Set Log Level    ${previous_log_level}
     END
-    Press Key(s)     ENTER   True
+    ${sudo}   Set Variable If   '${user}' == '${USER_LOGIN}'   False   True
+    Press Key(s)     ENTER   sudo=${sudo}
     [Teardown]       Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
 
 Run ydotool command
@@ -401,24 +402,31 @@ Start screen recording
     [Timeout]        1 minute
     [Setup]          Stop screen recording service   ${unit_name}
     Log To Console   Starting screen recording
+    Set Test Variable   ${LOG_FILE}     ${log_file}
     IF   '${video_file}' == '${EMPTY}'
         ${test_name}     Replace String   ${TEST_NAME}   ${SPACE}   _
         ${video_file}    Set Variable     /home/${USER_LOGIN}/Videos/${test_name}.mkv
     END
+    # "-w portal -restore-portal-session yes" removed due to SSRCSP-9253
     ${cmd}     Catenate    SEPARATOR=${SPACE}
     ...    systemd-run --user --collect --no-block --unit=${unit_name} --property=PartOf=graphical-session.target --property=KillMode=control-group
     ...    /bin/sh -lc 'WAYLAND_DISPLAY=wayland-1 exec gpu-screen-recorder
-    ...    -w portal -c mkv -k h264 -ac opus -f 60 -cursor yes -restore-portal-session yes
+    ...    -w eDP-1 -c mkv -k h264 -ac opus -f 60 -cursor yes
     ...    -cr limited -encoder gpu -q very_high -a device:default_output
     ...    -o ${video_file}
     ...    </dev/null >${log_file} 2>&1'
     Run Command      ${cmd}
-    TRY
-        Wait Until Keyword Succeeds    10x    0.5s    Run Command    ls -la ${video_file}
-    EXCEPT
-        Select a display to record
-        Wait Until Keyword Succeeds    10x    0.5s    Run Command    ls -la ${video_file}
-    END
+
+    # Authentication is required every time when recording screen directly without xdg-desktop-portal
+    Wait Until Keyword Succeeds    10x    0.5s    Verify Text Is On The Screen    Authentication required
+    Confidential password write    ${PASSWORD}
+    Wait Until Keyword Succeeds    10x    0.5s    Run Command    ls -la ${video_file}
+    # TRY
+    #     Wait Until Keyword Succeeds    10x    0.5s    Run Command    ls -la ${video_file}
+    # EXCEPT
+    #     Select a display to record
+    #     Wait Until Keyword Succeeds    10x    0.5s    Run Command    ls -la ${video_file}
+    # END
     [Teardown]       Run Keyword If   '${KEYWORD_STATUS}' == 'FAIL'   Run Keywords   Timestamp last screenshot
     ...              AND   Run Command   cat ${log_file}
 
@@ -439,14 +447,15 @@ Stop screen recording
     Log To Console   Stopping screen recording
     Stop screen recording service
     Save screen recording   ${test_status}   ${test_name}
+    [Teardown]    Run Keyword If   '${KEYWORD_STATUS}' == 'FAIL' or '${test_status}' == 'FAIL'   Run Command   cat ${LOG_FILE}
 
 Stop screen recording service
     [Arguments]         ${unit_name}=robot-screen-recording
     ${service_state}    Run Command    systemctl --user is-active ${unit_name}.service    rc_match=skip
     IF   '${service_state}' == 'active'
-        Log           Screen recorder is running, stopping it                     console=True
+        Log           Screen recorder is ${service_state}, stopping it            console=True
         Run Command   systemctl --user stop ${unit_name}.service                  rc_match=skip
-        Run Command   systemctl --user is-active ${unit_name}.service             rc_match=not_equal   compare_rc=0
+        Verify service status    range=30    service=${unit_name}.service    expected_state=inactive    expected_substate=dead    user=${True}
     END
 
 Save screen recording
