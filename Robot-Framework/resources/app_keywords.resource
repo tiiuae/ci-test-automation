@@ -55,7 +55,28 @@ Start App in VM
     ${toplevels_before}   Get GUI VM toplevels
     Start application     ${app_key}[display_name]    params_string=${params_string}
     Check that App is running in VM    ${app_key}   range=5
-    Wait for app window   ${app_key}   ${toplevels_before}
+    ${wait_start}          Get Time    epoch
+    Set Test Variable      ${APP_LAUNCH_WAIT_START}    ${wait_start}
+    Wait for app window    ${app_key}    ${toplevels_before}
+    # Known issue SSRCSP-9250 on storeDisk images
+    [Teardown]   Run Keyword If   "${KEYWORD_STATUS}" == 'FAIL' and 'intel-laptop-storeDisk-debug' in $JOB
+    ...          Wait for app window on storeDisk   ${app_key}    ${toplevels_before}
+
+Wait for app window on storeDisk
+    [Arguments]    ${app_key}   ${toplevels_before}
+    TRY
+        # Give storeDisk image extra time to open the window
+        Wait for app window    ${app_key}    ${toplevels_before}   iterations=20x
+    EXCEPT    AS    ${error}
+        ${wait_end}         Get Time    epoch
+        ${wait_duration}    Evaluate    int(${wait_end}) - int(${APP_LAUNCH_WAIT_START})
+        FAIL    App window is not open ${wait_duration} seconds after process started (${error})
+    ELSE
+        ${wait_end}         Get Time    epoch
+        ${wait_duration}    Evaluate    int(${wait_end}) - int(${APP_LAUNCH_WAIT_START})
+        Log Error   StoreDisk app window   App window for ${app_key}[display_name] took ${wait_duration} seconds to open after process started
+        SKIP    Known Issue: SSRCSP-9250 (App window was too slow, it opened ${wait_duration} seconds after process started)
+    END
 
 Get GUI VM toplevels
     [Documentation]    Return the Wayland toplevels currently shown by the GUI VM compositor.
@@ -65,10 +86,10 @@ Get GUI VM toplevels
 
 Wait for app window
     [Documentation]    Wait until the GUI VM has more toplevels and any expected app ID or title appears.
-    [Arguments]        ${app_key}    ${toplevels_before}
+    [Arguments]        ${app_key}    ${toplevels_before}   ${iterations}=10x
     ${expected_windows}   Get expected app windows   ${app_key}
     TRY
-        Wait Until Keyword Succeeds    10x    0.5s    App window should be open    ${toplevels_before}    @{expected_windows}
+        Wait Until Keyword Succeeds    ${iterations}    0.5s    App window should be open    ${toplevels_before}    @{expected_windows}
     EXCEPT    AS    ${error}
         Run Keyword And Ignore Error    Run Keywords
         ...    Take Remote Screenshot And Download
