@@ -34,6 +34,9 @@ Connect to known Wi-Fi in Cosmic Settings
     Locate on screen            text    Authentication required
     Confidential password write    ${TEST_WIFI_PSWD}
     Verify Wi-Fi connection
+    Switch to vm                ${GUI_VM}    user=${USER_LOGIN}
+    Move cursor to corner
+    Locate on screen            text    Connected    iterations=30
     Disconnect Wi-Fi via GUI       ${TEST_WIFI_SSID}
     Verify Wi-Fi disconnected
     [Teardown]    Run Keywords      Remove Wifi configuration if present    ${TEST_WIFI_SSID}
@@ -189,7 +192,6 @@ Connect to Wi-Fi via GUI
 Disconnect Wi-Fi via GUI
     [Documentation]    Disconnect the network through its row's menu
     [Arguments]        ${SSID}
-    Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
     Move cursor to corner
     ${x}    ${_}    Locate on screen    image    wifi-view-more.png    confidence=0.90
     ${_}    ${y}    Locate on screen    text    ${SSID}    scale=2    precision_percent=90    config=--psm 11
