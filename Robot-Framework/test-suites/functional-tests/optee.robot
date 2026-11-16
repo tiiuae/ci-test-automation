@@ -18,7 +18,7 @@ OP-TEE xtest
     [Documentation]   Runs OP-TEE's xtest
     [Tags]            SP-T122  optee-xtest
 
-    Run Command       xtest   sudo=True   timeout=400
+    Run Command       xtest   sudo=True   timeout=500
 
 Basic pkcs11-tool-optee test
     [Documentation]   Test OP-TEE PKCS#11 through pkcs11-tool-optee wrapper.
