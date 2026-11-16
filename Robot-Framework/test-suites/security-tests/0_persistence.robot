@@ -75,19 +75,22 @@ Brightness persistence teardown
     Run Command    sh -c 'stat --format="%n | modified=%y | size=%s" /var/lib/systemd/backlight/*'    sudo=True    rc_match=skip
     Run Command    sh -c 'grep -H . /var/lib/systemd/backlight/*'    sudo=True    rc_match=skip
     # Capture the previous GUI VM boot to investigate incomplete shutdown.
-    ${journal}     Run Command    journalctl -b -1 --no-pager -o short-iso-precise    sudo=True
+    Run Command    journalctl -b -1 --no-pager -o short-iso-precise    sudo=True
     # Check GIVC errors and service shutdown order during the previous boot.
     Switch to vm    ${ADMIN_VM}
     # Identify the previous boot used for journal collection.
     Run Command    journalctl --list-boots --no-pager    sudo=True
     Run Command    journalctl -b -1 --no-pager -o short-iso-precise -u 'givc*'    sudo=True
     Run Command    journalctl -b -1 --no-pager -o short-iso-precise _PID=1    sudo=True
+    # Check the host shutdown of GUI VM during the persistence reboot.
+    Switch to vm    ${HOST}
+    ${host_journal}    Run Command    journalctl -b -1 --no-pager -o short-iso-precise -u microvm@${GUI_VM}.service    sudo=True
     Log persistence setup errors
     ${brightness_mismatch}    Run Keyword And Return Status    Should Match    ${TEST_MESSAGE}    ${EXPECTED_BRIGHTNESS} != *
-    ${givc_timeout}    Run Keyword And Return Status     Should Contain    ${journal}    givc-gui-vm.service: State 'stop-sigterm' timed out.
-    IF    ${brightness_mismatch} and ${givc_timeout}
-        Log Error    Brightness persistence    Brightness not restored after GIVC shutdown timeout (SSRCSP-9214)
-        SKIP    Known issue: SSRCSP-9214 (Brightness not restored after GIVC shutdown timeout)
+    ${host_timeout}    Run Keyword And Return Status    Should Contain    ${host_journal}    microvm@${GUI_VM}.service: Stopping timed out.
+    IF    ${brightness_mismatch} and ${host_timeout}
+        Log Error    Brightness persistence    Brightness not restored after GUI VM shutdown timeout (SSRCSP-9214)
+        SKIP    Known issue: SSRCSP-9214 (Brightness not restored after GUI VM shutdown timeout)
     END
 
 Persistence Suite Setup
