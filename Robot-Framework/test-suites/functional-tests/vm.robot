@@ -23,6 +23,7 @@ Test Tags           vms  pre-merge  bat  lenovo-x1  darter-pro  dell-7330  fmo
              ...    darter|ghaf-host|systemd-tpm2-setup.service|SSRCSP-8357
              ...    darter|ghaf-host|systemd-pcrlogin@901.service|SSRCSP-8776
              ...    ANY|disp-vm|systemd-modules-load.service|SSRCSP-9041
+             ...    ANY|ANY|systemd-tmpfiles-clean.service|SSRCSP-9257
 
 # Container for test message. Keyword `Set Test Message` doesn't work properly with Templates.
 # Accumulates messages from tests that use 'Check systemctl status Template' to be added to the main test message in teardown
