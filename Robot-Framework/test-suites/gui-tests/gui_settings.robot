@@ -134,13 +134,9 @@ Verify COSMIC About information
     Check COSMIC About field    ${ocr_data}    Windowing system                 ${windowing}       ${failures}
     Check COSMIC About field    ${ocr_data}    Processor                        ${processor}       ${failures}
     Check COSMIC About field    ${ocr_data}    Memory                           ${memory}          ${failures}
-    ${vendor_matches}    Check COSMIC About hardware model    ${ocr_data}    ${vendor}    ${model}    ${failures}
+    Check COSMIC About hardware model    ${ocr_data}    ${vendor}    ${model}    ${failures}
 
     IF    $failures    FAIL    ${failures}
-    IF    not $vendor_matches
-        Log Error    COSMIC hardware vendor    COSMIC About shows QEMU instead of ${vendor} (SSRCSP-9243)
-        SKIP    Known issue: SSRCSP-9243 (COSMIC About shows QEMU instead of ${vendor})
-    END
 
 Get host hardware identity
     [Documentation]    Read physical DMI from the host; GUI VM's own DMI describes virtual hardware.
@@ -164,7 +160,7 @@ Check COSMIC About hardware model
     [Arguments]    ${ocr_data}    ${vendor}    ${model}    ${failures}
     ${actual}    Get Text Field From Data    ${ocr_data}    Hardware model
     ${vendor_matches}    Run Keyword And Return Status    Should Start With    ${actual}    ${vendor}    ignore_case=True
-    IF    not $vendor_matches and not $actual.startswith('QEMU ')
+    IF    not $vendor_matches
         Append To List    ${failures}    Hardware model in COSMIC About is '${actual}', expected vendor '${vendor}'.
     END
     # Board identifiers contain letters and digits that OCR can confuse, for example O and 0.
@@ -174,7 +170,6 @@ Check COSMIC About hardware model
     IF    not $model_matches
         Append To List    ${failures}    Hardware model in COSMIC About is '${actual}', expected board model '${model}'.
     END
-    RETURN    ${vendor_matches}
 
 COSMIC About Test Teardown
     Kill App in VM    ${COSMIC Settings}    require_exists=False
