@@ -234,8 +234,7 @@ Check logging rate against history
         END
 
         # Logs from sshd-session are excluded, they are created by the ssh connections in tests
-        # Logs from disp-vm are excluded due to SSRCSP-9056
-        ${ignored_log_pattern}    Set Variable   sshd-session|disp-vm
+        ${ignored_log_pattern}    Set Variable   sshd-session
 
         ${byte_status}    ${byte_rate}    Run Keyword And Ignore Error
         ...    Run Command    journalctl --since "$(date -d '${check_interval} seconds ago' '+%Y-%m-%d %H:%M:%S')" | grep -vE "${ignored_log_pattern}" | wc -c | awk '{print $1}'

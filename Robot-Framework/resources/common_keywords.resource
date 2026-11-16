@@ -80,9 +80,9 @@ Get VM list
     Should Not Be Empty     ${vm_list}   VM list is empty
     IF    ${with_host}    Append To List   ${vm_list}   ${HOST}
 
-    # Workaround for a known issue SSRCSP-9056
-    IF    $DISP_VM in $vm_list
-        Remove Values From List    ${vm_list}    ${DISP_VM}
+    # Workaround for a known issue SSRCSP-9256
+    IF   ${IS_ORIN} and $GUI_VM in $vm_list
+        Remove Values From List    ${vm_list}    ${GUI_VM}
     END
 
     RETURN    @{vm_list}
