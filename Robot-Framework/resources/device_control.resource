@@ -71,7 +71,7 @@ Turn Laptop On
 Soft Reboot Device And Connect
     [Documentation]  Reboot device from ${GUI_VM} (laptops) or ${HOST} (Orins), reconnect and log in when testing a laptop
     ${vm}                  Set Variable If   ${IS_LAPTOP}   ${GUI_VM}   ${HOST}
-    # Extended time for Orins due to SSRCSP-9056 (disp-vm can time out during shutdown)
+    # Extended time for Orins due to SSRCSP-9256 (gui-vm can time out during shutdown)
     ${retry}               Set Variable If   ${IS_LAPTOP}   60s   90s
     ${reboot_log_since}    Get Time    epoch
     ${soft_reboot_ok}      Run Keyword And Return Status

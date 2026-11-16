@@ -29,13 +29,12 @@
 
 | DATE SET   | TEST CASE / KEYWORD                      | TICKET / Additional Data                                                                               | Error Log Context       |
 | ---------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------- |
-| 16.11.2026 | Start screen recording                   | SSRCSP-9253, record screen directly without portal                                                     |
+| 16.11.2026 | Soft Reboot Device And Connect           | SSRCSP-9256, extend Orin reconnection time from 60 to 90 seconds                                       |                         |
+| 16.11.2026 | Check SPIRE agent count                  | SSRCSP-9256, allow one extra spire agent for Orins because there might be one running in gui-vm        |                         |
+| 16.11.2026 | Get VM list                              | SSRCSP-9256, gui-vm is removed from the list on Orins                                                  |                         |
+| 16.11.2026 | Start screen recording                   | SSRCSP-9253, record screen directly without portal                                                     |                         |
 | 11.11.2026 | Hard Reboot Device And Connect           | Press ON twice if laptop did not boot after first press                                                | ON pressed twice        |
-| 04.11.2026 | Soft Reboot Device And Connect           | SSRCSP-9056, extend Orin reconnection time from 60 to 90 seconds                                       |                         |
-| 04.11.2026 | Check logging rate against history       | SSRCSP-9056, skip logs that mention disp-vm                                                            |                         |
-| 03.11.2026 | Check SPIRE agent count                  | SSRCSP-9056, allow one extra spire agent for Orins because there might be one running in disp-vm       |                         |
 | 16.10.2026 | Try To Recover SSH Connection Via Serial | In Check If Device Is Available restart net-vm if only serial is available after reboot                | SSH recovery            |
-| 09.10.2026 | Get VM list                              | SSRCSP-9056, disp-vm is removed from the list                                                          |                         |
 | 04.09.2026 | Account lockout after failed GUI login   | Tolerate one missed faillock increment                                                                 | Account lockout         |
 | 27.08.2026 | VM memory usage snapshot                 | Orin AGX ghaf-host has 0 total swap memory. Ignore swap low limit check in this case.                  |                         |
 | 17.07.2026 | Log out with loginctl                    | Log out all testuser sessions if the are many on seat (controlling the screen) (probably a Cosmic bug) | Multiple sessions       |

@@ -55,7 +55,7 @@ Check SPIRE agent count
     ${agents}         Get SPIRE x509pop agents
     @{spiffe_ids}     Get Regexp Matches    ${agents}    (?m)^SPIFFE ID\\s*:
     ${agent_count}    Get Length            ${spiffe_ids}
-    # Workaround for SSRCSP-9056. If disp-vm is available it will also have a spire agent.
+    # Workaround for SSRCSP-9256. If gui-vm is available it will also have a spire agent.
     IF    ${IS_ORIN}
         ${orin_expected_count}    Evaluate    ${expected_count} + 1
         Should Be True    ${expected_count} <= ${agent_count} <= ${orin_expected_count}
