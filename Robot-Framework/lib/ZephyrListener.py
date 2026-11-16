@@ -66,8 +66,12 @@ class ZephyrListener:
             self.record_nightly_failure(result.setup)
         if result.has_teardown and result.teardown.status == 'FAIL':
             self.record_nightly_failure(result.teardown)
-        if result.parent is None and self.zephyr.connected:
+        if result.parent is None and self.zephyr.connected and self.is_regression_run():
             self.send_nightly_summary()
+
+    def is_regression_run(self):
+        includes = BuiltIn().get_variable_value("${OPTIONS.include}", ())
+        return any('regression' in pattern.lower() for pattern in includes)
 
     def get_target(self):
         job_env_var = BuiltIn().get_variable_value("${JOB}")
