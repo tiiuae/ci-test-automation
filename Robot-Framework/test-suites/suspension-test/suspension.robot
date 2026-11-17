@@ -177,12 +177,8 @@ Launch several apps in different VMs
         Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
         Accept Chrome Terms Of Service If Shown    ${Zoom}    attempts=2    interval=500ms
     END
-    ${started}           Run Keyword And Return Status    Start App in VM    ${Google Chrome}
-    Set To Dictionary    ${app_statuses}    chrome=${started}
-    IF    ${started}
-        Switch to vm    ${GUI_VM}    user=${USER_LOGIN}
-        Accept Chrome Terms Of Service If Shown    ${Google Chrome}    attempts=2    interval=500ms
-    END
+    ${started}           Run Keyword And Return Status    Start App in VM    ${App Store}
+    Set To Dictionary    ${app_statuses}    app_store=${started}
     RETURN    ${app_statuses}
 
 Check apps are running after wake up
@@ -190,10 +186,10 @@ Check apps are running after wake up
     ...                It should be reverse to the order from the keyword 'Launch several apps in different VMs'.
     ...                Expecting Apps to be opened in the same order.
     [Arguments]    ${app_statuses}      ${screen_before_apps}
-    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[chrome]    Check that App is running and visible    ${Google Chrome}    chrome     ${screen_before_apps}
-    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[zoom]      Check that App is running and visible    ${Zoom}             Zoom       ${screen_before_apps}
-    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[gala]      Check that App is running and visible    ${Gala}             business   ${screen_before_apps}
-    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[files]     Check that App is running and visible    ${COSMIC Files}     Shares     ${screen_before_apps}
+    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[app_store]    Check that App is running and visible    ${App Store}        Explore     ${screen_before_apps}
+    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[zoom]         Check that App is running and visible    ${Zoom}             Zoom       ${screen_before_apps}
+    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[gala]         Check that App is running and visible    ${Gala}             business   ${screen_before_apps}
+    Run Keyword And Continue On Failure    Run Keyword If    ${app_statuses}[files]        Check that App is running and visible    ${COSMIC Files}     Shares     ${screen_before_apps}
     [Teardown]    Verify app launch precondition    ${app_statuses}    ${KEYWORD_STATUS}
 
 Check that App is running and visible
