@@ -131,8 +131,8 @@ Record screen with keyboard shortcut
     Open Folder In COSMIC Files    ${videos_dir}    Videos
     ${videos_before}    Get Videos Folder Recording List
     Start Screen Recording With Shortcut
-    Stop Screen Recording With Shortcut
     ${recorded_video}   Wait Until Keyword Succeeds    10x    1s    Get New Saved Screen Recording    ${videos_before}
+    Stop Screen Recording With Shortcut
     Verify Video Is Visible In COSMIC Files    ${recorded_video}
     [Teardown]        Screen Recording Test Teardown
 
@@ -268,6 +268,8 @@ Start Screen Recording With Shortcut
     Press Key(s)    LEFTCTRL+LEFTSHIFT+LEFTALT+R
     Select a display to record
     Wait Until Keyword Succeeds    10x    0.5s    Check that process is running    ${GPU Screen Recorder}[recording_process_name]
+    # Stop requests are ignored while the recording startup lock is held.
+    Wait Until Keyword Succeeds    20x    0.5s    Run Command    flock -n "$XDG_RUNTIME_DIR/ghaf-screen-record.lock" true
 
 Stop Screen Recording With Shortcut
     Press Key(s)    LEFTCTRL+LEFTSHIFT+LEFTALT+R

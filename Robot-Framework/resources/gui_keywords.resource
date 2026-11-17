@@ -421,6 +421,7 @@ Start screen recording
     Wait Until Keyword Succeeds    10x    0.5s    Verify Text Is On The Screen    Authentication required
     Confidential password write    ${PASSWORD}
     Wait Until Keyword Succeeds    10x    0.5s    Run Command    ls -la ${video_file}
+    Wait Until Keyword Succeeds    20x    0.5s    Run Command    flock -n "$XDG_RUNTIME_DIR/ghaf-screen-record.lock" true
     # TRY
     #     Wait Until Keyword Succeeds    10x    0.5s    Run Command    ls -la ${video_file}
     # EXCEPT
