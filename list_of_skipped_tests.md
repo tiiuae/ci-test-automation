@@ -4,6 +4,8 @@
 
 | DATE SET   | TEST CASE                          | TICKET / Additional Data                                                | Error Log Context      |
 | ---------- | ---------------------------------- | ----------------------------------------------------------------------- | ---------------------- |
+| 18.11.2026 | Check device id (AGX)              | SSRCSP-9287                                                             | AGX Device ID          |
+| 18.11.2026 | Check net-vm hostname (AGX)        | SSRCSP-9287                                                             | AGX Hostname           |
 | 13.11.2026 | Non-gui app tests (storeDisk)      | SSRCSP-9250                                                             | StoreDisk app window   |
 | 11.11.2026 | Reboot / Shutdown from power menu  | SSRCSP-9231                                                             | Gui-vm timeout         |
 | 09.11.2026 | Verify brightness persisted        | SSRCSP-9214                                                             | Brightness persistence |
