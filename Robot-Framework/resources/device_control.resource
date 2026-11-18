@@ -254,4 +254,4 @@ Confirm suspension and wake up the device
     Should Be True      ${locked}    Screen lock not active after wake up
 
     Unlock
-    Verify desktop availability
+    Wait for desktop readiness

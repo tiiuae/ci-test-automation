@@ -68,7 +68,7 @@ Automatic suspension
     Should Be True           ${locked}    Screen lock not active after wake up
 
     Unlock
-    Verify desktop availability
+    Wait for desktop readiness
 
     # Power level comparison in the same login gui state as in the beginning
     # Applied only if power measurement agent is available in the setup
