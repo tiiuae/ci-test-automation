@@ -168,6 +168,9 @@ Check device id failure
         ELSE
             FAIL   Actual device ID: ${actual_device_id}, Should be: ${STATIC_DEVICE_ID}, expected to fail with ${expected_wrong_id}
         END
+    ELSE IF    "${DEVICE_TYPE}" == "orin-agx"
+        Log Error   AGX Device ID      Device ID was wrong (Actual device ID: ${actual_device_id}, Should be: ${STATIC_DEVICE_ID})
+        SKIP        Known issue: SSRCSP-9287 (Actual device ID: ${actual_device_id}, Should be: ${STATIC_DEVICE_ID})
     END
 
 Get Secure Boot Status

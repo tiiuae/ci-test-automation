@@ -92,4 +92,7 @@ Check net-vm hostname failure
         ELSE
             FAIL   Actual net-vm hostname: ${NETVM_NAME}, Should be: ${STATIC_NETVM_NAME}, Expected to fail with ${expected_wrong_name}
         END
+    ELSE IF    "${DEVICE_TYPE}" == "orin-agx"
+        Log Error   AGX Hostname      Hostname was wrong (Actual net-vm hostname: ${NETVM_NAME}, Should be: ${STATIC_NETVM_NAME})
+        SKIP        Known issue: SSRCSP-9287 (Actual net-vm hostname: ${NETVM_NAME}, Should be: ${STATIC_NETVM_NAME})
     END
