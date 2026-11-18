@@ -44,7 +44,7 @@ Lock and Unlock from power menu
     ${lock}           Check if locked   iterations=3   debug_screenshot=True
     IF  not ${lock}   FAIL    Failed to lock the screen
     Unlock
-    Verify desktop availability
+    Wait for desktop readiness
 
 Lock screen with shortcut
     [Documentation]   Lock the screen via shortcut and verify locked state.
@@ -54,7 +54,7 @@ Lock screen with shortcut
     ${lock}           Check if locked   iterations=3   debug_screenshot=True
     IF  not ${lock}   FAIL    Failed to lock the screen
     Unlock
-    Verify desktop availability
+    Wait for desktop readiness
 
 Reboot from power menu
     [Documentation]   Reboot the device via GUI power menu reboot icon.

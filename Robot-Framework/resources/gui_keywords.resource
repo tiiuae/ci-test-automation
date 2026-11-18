@@ -49,8 +49,7 @@ Log in, unlock and verify
         IF  ${lock}   Unlock
     END
 
-    ${iterations}   Set Variable If    "${DEVICE_TYPE}" == "dell-7330"    130    100
-    Verify desktop availability   iterations=${iterations}
+    Wait for desktop readiness   iterations=100
 
     Kill Initial Setup
     Disable automatic suspension
@@ -264,12 +263,13 @@ Wiggle cursor
     Run ydotool command   mousemove 1 1
     Run ydotool command   mousemove -- -1 -1
 
-Verify desktop availability
-    [Documentation]   Check that launcher icon is available on desktop
+Wait for desktop readiness
+    [Documentation]   Wait until launcher icon is visible and portal service is running
     [Tags]            robot:recursive-stop-on-failure
     [Arguments]       ${iterations}=30
     Log To Console    Verifying login by trying to detect the launcher icon
     Locate on screen  image  ${APP_MENU_LAUNCHER}  0.95  ${iterations}
+    Verify service status   range=${iterations}   service=xdg-desktop-portal.service   expected_state=active   expected_substate=running    user=${True}
 
 Verify login session
     [Documentation]   Confirm that the given user has an active login session on a seat
