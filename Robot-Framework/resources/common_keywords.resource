@@ -164,18 +164,10 @@ Wait
 
 Search nix store
     [Documentation]      Search a file containing string argument in the target nix store.
-    ...                  Return only the file path which is linked to the current generation.
     [Arguments]          ${string}
-    # nix-store --query does not work on storeDisk images
-    ${status}  ${path}   Run Keyword And Ignore Error   Run Command  nix-store --query --requisites /run/current-system | grep ${string} | grep -v cfg
-    IF   $status == 'PASS'
-        Should Not Be Empty  ${path}      File not found from the target /nix/store
-        RETURN               ${path}
-    ELSE
-        ${path}         Run Command       ls /nix/store | grep ${string} | grep -v cfg
-        Should Not Be Empty  ${path}      File not found from the target /nix/store
-        RETURN               /nix/store/${path}
-    END
+    ${path}              Run Command       ls /nix/store | grep ${string} | grep -v cfg
+    Should Not Be Empty  ${path}           File not found from the target /nix/store
+    RETURN               /nix/store/${path}
 
 Set device state
     [Documentation]   Change device (cam, mic, net, bluetooth) state to ${expected_state} (blocked, unblocked)
