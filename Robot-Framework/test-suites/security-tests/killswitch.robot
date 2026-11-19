@@ -48,7 +48,7 @@ Killswitch disconnects WLAN
     [Setup]          WLAN setup
     Verify nmcli device status    ${wifi_if}  connected
     ${gateway}     Get gateway    wifi
-    Check Network Availability    ${gateway}     expected_result=True    limit_freq=${False}    interface=${wifi_if}
+    Check Network Availability    ${gateway}    expected_result=True    range=10    limit_freq=${False}    interface=${wifi_if}
     Set device state   blocked    net
     Switch to vm       ${NET_VM}
     Verify nmcli device status    ${wifi_if}  absent
