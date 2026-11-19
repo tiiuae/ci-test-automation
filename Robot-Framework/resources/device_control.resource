@@ -90,6 +90,9 @@ Soft Reboot Device And Connect
     IF    ${IS_LAPTOP} and ${login}
         Login to laptop
     END
+    IF    ${IS_ORIN}
+        Ensure Robot sudoers is installed in all VMs
+    END
 
 Hard Reboot Device And Connect
     [Documentation]  Hard reboot the device, reconnect and log in when testing a laptop
@@ -111,6 +114,9 @@ Hard Reboot Device And Connect
     END
     IF    ${IS_LAPTOP} and ${login}
         Login to laptop
+    END
+    IF    ${IS_ORIN}
+        Ensure Robot sudoers is installed in all VMs
     END
 
 Collect Logs After Failed Soft Reboot
