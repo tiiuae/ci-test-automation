@@ -29,6 +29,8 @@ Prepare Test Environment
         Create test user
         Save login and logout icons
         Login to laptop
+    ELSE
+        Ensure Robot sudoers is installed in all VMs
     END
 
 Verify boot from expected device

@@ -239,6 +239,8 @@ Boot Time Test Teardown
         Log Journal To Debug  boot=-1
     ELSE IF  ${IS_LAPTOP}
         Login to laptop
+    ELSE
+        Ensure Robot sudoers is installed in all VMs
     END
 
 Shutdown Time Teardown
@@ -268,3 +270,4 @@ Shutdown Time Teardown
     IF  not ${IS_LAPTOP} or not ${SHUTDOWN_DEVICE_BOOTED}
         Connect After Reboot
     END
+    Ensure Robot sudoers is installed in all VMs
