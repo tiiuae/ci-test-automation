@@ -72,7 +72,7 @@ Kill switch disconnects Bluetooth
     Set device state  blocked    bluetooth
     Verify Bluetooth controller availability    ${False}
     Set device state  unblocked    bluetooth
-    Verify Bluetooth controller availability    ${True}
+    Wait Until Keyword Succeeds    10s    1s    Verify Bluetooth controller availability    ${True}
     ${bt_board_mac}    Discover bluetooth device by name
     Connect bluetooth device       ${bt_board_mac}
     Disconnect bluetooth device    ${bt_board_mac}
