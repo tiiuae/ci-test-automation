@@ -52,6 +52,30 @@ Run Command
         RETURN
     END
 
+Run Command With Confidential Input
+    [Documentation]    Read a secret into a shell variable, run a command, then unset the variable.
+    [Arguments]        ${secret}    ${command}    ${ready_prompt}=${LOGIN}@
+    ${output}               Set Variable    ${EMPTY}
+    ${previous_log_level}   Set Variable    ${LOG_LEVEL}
+    TRY
+        SSHLibrary.Write        read -r -s -p 'pw: ' CONFIDENTIAL_INPUT
+        SSHLibrary.Read Until   pw:
+        ${previous_log_level}   Set Log Level   NONE
+        SSHLibrary.Write Bare   ${secret}${\n}
+        SSHLibrary.Read Until   ${ready_prompt}
+        SSHLibrary.Write        ${command}
+        Set Client Configuration  timeout=60
+        ${output}    SSHLibrary.Read Until   ${ready_prompt}
+    EXCEPT
+        FAIL    Confidential input operation failed; details hidden to protect credentials.
+    FINALLY
+        Run Keyword And Ignore Error    SSHLibrary.Write        unset CONFIDENTIAL_INPUT
+        Run Keyword And Ignore Error    SSHLibrary.Read Until   ${ready_prompt}
+        Set Log Level    ${previous_log_level}
+        Set Client Configuration   timeout=10
+    END
+    RETURN   ${output}
+
 Check variable availability
     [Arguments]    ${variable_name}
     ${value}     Get Variable Value    ${${variable_name}}

@@ -17,7 +17,8 @@ ${ACTIVE_DIRECTORY_SERVER_IP}    20.174.11.80
 
 *** Test Cases ***
 Use recovery key to login
-    [Documentation]    Get the recovery key from user provisioning logs and use it to log in to gui-vm.
+    [Documentation]    Get the recovery key from storage and use it to log in to gui-vm.
+    ...                This test only works if user was created with Create user.
     [Tags]             SP-T302
     Connect to GUI VM with recovery key
     Verify recovery key SSH login
@@ -37,14 +38,14 @@ Confirm Active Directory connectivity with homed user
 
 *** Keywords ***
 Connect to GUI VM with recovery key
-    Switch to vm           ${GUI_VM}
-    Set Log Level          NONE
-    ${journal}             Run Command    journalctl -u user-provision-test.service --no-pager -o cat    sudo=True
-    ${recovery_keys}       Get Regexp Matches    ${journal}    [a-z-]{71}
-    Should Not Be Empty    ${recovery_keys}    Recovery key was not found in user-provision-test.service logs
-    Set Log Level          INFO
-    Open VM connection with recovery key     ${GUI_VM}    ${USER_LOGIN}    ${recovery_keys}[0]
-    [Teardown]             Set Log Level    INFO
+    Switch to vm            ${GUI_VM}
+    TRY
+        ${previous_log_level}   Set Log Level    NONE
+        ${recovery_key}         Run Command      cat /etc/common/recovery-key   sudo=True
+    FINALLY
+        Set Log Level    ${previous_log_level}
+    END
+    Open VM connection with recovery key    ${GUI_VM}    ${USER_LOGIN}    ${recovery_key}
 
 Verify recovery key SSH login
     ${logged_in_user}    Run Command         whoami

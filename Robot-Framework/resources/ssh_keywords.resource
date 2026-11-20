@@ -413,20 +413,25 @@ Transfer Shell Script To VM
     Transfer Shell Script To DUT    performance-tests   ${script_name}   /tmp
 
 Elevate to superuser
-    [Arguments]    ${sleep}=0.5
+    Log       Elevating to superuser   console=True
     SSHLibrary.Read
-    Write                 sudo su
-    Sleep                 ${sleep}
-    ${out}                SSHLibrary.Read
+    Write     sudo su
+    ${out}    SSHLibrary.Read Until Regexp    (?i)(password for .*:|root@)
     IF  'password for ${LOGIN}' in $out
-        ${out}            Write        ${PASSWORD}
-        Sleep             ${sleep}
-        ${out}            SSHLibrary.Read
+        TRY
+            ${previous_log_level}    Set Log Level    NONE
+            Write     ${PASSWORD}
+            ${out}    SSHLibrary.Read Until Regexp    root@
+            Should Contain    ${out}    root@
+        EXCEPT
+            FAIL    Failed to elevate to superuser; details hidden to protect credentials.
+        FINALLY
+            Set Log Level    ${previous_log_level}
+        END
+    ELSE IF    'root@' not in $out
+        FAIL    Failed to elevate to superuser; root prompt was not confirmed.
     END
-    IF  'root@' in $out
-        RETURN
-    END
-    FAIL              Elevating to superuser failed
+    Log    Elevated to superuser successfully   console=True
 
 Run Nix Shell
     [Arguments]      ${package}
