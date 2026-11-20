@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from html import escape
-from datetime import datetime, timedelta, timezone
 from Zephyr import Zephyr, ZephyrTestStatuses
 from robot.running import TestCase
 from robot.result import TestCase as TestResult
@@ -47,6 +46,10 @@ target_to_cycle_map = {
 }
 NIGHTLY_SUMMARY_CASE = "SSRCSP-T526"
 NIGHTLY_SUMMARY_CYCLE = "SSRCSP-C230"
+JENKINS_JOB_URL_PREFIX = "https://ci-prod.vedenemo.dev/job"
+HW_TEST_JOB_NAME = "ghaf-hw-test"
+NIGHTLY_JOB_NAME = "ghaf-nightly"
+NIGHTLY_BUILD_HEADER = f"Jenkins {NIGHTLY_JOB_NAME} build: "
 
 class ZephyrListener:
     """Robot Framework listener for saving results to Jira Zephyr"""
@@ -66,12 +69,16 @@ class ZephyrListener:
             self.record_nightly_failure(result.setup)
         if result.has_teardown and result.teardown.status == 'FAIL':
             self.record_nightly_failure(result.teardown)
-        if result.parent is None and self.zephyr.connected and self.is_regression_run():
+        if result.parent is None and self.zephyr.connected and self.is_regression_run() and self.is_triggered_by(NIGHTLY_JOB_NAME):
             self.send_nightly_summary()
 
     def is_regression_run(self):
         includes = BuiltIn().get_variable_value("${OPTIONS.include}", ())
         return any('regression' in pattern.lower() for pattern in includes)
+
+    def is_triggered_by(self, upstream_project):
+        actual_upstream_project = BuiltIn().get_variable_value("${UPSTREAM_PROJECT}", ())
+        return actual_upstream_project == upstream_project
 
     def get_target(self):
         job_env_var = BuiltIn().get_variable_value("${JOB}")
@@ -166,7 +173,7 @@ class ZephyrListener:
         # if result is None it returns just link to the log, useful for passed runs
         anchor = self.get_log_anchor(result) if result is not None else ''
         return (
-            f"https://ci-prod.vedenemo.dev/job/ghaf-hw-test/{build_id}/artifact/"
+            f"{JENKINS_JOB_URL_PREFIX}/{HW_TEST_JOB_NAME}/{build_id}/artifact/"
             f"Robot-Framework/test-suites/regression/log.html{anchor}"
         )
 
@@ -201,35 +208,35 @@ class ZephyrListener:
         return None
 
     def send_nightly_summary(self):
-        message = self.get_nightly_summary_message()
+        upstream_build_id = int(BuiltIn().get_variable_value("${UPSTREAM_BUILD_ID}"))
         latest_result = self.zephyr.get_latest_test_result(NIGHTLY_SUMMARY_CASE)
+        previous_message = (latest_result or {}).get('comment') or ''
+        previous_build_id = self.get_upstream_build_id_from_comment(previous_message)
+        message = self.get_nightly_summary_message()
 
-        now = datetime.now(timezone.utc)
-        actual_end_date = now.isoformat(timespec='milliseconds').replace('+00:00', 'Z')
-
-        if latest_result and self.is_recent_nightly_summary(latest_result, now):
-            previous_message = latest_result.get('comment') or ''
-            if previous_message:
-                message = f"{previous_message}<br><br>{message}"
+        if previous_build_id == upstream_build_id:
             self.zephyr.update_test_result(
                 test_run_key=NIGHTLY_SUMMARY_CYCLE, test_case_key=NIGHTLY_SUMMARY_CASE,
-                comment=message, actual_end_date=actual_end_date,
+                comment=f"{previous_message}<br><br>{message}",
             )
         else:
+            nightly_url = f"{JENKINS_JOB_URL_PREFIX}/{NIGHTLY_JOB_NAME}/{upstream_build_id}/"
+            header = (
+                f"{NIGHTLY_BUILD_HEADER}{upstream_build_id}"
+                f'<br><a href="{nightly_url}" target="_blank" rel="noopener noreferrer">'
+                'Open nightly build</a>'
+            )
             self.zephyr.create_test_result(
                 test_run_key=NIGHTLY_SUMMARY_CYCLE, test_case_key=NIGHTLY_SUMMARY_CASE,
-                status=ZephyrTestStatuses.PASS, comment=message, actual_end_date=actual_end_date,
+                status=ZephyrTestStatuses.PASS, comment=f"{header}<br><br>{message}",
             )
 
-    def is_recent_nightly_summary(self, result, now):
-        try:
-            last_sent = datetime.fromisoformat(result['actualEndDate'])
-        except (KeyError, TypeError, ValueError):
-            logger.warn("Cannot determine the last summary time; a new summary result will be created")
-            return False
-        if last_sent.tzinfo is None:
-            last_sent = last_sent.replace(tzinfo=timezone.utc)
-        return timedelta(0) <= now - last_sent <= timedelta(hours=12)
+    def get_upstream_build_id_from_comment(self, comment: str) -> int | None:
+        first_line = comment.partition('<br>')[0]
+        build_id = first_line.removeprefix(NIGHTLY_BUILD_HEADER)
+        if build_id != first_line and build_id.isascii() and build_id.isdecimal():
+            return int(build_id)
+        return None
 
     def record_nightly_test_failure(self, result: TestResult):
         if result.status != 'FAIL':
