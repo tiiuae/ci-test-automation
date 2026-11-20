@@ -234,7 +234,8 @@ Check logging rate against history
         END
 
         # Logs from sshd-session are excluded, they are created by the ssh connections in tests
-        ${ignored_log_pattern}    Set Variable   sshd-session
+        # Logs with original_timestamp are ignored, they are delayed boot logs
+        ${ignored_log_pattern}    Set Variable   sshd-session|original_timestamp
 
         ${byte_status}    ${byte_rate}    Run Keyword And Ignore Error
         ...    Run Command    journalctl --since "$(date -d '${check_interval} seconds ago' '+%Y-%m-%d %H:%M:%S')" | grep -vE "${ignored_log_pattern}" | wc -c | awk '{print $1}'
