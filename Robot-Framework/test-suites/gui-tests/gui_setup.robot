@@ -26,6 +26,7 @@ Complete Initial Setup
     ...                   AND   Save original values
 
     Check page and open next   Accessibility setup
+    Check page and open next   Get connected
 
     Select setup option and continue   Select a language        English (Canada)    en_CA.utf8   Verify language
     Select setup option and continue   Select keyboard layout   Finnish (classic)   fi           Verify keyboard language
