@@ -132,10 +132,12 @@ Check Grafana logs
         ${failed_vms_check_2}   Check Logs Are available   ${id}   since=${since_boot}s
         ${check_status}         Run Keyword And Return Status    Should Be Empty   ${failed_vms_check_2}
         IF  ${check_status}
-            ${fail_msg}     Catenate    SEPARATOR=\n
+            Log Error   Rate limit    Log forwarding stopped for these VMs: ${failed_vms_check_1}
+            ${skip_msg}     Catenate    SEPARATOR=\n
+            ...    Known issue: SSRCSP-8202
             ...    Log forwarding stopped for these VMs: ${failed_vms_check_1}
             ...    Verified that log forwarding was working some time after boot for all VMs
-            FAIL    ${fail_msg}
+            SKIP    ${skip_msg}
         ELSE
             Remove Values From List    ${failed_vms_check_1}    @{failed_vms_check_2}
             ${fail_msg}     Catenate    SEPARATOR=\n

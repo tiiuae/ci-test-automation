@@ -4,6 +4,7 @@
 
 | DATE SET   | TEST CASE                          | TICKET / Additional Data                                                | Error Log Context      |
 | ---------- | ---------------------------------- | ----------------------------------------------------------------------- | ---------------------- |
+| 23.11.2026 | Check Grafana logs                 | SSRCSP-8202                                                             | Rate limit             |
 | 18.11.2026 | Check device id (AGX)              | SSRCSP-9287                                                             | AGX Device ID          |
 | 18.11.2026 | Check net-vm hostname (AGX)        | SSRCSP-9287                                                             | AGX Hostname           |
 | 13.11.2026 | Non-gui app tests (storeDisk)      | SSRCSP-9250                                                             | StoreDisk app window   |
