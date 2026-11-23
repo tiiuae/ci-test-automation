@@ -1,0 +1,103 @@
+/* SPDX-FileCopyrightText: 2026 TII (SSRC) and the Ghaf contributors
+ * SPDX-License-Identifier: Apache-2.0 */
+
+body {
+  font: 16px/1.5 system-ui,sans-serif;
+  max-width: 980px;
+  margin: 28px auto;
+  padding: 0 22px;
+  background: #f6f8fb;
+  color: #172235;
+  overflow-wrap: anywhere;
+}
+
+h1 {
+  font-size: 28px;
+}
+
+h2 {
+  font-size: 21px;
+  margin: 0 0 12px;
+}
+
+h3 {
+  font-size: 17px;
+  margin: 14px 0 5px;
+}
+
+a {
+  color: #1359a2;
+}
+
+p {
+  margin: 7px 0;
+}
+
+section {
+  background: white;
+  border: 1px solid #dde3ec;
+  border-radius: 9px;
+  padding: 18px 22px;
+  margin: 16px 0;
+}
+
+.meta {
+  font-size: 14px;
+  color: #58687c;
+}
+
+.finding {
+  font-weight: 600;
+}
+
+.secondary {
+  color: #79511b;
+}
+
+li {
+  margin: 9px 0;
+}
+
+.error-message {
+  color: #a31632;
+  background: #fff0f2;
+  border: 1px solid #f0ccd3;
+  border-radius: 4px;
+  padding: 3px 6px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 14px/1.5 ui-monospace,monospace;
+}
+
+summary {
+  cursor: pointer;
+  color: #345578;
+  margin: 10px 0;
+}
+
+pre {
+  font-size: 13px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #f1f3f7;
+  padding: 12px;
+  border-radius: 5px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+td,th {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #e6eaf1;
+  vertical-align: top;
+}
+
+.time {
+  white-space: nowrap;
+  width: 110px;
+}

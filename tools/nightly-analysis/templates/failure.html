@@ -1,0 +1,61 @@
+{# SPDX-FileCopyrightText: 2026 TII (SSRC) and the Ghaf contributors
+   SPDX-License-Identifier: Apache-2.0 #}
+{% from 'macros.html' import artifacts with context %}
+<h3>{{ link(test.url, test.name) }}</h3>
+<p><code class="error-message">{{ test.message|error_excerpt }}</code></p>
+{% set ai = test.get('ai_assessment') %}
+{% if ai %}
+<p class="finding">{{ ai.finding }}</p><p>{{ ai.explanation }}</p>
+<p class="meta">AI assessment · {{ ai.category }} · confidence: {{ ai.confidence }}</p>
+<p><strong>Recommendation:</strong> {{ ai.recommendation }}</p>
+<ul>{% for item in ai.evidence %}<li>{{ link(item.url, item.observation) }}</li>{% endfor %}</ul>
+{% for item in ai.evidence %}
+{% if 'evidence_id' in item %}
+<details><summary>Agent evidence provenance</summary><pre>{{ item|provenance }}</pre></details>
+{% endif %}
+{% endfor %}
+{% if ai.limitations %}<p class="secondary">Limitations: {{ ai.limitations|join('; ') }}</p>{% endif %}
+{% if ai.get('source_refs') %}
+<p class="meta">Source references: {% for item in ai.source_refs %}
+{{ link(item.url, item.revision[:12] ~ ': ' ~ item.note) }}{{ '; ' if not loop.last else '' }}
+{% endfor %}</p>
+{% endif %}
+<h4>Recorded facts and original evidence</h4>
+{% endif %}
+{% set facts = test.facts %}
+<p>{{ facts.description }}</p><p class="meta">{{ facts.limitations|join(' ') }}</p>
+{% for dependency in facts.fixture_dependencies %}
+<p>Shared fixture: {{ link(dependency.url, dependency.suite ~ ' ' ~ dependency.stage) }}</p>
+{% endfor %}
+{% if facts.timeline %}
+<details><summary>Recorded sequence (including handled failures)</summary><table>
+{% for event in facts.timeline %}
+<tr><td>{{ event.get('time', '') }}</td><td>
+{{ link(event.url, event.get('name', '') ~ ' ' ~ event.get('status', '') ~ ': ' ~ event.get('text', '')) }}</td></tr>
+{% endfor %}
+</table></details>
+{% endif %}
+{% set findings = test.get('debug_findings', []) %}
+{% if findings %}
+<details><summary>Scoped debug observations ({{ findings|length }})</summary>
+<p class="meta">Line numbers refer to the original log message or linked text file.
+Source log clocks may differ from the Robot runner clock.</p>
+{% for finding in findings %}
+<p class="meta">{{ finding.timing }} · {{ finding.origin.stage }} ·
+{{ link(finding.origin.url, finding.origin.context[-4:]|join(' → ') ~ ' · line ' ~ finding.line) }}</p>
+<pre>{{ finding.text }}</pre>
+{% endfor %}
+</details>
+{% endif %}
+{% if test.get('artifacts') %}
+{{ artifacts(test.artifacts, 'Evidence captured for this test and its wrappers') }}
+{% else %}
+<p class="meta">No uniquely archived file was traced to this test.
+Inline debug and failure locations remain linked above.</p>
+{% endif %}
+{{ artifacts(test.get('shared_artifacts', []), 'Shared suite diagnostics (not exclusive to this test)') }}
+<details><summary>Original error and failure locations</summary><pre>{{ test.message }}</pre>
+{% for point in test.failure_points %}
+<p>{{ link(point.url, point.name) }} — {{ point.message|short_error }}</p>
+{% endfor %}
+</details>

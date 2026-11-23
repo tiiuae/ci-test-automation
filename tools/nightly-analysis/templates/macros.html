@@ -1,0 +1,49 @@
+{# SPDX-FileCopyrightText: 2026 TII (SSRC) and the Ghaf contributors
+   SPDX-License-Identifier: Apache-2.0 #}
+{% macro notice(label, notes) -%}
+<p class="secondary"><strong>{{ label }}</strong></p><ul>
+{% for note in notes %}<li>{{ note }}</li>{% endfor %}
+</ul>
+{%- endmacro %}
+
+{% macro artifacts(items, label) -%}
+{% if items %}
+<details><summary>{{ label }} ({{ items|length }})</summary><ul>
+{% for artifact in items %}
+<li>{{ link(artifact.url, artifact.name|basename) }}<br><span class="meta">
+{{ artifact.relation }} · {{ artifact.origin.stage }} ·
+{{ link(artifact.origin.url, artifact.origin.context[-3:]|join(' → ')) }}</span></li>
+{% endfor %}
+</ul></details>
+{% endif %}
+{%- endmacro %}
+
+{% macro hardware_outcome(run) -%}
+{% set metadata = run.metadata %}
+{% set job = metadata.get('job', {}) %}
+{% set status = job.get('result') or metadata.get('status') or 'UNKNOWN' %}
+<p>No Robot test results were collected. HW job status: {{ status }}.
+{% if metadata.get('status') and metadata.status != status %}
+Result collection status: {{ metadata.status }}.
+{% endif %}
+{{ link(job.get('url', ''), 'HW build') }}</p>
+{% if metadata.get('reason') %}
+<pre class="error-message">Recorded job error/reason: {{ metadata.reason|string|redact }}</pre>
+{% endif %}
+{% for observation in run.get('diagnostics', []) %}
+{% set label = 'Recorded job error' %}
+{% if observation.get('kind') == 'console_error' %}
+{% set label = 'Console error' ~ (' · stage: ' ~ observation.stage if observation.get('stage') else '')
+    ~ ' · line ' ~ observation.line %}
+{% endif %}
+<p>{{ link(observation.url, label) }}</p><pre class="error-message">{{ observation.text }}</pre>
+{% endfor %}
+{% if not metadata.get('reason') and not run.get('diagnostics') %}
+<p class="meta">The job failure reason is not available in the collected evidence.</p>
+{% endif %}
+{% if run.get('diagnostic_notes') %}
+<details><summary>Job diagnostic limitations</summary><ul>
+{% for note in run.diagnostic_notes %}<li>{{ note }}</li>{% endfor %}
+</ul></details>
+{% endif %}
+{%- endmacro %}

@@ -69,6 +69,8 @@
               ;
           };
           default = ghaf-robot;
+
+          nightly-analyze = pkgs.callPackage ./pkgs/nightly-analyze { };
         };
 
         # Development shell
@@ -86,6 +88,7 @@
               ps:
               (with ps; [
                 robotframework
+                jinja2
                 robotframework-sshlibrary
                 pyserial
                 python-kasa
