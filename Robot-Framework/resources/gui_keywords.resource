@@ -561,21 +561,25 @@ Capture Action Changes
 
 Capture Changes Since Screenshot
     [Arguments]    ${screenshot_before}    ${suffix}
+    Add To The Screenshot List    ${screenshot_before}
+
+    ${after}     Take Remote Screenshot And Download
+    ...    to=${GUI_OUTPUT_DIR}/after_${suffix}.jpeg
+    Add To The Screenshot List    ${after}
+
+    ${cropped}     Get Diff Images    ${screenshot_before}    ${after}
+    Add To The Screenshot List        ${cropped}
+
+    RETURN    ${cropped}
+
+Add To The Screenshot List
+    [Arguments]    ${screenshot}
     ${screenshots}     Get Variable Value    ${CAPTURED_SCREENSHOTS}    ${None}
     IF    $screenshots is None
         ${screenshots}     Create List
         Set Test Variable    ${CAPTURED_SCREENSHOTS}    ${screenshots}
     END
-    Append To List    ${screenshots}    ${screenshot_before}
-
-    ${after}     Take Remote Screenshot And Download
-    ...    to=${GUI_OUTPUT_DIR}/after_${suffix}.jpeg
-    Append To List    ${screenshots}    ${after}
-
-    ${cropped}     Get Diff Images    ${screenshot_before}    ${after}
-    Append To List    ${screenshots}    ${cropped}
-
-    RETURN    ${cropped}
+    Append To List    ${screenshots}    ${screenshot}
 
 Remove Captured Screenshots
     [Documentation]    Remove only the local screenshots registered by the current test.
