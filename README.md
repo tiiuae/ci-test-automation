@@ -34,6 +34,11 @@ To apply the formatting, enable overwrite explicitly:
 robotidy --overwrite Robot-Framework
 ```
 
+## Nightly HW regression analysis
+
+See the [local analyzer instructions](tools/nightly-analysis/README.md).
+The analyzer currently generates local reports; CI publication is being prepared.
+
 ## drcontrol.py
 
 For more information, see [drcontrol-README.md](./drcontrol/drcontrol-README.md).

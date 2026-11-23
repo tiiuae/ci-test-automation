@@ -1,0 +1,84 @@
+{# SPDX-FileCopyrightText: 2026 TII (SSRC) and the Ghaf contributors
+   SPDX-License-Identifier: Apache-2.0 #}
+{% extends 'base.html' %}
+{% from 'macros.html' import notice, hardware_outcome with context %}
+{% block content %}
+<h1>HW nightly · {{ date }}</h1>
+{% if report.get('upstream') %}<p class="meta">Nightly build #{{ report.upstream.build }}</p>{% endif %}
+<p class="meta">{{ link(report.source_url, 'Nightly artifacts') }} · Failures and incomplete checks only</p>
+<p class="meta">Recorded tests: {% for status, count in report.counts.items() %}
+{{ count }} {{ status }}{{ ', ' if not loop.last else '' }}{% endfor %}</p>
+{% set ai_state = report.get('ai_investigation', {}) %}
+{% if ai_state.get('state') == 'current' %}
+<p class="meta">AI investigation: {{ ai_state.reviewed_cases }} of {{ ai_state.total_cases }} failure cases ·
+{{ ai_state.analyst }} · {{ ai_state.created_at }}</p>
+{% elif ai_state %}
+<p class="secondary">Saved AI investigation was not applied: {{ ai_state.message }}.
+Re-investigate the current evidence; recorded facts are shown below.</p>
+{% endif %}
+{% for target in missing %}
+<section><h2>{{ target.name.removeprefix('packages.') }}</h2><p>{{ target.not_run_reason }}</p>
+<p>{{ link(target.url, 'Artifacts') }}</p></section>
+{% endfor %}
+{% for configuration in configurations %}
+{% set run = configuration.run %}
+{% set target = configuration.target %}
+<section id="configuration-{{ loop.index }}"><h2>{{ configuration.title }}</h2>
+<p class="meta">{{ link(run.metadata.get('job', {}).get('url', ''), 'HW build') }} ·
+{{ link(target.url, 'Artifacts') }} · Ghaf {{ (target.manifest.get('source', {}).get('revision', 'unknown')|string)[:12] }}</p>
+{% for test in configuration.failures %}{% include 'failure.html' %}{% endfor %}
+{% if configuration.dependent.get('Execution stopped') %}
+<p class="secondary">{{ configuration.dependent['Execution stopped'] }} remaining tests were not executed after the run was interrupted.</p>
+{% endif %}
+{% if configuration.dependent.get('Parent suite fixture') %}
+<p class="meta">{{ configuration.dependent['Parent suite fixture'] }} test statuses were affected by shared suite setup/teardown failure.</p>
+{% endif %}
+{% for reason, tests in configuration.skip_groups.items() %}
+<p class="meta">{% for test in tests %}{{ link(test.url, test.name) }}{{ ', ' if not loop.last else '' }}{% endfor %}: {{ reason }}.</p>
+<details><summary>Original skip messages</summary>
+{% for test in tests %}<pre>{{ test.name }}: {{ test.message }}</pre>{% endfor %}
+</details>
+{% endfor %}
+{% if run.metadata.get('status') == 'SKIPPED' %}
+{% set reason = run.metadata.get('reason', 'No scheduling reason was recorded') %}
+<p>HW tests not started: {{ {
+    'secureboot_not_available': 'Secure Boot execution was unavailable (device or signing availability; the metadata does not distinguish them)',
+    'ci_env_vm': 'HW testing is disabled in the VM CI environment'
+}.get(reason, reason) }}.</p>
+{% elif not configuration.has_tests %}
+{{ hardware_outcome(run) }}
+{% endif %}
+{% if configuration.has_tests %}<p>{{ recorded_outcome(run) }}</p>{% endif %}
+{% if run.gaps %}
+<details><summary>Unavailable evidence</summary><ul>
+{% for gap in run.gaps %}<li>{{ gap }}</li>{% endfor %}
+</ul></details>
+{% endif %}
+{% set suite_issues = run.phases|map(attribute='suite_failures')|sum(start=[]) %}
+{% if suite_issues %}
+<h3>Shared suite failures</h3>
+{% for issue in suite_issues %}
+<p>{{ link(issue.url, issue.suite ~ ' ' ~ issue.stage) }}</p><pre>{{ issue.message }}</pre>
+{% endfor %}
+{% endif %}
+{% for phase in run.phases %}
+{% for error in phase.execution_errors %}
+<p>Robot execution diagnostic: {{ link(phase.xml_url, error.level) }}</p><pre>{{ error.message }}</pre>
+{% endfor %}
+{% endfor %}
+</section>
+{% endfor %}
+{% if not configurations and not missing %}
+<p>No failures or incomplete checks found in the collected HW results.</p>
+{% endif %}
+{% if report.scope_notes %}{{ notice('Nightly scope unverified', report.scope_notes) }}{% endif %}
+{% if report.collection_gaps %}{{ notice('Artifact collection incomplete', report.collection_gaps) }}{% endif %}
+{% if report.collection_notes %}
+<details><summary>Collection notes</summary><ul>
+{% for gap in report.collection_notes %}<li>{{ gap }}</li>{% endfor %}
+</ul></details>
+{% endif %}
+<p class="meta">Times come from Robot logs; the XML does not encode their timezone.
+The default view shows recorded facts. Imported AI assessments are labelled separately.
+The analyzer does not call a model. Underlying causes remain unconfirmed where evidence is insufficient.</p>
+{% endblock %}

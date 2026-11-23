@@ -1,0 +1,48 @@
+{# SPDX-FileCopyrightText: 2026 TII (SSRC) and the Ghaf contributors
+   SPDX-License-Identifier: Apache-2.0 #}
+{% extends 'base.html' %}
+{% from 'macros.html' import notice, hardware_outcome with context %}
+{% block title %}Nightly {{ date }} · Summary{% endblock %}
+{% block content %}
+<div id="summary-message"><p><strong>Nightly {{ date }}</strong></p>
+{% for target in missing %}
+<p><br></p><p><strong>{{ target.name.removeprefix('packages.') }}</strong></p><p>{{ target.not_run_reason }}</p>
+{% endfor %}
+{% set visible = configurations|selectattr('show_summary')|list %}
+{% for configuration in visible %}
+{% set run = configuration.run %}
+{# Explicit paragraphs and strong survive rich-text paste into message editors. #}
+<p><br></p><p><strong>{{ configuration.title }}</strong></p>
+{% if run.metadata.get('status') == 'SKIPPED' %}
+<p>HW run skipped: {{ run.metadata.get('reason') or 'No reason recorded' }}</p>
+{% endif %}
+{% for test in configuration.failures %}
+{% set ai = test.get('ai_assessment') %}
+<p>{{ link(test.url, test.name) }}<br><code class="error-message">{{ test.message|error_excerpt }}</code><br>
+{% if ai %}AI assessment: {{ ai.get('summary', ai.get('slack_summary', ai.finding))|summary_excerpt }}{% else %}
+{{ test.facts.description }} Underlying cause is unknown.{% endif %}</p>
+{% endfor %}
+{% for phase in run.phases %}
+{% for issue in phase.suite_failures %}
+<p>{{ link(issue.url, issue.suite ~ ' ' ~ issue.stage ~ ': ' ~ issue.message) }}</p>
+{% endfor %}
+{% for error in phase.execution_errors if error.level != 'WARN' %}
+<p>Robot {{ error.level }}: {{ error.message }}</p>
+{% endfor %}
+{% endfor %}
+{% if not configuration.has_tests and run.metadata.get('status') != 'SKIPPED' %}{{ hardware_outcome(run) }}{% endif %}
+{% if configuration.dependent.get('Execution stopped') %}
+<p>{{ configuration.dependent['Execution stopped'] }} tests not executed after interruption.</p>
+{% endif %}
+{% if configuration.dependent.get('Parent suite fixture') %}
+<p>{{ configuration.dependent['Parent suite fixture'] }} test failures inherited from suite setup/teardown.</p>
+{% endif %}
+{% if configuration.has_tests %}<p>{{ recorded_outcome(run) }}</p>{% endif %}
+{% if run.gaps %}<p>Some evidence is unavailable; see the full report.</p>{% endif %}
+{% endfor %}
+{% if report.collection_gaps %}{{ notice('Artifact collection incomplete', report.collection_gaps) }}{% endif %}
+{% if not visible and not missing and not report.collection_gaps %}
+<p>No failures or incomplete checks found in the collected HW results.</p>
+{% endif %}
+</div>
+{% endblock %}
