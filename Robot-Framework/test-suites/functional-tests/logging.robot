@@ -211,7 +211,8 @@ Save logging logs from VMs
 
 Check logging rate against history
     [Arguments]    ${history_test_name}    ${save_history}=${True}
-    ${check_interval}          Set Variable   90
+    ${check_interval}          Set Variable   60
+    # Interval was lowered, limits need to be reviewed in a few days
     ${entry_limit}             Set Variable   250
     ${bytes_per_entry}         Set Variable   200
     ${byte_limit}              Evaluate       ${entry_limit} * ${bytes_per_entry}
