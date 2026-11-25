@@ -264,9 +264,8 @@ Connect
 
 Connect to VM
     [Documentation]   Connect to any VM or ghaf-host over internal virtual network
-    [Tags]            robot:private   # Use 'Switch to vm' instead of calling this keyword directly
+    [Tags]            robot:private  robot:stop-on-failure   # Use 'Switch to vm' instead of calling this keyword directly
     [Arguments]       ${vm_name}    ${user}=${LOGIN}   ${pw}=${PASSWORD}   ${timeout}=60
-    [Timeout]         ${timeout}
     Switch to vm      ${NET_VM}
     Check if ssh is ready on vm        ${vm_name}   ${timeout}
     ${connection}     Open connection and login   connection_point=${vm_name}   username=${user}   password=${pw}   target_output=${vm_name}   jumphost=${NET-VM_GHAF_SSH}   timeout=${timeout}
@@ -307,7 +306,7 @@ Check if ssh is ready on vm
             BREAK
         END
     END
-    IF   '${status}' == 'FAIL'    FAIL    Port 22 of ${vm} is not ready after ${timeout}
+    IF   '${status}' == 'FAIL'    FAIL    Port 22 of ${vm} is not ready after ${timeout} seconds
 
 Get Ssh Status
     [Arguments]    ${ip_address}

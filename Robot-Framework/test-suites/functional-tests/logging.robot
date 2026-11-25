@@ -220,42 +220,38 @@ Check logging rate against history
     &{spam_metrics}       Create Dictionary
     &{ok_metrics}         Create Dictionary
     &{spam_logs}          Create Dictionary
-    &{unavailable_vms}    Create Dictionary
     &{entry_history}      Create Dictionary
     &{byte_history}       Create Dictionary
 
     FOR  ${vm}  IN  @{VM_LIST}
         Set To Dictionary    ${entry_history}    ${vm}=${EMPTY}
         Set To Dictionary    ${byte_history}     ${vm}=${EMPTY}
-    END
-    FOR  ${vm}  IN  @{VM_LIST}
-        ${switch_status}    ${switch_output}    Run Keyword And Ignore Error    Switch to vm    ${vm}    timeout=10
-        IF  '${switch_status}' == 'FAIL'
-            Log    Skipping ${vm}: ${switch_output}    console=True
-            Set To Dictionary    ${unavailable_vms}    ${vm}=${switch_output}
-            CONTINUE
-        END
+        TRY
+            Switch to vm    ${vm}    timeout=10
 
-        # Logs from sshd-session are excluded, they are created by the ssh connections in tests
-        # Logs with original_timestamp are ignored, they are delayed boot logs
-        ${ignored_log_pattern}    Set Variable   sshd-session|original_timestamp
+            # Logs from sshd-session are excluded, they are created by the ssh connections in tests
+            # Logs with original_timestamp are ignored, they are delayed boot logs
+            ${ignored_log_pattern}    Set Variable   sshd-session|original_timestamp
 
-        ${byte_status}    ${byte_rate}    Run Keyword And Ignore Error
-        ...    Run Command    journalctl --since "$(date -d '${check_interval} seconds ago' '+%Y-%m-%d %H:%M:%S')" | grep -vE "${ignored_log_pattern}" | wc -c | awk '{print $1}'
-        ${entries_status}    ${entries}    Run Keyword And Ignore Error
-        ...    Run Command    journalctl --since "${check_interval} seconds ago" | grep -vE "${ignored_log_pattern}" | wc -l
-        IF  '${byte_status}' == 'PASS'
-            Set To Dictionary    ${byte_history}    ${vm}=${byte_rate}
-        END
-        IF  '${entries_status}' == 'PASS'
-            Set To Dictionary    ${entry_history}    ${vm}=${entries}
-        END
-        IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS' and (${entries} > ${entry_limit} or ${byte_rate} > ${byte_limit})
-            ${recent_logs}       Run Command        journalctl --since "${check_interval} seconds ago" | grep -vE "${ignored_log_pattern}"
-            Set To Dictionary    ${spam_logs}       ${vm}=${recent_logs}
-            Set To Dictionary    ${spam_metrics}    ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${entry_limit}/${byte_limit}
-        ELSE IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS'
-            Set To Dictionary    ${ok_metrics}      ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${entry_limit}/${byte_limit}
+            ${byte_status}    ${byte_rate}    Run Keyword And Ignore Error
+            ...    Run Command    journalctl --since "$(date -d '${check_interval} seconds ago' '+%Y-%m-%d %H:%M:%S')" | grep -vE "${ignored_log_pattern}" | wc -c | awk '{print $1}'
+            ${entries_status}    ${entries}    Run Keyword And Ignore Error
+            ...    Run Command    journalctl --since "${check_interval} seconds ago" | grep -vE "${ignored_log_pattern}" | wc -l
+            IF  '${byte_status}' == 'PASS'
+                Set To Dictionary    ${byte_history}    ${vm}=${byte_rate}
+            END
+            IF  '${entries_status}' == 'PASS'
+                Set To Dictionary    ${entry_history}    ${vm}=${entries}
+            END
+            IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS' and (${entries} > ${entry_limit} or ${byte_rate} > ${byte_limit})
+                ${recent_logs}       Run Command        journalctl --since "${check_interval} seconds ago" | grep -vE "${ignored_log_pattern}"
+                Set To Dictionary    ${spam_logs}       ${vm}=${recent_logs}
+                Set To Dictionary    ${spam_metrics}    ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${entry_limit}/${byte_limit}
+            ELSE IF  '${entries_status}' == 'PASS' and '${byte_status}' == 'PASS'
+                Set To Dictionary    ${ok_metrics}      ${vm}=Entries: ${entries}, Byterate: ${byte_rate}, Limit: ${entry_limit}/${byte_limit}
+            END
+        EXCEPT    AS    ${error_message}
+            Run Keyword And Continue On Failure    FAIL   Log check failed in ${vm}: ${error_message}
         END
     END
 
@@ -264,10 +260,6 @@ Check logging rate against history
     Log                       VMs with acceptable logging rates:\n${ok_metrics_report}       console=True
     Log                       Log spamming detected in these VMs:\n${spam_metrics_report}    console=True
 
-    ${has_unavailable_vms}    Run Keyword And Return Status    Should Not Be Empty    ${unavailable_vms}
-    IF  ${has_unavailable_vms}
-        Log                VMs not accessible during logging check:\n${unavailable_vms}    console=True
-    END
     ${graph_entry_limit}    Evaluate    4 * ${entry_limit}
     ${graph_byte_limit}     Evaluate    ${graph_entry_limit} * ${bytes_per_entry}
     IF  ${save_history}

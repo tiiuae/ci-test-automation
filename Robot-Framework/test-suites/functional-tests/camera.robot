@@ -23,11 +23,11 @@ ${VIDEO_DIR}    ${OUTPUT_DIR}/outputs/camera
 *** Test Cases ***
 Check Camera in VMs
     [Documentation]  Check that camera is not available by default
-    [Tags]  SP-T235
-    @{vms}      Get VM list
-    FOR  ${vm}  IN  @{vms}
-        Switch to vm        ${vm}
-        Run Keyword And Continue On Failure   Run Command  ls /dev/ | grep video  sudo=True  rc_match=not_equal  compare_rc=0
+    [Tags]           SP-T235
+    [Template]       Check Camera Availability In VM
+    [Setup]          Set Camera VM List
+    FOR  ${vm}  IN  @{camera_vms}
+        ${vm}
     END
 
 Record Video With Camera
@@ -56,3 +56,14 @@ Record Video With Camera
         Verify Video File  ${id}
     END
     [Teardown]       Detach integrated camera
+
+
+*** Keywords ***
+Set Camera VM List
+    @{vms}    Get VM list
+    Set Suite Variable    @{camera_vms}    @{vms}
+
+Check Camera Availability In VM
+    [Arguments]     ${vm}
+    Switch to vm    ${vm}
+    Run Command    ls /dev/ | grep video    sudo=True    rc_match=not_equal    compare_rc=0

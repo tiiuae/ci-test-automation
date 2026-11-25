@@ -31,16 +31,10 @@ ${found_known_issues_message}
 Check internet connection in every VM
     [Documentation]    Pings google from every vm.
     [Tags]             SP-T257  orin-agx  orin-agx-64  orin-nx
-    ${failed_vms}     Create List
-    FOR  ${vm}  IN  @{VM_LIST_WITH_HOST}
-        Switch to vm     ${vm}
-        ${status}     Run Keyword And Return Status   Check Network Availability   8.8.8.8   limit_freq=${False}
-        IF    not ${status}
-            Log To Console    FAIL: ${vm} does not have internet connection
-            Append To List    ${failed_vms}    ${vm}
-        END
+    [Template]         Check Internet Connection In VM
+    FOR    ${vm}    IN    @{VM_LIST_WITH_HOST}
+        ${vm}
     END
-    IF  ${failed_vms} != []    FAIL    VMs with no internet connection: ${failed_vms}
 
 Check systemctl status in every VM
     [Documentation]    Check that systemctl status is running in every vm.
@@ -54,56 +48,43 @@ Check systemctl status in every VM
 Verify EPT is enabled in every VM
     [Documentation]    Check that ETP is enabled in every vm.
     [Tags]             SP-T274
-    ${failed_vms}      Create List
-    FOR  ${vm}  IN  @{VM_LIST_WITH_HOST}
-        Switch to vm     ${vm}
-        ${output}        Run Command    cat /sys/module/kvm_intel/parameters/ept
-        ${result}        Run Keyword And Return Status    Should Contain    ${output}    Y
-        IF    not ${result}
-            Log To Console    FAIL: ${vm} does not have ETP enabled
-            Append To List    ${failed_vms}    ${vm}
-        END
+    [Template]    Verify EPT Is Enabled In VM
+    FOR    ${vm}    IN    @{VM_LIST_WITH_HOST}
+        ${vm}
     END
-    IF  ${failed_vms} != []    FAIL    VMs with ETP not enabled: ${failed_vms}
 
 Check Device ID in every VM
     [Documentation]    Check that Device ID is the same in every vm.
     [Tags]             SP-T468  orin-agx  orin-agx-64  orin-nx
-    ${host_device_id}  Get Actual Device ID
-    @{VM_LIST}         Get VM list
-    ${failed_vms}      Create List
-    FOR  ${vm}  IN  @{VM_LIST}
-        Switch to vm   ${vm}
-        ${id}          Get Actual Device ID
-        Log            Device ID in ${vm}: ${id}, expected to be the same as in host: ${host_device_id}     console=True
-        ${result}      Run Keyword And Return Status    Should Be Equal As Strings
-        ...            ${id}    ${host_device_id}    ignore_case=True
-        IF    not ${result}
-            Log To Console    FAIL: Device ID in ${vm} is ${id}, but device ID in host is ${host_device_id}
-            Append To List    ${failed_vms}    ${vm}
-        END
+    [Template]         Verify Device ID In VM
+    [Setup]            Set Host Device ID
+    FOR    ${vm}    IN    @{VM_LIST}
+        ${vm}    ${host_device_id}
     END
-    IF  ${failed_vms} != []    FAIL    VMs with different Device IDs: ${failed_vms}
 
 VMs use net-vm as DNS server
     [Documentation]    Check that every VM except net-vm uses 192.168.100.1 as its current and configured DNS server.
     [Tags]             SP-T515  orin-agx  orin-agx-64  orin-nx
-    @{vms}             Get VM list
-    Remove Values From List    ${vms}    ${NET_VM}
-    FOR    ${vm}    IN    @{vms}
-        Run Keyword And Continue On Failure    Verify VM uses net-vm as DNS server    ${vm}
+    [Template]    Verify VM uses net-vm as DNS server
+    FOR    ${vm}    IN    @{VM_LIST_WITHOUT_NET}
+        ${vm}
     END
 
 
 *** Keywords ***
-Verify VM uses net-vm as DNS server
-    [Arguments]     ${vm}
-    Switch to vm    ${vm}
-    ${output}       Run Command    resolvectl status
-    FOR    ${field}    IN    Current DNS Server    DNS Servers
-        ${value}    Get Regexp Matches    ${output}    (?m)^\\s*${field}: (.+)$    1
-        Should Be Equal    ${value}[0]    192.168.100.1     msg=${vm}: ${field} is ${value}[0], expected 192.168.100.1
-    END
+VM Suite Setup
+    @{VM_LIST_WITH_HOST}    Get VM list    with_host=True
+    Set Suite Variable      @{VM_LIST_WITH_HOST}
+    @{VM_LIST}              Get VM list
+    Set Suite Variable      @{VM_LIST}
+    @{VM_LIST_WITHOUT_NET}  Copy List    ${VM_LIST}
+    Remove Values From List    ${VM_LIST_WITHOUT_NET}    ${NET_VM}
+    Set Suite Variable      @{VM_LIST_WITHOUT_NET}
+
+Check Internet Connection In VM
+    [Arguments]    ${vm}
+    Switch to vm   ${vm}
+    Check Network Availability    8.8.8.8    limit_freq=${False}
 
 Check systemctl status Template
     [Arguments]    ${vm}   ${timeout}=2 minutes
@@ -123,6 +104,28 @@ Check systemctl status Template
     END
     [Teardown]   Reboot Orin if ssh connection dropped
 
-VM Suite Setup
-    @{VM_LIST_WITH_HOST}    Get VM list    with_host=True
-    Set Suite Variable      @{VM_LIST_WITH_HOST}
+Verify EPT Is Enabled In VM
+    [Arguments]    ${vm}
+    Switch to vm   ${vm}
+    ${output}         Run Command    cat /sys/module/kvm_intel/parameters/ept
+    Should Contain    ${output}    Y
+
+Set Host Device ID
+    ${host_device_id}    Get Actual Device ID
+    Set Test Variable    ${host_device_id}
+
+Verify Device ID In VM
+    [Arguments]    ${vm}    ${host_device_id}
+    Switch to vm   ${vm}
+    ${id}          Get Actual Device ID
+    Log    Device ID in ${vm}: ${id}, expected to be the same as in host: ${host_device_id}    console=True
+    Should Be Equal As Strings   ${id}    ${host_device_id}    ignore_case=True
+
+Verify VM uses net-vm as DNS server
+    [Arguments]    ${vm}
+    Switch to vm   ${vm}
+    ${output}      Run Command    resolvectl status
+    FOR    ${field}    IN    Current DNS Server    DNS Servers
+        ${value}    Get Regexp Matches    ${output}    (?m)^\\s*${field}: (.+)$    1
+        Should Be Equal    ${value}[0]    192.168.100.1     msg=${vm}: ${field} is ${value}[0], expected 192.168.100.1
+    END
