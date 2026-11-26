@@ -3,15 +3,18 @@
 
 import serial
 import time
-import sys
+import argparse
 
 
-def read_relay_status(port):
+def read_relay_status(port, channels=4):
     """
-    Reads the status of KMTronic 4 channel relays via the specified serial port.
+    Reads the status of KMTronic 4 or 8 channel relays via the specified serial port.
 
     :param port: Serial port (e.g., /dev/ttyUSB0)
+    :param channels: Number of relays on the board (4 or 8); defaults to 4
     """
+    if channels not in (4, 8):
+        raise ValueError("Channels must be 4 or 8.")
     try:
         # Configure the serial port
         ser = serial.Serial(
@@ -28,10 +31,10 @@ def read_relay_status(port):
         time.sleep(0.1)  # Wait for the response
 
         # Read the response
-        response = ser.read(4)  # Read 4 bytes, one byte per relay
+        response = ser.read(channels)  # One byte per relay
         ser.close()
 
-        if len(response) == 4:
+        if len(response) == channels:
             # Parse and display the relay statuses
             relay_status = [
                 f"Relay {i + 1}: {'ON' if byte == 1 else 'OFF'}"
@@ -47,13 +50,11 @@ def read_relay_status(port):
 
 
 def main():
-    # Check for the port argument
-    if len(sys.argv) != 2:
-        print("Usage: python kmtronic_status.py <serial_port>")
-        print("Example: python kmtronic_status.py /dev/ttyUSB0")
-    else:
-        port = sys.argv[1]
-        read_relay_status(port)
+    parser = argparse.ArgumentParser(description="Read KMTronic 4 or 8 channel relay status.")
+    parser.add_argument("port", help="Serial port, e.g. /dev/ttyUSB0")
+    parser.add_argument("--channels", type=int, choices=(4, 8), default=4, help="Board channels (default: 4)")
+    args = parser.parse_args()
+    read_relay_status(args.port, channels=args.channels)
 
 
 if __name__ == "__main__":

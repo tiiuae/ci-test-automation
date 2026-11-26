@@ -10,12 +10,15 @@ class KMTronicLibrary:
     Robot Framework Library for controlling KMTronic USB relays.
     """
 
-    def __init__(self, port):
-        """Initialize the serial connection"""
+    def __init__(self, port, channels=4):
+        """Initialize the serial connection for a 4 or 8 channel board (default: 4)."""
         if not port or port == 'NONE':
             self.ser = None
             print("No serial connection initialized (relay serial port is empty or set to 'NONE').")
         else:
+            self.channels = int(channels)
+            if self.channels not in (4, 8):
+                raise ValueError("Channels must be 4 or 8.")
             self.ser = serial.Serial(
                 port=port,  # Port to which the device is connected
                 baudrate=9600,  # Baud rate
@@ -55,7 +58,7 @@ class KMTronicLibrary:
         """
         Set the state of a specific relay.
 
-        :param relay_number: Relay number (1-4).
+        :param relay_number: Relay number (1 to the configured number of channels).
         :param state: Desired state ("ON" or "OFF").
         """
         self._check_connection()
@@ -66,8 +69,8 @@ class KMTronicLibrary:
         except ValueError:
             raise ValueError(f"Invalid relay number: {relay_number}. Must be an integer.")
 
-        if relay_number < 1 or relay_number > 4:
-            raise ValueError("Relay number must be between 1 and 4.")
+        if relay_number < 1 or relay_number > self.channels:
+            raise ValueError(f"Relay number must be between 1 and {self.channels}.")
 
         if state not in ["ON", "OFF"]:
             raise ValueError("State must be 'ON' or 'OFF'.")
@@ -83,7 +86,7 @@ class KMTronicLibrary:
         """
         Get the state of a specific relay.
 
-        :param relay_number: Relay number (1-4).
+        :param relay_number: Relay number (1 to the configured number of channels).
         :return: "ON" if the relay is ON, otherwise "OFF".
         """
         self._check_connection()
@@ -94,23 +97,23 @@ class KMTronicLibrary:
         except ValueError:
             raise ValueError(f"Invalid relay number: {relay_number}. Must be an integer.")
 
-        if relay_number < 1 or relay_number > 4:
-            raise ValueError("Relay number must be between 1 and 4.")
+        if relay_number < 1 or relay_number > self.channels:
+            raise ValueError(f"Relay number must be between 1 and {self.channels}.")
 
         for i in range(3):
             # Send status command
             self.ser.write(bytearray.fromhex('FF0900'))
             time.sleep(0.1)  # Wait for response
 
-            # Read response (4 bytes, one byte per relay)
-            response = self.ser.read(4)
+            # Read one byte per relay
+            response = self.ser.read(self.channels)
 
-            if len(response) != 4:
+            if len(response) != self.channels:
                 BuiltIn().log_to_console(f"Invalid response length received. Response: {response}")
                 time.sleep(1)
             else:
                 break
-        if len(response) != 4:
+        if len(response) != self.channels:
             raise RuntimeError(f"Invalid response length received. Response: {response}")
 
         # Decode the state of the specified relay
