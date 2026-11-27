@@ -128,6 +128,13 @@
     "VM": "docker-vm",
     "process_name": "fmo-onboarding"
   },
+  "Fortinet VPN": {
+    "display_name": "Fortinet VPN",
+    "VM": "gui-vm",
+    "process_name": "ghaf-fortivpn",
+    "app_id": "org.ghaf.FortiVpn",
+    "close_button": "window-close-neg.png"
+  },
   "Gala": {
     "display_name": "Gala",
     "VM": "business-vm",
@@ -247,7 +254,8 @@
     "VM": "business-vm",
     "process_name": "gp-gui",
     "alternative_title": "VPN",
-    "close_button": "window-close-neg.png"
+    "close_button": "window-close-neg.png",
+    "menu_result_offset": 2
   },
   "Zoom": {
     "display_name": "Zoom",

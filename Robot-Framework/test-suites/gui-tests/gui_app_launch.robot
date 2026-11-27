@@ -60,6 +60,9 @@ Start Element via GUI
 Start Fingerprints via GUI
     [Tags]            SP-T475
     ${Fingerprints}
+Start Fortinet VPN via GUI
+    [Tags]            SP-T537
+    ${Fortinet VPN}
 Start Gala via GUI
     [Tags]            SP-T379
     ${Gala}

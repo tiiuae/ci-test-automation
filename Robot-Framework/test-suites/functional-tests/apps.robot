@@ -52,6 +52,9 @@ Start Element
 Start Fingerprints
     [Tags]            SP-T474
     ${Fingerprints}
+Start Fortinet VPN
+    [Tags]            SP-T536
+    ${Fortinet VPN}
 Start Gala
     [Tags]            SP-T378
     ${Gala}
