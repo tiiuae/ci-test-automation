@@ -200,6 +200,12 @@ Start app via GUI
     Open app menu
     Type string     ${app_key}[display_name]
 
+    # In some cases correct app is not the first one that is listed
+    ${menu_result_offset}    Get From Dictionary    ${app_key}    menu_result_offset    default=0
+    FOR    ${i}    IN RANGE    ${menu_result_offset}
+        Press Key(s)    TAB
+    END
+
     IF   ${measure_time}
         ${launch_time}   Launch app and wait for window    ${app_key}
         Log              Launch time of ${app_key}[display_name]: ${launch_time}    console=True
