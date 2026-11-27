@@ -366,22 +366,9 @@ Confidential password write
     [Arguments]      ${pw}   ${user}=${USER_LOGIN}
     [Setup]          Switch to vm     ${GUI_VM}   user=${user}
     Log To Console   Typing password secretly
-    TRY
-        ${previous_log_level}   Set Log Level    NONE
-        SSHLibrary.Write        read -r -s -p 'pw: ' PASSWD
-        SSHLibrary.Read Until   pw:
-        SSHLibrary.Write Bare   ${pw}${\n}
-        SSHLibrary.Read Until   ${user}@
-        SSHLibrary.Write        printf '%s' "$PASSWD" | YDOTOOL_SOCKET=${YDOTOOL_SOCKET} ydotool type -f -
-        SSHLibrary.Read Until   ${user}@
-    EXCEPT
-        FAIL   Failed to write the password, error hidden to not leak sensitive data
-    FINALLY
-        Run Keyword And Continue On Failure    SSHLibrary.Write         unset PASSWD
-        Run Keyword And Continue On Failure    SSHLibrary.Read Until    ${user}@
-        Set Log Level    ${previous_log_level}
-    END
-    ${sudo}   Set Variable If   '${user}' == '${USER_LOGIN}'   False   True
+    ${command}       Set Variable    printf '%s' "$CONFIDENTIAL_INPUT" | YDOTOOL_SOCKET=${YDOTOOL_SOCKET} ydotool type -f -
+    Run Command With Confidential Input    ${pw}    ${command}    ${user}@
+    ${sudo}          Set Variable If   '${user}' == '${USER_LOGIN}'   False   True
     Press Key(s)     ENTER   sudo=${sudo}
     [Teardown]       Switch to vm   ${GUI_VM}  user=${USER_LOGIN}
 
