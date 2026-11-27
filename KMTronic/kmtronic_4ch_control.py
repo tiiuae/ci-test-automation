@@ -2,18 +2,23 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import serial
-import sys
+import argparse
 import time
 
 
-def set_relay_state(port, relay_number=None, state=None):
+def set_relay_state(port, relay_number=None, state=None, channels=4):
     """
-    Sets the state of one or more relays on the KMTronic 4 channel device.
+    Sets the state of one or more relays on the KMTronic 4 or 8 channel device.
 
     :param port: Serial port (e.g., /dev/ttyUSB0)
-    :param relay_number: Relay number (1-4), or None to control all relays
+    :param relay_number: Relay number (1-channels), or None to control all relays
+    :param channels: Number of relays on the board (4 or 8); defaults to 4
     :param state: Desired state ("ON" or "OFF"), or None to turn all off
     """
+    if channels not in (4, 8):
+        raise ValueError("Channels must be 4 or 8.")
+    if relay_number is not None and not 1 <= relay_number <= channels:
+        raise ValueError(f"Relay number must be between 1 and {channels}.")
     try:
         # Configure the serial port
         ser = serial.Serial(
@@ -27,7 +32,7 @@ def set_relay_state(port, relay_number=None, state=None):
 
         if relay_number is None:
             # Control all relays one by one
-            for relay in range(1, 5):  # Relay numbers 1 to 4
+            for relay in range(1, channels + 1):
                 command = (
                     bytearray.fromhex("FF")
                     + bytearray([relay])
@@ -37,9 +42,6 @@ def set_relay_state(port, relay_number=None, state=None):
                 time.sleep(0.1)  # Small delay between commands
             print(f"All relays set to {state}.")
         else:
-            if relay_number < 1 or relay_number > 4:
-                raise ValueError("Relay number must be between 1 and 4.")
-            # KMTronic protocol uses 0-indexed relay numbers
             command = (
                 bytearray.fromhex("FF")
                 + bytearray([relay_number])
@@ -56,32 +58,15 @@ def set_relay_state(port, relay_number=None, state=None):
 
 
 def main():
-    # Check for sufficient arguments
-    if len(sys.argv) < 3:
-        print("Usage: python kmtronic_control.py <serial_port> <state> [relay_number]")
-        print(
-            "Example 1: python kmtronic_control.py /dev/ttyUSB0 ON 1  # Turn relay 1 ON"
-        )
-        print(
-            "Example 2: python kmtronic_control.py /dev/ttyUSB0 OFF    # Turn all relays OFF"
-        )
-        sys.exit(1)
-
-    # Parse arguments
-    port = sys.argv[1]
-    state = sys.argv[2].upper()
-
-    if state not in ["ON", "OFF"]:
-        print("Error: State must be 'ON' or 'OFF'.")
-        sys.exit(1)
-
-    if len(sys.argv) > 3:
-        # Control a specific relay
-        relay_number = int(sys.argv[3])
-        set_relay_state(port, relay_number=relay_number, state=state)
-    else:
-        # Control all relays
-        set_relay_state(port, state=state)
+    parser = argparse.ArgumentParser(description="Control KMTronic 4 or 8 channel relays.")
+    parser.add_argument("port", help="Serial port, e.g. /dev/ttyUSB0")
+    parser.add_argument("state", type=str.upper, choices=("ON", "OFF"))
+    parser.add_argument("relay_number", type=int, nargs="?", help="Omit to control all relays")
+    parser.add_argument("--channels", type=int, choices=(4, 8), default=4, help="Board channels (default: 4)")
+    args = parser.parse_args()
+    if args.relay_number is not None and not 1 <= args.relay_number <= args.channels:
+        parser.error(f"Relay number must be between 1 and {args.channels}.")
+    set_relay_state(args.port, relay_number=args.relay_number, state=args.state, channels=args.channels)
 
 
 if __name__ == "__main__":

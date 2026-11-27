@@ -4,7 +4,7 @@
 
 *** Settings ***
 Library             ../lib/helper_functions.py
-Library             ../lib/KMTronicLibrary.py   ${RELAY_SERIAL_PORT}
+Library             ../lib/KMTronicLibrary.py   ${RELAY_SERIAL_PORT}    channels=${RELAY_CHANNELS}
 Library             ../lib/output_parser.py
 Library             AdvancedLogging
 Library             DateTime
