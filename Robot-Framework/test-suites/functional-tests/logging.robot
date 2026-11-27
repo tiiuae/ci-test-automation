@@ -212,8 +212,7 @@ Save logging logs from VMs
 Check logging rate against history
     [Arguments]    ${history_test_name}    ${save_history}=${True}
     ${check_interval}          Set Variable   60
-    # Interval was lowered, limits need to be reviewed in a few days
-    ${entry_limit}             Set Variable   250
+    ${entry_limit}             Set Variable   150
     ${bytes_per_entry}         Set Variable   200
     ${byte_limit}              Evaluate       ${entry_limit} * ${bytes_per_entry}
 
@@ -231,7 +230,12 @@ Check logging rate against history
 
             # Logs from sshd-session are excluded, they are created by the ssh connections in tests
             # Logs with original_timestamp are ignored, they are delayed boot logs
-            ${ignored_log_pattern}    Set Variable   sshd-session|original_timestamp
+            IF   ${IS_ORIN} and '${vm}'=='${HOST}'
+                # Logs with gui-vm on Orin host are ignored due to SSRCSP-9256
+                ${ignored_log_pattern}    Set Variable   sshd-session|original_timestamp|gui-vm
+            ELSE
+                ${ignored_log_pattern}    Set Variable   sshd-session|original_timestamp
+            END
 
             ${byte_status}    ${byte_rate}    Run Keyword And Ignore Error
             ...    Run Command    journalctl --since "$(date -d '${check_interval} seconds ago' '+%Y-%m-%d %H:%M:%S')" | grep -vE "${ignored_log_pattern}" | wc -c | awk '{print $1}'
@@ -260,17 +264,16 @@ Check logging rate against history
     Log                       VMs with acceptable logging rates:\n${ok_metrics_report}       console=True
     Log                       Log spamming detected in these VMs:\n${spam_metrics_report}    console=True
 
-    ${graph_entry_limit}    Evaluate    4 * ${entry_limit}
-    ${graph_byte_limit}     Evaluate    ${graph_entry_limit} * ${bytes_per_entry}
     IF  ${save_history}
+        ${graph_entry_limit}    Evaluate    4 * ${entry_limit}
+        ${graph_byte_limit}     Evaluate    ${graph_entry_limit} * ${bytes_per_entry}
         Save measurement history data    ${history_test_name}    log_entries    entries/100s    &{entry_history}    graph_value_limit=${graph_entry_limit}
         Save measurement history data    ${history_test_name}    log_byte_rate    bytes/100s    &{byte_history}    graph_value_limit=${graph_byte_limit}
     ELSE
-        Preview measurement history data    ${history_test_name}    log_entries    entries/100s    &{entry_history}    graph_value_limit=${graph_entry_limit}
-        Preview measurement history data    ${history_test_name}    log_byte_rate    bytes/100s    &{byte_history}    graph_value_limit=${graph_byte_limit}
+        Preview measurement history data    ${history_test_name}    log_entries    entries/100s    &{entry_history}
+        Preview measurement history data    ${history_test_name}    log_byte_rate    bytes/100s    &{byte_history}
     END
-    ${status}          Run Keyword And Return Status    Should Be Empty  ${spam_metrics}
-    IF  not ${status}
+    IF  $spam_metrics
         Log            Logs from the VMs demonstrating too high logging rates
         FOR  ${vm}  ${logs}  IN  &{spam_logs}
             Log        ${vm}
