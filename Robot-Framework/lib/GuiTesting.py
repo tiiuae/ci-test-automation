@@ -292,7 +292,44 @@ def generate_ydotool_key_command(key_combination):
 
     return "key " + " ".join(press_events + release_events)
 
-def get_diff_images(screenshot_path1, screenshot_path2, exclude_top_panel=True, exclude_bottom_panel=True, padding=2):
+def crop_image(screenshot_path,  output_path, left = None, top = None, right = None,  bottom = None):
+    """Save a crop with exclusive right and bottom bounds. None keeps the corresponding edge."""
+    image = cv2.imread(screenshot_path)
+    height, width = image.shape[:2]
+    left = 0 if left is None else int(left)
+    top = 0 if top is None else int(top)
+    right = width if right is None else int(right)
+    bottom = height if bottom is None else int(bottom)
+    if not (0 <= left < right <= width and 0 <= top < bottom <= height):
+        raise ValueError(f"Invalid crop bounds {(left, top, right, bottom)} for image {width}x{height}")
+
+    if not cv2.imwrite(output_path, image[top:bottom, left:right]):
+        raise OSError(f"Could not save cropped image: {output_path}")
+    return output_path
+
+def detect_header_state(screenshot):
+    """Detect a window title bar's state from a cropped screenshot.
+
+    Check for active (RGB 235, 235, 235) before inactive (RGB 112, 112, 112).
+    A state requires at least 10 pixels within 5 levels per channel of its
+    expected color. Return "unknown" if neither color meets the threshold.
+    """
+    with Image.open(screenshot) as source:
+        image = source.convert("RGB")
+
+    colors = image.getcolors(maxcolors=image.width * image.height)
+    # Antialiased white letters can also contain gray pixels.
+    for state, expected in (("active", 235), ("inactive", 112)):
+        matches = [
+            (count, rgb[1])
+            for count, rgb in colors
+            if all(abs(channel - expected) <= 5 for channel in rgb)
+        ]
+        if sum(count for count, _ in matches) >= 10:
+            return state
+    return "unknown"
+
+def get_diff_images(screenshot_path1, screenshot_path2, exclude_top_panel=True, exclude_bottom_panel=True, padding=0):
     screenshot1 = cv2.imread(screenshot_path1)
     screenshot2 = cv2.imread(screenshot_path2)
 
@@ -329,8 +366,6 @@ def get_diff_images(screenshot_path1, screenshot_path2, exclude_top_panel=True, 
     right = min(width, int(xs.max()) + padding)
     bottom = min(height, int(ys.max()) + padding)
 
-    crop = screenshot2[y:bottom, x:right]
     screenshot_base = os.path.splitext(screenshot_path2)[0]
     cropped_screen_path = f"{screenshot_base}_cropped.png"  # png avoids additional JPEG compression
-    cv2.imwrite(cropped_screen_path, crop)
-    return cropped_screen_path
+    return crop_image(screenshot_path2, cropped_screen_path,x, y, right, bottom)
