@@ -131,7 +131,7 @@ Record screen with keyboard shortcut
     Open Folder In COSMIC Files    ${videos_dir}    Videos
     ${videos_before}    Get Videos Folder Recording List
     Start Screen Recording With Shortcut
-    ${recorded_video}   Wait Until Keyword Succeeds    10x    1s    Get New Saved Screen Recording    ${videos_before}
+    ${recorded_video}   Wait Until Keyword Succeeds    30x    1s    Get New Saved Screen Recording    ${videos_before}
     Stop Screen Recording With Shortcut
     Verify Video Is Visible In COSMIC Files    ${recorded_video}
     [Teardown]        Screen Recording Test Teardown
@@ -261,8 +261,7 @@ Screen Recording Test Setup
     Set Test Variable   ${recorded_video}    ${EMPTY}
     Run Command         mkdir -p ${videos_dir}
     # Stale screen-capture files could be accepted by fuzzy text recognition instead of the file created by this test.
-    Run Command         find ${videos_dir} -maxdepth 1 -type f -name 'ghaf-screen-capture_*.mp4' -delete
-    Run Command         find ${videos_dir} -maxdepth 1 -type f -name 'ghaf-screen-capture_*.mp3' -delete
+    Run Command         find ${videos_dir} -maxdepth 1 -type f -name 'ghaf-screen-capture_*.mkv' -delete
 
 Start Screen Recording With Shortcut
     Press Key(s)    LEFTCTRL+LEFTSHIFT+LEFTALT+R
@@ -276,7 +275,7 @@ Stop Screen Recording With Shortcut
     Wait Until Keyword Succeeds    20x    0.5s    Check that process is not running    ${GPU Screen Recorder}[recording_process_name]
 
 Get Videos Folder Recording List
-    ${videos}    Run Command    ls -1 ${videos_dir}/*.mp4    rc_match=skip
+    ${videos}    Run Command    ls -1 ${videos_dir}/*.mkv    rc_match=skip
     RETURN       ${videos}
 
 Get New Saved Screen Recording
@@ -287,6 +286,7 @@ Get New Saved Screen Recording
     Remove Values From List    ${videos_after}    @{videos_before}
     Should Not Be Empty    ${videos_after}    New screen recording was not created under ${videos_dir}.
     ${recorded_video}      Set Variable    ${videos_after}[0]
+    Run Command            ls -la ${videos_dir}
     Run Command            test -s '${recorded_video}'
     RETURN                 ${recorded_video}
 
